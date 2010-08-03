@@ -1,0 +1,898 @@
+/*
+   Copyright (c) 2007-2008 Caltech. All rights reserved.
+   Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
+*/
+ 
+#include "ssystem.h"
+#include "options.h"
+#include <string.h>
+#include <time.h>
+#include <stdlib.h>
+#include <math.h>
+#include <assert.h>
+#include <unistd.h>
+
+Options *GlobalOptions = NULL;
+extern int yyparse( void );
+extern int yyrestart ( FILE *);
+
+SimulationSystem::SimulationSystem( char *filename )
+{
+
+  // this constructor should no longer be in use.
+  assert(0);
+
+  dnaEnergyModel = NULL;
+  system_options = GlobalOptions;
+  dnaEnergyModel = new ViennaEnergyModel( system_options );
+  Loop::SetEnergyModel( dnaEnergyModel );
+
+  firstComplex = NULL;
+  complexList = new SComplexList( dnaEnergyModel );
+
+}
+
+#ifndef PYTHON_THREADS
+SimulationSystem::SimulationSystem( int argc, char **argv )
+{
+  FILE *fp = NULL;
+  if( GlobalOptions == NULL )
+    {
+      //      GlobalOptions = new Options();
+
+      if( argc > 1 ) // some command line arguments.
+	{
+	  if( argc > 2 ) // could be a filename arg
+	    {
+	      if( strcmp( argv[1], "--inputfile") == 0 )
+		{
+		  fp = fopen( argv[2], "rt");
+		  if( fp == NULL )
+		    fprintf(stderr,"ERROR: Could not open input file (%s) for reading.\n",argv[2]);
+		  else
+		    GlobalOptions = new Options( argv[2] );
+		}
+	      else if( strcmp( argv[1], "--energy") == 0 )
+		{
+		  fp = fopen( argv[2], "rt");
+		  if( fp == NULL )
+		    {
+		      fprintf(stderr,"ERROR: Could not open input file (%s) for reading.\n",argv[2]);
+		      exit(1);
+		    }
+		  else
+		    GlobalOptions = new Options( argv[2] );
+		  
+		  GlobalOptions->setEnergyMode(1); // activate the energy-only version.
+		}
+	    }
+	}
+      else
+	GlobalOptions = new Options();
+
+      if( fp != NULL )
+	yyrestart( fp );
+      yyparse();
+      if( fp != NULL )
+	fclose(fp);
+    }
+  
+  system_options = GlobalOptions;
+
+  if( Loop::GetEnergyModel() == NULL)
+    {
+    dnaEnergyModel = NULL;
+    if( system_options->getParameterType() == 0 ) // VIENNA = 0
+      dnaEnergyModel = new ViennaEnergyModel( system_options );
+    else
+      dnaEnergyModel = new NupackEnergyModel( system_options );
+    Loop::SetEnergyModel( dnaEnergyModel );
+    }
+  else
+    {
+      dnaEnergyModel = Loop::GetEnergyModel();
+    }
+  
+  firstComplex = NULL;
+  complexList = NULL; // new SComplexList( dnaEnergyModel );
+
+  GlobalOptions->finalizeInput();
+}
+#endif
+// end #ifndef PYTHON_THREADS - we do not want to have this constructor as it uses yyparse.
+
+SimulationSystem::SimulationSystem( Options &globalOpts )
+{
+  system_options = &globalOpts;
+  
+  if( Loop::GetEnergyModel() == NULL)
+  {
+    dnaEnergyModel = NULL;
+    if( system_options->getParameterType() == 0 ) // VIENNA = 0
+      dnaEnergyModel = new ViennaEnergyModel( system_options );
+    else
+      dnaEnergyModel = new NupackEnergyModel( system_options );
+    Loop::SetEnergyModel( dnaEnergyModel );
+  }
+  else
+  {
+    dnaEnergyModel = Loop::GetEnergyModel();
+  }
+  
+  firstComplex = NULL;
+  complexList = NULL; // new SComplexList( dnaEnergyModel );
+
+  system_options->finalizeInput();
+}
+
+SimulationSystem::~SimulationSystem( void )
+{
+  if( complexList != NULL )
+    delete complexList;
+#ifndef PYTHON_THREADS
+  if( dnaEnergyModel != NULL )
+    delete dnaEnergyModel;
+#endif
+
+}
+
+
+//#define SRANDOMDEV
+// uncomment above line if you have srandomdev() available for better
+// random number generation. 
+
+void SimulationSystem::StartSimulation( void )
+{
+  int curcount = 0;
+  long random_seed = 0;
+  int ointerval = system_options->getOutputInterval();
+  int initial_seed = system_options->getInitialSeed();
+  FILE *fp; // used only for initial random number generation.
+//#ifndef SRANDOMDEV
+  //  srandom( time( NULL) );
+
+  if(system_options->getSimulationMode() & SIMULATION_PYTHON)
+    {
+	system_options->resetCompleted_Python();
+	system_options->setCollisionRate_Python( -1.0);
+    }
+
+  if((fp = fopen("/dev/urandom","r")) != NULL )
+    {  // if urandom exists, use it to provide a seed
+      long deviceseed;
+      fread(&deviceseed, sizeof(long), 1, fp);
+      
+      srand48( deviceseed );
+      fclose(fp);
+      //printf("device seeded: %ld\n",deviceseed);
+    }
+  else // use the possibly flawed time as a seed.
+    {
+    srand48( time(NULL) );
+    //printf("time seeded\n");
+    }
+  //#endif
+
+  if( system_options->getEnergyMode() == 1 ) // need energy only.
+    {
+      InitializeSystem();
+      complexList->initializeList();
+      complexList->printComplexList(1); // NUPACK energy output : bimolecular penalty, no Volume term.
+      return;
+    }
+  
+  if( system_options->getSimulationMode() & SIMULATION_FIRST )
+    {
+      StartSimulation_First_Bimolecular();
+      return;
+    }
+
+
+  while( curcount < system_options->getNumSimulations() )
+    {
+
+      //#ifdef SRANDOMDEV
+      //srandomdev(); // initialize random() generator from /dev/random device.
+      //#endif
+       //      random_seed = random(); // get a seed from that generator
+       random_seed = lrand48();
+
+      if( curcount == 0 && initial_seed > 0)
+	random_seed = initial_seed;
+
+      //srandom( random_seed ); // re-init generator using that seed
+                              // Sort of a hack, but I need to have
+                              // the sequences repeatable.
+      srand48( random_seed );
+
+
+      if( ointerval < 0 && !(system_options->getSimulationMode() & SIMULATION_PYTHON))
+	printf("Seed: 0x%lx\n",random_seed);
+      InitializeSystem();
+
+      if( ointerval < 0 && !(system_options->getSimulationMode() & SIMULATION_PYTHON))
+	{
+	  printf("Size: %ld, %ld, %ld, %ld\n",sizeof(time_t),sizeof(long),RAND_MAX,1<<31 -1);
+	  printf("System %d Initialized\n",curcount);
+	}
+      if( system_options->getTrajectoryType() > 0 )
+	system_options->printTrajLine( NULL, curcount );
+
+    
+      SimulationLoop( random_seed );
+      curcount++;
+    }
+}
+
+#ifdef PYTHON_THREADS
+void SimulationSystem::StartSimulation_threads( void )
+{
+  using namespace boost::python;
+  Py_BEGIN_ALLOW_THREADS
+  StartSimulation();
+  Py_END_ALLOW_THREADS
+}
+#endif
+
+
+void SimulationSystem::SimulationLoop( long r_seed )
+{
+  double rchoice,rate,stime=0.0;
+  double maxsimtime = system_options->getSimulationTime();
+  int stopcount = system_options->getStopCount();
+  int stopoptions = system_options->getStopOptions();
+ int curcount = 0;
+  int checkresult = 0;
+  class stopcomplexes *traverse;
+  int ointerval = system_options->getOutputInterval();
+  int sMode = system_options->getSimulationMode(); 
+  double otime = system_options->getOutputTime();
+  double ctime = 0.0;
+  //  long temp_r=0;
+  // double temp_deltat=0.0;
+  complexList->initializeList();
+
+  rate = complexList->getTotalFlux();
+ 
+  if( system_options->getTrajectoryType() == 0)
+    {
+      do {
+	//assert( rate > -0.0 );
+	//	rchoice = (rate * random()/((double)RAND_MAX+1));
+	rchoice = rate * drand48();
+	//	temp_r = random();
+	//temp_deltat = (log(1. / (double)((temp_r + 1)/(double)RAND_MAX)) / rate);
+	//if( isnan( temp_deltat ) )
+	/// printf("Stime = NAN\n");
+	//	stime += (log( 1. / ( ((double)random() + 1.0) /((double)RAND_MAX+1.0))) / rate );
+	stime += (log( 1. / (1.0 - drand48()) ) / rate ); // 1.0 - drand as drand returns in the [0.0, 1.0) range, we need a (0.0,1.0] range.
+
+	//temp_deltat; //
+	//	assert( stime > -0.0 );
+
+	if( sMode & SIMULATION_PYTHON )
+	  system_options->setCurSimTime( stime );
+
+	complexList->doBasicChoice( rchoice, stime );
+	rate = complexList->getTotalFlux();
+
+	if( stopcount > 0 && stopoptions==2)
+	  {
+	    curcount = 0;
+	    checkresult = 0;
+	    while( curcount < stopcount && checkresult == 0 )
+	      {
+		traverse = system_options->getStopComplexList( curcount );
+		checkresult = complexList->checkStopComplexList( traverse->citem );
+		curcount++;
+	      }
+	  }
+	if( checkresult == 0 && (sMode & SIMULATION_PYTHON) )
+	  {
+	    // if external python interface has asked us to complete.
+	    if( system_options->getCurrentTrajectorySuspendFlag())
+	      {
+		while( system_options->getCurrentTrajectorySuspendFlag() )
+		  sleep(1);
+	      }
+
+	    if( system_options->getCurrentTrajectoryHaltFlag() )
+	      checkresult = -1;
+
+	  }
+	
+	// trajectory output via outputtime option
+	if( otime > 0.0 )
+	  {
+	    if( stime - ctime > otime )
+	      {
+		ctime += otime;
+		printf("Current State: Choice: %6.4f, Time: %6.6f\n",rchoice, ctime);
+		complexList->printComplexList( 0 );
+	      }
+
+	  }
+
+	// trajectory output via outputinterval option
+	if( ointerval >= 0 )
+	  {
+	    if( system_options->getOutputState() )
+	      {
+	      printf("Current State: Choice: %6.4f, Time: %6.6f\n",rchoice, stime);
+	      complexList->printComplexList( 0 );
+	      }
+	    system_options->incrementOutputState();
+	  }
+
+      } while( /*rate > 0.01 &&*/ stime < maxsimtime && checkresult == 0);
+      
+      if( otime > 0.0 )
+	printf("Final state reached: Time: %6.6f\n",stime);
+      if( ! (sMode & SIMULATION_PYTHON ) )
+	if( ointerval < 0 || system_options->getOutputState() == 0)
+	  complexList->printComplexList( 0 );
+      
+      if( stime == NAN )
+	system_options->printStatusLine( r_seed, "ERROR", stime );
+      else if ( checkresult > 0 )
+	system_options->printStatusLine( r_seed, traverse->tag, stime );
+      else
+	system_options->printStatusLine( r_seed, "INCOMPLETE", stime );
+      
+      if( ! (sMode & SIMULATION_PYTHON) )
+	printf("Trajectory Completed\n");
+    }
+  else if( system_options->getTrajectoryType() == 1 )
+    {
+      int stopindex=-1;
+      if( stopcount > 0 )
+	{
+	  curcount = 0;
+	  while( curcount < stopcount && stopindex < 0 )
+	    {
+	      traverse = system_options->getStopComplexList( curcount );
+	      if( strstr( traverse->tag, "stop") != NULL )
+		stopindex = curcount;
+	      curcount++;
+	    }
+	}
+
+      system_options->printTrajLine("Start",0);
+      do {
+	rchoice = (rate * random()/((double)RAND_MAX));
+	stime += (log(1. / (double)((random() + 1)/(double)RAND_MAX)) / rate );
+	complexList->doBasicChoice( rchoice, stime );
+	rate = complexList->getTotalFlux();
+	if( ointerval >= 0 )
+	  {
+	    if( system_options->getOutputState() )
+	      complexList->printComplexList( 0 );
+	    system_options->incrementOutputState();
+	  }
+	if( stopcount > 0 )
+	  {
+	    curcount = 0;
+	    checkresult = 0;
+	    while( curcount < stopcount && checkresult == 0 )
+	      {
+		traverse = system_options->getStopComplexList( curcount );
+		checkresult = complexList->checkStopComplexList( traverse->citem );
+		curcount++;
+	      }
+	  }
+	if( checkresult > 0 )
+	  {
+	    system_options->printTrajLine( traverse->tag, stime );
+	  }
+	else
+	  system_options->printTrajLine("NOSTATE", stime );
+      } while( /*rate > 0.01 && */ stime < maxsimtime && !(checkresult > 0 && stopindex == curcount-1));
+      
+      if( ointerval < 0 || system_options->getOutputState() == 0)
+	complexList->printComplexList( 0 );
+
+      if( stime == NAN )
+	system_options->printStatusLine( r_seed, "ERROR", stime );
+      else
+	system_options->printStatusLine( r_seed, "INCOMPLETE", stime );
+      
+      printf("Trajectory Completed\n");
+    }
+}
+
+
+void SimulationSystem::StartSimulation_First_Bimolecular( void )
+{
+  int curcount = 0;
+  long random_seed = 0;
+  int ointerval = system_options->getOutputInterval();
+  int initial_seed = system_options->getInitialSeed();
+
+  /* these are used for compiling statistics on the runs */
+  double completiontime;
+  int completiontype;
+  double forwardrate;
+
+  char *tag; // tracking stop state tag for output reasons
+
+  /* accumulators for our total types, rates and times. */
+  double total_rate = 0.0 ;
+  double total_time[2] = {0.0, 0.0};
+  long total_types[3] = {0, 0,0};
+  double computed_rate_means[3] = {0.0, 0.0,0.0};
+  double computed_rate_mean_diff_squared[3] = {0.0, 0.0,0.0}; // difference from current mean, squared, used for online variance algorithm.
+  double delta = 0.0; // temporary variable for computing  delta from current mean.
+
+  int sMode = system_options->getSimulationMode() & SIMULATION_PYTHON;
+  assert( system_options->getSimulationMode() & SIMULATION_FIRST );
+  // random number seed has already been generated.
+
+  while( curcount < system_options->getNumSimulations() )
+    {
+      random_seed = lrand48();
+
+      if( curcount == 0 && initial_seed > 0)
+	random_seed = initial_seed;
+
+      srand48( random_seed );
+
+      InitializeSystem();
+
+      //      if( system_options->getTrajectoryType() > 0 )
+      //	system_options->printTrajLine( NULL, curcount );
+      //      if( sMode() )
+      //system_options->resetCompleted();
+
+
+      SimulationLoop_First_Bimolecular( random_seed, &completiontime, &completiontype, &forwardrate, &tag );
+
+      // now we need to process the rate, time and type information.
+      total_rate = total_rate + forwardrate;
+      delta = forwardrate - computed_rate_means[2];
+      computed_rate_means[2] += delta / (double) (curcount+1);
+      computed_rate_mean_diff_squared[2] += delta * ( forwardrate - computed_rate_means[2]);
+      
+      if( completiontype == STOPCONDITION_TIME || completiontype == STOPCONDITION_FORWARD)
+	{
+	  total_time[0] = total_time[0] + completiontime;
+	  total_types[0]++;
+	  if( completiontype == STOPCONDITION_TIME )
+	    total_types[2]++;
+	  
+	  delta = 1.0 / completiontime - computed_rate_means[0];
+	  computed_rate_means[0] += delta / (double ) total_types[0];
+	  computed_rate_mean_diff_squared[0] += delta * ( 1.0 / completiontime - computed_rate_means[0]);
+
+	  completiontype = STOPCONDITION_FORWARD;
+	}
+      if( completiontype == STOPCONDITION_REVERSE )
+	{
+	  total_time[1] = total_time[1] + completiontime;
+	  total_types[1]++;
+
+	  delta = 1.0 / completiontime - computed_rate_means[1];
+	  computed_rate_means[1] += delta / (double ) total_types[1];
+	  computed_rate_mean_diff_squared[1] += delta * (1.0 / completiontime - computed_rate_means[1]);
+
+	}
+
+      system_options->printStatusLine_First_Bimolecular( random_seed, completiontype, completiontime, forwardrate, tag );
+      curcount++;
+    }
+  if( !sMode )
+    system_options->printStatusLine_Final_First_Bimolecular( total_rate, total_time, total_types, curcount, computed_rate_means, computed_rate_mean_diff_squared );
+  if( total_types[2] > 0 && !sMode )
+    system_options->printStatusLine_Warning( 0, total_types[2] );
+
+}
+
+
+void SimulationSystem::SimulationLoop_First_Bimolecular( long r_seed, double *completiontime, int *completiontype, double *frate, char **tag )
+{
+  double rchoice,rate,stime=0.0;
+  double maxsimtime = system_options->getSimulationTime();
+  int stopcount = system_options->getStopCount();
+  int stopoptions = system_options->getStopOptions();
+  int curcount = 0;
+  int checkresult = 0;
+  class stopcomplexes *traverse;
+  int ointerval = system_options->getOutputInterval();
+  int sMode = system_options->getSimulationMode() & SIMULATION_PYTHON;
+  int trajMode = system_options->getTrajectoryType();
+  double otime = system_options->getOutputTime();
+  double ctime = 0.0;
+  //  long temp_r=0;
+  // double temp_deltat=0.0;
+  complexList->initializeList();
+
+  rate = complexList->getJoinFlux();
+
+  if ( rate < 0.0 )
+    { // no initial moves
+      *completiontime = 0.0;
+      *completiontype = STOPCONDITION_ERROR;
+      return;
+    }
+
+  rchoice = rate * drand48();
+
+  if( ointerval >= 0 || system_options->getOutputTime() > 0.0 )
+    complexList->printComplexList( 0 );
+  if( ointerval >= 0 )
+    printf("Initial State (before join).\n",rchoice, ctime);
+
+  complexList->doJoinChoice( rchoice );
+
+  *frate = rate * dnaEnergyModel->getJoinRate_NoVolumeTerm() / dnaEnergyModel->getJoinRate() ; // store the forward rate used for the initial step.
+
+  if( ointerval >= 0 || system_options->getOutputTime() > 0.0 )
+    {
+      complexList->printComplexList( 0 );
+      printf("Current State: Choice: %6.4f, Time: %6.6e\n",rchoice, ctime);
+    }
+
+  if( sMode )
+    system_options->setCollisionRate_Python( *frate );
+ 
+  // Begin normal steps.
+  rate = complexList->getTotalFlux();
+  do {
+
+	rchoice = rate * drand48();
+	stime += (log( 1. / (1.0 - drand48()) ) / rate ); // 1.0 - drand as drand returns in the [0.0, 1.0) range, we need a (0.0,1.0] range.
+
+	if( !sMode && otime > 0.0 )
+	  {
+	    if( stime - ctime > otime )
+	      {
+		ctime += otime;
+		printf("Current State: Choice: %6.4f, Time: %6.6e\n",rchoice, ctime);
+		complexList->printComplexList( 0 );
+	      }
+
+	  }
+
+	if( sMode )
+	  system_options->setCurSimTime( stime );
+
+	complexList->doBasicChoice( rchoice, stime );
+	rate = complexList->getTotalFlux();
+	
+	if( !sMode && ointerval >= 0 )
+	  {
+	    if( system_options->getOutputState() )
+	      {
+	      complexList->printComplexList( 0 );
+	      printf("Current State: Choice: %6.4f, Time: %6.6e\n",rchoice, stime);
+	      }
+	    system_options->incrementOutputState();
+	  }
+
+	if( stopcount > 0 && stopoptions==2)
+	  {
+	    curcount = 0;
+	    checkresult = 0;
+	    while( curcount < stopcount && checkresult == 0 )
+	      {
+		traverse = system_options->getStopComplexList( curcount );
+		checkresult = complexList->checkStopComplexList( traverse->citem );
+		curcount++;
+	      }
+	  }
+	if( checkresult == 0 && sMode )
+	  {
+	    // if external python interface has asked us to complete.
+	    if( system_options->getCurrentTrajectorySuspendFlag())
+	      {
+		while( system_options->getCurrentTrajectorySuspendFlag() )
+		  sleep(1);
+	      }
+
+	    if( system_options->getCurrentTrajectoryHaltFlag() )
+	      checkresult = -1;
+
+	  }
+      } while( stime < maxsimtime && checkresult == 0);
+      
+  if( !sMode && otime > 0.0 )
+    {
+      complexList->printComplexList(0);
+      printf("Final state reached: Time: %6.6e\n",stime);
+    }
+  // if( ointerval >= 0 )
+  //printf("Final state reached: Time: %6.6e\n",stime);
+
+    
+  /*   if( stime == NAN )
+	system_options->printStatusLine( r_seed, "ERROR", stime );
+      else if ( checkresult > 0 )
+	system_options->printStatusLine( r_seed, traverse->tag, stime );
+      else
+	system_options->printStatusLine( r_seed, "INCOMPLETE", stime );
+  */
+  // printing is handled at the upper level for the status information. We do, however, need to return the info.
+
+  if( checkresult > 0 )
+    {
+      if( strcmp( traverse->tag, "REVERSE") == 0 )
+	*completiontype = STOPCONDITION_REVERSE;
+      else 
+	{
+	  *tag = traverse->tag;
+	  *completiontype = STOPCONDITION_FORWARD;
+	}
+      *completiontime = stime;
+    }
+  else
+    {
+      *completiontime = stime;
+      *completiontype = STOPCONDITION_TIME;
+    }
+  if( ! sMode )
+    printf("Trajectory Completed\n");
+}
+
+
+void SimulationSystem::InitializeSystem( void )
+{
+  class StrandComplex *tempcomplex;
+  char *sequence, *structure;
+  class identlist *id;
+  int index = 0;
+  //double random_seed;
+
+  // random_seed = time( NULL );
+
+  // srand( random_seed );
+
+  if( complexList != NULL )
+    delete complexList;
+
+  complexList = new SComplexList( dnaEnergyModel );
+
+  sequence = system_options->getSequence( index );
+  while( sequence != NULL )
+    {
+      if ( system_options->getSimulationMode() == SIMULATION_FIRST_BIMOLECULAR )
+	structure = system_options->getBoltzmannStructure( index );
+      else
+	structure = system_options->getStructure( index );
+      id = system_options->getID_list( index );
+      
+      tempcomplex = new StrandComplex( sequence, structure, id );
+      
+      delete[] sequence;
+      delete[] structure;
+      sequence = NULL;
+
+      firstComplex = tempcomplex;
+      complexList->addComplex( tempcomplex );
+      tempcomplex = NULL;
+      index++;
+      sequence = system_options->getSequence( index );
+    }
+  return;
+}
+
+
+int SimulationSystem::LoadSystem( FILE *instream )
+{
+  char insequence[3072],instructure[3072];
+  char *newseq, *newstruc;
+  int totlength, curstart, curindex, curcount;
+  fgets( insequence, 3072, stdin );
+  while( insequence[0] == '>' )
+    fgets( insequence, 3072, stdin );
+  fgets( instructure, 3072, stdin );
+  if(feof( stdin)) return -1;
+
+  totlength = strlen(insequence)-1;
+  insequence[strlen(insequence)-1] = '\0';
+  instructure[strlen(instructure)-1] = '\0';
+
+  strcpy( systemsequence, insequence );
+  strcpy( systemstructure, instructure );
+  
+
+
+  curindex = 0; curstart = 0; curcount = 0;
+  while( curindex < totlength )
+    {
+      while( (curstart < totlength) && ((curcount > 0) || (insequence[curstart] != '_')))
+	{
+	  if( instructure[curstart] == '(' ) curcount++;
+	  if( instructure[curstart] == ')' ) curcount--;
+	  if( curcount < 0 ) printf("Mismatched Parenthesis in input.");
+	  curstart++;
+	}
+      newseq = new char[curstart-curindex+1];
+      newstruc = new char[curstart-curindex+1];
+      insequence[curstart] = '\0';
+      instructure[curstart] = '\0';
+      strcpy( newseq, &insequence[curindex] );
+      strcpy( newstruc, &instructure[curindex] );
+      StrandComplex *tempcomplex = new StrandComplex( newseq, newstruc);
+      delete[] newseq;
+      delete[] newstruc;
+      while( insequence[curstart] == '_' || (curstart < totlength && insequence[curstart] == '\0')) curstart++;
+      curindex = curstart;
+      curcount = 0;
+      firstComplex = tempcomplex;
+      complexList->addComplex( tempcomplex );
+    }
+
+  //  newcomplex->generateLoops();
+  //double energy = newcomplex->getEnergy();
+  //newcomplex->moveDisplay();	  
+  //	  double rate = newcomplex->getTotalFlux();
+
+  //  printf("%s\n%s (%6.2f) %6.4f\n",insequence,instructure,energy,rate);
+  //  double stime = 0.0;
+
+
+}
+
+int SimulationSystem::ResetSystem( void )
+{
+  char insequence[3072],instructure[3072];
+  char *newseq, *newstruc;
+  int totlength, curstart, curindex, curcount;
+
+  strcpy( insequence , systemsequence  );
+  strcpy( instructure , systemstructure);
+
+  if( complexList != NULL ) delete complexList;
+  complexList = new SComplexList( dnaEnergyModel );
+  firstComplex = NULL;
+  
+  totlength = strlen(insequence);
+
+  curindex = 0; curstart = 0; curcount = 0;
+  while( curindex < totlength )
+    {
+      while( (curstart < totlength) && ((curcount > 0) || (insequence[curstart] != '_')))
+	{
+	  if( instructure[curstart] == '(' ) curcount++;
+	  if( instructure[curstart] == ')' ) curcount--;
+	  if( curcount < 0 ) printf("Mismatched Parenthesis in input.");
+	  curstart++;
+	}
+      newseq = new char[curstart-curindex+1];
+      newstruc = new char[curstart-curindex+1];
+      insequence[curstart] = '\0';
+      instructure[curstart] = '\0';
+      strcpy( newseq, &insequence[curindex] );
+      strcpy( newstruc, &instructure[curindex] );
+      StrandComplex *tempcomplex = new StrandComplex( newseq, newstruc);
+      delete[] newseq;
+      delete[] newstruc;
+      while( insequence[curstart] == '_' || (curstart < totlength && insequence[curstart] == '\0')) curstart++;
+      curindex = curstart;
+      curcount = 0;
+      firstComplex = tempcomplex;
+      complexList->addComplex( tempcomplex );
+    }
+
+}
+
+
+int SimulationSystem::StartSimulation( int input_flags, int num_sims, double simtime )
+{
+  // DEPRECATED: simulations always start via StartSimulation( void ) now,
+  // and args are passed via the constructor. 
+  Move *tempmove;
+  StrandComplex *newcomplex = firstComplex;
+  srand( time( NULL ) );
+
+  if( input_flags > 1 && input_flags < 4)
+    {
+      newcomplex->generateLoops();
+      double energy = newcomplex->getEnergy();
+      newcomplex->moveDisplay();	  
+      double rate = newcomplex->getTotalFlux();
+      printf("%s\n%s (%6.2f) %6.4f\n",newcomplex->getSequence(),newcomplex->getStructure(),energy,rate);
+      double stime = 0.0;
+      
+      if( input_flags == 2 )
+	{
+	  double rchoice = (rate*rand()/((double)RAND_MAX));
+	  
+	  printf("%3.3f\n",rchoice);
+	  tempmove = newcomplex->getChoice( &rchoice );
+	  newcomplex->doChoice(tempmove);
+	  char *struc = newcomplex->getStructure();
+	  rate = newcomplex->getTotalFlux();
+	  energy = newcomplex->getEnergy();
+	  printf("%s\n%s (%6.2f) %6.4f\n",newcomplex->getSequence(),struc,energy,rate);
+	}
+      if( input_flags == 3 )
+	{
+	  double rchoice,rsave,moverate;
+	  char *struc;
+	  int temp1, type;
+	  do {
+	    rsave = rchoice = (rate * rand()/((double)RAND_MAX));
+	    stime += (log(1. / (double)((rand() + 1)/(double)RAND_MAX)) / rate );
+	    tempmove = newcomplex->getChoice( &rchoice );
+	    moverate = tempmove->getRate();
+	    type = tempmove->getType();
+	    newcomplex->doChoice( tempmove );
+	    struc = newcomplex->getStructure();
+	    rate = newcomplex->getTotalFlux();
+	    energy = newcomplex->getEnergy();
+	    printf("%s (%6.2f) %6.4f %6.4f pc: %6.4f time: %6.4f type: %d\n",struc,energy,rate,moverate,rsave,stime,type);
+	    temp1=0;
+	    for( int loop = 0; loop < strlen(struc); loop++)
+	      {
+		if(struc[loop] == '(') temp1++;
+		if(struc[loop] == ')') temp1--;
+		assert( temp1 >= 0 );
+		if(loop > 0)
+		  assert( !(struc[loop-1]=='(' && struc[loop] == ')'));
+	      }
+	    
+	    assert( temp1 == 0 );
+	    // printf("%p",tempmove);
+	  } while( rate > 0.10 && stime < 1000);
+	}
+    }
+  if( input_flags == 4 ) // multi-complex operation mode - print start
+    {
+      complexList->initializeList();
+      complexList->printComplexList( 0 );
+      printf("That's it!\n");
+    }
+  if( input_flags == 5 ) // multi-complex operation mode - run basic moves - verbose output
+    {
+      int curcount = 0;
+      
+      while( curcount < num_sims )
+	{
+	  complexList->initializeList();
+	  complexList->printComplexList( 0 );
+
+	  double rchoice,rate,stime=0.0;
+	  
+	  rate = complexList->getTotalFlux();
+	  do {
+	    rchoice = (rate * rand()/((double)RAND_MAX));
+	    stime += (log(1. / (double)((rand() + 1)/(double)RAND_MAX)) / rate );
+	    complexList->doBasicChoice( rchoice, stime );
+	    rate = complexList->getTotalFlux();
+	    complexList->printComplexList( 0 );
+	  } while( rate > 0.10 && stime < simtime);
+	  complexList->printComplexList( 0 );
+	  curcount++;
+	  if( curcount != num_sims)
+	    ResetSystem();
+	}
+    }
+  
+  if( input_flags == 6 ) // multi-complex operation mode - run basic moves - silent output
+    {
+      int curcount = 0;
+      
+      while( curcount < num_sims )
+	{
+	  complexList->initializeList();
+	  //	  complexList->printComplexList();
+
+	  double rchoice,rate,stime=0.0;
+	  
+	  rate = complexList->getTotalFlux();
+	  do {
+	    rchoice = (rate * rand()/((double)RAND_MAX));
+	    stime += (log(1. / (double)((rand() + 1)/(double)RAND_MAX)) / rate );
+	    complexList->doBasicChoice( rchoice, stime );
+	    rate = complexList->getTotalFlux();
+	    //	    complexList->printComplexList();
+	  } while( rate > 0.10 && stime < simtime);
+	  complexList->printComplexList( 0 );
+	  printf("Trajectory Complete: Time: %.2lf\n",stime);
+	  curcount++;
+	  if( curcount != num_sims)
+	    ResetSystem();
+	}
+    }
+  
+}
