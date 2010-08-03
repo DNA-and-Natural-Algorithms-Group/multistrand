@@ -2,7 +2,8 @@
    Copyright (c) 2007-2008 Caltech. All rights reserved.
    Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
 */
- 
+
+#include <Python.h>
 #include "ssystem.h"
 #include "options.h"
 #include <string.h>
@@ -101,14 +102,17 @@ SimulationSystem::SimulationSystem( int argc, char **argv )
 #endif
 // end #ifndef PYTHON_THREADS - we do not want to have this constructor as it uses yyparse.
 
-SimulationSystem::SimulationSystem( Options &globalOpts )
+SimulationSystem::SimulationSystem( PyObject *system_options )
 {
-  system_options = &globalOpts;
   
   if( Loop::GetEnergyModel() == NULL)
   {
     dnaEnergyModel = NULL;
-    if( system_options->getParameterType() == 0 ) // VIENNA = 0
+    
+    // Get attribute system_options.parameter_type
+    PyObject* param_type = PyObject_GetAttrString(system_options, "parameter_type");
+    
+    if( PyInt_AS_LONG(param_type) == 0 ) // VIENNA = 0
       dnaEnergyModel = new ViennaEnergyModel( system_options );
     else
       dnaEnergyModel = new NupackEnergyModel( system_options );
@@ -121,8 +125,15 @@ SimulationSystem::SimulationSystem( Options &globalOpts )
   
   firstComplex = NULL;
   complexList = NULL; // new SComplexList( dnaEnergyModel );
-
-  system_options->finalizeInput();
+  
+  // Call system_options->finalizeInput();
+  PyObject* func = PyObject_GetAttrString(system_options, "finalizeInput");
+  if (func && PyCallable_Check(func))
+  {
+    PyObject* args = PyTuple_New(0);
+    PyObject_CallObject(func, args);
+  }
+  
 }
 
 SimulationSystem::~SimulationSystem( void )
