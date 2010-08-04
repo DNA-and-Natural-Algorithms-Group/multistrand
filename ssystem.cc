@@ -16,22 +16,6 @@ Options *GlobalOptions = NULL;
 extern int yyparse( void );
 extern int yyrestart ( FILE *);
 
-SimulationSystem::SimulationSystem( char *filename )
-{
-
-  // this constructor should no longer be in use.
-  assert(0);
-
-  dnaEnergyModel = NULL;
-  system_options = GlobalOptions;
-  dnaEnergyModel = new ViennaEnergyModel( system_options );
-  Loop::SetEnergyModel( dnaEnergyModel );
-
-  firstComplex = NULL;
-  complexList = new SComplexList( dnaEnergyModel );
-
-}
-
 #ifndef PYTHON_THREADS
 SimulationSystem::SimulationSystem( int argc, char **argv )
 {
@@ -103,27 +87,25 @@ SimulationSystem::SimulationSystem( int argc, char **argv )
 
 SimulationSystem::SimulationSystem( PyObject *system_options )
 {
-  PyObject* param_type
-  
+	
   if( Loop::GetEnergyModel() == NULL)
-  {
-    dnaEnergyModel = NULL;
-    param_type = PyObject_GetAttrString(system_options, "parameter_type")
-    
-    if( PyInt_AS_LONG(param_type) == 0 ) // VIENNA = 0
-      dnaEnergyModel = new ViennaEnergyModel( system_options );
-    else
-      dnaEnergyModel = new NupackEnergyModel( system_options );
-    Loop::SetEnergyModel( dnaEnergyModel );
-  }
+	{
+	  dnaEnergyModel = NULL;
+
+	  if(   getLongAttr(system_options, parameter_type) == 0 )
+		dnaEnergyModel = new ViennaEnergyModel( system_options );
+	  else
+		dnaEnergyModel = new NupackEnergyModel( system_options );
+	  Loop::SetEnergyModel( dnaEnergyModel );
+	}
   else
-  {
-    dnaEnergyModel = Loop::GetEnergyModel();
-  }
+	{
+	  dnaEnergyModel = Loop::GetEnergyModel();
+	}
   
   firstComplex = NULL;
   complexList = NULL; // new SComplexList( dnaEnergyModel );
-
+  
   system_options->finalizeInput();
 }
 

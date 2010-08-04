@@ -1,0 +1,29 @@
+nupackenergymodel.cc:NupackEnergyModel::NupackEnergyModel( Options *energy_options ) : log_loop_penalty_37(107.856) , kinetic_rate_method(2) , bimolecular_penalty(196), kBoltzmann(.00198717),current_temp(310.15), gtenable(0) // Check references for this loop penalty term.
+nupackenergymodel.cc:  current_temp = temperature = getDoubleAttr(energy_options, temperature);
+nupackenergymodel.cc:  dangles = getLongAttr(energy_options, dangles);
+nupackenergymodel.cc:  ptype = getLongAttr(energy_options, parameter_type);
+nupackenergymodel.cc:  logml = getLongAttr(energy_options, log_m_l);
+nupackenergymodel.cc:  kinetic_rate_method = getLongAttr(energy_options, rate_method);
+nupackenergymodel.cc:  if( getLongAttr(energy_options, energy_model) == 0 )
+nupackenergymodel.cc:      fp = fopen( getStringAttr(energy_options, parameter_file), "rt");
+nupackenergymodel.cc:	  fprintf(stderr,"ERROR: Bad Parameter Filename: %s not found in path.\n", getStringAttr(energy_options, parameter_file) );
+nupackenergymodel.cc:  else if( getLongAttr(energy_options, energy_model) == NUPACKDNA23 )
+nupackenergymodel.cc:  else if( getLongAttr(energy_options, energy_model) == NUPACKRNA23 )
+nupackenergymodel.cc:      if( getDoubleAttr(energy_options, temperature) < 37.0 - .0001 || getDoubleAttr(energy_options, temperature) > 37.0 + .0001)
+nupackenergymodel.cc:	  fprintf(stderr,"ERROR: Temperature was set to %0.2lf C, but only dG type data files could be found. Please ensure that the requested parameter set has both .dG and .dH files!\n",getDoubleAttr(energy_options, temperature));
+nupackenergymodel.cc:  //  double temperature = getDoubleAttr(energy_options, temperature);
+nupackenergymodel.cc:      setupRates( energy_options );  
+nupackenergymodel.cc:  setupRates( energy_options );  
+nupackenergymodel.cc:void NupackEnergyModel::setupRates( Options *energy_options )
+nupackenergymodel.cc:  joinconc = energy_options->getJoinConcentration();
+nupackenergymodel.cc:  interscale = energy_options->getIntermolecularScaling();
+nupackenergymodel.cc:  intrascale = energy_options->getIntramolecularScaling();
+viennaenergymodel.cc:ViennaEnergyModel::ViennaEnergyModel( Options *energy_options ) : log_loop_penalty_37(107.856) , kinetic_rate_method(2) , _RT(.6) , bimolecular_penalty(196) // Check references for this loop penalty term.
+viennaenergymodel.cc:  if( getLongAttr(energy_options, energy_model) == 0 )
+viennaenergymodel.cc:      fp = fopen( getStringAttr(energy_options, parameter_file), "rt");
+viennaenergymodel.cc:          fprintf(stderr,"ERROR: Bad Parameter Filename: %s not found in path.\n", getStringAttr(energy_options, parameter_file) );
+viennaenergymodel.cc:  else if( getLongAttr(energy_options, energy_model) == VIENNADNA )
+viennaenergymodel.cc:          fprintf(stderr,"ERROR: Could not find Vienna DNA parameter file \"dna.par\" in the path.\n", getStringAttr(energy_options, parameter_file) );
+viennaenergymodel.cc:  joinrate = .001 * getDoubleAttr(energy_options, join_concentration) / 55.6;
+viennaenergymodel.cc:  dangles = getLongAttr(energy_options, dangles);
+viennaenergymodel.cc:  if( (ptype = getLongAttr(energy_options, parameter_type)) == VIENNA ) // dna.par (Vienna)

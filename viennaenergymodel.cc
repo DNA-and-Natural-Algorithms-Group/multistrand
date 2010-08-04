@@ -405,37 +405,37 @@ double ViennaEnergyModel::OpenloopEnergy( int size, int *sidelen, char **sequenc
 // constructors, internal functions
 
 
-ViennaEnergyModel::ViennaEnergyModel( Options *options ) : log_loop_penalty_37(107.856) , kinetic_rate_method(2) , _RT(.6) , bimolecular_penalty(196) // Check references for this loop penalty term.
+ViennaEnergyModel::ViennaEnergyModel( Options *energy_options ) : log_loop_penalty_37(107.856) , kinetic_rate_method(2) , _RT(.6) , bimolecular_penalty(196) // Check references for this loop penalty term.
 {
   // This is the tough part, performing all read/input duties.
   char in_buffer[2048];
   int loop, loop2 ;
   FILE *fp = NULL;
 
-  if( getLongAttr(options, energy_model) == 0 )
+  if( getLongAttr(energy_options, energy_model) == 0 )
     {
-      fp = fopen( getStringAttr(options, parameter_file), "rt");
+      fp = fopen( getStringAttr(energy_options, parameter_file), "rt");
       if( fp == NULL )
         {
-          fprintf(stderr,"ERROR: Bad Parameter Filename: %s not found in path.\n", getStringAttr(options, parameter_file) );
+          fprintf(stderr,"ERROR: Bad Parameter Filename: %s not found in path.\n", getStringAttr(energy_options, parameter_file) );
           exit(1);
 	}
     }
-  else if( getLongAttr(options, energy_model) == VIENNADNA )
+  else if( getLongAttr(energy_options, energy_model) == VIENNADNA )
     {
       fp = fopen( "dna.par", "rt");
       if( fp == NULL )
         {
-          fprintf(stderr,"ERROR: Could not find Vienna DNA parameter file \"dna.par\" in the path.\n", getStringAttr(options, parameter_file) );
+          fprintf(stderr,"ERROR: Could not find Vienna DNA parameter file \"dna.par\" in the path.\n", getStringAttr(energy_options, parameter_file) );
           exit(1);
 	}
 
     }
 
-  joinrate = .001 * getDoubleAttr(options, join_concentration) / 55.6;
-  dangles = getLongAttr(options, dangles);
+  joinrate = .001 * getDoubleAttr(energy_options, join_concentration) / 55.6;
+  dangles = getLongAttr(energy_options, dangles);
 
-  if( (ptype = getLongAttr(options, parameter_type)) == VIENNA ) // dna.par (Vienna)
+  if( (ptype = getLongAttr(energy_options, parameter_type)) == VIENNA ) // dna.par (Vienna)
     {
       for( loop = 0; loop < NUM_BASES; loop++ )
 	pairs[loop] = pairs_vienna[loop];
