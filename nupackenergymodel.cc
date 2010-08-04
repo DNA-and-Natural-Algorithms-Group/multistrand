@@ -506,7 +506,7 @@ double NupackEnergyModel::OpenloopEnergy( int size, int *sidelen, char **sequenc
 // constructors, internal functions
 
 
-NupackEnergyModel::NupackEnergyModel( Options *options ) : log_loop_penalty_37(107.856) , kinetic_rate_method(2) , bimolecular_penalty(196), kBoltzmann(.00198717),current_temp(310.15), gtenable(0) // Check references for this loop penalty term.
+NupackEnergyModel::NupackEnergyModel( Options *energy_options ) : log_loop_penalty_37(107.856) , kinetic_rate_method(2) , bimolecular_penalty(196), kBoltzmann(.00198717),current_temp(310.15), gtenable(0) // Check references for this loop penalty term.
 {
   // This is the tough part, performing all read/input duties.
   char in_buffer[2048];
@@ -514,11 +514,11 @@ NupackEnergyModel::NupackEnergyModel( Options *options ) : log_loop_penalty_37(1
   double temperature;
   FILE *fp = NULL, *fp2 = NULL; // fp is dG energy file, fp2 is dH.
 
-  current_temp = temperature = getDoubleAttr(options, temperature);
-  dangles = getLongAttr(options, dangles);
-  ptype = getLongAttr(options, parameter_type);
-  logml = getLongAttr(options, log_m_l);
-  kinetic_rate_method = getLongAttr(options, rate_method);
+  current_temp = temperature = getDoubleAttr(energy_options, temperature);
+  dangles = getLongAttr(energy_options, dangles);
+  ptype = getLongAttr(energy_options, parameter_type);
+  logml = getLongAttr(energy_options, log_m_l);
+  kinetic_rate_method = getLongAttr(energy_options, rate_method);
   if( logml == -1 ) logml = 0;
 
   waterdensity = setWaterDensity( temperature);
@@ -536,16 +536,16 @@ NupackEnergyModel::NupackEnergyModel( Options *options ) : log_loop_penalty_37(1
     for( loop2 = 0; loop2 < NUM_BASES; loop2++)
       pairtypes[loop][loop2] = pairtypes_mfold[loop][loop2];
   
-  if( getLongAttr(options, energy_model) == 0 )
+  if( getLongAttr(energy_options, energy_model) == 0 )
     {
-      fp = fopen( getStringAttr(options, parameter_file), "rt");
+      fp = fopen( getStringAttr(energy_options, parameter_file), "rt");
       if( fp == NULL )
 	{
-	  fprintf(stderr,"ERROR: Bad Parameter Filename: %s not found in path.\n", getStringAttr(options, parameter_file) );
+	  fprintf(stderr,"ERROR: Bad Parameter Filename: %s not found in path.\n", getStringAttr(energy_options, parameter_file) );
 	  exit(1);
 	}
     }
-  else if( getLongAttr(options, energy_model) == NUPACKDNA23 )
+  else if( getLongAttr(energy_options, energy_model) == NUPACKDNA23 )
     {
       char *nupackhome;
       char fullpath[512];
@@ -593,7 +593,7 @@ NupackEnergyModel::NupackEnergyModel( Options *options ) : log_loop_penalty_37(1
 
 	}
     }
-  else if( getLongAttr(options, energy_model) == NUPACKRNA23 )
+  else if( getLongAttr(energy_options, energy_model) == NUPACKRNA23 )
     {
       char *nupackhome;
       char fullpath[512];
@@ -813,9 +813,9 @@ NupackEnergyModel::NupackEnergyModel( Options *options ) : log_loop_penalty_37(1
   
   if(fp2 == NULL )
     {
-      if( getDoubleAttr(options, temperature) < 37.0 - .0001 || getDoubleAttr(options, temperature) > 37.0 + .0001)
+      if( getDoubleAttr(energy_options, temperature) < 37.0 - .0001 || getDoubleAttr(energy_options, temperature) > 37.0 + .0001)
 	{
-	  fprintf(stderr,"ERROR: Temperature was set to %0.2lf C, but only dG type data files could be found. Please ensure that the requested parameter set has both .dG and .dH files!\n",getDoubleAttr(options, temperature));
+	  fprintf(stderr,"ERROR: Temperature was set to %0.2lf C, but only dG type data files could be found. Please ensure that the requested parameter set has both .dG and .dH files!\n",getDoubleAttr(energy_options, temperature));
 	  exit(0);
 	}
       return;
@@ -990,7 +990,7 @@ NupackEnergyModel::NupackEnergyModel( Options *options ) : log_loop_penalty_37(1
   fclose(fp2);
 
   // Temperature change section.
-  //  double temperature = getDoubleAttr(options, temperature);
+  //  double temperature = getDoubleAttr(energy_options, temperature);
 
   // Note: #define T_scale( dG, dH, T ) ((((dG) - (dH)) * (T) / 310.15) + dH)
 
@@ -1001,7 +1001,7 @@ NupackEnergyModel::NupackEnergyModel( Options *options ) : log_loop_penalty_37(1
     {
       current_temp = 37.0+273.15;
       bimolecular_penalty = bimolecular_penalty - kBoltzmann * current_temp * log( waterdensity);
-      setupRates( options );  
+      setupRates( energy_options );  
       return;
     }
 
@@ -1086,7 +1086,7 @@ NupackEnergyModel::NupackEnergyModel( Options *options ) : log_loop_penalty_37(1
 
   _RT = kBoltzmann * temperature;
   current_temp = temperature;
-  setupRates( options );  
+  setupRates( energy_options );  
 }
 
 
@@ -1873,14 +1873,14 @@ char *NupackEnergyModel::internal_read_array_data( FILE *fp, char *buffer, char 
   return cur_bufspot;
 }
 
-void NupackEnergyModel::setupRates( Options *opt )
+void NupackEnergyModel::setupRates( Options *energy_options )
 {
   double joinconc,joinrate_volume;
     //dG_assoc,dG_volume,joinrate_volume;
-  joinconc = opt->getJoinConcentration();
+  joinconc = energy_options->getJoinConcentration();
 
-  interscale = opt->getIntermolecularScaling();
-  intrascale = opt->getIntramolecularScaling();
+  interscale = energy_options->getIntermolecularScaling();
+  intrascale = energy_options->getIntramolecularScaling();
 
   // Two components to the join rate, the dG_assoc from mass action, and the dG_volume term which is related to the concentration. We compute each individually, following my derivation for the volume term, and the method used in Nupack for the dG_assoc term.
 
@@ -1913,8 +1913,6 @@ double NupackEnergyModel::setWaterDensity( double temp )
   values[1] = temp + values[1];
   values[3] = temp + values[3];
   return values[4] * (1 - values[0] * values[0] * values[1] / values[2] / values[3]) / values[5];
-
-  
 
   //  return 55.6; // default for now, in units of mols/liter.
 }
