@@ -1,0 +1,111 @@
+  Options( void );
+  Options( char *filename );
+  ~Options( void );
+  void finalizeInput( void );
+  FILE *getOutputDescriptor( void );
+  void closeOutput( void );
+  int addSequence_Python(  std::string id, std::string seq );
+  //int beginStrandList_Python( void );
+  int addStrandToIdentList_Python( std::string name);  // define order as right to left
+  int clearIdentList_Python( void );
+  int beginStartStructure_Python( void ); 
+  int finalizeStartStructure_Python( void );
+  int beginStopStructure_Python( std::string tag ); 
+  //int completeStopStructure_Python( void );
+  int finalizeStopStructures_Python( void );
+  void setLogfile_Python( std::string newlogfilename );
+  void setTrajectoryfile_Python( std::string newtrajfilename );
+  void setParameterFile_Python( std::string newparamfile );
+  void setCurSimTime( double cur_time ); // used internally by SimulationSystem object
+  double checkCurrentTime_Python(void ); 
+  int checkCompleted_Python( void );
+  void resetCompleted_Python( void ); // used in start simulation to reset completion in the options object.
+  std::string getTrajectoryTag_Python( void );
+  double getTrajectoryTime_Python( void );
+  void haltCurrentTrajectory_Python( void );
+  void suspendCurrentTrajectory_Python( void );
+  void resumeCurrentTrajectory_Python( void );
+  void setCollisionRate_Python( double newrate );
+  double getCollisionRate_Python( void );
+  long getCurrentSeed_Python( void );
+  void setSimulationTime( double newtime );
+  void setStopOptions( int newoptions );
+  void setTrajectoryfile( char *newtrajfilename );
+  void setTrajectoryType( int ttype );
+  void setTemperature( double temp );
+  void setNumSimulations( int newnumsims );
+  void setOutputInterval( int newoutputinterval );
+  void setOutputTime( double newoutputtime );
+  void setOutputComplexEnergyOptions( int complexoutputoptions );
+  void setParameterType( int type );
+  void setJoinRate( double newjoinrate );
+  void setJoinRateByConcentration( double concentration );
+  void setJoinConcentration( double concentration );
+  void setRateMethod( int method);
+  void incrementOutputState( void );
+  char *getStructure( int complex_id );
+  char *getBoltzmannStructure( int complex_id );
+  class identlist *getID_list( int complex_id );
+  int getParameterType( void );
+  double getTemperature( void );
+  int getOutputInterval( void );
+  double getOutputTime( void );
+  int getOutputState( void );
+  int getOutputComplexEnergyOptions( void );
+  int getNumSimulations( void );
+  double getSimulationTime( void );
+  //  double getJoinRate( void );
+  // double getJoinEnergyExtra( void );
+  double getJoinConcentration( void );
+  int getTrajectoryType( void );
+  int getStopCount( void );
+  int getStopOptions( void );
+  int getRateMethod( void );
+  class stopcomplexes *getStopComplexList( int index );
+  int flagarray;  // Contains bit positions for each option type to indicate 
+  int energymodel_type;   // type of the parameter file. 0 for dna.par (Vienna)
+  int energymodel;        // flag for automated searching for particular energy
+  FILE *logfile;          // Logfile file pointer.
+  FILE *trajfile;
+  int trajtype;
+  int simulationmode;     // See simulation mode defines above.
+  int energymode;         // Set to 1 for energy only, 0 otherwise.
+  int strandcount;        // Total number of strands in the system.
+  class strandlist *strands; // A list of all strands, containing sequence
+  int complexcount;       // Total number of complexes in the initial state
+  int gtenable;           // For nupack parameter files, enables GT pairings (by default, penalizes 100000 per GT pair inside an multiloop or open loop).
+  int logml;              // Use logarithmic multiloop size penalties.
+  class complex_item *start_structure;  // A list of all initial complexes, contains
+  class complex_item **start_list; // flat list of initial complexes.
+  int start_count;
+  double simulationtime;  // Max time units to run the simulation for.
+  //  double joinenergy;      // Join energy. (without kT multiplier)
+  //double joinrate;        // Join rate for complex moves.
+  double joinconc;        // effective strand conc for deriving join rate
+  double temperature;
+  double intramolecularscaling; // Scaling factor for reactions between bases within the same complex.
+  double intermolecularscaling; // Scaling factor for reactions between multiple complexes.
+  int trajectorycount;    // Number of trajectories to run.
+  int ratemethod;         // rate model to use
+  int dangles;            // dangle option for energy model
+  int outputinterval;     // Controls the frequency of individual state output.
+  int currentinterval;
+  double outputtime;      // alternate way to control trajectory output
+  int stopoptions;        // Flag variable for which type of stopping condition
+  int stopcount;          // Number of Stop States in the system.
+  class stopcomplexes *stoplist;   // A list of all complex names in the
+  long initialseed;     // initial random number seed to use. 0 = none.
+  long unique_id;       // Stores the ID of the next strand to be input into the system. Increments from 0.
+  void sanitize( char *buf, int *length ); // Cleans up log file lines so that
+  class identlist *python_identlist;
+  class complex_item *python_start_structure;
+  class stopcomplexes *python_stop_structure;
+  class strandlist *python_strands;
+  double python_current_time;
+  int python_trajectory_completion_flag;
+  std::string python_trajectory_tag;
+  double python_trajectory_time;
+  int python_halt_trajectory_flag;
+  int python_suspend_trajectory_flag;
+  double python_k_collision;
+  long python_current_seed;

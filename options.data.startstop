@@ -1,0 +1,10 @@
+class complex_item *start_structure
+class complex_item **start_list
+int start_count
+int stopoptions
+int stopcount
+class stopcomplexes *stoplist
+int outputinterval
+int currentinterval
+double outputtime
+class strandlist *strands

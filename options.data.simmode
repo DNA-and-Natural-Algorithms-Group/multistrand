@@ -1,0 +1,18 @@
+FILE *logfile     """ deprecated, output handle"""
+FILE *trajfile    """ deprecated, output handle """
+char inputfilename[80]; 
+char logfilename[80];   
+char trajectoryfilename[80]; 
+int trajtype
+int simulationmode		""" normal / first step mode / python """
+int energymode   """ deprecated, energy info """
+int strandcount			""" total # of strands """
+double simulationtime  """ max sim time """
+int trajectorycount
+long initialseed
+long unique_id  """ unique identifier, incremented for each strand added. """
+int flagarray   """ deprecated, bit position info """
+int complexcount	""" count of complexes in initial state """
+
+
+

@@ -1,0 +1,16 @@
+int gtenable			""" GT allowed or not?"""
+int logml				""" log ml for loops """
+double joinconc      """ conc for V calcs """
+double temperature
+
+double intramolecularscaling    """ scale factors, rename to:  uni-molecular-scaling """
+double intermolecularscaling	""" rename to: bi-molecular-scaling """
+
+int ratemethod	  """ kawasaki / metropolis """
+int dangles       """ dangle options """
+
+int energymodel_type
+int energymodel
+char energymodelfilename[80]; 
+
+

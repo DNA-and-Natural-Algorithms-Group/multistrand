@@ -1,0 +1,37 @@
+ssystem.cc:  system_options = GlobalOptions;
+ssystem.cc:  dnaEnergyModel = new ViennaEnergyModel( system_options );
+ssystem.cc:  system_options = GlobalOptions;
+ssystem.cc:      dnaEnergyModel = new ViennaEnergyModel( system_options );
+ssystem.cc:      dnaEnergyModel = new NupackEnergyModel( system_options );
+ssystem.cc:SimulationSystem::SimulationSystem( PyObject *system_options )
+ssystem.cc:    // Get attribute system_options.parameter_type
+ssystem.cc:    PyObject* param_type = PyObject_GetAttrString(system_options, "parameter_type");
+ssystem.cc:      dnaEnergyModel = new ViennaEnergyModel( system_options );
+ssystem.cc:      dnaEnergyModel = new NupackEnergyModel( system_options );
+ssystem.cc:  // Call system_options->finalizeInput();
+ssystem.cc:  PyObject* func = PyObject_GetAttrString(system_options, "finalizeInput");
+ssystem.cc:	system_options->resetCompleted_Python();
+ssystem.cc:	system_options->setCollisionRate_Python( -1.0);
+ssystem.cc:	system_options->printTrajLine( NULL, curcount );
+ssystem.cc:	  system_options->setCurSimTime( stime );
+ssystem.cc:	    system_options->incrementOutputState();
+ssystem.cc:	system_options->printStatusLine( r_seed, "ERROR", stime );
+ssystem.cc:	system_options->printStatusLine( r_seed, traverse->tag, stime );
+ssystem.cc:	system_options->printStatusLine( r_seed, "INCOMPLETE", stime );
+ssystem.cc:      system_options->printTrajLine("Start",0);
+ssystem.cc:	    system_options->incrementOutputState();
+ssystem.cc:	    system_options->printTrajLine( traverse->tag, stime );
+ssystem.cc:	  system_options->printTrajLine("NOSTATE", stime );
+ssystem.cc:	system_options->printStatusLine( r_seed, "ERROR", stime );
+ssystem.cc:	system_options->printStatusLine( r_seed, "INCOMPLETE", stime );
+ssystem.cc:      //	system_options->printTrajLine( NULL, curcount );
+ssystem.cc:      //system_options->resetCompleted();
+ssystem.cc:      system_options->printStatusLine_First_Bimolecular( random_seed, completiontype, completiontime, forwardrate, tag );
+ssystem.cc:    system_options->printStatusLine_Final_First_Bimolecular( total_rate, total_time, total_types, curcount, computed_rate_means, computed_rate_mean_diff_squared );
+ssystem.cc:    system_options->printStatusLine_Warning( 0, total_types[2] );
+ssystem.cc:    system_options->setCollisionRate_Python( *frate );
+ssystem.cc:	  system_options->setCurSimTime( stime );
+ssystem.cc:	    system_options->incrementOutputState();
+ssystem.cc:	system_options->printStatusLine( r_seed, "ERROR", stime );
+ssystem.cc:	system_options->printStatusLine( r_seed, traverse->tag, stime );
+ssystem.cc:	system_options->printStatusLine( r_seed, "INCOMPLETE", stime );

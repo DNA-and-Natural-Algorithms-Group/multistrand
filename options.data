@@ -1,0 +1,45 @@
+int flagarray
+int energymodel_type
+int energymodel
+FILE *logfile
+FILE *trajfile
+int trajtype
+int simulationmode
+int energymode
+int strandcount
+class strandlist *strands
+int complexcount
+int gtenable
+int logml
+class complex_item *start_structure
+class complex_item **start_list
+int start_count
+double simulationtime
+double joinconc
+double temperature
+double intramolecularscaling
+double intermolecularscaling
+int trajectorycount
+int ratemethod
+int dangles
+int outputinterval
+int currentinterval
+double outputtime
+int stopoptions
+int stopcount
+class stopcomplexes *stoplist
+long initialseed
+long unique_id
+class identlist *python_identlist
+class complex_item *python_start_structure
+class stopcomplexes *python_stop_structure
+class strandlist *python_strands
+double python_current_time
+int python_trajectory_completion_flag
+std::string python_trajectory_tag
+double python_trajectory_time
+int python_halt_trajectory_flag
+int python_suspend_trajectory_flag
+double python_k_collision
+long python_current_seed
+

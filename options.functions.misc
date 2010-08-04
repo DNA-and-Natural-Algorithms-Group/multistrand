@@ -1,0 +1,8 @@
+Options( void )
+Options( char *filename )
+~Options( void )
+void finalizeInput( void )
+void closeOutput( void )
+void incrementOutputState( void )
+void sanitize( char *buf, int *length )
+
