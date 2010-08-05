@@ -5,9 +5,11 @@
 
 // Macros for Python/C interface
 
-#define getLongAttr(x,y) PyInt_AS_LONG(PyObject_GetAttrString(x, "y"))
-#define getDoubleAttr(x,y) PyFloat_AS_DOUBLE(PyObject_GetAttrString(x, "y"))
-#define getStringAttr(x,y) PyString_AS_STRING(PyObject_GetAttrString(x, "y"))
+#define getLongAttr(obj,name) PyInt_AS_LONG(PyObject_GetAttrString(obj, "name"))
+#define getDoubleAttr(obj,name) PyFloat_AS_DOUBLE(PyObject_GetAttrString(obj, "name"))
+#define getStringAttr(obj,name) PyString_AS_STRING(PyObject_GetAttrString(obj, "name"))
+#define callFunc_IntToNone(obj,name,arg) PyObject_CallObject(PyObject_GetAttrString(obj, "name"), Py_BuildValue("(i)", arg)
+#define callFunc_IntToNone(obj,name,arg) PyObject_CallObject(PyObject_GetAttrString(obj, "name"), Py_BuildValue("(i)", arg)
 
 
 #endif

@@ -1877,10 +1877,10 @@ void NupackEnergyModel::setupRates( Options *energy_options )
 {
   double joinconc,joinrate_volume;
     //dG_assoc,dG_volume,joinrate_volume;
-  joinconc = energy_options->getJoinConcentration();
+  joinconc = getDoubleAttr(energy_options, get_join_concentration);
 
-  interscale = energy_options->getIntermolecularScaling();
-  intrascale = energy_options->getIntramolecularScaling();
+  interscale = getDoubleAttr(energy_options, get_intermolecular_scaling);
+  intrascale = getDoubleAttr(energy_options, get_intramolecular_scaling);
 
   // Two components to the join rate, the dG_assoc from mass action, and the dG_volume term which is related to the concentration. We compute each individually, following my derivation for the volume term, and the method used in Nupack for the dG_assoc term.
 
