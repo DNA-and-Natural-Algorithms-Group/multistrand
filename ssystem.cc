@@ -137,8 +137,8 @@ void SimulationSystem::StartSimulation( void )
 
   if(getLongAttr(system_options, simulation_mode) & SIMULATION_PYTHON)
     {
-	system_options->resetCompleted_Python();
-	system_options->setCollisionRate_Python( -1.0);
+	callFunc_NoArgsToNone(system_options, reset_completed_python);
+	setDoubleAttr(system_options, collision_rate_python, -1.0);
     }
 
   if((fp = fopen("/dev/urandom","r")) != NULL )
@@ -255,7 +255,7 @@ void SimulationSystem::SimulationLoop( long r_seed )
 	//	assert( stime > -0.0 );
 
 	if( sMode & SIMULATION_PYTHON )
-	  system_options->setCurSimTime( stime );
+	  setDoubleAttr(system_options, cur_sim_time, stime);
 
 	complexList->doBasicChoice( rchoice, stime );
 	rate = complexList->getTotalFlux();
@@ -266,6 +266,7 @@ void SimulationSystem::SimulationLoop( long r_seed )
 	    checkresult = 0;
 	    while( curcount < stopcount && checkresult == 0 )
 	      {
+		// FIXME!
 		traverse = system_options->getStopComplexList( curcount );
 		checkresult = complexList->checkStopComplexList( traverse->citem );
 		curcount++;
@@ -305,7 +306,7 @@ void SimulationSystem::SimulationLoop( long r_seed )
 	      printf("Current State: Choice: %6.4f, Time: %6.6f\n",rchoice, stime);
 	      complexList->printComplexList( 0 );
 	      }
-	    system_options->incrementOutputState();
+	    callFunc_NoArgsToNone(system_options, increment_output_state);
 	  }
 
       } while( /*rate > 0.01 &&*/ stime < maxsimtime && checkresult == 0);
@@ -334,6 +335,7 @@ void SimulationSystem::SimulationLoop( long r_seed )
 	  curcount = 0;
 	  while( curcount < stopcount && stopindex < 0 )
 	    {
+	      // FIXME!
 	      traverse = system_options->getStopComplexList( curcount );
 	      if( strstr( traverse->tag, "stop") != NULL )
 		stopindex = curcount;
@@ -351,7 +353,7 @@ void SimulationSystem::SimulationLoop( long r_seed )
 	  {
 	    if( getLongAttr(system_options, output_state) )
 	      complexList->printComplexList( 0 );
-	    system_options->incrementOutputState();
+	    callFunc_NoArgsToNone(system_options, increment_output_state);
 	  }
 	if( stopcount > 0 )
 	  {
@@ -359,6 +361,7 @@ void SimulationSystem::SimulationLoop( long r_seed )
 	    checkresult = 0;
 	    while( curcount < stopcount && checkresult == 0 )
 	      {
+		// FIXME!
 		traverse = system_options->getStopComplexList( curcount );
 		checkresult = complexList->checkStopComplexList( traverse->citem );
 		curcount++;
@@ -425,7 +428,7 @@ void SimulationSystem::StartSimulation_First_Bimolecular( void )
       //      if( getLongAttr(system_options, trajectory_type) > 0 )
       //	system_options->printTrajLine( NULL, curcount );
       //      if( sMode() )
-      //system_options->resetCompleted();
+      //        callFunc_NoArgsToNone(system_options, reset_completed);
 
 
       SimulationLoop_First_Bimolecular( random_seed, &completiontime, &completiontype, &forwardrate, &tag );
@@ -516,7 +519,7 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( long r_seed, double *co
     }
 
   if( sMode )
-    system_options->setCollisionRate_Python( *frate );
+    setDoubleAttr(system_options, collision_rate_python, *frate);
  
   // Begin normal steps.
   rate = complexList->getTotalFlux();
@@ -537,7 +540,8 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( long r_seed, double *co
 	  }
 
 	if( sMode )
-	  system_options->setCurSimTime( stime );
+	  setDoubleAttr(system_options, cur_sim_time, stime);
+	  
 
 	complexList->doBasicChoice( rchoice, stime );
 	rate = complexList->getTotalFlux();
@@ -549,7 +553,7 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( long r_seed, double *co
 	      complexList->printComplexList( 0 );
 	      printf("Current State: Choice: %6.4f, Time: %6.6e\n",rchoice, stime);
 	      }
-	    system_options->incrementOutputState();
+	    callFunc_NoArgsToNone(system_options, increment_output_state);
 	  }
 
 	if( stopcount > 0 && stopoptions==2)
@@ -558,6 +562,7 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( long r_seed, double *co
 	    checkresult = 0;
 	    while( curcount < stopcount && checkresult == 0 )
 	      {
+	  // FIXME!
 		traverse = system_options->getStopComplexList( curcount );
 		checkresult = complexList->checkStopComplexList( traverse->citem );
 		curcount++;
@@ -641,6 +646,8 @@ void SimulationSystem::InitializeSystem( void )
 	structure = getStringItem(getListAttr(system_options, boltzmann_structure), index);
       else
 	structure = getStringItem(getListAttr(system_options, structure), index);
+      
+      // FIXME!
       id = system_options->getID_list( index );
       
       tempcomplex = new StrandComplex( sequence, structure, id );
