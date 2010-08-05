@@ -16,8 +16,8 @@
 #define setDoubleAttr(obj, name, arg) PyObject_SetAttrString(obj, "name", PyFloat_FromDouble(arg))
 
 // Function calls
-#define callFunc_NoArgsToNone(obj, name) PyObject_CallObject(PyObject_GetAttrString(obj, "name"), Py_BuildValue("()"))
-#define callFunc_DoubleToNone(obj, name, arg) PyObject_CallObject(PyObject_GetAttrString(obj, "name"), Py_BuildValue("(f)", PyFloat_FromDouble(arg)))
+#define callFunc_NoArgsToNone(obj, name) PyObject_CallMethod(obj, "name", "()")
+#define callFunc_DoubleToNone(obj, name, arg) PyObject_CallMethod(obj, "name", "(f)", arg))
 
 // List indexing
 #define getStringItem(list, index) PyString_AS_STRING(PyList_GET_ITEM(list, index))
