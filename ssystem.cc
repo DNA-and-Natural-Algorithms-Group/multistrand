@@ -634,13 +634,13 @@ void SimulationSystem::InitializeSystem( void )
 
   complexList = new SComplexList( dnaEnergyModel );
 
-  sequence = system_options->getSequence( index );
+  sequence = getStringItem(getListAttr(system_options, sequence), index);
   while( sequence != NULL )
     {
       if ( getLongAttr(system_options, simulation_mode) == SIMULATION_FIRST_BIMOLECULAR )
-	structure = system_options->getBoltzmannStructure( index );
+	structure = getStringItem(getListAttr(system_options, boltzmann_structure), index);
       else
-	structure = system_options->getStructure( index );
+	structure = getStringItem(getListAttr(system_options, structure), index);
       id = system_options->getID_list( index );
       
       tempcomplex = new StrandComplex( sequence, structure, id );
@@ -653,7 +653,7 @@ void SimulationSystem::InitializeSystem( void )
       complexList->addComplex( tempcomplex );
       tempcomplex = NULL;
       index++;
-      sequence = system_options->getSequence( index );
+      sequence = getStringItem(getListAttr(system_options, sequence), index);
     }
   return;
 }
