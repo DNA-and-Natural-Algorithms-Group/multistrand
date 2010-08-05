@@ -17,7 +17,7 @@
 
 // Function calls
 #define callFunc_NoArgsToNone(obj, name) PyObject_CallMethod(obj, "name", "()")
-#define callFunc_DoubleToNone(obj, name, arg) PyObject_CallMethod(obj, "name", "(f)", arg))
+#define callFunc_DoubleToNone(obj, name, arg) PyObject_CallMethod(obj, "name", "(f)", arg)
 
 // List indexing
 #define getStringItem(list, index) PyString_AS_STRING(PyList_GET_ITEM(list, index))
