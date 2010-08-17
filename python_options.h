@@ -3,7 +3,6 @@
 
 #include <python2.6/Python.h>
 
-
 // Macros for Python/C interface
 
 // Import/instantiate
@@ -14,7 +13,7 @@
 #define getDoubleAttr(obj, name) PyFloat_AS_DOUBLE(PyObject_GetAttrString(obj, #name))
 #define getStringAttr(obj, name) PyString_AS_STRING(PyObject_GetAttrString(obj, #name))
 #define getListAttr(obj, name) PyObject_GetAttrString(obj, #name)
-#define getStopcomplexList(obj) convert_stopcomplex_list(PyObject_GetAttrString(obj, "stopcomplexes"))
+#define getStopcomplexList(obj) convertStopcomplexList(PyObject_GetAttrString(obj, "stopcomplexes"))
 
 // Setters
 #define setDoubleAttr(obj, name, arg) PyObject_SetAttrString(obj, #name, PyFloat_FromDouble(arg))
@@ -35,7 +34,7 @@
 
 
 // Conversion functions
-class stopcomplexes *convert_stopcomplex_list(*PyObject stopcomplexes_python);
+class stopcomplexes *convertStopcomplexList(PyObject *stopcomplexes_python);
 
 
 

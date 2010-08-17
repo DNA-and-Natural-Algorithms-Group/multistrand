@@ -3,6 +3,7 @@
 
 // TODO: check deallocation of new objects
 
+
 class stopcomplexes *convertStopcomplexList(PyObject *stop_conditions)
 {
     int i, j, k, n, m, l, stoptype, count;
