@@ -1,5 +1,5 @@
-#ifndef __OPTIONS_PYTHON_H__
-#define __OPTIONS_PYTHON_H__
+#ifndef __PYTHON_OPTIONS_H__
+#define __PYTHON_OPTIONS_H__
 
 #include <python2.6/Python.h>
 
