@@ -15,21 +15,21 @@ class Strand(object):
   """Represents a Multistrand Strand object. The multi_format attribute
   contains the C++ object."""
   
-  def __init__(self, number, name, sequence, domain_ids):
+  def __init__(self, number, name, sequence, domain_list):
     self.id = number
     self.name = name
     self.sequence = sequence
-    self.domain_ids = domain_ids
+    self.domain_list = domain_list
 
 
 class Complex(object):
   """Represents a Multistrand Complex object. The multi_format attribute
   contains the C++ object."""
   
-  def __init__(self, id, name, strand_ids, bonds):
+  def __init__(self, id, name, strand_list, bonds):
     self.id = id
     self.name = name
-    self.strand_ids = strand_ids
+    self.strand_list = strand_list
     self.bonds = bonds
 
 
@@ -50,7 +50,7 @@ class StopCondition(object):
   
   def __init__(self, tag, complex_items):
     self.tag = tag
-    self.complex_items = complex_items  # List of (complex, stoptype) pairs
+    self.complex_items = complex_items  # List of (complex, stoptype, count) tuples
 
 
 

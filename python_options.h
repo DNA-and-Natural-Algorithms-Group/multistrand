@@ -25,6 +25,8 @@
 
 // List indexing
 #define getStringItem(list, index) PyString_AS_STRING(PyList_GET_ITEM(list, index))
+#define getLongItem(list, index) PyInt_AS_LONG(PyList_GET_ITEM(list, index))
+#define getLongItemFromTuple(tuple, index) PyInt_AS_LONG(PyTuple_GET_ITEM(tuple, index))
 
 
 // Not currently used, but might be a good reference for later
