@@ -398,7 +398,7 @@ class MultistrandOptions( object ):
         ('resetCompleted_Python', 'reset_completed__python')
         ('setCollisionRate_Python', 'set_collision_rate__python')
         ('setCurSimTime', 'set_cur_sim_time')
-
+        
     @property
     def temperature(self):
         return self._temperature_kelvin
@@ -429,6 +429,7 @@ class MultistrandOptions( object ):
             Others:    If you want a Fahrenheit reasonable range, I think you
                        might be unreasonable. Also, it overlaps with Celsius a bit much.
 
+<<<<<<< local
             Yes, these ranges are quite generous.
         """
         if 273.0 < val < 373.0:
@@ -438,6 +439,5 @@ class MultistrandOptions( object ):
             self._temperature_celsius = val
             self._temperature_kelvin = val + _OC.ZERO_C_IN_K
             self.errorlog.append("Warning: Temperature was set at the value [{0}]. We expected a value in Kelvin, or with appropriate units.\n         Temperature was automatically converted to [{1}] degrees Kelvin.\n".format(val, self._temperature_kelvin))
-
 
 
