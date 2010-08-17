@@ -3,7 +3,7 @@
    Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
 */
  
-#ifndef __OPTIONS_H__
+#ifndef __OPTIONS_H__n
 #define __OPTIONS_H__
 
 #include "optionlists.h"

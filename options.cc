@@ -209,62 +209,6 @@ stopcomplexes::~stopcomplexes( void )
    appropriately. Can't do much else, really.
 
 */
-Options::Options( void )
-{
-  flagarray = 0;
-  inputfilename[0]='\0';
-  logfilename[0]='\0';
-  logfile = NULL;
-  trajectoryfilename[0]='\0';
-  trajfile = NULL;
-  //  complexcount = 0;
-  strandcount = 0;
-  strands = NULL;
-  start_structure = NULL;
-  simulationmode = SIMULATION_NORMAL;
-  simulationtime = 10000.0;
-  trajectorycount = 1;
-  outputinterval = -1;
-  currentinterval = 0;
-  outputtime = 0.0;
-  stopoptions = 0;
-  stoplist = NULL;
-  stopcount = 0;
-  intramolecularscaling = 1.6 * 1000000.0;
-  intermolecularscaling =  .5 * 1000000.0;
-  initialseed = 0;
-  //  joinrate = 1.0;
-  //joinenergy = 0.0;
-  joinconc = 1000;
-  trajtype = 0;
-  gtenable = 0;
-  logml = -1;
-  temperature = 37.0;
-  strcpy(energymodelfilename,"/research/src/Multistrand/src/dna.par"); 
-  energymodel_type = 0;
-  energymodel = 0;
-  dangles=0;
-  energymode = 0;
-  ratemethod = 2;
-
-  /* python interface data members */
-  python_identlist = NULL;
-  python_start_structure = NULL;
-  python_stop_structure = NULL;
-  python_strands = NULL;
-
-  python_current_time = 0.0;
-  python_current_seed = 0;
-  python_trajectory_completion_flag = 0;
-  python_halt_trajectory_flag = 0;
-  python_suspend_trajectory_flag = 0;
-  python_trajectory_tag = "";
-  python_trajectory_time = 0.0;
-  python_k_collision = -1.0;
-  
-  /*Unique ID*/
-   unique_id = 0;
-}
 
 /*
 
@@ -300,9 +244,9 @@ Options::Options( char *filename )
   initialseed = 0;
   //  joinrate = 1.0;
   //joinenergy = 0.0;
-  joinconc = 1000.0;
+  //  joinconc = 1000.0;
   trajtype = 0;
-  dangles = 0;
+  //  dangles = 0;
   gtenable = 0;
   intramolecularscaling = 1.6 * 1000000.0;
   intermolecularscaling =  .5 * 1000000.0;
