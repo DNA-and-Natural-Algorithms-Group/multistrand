@@ -13,7 +13,6 @@
 #define getDoubleAttr(obj, name) PyFloat_AS_DOUBLE(PyObject_GetAttrString(obj, #name))
 #define getStringAttr(obj, name) PyString_AS_STRING(PyObject_GetAttrString(obj, #name))
 #define getListAttr(obj, name) PyObject_GetAttrString(obj, #name)
-#define getStopcomplexList(obj) convertStopcomplexList(PyObject_GetAttrString(obj, "stopcomplexes"))
 
 // Setters
 #define setDoubleAttr(obj, name, arg) PyObject_SetAttrString(obj, #name, PyFloat_FromDouble(arg))
@@ -34,7 +33,7 @@
 
 
 // Conversion functions
-class stopcomplexes *convertStopcomplexList(PyObject *stopcomplexes_python);
+class stopcomplexes *getStopComplexList(PyObject *options, int index);
 
 
 

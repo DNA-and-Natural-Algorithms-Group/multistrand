@@ -12,7 +12,7 @@ int main()
     
     PyObject *options = newObject(options_test, Options);
     
-    class stopcomplexes *sc = getStopcomplexList(options);
+    class stopcomplexes *sc = getStopComplexList(options, 1);
     
     Py_Finalize();
     return 0;

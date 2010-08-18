@@ -4,7 +4,7 @@
 */
 
 #include "ssystem.h"
-#include "options-python.h"
+#include "python_options.h"
 #include <string.h>
 #include <time.h>
 #include <stdlib.h>
@@ -267,7 +267,7 @@ void SimulationSystem::SimulationLoop( long r_seed )
 	    while( curcount < stopcount && checkresult == 0 )
 	      {
 		// FIXME!
-		traverse = system_options->getStopComplexList( curcount );
+		traverse = getStopComplexList( system_options, curcount );
 		checkresult = complexList->checkStopComplexList( traverse->citem );
 		curcount++;
 	      }
@@ -336,7 +336,7 @@ void SimulationSystem::SimulationLoop( long r_seed )
 	  while( curcount < stopcount && stopindex < 0 )
 	    {
 	      // FIXME!
-	      traverse = system_options->getStopComplexList( curcount );
+	      traverse = getStopComplexList( system_options, curcount );
 	      if( strstr( traverse->tag, "stop") != NULL )
 		stopindex = curcount;
 	      curcount++;
@@ -362,7 +362,7 @@ void SimulationSystem::SimulationLoop( long r_seed )
 	    while( curcount < stopcount && checkresult == 0 )
 	      {
 		// FIXME!
-		traverse = system_options->getStopComplexList( curcount );
+		traverse = getStopComplexList( system_options, curcount );
 		checkresult = complexList->checkStopComplexList( traverse->citem );
 		curcount++;
 	      }
@@ -563,7 +563,7 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( long r_seed, double *co
 	    while( curcount < stopcount && checkresult == 0 )
 	      {
 	  // FIXME!
-		traverse = system_options->getStopComplexList( curcount );
+		traverse = getStopComplexList( system_options, curcount );
 		checkresult = complexList->checkStopComplexList( traverse->citem );
 		curcount++;
 	      }
