@@ -13,8 +13,11 @@ class Options(object):
     complex1 = Complex("C1", "C1", [strand1, strand2], "(())")
     complex2 = Complex("C2", "C2", [strand1], "(())")
     complex3 = Complex("C3", "C3", [strand2], "(())")
-    self.stopcomplexes = [StopCondition("TAG1", [(complex1, 4, 5), (complex2, 4, 5)]),
-                          StopCondition("TAG2", [(complex2, 6, 0), (complex3, 6, 1)])]
+    
+    self.stop_conditions = [StopCondition("TAG1", [(complex1, 4, 5), (complex2, 4, 5)]),
+                            StopCondition("TAG2", [(complex2, 6, 0), (complex3, 6, 1)])]
+    self.start_complexes = [complex1, complex2, complex3]
+    
   
   @property
   def integer(self):

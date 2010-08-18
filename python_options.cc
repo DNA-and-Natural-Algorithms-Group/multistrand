@@ -6,38 +6,30 @@
 
 class stopcomplexes *getStopComplexList(PyObject *options, int index)
 {
-    int i, j, k, n, m, l, stoptype, count;
-    PyObject *stop_conditions, *stop_condition, *tuple_list, *tuple, *cmplx, *strand_list;
-    char *tag, *id, *structure;
     class identlist *id_list;
     class complex_item *complexes;
     class stopcomplexes *return_list;
     
-    stop_conditions = PyObject_GetAttrString(options, "stopcomplexes");
+    PyObject *stop_conditions = PyObject_GetAttrString(options, "stop_conditions");
     
-    n = PyList_GET_SIZE(stop_conditions);
-    for (i = n - 1; i >= index; i--)
+    int n = PyList_GET_SIZE(stop_conditions);
+    for (int i = n - 1; i >= index; i--)
     {
-        stop_condition = PyList_GET_ITEM(stop_conditions, i);
-        tag = getStringAttr(stop_condition, tag);
-        tuple_list = getListAttr(stop_condition, complex_items);
+        PyObject *stop_condition = PyList_GET_ITEM(stop_conditions, i);
+        char *tag = getStringAttr(stop_condition, tag);
+        PyObject *tuple_list = getListAttr(stop_condition, complex_items);
         
-        m = PyList_GET_SIZE(tuple_list);
-        for (j = m - 1; j >= 0; j--)
+        int m = PyList_GET_SIZE(tuple_list);
+        for (int j = m - 1; j >= 0; j--)
         {
-            tuple = PyList_GET_ITEM(tuple_list, j);
-            cmplx = PyTuple_GET_ITEM(tuple, 0);
-            stoptype = getLongItemFromTuple(tuple, 1);
-            count = getLongItemFromTuple(tuple, 2);
-            structure = getStringAttr(cmplx, structure);
-            strand_list = getListAttr(cmplx, strand_list);
+            PyObject *tuple = PyList_GET_ITEM(tuple_list, j);
+            PyObject *cmplx = PyTuple_GET_ITEM(tuple, 0);
+            int stoptype = getLongItemFromTuple(tuple, 1);
+            int count = getLongItemFromTuple(tuple, 2);
+            char *structure = getStringAttr(cmplx, structure);
+            PyObject *strand_list = getListAttr(cmplx, strand_list);
             
-            l = PyList_GET_SIZE(strand_list);
-            id_list = new identlist(getStringAttr(PyList_GetItem(strand_list, l - 1), id), NULL);
-            for (k = l - 2; k >= 0; k--)
-            {
-                id_list = new identlist(getStringAttr(PyList_GetItem(strand_list, k), id), id_list);
-            }
+            id_list = makeID_list(strand_list);
             
             if (j == m - 1)
                 complexes = new complex_item(structure, id_list, NULL, stoptype, count);
@@ -55,64 +47,23 @@ class stopcomplexes *getStopComplexList(PyObject *options, int index)
 }
 
 
+class identlist *getID_list(PyObject *options, int index)
+{
+    return makeID_list(PyObject_GetAttrString(PyList_GET_ITEM(PyObject_GetAttrString(options, "start_complexes"), index), "strand_list"));
+}
 
 
-
-
-
-
-
-//class stopcomplexes *convertStopcomplexList(PyObject *stop_conditions)
-//{
-//    int i, j, k, n, m, l, stoptype, count;
-//    PyObject *stop_condition, *tuple_list, *tuple, *cmplx, *strand_list;
-//    char *tag, *id, *structure;
-//    class identlist *id_list;
-//    class complex_item *complexes;
-//    class stopcomplexes *return_list;
-//    
-//    n = PyList_GET_SIZE(stop_conditions);
-//    for (i = 0; i < n; i++)
-//    {
-//        stop_condition = PyList_GET_ITEM(stop_conditions, i);
-//        tag = getStringAttr(stop_condition, tag);
-//        tuple_list = getListAttr(stop_condition, complex_items);
-//        
-//        m = PyList_GET_SIZE(tuple_list);
-//        for (j = 0; j < m; j++)
-//        {
-//            tuple = PyList_GET_ITEM(tuple_list, j);
-//            cmplx = PyTuple_GET_ITEM(tuple, 0);
-//            stoptype = getLongItemFromTuple(tuple, 1);
-//            count = getLongItemFromTuple(tuple, 2);
-//            structure = getStringAttr(cmplx, structure);
-//            strand_list = getListAttr(cmplx, strand_list);
-//            
-//            l = PyList_GET_SIZE(strand_list);
-//            id_list = new identlist(getStringAttr(PyList_GetItem(strand_list, l-1), id), NULL);
-//            for (k = l-2; k >= 0; k--)
-//            {
-//                id_list = new identlist(getStringAttr(PyList_GetItem(strand_list, k), id), id_list);
-//            }
-//            
-//            if (j == 0)
-//                complexes = new complex_item(structure, id_list, NULL, stoptype, count);
-//            else
-//                complexes = new complex_item(structure, id_list, complexes, stoptype, count);
-//        }
-//        
-//        if (j == 0)
-//            return_list = new stopcomplexes(tag, complexes, NULL);
-//        else
-//            return_list = new stopcomplexes(tag, complexes, return_list);
-//    }
-//    
-//    return return_list;
-//}
-
-
-
-
+class identlist *makeID_list(PyObject *strand_list)
+{
+    class identlist *id_list;
+    
+    int n = PyList_GET_SIZE(strand_list);
+    id_list = new identlist(getStringAttr(PyList_GetItem(strand_list, n - 1), id), NULL);
+    for (int i = n - 2; i >= 0; i--)
+        id_list = new identlist(getStringAttr(PyList_GetItem(strand_list, i), id), id_list);
+    
+    return id_list;
+}
 
 
 

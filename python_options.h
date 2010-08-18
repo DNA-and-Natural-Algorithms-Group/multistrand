@@ -32,10 +32,10 @@
 #define callFunc_IntToString(obj, name, arg) PyString_AS_STRING(PyObject_CallObject(PyObject_GetAttrString(obj, #name), Py_BuildValue("(i)", arg)))
 
 
-// Conversion functions
+// New functions
+class identlist *makeID_list(PyObject *strand_list);
 class stopcomplexes *getStopComplexList(PyObject *options, int index);
-
-
+class identlist *getID_list(PyObject *options, int index);
 
 
 

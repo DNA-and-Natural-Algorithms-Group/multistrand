@@ -12,7 +12,8 @@ int main()
     
     PyObject *options = newObject(options_test, Options);
     
-    class stopcomplexes *sc = getStopComplexList(options, 1);
+    class stopcomplexes *sc = getStopComplexList(options, 0);
+    class identlist *il = getID_list(options, 1);
     
     Py_Finalize();
     return 0;

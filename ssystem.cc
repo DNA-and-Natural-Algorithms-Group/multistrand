@@ -266,7 +266,6 @@ void SimulationSystem::SimulationLoop( long r_seed )
 	    checkresult = 0;
 	    while( curcount < stopcount && checkresult == 0 )
 	      {
-		// FIXME!
 		traverse = getStopComplexList( system_options, curcount );
 		checkresult = complexList->checkStopComplexList( traverse->citem );
 		curcount++;
@@ -335,7 +334,6 @@ void SimulationSystem::SimulationLoop( long r_seed )
 	  curcount = 0;
 	  while( curcount < stopcount && stopindex < 0 )
 	    {
-	      // FIXME!
 	      traverse = getStopComplexList( system_options, curcount );
 	      if( strstr( traverse->tag, "stop") != NULL )
 		stopindex = curcount;
@@ -361,7 +359,6 @@ void SimulationSystem::SimulationLoop( long r_seed )
 	    checkresult = 0;
 	    while( curcount < stopcount && checkresult == 0 )
 	      {
-		// FIXME!
 		traverse = getStopComplexList( system_options, curcount );
 		checkresult = complexList->checkStopComplexList( traverse->citem );
 		curcount++;
@@ -562,7 +559,6 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( long r_seed, double *co
 	    checkresult = 0;
 	    while( curcount < stopcount && checkresult == 0 )
 	      {
-	  // FIXME!
 		traverse = getStopComplexList( system_options, curcount );
 		checkresult = complexList->checkStopComplexList( traverse->citem );
 		curcount++;
@@ -647,8 +643,7 @@ void SimulationSystem::InitializeSystem( void )
       else
 	structure = getStringItem(getListAttr(system_options, structure), index);
       
-      // FIXME!
-      id = system_options->getID_list( index );
+      id = getID_list( system_options, index );
       
       tempcomplex = new StrandComplex( sequence, structure, id );
       
