@@ -378,6 +378,15 @@ class MultistrandOptions( object ):
         Set by ssystem.cc when a trajectory completes.
         """
         
+        self.python_trajectory_tag = None
+        """ The tag of the stop state of the most recently completed trajectory.
+        
+        Type         Default
+        string       None
+        
+        Set by ssystem.cc when a trajectory completes.
+        """
+        
         self.python_collision_rate = None
         """ The collision rate of the most recently completed trajectory.
         
