@@ -220,55 +220,78 @@ class MultistrandOptions( object ):
         ##char
 
 
-        self.trajtype = FILLIN
-        """ 0 == normal, 1 == transition time data  """
-        ##int
-        ('TrajectoryType', 'trajectory_type')
+        self.trajectory_type = 0
+        """ The type of trajectory data we are concerned with.
+        
+        Type         Default
+        int          0: Normal
+        
+        Normal          [0]: First passage time only.
+        Transition time [1]: Transition time data kept for some set of states.
+        """
 
-        self.simulationmode = FILLIN
-        """ normal / first step mode / python """
+        self.simulation_mode = 0
+        """ The simulation mode.
+        
+        Type         Default
+        int          0: Normal
+        
+        Normal            [0]:
+        First step        [1]:
+        Python normal     [2]:
+        Python first step [3]:
+        """
+        
+        self.simulation_time = 10000.0
+        """ Maximum time (in seconds) allowed for each trajectory.
+        
+        Type         Default
+        double       10000.0
+        """
+        
+        self.num_simulations = 1
+        """ Total number of trajectories to run. 
+        
+        Type         Default
+        int          1
+        """
+        
+        self.initial_seed = None
+        """ Initial random number seed to use.
+        
+        Type         Default
+        long         None
+        
+        If None when simulation starts, a seed will be chosen by the RNG however
+        it feels like.
+        """
+        
+        self.unique_id = 0
+        """ Unique identifier for strands.
+        
+        Type         Default
+        int          0
+        
+        Incremented for each strand added.
+        """
+        
+        self.complexcount = FILLIN
+        """ count of complexes in initial state """
         ##int
-        ('SimulationMode', 'simulation_mode')
+        
+        self.strandcount = FILLIN
+        """ total # of strands """
+        ##int
 
         self.energymode = FILLIN
         """ deprecated, energy info """
         ##int
         ('EnergyMode', 'energy_mode')
-
-        self.strandcount = FILLIN
-        """ total # of strands """
-        ##int
-
-
-        self.simulationtime = FILLIN
-        """ max sim time """
-        ##double
-        ('SimulationTime', 'simulation_time')
-
-        self.trajectorycount = FILLIN
-        """ total # of trajectories to run. """
-        ##int
-        ('NumSimulations', 'num_simulations')
-
-        self.initialseed = FILLIN
-        """ initial random # seed to use """
-        ##long
-        ('InitialSeed', 'initial_seed')
-
-        self.unique_id = FILLIN
-        """ unique identifier, incremented for each strand added. """
-        ##long
-
-
+        
         self.flagarray = FILLIN
         """ deprecated, bit position info """
         ##int
-
-
-        self.complexcount = FILLIN
-        """ count of complexes in initial state """
-        ##int
-
+        
         ####################
         #
         # BEGIN startstop
