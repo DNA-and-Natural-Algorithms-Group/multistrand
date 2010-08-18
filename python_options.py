@@ -273,73 +273,98 @@ class MultistrandOptions( object ):
         # BEGIN startstop
         #
         ####################
-        self.start_count = FILLIN
-        """ random? """
-        ##int
-
-        self.stopoptions = FILLIN
-        """ 2 = use stop structures """
-        ##int
-        ('StopOptions', 'stop_options')
-
-        self.stopcount = FILLIN
-        """ random? """
-        ##int
-        ('StopCount', 'stop_count')
         
-        self.outputinterval = FILLIN
-        """ number of states between output counts  """
-        ##int
-        ('OutputInterval', 'output_interval')
-
-        self.currentinterval = FILLIN
-        """ current state interval """
-        ##int
-        #### vaguely related to getOutputState and stuff like that.
-        ('OutputState', 'output_state')
-
-        self.outputtime = FILLIN
-        """ time between output counts """
-        ##double
-        ('OutputTime', 'output_time')
-
-        self.complex_item = FILLIN
-        None
-        ##class
-
-        self.stopcomplexes = FILLIN
-        None
-        ##class
-        ('StopComplexList', 'stop_complex_list')
-
-        self.strandlist = FILLIN
-        None
-        ##class
+        self.start_complexes = []
+        """ The start states, i.e. a list of Complex objects.
+        
+        Type         Default
+        list         []
+        
+        Start states should be added to this list (e.g. by the parser) so
+        trajectories know how to start.
+        """         
+        
+        self.stop_conditions = []
+        """ The stop states, i.e. a list of StopCondition objects.
+        
+        Type         Default
+        list         []
+        
+        Stop states should be added to this list (e.g. by the parser) so
+        trajectories know when to end.
+        """ 
+        
+        self.use_stop_states = None
+        """ Indicates whether trajectories should end when stop states
+        are reached.
+        
+        Type            Default
+        boolean / None  None
+        
+        Set to True by default if a stop state is defined. Can be set to False
+        manually to avoid stopping at defined stop states. Can only be manually
+        changed back to True from False.
+        """
+        
+        self.stopcount = 0
+        """ The number of stop states. Equivalent to 'len(self.stop_conditions)'.
+        
+        Type         Default
+        int          0
+        
+        Incremented automatically when a stop state is added. Should not be 
+        modified externally.
+        """
+        
+        self.output_time = None
+        """ The amount of time (in seconds) to wait between outputs of 
+        trajectory information.
+        
+        Type         Default
+        float        None
+        
+        A value of None corresponds to not basing outputs on output_time
+        (but perhaps outputting based on some other condition). A value of 0 
+        means output as often as possible.
+        """
+        
+        self.output_interval = None
+        """ The number of states between outputs of trajectory information.
+        
+        Type         Default
+        int / None   None
+        
+        A value of None corresponds to not basing outputs on output_interval
+        (but perhaps outputting based on some other condition). A value of 0 
+        means output every state, 1 means every other state, and so on.
+        """
+        
+        self.current_interval = 0
+        """ Current value of output state counter.
+        
+        Type         Default
+        int          0
+        
+        When current_interval is equal to output_interval, the output state is 
+        True, and otherwise the output state is False. This is modified by 
+        increment_output_state, and probably shouldn't be used externally."""
+        
+        self.output_state = False
+        """ Indicates whether output should be reported.
+        
+        Type         Default
+        boolean      False
+        
+        Value should be True if self.current_interval == self.output_interval 
+        and False otherwise.        
+        """
+        
 
         ####################
         #
         # BEGIN pythondata
         #
         ####################
-        self.identlist = FILLIN
-        None
-        ##class
-
-
-        self.complex_item = FILLIN
-        None
-        ##class
-
-
-        self.stopcomplexes = FILLIN
-        None
-        ##class
-
-
-        self.strandlist = FILLIN
-        None
-        ##class
-
 
         self.python_current_time = FILLIN
         None
@@ -382,6 +407,7 @@ class MultistrandOptions( object ):
         # functions used
         #
         ##############################
+        
         ('BoltzmannStructure', 'boltzmann_structure')
         ('Sequence', 'sequence')
         ('Structure', 'structure')
@@ -398,7 +424,27 @@ class MultistrandOptions( object ):
         ('resetCompleted_Python', 'reset_completed__python')
         ('setCollisionRate_Python', 'set_collision_rate__python')
         ('setCurSimTime', 'set_cur_sim_time')
-        
+    
+    
+    def increment_output_state(self):
+            """ Modifies self.current_interval and self.output_state as 
+            necessary based on self.output_interval.
+            """
+            if self.output_interval == None or self.output_interval < 0:
+                raise ValueError("output_interval has invalid value: %s" % self.output_interval)
+            
+            elif self.current_interval > self.output_interval:
+                raise ValueError("current_interval has invalid value: %s" % self.current_interval)
+            
+            elif self.current_interval == self.output_interval:
+                self.current_interval == 0
+            
+            else:
+                self.current_interval += 1
+            
+            self.output_state = (self.current_interval == self.output_interval)
+    
+    
     @property
     def temperature(self):
         return self._temperature_kelvin

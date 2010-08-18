@@ -1,8 +1,7 @@
 
 
 class Domain(object):
-  """Represents a Multistrand Domain object. The multi_format attribute
-  contains the C++ object."""
+  """Represents a Multistrand Domain object."""
   
   def __init__(self, id, name, length, is_complement=False):
     self.id = id
@@ -12,8 +11,7 @@ class Domain(object):
 
 
 class Strand(object):
-  """Represents a Multistrand Strand object. The multi_format attribute
-  contains the C++ object."""
+  """Represents a Multistrand Strand object."""
   
   def __init__(self, id, name, sequence, domain_list):
     self.id = id
@@ -23,8 +21,7 @@ class Strand(object):
 
 
 class Complex(object):
-  """Represents a Multistrand Complex object. The multi_format attribute
-  contains the C++ object."""
+  """Represents a Multistrand Complex object."""
   
   def __init__(self, id, name, strand_list, structure):
     self.id = id
@@ -36,7 +33,7 @@ class Complex(object):
 class RestingState(tuple):
   """Represents a resting state, i.e. a named set of complexes that exists as a
   strongly connected component with no outward fast transitions in the reaction
-  graph. The multi_format attribute contains the C++ object."""
+  graph."""
   
   def __new__(typ, name, complex_set):
     return super(RestingState, typ).__new__(typ, complex_set)
