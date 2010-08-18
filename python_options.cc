@@ -7,8 +7,8 @@
 class stopcomplexes *convertStopcomplexList(PyObject *stop_conditions)
 {
     int i, j, k, n, m, l, stoptype, count;
-    PyObject *stop_condition, *tuple_list, *tuple, *complex, *strand;
-    char *tag, *id;
+    PyObject *stop_condition, *tuple_list, *tuple, *cmplx, *strand_list;
+    char *tag, *id, *structure;
     class identlist *id_list;
     class complex_item *complexes;
     class stopcomplexes *return_list;
@@ -24,11 +24,11 @@ class stopcomplexes *convertStopcomplexList(PyObject *stop_conditions)
         for (j = 0; j < m; j++)
         {
             tuple = PyList_GET_ITEM(tuple_list, j);
-            complex = PyTuple_GET_ITEM(tuple, 0);
-            stoptype = getLongItemFromTupletuple, 1);
+            cmplx = PyTuple_GET_ITEM(tuple, 0);
+            stoptype = getLongItemFromTuple(tuple, 1);
             count = getLongItemFromTuple(tuple, 2);
-            structure = getStringAttr(complex, structure);
-            strand_list = getListAttr(complex, strand_list);
+            structure = getStringAttr(cmplx, structure);
+            strand_list = getListAttr(cmplx, strand_list);
             
             l = PyList_GET_SIZE(strand_list);
             id_list = new identlist(getStringAttr(PyList_GetItem(strand_list, l-1), id), NULL);
@@ -38,16 +38,16 @@ class stopcomplexes *convertStopcomplexList(PyObject *stop_conditions)
             }
             
             if (j == 0)
-                complexes = new complex_item(structure, strand_list, NULL, stoptype, count);
+                complexes = new complex_item(structure, id_list, NULL, stoptype, count);
             else
-                complexes = new complex_item(structure, strand_list, complexes, stoptype, count);
+                complexes = new complex_item(structure, id_list, complexes, stoptype, count);
         }
         
         if (j == 0)
-            return_list = new complex_item(tag, complexes, NULL);
+            return_list = new stopcomplexes(tag, complexes, NULL);
         else
-            return_list = new complex_item(tag, complexes, return_list);
+            return_list = new stopcomplexes(tag, complexes, return_list);
     }
     
-    return return_list
+    return return_list;
 }

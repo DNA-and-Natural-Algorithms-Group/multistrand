@@ -4,7 +4,7 @@ class Domain(object):
   """Represents a Multistrand Domain object. The multi_format attribute
   contains the C++ object."""
   
-  def __init__(self, id, name, length, is_complement):
+  def __init__(self, id, name, length, is_complement=False):
     self.id = id
     self.name = name
     self.length = length
@@ -15,8 +15,8 @@ class Strand(object):
   """Represents a Multistrand Strand object. The multi_format attribute
   contains the C++ object."""
   
-  def __init__(self, number, name, sequence, domain_list):
-    self.id = number
+  def __init__(self, id, name, sequence, domain_list):
+    self.id = id
     self.name = name
     self.sequence = sequence
     self.domain_list = domain_list
@@ -26,11 +26,11 @@ class Complex(object):
   """Represents a Multistrand Complex object. The multi_format attribute
   contains the C++ object."""
   
-  def __init__(self, id, name, strand_list, bonds):
+  def __init__(self, id, name, strand_list, structure):
     self.id = id
     self.name = name
     self.strand_list = strand_list
-    self.bonds = bonds
+    self.structure = structure
 
 
 class RestingState(tuple):

@@ -6,6 +6,15 @@
 #ifndef __OPTIONLISTS_H__
 #define __OPTIONLISTS_H__
 
+#define STOPTYPE_STRUCTURE                     0 
+#define STOPTYPE_BOUND                         1
+#define STOPTYPE_DISASSOC                      2
+#define STOPTYPE_LOOSE_STRUCTURE               3
+#define STOPTYPE_PERCENT_OR_COUNT_STRUCTURE    4
+
+#include <stdlib.h>
+#include <cstring>
+
 // The bodies for these functions are defined in options.cc, but the
 // actual classes get used across a bunch of the files so they have been
 // seperated to not cause huge recompiles.
