@@ -3,6 +3,7 @@
 # Python implementation of the options object.                                 #
 # Copyright blah blah blah 2010 Caltech                                        #
 # Written by:  Joseph Schaeffer.                                               #
+# Some stuff written by:  Chris Berlind                                        #
 #                                                                              #
 # (others add your names as you modify files)                                  #
 #                                                                              #
@@ -299,7 +300,7 @@ class MultistrandOptions( object ):
         are reached.
         
         Type            Default
-        boolean / None  None
+        boolean         None
         
         Set to True by default if a stop state is defined. Can be set to False
         manually to avoid stopping at defined stop states. Can only be manually
@@ -332,7 +333,7 @@ class MultistrandOptions( object ):
         """ The number of states between outputs of trajectory information.
         
         Type         Default
-        int / None   None
+        int          None
         
         A value of None corresponds to not basing outputs on output_interval
         (but perhaps outputting based on some other condition). A value of 0 
@@ -365,43 +366,76 @@ class MultistrandOptions( object ):
         # BEGIN pythondata
         #
         ####################
-
-        self.python_current_time = FILLIN
-        None
-        ##double
-
-
-        self.python_trajectory_completion_flag = FILLIN
-        None
-        ##int
-
-
-        self.python_trajectory_time = FILLIN
-        None
-        ##double
-
-
-        self.python_halt_trajectory_flag = FILLIN
-        None
-        ##int
-        ('CurrentTrajectoryHaltFlag', 'current_trajectory_halt_flag')
-
-
-        self.python_suspend_trajectory_flag = FILLIN
-        None
-        ##int
-        ('CurrentTrajectorySuspendFlag', 'current_trajectory_suspend_flag')
-
-
-        self.python_k_collision = FILLIN
-        None
-        ##double
-
-
-        self.python_current_seed = FILLIN
-        None
-        ##long
-
+        
+        # TODO: change some of these to use properties and possibly rename
+        
+        self.python_trajectory_time = None
+        """ The total elapsed time of the most recently completed trajectory.
+        
+        Type         Default
+        double       None
+        
+        Set by ssystem.cc when a trajectory completes.
+        """
+        
+        self.python_collision_rate = None
+        """ The collision rate of the most recently completed trajectory.
+        
+        Type         Default
+        double       None
+        
+        Set by ssystem.cc when a trajectory completes.
+        """
+        
+        self.python_current_seed = None
+        """ The seed used by the random number generator in the most recently
+        completed trajectory.
+        
+        Type         Default
+        long         None
+        
+        Set by MultistrandOptions at the end of each trajectory.
+        """
+        
+        self.python_current_time = 0.0
+        """ The current elapsed time of the currently running trajectory.
+        
+        Type         Default
+        double       0.0
+        
+        Set by ssystem.cc at certain points during the simulation.
+        """
+        
+        self.python_trajectory_completion_flag = False
+        """ Indicates whether the trajectory has completed.
+        
+        Type         Default
+        boolean      False
+        
+        Should be set by MultistrandOptions when a trajectory completes.
+        """
+        
+        self.python_halt_trajectory_flag = False
+        """ Indicates whether Multistrand was told to halt its trajectory by an
+        external Python program.
+        
+        Type         Default
+        boolean      False
+        
+        Read by ssystem.cc. There should probably be a function that sets it.
+        """
+        
+        self.python_suspend_trajectory_flag = False
+        """ Indicates whether Multistrand was told to suspend its trajectory by 
+        an external Python program.
+        
+        Type         Default
+        boolean      False
+        
+        Read by ssystem.cc. There should probably be a function that sets it.
+        """
+        
+        
         ##############################
         #
         # functions used
