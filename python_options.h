@@ -133,6 +133,22 @@ static inline bool _testLongAttr( PyObject *obj, const char *attrname, const cha
 #define SUBSTRATE_RNA     0x01
 #define SUBSTRATE_DNA     0x02
 
+/* WARNING: If you change the following defines, you must also
+            change the values in python_options._OptionsConstants.SIMULATION_MODE
+			in the file python_options.py.
+*/
+
+#define SIMULATION_MODE_NORMAL              0x00
+#define SIMULATION_MODE_FIRST_BIMOLECULAR   0x01
+#define SIMULATION_MODE_PYTHON_NORMAL       0x02
+#define SIMULATION_MODE_PYTHON_FIRST_BI     0x03
+
+// simulation modes are bitwise -> bit 0 is normal/first bi
+//                                 bit 1 is normal interface/python interface
+// the following are the bit definitions for tests on those:
+
+#define SIMULATION_MODE_FLAG_FIRST_BIMOLECULAR         0x01
+#define SIMULATION_MODE_FLAG_PYTHON                    0x02
 
 
 #endif

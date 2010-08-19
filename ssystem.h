@@ -68,6 +68,7 @@ class SimulationSystem
   char systemsequence[3072];
   char systemstructure[3072];
   bool boltzmann_sample;
+  int simulation_mode;
 };
 
 #endif

@@ -91,12 +91,12 @@ SimulationSystem::SimulationSystem( int argc, char **argv )
 
 SimulationSystem::SimulationSystem( PyObject *system_options )
 {
-    
+  getLongAttr(system_options, simulation_mode, &simulation_mode );
   if( Loop::GetEnergyModel() == NULL)
     {
       dnaEnergyModel = NULL;
 
-      if(   getLongAttr(system_options, parameter_type) == 0 )
+      if(  testLongAttr(system_options, parameter_type,=,0) )
         dnaEnergyModel = new ViennaEnergyModel( system_options );
       else
         dnaEnergyModel = new NupackEnergyModel( system_options );
@@ -140,7 +140,7 @@ void SimulationSystem::StartSimulation( void )
   //#ifndef SRANDOMDEV
   //  srandom( time( NULL) );
 
-  if(getLongAttr(system_options, simulation_mode) & SIMULATION_PYTHON)
+  if(getLongAttr(system_options, simulation_mode) & SIMULATION_MODE_FLAG_PYTHON)
     {
       callFunc_NoArgsToNone(system_options, reset_completed_python);
       setDoubleAttr(system_options, python_collision_rate, -1.0);
@@ -170,7 +170,7 @@ void SimulationSystem::StartSimulation( void )
       return;
     }
   
-  if( getLongAttr(system_options, simulation_mode) & SIMULATION_FIRST )
+  if( getLongAttr(system_options, simulation_mode) & SIMULATION_MODE_FLAG_FIRST )
     {
       StartSimulation_First_Bimolecular();
       return;
@@ -195,11 +195,11 @@ void SimulationSystem::StartSimulation( void )
       srand48( random_seed );
 
 
-      if( ointerval < 0 && !(getLongAttr(system_options, simulation_mode) & SIMULATION_PYTHON))
+      if( ointerval < 0 && !(getLongAttr(system_options, simulation_mode) & SIMULATION_MODE_FLAG_PYTHON))
         printf("Seed: 0x%lx\n",random_seed);
       InitializeSystem();
 
-      if( ointerval < 0 && !(getLongAttr(system_options, simulation_mode) & SIMULATION_PYTHON))
+      if( ointerval < 0 && !(getLongAttr(system_options, simulation_mode) & SIMULATION_MODE_FLAG_PYTHON))
         {
           printf("Size: %ld, %ld, %ld, %ld\n",sizeof(time_t),sizeof(long),RAND_MAX,1<<31 -1);
           printf("System %d Initialized\n",curcount);
@@ -259,7 +259,7 @@ void SimulationSystem::SimulationLoop( long r_seed )
         //temp_deltat; //
         //  assert( stime > -0.0 );
 
-        if( sMode & SIMULATION_PYTHON )
+        if( sMode & SIMULATION_MODE_FLAG_PYTHON )
           setDoubleAttr(system_options, python_current_time, stime);
 
         complexList->doBasicChoice( rchoice, stime );
@@ -276,7 +276,7 @@ void SimulationSystem::SimulationLoop( long r_seed )
                 curcount++;
               }
           }
-        if( checkresult == 0 && (sMode & SIMULATION_PYTHON) )
+        if( checkresult == 0 && (sMode & SIMULATION_MODE_FLAG_PYTHON) )
           {
             // if external python interface has asked us to complete.
             if( getLongAttr(system_options, python_trajectory_suspend_flag))
@@ -317,7 +317,7 @@ void SimulationSystem::SimulationLoop( long r_seed )
       
       if( otime > 0.0 )
         printf("Final state reached: Time: %6.6f\n",stime);
-      if( ! (sMode & SIMULATION_PYTHON ) )
+      if( ! (sMode & SIMULATION_MODE_FLAG_PYTHON ) )
         if( ointerval < 0 || getLongAttr(system_options, output_state) == 0)
           complexList->printComplexList( 0 );
       
@@ -328,7 +328,7 @@ void SimulationSystem::SimulationLoop( long r_seed )
       else
         system_options->printStatusLine( r_seed, "INCOMPLETE", stime );
       
-      if( ! (sMode & SIMULATION_PYTHON) )
+      if( ! (sMode & SIMULATION_MODE_FLAG_PYTHON) )
         printf("Trajectory Completed\n");
     }
   else if( getLongAttr(system_options, trajectory_type) == 1 )
@@ -412,8 +412,8 @@ void SimulationSystem::StartSimulation_First_Bimolecular( void )
   double computed_rate_mean_diff_squared[3] = {0.0, 0.0,0.0}; // difference from current mean, squared, used for online variance algorithm.
   double delta = 0.0; // temporary variable for computing  delta from current mean.
 
-  int sMode = getLongAttr(system_options, simulation_mode) & SIMULATION_PYTHON;
-  assert( getLongAttr(system_options, simulation_mode) & SIMULATION_FIRST );
+  int sMode = getLongAttr(system_options, simulation_mode) & SIMULATION_MODE_FLAG_PYTHON;
+  assert( getLongAttr(system_options, simulation_mode) & SIMULATION_MODE_FLAG_FIRST );
   // random number seed has already been generated.
 
   while( curcount < getLongAttr(system_options, num_simulations) )
@@ -486,7 +486,7 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( long r_seed, double *co
   int checkresult = 0;
   class stopcomplexes *traverse;
   int ointerval = getLongAttr(system_options, output_interval);
-  int sMode = getLongAttr(system_options, simulation_mode) & SIMULATION_PYTHON;
+  int sMode = getLongAttr(system_options, simulation_mode) & SIMULATION_MODE_FLAG_PYTHON;
   int trajMode = getLongAttr(system_options, trajectory_type);
   double otime = getDoubleAttr(system_options, output_time);
   double ctime = 0.0;
@@ -644,7 +644,8 @@ void SimulationSystem::InitializeSystem( void )
   
   py_start_state = getListAttr(system_options, start_state);
   start_count = PyList_GET_SIZE(py_start_state);  
-  // doesn't need reference counting
+  // doesn't need reference counting for this size call.
+  // the getlistattr call we decref later.
   
   for( int index = 0; index < start_count; index++ )
     {
@@ -653,8 +654,8 @@ void SimulationSystem::InitializeSystem( void )
 
       sequence = getStringAttr(py_complex, sequence, py_seq);
       
-      //  TODO: simmode is now stored internally to ssystem.
-      if ( getLongAttr(system_options, simulation_mode) == SIMULATION_FIRST_BIMOLECULAR )
+      //simulation_mode == SIMULATION_MODE_FIRST_BIMOLECULAR )
+      if ( boltzmann_sample )
         structure = getStringAttr(py_complex, boltzmann_structure, py_struc);
       else
         structure = getStringAttr(py_complex, structure, py_seq);
@@ -671,6 +672,7 @@ void SimulationSystem::InitializeSystem( void )
       complexList->addComplex( tempcomplex );
       tempcomplex = NULL;
     }
+  Py_DECREF( py_start_state );
   return;
 }
 

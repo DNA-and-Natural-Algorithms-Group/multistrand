@@ -36,6 +36,12 @@ class _OptionsConstants( object ):
     def SUBSTRATE_TYPE(self):
         return {"Invalid":0, "RNA":1, \
                 "DNA":2}
+
+    @property
+    def SIMULATION_MODE(self):
+        return {"Normal":0,  "FirstBimolecular":1,\
+                "PythonNormal":2, "PythonFirstBi":3,\
+                "FlagFirstBimolecular":1, "FlagPython":2 }
     
     def __setattr__(self, name, value):
         if hasattr(self, name):
@@ -173,7 +179,7 @@ class MultistrandOptions( object ):
 
         Should use the values in the _OC.ENERGYMODEL_TYPE dictionary rather
         than the numbers directly, as those should be consistent with
-        the ones defined in the options_python.h headers.
+        the ones defined in the python_options.h headers.
         """
 
         self.substrate_type = _OC.SUBSTRATE_TYPE['DNA']
@@ -192,7 +198,7 @@ class MultistrandOptions( object ):
 
         Should use the values in the _OC.SUBSTRATE_TYPE dictionary rather
         than the numbers directly, as those should be consistent with
-        the ones defined in the options_python.h headers.
+        the ones defined in the python_options.h headers.
         """
         
         self.parameter_file = None
@@ -243,10 +249,16 @@ class MultistrandOptions( object ):
         Type         Default
         int          0: Normal
         
-        Normal            [0]:
-        First step        [1]:
-        Python normal     [2]:
-        Python first step [3]:
+        Normal            [0]:  The default.
+        First step        [1]:  First step is always a collision between complexes.
+        Python normal     [2]:  Python interface mode - controlled via external python session
+                                or program.
+        Python first step [3]:  Python mode w/First Step
+        
+        Should use the values in the _OC.SIMULATON_MODE dictionary rather
+        than the numbers directly, as those should be consistent with
+        the ones defined in the python_options.h headers.
+
         """
         
         self.simulation_time = 10000.0
