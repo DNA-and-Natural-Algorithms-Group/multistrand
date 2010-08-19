@@ -2,11 +2,7 @@
 #include "optionlists.h"
 
 // TODO: check deallocation of new objects
-
-
-
-
-
+// TODO: ref count checking.
 class stopcomplexes *getStopComplexList(PyObject *options, int index)
 {
     class identlist *id_list;
@@ -49,13 +45,13 @@ class stopcomplexes *getStopComplexList(PyObject *options, int index)
     return return_list;
 }
 
-
+// TODO: ref count checking.
 class identlist *getID_list(PyObject *options, int index)
 {
     return makeID_list(PyObject_GetAttrString(PyList_GET_ITEM(PyObject_GetAttrString(options, "start_complexes"), index), "strand_list"));
 }
 
-
+// TODO: ref count checking.
 class identlist *makeID_list(PyObject *strand_list)
 {
     class identlist *id_list;

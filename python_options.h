@@ -8,12 +8,41 @@
 // Import/instantiate
 #define newObject(mod, name) PyObject_CallObject(PyObject_GetAttrString(PyImport_ImportModule(#mod), #name), NULL)
 
+#define _m_getAttr_DECREF( obj, name, function, pvar )				\
+  {																	\
+	PyObject *_m_attr = PyObject_GetAttrString( obj, #name);		\
+	*(pvar) = function(_m_attr);									\
+	Py_DECREF(_m_attr);												\
+  }
+
+bool _testLongAttr( PyObject *obj, const char *attrname, const char *test, long value )
+{
+  PyObject *_m_attr = PyObject_GetAttrString( obj, attrname);		
+  long local_val = PyInt_AS_LONG(_m_attr);
+  Py_DECREF(_m_attr);											
+  if( test[0] == '=' )
+	return (local_val == value);
+  if( test[0] == '<' )
+	return (local_val < value );
+  if( test[0] == '>' )
+	return (local_val > value );
+}
+
+#define testLongAttr(obj, name, test, value) \
+  _testLongAttr( obj, #name, #test, value )
+
+#define getBoolAttr(obj, name)  _getBoolAttr( #obj, #name)
+
+#define _getBoolAttr(obj, name) \
+  (PyRun_SimpleString('"' obj "." name "== True" '"')==0?0:1)
+
 // Getters
 //#define getLongAttr(obj, name) PyInt_AS_LONG(PyObject_GetAttrString(obj, #name))
 #define getBoolAttr(obj, name, pvar) _m_getAttr_DECREF( obj, #name, PyInt_AS_LONG, pvar)
+// TODO: fix 
 #define getLongAttr(obj, name, pvar) _m_getAttr_DECREF( obj, #name, PyInt_AS_LONG, pvar)
 #define getDoubleAttr(obj, name) _m_getAttr_DECREF( obj, #name, PyFloat_AS_DOUBLE, pvar)
-#define getStringAttr(obj, name) PyString_AS_STRING(PyObject_GetAttrString(obj, #name))
+#define getStringAttr(obj, name, pyo) PyString_AS_STRING(pyo=PyObject_GetAttrString(obj, #name))
 #define getListAttr(obj, name) PyObject_GetAttrString(obj, #name)
 
 // Setters

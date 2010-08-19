@@ -34,6 +34,14 @@ char *strandlist::lookup( char *item_id )
   else return NULL;
 }
 
+char *strandlist::name_lookup( char *item_id )
+{
+  char * temp = strchr(id, ':');
+  if( strcmp( temp+1, item_id ) == 0) return id;
+  else if( next != NULL ) return next->lookup(item_id);
+  else return NULL;
+}
+
 /*
   strandlist::~strandlist( void )
 
@@ -64,6 +72,21 @@ identlist::identlist( char *newid, class identlist *old )
   next = old;
 }
 
+void identlist::make_unique( strandlist *strands)
+{
+  char * temp;
+  if (strchr(id, ':') != NULL)
+    {
+      if (next != NULL)
+	next->make_unique(strands);
+    }
+  else
+    {
+      temp = strands->name_lookup(id);
+      free(id);
+      id = temp;
+    }
+}
 /*
   identlist::~identlist( void )
 
@@ -334,27 +357,19 @@ int Options::addSequence( char *id, char *seq )
    * to allow the insertion of unique IDs
    * for strands */
   short length = 1;
-  long temp_id = unique_id;
-  string u_id;
 
-  do //This loop converts the unique_id to a string 
-  {
-    u_id.insert(0, 1, char(temp_id % 10);
-		temp_id \= 10;
-  }while(temp_id > 0)
- 
-  u_id.push_back('_');//Adding an underscore between the unique_id and the id.
-  
-  char *id2 = new char[strlen(id)+1 + u_id.length()];
+  char *id2 = new char[strlen(id)+12];
   char *seq2 = new char[strlen(seq)+1];
-  
-  strcpy( id2, u_id.c_str());
+  // printf("%l:%s\n", unique_id, id);
+  printf("%s", id);
+  printf("%s\n", id2);
+  sprintf( id2, "%ld:%s",unique_id, id);
   strcat(id2, id);
   strcpy(seq2, seq);
   
   free( id );
   free( seq );
-
+  unique_id++;
   if( strands == NULL )
     strands = new strandlist( id2, seq2 );
   else
@@ -441,6 +456,7 @@ int Options::addStopStructures( class stopcomplexes *stopstructs, int errortype 
       while( ctrav != NULL )
 	{
 	  strav = ctrav->strand_ids;
+	  strav->make_unique(strands);
 	  strand_count = 0;
 	  while( strav != NULL )
 	    {
@@ -626,6 +642,7 @@ int Options::addStartStructure( class complex_item *startstruct, int errortype)
   while( ctrav != NULL )
     {
       strav = ctrav->strand_ids;
+      strav->make_unique(strands);
       strand_count = 0;
       while( strav != NULL )
 	{

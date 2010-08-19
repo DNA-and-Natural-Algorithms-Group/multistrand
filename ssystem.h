@@ -59,13 +59,15 @@ class SimulationSystem
 
   EnergyModel *dnaEnergyModel;
 
-  StrandComplex *firstComplex; 
+  StrandComplex *startState; 
   SComplexList *complexList;
 
   Options *system_options;
 
 
-  char systemsequence[3072], systemstructure[3072];
+  char systemsequence[3072];
+  char systemstructure[3072];
+  bool boltzmann_sample;
 };
 
 #endif
