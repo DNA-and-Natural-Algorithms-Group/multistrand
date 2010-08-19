@@ -6,6 +6,7 @@ class Options(object):
     self.name = "Multistrand Options object"
     self.decimal = 9.1
     self._integer = 6
+    self.neg_integer = -4
     self.list_of_strings = ["ACT", "CAT", "GAC", "TAG"]
     
     strand1 = Strand("S1", "S1", "GATTACA", [Domain("d1", "d1", 7)])

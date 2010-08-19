@@ -31,7 +31,7 @@ class Complex(object):
   
   @property
   def sequence(self):
-    return "".join([strand.sequence for strand in self.strand_list])
+    return "+".join([strand.sequence for strand in self.strand_list])
   
   @property
   def boltzmann_sequence(self):

@@ -10,18 +10,17 @@
 ################################################################################
 
 from options_interface import Interface
+from python_objects import Complex
 
 class _OptionsConstants( object ):
     def __init__(self):
         self.ZERO_C_IN_K = 273.15
-        """ 0 degrees Celsius, expressed in Kelvin."""
-        
         pass
-
+    
     @property
     def RATEMETHOD(self):
         return {"Invalid" :0, "Metropolis"    :1, \
-                "Kawasaki":2,"EntropyEnthalpy":3}
+                "Kawasaki":2, "EntropyEnthalpy":3}
 
     @property
     def DANGLES(self):
@@ -38,7 +37,13 @@ class _OptionsConstants( object ):
         return {"Invalid":0, "RNA":1, \
                 "DNA":2}
     
-    def __setattr__(self):
+    def __setattr__(self, name, value):
+        if hasattr(self, name):
+            pass
+        else:
+            object.__setattr__(self, name, value)
+    
+    def __delattr__(self, *args, **kargs):
         pass
 
 _OC = _OptionsConstants()
@@ -191,7 +196,7 @@ class MultistrandOptions( object ):
         """
         
         self.parameter_file = None
-         """ Shortcut for using a very specific parameter file. Usually shouldn't be used.
+        """ Shortcut for using a very specific parameter file. Usually shouldn't be used.
         
         Type         Default
         str          None
@@ -283,14 +288,29 @@ class MultistrandOptions( object ):
         #
         ####################
         
+        # See accessors below
         self._start_state = []
-        """ The start state, i.e. a list of Complex or RestingState objects.
+        
+        self.use_resting_states = False
+        """ Indicates whether the start state will be determined by sampling
+        from resting states or by using single structures.
         
         Type         Default
-        list         []
+        boolean      False
         
-        The start state should be set (e.g. by the parser) so trajectories know 
-        how to start.
+        Automatically set to True if RestingState objects are given as the 
+        start state.
+        """
+        
+        self.boltzmann_sample = True
+        """ Indicates whether the start state will be determined by Boltzmann
+        sampling or by using exact structures.
+        
+        Type         Default
+        boolean      True
+        
+        Automatically set to True if RestingState objects are given as the 
+        start state.
         """
         
         self.stop_conditions = []
@@ -370,19 +390,14 @@ class MultistrandOptions( object ):
         
         self.interface = Interface()
         
+        
         ##############################
         #
         # functions used
         #
         ##############################
         
-        ('BoltzmannStructure', 'boltzmann_structure')
-        ('Sequence', 'sequence')
-        ('Structure', 'structure')
-
-
         ('finalizeInput', 'finalize_input')
-        ('incrementOutputState', 'increment_output_state')
         ('printStatusLine', 'print_status_line')
         ('printStatusLine_Final_First_Bimolecular', 'print_status_line__final__first__bimolecular')
         ('printStatusLine_First_Bimolecular', 'print_status_line__first__bimolecular')
@@ -396,19 +411,57 @@ class MultistrandOptions( object ):
     
     @property
     def start_state(self):
-    """ The start states, i.e. a list of Complex objects.
+        """ Get the start state, i.e. a list of Complex objects.
         
         Type         Default
         list         []
         
-        Start states should be added to this list (e.g. by the parser) so
-        trajectories know how to start.
+        This should be used by ssystem.cc to get the (potentially sampled) 
+        start state.
         """
-        return self._start_state
+        if self.use_resting_states:
+            complex_list = [rs[0] for rs in self._start_state]
+        else:
+            complex_list = self._start_state
+        
+        if self.boltzmann_sample:
+            complex_list = [boltzmann_sample(c) for c in complex_list]
+        
+        return complex_list
+    
     
     @start_state.setter
-    def start_state(self, initial_list):
+    def start_state(self, start_list):
+        """ Set the start state, i.e. a list of Complex or RestingState objects.
         
+        Type         Default
+        list         []
+        
+        The start state should be set (e.g. by the parser) so trajectories know 
+        how to start.
+        """
+        # Get out of here if the start state is empty
+        if start_list == []:
+            self._start_state = []
+            return
+        
+        # Make sure all types match
+        t = type(start_list[0])
+        if not all([type(item) is t for item in start_list]):
+            raise TypeError("All items in list must be the same type.")
+        
+        # Set the appropriate internal data members
+        if t is RestingState:
+            self._start_state = start_list[:]
+            self.use_resting_states = True
+            self.boltzmann_sample = True
+            
+        elif t is Complex:
+            self._start_state = start_list[:]
+            self.use_resting_states = False
+            
+        else:
+            raise TypeError("List items should be 'Complex' or 'RestingState', not '%s'." % t)
     
     
     def increment_output_state(self):
@@ -470,5 +523,38 @@ class MultistrandOptions( object ):
             self._temperature_celsius = val
             self._temperature_kelvin = val + _OC.ZERO_C_IN_K
             self.errorlog.append("Warning: Temperature was set at the value [{0}]. We expected a value in Kelvin, or with appropriate units.\n         Temperature was automatically converted to [{1}] degrees Kelvin.\n".format(val, self._temperature_kelvin))
+
+
+
+def boltzmann_sample(cmplx):
+    """Returns a new Complex object with a structure boltzmann sampled based on
+    NUPACK's sample function.
+    """
+    import os, subprocess
+    cwd = os.path.abspath(os.curdir)
+    prefix = "temp_boltzmann___"
+    
+    f = open("%s/%s.in" % (cwd, prefix), "w")
+    f.write("%d\n" % len(cmplx.strand_list))
+    for strand in cmplx.strand_list:
+        f.write(strand.sequence + "\n")
+    for i in range(len(cmplx.strand_list)):
+        f.write("%d " % (i+1))
+    f.write("\n")
+    f.close()
+    
+    subprocess.check_call(["/research/src/sample_dist/bin/sample", "-multi", "-material", "dna", "-count", "1", "%s/%s" % (cwd, prefix)], stdout=subprocess.PIPE)
+    
+    f = open("%s/%s.sample" % (cwd, prefix), "r")
+    for i in range(11):
+        line = f.readline()
+    f.close()
+    
+    return Complex(cmplx.id, cmplx.name, cmplx.strand_list, line.strip())
+
+
+
+
+
 
 
