@@ -28,6 +28,14 @@ class Complex(object):
     self.name = name
     self.strand_list = strand_list
     self.structure = structure
+  
+  @property
+  def sequence(self):
+    return "".join([strand.sequence for strand in self.strand_list])
+  
+  @property
+  def boltzmann_sequence(self):
+    return self.sequence  # For now...
 
 
 class RestingState(tuple):

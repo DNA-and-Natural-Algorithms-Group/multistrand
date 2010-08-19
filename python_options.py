@@ -283,15 +283,15 @@ class MultistrandOptions( object ):
         #
         ####################
         
-        self.start_complexes = []
-        """ The start states, i.e. a list of Complex objects.
+        self._start_state = []
+        """ The start state, i.e. a list of Complex or RestingState objects.
         
         Type         Default
         list         []
         
-        Start states should be added to this list (e.g. by the parser) so
-        trajectories know how to start.
-        """         
+        The start state should be set (e.g. by the parser) so trajectories know 
+        how to start.
+        """
         
         self.stop_conditions = []
         """ The stop states, i.e. a list of StopCondition objects.
@@ -315,7 +315,7 @@ class MultistrandOptions( object ):
         changed back to True from False.
         """
         
-        self.stopcount = 0
+        self.stop_count = 0
         """ The number of stop states. Equivalent to 'len(self.stop_conditions)'.
         
         Type         Default
@@ -392,6 +392,23 @@ class MultistrandOptions( object ):
         ('resetCompleted_Python', 'reset_completed__python')
         ('setCollisionRate_Python', 'set_collision_rate__python')
         ('setCurSimTime', 'set_cur_sim_time')
+    
+    
+    @property
+    def start_state(self):
+    """ The start states, i.e. a list of Complex objects.
+        
+        Type         Default
+        list         []
+        
+        Start states should be added to this list (e.g. by the parser) so
+        trajectories know how to start.
+        """
+        return self._start_state
+    
+    @start_state.setter
+    def start_state(self, initial_list):
+        
     
     
     def increment_output_state(self):

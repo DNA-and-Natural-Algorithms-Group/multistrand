@@ -623,7 +623,8 @@ void SimulationSystem::InitializeSystem( void )
   class StrandComplex *tempcomplex;
   char *sequence, *structure;
   class identlist *id;
-  int index = 0;
+  int start_count;
+  PyObject *py_start_state, *py_complex;
   //double random_seed;
 
   // random_seed = time( NULL );
@@ -634,14 +635,19 @@ void SimulationSystem::InitializeSystem( void )
     delete complexList;
 
   complexList = new SComplexList( dnaEnergyModel );
-
-  sequence = getStringItem(getListAttr(system_options, sequence), index);
-  while( sequence != NULL )
+  
+  py_start_state = getListAttr(system_options, start_state);
+  start_count = PyList_GET_SIZE(py_start_state);  
+  
+  for( int index = 0; index < start_count; index++ )
     {
+      py_complex = PyList_GET_ITEM(py_start_state, index);
+      sequence = getStringAttr(py_complex, sequence);
+      
       if ( getLongAttr(system_options, simulation_mode) == SIMULATION_FIRST_BIMOLECULAR )
-	structure = getStringItem(getListAttr(system_options, boltzmann_structure), index);
+	structure = getStringAttr(py_complex, boltzmann_structure);
       else
-	structure = getStringItem(getListAttr(system_options, structure), index);
+	structure = getStringAttr(py_complex, structure);
       
       id = getID_list( system_options, index );
       
@@ -654,69 +660,10 @@ void SimulationSystem::InitializeSystem( void )
       firstComplex = tempcomplex;
       complexList->addComplex( tempcomplex );
       tempcomplex = NULL;
-      index++;
-      sequence = getStringItem(getListAttr(system_options, sequence), index);
     }
   return;
 }
 
-
-int SimulationSystem::LoadSystem( FILE *instream )
-{
-  char insequence[3072],instructure[3072];
-  char *newseq, *newstruc;
-  int totlength, curstart, curindex, curcount;
-  fgets( insequence, 3072, stdin );
-  while( insequence[0] == '>' )
-    fgets( insequence, 3072, stdin );
-  fgets( instructure, 3072, stdin );
-  if(feof( stdin)) return -1;
-
-  totlength = strlen(insequence)-1;
-  insequence[strlen(insequence)-1] = '\0';
-  instructure[strlen(instructure)-1] = '\0';
-
-  strcpy( systemsequence, insequence );
-  strcpy( systemstructure, instructure );
-  
-
-
-  curindex = 0; curstart = 0; curcount = 0;
-  while( curindex < totlength )
-    {
-      while( (curstart < totlength) && ((curcount > 0) || (insequence[curstart] != '_')))
-	{
-	  if( instructure[curstart] == '(' ) curcount++;
-	  if( instructure[curstart] == ')' ) curcount--;
-	  if( curcount < 0 ) printf("Mismatched Parenthesis in input.");
-	  curstart++;
-	}
-      newseq = new char[curstart-curindex+1];
-      newstruc = new char[curstart-curindex+1];
-      insequence[curstart] = '\0';
-      instructure[curstart] = '\0';
-      strcpy( newseq, &insequence[curindex] );
-      strcpy( newstruc, &instructure[curindex] );
-      StrandComplex *tempcomplex = new StrandComplex( newseq, newstruc);
-      delete[] newseq;
-      delete[] newstruc;
-      while( insequence[curstart] == '_' || (curstart < totlength && insequence[curstart] == '\0')) curstart++;
-      curindex = curstart;
-      curcount = 0;
-      firstComplex = tempcomplex;
-      complexList->addComplex( tempcomplex );
-    }
-
-  //  newcomplex->generateLoops();
-  //double energy = newcomplex->getEnergy();
-  //newcomplex->moveDisplay();	  
-  //	  double rate = newcomplex->getTotalFlux();
-
-  //  printf("%s\n%s (%6.2f) %6.4f\n",insequence,instructure,energy,rate);
-  //  double stime = 0.0;
-
-
-}
 
 int SimulationSystem::ResetSystem( void )
 {
