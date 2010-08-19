@@ -275,23 +275,6 @@ class MultistrandOptions( object ):
         Incremented for each strand added.
         """
         
-        self.complexcount = FILLIN
-        """ count of complexes in initial state """
-        ##int
-        
-        self.strandcount = FILLIN
-        """ total # of strands """
-        ##int
-
-        self.energymode = FILLIN
-        """ deprecated, energy info """
-        ##int
-        ('EnergyMode', 'energy_mode')
-        
-        self.flagarray = FILLIN
-        """ deprecated, bit position info """
-        ##int
-        
         ####################
         #
         # BEGIN startstop
@@ -493,22 +476,22 @@ class MultistrandOptions( object ):
     
     
     def increment_output_state(self):
-            """ Modifies self.current_interval and self.output_state as 
-            necessary based on self.output_interval.
-            """
-            if self.output_interval == None or self.output_interval < 0:
-                raise ValueError("output_interval has invalid value: %s" % self.output_interval)
-            
-            elif self.current_interval > self.output_interval:
-                raise ValueError("current_interval has invalid value: %s" % self.current_interval)
-            
-            elif self.current_interval == self.output_interval:
-                self.current_interval == 0
-            
-            else:
-                self.current_interval += 1
-            
-            self.output_state = (self.current_interval == self.output_interval)
+        """ Modifies self.current_interval and self.output_state as 
+        necessary based on self.output_interval.
+        """
+        if self.output_interval == None or self.output_interval < 0:
+            raise ValueError("output_interval has invalid value: %s" % self.output_interval)
+        
+        elif self.current_interval > self.output_interval:
+            raise ValueError("current_interval has invalid value: %s" % self.current_interval)
+        
+        elif self.current_interval == self.output_interval:
+            self.current_interval == 0
+        
+        else:
+            self.current_interval += 1
+        
+        self.output_state = (self.current_interval == self.output_interval)
     
     
     @property
