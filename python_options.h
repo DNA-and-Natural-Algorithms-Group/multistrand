@@ -94,13 +94,44 @@ static inline bool _testLongAttr( PyObject *obj, const char *attrname, const cha
 }
 
 
+/*****************************************************
+
+ #defines for const values used in python_options.py
+
+******************************************************/
+
+/* WARNING: If you change the following defines, you must also
+            change the values in python_options._OptionsConstants.RATEMETHOD
+			in the file python_options.py.
+*/
+#define RATE_METHOD_INVALID         0x00
+#define RATE_METHOD_METROPOLIS      0x01
+#define RATE_METHOD_KAWASAKI        0x02
+#define RATE_METHOD_ENTROPYENTHALPY 0x03
 
 
+/* WARNING: If you change the following defines, you must also
+            change the values in python_options._OptionsConstants.DANGLES
+			in the file python_options.py.
+*/
+#define DANGLES_NONE    0x00
+#define DANGLES_SOME    0x01
+#define DANGLES_ALL     0x02
 
+/* WARNING: If you change the following defines, you must also
+            change the values in python_options._OptionsConstants.ENERGYMODEL_TYPE
+			in the file python_options.py.
+*/
+#define ENERGYMODEL_VIENNA 0x00
+#define ENERGYMODEL_NUPACK 0x01
 
-
-
-
+/* WARNING: If you change the following defines, you must also
+            change the values in python_options._OptionsConstants.SUBSTRATE_TYPE
+			in the file python_options.py.
+*/
+#define SUBSTRATE_INVALID 0x00
+#define SUBSTRATE_RNA     0x01
+#define SUBSTRATE_DNA     0x02
 
 
 

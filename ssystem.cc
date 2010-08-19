@@ -19,70 +19,72 @@
 #ifndef PYTHON_THREADS
 SimulationSystem::SimulationSystem( int argc, char **argv )
 {
-  FILE *fp = NULL;
-  if( GlobalOptions == NULL )
-    {
-      //      GlobalOptions = new Options();
+  assert(0);  // entire function is fail now.
+  
+  // FILE *fp = NULL;
+  // if( GlobalOptions == NULL )
+  //   {
+  //     //      GlobalOptions = new Options();
 
-      if( argc > 1 ) // some command line arguments.
-        {
-          if( argc > 2 ) // could be a filename arg
-            {
-              if( strcmp( argv[1], "--inputfile") == 0 )
-                {
-                  fp = fopen( argv[2], "rt");
-                  if( fp == NULL )
-                    fprintf(stderr,"ERROR: Could not open input file (%s) for reading.\n",argv[2]);
-                  else
-                    GlobalOptions = new Options( argv[2] );
-                }
-              else if( strcmp( argv[1], "--energy") == 0 )
-                {
-                  fp = fopen( argv[2], "rt");
-                  if( fp == NULL )
-                    {
-                      fprintf(stderr,"ERROR: Could not open input file (%s) for reading.\n",argv[2]);
-                      exit(1);
-                    }
-                  else
-                    GlobalOptions = new Options( argv[2] );
+  //     if( argc > 1 ) // some command line arguments.
+  //       {
+  //         if( argc > 2 ) // could be a filename arg
+  //           {
+  //             if( strcmp( argv[1], "--inputfile") == 0 )
+  //               {
+  //                 fp = fopen( argv[2], "rt");
+  //                 if( fp == NULL )
+  //                   fprintf(stderr,"ERROR: Could not open input file (%s) for reading.\n",argv[2]);
+  //                 else
+  //                   GlobalOptions = new Options( argv[2] );
+  //               }
+  //             else if( strcmp( argv[1], "--energy") == 0 )
+  //               {
+  //                 fp = fopen( argv[2], "rt");
+  //                 if( fp == NULL )
+  //                   {
+  //                     fprintf(stderr,"ERROR: Could not open input file (%s) for reading.\n",argv[2]);
+  //                     exit(1);
+  //                   }
+  //                 else
+  //                   GlobalOptions = new Options( argv[2] );
           
-                  GlobalOptions->setEnergyMode(1); // activate the energy-only version.
-                }
-            }
-        }
-      else
-        GlobalOptions = new Options();
+  //                 GlobalOptions->setEnergyMode(1); // activate the energy-only version.
+  //               }
+  //           }
+  //       }
+  //     else
+  //       GlobalOptions = new Options();
 
-      if( fp != NULL )
-        yyrestart( fp );
-      yyparse();
-      if( fp != NULL )
-        fclose(fp);
-    }
+  //     if( fp != NULL )
+  //       yyrestart( fp );
+  //     yyparse();
+  //     if( fp != NULL )
+  //       fclose(fp);
+  //   }
   
-  system_options = GlobalOptions;
+  // system_options = GlobalOptions;
 
-  if( Loop::GetEnergyModel() == NULL)
-    {
-      dnaEnergyModel = NULL;
-      if( getLongAttr(system_options, parameter_type) == 0 ) // VIENNA = 0
-        dnaEnergyModel = new ViennaEnergyModel( system_options );
-      else
-        dnaEnergyModel = new NupackEnergyModel( system_options );
-      Loop::SetEnergyModel( dnaEnergyModel );
-    }
-  else
-    {
-      dnaEnergyModel = Loop::GetEnergyModel();
-    }
+  // if( Loop::GetEnergyModel() == NULL)
+  //   {
+  //     dnaEnergyModel = NULL;
+  //     if( getLongAttr(system_options, parameter_type) == 0 ) // VIENNA = 0
+  //       dnaEnergyModel = new ViennaEnergyModel( system_options );
+  //     else
+  //       dnaEnergyModel = new NupackEnergyModel( system_options );
+  //     Loop::SetEnergyModel( dnaEnergyModel );
+  //   }
+  // else
+  //   {
+  //     dnaEnergyModel = Loop::GetEnergyModel();
+  //   }
   
-  startState = NULL;
-  complexList = NULL; // new SComplexList( dnaEnergyModel );
+  // startState = NULL;
+  // complexList = NULL; // new SComplexList( dnaEnergyModel );
 
-  //  GlobalOptions->finalizeInput();
+  // //  GlobalOptions->finalizeInput();
 
-  getBoolAttr( system_options, boltzmann_sample, &boltzmann_sampling );
+  // getBoolAttr( system_options, boltzmann_sample, &boltzmann_sampling );
 }
 #endif
 // end #ifndef PYTHON_THREADS - we do not want to have this constructor as it uses yyparse.
@@ -621,8 +623,13 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( long r_seed, double *co
 }
 
 
+///////////////////////////////////////////////////
+// This has now been ref count checked, etc etc. //
+///////////////////////////////////////////////////
+
+        
 void SimulationSystem::InitializeSystem( void )
-{
+{                             
   class StrandComplex *tempcomplex;
   char *sequence, *structure;
   class identlist *id;
