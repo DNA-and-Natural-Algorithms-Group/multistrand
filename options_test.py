@@ -19,6 +19,8 @@ class Options(object):
                             StopCondition("TAG2", [(complex2, 6, 0), (complex3, 6, 1)])]
     self.start_complexes = [complex1, complex2, complex3]
     
+    self.flag = True
+    
   
   @property
   def integer(self):

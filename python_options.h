@@ -10,12 +10,18 @@
 
 // Getters
 //#define getLongAttr(obj, name) PyInt_AS_LONG(PyObject_GetAttrString(obj, #name))
-#define getDoubleAttr(obj, name) PyFloat_AS_DOUBLE(PyObject_GetAttrString(obj, #name))
+#define getBoolAttr(obj, name, pvar) _m_getAttr_DECREF( obj, #name, PyInt_AS_LONG, pvar)
+#define getLongAttr(obj, name, pvar) _m_getAttr_DECREF( obj, #name, PyInt_AS_LONG, pvar)
+#define getDoubleAttr(obj, name) _m_getAttr_DECREF( obj, #name, PyFloat_AS_DOUBLE, pvar)
 #define getStringAttr(obj, name) PyString_AS_STRING(PyObject_GetAttrString(obj, #name))
 #define getListAttr(obj, name) PyObject_GetAttrString(obj, #name)
 
 // Setters
 #define setDoubleAttr(obj, name, arg) PyObject_SetAttrString(obj, #name, PyFloat_FromDouble(arg))
+
+// Testers
+#define testLongAttr(obj, name, test, value) _testLongAttr( obj, #name, #test, value )
+#define testBoolAttr(obj, name) _testLongAttr( obj, #name, "=", 1 )
 
 // Function calls
 #define callFunc_NoArgsToNone(obj, name) PyObject_CallMethod(obj, #name, "()")
@@ -31,6 +37,7 @@
 #define callFunc_IntToNone(obj, name, arg) PyObject_CallObject(PyObject_GetAttrString(obj, #name), Py_BuildValue("(i)", arg))
 #define callFunc_IntToString(obj, name, arg) PyString_AS_STRING(PyObject_CallObject(PyObject_GetAttrString(obj, #name), Py_BuildValue("(i)", arg)))
 
+
 // New macros
 #define _m_getAttr_DECREF( obj, name, function, pvar )               \
  {                                                                   \
@@ -39,12 +46,7 @@
        Py_DECREF(_m_attr);                                           \
  }
 
-#define testLongAttr(obj, name, test, value) _testLongAttr( obj, #name, #test, value )
-
-#define getLongAttr(obj, name, pvar) _m_getAttr_DECREF( obj, #name, PyInt_AS_LONG, pvar)
-
-
-// New functions
+// Functions
 class identlist *makeID_list(PyObject *strand_list);
 class stopcomplexes *getStopComplexList(PyObject *options, int index);
 class identlist *getID_list(PyObject *options, int index);

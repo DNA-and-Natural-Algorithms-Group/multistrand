@@ -12,6 +12,19 @@ int main()
     
     PyObject *options = newObject(options_test, Options);
     
+    //int flag = getBoolAttr(options, flag);
+    int flag;
+    // getLongAttr(options, flag, &flag);
+//    if (getBoolAttr(options, flag))
+//        printf("True\n");
+//    else
+//        printf("False\n");
+    
+    for (int i = 0; i < 10000000; i++)
+    {
+        getBoolAttr(options, flag);
+    }
+    return 1;
     int a, b;
     getLongAttr( options, integer, &a);
     getLongAttr( options, neg_integer, &b);
