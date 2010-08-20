@@ -29,22 +29,6 @@
 #define STOPTYPE_LOOSE_STRUCTURE               3
 #define STOPTYPE_PERCENT_OR_COUNT_STRUCTURE    4
 
-/* Simulation Modes */
-/* Newly added for fixed 1st step simulations. 
-   Should be expanded to cover alternate trajectory types,
-   and other simulation modules. */
-
-#define SIMULATION_NORMAL              0
-#define SIMULATION_FIRST_BIMOLECULAR   1
-#define SIMULATION_PYTHON_NORMAL       2
-#define SIMULATION_PYTHON_FIRST_BI     3
-
-// simulation modes are bitwise -> bit 0 is normal/first bi
-//                                 bit 1 is normal interface/python interface
-// the following are the bit definitions for tests on those:
-
-#define SIMULATION_FIRST         0x01
-#define SIMULATION_PYTHON        0x02
 
 
 

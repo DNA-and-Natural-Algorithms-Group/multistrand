@@ -338,14 +338,14 @@ class MultistrandOptions( object ):
         modified externally.
         """
         
-        self.output_time = None
+        self.output_time = -1.0
         """ The amount of time (in seconds) to wait between outputs of 
         trajectory information.
         
         Type         Default
-        float        None
+        float        -1.0
         
-        A value of None corresponds to not basing outputs on output_time
+        A value of -1.0 corresponds to not basing outputs on output_time
         (but perhaps outputting based on some other condition). A value of 0 
         means output as often as possible.
         """
@@ -465,7 +465,11 @@ class MultistrandOptions( object ):
             
             for cmplx in start_list:
                 cmplx.strand_list = [self.add_unique_id(s) for s in cmplx.strand_list]
-    
+
+    @property
+    def initial_seed_flag(self):
+        return initial_seed != None
+
     
     @property
     def stop_conditions(self):

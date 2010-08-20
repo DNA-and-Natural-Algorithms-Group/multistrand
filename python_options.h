@@ -8,10 +8,10 @@
 // Import/instantiate
 #define newObject(mod, name) PyObject_CallObject(PyObject_GetAttrString(PyImport_ImportModule(#mod), #name), NULL)
 
-#define _m_getAttr_DECREF( obj, name, function, pvar )				\
+#define _m_getAttr_DECREF( obj, name, function, pvar, vartype )     \
   {																	\
 	PyObject *_m_attr = PyObject_GetAttrString( obj, #name);		\
-	*(pvar) = function(_m_attr);									\
+	*(vartype *)(pvar) = function(_m_attr);                         \
 	Py_DECREF(_m_attr);												\
   }
 
@@ -31,22 +31,16 @@ bool _testLongAttr( PyObject *obj, const char *attrname, const char *test, long 
 #define testLongAttr(obj, name, test, value) \
   _testLongAttr( obj, #name, #test, value )
 
-#define getBoolAttr(obj, name)  _getBoolAttr( #obj, #name)
-
-#define _getBoolAttr(obj, name) \
-  (PyRun_SimpleString('"' obj "." name "== True" '"')==0?0:1)
-
 // Getters
-//#define getLongAttr(obj, name) PyInt_AS_LONG(PyObject_GetAttrString(obj, #name))
-#define getBoolAttr(obj, name, pvar) _m_getAttr_DECREF( obj, #name, PyInt_AS_LONG, pvar)
-// TODO: fix 
-#define getLongAttr(obj, name, pvar) _m_getAttr_DECREF( obj, #name, PyInt_AS_LONG, pvar)
-#define getDoubleAttr(obj, name, pvar) _m_getAttr_DECREF( obj, #name, PyFloat_AS_DOUBLE, pvar)
+#define getBoolAttr(obj, name, pvar) _m_getAttr_DECREF( obj, #name, PyInt_AS_LONG, pvar, bool)
+#define getLongAttr(obj, name, pvar) _m_getAttr_DECREF( obj, #name, PyInt_AS_LONG, pvar, long)
+#define getDoubleAttr(obj, name, pvar) _m_getAttr_DECREF( obj, #name, PyFloat_AS_DOUBLE, pvar, double)
 #define getStringAttr(obj, name, pyo) PyString_AS_STRING(pyo=PyObject_GetAttrString(obj, #name))
 #define getListAttr(obj, name) PyObject_GetAttrString(obj, #name)
 
 // Setters
 #define setDoubleAttr(obj, name, arg) PyObject_SetAttrString(obj, #name, PyFloat_FromDouble(arg))
+// TODO: check if PyFloat_FromDouble returns a new ref that PyObject_SetAttrString doesn't steal.
 
 // Testers
 #define testLongAttr(obj, name, test, value) _testLongAttr( obj, #name, #test, value )
@@ -65,16 +59,8 @@ bool _testLongAttr( PyObject *obj, const char *attrname, const char *test, long 
 
 // Not currently used, but might be a good reference for later
 #define callFunc_IntToNone(obj, name, arg) PyObject_CallObject(PyObject_GetAttrString(obj, #name), Py_BuildValue("(i)", arg))
+// these are refcounting insensitive at the moment.
 #define callFunc_IntToString(obj, name, arg) PyString_AS_STRING(PyObject_CallObject(PyObject_GetAttrString(obj, #name), Py_BuildValue("(i)", arg)))
-
-
-// New macros
-#define _m_getAttr_DECREF( obj, name, function, pvar )               \
- {                                                                   \
-       PyObject *_m_attr = PyObject_GetAttrString( obj, name);       \
-       *(pvar) = function(_m_attr);                                  \
-       Py_DECREF(_m_attr);                                           \
- }
 
 // Functions
 class identlist *makeID_list(PyObject *strand_list);

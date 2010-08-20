@@ -517,12 +517,14 @@ NupackEnergyModel::NupackEnergyModel( PyObject *energy_options ) : log_loop_pena
   double temperature;
   FILE *fp = NULL, *fp2 = NULL; // fp is dG energy file, fp2 is dH.
 
-  current_temp = temperature = getDoubleAttr(energy_options, temperature);
-  dangles = getLongAttr(energy_options, dangles);
-  //  ptype = getLongAttr(energy_options, parameter_type);
-  logml = getLongAttr(energy_options, log_ml);
-  gtenable = getBoolAttr(energy_options, gt_enable );
-  kinetic_rate_method = getLongAttr(energy_options, rate_method);
+  getDoubleAttr(energy_options, temperature,&temperature);
+  current_temp =  temperature;
+
+  getLongAttr(energy_options, dangles,&dangles);
+  //  getLongAttr(energy_options, parameter_type,&ptype);
+  getLongAttr(energy_options, log_ml,&logml);
+  getBoolAttr(energy_options, gt_enable ,&gtenable);
+  getLongAttr(energy_options, rate_method,&kinetic_rate_method);
 
   //  if( logml == -1 ) logml = 0;
   // JS: Should now be correct via new python options object.
@@ -540,7 +542,7 @@ NupackEnergyModel::NupackEnergyModel( PyObject *energy_options ) : log_loop_pena
     for( loop2 = 0; loop2 < NUM_BASES; loop2++)
       pairtypes[loop][loop2] = pairtypes_mfold[loop][loop2];
   
-  if( getLongAttr(energy_options, substrate_type) == SUBSTRATE_INVALID )
+  if( testLongAttr(energy_options, substrate_type ,=, SUBSTRATE_INVALID ) )
     {
 	  char *tmp = (char *) getStringAttr( energy_options, parameter_file );
 	  if( tmp != NULL )
@@ -558,7 +560,7 @@ NupackEnergyModel::NupackEnergyModel( PyObject *energy_options ) : log_loop_pena
 		  exit(1);
 		}
     }
-  else if( getLongAttr(energy_options, substrate_type) == SUBSTRATE_DNA )
+  else if( testLongAttr(energy_options, substrate_type ,=, SUBSTRATE_DNA ) )
     {
       char *nupackhome;
       char fullpath[512];
@@ -605,7 +607,7 @@ NupackEnergyModel::NupackEnergyModel( PyObject *energy_options ) : log_loop_pena
 
 		}
     }
-  else if( getLongAttr(energy_options, substrate_type) == SUBSTRATE_RNA )
+  else if( testLongAttr(energy_options, substrate_type ,=, SUBSTRATE_RNA ) )
     {
       char *nupackhome;
       char fullpath[512];
@@ -822,9 +824,9 @@ NupackEnergyModel::NupackEnergyModel( PyObject *energy_options ) : log_loop_pena
   
   if(fp2 == NULL )
     {
-      if( getDoubleAttr(energy_options, temperature) < CELSIUS37_IN_KELVIN - .0001 || getDoubleAttr(energy_options, temperature) > CELSIUS37_IN_KELVIN + .0001)
+      if( temperature < CELSIUS37_IN_KELVIN - .0001 || temperature > CELSIUS37_IN_KELVIN + .0001)
 		{
-		  fprintf(stderr,"ERROR: Temperature was set to %0.2lf C, but only dG type data files could be found. Please ensure that the requested parameter set has both .dG and .dH files!\n",getDoubleAttr(energy_options, temperature));
+		  fprintf(stderr,"ERROR: Temperature was set to %0.2lf C, but only dG type data files could be found. Please ensure that the requested parameter set has both .dG and .dH files!\n",temperature);
 		  exit(0);
 		}
       return;
@@ -996,7 +998,7 @@ NupackEnergyModel::NupackEnergyModel( PyObject *energy_options ) : log_loop_pena
   fclose(fp2);
 
   // Temperature change section.
-  //  double temperature = getDoubleAttr(energy_options, temperature);
+  //  double getDoubleAttr(energy_options, temperature,&temperature);
   
   // Note: #define T_scale( dG, dH, T ) ((((dG) - (dH)) * (T) / 310.15) + dH)
 
@@ -1860,11 +1862,11 @@ void NupackEnergyModel::setupRates( Options *energy_options )
 
 
   double joinconc,joinrate_volume;
-  joinconc = getDoubleAttr(energy_options, join_concentration);
+  getDoubleAttr(energy_options, join_concentration,&joinconc);
   // the concentration is now in M units, rather than the previous mM. The input parser converts to these.
 
-  biscale = getDoubleAttr(energy_options, bimolecular_scaling);
-  uniscale = getDoubleAttr(energy_options, unimolecular_scaling);
+  getDoubleAttr(energy_options, bimolecular_scaling,&biscale);
+  getDoubleAttr(energy_options, unimolecular_scaling,&uniscale);
   // Two components to the join rate, the dG_assoc from mass action, and the dG_volume term which is related to the concentration. We compute each individually, following my derivation for the volume term, and the method used in Nupack for the dG_assoc term.
 
   // Please note, waterdensity is actually the Mols H2O / L, not the actual density of water (g/mol).

@@ -30,8 +30,11 @@ class SimulationSystem
 {
  public: 
 
-  SimulationSystem( char *filename ); // standard constructor, filename is so we can load an energy model. Future constructors will handle command-line processing and sother input files.
-  SimulationSystem( Options &globalOpts ); // python interface constructor
+  //  SimulationSystem( char *filename ); // standard constructor, filename is so we can load an energy model. Future constructors will handle command-line processing and sother input files.
+  SimulationSystem( PyObject *system_options );
+
+  //  SimulationSystem( Options &globalOpts );
+
 
 #ifndef PYTHON_THREADS
 	// we do not want this when using the python interface, as it requires the parsing code.
@@ -39,9 +42,9 @@ class SimulationSystem
 #endif
 
   ~SimulationSystem( void ); 
-  int LoadSystem( FILE *instream );
-  int ResetSystem( void );
-  int StartSimulation( int input_flags, int num_sims, double simtime );
+  //  int LoadSystem( FILE *instream );
+  //  int ResetSystem( void );
+  //  int StartSimulation( int input_flags, int num_sims, double simtime );
 
 
   void StartSimulation( void );
@@ -64,11 +67,11 @@ class SimulationSystem
 
   Options *system_options;
 
-
-  char systemsequence[3072];
-  char systemstructure[3072];
   bool boltzmann_sample;
+  bool use_fixed_random_seed;
+  bool initial_trajectory;
   int simulation_mode;
+  int simulation_count_remaining;
 };
 
 #endif
