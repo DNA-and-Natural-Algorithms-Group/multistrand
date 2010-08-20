@@ -283,6 +283,17 @@ class MultistrandOptions( object ):
         Incremented for each strand added.
         """
         
+        self.name_dict = {}
+        """ Dictionary from strand name to a list of unique strand objects
+        having that name.
+        
+        Type         Default
+        dict         {}
+        
+        Modified when start state is added. Used as a lookup when stop states 
+        are added.
+        """
+        
         ####################
         #
         # BEGIN startstop
@@ -433,10 +444,11 @@ class MultistrandOptions( object ):
         The start state should be set (e.g. by the parser) so trajectories know 
         how to start.
         """
-        # Get out of here if the argument list is empty
+        # Error checking first
+        if self._start_state !=  []:
+            raise Exception("Start state should only be set once.")
         if start_list == []:
-            self._start_state = []
-            return
+            raise ValueError("No start state given.")
         
         # Copy the input list because it's easy to do and it's safer
         start_list = copy.deepcopy(start_list)
@@ -456,7 +468,7 @@ class MultistrandOptions( object ):
             for resting_state in start_list:
                 id_dict = {}
                 for strand in resting_state[0].strand_list:
-                    id_dict[strand.id] = self.add_unique_id(strand)
+                    id_dict[strand.id] = self.make_unique(strand)
                 for cmplx in resting_state:
                     cmplx.strand_list = [id_dict[s.id] for s in cmplx.strand_list]
         
@@ -464,7 +476,7 @@ class MultistrandOptions( object ):
             self.use_resting_states = False
             
             for cmplx in start_list:
-                cmplx.strand_list = [self.add_unique_id(s) for s in cmplx.strand_list]
+                cmplx.strand_list = [self.make_unique(s) for s in cmplx.strand_list]
     
     
     @property
@@ -490,13 +502,36 @@ class MultistrandOptions( object ):
         Stop states should be added to this list (e.g. by the parser) so
         trajectories know when to end.
         """
+        # Error checking
+        if self._stop_conditions != []:
+            raise Exception("Stop conditions should be set only once.")
+        if self._start_state == []:
+            raise Exception("Start state must be set before stop conditions.")
+        
         # Type checking
         for item in stop_list:
             if not isinstance(item, StopCondition):
                 raise TypeError("All items must be 'StopCondition', not '%s'." % type(item))
         
+        # Copy the input list because it's easy to do and it's safer
+        stop_list = copy.deepcopy(stop_list)
+        
+        # Assign the unique ids
+        for sc in stop_list:
+            counts = {}
+            for cmplx, st, cn in sc.complex_items:
+                for i, s in enumerate(cmplx.strand_list):
+                    if s.name not in self.name_dict:
+                        raise ValueError("Stop state contains a strand not present in start state.")
+                    try:
+                        cmplx.strand_list[i] = self.name_dict[s.name][counts[s.name]]
+                        counts[s.name] += 1
+                    except KeyError:
+                        cmplx.strand_list[i] = self.name_dict[s.name][0]
+                        counts[s.name] = 1
+        
         # Set the internal data member
-        self._stop_conditions = copy.deepcopy(stop_list)
+        self._stop_conditions = stop_list
     
     
     def increment_output_state(self):
@@ -559,15 +594,19 @@ class MultistrandOptions( object ):
             self.errorlog.append("Warning: Temperature was set at the value [{0}]. We expected a value in Kelvin, or with appropriate units.\n         Temperature was automatically converted to [{1}] degrees Kelvin.\n".format(val, self._temperature_kelvin))
     
     
-    def add_unique_id(self, strand):
-        """Returns a new Strand object with a unique identifier prepended to the
-        existing id.
+    def make_unique(self, strand):
+        """Returns a new Strand object with a unique identifier replacing the 
+        old id. Also adds the new strand to self.name_dict[strand.name].
         """
-        if ":" in strand.id:
-            raise ValueError("Either strand already has a unique id or its id is not valid.")
-        new_id = str(self.unique_id) + ":" + strand.id
+        new_strand = Strand(self.unique_id, strand.name, strand.sequence, strand.domain_list)
         self.unique_id += 1
-        return Strand(new_id, strand.name, strand.sequence, strand.domain_list)
+        
+        try:
+            self.name_dict[strand.name].append(new_strand)
+        except KeyError:
+            self.name_dict[strand.name] = [new_strand]
+
+        return new_strand
     
     
     def reset_completed_python(self):
