@@ -34,9 +34,10 @@ class strandlist {
 
 class identlist {
  public:
+  int uid;
   char *id;
   class identlist *next;
-  identlist( char *newid, class identlist *old = NULL);
+  identlist( int newuid, char *newid, class identlist *old = NULL);
   void  make_unique( strandlist *strands);
   ~identlist( void );
 };
