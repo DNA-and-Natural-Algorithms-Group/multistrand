@@ -43,8 +43,9 @@ strandlist::~strandlist( void )
   This is a very basic linked list constructor.
 */
 
-identlist::identlist( char *newid, class identlist *old )
+identlist::identlist( int newuid, char *newid, class identlist *old )
 {
+  uid = newuid;
   id = newid;
   next = old;
 }

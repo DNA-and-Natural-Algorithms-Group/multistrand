@@ -61,9 +61,15 @@ class identlist *makeID_list(PyObject *strand_list)
     class identlist *id_list;
     
     int n = PyList_GET_SIZE(strand_list);
-    id_list = new identlist(getStringAttr(PyList_GetItem(strand_list, n - 1), id), NULL);
+    
+    PyObject* py_strand = PyList_GetItem(strand_list, n - 1);
+    id_list = new identlist( getLongAttr(py_strand, id), getStringAttr(py_strand, name), NULL );
+    
     for (int i = n - 2; i >= 0; i--)
-        id_list = new identlist(getStringAttr(PyList_GetItem(strand_list, i), id), id_list);
+    {
+        py_strand = PyList_GetItem(strand_list, i);
+        id_list = new identlist( getLongAttr(py_strand, id), getStringAttr(py_strand, name), id_list );
+    }
     
     return id_list;
 }
