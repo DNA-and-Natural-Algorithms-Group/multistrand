@@ -6,7 +6,7 @@ TODO lists, per file or high level concept.
 ** TODO Update objects / sources / clean up other things.
 
 * File / Directory TODO List
-** TODO Rebuild the directory structure to encapsulate pieces better.
+** Rebuild the directory structure to encapsulate pieces better.
 ** TODO Update makefiles / header files / etc / to cover new directory structure.
 
 
