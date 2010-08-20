@@ -41,7 +41,7 @@ bool _testLongAttr( PyObject *obj, const char *attrname, const char *test, long 
 #define getBoolAttr(obj, name, pvar) _m_getAttr_DECREF( obj, #name, PyInt_AS_LONG, pvar)
 // TODO: fix 
 #define getLongAttr(obj, name, pvar) _m_getAttr_DECREF( obj, #name, PyInt_AS_LONG, pvar)
-#define getDoubleAttr(obj, name) _m_getAttr_DECREF( obj, #name, PyFloat_AS_DOUBLE, pvar)
+#define getDoubleAttr(obj, name, pvar) _m_getAttr_DECREF( obj, #name, PyFloat_AS_DOUBLE, pvar)
 #define getStringAttr(obj, name, pyo) PyString_AS_STRING(pyo=PyObject_GetAttrString(obj, #name))
 #define getListAttr(obj, name) PyObject_GetAttrString(obj, #name)
 
@@ -54,6 +54,7 @@ bool _testLongAttr( PyObject *obj, const char *attrname, const char *test, long 
 
 // Function calls
 #define callFunc_NoArgsToNone(obj, name) PyObject_CallMethod(obj, #name, "()")
+#define callFunc_NoArgsToLong(obj, name) PyInt_AS_LONG(PyObject_CallMethod(obj, #name, "()"))
 #define callFunc_DoubleToNone(obj, name, arg) PyObject_CallMethod(obj, #name, "(f)", arg)
 
 // List indexing
