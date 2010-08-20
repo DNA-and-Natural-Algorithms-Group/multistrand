@@ -43,11 +43,15 @@ class RestingState(tuple):
   strongly connected component with no outward fast transitions in the reaction
   graph."""
   
-  def __new__(typ, name, complex_set):
-    return super(RestingState, typ).__new__(typ, complex_set)
+  def __new__(cls, *args):
+    return tuple.__new__(cls, args[-1])
   
   def __init__(self, name, complex_set):
     self.name = name
+  
+#  def __deepcopy__(self, memo):
+#    from copy import deepcopy
+#    return RestingState(self.name, [deepcopy(c, memo) for c in self])
 
 
 class StopCondition(object):

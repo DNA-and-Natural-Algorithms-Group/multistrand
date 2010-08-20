@@ -568,7 +568,7 @@ class MultistrandOptions( object ):
     """
 
     @temperature.setter
-    def temperature(self,val):
+    def temperature(self, val):
         """ performs some sanity checking and provides a log error if
         perhaps the user was confused.
 
