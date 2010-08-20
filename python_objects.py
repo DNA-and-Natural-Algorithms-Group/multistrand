@@ -48,10 +48,6 @@ class RestingState(tuple):
   
   def __init__(self, name, complex_set):
     self.name = name
-  
-#  def __deepcopy__(self, memo):
-#    from copy import deepcopy
-#    return RestingState(self.name, [deepcopy(c, memo) for c in self])
 
 
 class StopCondition(object):
