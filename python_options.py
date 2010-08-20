@@ -10,7 +10,8 @@
 ################################################################################
 
 from options_interface import Interface
-from python_objects import Complex
+from python_objects import Strand, Complex, RestingState
+import copy
 
 class _OptionsConstants( object ):
     def __init__(self):
@@ -36,12 +37,6 @@ class _OptionsConstants( object ):
     def SUBSTRATE_TYPE(self):
         return {"Invalid":0, "RNA":1, \
                 "DNA":2}
-
-    @property
-    def SIMULATION_MODE(self):
-        return {"Normal":0,  "FirstBimolecular":1,\
-                "PythonNormal":2, "PythonFirstBi":3,\
-                "FlagFirstBimolecular":1, "FlagPython":2 }
     
     def __setattr__(self, name, value):
         if hasattr(self, name):
@@ -179,7 +174,7 @@ class MultistrandOptions( object ):
 
         Should use the values in the _OC.ENERGYMODEL_TYPE dictionary rather
         than the numbers directly, as those should be consistent with
-        the ones defined in the python_options.h headers.
+        the ones defined in the options_python.h headers.
         """
 
         self.substrate_type = _OC.SUBSTRATE_TYPE['DNA']
@@ -198,7 +193,7 @@ class MultistrandOptions( object ):
 
         Should use the values in the _OC.SUBSTRATE_TYPE dictionary rather
         than the numbers directly, as those should be consistent with
-        the ones defined in the python_options.h headers.
+        the ones defined in the options_python.h headers.
         """
         
         self.parameter_file = None
@@ -249,16 +244,10 @@ class MultistrandOptions( object ):
         Type         Default
         int          0: Normal
         
-        Normal            [0]:  The default.
-        First step        [1]:  First step is always a collision between complexes.
-        Python normal     [2]:  Python interface mode - controlled via external python session
-                                or program.
-        Python first step [3]:  Python mode w/First Step
-        
-        Should use the values in the _OC.SIMULATON_MODE dictionary rather
-        than the numbers directly, as those should be consistent with
-        the ones defined in the python_options.h headers.
-
+        Normal            [0]:
+        First step        [1]:
+        Python normal     [2]:
+        Python first step [3]:
         """
         
         self.simulation_time = 10000.0
@@ -325,26 +314,18 @@ class MultistrandOptions( object ):
         start state.
         """
         
-        self.stop_conditions = []
-        """ The stop states, i.e. a list of StopCondition objects.
+        # See accessors below
+        self._stop_conditions = []
         
-        Type         Default
-        list         []
-        
-        Stop states should be added to this list (e.g. by the parser) so
-        trajectories know when to end.
-        """ 
-        
-        self.use_stop_states = None
+        self.use_stop_conditions = True
         """ Indicates whether trajectories should end when stop states
         are reached.
         
         Type            Default
-        boolean         None
+        boolean         True: End trajectory upon reaching stop state
         
-        Set to True by default if a stop state is defined. Can be set to False
-        manually to avoid stopping at defined stop states. Can only be manually
-        changed back to True from False.
+        Defaults to ending trajectories upon reaching stop states, but can be
+        manually changed to False to avoid stopping at defined stop states.
         """
         
         self.stop_count = 0
@@ -452,28 +433,70 @@ class MultistrandOptions( object ):
         The start state should be set (e.g. by the parser) so trajectories know 
         how to start.
         """
-        # Get out of here if the start state is empty
+        # Get out of here if the argument list is empty
         if start_list == []:
             self._start_state = []
             return
         
+        # Copy the input list because it's easy to do and it's safer
+        start_list = copy.deepcopy(start_list)
+        
         # Make sure all types match
         t = type(start_list[0])
-        if not all([type(item) is t for item in start_list]):
+        if any([type(item) is not t for item in start_list]):
             raise TypeError("All items in list must be the same type.")
+        elif t is not Complex and t is not RestingState:
+            raise TypeError("List items should be 'Complex' or 'RestingState', not '%s'." % t)
         
-        # Set the appropriate internal data members
+        # Set the appropriate flags, generate unique strand ids, and store
         if t is RestingState:
-            self._start_state = start_list[:]
             self.use_resting_states = True
             self.boltzmann_sample = True
             
-        elif t is Complex:
-            self._start_state = start_list[:]
+            for resting_state in start_list:
+                id_dict = {}
+                for strand in resting_state[0].strand_list:
+                    id_dict[strand.id] = self.add_unique_id(strand)
+                for cmplx in resting_state:
+                    cmplx.strand_list = [id_dict[s.id] for s in cmplx.strand_list]
+        
+        else:
             self.use_resting_states = False
             
-        else:
-            raise TypeError("List items should be 'Complex' or 'RestingState', not '%s'." % t)
+            for cmplx in start_list:
+                cmplx.strand_list = [self.add_unique_id(s) for s in cmplx.strand_list]
+    
+    
+    @property
+    def stop_conditions(self):
+        """ The stop states, i.e. a list of StopCondition objects.
+        
+        Type         Default
+        list         []
+        
+        Stop states should be added to this list (e.g. by the parser) so
+        trajectories know when to end.
+        """
+        return self._stop_conditions
+    
+    
+    @stop_conditions.setter
+    def stop_conditions(self, stop_list):
+        """ The stop states, i.e. a list of StopCondition objects.
+        
+        Type         Default
+        list         []
+        
+        Stop states should be added to this list (e.g. by the parser) so
+        trajectories know when to end.
+        """
+        # Type checking
+        for item in stop_list:
+            if not isinstance(item, StopCondition):
+                raise TypeError("All items must be 'StopCondition', not '%s'." % type(item))
+        
+        # Set the internal data member
+        self._stop_conditions = copy.deepcopy(stop_list)
     
     
     def increment_output_state(self):
@@ -525,8 +548,7 @@ class MultistrandOptions( object ):
             Others:    If you want a Fahrenheit reasonable range, I think you
                        might be unreasonable. Also, it overlaps with Celsius a bit much.
 
-<<<<<<< local
-            Yes, these ranges are quite generous.
+        Yes, these ranges are quite generous.
         """
         if 273.0 < val < 373.0:
             self._temperature_kelvin = val
@@ -535,7 +557,38 @@ class MultistrandOptions( object ):
             self._temperature_celsius = val
             self._temperature_kelvin = val + _OC.ZERO_C_IN_K
             self.errorlog.append("Warning: Temperature was set at the value [{0}]. We expected a value in Kelvin, or with appropriate units.\n         Temperature was automatically converted to [{1}] degrees Kelvin.\n".format(val, self._temperature_kelvin))
+    
+    
+    def add_unique_id(self, strand):
+        """Returns a new Strand object with a unique identifier prepended to the
+        existing id.
+        """
+        if ":" in strand.id:
+            raise ValueError("Either strand already has a unique id or its id is not valid.")
+        new_id = str(self.unique_id) + ":" + strand.id
+        self.unique_id += 1
+        return Strand(new_id, strand.name, strand.sequence, strand.domain_list)
+    
+    
+    def reset_completed_python(self):
+        self.interface.trajectory_completion_flag = False
+    
+    def set_python_collision_rate(self, rate):
+        self.interface.collision_rate = rate
+    
+    def set_python_current_time(self, time):
+        self.interface.current_time = time
+    
+    def get_python_trajectory_halt_flag(self):
+        return self.interface.trajectory_halt_flag
+    
+    def get_python_trajectory_suspend_flag(self):
+        return self.interface.trajectory_suspend_flag
+    
+    
 
+
+    
 
 
 def boltzmann_sample(cmplx):

@@ -143,7 +143,7 @@ void SimulationSystem::StartSimulation( void )
   if(getLongAttr(system_options, simulation_mode) & SIMULATION_MODE_FLAG_PYTHON)
     {
       callFunc_NoArgsToNone(system_options, reset_completed_python);
-      setDoubleAttr(system_options, python_collision_rate, -1.0);
+      callFunc_DoubleToNone(system_options, set_python_collision_rate, -1.0);
     }
 
   if((fp = fopen("/dev/urandom","r")) != NULL )
@@ -260,7 +260,7 @@ void SimulationSystem::SimulationLoop( long r_seed )
         //  assert( stime > -0.0 );
 
         if( sMode & SIMULATION_MODE_FLAG_PYTHON )
-          setDoubleAttr(system_options, python_current_time, stime);
+          callFunc_DoubleToNone(system_options, set_python_current_time, stime);
 
         complexList->doBasicChoice( rchoice, stime );
         rate = complexList->getTotalFlux();
@@ -279,13 +279,13 @@ void SimulationSystem::SimulationLoop( long r_seed )
         if( checkresult == 0 && (sMode & SIMULATION_MODE_FLAG_PYTHON) )
           {
             // if external python interface has asked us to complete.
-            if( getLongAttr(system_options, python_trajectory_suspend_flag))
+            if( callFunc_NoArgsToLong(system_options, get_python_trajectory_suspend_flag))
               {
-                while( getLongAttr(system_options, python_trajectory_suspend_flag) )
+                while( callFunc_NoArgsToLong(system_options, get_python_trajectory_suspend_flag) )
                   sleep(1);
               }
 
-            if( getLongAttr(system_options, python_trajectory_halt_flag) )
+            if( callFunc_NoArgsToLong(system_options, get_python_trajectory_halt_flag) )
               checkresult = -1;
 
           }
@@ -521,7 +521,7 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( long r_seed, double *co
     }
 
   if( sMode )
-    setDoubleAttr(system_options, python_collision_rate, *frate);
+    callFunc_DoubleToNone(system_options, set_python_collision_rate, *frate);
  
   // Begin normal steps.
   rate = complexList->getTotalFlux();
@@ -542,7 +542,7 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( long r_seed, double *co
       }
 
     if( sMode )
-      setDoubleAttr(system_options, python_current_time, stime);
+      callFunc_DoubleToNone(system_options, set_python_current_time, stime);
       
 
     complexList->doBasicChoice( rchoice, stime );
@@ -572,13 +572,13 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( long r_seed, double *co
     if( checkresult == 0 && sMode )
       {
         // if external python interface has asked us to complete.
-        if( getLongAttr(system_options, python_trajectory_suspend_flag))
+        if( callFunc_NoArgsToLong(system_options, get_python_trajectory_suspend_flag) )
           {
-            while( getLongAttr(system_options, python_trajectory_suspend_flag) )
+            while( callFunc_NoArgsToLong(system_options, get_python_trajectory_suspend_flag) )
               sleep(1);
           }
 
-        if( getLongAttr(system_options, python_trajectory_halt_flag) )
+        if( callFunc_NoArgsToLong(system_options, get_python_trajectory_halt_flag) )
           checkresult = -1;
 
       }
