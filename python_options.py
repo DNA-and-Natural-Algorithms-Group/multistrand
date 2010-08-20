@@ -502,7 +502,7 @@ class MultistrandOptions( object ):
         # Set the internal data member
         self._stop_conditions = copy.deepcopy(stop_list)
     
-    
+    @property
     def increment_output_state(self):
         """ Modifies self.current_interval and self.output_state as 
         necessary based on self.output_interval.
@@ -520,7 +520,8 @@ class MultistrandOptions( object ):
             self.current_interval += 1
         
         self.output_state = (self.current_interval == self.output_interval)
-    
+
+        return None
     
     @property
     def temperature(self):
@@ -573,20 +574,35 @@ class MultistrandOptions( object ):
         self.unique_id += 1
         return Strand(new_id, strand.name, strand.sequence, strand.domain_list)
     
-    
-    def reset_completed_python(self):
+    @property
+    def interface_reset_completion_flag(self):
+        tmp = self.interface.trajectory_completion_flag
         self.interface.trajectory_completion_flag = False
-    
-    def set_python_collision_rate(self, rate):
+        self.interface.collision_rate = -1.0
+        return tmp
+
+    @property
+    def interface_collision_rate(self):
+        return self.interface.collision_rate
+
+    @interface_collision_rate.setter
+    def interface_collision_rate(self, rate ):
         self.interface.collision_rate = rate
-    
-    def set_python_current_time(self, time):
+
+    @property
+    def interface_current_time(self):
+        return self.interface_current_time
+
+    @interface_current_time.setter
+    def interface_current_time(self, time):
         self.interface.current_time = time
     
-    def get_python_trajectory_halt_flag(self):
+    @property
+    def interface_halt_flag(self):
         return self.interface.trajectory_halt_flag
-    
-    def get_python_trajectory_suspend_flag(self):
+
+    @property
+    def interface_suspend_flag(self):
         return self.interface.trajectory_suspend_flag
     
     

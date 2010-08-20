@@ -148,8 +148,13 @@ void SimulationSystem::StartSimulation( void )
 
   if( simulation_mode & SIMULATION_MODE_FLAG_PYTHON )
     {
-      callFunc_NoArgsToNone(system_options, reset_completed_python);
-      callFunc_DoubleToNone(system_options, set_python_collision_rate, -1.0);
+      pingAttr( system_options, interface_reset_completion_flag );
+      // replaces: 
+      //   callFunc_NoArgsToNone(system_options, reset_completed_python);
+      // by making reset_completion_flag be a @property descriptor on options object.
+      
+      // no longer needed: reset_completion_flag clears the rate value.
+      //callFunc_DoubleToNone(system_options, set_python_collision_rate, -1.0);
     }
 
   if((fp = fopen("/dev/urandom","r")) != NULL )
@@ -176,7 +181,7 @@ void SimulationSystem::StartSimulation( void )
       return;
     }
   
-  if( simulation_mode & SIMULATION_MODE_FLAG_FIRST )
+  if( simulation_mode & SIMULATION_MODE_FLAG_FIRST_BIMOLECULAR )
     {
       StartSimulation_First_Bimolecular();
       return;
@@ -202,7 +207,7 @@ void SimulationSystem::StartSimulation( void )
 
       if( ointerval < 0 && !(simulation_mode & SIMULATION_MODE_FLAG_PYTHON))
         {
-          printf("Size: %ld, %ld, %ld, %ld\n",sizeof(time_t),sizeof(long),RAND_MAX,1<<31 -1);
+          //          printf("Size: %ld, %ld, %ld, %ld\n",sizeof(time_t),sizeof(long),RAND_MAX,1<<31 -1);
           printf("System %d Initialized\n",curcount);
         }
       //if( getLongAttr(system_options, trajectory_type) > 0 )
@@ -269,7 +274,8 @@ void SimulationSystem::SimulationLoop( long r_seed )
         //  assert( stime > -0.0 );
 
         if( sMode & SIMULATION_MODE_FLAG_PYTHON )
-          callFunc_DoubleToNone(system_options, set_python_current_time, stime);
+          setDoubleAttr( system_options, interface_current_time, stime);
+        // replaces callFunc_DoubleToNone(...).
 
         complexList->doBasicChoice( rchoice, stime );
         rate = complexList->getTotalFlux();
@@ -287,14 +293,17 @@ void SimulationSystem::SimulationLoop( long r_seed )
           }
         if( checkresult == 0 && (sMode & SIMULATION_MODE_FLAG_PYTHON) )
           {
+            // previously: callFunc_NoArgsToLong(system_options, get_python_trajectory_suspend_flag)
+
             // if external python interface has asked us to complete.
-            if( callFunc_NoArgsToLong(system_options, get_python_trajectory_suspend_flag))
+            if( testBoolAttr(system_options, interface_suspend_flag) ) 
               {
-                while( callFunc_NoArgsToLong(system_options, get_python_trajectory_suspend_flag) )
+                while( testBoolAttr(system_options, interface_suspend_flag) ) 
+
                   sleep(1);
               }
 
-            if( callFunc_NoArgsToLong(system_options, get_python_trajectory_halt_flag) )
+            if( testBoolAttr( system_options, interface_halt_flag ))
               checkresult = -1;
 
           }
@@ -319,7 +328,7 @@ void SimulationSystem::SimulationLoop( long r_seed )
                 printf("Current State: Choice: %6.4f, Time: %6.6f\n",rchoice, stime);
                 complexList->printComplexList( 0 );
               }
-            callFunc_NoArgsToNone(system_options, increment_output_state);
+            pingAttr( system_options, increment_output_state );
           }
 
       } while( /*rate > 0.01 &&*/ stime < maxsimtime && checkresult == 0);
@@ -365,7 +374,7 @@ void SimulationSystem::SimulationLoop( long r_seed )
           {
             if( testBoolAttr(system_options, output_state) )
               complexList->printComplexList( 0 );
-            callFunc_NoArgsToNone(system_options, increment_output_state);
+            pingAttr( system_options, increment_output_state );
           }
         if( stopcount > 0 )
           {
@@ -425,7 +434,7 @@ void SimulationSystem::StartSimulation_First_Bimolecular( void )
 
   int sMode = simulation_mode & SIMULATION_MODE_FLAG_PYTHON;
 
-  assert( simulation_mode & SIMULATION_MODE_FLAG_FIRST );
+  assert( simulation_mode & SIMULATION_MODE_FLAG_FIRST_BIMOLECULAR );
 
   // random number seed has already been generated.
 
@@ -551,7 +560,7 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( long r_seed, double *co
     }
 
   if( sMode )
-    callFunc_DoubleToNone(system_options, set_python_collision_rate, *frate);
+    setDoubleAttr( system_options, interface_collision_rate, *frate );
  
   // Begin normal steps.
   rate = complexList->getTotalFlux();
@@ -572,7 +581,7 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( long r_seed, double *co
       }
 
     if( sMode )
-      callFunc_DoubleToNone(system_options, set_python_current_time, stime);
+      setDoubleAttr(system_options, interface_current_time, stime);
       
 
     complexList->doBasicChoice( rchoice, stime );
@@ -585,7 +594,8 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( long r_seed, double *co
             complexList->printComplexList( 0 );
             printf("Current State: Choice: %6.4f, Time: %6.6e\n",rchoice, stime);
           }
-        callFunc_NoArgsToNone(system_options, increment_output_state);
+        pingAttr( system_options, increment_output_state );
+        
       }
 
     if( stopcount > 0 && stopoptions==2)
@@ -602,15 +612,14 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( long r_seed, double *co
     if( checkresult == 0 && sMode )
       {
         // if external python interface has asked us to complete.
-        if( callFunc_NoArgsToLong(system_options, get_python_trajectory_suspend_flag) )
+        if( testBoolAttr(system_options, interface_suspend_flag) ) 
           {
-            while( callFunc_NoArgsToLong(system_options, get_python_trajectory_suspend_flag) )
+            while( testBoolAttr(system_options, interface_suspend_flag) ) 
               sleep(1);
           }
-
-        if( callFunc_NoArgsToLong(system_options, get_python_trajectory_halt_flag) )
+        
+        if( testBoolAttr( system_options, interface_halt_flag ))
           checkresult = -1;
-
       }
   } while( stime < maxsimtime && checkresult == 0);
       
@@ -686,7 +695,7 @@ void SimulationSystem::InitializeSystem( void )
       sequence = getStringAttr(py_complex, sequence, py_seq);
       
       //simulation_mode == SIMULATION_MODE_FIRST_BIMOLECULAR )
-      if ( boltzmann_sample )
+      if ( boltzmann_sampling )
         structure = getStringAttr(py_complex, boltzmann_structure, py_struc);
       else
         structure = getStringAttr(py_complex, structure, py_seq);

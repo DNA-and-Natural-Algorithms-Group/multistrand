@@ -3,13 +3,14 @@
   Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
 */
 
-#include "options-python.h"
+
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
 #include <ctype.h>
 #include <ctype.h>
 #include "energymodel.h"
+#include "python_options.h"
 #include <assert.h>
 
 #undef DEBUG
@@ -541,22 +542,26 @@ NupackEnergyModel::NupackEnergyModel( PyObject *energy_options ) : log_loop_pena
   for( loop = 0; loop < NUM_BASES; loop++)
     for( loop2 = 0; loop2 < NUM_BASES; loop2++)
       pairtypes[loop][loop2] = pairtypes_mfold[loop][loop2];
-  
+
   if( testLongAttr(energy_options, substrate_type ,=, SUBSTRATE_INVALID ) )
     {
-	  char *tmp = (char *) getStringAttr( energy_options, parameter_file );
+      PyObject *tmpStr=NULL;  
+	  
+      char *tmp = (char *) getStringAttr( energy_options, parameter_file,tmpStr);
 	  if( tmp != NULL )
 		{
 		  fp = fopen( tmp, "rt");
 		  if( fp == NULL )
 			{
-			  fprintf(stderr,"ERROR: Bad Parameter Filename: %s not found in path.\n", getStringAttr(energy_options, parameter_file) );
+			  fprintf(stderr,"ERROR: Bad Parameter Filename: %s not found in path.\n", tmp );
 			  exit(1);
 			}
+          Py_DECREF( tmpStr );
+          tmp = NULL;
 		}
 	  else
 		{
-		  fprintf(stderr,"ERROR: Invalid substrate chosen, and no parameter file given. Try the #Energymodel option!\n", getStringAttr(energy_options, parameter_file) );
+		  fprintf(stderr,"ERROR: Invalid substrate chosen, and no parameter file given. Try the #Energymodel option!\n");
 		  exit(1);
 		}
     }
@@ -1832,7 +1837,7 @@ char *NupackEnergyModel::internal_read_array_data( FILE *fp, char *buffer, char 
   return cur_bufspot;
 }
 
-void NupackEnergyModel::setupRates( Options *energy_options )
+void NupackEnergyModel::setupRates( PyObject *energy_options )
 {
   // input concentration is in molar (M) units
   // future versions of the parser will convert to these units.

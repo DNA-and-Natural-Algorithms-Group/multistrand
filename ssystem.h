@@ -41,6 +41,7 @@ class SimulationSystem
   SimulationSystem( int argc, char **argv );
 #endif
 
+
   ~SimulationSystem( void ); 
   //  int LoadSystem( FILE *instream );
   //  int ResetSystem( void );
@@ -65,9 +66,9 @@ class SimulationSystem
   StrandComplex *startState; 
   SComplexList *complexList;
 
-  Options *system_options;
+  PyObject *system_options;
 
-  bool boltzmann_sample;
+  bool boltzmann_sampling;
   bool use_fixed_random_seed;
   bool initial_trajectory;
   int simulation_mode;

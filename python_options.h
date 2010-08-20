@@ -5,8 +5,9 @@
 
 // Macros for Python/C interface
 
-// Import/instantiate
-#define newObject(mod, name) PyObject_CallObject(PyObject_GetAttrString(PyImport_ImportModule(#mod), #name), NULL)
+/***************************************/
+/* Helper functions / internal macros. */
+/***************************************/
 
 #define _m_getAttr_DECREF( obj, name, function, pvar, vartype )     \
   {																	\
@@ -15,32 +16,42 @@
 	Py_DECREF(_m_attr);												\
   }
 
-bool _testLongAttr( PyObject *obj, const char *attrname, const char *test, long value )
+#define _m_setAttr_DECREF( obj, name, function, arg )               \
+  {																	\
+	PyObject *val = function(arg);                                  \
+    PyObject_SetAttrString( obj, #name, val);                       \
+	Py_DECREF(val);                                                 \
+  }
+
+static inline bool _testLongAttr( PyObject *obj, const char *attrname, const char *test, long value )
 {
-  PyObject *_m_attr = PyObject_GetAttrString( obj, attrname);		
-  long local_val = PyInt_AS_LONG(_m_attr);
-  Py_DECREF(_m_attr);											
-  if( test[0] == '=' )
-	return (local_val == value);
-  if( test[0] == '<' )
-	return (local_val < value );
-  if( test[0] == '>' )
-	return (local_val > value );
+ PyObject *_m_attr = PyObject_GetAttrString( obj, attrname);                
+ long local_val = PyInt_AS_LONG(_m_attr);
+ Py_DECREF(_m_attr);                                                                                        
+ if( test[0] == '=' )
+       return (local_val == value);
+ if( test[0] == '<' )
+       return (local_val < value );
+ if( test[0] == '>' )
+       return (local_val > value );
 }
 
-#define testLongAttr(obj, name, test, value) \
-  _testLongAttr( obj, #name, #test, value )
+// Import/instantiate
+#define newObject(mod, name) PyObject_CallObject(PyObject_GetAttrString(PyImport_ImportModule(#mod), #name), NULL)
 
 // Getters
 #define getBoolAttr(obj, name, pvar) _m_getAttr_DECREF( obj, #name, PyInt_AS_LONG, pvar, bool)
 #define getLongAttr(obj, name, pvar) _m_getAttr_DECREF( obj, #name, PyInt_AS_LONG, pvar, long)
 #define getDoubleAttr(obj, name, pvar) _m_getAttr_DECREF( obj, #name, PyFloat_AS_DOUBLE, pvar, double)
-#define getStringAttr(obj, name, pyo) PyString_AS_STRING(pyo=PyObject_GetAttrString(obj, #name))
+#define getStringAttr(obj, name, pyo) ((char *)PyString_AS_STRING(pyo=PyObject_GetAttrString(obj, #name)))
 #define getListAttr(obj, name) PyObject_GetAttrString(obj, #name)
 
+#define pingAttr(obj, name) Py_DECREF(PyObject_GetAttrString( obj, #name ))
+
 // Setters
-#define setDoubleAttr(obj, name, arg) PyObject_SetAttrString(obj, #name, PyFloat_FromDouble(arg))
-// TODO: check if PyFloat_FromDouble returns a new ref that PyObject_SetAttrString doesn't steal.
+#define setDoubleAttr(obj, name, arg) _m_setAttr_DECREF( obj, #name, PyFloat_FromDouble, arg)
+#define setLongAttr(obj, name, arg) _m_setAttr_DECREF( obj, #name, PyLong_FromLong, arg)
+
 
 // Testers
 #define testLongAttr(obj, name, test, value) _testLongAttr( obj, #name, #test, value )
@@ -66,19 +77,6 @@ bool _testLongAttr( PyObject *obj, const char *attrname, const char *test, long 
 class identlist *makeID_list(PyObject *strand_list);
 class stopcomplexes *getStopComplexList(PyObject *options, int index);
 class identlist *getID_list(PyObject *options, int index);
-
-static inline bool _testLongAttr( PyObject *obj, const char *attrname, const char *test, long value )
-{
- PyObject *_m_attr = PyObject_GetAttrString( obj, attrname);                
- long local_val = PyInt_AS_LONG(_m_attr);
- Py_DECREF(_m_attr);                                                                                        
- if( test[0] == '=' )
-       return (local_val == value);
- if( test[0] == '<' )
-       return (local_val < value );
- if( test[0] == '>' )
-       return (local_val > value );
-}
 
 
 /*****************************************************

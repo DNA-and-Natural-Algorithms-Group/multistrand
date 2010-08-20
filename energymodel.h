@@ -8,6 +8,7 @@
 #define __ENERGYMODEL_H__
 
 #include <stdio.h>
+#include <python2.6/Python.h>
 #include "options.h"
 
 #define NUM_BASEPAIRS_VIENNA 8
@@ -17,13 +18,13 @@
 #define NUM_BASES 5
     // 0 is invalid, then A, C, G, U
 
-#ifndef ENERGYMODEL_VIENNA
+#ifndef VIENNA
 #define VIENNA 0
-#define ENERGYMODEL_VIENNA 0
+//#define ENERGYMODEL_VIENNA 0
 #endif
-#ifndef ENERGYMODEL_MFOLD
+#ifndef MFOLD
 #define MFOLD 1
-#define ENERGYMODEL_NUPACK  1
+//#define ENERGYMODEL_NUPACK  1
 #endif
 
 
@@ -275,7 +276,7 @@ class NupackEnergyModel : public EnergyModel
   double getJoinRate( void );
   double getJoinRate_NoVolumeTerm( void ); 
 
- double getVolumeEnergy( void );
+  double getVolumeEnergy( void );
   double getAssocEnergy( void );
 
   double StackEnergy( int i, int j, int p, int q );
@@ -403,7 +404,7 @@ class NupackEnergyModel : public EnergyModel
   int logml;
 
   // data loading functions:
-  void setupRates( Options *opt );
+  void setupRates( PyObject *opt );
 
   void internal_set_stack_energies( FILE *fp, char *buffer );
   void internal_set_stack_enthalpies( FILE *fp, char *buffer );
