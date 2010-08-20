@@ -48,10 +48,14 @@ static inline bool _testLongAttr( PyObject *obj, const char *attrname, const cha
 
 #define pingAttr(obj, name) Py_DECREF(PyObject_GetAttrString( obj, #name ))
 
+// List indexing
+#define getStringItem(list, index) PyString_AS_STRING(PyList_GET_ITEM(list, index))
+#define getLongItem(list, index) PyInt_AS_LONG(PyList_GET_ITEM(list, index))
+#define getLongItemFromTuple(tuple, index) PyInt_AS_LONG(PyTuple_GET_ITEM(tuple, index))
+
 // Setters
 #define setDoubleAttr(obj, name, arg) _m_setAttr_DECREF( obj, #name, PyFloat_FromDouble, arg)
 #define setLongAttr(obj, name, arg) _m_setAttr_DECREF( obj, #name, PyLong_FromLong, arg)
-
 
 // Testers
 #define testLongAttr(obj, name, test, value) _testLongAttr( obj, #name, #test, value )
@@ -61,11 +65,6 @@ static inline bool _testLongAttr( PyObject *obj, const char *attrname, const cha
 #define callFunc_NoArgsToNone(obj, name) PyObject_CallMethod(obj, #name, "()")
 #define callFunc_NoArgsToLong(obj, name) PyInt_AS_LONG(PyObject_CallMethod(obj, #name, "()"))
 #define callFunc_DoubleToNone(obj, name, arg) PyObject_CallMethod(obj, #name, "(f)", arg)
-
-// List indexing
-#define getStringItem(list, index) PyString_AS_STRING(PyList_GET_ITEM(list, index))
-#define getLongItem(list, index) PyInt_AS_LONG(PyList_GET_ITEM(list, index))
-#define getLongItemFromTuple(tuple, index) PyInt_AS_LONG(PyTuple_GET_ITEM(tuple, index))
 
 
 // Not currently used, but might be a good reference for later
