@@ -1,0 +1,43 @@
+##
+##  Listing of strands, each line is a name
+##  and a sequence, seperated by a comma.
+#Strands
+OB,CCACATACATCATATTCCCTCATTCAATACCCTACG
+LB,GAAGTGACATGGAGACGTAGGGTATTGAATGAGGG
+T4,CCCTCATTCAATACCCTACGTCTC
+##
+##
+## List of complexes in the starting structure, each complex composing 2 lines.
+## First line is a comma delimited list of strand names, second is 
+## the starting structure.
+#StartStructure
+OB,LB
+................((((((((((((((((((((................))))))))))))))))))))
+T4
+........................
+##
+##  Amount of simulated time for each run.
+#SimTime=50
+##
+##  Number of trajectories to simulate.
+#NumSims=1000
+##
+##  Logfile name
+##Logfile=
+##
+##  Number of basic moves between every output of the entire structure.
+##  Note that -1 indicates all structure output suppressed, 0 is all
+##  basic moves produce output, 1 is every other basic move causes the 
+##  structure to be output, and so on.
+#OutputInterval=-1
+##
+#StopOptions=2
+#Energymodel=NUPACK_DNA_2_3
+#Temperature = 37.0
+#Concentration = 10
+##
+#StopStructures
+OB
+....................................
+TAG: finalstop
+##
