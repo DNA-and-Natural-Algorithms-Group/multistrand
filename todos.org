@@ -3,7 +3,7 @@
    CLOSED: [2010-08-21 Sat 01:32]
 ** TODO Update makefiles / header files / etc / to cover new directory structure.
 
-** Filenames [60%]                                                     :Work:
+** Filenames [63%]                                                     :Work:
 *** PENDING [#A] [[file:Makefile][Makefile]]    [1/4]
 **** TODO way too much in the way of connected dependencies, see if we can remove some of the crossed ones, especially scomplex.h and loop.h
      Can generate all these via simple scripts, e.g.: "grep loop.h
@@ -47,7 +47,6 @@
      CLOSED: [2010-08-21 Sat 16:31]
      - State "DONE"       from "TODO"       [2010-08-21 Sat 16:31]
 **** TODO [[file:python_options.cc::TODO%20check%20deallocation%20of%20new%20objects][dealloc issues for new objects?]]
-*** PENDING [#B] [[file:python_options.py][python_options.py]]
 *** PENDING [#C] [[file:.hgignore][.hgignore]]
 *** PENDING [#C] [[file:include/options.h][options.h]]
     To be removed?
@@ -73,6 +72,11 @@
 *** LATER [[file:outside_sources/complecks_multistrand.py][complecks_multistrand.py]]
     - State "LATER"      from "PENDING"    [2010-08-22 Sun 08:19] \\
       Utilities from other repos.
+*** DONE [[file:python_options.py][python_options.py]]
+    Merged the rest of the changes for this file. Should be nearly the
+    same as previous.
+    CLOSED: [2010-08-22 Sun 09:04]
+    - State "DONE"       from "PENDING"    [2010-08-22 Sun 09:04]
 *** DONE [[file:optionlists.cc][optionlists.cc]]
     CLOSED: [2010-08-22 Sun 08:17]
     - State "DONE"       from "PENDING"    [2010-08-22 Sun 08:17]

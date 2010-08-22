@@ -283,6 +283,17 @@ class MultistrandOptions( object ):
         Incremented for each strand added.
         """
         
+        self.name_dict = {}
+        """ Dictionary from strand name to a list of unique strand objects
+        having that name.
+        
+        Type         Default
+        dict         {}
+        
+        Modified when start state is added. Used as a lookup when stop states 
+        are added.
+        """
+        
         ####################
         #
         # BEGIN startstop
@@ -588,15 +599,19 @@ class MultistrandOptions( object ):
             self.errorlog.append("Warning: Temperature was set at the value [{0}]. We expected a value in Kelvin, or with appropriate units.\n         Temperature was automatically converted to [{1}] degrees Kelvin.\n".format(val, self._temperature_kelvin))
     
     
-    def add_unique_id(self, strand):
-        """Returns a new Strand object with a unique identifier prepended to the
-        existing id.
+    def make_unique(self, strand):
+        """Returns a new Strand object with a unique identifier replacing the 
+        old id. Also adds the new strand to self.name_dict[strand.name].
         """
-        if ":" in strand.id:
-            raise ValueError("Either strand already has a unique id or its id is not valid.")
-        new_id = str(self.unique_id) + ":" + strand.id
+        new_strand = Strand(self.unique_id, strand.name, strand.sequence, strand.domain_list)
         self.unique_id += 1
-        return Strand(new_id, strand.name, strand.sequence, strand.domain_list)
+        
+        try:
+            self.name_dict[strand.name].append(new_strand)
+        except KeyError:
+            self.name_dict[strand.name] = [new_strand]
+
+        return new_strand
     
     @property
     def interface_reset_completion_flag(self):
