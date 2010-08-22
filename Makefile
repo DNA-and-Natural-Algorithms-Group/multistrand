@@ -66,7 +66,7 @@ debug: FORCE
 debug-full: CFLAGS := $(CFLAGS_DEBUG) 
 debug-full: Multistrand
 
-$(OBJECTS): obj/.
+$(MAIN_OBJECT) $(OBJECTS): obj/.
 obj/.: 
 	mkdir obj
 
@@ -75,6 +75,7 @@ obj/python/.: obj/.
 
 $(PYTHON_OBJECTS): OBJPATH := obj/python
 $(PYTHON_OBJECTS): CFLAGS :=  $(CFLAGS_PYTHON)
+$(PYTHON_OBJECTS): obj/python/.
 $(PYTHON_OBJECTS): obj/python/%: %
 # note that if this rule is checked, any dependency newer than the python .o file will be recalculaed.
 
