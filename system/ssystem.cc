@@ -3,8 +3,8 @@
   Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
 */
 
-#include "python_options.h"
-#include "ssystem.h"
+#include "../include/python_options.h"
+#include "../include/ssystem.h"
 
 #include <string.h>
 #include <time.h>
@@ -211,7 +211,7 @@ void SimulationSystem::StartSimulation( void )
           printf("System %d Initialized\n",curcount);
         }
       //if( getLongAttr(system_options, trajectory_type) > 0 )
-      //system_options->printTrajLine( NULL, curcount );
+      //m_printTrajLine(system_options, NULL, curcount );
       // Currently deactivated til prints are ready.
 
     
@@ -340,11 +340,11 @@ void SimulationSystem::SimulationLoop( long r_seed )
           complexList->printComplexList( 0 );
       
       if( stime == NAN )
-        system_options->printStatusLine( r_seed, "ERROR", stime );
+        m_printStatusLine(system_options, r_seed, "ERROR", stime );
       else if ( checkresult > 0 )
-        system_options->printStatusLine( r_seed, traverse->tag, stime );
+        m_printStatusLine(system_options, r_seed, traverse->tag, stime );
       else
-        system_options->printStatusLine( r_seed, "INCOMPLETE", stime );
+        m_printStatusLine(system_options, r_seed, "INCOMPLETE", stime );
       
       if( ! (sMode & SIMULATION_MODE_FLAG_PYTHON) )
         printf("Trajectory Completed\n");
@@ -364,7 +364,7 @@ void SimulationSystem::SimulationLoop( long r_seed )
             }
         }
 
-      system_options->printTrajLine("Start",0);
+      m_printTrajLine(system_options,"Start",0);
       do {
         rchoice = (rate * random()/((double)RAND_MAX));
         stime += (log(1. / (double)((random() + 1)/(double)RAND_MAX)) / rate );
@@ -389,19 +389,19 @@ void SimulationSystem::SimulationLoop( long r_seed )
           }
         if( checkresult > 0 )
           {
-            system_options->printTrajLine( traverse->tag, stime );
+            m_printTrajLine(system_options, traverse->tag, stime );
           }
         else
-          system_options->printTrajLine("NOSTATE", stime );
+          m_printTrajLine(system_options,"NOSTATE", stime );
       } while( /*rate > 0.01 && */ stime < maxsimtime && !(checkresult > 0 && stopindex == curcount-1));
       
       if( ointerval < 0 || testLongAttr(system_options, output_state ,=, 0 ))
         complexList->printComplexList( 0 );
 
       if( stime == NAN )
-        system_options->printStatusLine( r_seed, "ERROR", stime );
+        m_printStatusLine(system_options, r_seed, "ERROR", stime );
       else
-        system_options->printStatusLine( r_seed, "INCOMPLETE", stime );
+        m_printStatusLine(system_options, r_seed, "INCOMPLETE", stime );
       
       printf("Trajectory Completed\n");
     }
@@ -450,7 +450,7 @@ void SimulationSystem::StartSimulation_First_Bimolecular( void )
       InitializeSystem();
 
       //      if( getLongAttr(system_options, trajectory_type) > 0 )
-      //    system_options->printTrajLine( NULL, curcount );
+      //    m_printTrajLine(system_options, NULL, curcount );
       //      if( sMode() )
       //        callFunc_NoArgsToNone(system_options, reset_completed);
 
@@ -487,13 +487,13 @@ void SimulationSystem::StartSimulation_First_Bimolecular( void )
 
         }
 
-      system_options->printStatusLine_First_Bimolecular( random_seed, completiontype, completiontime, forwardrate, tag );
+      m_printStatusLine_First_Bimolecular(system_options, random_seed, completiontype, completiontime, forwardrate, tag );
       simulation_count_remaining--;
     }
   if( !sMode )
-    system_options->printStatusLine_Final_First_Bimolecular( total_rate, total_time, total_types, curcount, computed_rate_means, computed_rate_mean_diff_squared );
+    m_printStatusLine_Final_First_Bimolecular(system_options, total_rate, total_time, total_types, curcount, computed_rate_means, computed_rate_mean_diff_squared );
   if( total_types[2] > 0 && !sMode )
-    system_options->printStatusLine_Warning( 0, total_types[2] );
+    m_printStatusLine_Warning(system_options, 0, total_types[2] );
 
 }
 
@@ -633,11 +633,11 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( long r_seed, double *co
 
     
   /*   if( stime == NAN )
-       system_options->printStatusLine( r_seed, "ERROR", stime );
+       m_printStatusLine(system_options, r_seed, "ERROR", stime );
        else if ( checkresult > 0 )
-       system_options->printStatusLine( r_seed, traverse->tag, stime );
+       m_printStatusLine(system_options, r_seed, traverse->tag, stime );
        else
-       system_options->printStatusLine( r_seed, "INCOMPLETE", stime );
+       m_printStatusLine(system_options, r_seed, "INCOMPLETE", stime );
   */
   // printing is handled at the upper level for the status information. We do, however, need to return the info.
 

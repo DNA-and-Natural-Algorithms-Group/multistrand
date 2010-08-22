@@ -9,7 +9,7 @@
 
 #include <stdio.h>
 #include <python2.6/Python.h>
-#include "options.h"
+#include "python_options.h"
 
 #define NUM_BASEPAIRS_VIENNA 8
     // Vienna: 0 is invalid, then CG, GC, GU, UG, AU, UA, and Special are 1-7
@@ -222,8 +222,8 @@ class ViennaEnergyModel : public EnergyModel
   double log_loop_penalty_37;
 
   // parameter type, used for the internal data loading.
-  // int ptype;
-  // JS: no longer needed as of rebuilt options object.
+  int ptype;
+  
 
   // biomolecular penalty
   int bimolecular_penalty;
@@ -379,7 +379,8 @@ class NupackEnergyModel : public EnergyModel
   double log_loop_penalty;
 
   // parameter type, used for the internal data loading.
-  int ptype;
+  //  int ptype;
+  // JS: no longer needed as of rebuilt options object.
 
   // biomolecular penalty
   double bimolecular_penalty;

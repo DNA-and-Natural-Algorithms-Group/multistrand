@@ -1,3 +1,10 @@
+/*
+   Copyright (c) 2007-2010 Caltech. All rights reserved.
+   Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
+   Edits by: Chris Berlind    (cberlind@dna.caltech.edu)
+*/
+ 
+
 #include "optionlists.h"
 
 /*
@@ -43,10 +50,10 @@ strandlist::~strandlist( void )
   This is a very basic linked list constructor.
 */
 
-identlist::identlist( int newuid, char *newid, class identlist *old )
+identlist::identlist( int newuid, char *newid, PyObject *pyo, class identlist *old )
 {
   uid = newuid;
-  id = newid;
+  pyo_id = pyo;
   next = old;
 }
 

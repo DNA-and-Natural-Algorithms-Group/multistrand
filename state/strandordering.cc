@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2007-2008 Caltech. All rights reserved.
+   Copyright (c) 2007-2010 Caltech. All rights reserved.
    Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
 */
  
 // StrandOrdering object
 // used to track sequences and structures within a complex for easy printing, etc.
 
-#include "scomplex.h" // implicitly includes strandordering.h, and is necessary for proper ordering. TODO: decorrelate these headers, they should be independent.
+#include "../include/scomplex.h" // implicitly includes strandordering.h, and is necessary for proper ordering. TODO: decorrelate these headers, they should be independent.
 #include <string.h>
 #include <assert.h>
 
@@ -103,6 +103,8 @@ StrandOrdering::StrandOrdering( orderinglist *beginning, orderinglist *ending, i
 // Note that in_cseq is the code sequence (ie, not printable) and in_seq is the printable version.
 StrandOrdering::StrandOrdering( char *in_seq, char *in_structure, char *in_cseq )
 {
+  char def_tag[]="default";
+
   first = last = NULL;
   total_exterior_bases.A = total_exterior_bases.T = total_exterior_bases.C = total_exterior_bases.G = -1;
   seq = struc = strandnames = NULL;
@@ -136,7 +138,9 @@ StrandOrdering::StrandOrdering( char *in_seq, char *in_structure, char *in_cseq 
 	  count++;
 	  if(strand_counter == 0 && sflag == 0)
 	    printf("Unconnected strand in initialized complex. Strandordering.cc\n");
-	  new_elem = new orderinglist (strand_size, -1, "default", &in_seq[index-strand_size], &in_cseq[index-strand_size], &in_structure[index-strand_size] );
+	  new_elem = new orderinglist (strand_size, -1, def_tag, &in_seq[index-strand_size], &in_cseq[index-strand_size], &in_structure[index-strand_size] );
+      // default tag is passed and copied, so this stack alloc should be fine.
+
 	  // TODO: do i want orderinglist to be circular? does it help anything?
 	  if( first == NULL )
 	    first = last = new_elem;
@@ -162,7 +166,7 @@ StrandOrdering::StrandOrdering( char *in_seq, char *in_structure, char *in_cseq 
   if( in_seq[index-1] != '+' )
     {
       count++;
-      new_elem = new orderinglist (strand_size, -1, "default", &in_seq[index-strand_size], &in_cseq[index-strand_size], &in_structure[index-strand_size] );
+      new_elem = new orderinglist (strand_size, -1, def_tag, &in_seq[index-strand_size], &in_cseq[index-strand_size], &in_structure[index-strand_size] );
       // TODO: do i want orderinglist to be circular? does it help anything?
       if( first == NULL )
 	first = last = new_elem;

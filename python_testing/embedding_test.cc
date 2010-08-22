@@ -1,7 +1,7 @@
 // Compile with 
 // g++ -lpython2.6 -o embedding_test embedding_test.cc
 
-#include "python_options.h"
+#include "../include/python_options.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -26,23 +26,31 @@ int main(int argc, char **argv)
   PyRun_SimpleString(path);
   
   PyObject *options = newObject(options_test, Options);
-	
-  char *str1 = getStringAttr(options, name);
+
+  PyObject *pyo_str1;
+  char *str1 = getStringAttr(options, name, pyo_str1);
+  // str1 is new reference, stored in pyo_str1
   printf("String attribute is '%s'\n", str1);
-    
-  int num1 = getLongAttr(options, integer);
-  double num2 = getDoubleAttr(options, decimal);
+  Py_DECREF( pyo_str1 );
+  str1= NULL;
+  // str1 is clear
+
+  int num1; 
+  getLongAttr(options, integer, &num1);
+  double num2;
+  getDoubleAttr(options, decimal, &num2);
   printf("Number attributes are %d and %f\n", num1, num2);
   
   setDoubleAttr(options, decimal, 4.5);
-  num2 = getDoubleAttr(options, decimal);
+  getDoubleAttr(options, decimal, &num2);
   printf("Number attributes are %d and %f\n", num1, num2);
   
   char *str2 = getStringItem(getListAttr(options, list_of_strings), 1);
   printf("String from list is '%s'\n", str2);
-  
-  callFunc_NoArgsToNone(options, no_args_no_return);
-  callFunc_DoubleToNone(options, one_arg_no_return, 2.3);
+
+  // commented out til I work out the deprecated warnings issues.
+  //callFunc_NoArgsToNone(options, no_args_no_return);
+  //  callFunc_DoubleToNone(options, one_arg_no_return, 2.3);
   
   Py_Finalize();
   return 0;

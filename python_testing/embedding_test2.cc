@@ -1,7 +1,7 @@
 // Compile with 
 // g++ -g -lpython2.6 -o embedding_test2 optionlists.o embedding_test2.cc python_options.cc
 
-#include "python_options.h"
+#include "../include/python_options.h"
 #include <stdio.h>
 
 
@@ -13,7 +13,7 @@ int main()
     PyObject *options = newObject(options_test, Options);
     
     //int flag = getBoolAttr(options, flag);
-    int flag;
+    bool flag;
     // getLongAttr(options, flag, &flag);
 //    if (getBoolAttr(options, flag))
 //        printf("True\n");
@@ -22,7 +22,7 @@ int main()
     
     for (int i = 0; i < 10000000; i++)
     {
-        getBoolAttr(options, flag);
+      getBoolAttr(options, flag, &flag);
     }
     return 1;
     int a, b;

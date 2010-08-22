@@ -66,6 +66,13 @@ static inline bool _testLongAttr( PyObject *obj, const char *attrname, const cha
 #define callFunc_NoArgsToLong(obj, name) PyInt_AS_LONG(PyObject_CallMethod(obj, #name, "()"))
 #define callFunc_DoubleToNone(obj, name, arg) PyObject_CallMethod(obj, #name, "(f)", arg)
 
+// Print calls, currently null statements.
+#define m_printStatusLine( obj,a,b,c)
+//#define m_printStatusLine( obj,a)
+#define m_printTrajLine(obj,a,b)
+#define m_printStatusLine_First_Bimolecular( obj,a,b,c,d,e)
+#define m_printStatusLine_Final_First_Bimolecular( obj, a,b,c,d,e,f )
+#define m_printStatusLine_Warning( obj, a, b )
 
 // Not currently used, but might be a good reference for later
 #define callFunc_IntToNone(obj, name, arg) PyObject_CallObject(PyObject_GetAttrString(obj, #name), Py_BuildValue("(i)", arg))
@@ -133,6 +140,15 @@ class identlist *getID_list(PyObject *options, int index);
 
 #define SIMULATION_MODE_FLAG_FIRST_BIMOLECULAR         0x01
 #define SIMULATION_MODE_FLAG_PYTHON                    0x02
+
+// stopconditions used in ssystem. 
+// TODO: clean up/add docs.
+
+#define STOPCONDITION_NORMAL           1
+#define STOPCONDITION_REVERSE          2
+#define STOPCONDITION_TIME            -1
+#define STOPCONDITION_FORWARD          3
+#define STOPCONDITION_ERROR           -2
 
 
 #endif

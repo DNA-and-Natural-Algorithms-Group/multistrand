@@ -1,10 +1,14 @@
-#include "python_options.h"
-#include "optionlists.h"
+/*
+   Copyright (c) 2010-2010 Caltech. All rights reserved.
+   Coded by:      Chris Berlind (cberlind@dna.caltech.edu)
+               Joseph Schaeffer (schaeffer@dna.caltech.edu)
+*/
+ 
+
+#include "include/python_options.h"
+#include "include/optionlists.h"
 
 // TODO: check deallocation of new objects
-
-
-
 
 
 class stopcomplexes *getStopComplexList(PyObject *options, int index)
@@ -95,8 +99,9 @@ class identlist *getID_list(PyObject *options, int index)
   pyo_start_complex_list = PyObject_GetAttrString( options, "start_state");
   // new reference
 
-  pyo_strand_list = PyObject_GetAttrString(PyList_GET_ITEM( pyo_start_complex_list, index ));
-  // new reference
+  pyo_strand_list = PyObject_GetAttrString(PyList_GET_ITEM( pyo_start_complex_list, index ) ,"strand_list");
+  // new reference due to PyObject_GetAttrString
+  // GET_ITEM borrows the ref, so we only have to worry about the ref via PyObject_Get...
 
   Py_DECREF( pyo_start_complex_list );
   // pyo_start_complex_list is now clean, pyo_strand_list has a new reference.
@@ -114,17 +119,21 @@ class identlist *getID_list(PyObject *options, int index)
 class identlist *makeID_list(PyObject *strand_list)
 {
     class identlist *id_list;
-    Py_INCREF( strand_list );
-
-    int n = PyList_GET_SIZE(strand_list);
-    
-    PyObject* py_strand = PyList_GetItem(strand_list, n - 1);
-    // borrowed reference, strand_list is passed to us by 
-    long id = getLongAttr(py_strand, id);
+    long id;
     char *name;
     PyObject *pyo_name;
+    int n;
+    PyObject* py_strand;
 
-    name = getStringAttr(py_strand, name, pyo_name, NULL);
+    Py_INCREF( strand_list );
+
+    n = PyList_GET_SIZE(strand_list);
+    
+    py_strand = PyList_GetItem(strand_list, n - 1);
+    // borrowed reference, strand_list is passed to us by getStopComplex
+    getLongAttr(py_strand, id, &id);
+
+    name = getStringAttr(py_strand, name, pyo_name);
     // new reference
     
     id_list = new identlist( id, name, NULL );

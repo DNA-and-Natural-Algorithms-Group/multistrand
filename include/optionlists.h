@@ -14,6 +14,7 @@
 
 #include <stdlib.h>
 #include <cstring>
+#include <python2.6/Python.h>
 
 // The bodies for these functions are defined in options.cc, but the
 // actual classes get used across a bunch of the files so they have been
@@ -36,8 +37,9 @@ class identlist {
  public:
   int uid;
   char *id;
+  PyObject *pyo_id;  // needed for correct ref counting dealloc.
   class identlist *next;
-  identlist( int newuid, char *newid, class identlist *old = NULL);
+  identlist( int newuid, char *newid, PyObject *pyo, class identlist *old = NULL);
   void  make_unique( strandlist *strands);
   ~identlist( void );
 };

@@ -3,7 +3,7 @@
    Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
 */
 
-#include "options-python.h"
+#include "python_options.h"
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
@@ -405,37 +405,43 @@ double ViennaEnergyModel::OpenloopEnergy( int size, int *sidelen, char **sequenc
 // constructors, internal functions
 
 
-ViennaEnergyModel::ViennaEnergyModel( Options *energy_options ) : log_loop_penalty_37(107.856) , kinetic_rate_method(2) , _RT(.6) , bimolecular_penalty(196) // Check references for this loop penalty term.
+ViennaEnergyModel::ViennaEnergyModel( PyObject *energy_options ) : log_loop_penalty_37(107.856) , kinetic_rate_method(2) , _RT(.6) , bimolecular_penalty(196) // Check references for this loop penalty term.
 {
   // This is the tough part, performing all read/input duties.
   char in_buffer[2048];
   int loop, loop2 ;
   FILE *fp = NULL;
-
-  if( getLongAttr(energy_options, energy_model) == 0 )
+  
+  PyObject *pyo_tmp = NULL;
+  char *tmp = (char *) getStringAttr( energy_options, parameter_file, pyo_tmp);
+  if( testLongAttr(energy_options, energy_model, =, 0) )
     {
-      fp = fopen( getStringAttr(energy_options, parameter_file), "rt");
+      fp = fopen( tmp, "rt");
       if( fp == NULL )
         {
-          fprintf(stderr,"ERROR: Bad Parameter Filename: %s not found in path.\n", getStringAttr(energy_options, parameter_file) );
+          fprintf(stderr,"ERROR: Bad Parameter Filename: %s not found in path.\n", tmp );
           exit(1);
 	}
     }
-  else if( getLongAttr(energy_options, energy_model) == VIENNADNA )
+  else if( testLongAttr(energy_options, parameter_type, =, ENERGYMODEL_VIENNA) && testLongAttr(energy_options, substrate_type, =, SUBSTRATE_DNA) )
     {
       fp = fopen( "dna.par", "rt");
       if( fp == NULL )
         {
-          fprintf(stderr,"ERROR: Could not find Vienna DNA parameter file \"dna.par\" in the path.\n", getStringAttr(energy_options, parameter_file) );
+          fprintf(stderr,"ERROR: Could not find Vienna DNA parameter file \"dna.par\" in the path.\n" );
           exit(1);
 	}
 
     }
+  tmp=NULL;
+  Py_DECREF(pyo_tmp);
 
-  joinrate = .001 * getDoubleAttr(energy_options, join_concentration) / 55.6;
-  dangles = getLongAttr(energy_options, dangles);
-
-  if( (ptype = getLongAttr(energy_options, parameter_type)) == VIENNA ) // dna.par (Vienna)
+  getDoubleAttr(energy_options, join_concentration, &joinrate);
+  joinrate = .001 * joinrate / 55.6;
+  getLongAttr(energy_options, dangles, &dangles);
+  
+  getLongAttr(energy_options, parameter_type, &ptype);
+  if( ptype == VIENNA ) // dna.par (Vienna)
     {
       for( loop = 0; loop < NUM_BASES; loop++ )
 	pairs[loop] = pairs_vienna[loop];

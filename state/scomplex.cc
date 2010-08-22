@@ -7,7 +7,7 @@
 
 #include <string.h>
 #include <assert.h>
-#include "scomplex.h"
+#include "../include/scomplex.h"
 
 // TODO: i'd like to optimize this lookup. It really should be just a bitwise
 //  or, and an array lookup, the extra function call annoys me.

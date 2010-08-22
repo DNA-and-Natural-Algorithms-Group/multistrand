@@ -1,13 +1,195 @@
-TODO lists, per file or high level concept.
-
-* Makefile TODO List
-** TODO revisit the python_interface necessity for PYTHON_THREADS
-** TODO Add make target for embedded multistrand (current default is the standalone, with python options object)
-** TODO Update objects / sources / clean up other things.
-
 * File / Directory TODO List
-** TODO Rebuild the directory structure to encapsulate pieces better.
+** DONE Rebuild the directory structure to encapsulate pieces better.
+   CLOSED: [2010-08-21 Sat 01:32]
 ** TODO Update makefiles / header files / etc / to cover new directory structure.
 
+** Filenames [60%]                                                     :Work:
+*** PENDING [#A] [[file:Makefile][Makefile]]    [1/4]
+**** TODO way too much in the way of connected dependencies, see if we can remove some of the crossed ones, especially scomplex.h and loop.h
+     Can generate all these via simple scripts, e.g.: "grep loop.h
+     */*" with appropriate flags for filename of matches only.
+***** Code
+      :PROPERTIES:
+      :ID:       38BF8831-172D-4BC3-8B7A-D6B2EA95FE22
+      :END:
+#+srcname: generate_loop_deps
+#+begin_src sh :exports results :results output
+      grep -l loop.h *.cc
+      grep -l loop.h */*.cc
+      grep -l loop.h include/*.h
+#+end_src
+***** Results
+#+results: generate_loop_deps
+: loop/loop.cc
+: loop/move.cc
+: include/scomplex.h
+: include/ssystem.h
+: include/strandordering.h
+**** PENDING makefile substructure implementation
+***** LATER split up makefiles
+      - State "LATER"      from "TODO"       [2010-08-22 Sun 07:18] \\
+        May not be necessary, new makefile format is a lot cleaner than before.
+***** TODO sanity check
+**** PENDING [[file:Makefile::TODO][documentation]]
+**** More components for [[Makefile][Makefile]] TODO List [/]
+***** TODO revisit the python_interface necessity for PYTHON_THREADS
+***** TODO Add make target for embedded multistrand (current default is the standalone, with python options object)
+***** TODO Update objects / sources / clean up other things.
+**** DONE Primary targets work: all, python-interface
+     All works fine, python-interface works up to boost errors.
+     CLOSED: [2010-08-22 Sun 08:13]
+     - State "DONE"       from "TODO"       [2010-08-22 Sun 08:13]
+*** PENDING [#B] [[file:python_options.cc][python_options.cc]] [1/2]
+    Needs some sub components checked, see child TODOS.
+    - State "CURRENT"    from "TODO"       [2010-08-21 Sat 16:12]
+**** DONE Make sure it compiles.
+     Compiles now, used Chris's updates to optionlists.h.
+     CLOSED: [2010-08-21 Sat 16:31]
+     - State "DONE"       from "TODO"       [2010-08-21 Sat 16:31]
+**** TODO [[file:python_options.cc::TODO%20check%20deallocation%20of%20new%20objects][dealloc issues for new objects?]]
+*** PENDING [#B] [[file:python_options.py][python_options.py]]
+*** PENDING [#C] [[file:.hgignore][.hgignore]]
+*** PENDING [#C] [[file:include/options.h][options.h]]
+    To be removed?
+*** PENDING [[file:include/scomplexlist.h][scomplexlist.h]]
+    No changes necessary?
+*** PENDING [#C] [[file:options.cc][options.cc]]
+    To be removed.
+*** PENDING [[file:state/scomplexlist.cc][scomplexlist.cc]]
+    No changes were necessary?
+*** CURRENT [[file:include/python_options.h][python_options.h]] [/]
+    added stopcondition components so that ssystem.cc will compile.
+    - State "CURRENT"    from "PENDING"    [2010-08-21 Sat 15:44]
+**** TODO [[file:include/python_options.h:138:][STOPCONDITION lines]]
+     See file.
+**** TODO [[file:include/python_options.h::define%20m_printStatusLine%20obj%20a%20b%20c][print calls]]
+     print calls are now all #defines, fill in data.
+*** LATER [[file:outside_sources/re_generator.py][re_generator.py]]
+    - State "LATER"      from "PENDING"    [2010-08-22 Sun 08:18] \\
+      Utilities from other repos.
+*** LATER [[file:outside_sources/util_regexp.py][util_regexp.py]]
+    - State "LATER"      from "PENDING"    [2010-08-22 Sun 08:19] \\
+      Utilities from other repos.
+*** LATER [[file:outside_sources/complecks_multistrand.py][complecks_multistrand.py]]
+    - State "LATER"      from "PENDING"    [2010-08-22 Sun 08:19] \\
+      Utilities from other repos.
+*** DONE [[file:optionlists.cc][optionlists.cc]]
+    CLOSED: [2010-08-22 Sun 08:17]
+    - State "DONE"       from "PENDING"    [2010-08-22 Sun 08:17]
+      Chris' changes have been merged.
+*** DONE [[file:include/optionlists.h][optionlists.h]]
+    Chris has changes to this file.    
+    CLOSED: [2010-08-22 Sun 08:16]
+    - State "DONE"       from "PENDING"    [2010-08-22 Sun 08:16]
+      Chris' changes have been merged.    
+*** DONE [[file:energymodel/viennaenergymodel.cc][viennaenergymodel.cc]]
+    CLOSED: [2010-08-22 Sun 07:49]
+    - State "DONE"       from "TODO"       [2010-08-22 Sun 07:49]
+    Chris has updates to this file.
+*** DONE [[file:python_testing/embedding_test.cc][embedding_test.cc]]
+    Fixed minor issues, it should now compile correctly and all
+    examples updated to use proper refcounting.
+    CLOSED: [2010-08-21 Sat 16:40]
+    - State "DONE"       from "TODO"       [2010-08-21 Sat 16:40]
+*** DONE [[file:python_testing/embedding_test2.cc][embedding_test2.cc]]
+    Minor changes to accomodate new headers.
+    CLOSED: [2010-08-21 Sat 16:34]
+    - State "DONE"       from "TODO"       [2010-08-21 Sat 16:34]
+    Header include path changes only.
+    CLOSED: [2010-08-21 Sat 16:42]
+    - State "DONE"       from "TODO"       [2010-08-21 Sat 16:42]
+*** DONE [[file:include/strandordering.h][strandordering.h]]                                            :Future:
+    Currently closed, may need future work.
+    CLOSED: [2010-08-21 Sat 16:09]
+    - State "DONE"       from "TODO"       [2010-08-21 Sat 16:09]
+*** DONE [[file:state/strandordering.cc::used%20to%20track%20sequences%20and%20structures%20within%20a%20complex%20for%20easy%20printing%20etc][strandordering.cc]]
+    Fixed some default tag issues and const char warnings. Changed
+    header links.
+    CLOSED: [2010-08-21 Sat 16:08]
+    - State "DONE"       from "TODO"       [2010-08-21 Sat 16:08]
+*** DONE [[file:energymodel/energymodel.cc][energymodel.cc]]
+    Chopped out all the commented energy model code that was split
+    into separate files. This means the file boils down to just the
+    constructors we had in the energy model before, as they can't be
+    virtual. The destructor is virtual but not pure. If you ever hit
+    it though, something is odd.
+    CLOSED: [2010-08-21 Sat 05:04]
+    - State "DONE"       from "TODO"       [2010-08-21 Sat 05:04]
+
+*** DONE [[file:energymodel/nupackenergymodel.cc][nupackenergymodel.cc]]
+    Previous modifications appeared to be enough, it now compiles
+    correctly once the paths were updated.
+    CLOSED: [2010-08-21 Sat 05:26]
+    - State "DONE"       from "TODO"       [2010-08-21 Sat 05:26]
+    CLOCK: [2010-08-21 Sat 05:21]--[2010-08-21 Sat 05:26] =>  0:05
+
+*** DONE [[file:include/energymodel.h][energymodel.h]] [3/3]
+    CLOSED: [2010-08-21 Sat 15:03]
+    - State "DONE"       from "TODO"       [2010-08-21 Sat 15:03]
+**** DONE EnergyModel
+     CLOSED: [2010-08-21 Sat 05:20]
+     - State "DONE"       from "TODO"       [2010-08-21 Sat 05:20]
+**** DONE ViennaEnergyModel
+     Header portion ok, at least.
+     CLOSED: [2010-08-21 Sat 05:33]
+     - State "DONE"       from "TODO"       [2010-08-21 Sat 05:33]
+***** Possibly check for compatibility with newer energy mode features - bimolecular rate constants, etc. :Future:
+       
+**** DONE NupackEnergyModel
+     No changes, was done in earlier revisions.
+     CLOSED: [2010-08-21 Sat 15:01]
+     - State "DONE"       from "TODO"       [2010-08-21 Sat 15:01]
+*** DONE [[file:include/loop.h][loop.h]]
+    Wasn't in list for some reason, but it needed no changes.
+    CLOSED: [2010-08-21 Sat 15:08]
+    - State "DONE"       from ""           [2010-08-21 Sat 15:08]
+*** DONE [[file:include/move.h][move.h]]
+    CLOSED: [2010-08-21 Sat 15:05]
+    - State "DONE"       from "TODO"       [2010-08-21 Sat 15:05]
+      No changes needed.
+*** DONE [[file:include/scomplex.h][scomplex.h]]
+    no changes.
+    CLOSED: [2010-08-21 Sat 15:40]
+    - State "DONE"       from "TODO"       [2010-08-21 Sat 15:40]
+*** DONE [[file:include/ssystem.h][ssystem.h]]
+    No large changes.
+    CLOSED: [2010-08-21 Sat 15:59]
+    - State "DONE"       from "TODO"       [2010-08-21 Sat 15:59]
+*** DONE [[file:loop/loop.cc][loop.cc]]
+    Only path changes.
+    CLOSED: [2010-08-21 Sat 15:06]
+    - State "DONE"       from "TODO"       [2010-08-21 Sat 15:06]
+*** DONE [[file:loop/move.cc][move.cc]]
+    Only changes were in the include paths.
+    CLOSED: [2010-08-21 Sat 15:05]
+    - State "DONE"       from "TODO"       [2010-08-21 Sat 15:05]
+*** DONE [[file:state/scomplex.cc][scomplex.cc]]
+    Include path changes only.
+    CLOSED: [2010-08-21 Sat 15:39]
+    - State "DONE"       from "TODO"       [2010-08-21 Sat 15:39]
+*** DONE [[file:system/ssystem.cc][ssystem.cc]]
+    Completed header moves. Renamed all print calls to use macro
+    format, once those macros are in it should just work.
+    CLOSED: [2010-08-21 Sat 15:59]
+    - State "DONE"       from "PENDING"    [2010-08-21 Sat 15:59]
 
 
+* File Notes
+** obj/python:
+   subdirectory for direct interface .o files for building .so targets
+   or others.
+** old:
+    old/options_data:
+    old options objects.
+
+    old/src:
+    source no longer in use (iosys.lex / iosys.y)
+
+
+* control commands (org-mode)
+//#+TYP_TODO: JS CB Other | DONE
+#+SEQ_TODO: TODO(t) | 
+#+SEQ_TODO: REPORT(r) BUG(b@/!) KNOWNCAUSE(k@/!) | FIXED(f!)
+#+SEQ_TODO: PENDING(p) CURRENT(c!) LATER(l@/!) | CANCELED(@/@) DONE(d!)
+#+SEQ_TODO: | FUTURE(!/!)
+//#+SEQ_TODO: TODO FEEDBACK VERIFY | DONE CANCELED
