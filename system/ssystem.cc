@@ -135,8 +135,8 @@ void SimulationSystem::StartSimulation( void )
   FILE *fp; // used only for initial random number generation.
   int curcount = 0;
   long random_seed = 0;
-  int ointerval;
-  int initial_seed;
+  long ointerval;
+  long initial_seed;
 
   getLongAttr(system_options, output_interval,&ointerval);
   getBoolAttr( system_options, initial_seed_flag, &use_fixed_random_seed);
@@ -240,10 +240,10 @@ void SimulationSystem::SimulationLoop( long r_seed )
   int checkresult = 0;
   double ctime = 0.0;
   double maxsimtime;
-  int stopcount;
-  int stopoptions;
-  int ointerval;
-  int sMode;
+  long stopcount;
+  long stopoptions;
+  long ointerval;
+  long sMode;
   double otime;
 
   getLongAttr(system_options, simulation_mode,&sMode); 
@@ -412,9 +412,9 @@ void SimulationSystem::StartSimulation_First_Bimolecular( void )
 {
   int curcount = 0;
   long random_seed = 0;
-  int ointerval;
+  long ointerval;
   getLongAttr(system_options, output_interval,&ointerval);
-  int initial_seed;
+  long initial_seed;
   getLongAttr(system_options, initial_seed,&initial_seed);
 
   /* these are used for compiling statistics on the runs */
@@ -513,12 +513,12 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( long r_seed, double *co
   double ctime = 0.0;
 
   double maxsimtime;
-  int stopcount;
-  int stopoptions;
+  long stopcount;
+  long stopoptions;
   class stopcomplexes *traverse;
-  int ointerval;
+  long ointerval;
   int sMode = simulation_mode & SIMULATION_MODE_FLAG_PYTHON;
-  int trajMode;
+  long trajMode;
   double otime;
   double otime_interval;
 

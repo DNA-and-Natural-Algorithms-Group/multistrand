@@ -7,8 +7,8 @@
 
 int main(int argc, char **argv) 
 {
-  char path[80];
-  strncpy(path,argv[0],80);
+  char path[300];
+  strncpy(path,argv[0],300);
   int i = strlen(argv[0])-2;
   while(i>= 0)
 	{
@@ -19,7 +19,7 @@ int main(int argc, char **argv)
 		}
 	  i--;
 	}
-  snprintf( path, 80, "import sys\nsys.path.append('%s')\n", argv[0] );
+  snprintf( path, 300, "import sys\nsys.path.append(\"%s\")\n", argv[0] );
   //  Py_SetProgramName(argv[0]);
   Py_Initialize();
   //  PySys_SetArgv(argc, argv);
@@ -35,7 +35,7 @@ int main(int argc, char **argv)
   str1= NULL;
   // str1 is clear
 
-  int num1; 
+  long num1; 
   getLongAttr(options, integer, &num1);
   double num2;
   getDoubleAttr(options, decimal, &num2);

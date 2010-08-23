@@ -71,8 +71,8 @@ class SimulationSystem
   bool boltzmann_sampling;
   bool use_fixed_random_seed;
   bool initial_trajectory;
-  int simulation_mode;
-  int simulation_count_remaining;
+  long simulation_mode;
+  long simulation_count_remaining;
 };
 
 #endif

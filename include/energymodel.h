@@ -113,7 +113,7 @@ class EnergyModel
   //virtual void eOpenloopEnergy( int size, int *pairtypes, int *sidelen, char **sequences, energyS *energy   );
 
  protected:
-  int dangles;
+  long dangles;
 
 };
 
@@ -229,7 +229,7 @@ class ViennaEnergyModel : public EnergyModel
   int bimolecular_penalty;
 
   // Kinetic rate toggle. 0 = kawasaki, 1 = metropolis, 2 = entropy/enthalpy, defaults to 2.
-  int kinetic_rate_method;
+  long kinetic_rate_method;
   double _RT;
   double joinrate;
 
@@ -387,7 +387,7 @@ class NupackEnergyModel : public EnergyModel
   int bimolecular_penalty_dH;
 
   // Kinetic rate toggle. 0 = kawasaki, 1 = metropolis, 2 = entropy/enthalpy, defaults to 2.
-  int kinetic_rate_method;
+  long kinetic_rate_method;
   double kBoltzmann;
   double current_temp;
   double _RT;
@@ -400,9 +400,9 @@ class NupackEnergyModel : public EnergyModel
   double biscale;
   double uniscale;
 
-  int gtenable;
+  bool gtenable;
   int internal;
-  int logml;
+  long logml;
 
   // data loading functions:
   void setupRates( PyObject *opt );

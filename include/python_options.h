@@ -11,7 +11,7 @@
 
 #define _m_getAttr_DECREF( obj, name, function, pvar, vartype )     \
   {																	\
-	PyObject *_m_attr = PyObject_GetAttrString( obj, #name);		\
+	PyObject *_m_attr = PyObject_GetAttrString( obj, name);		\
 	*(vartype *)(pvar) = function(_m_attr);                         \
 	Py_DECREF(_m_attr);												\
   }
