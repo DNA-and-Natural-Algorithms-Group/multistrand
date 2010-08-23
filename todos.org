@@ -3,42 +3,7 @@
    CLOSED: [2010-08-21 Sat 01:32]
 ** TODO Update makefiles / header files / etc / to cover new directory structure.
 
-** Filenames [63%]                                                     :Work:
-*** PENDING [#A] [[file:Makefile][Makefile]]    [1/4]
-**** TODO way too much in the way of connected dependencies, see if we can remove some of the crossed ones, especially scomplex.h and loop.h
-     Can generate all these via simple scripts, e.g.: "grep loop.h
-     */*" with appropriate flags for filename of matches only.
-***** Code
-      :PROPERTIES:
-      :ID:       38BF8831-172D-4BC3-8B7A-D6B2EA95FE22
-      :END:
-#+srcname: generate_loop_deps
-#+begin_src sh :exports results :results output
-      grep -l loop.h *.cc
-      grep -l loop.h */*.cc
-      grep -l loop.h include/*.h
-#+end_src
-***** Results
-#+results: generate_loop_deps
-: loop/loop.cc
-: loop/move.cc
-: include/scomplex.h
-: include/ssystem.h
-: include/strandordering.h
-**** PENDING makefile substructure implementation
-***** LATER split up makefiles
-      - State "LATER"      from "TODO"       [2010-08-22 Sun 07:18] \\
-        May not be necessary, new makefile format is a lot cleaner than before.
-***** TODO sanity check
-**** PENDING [[file:Makefile::TODO][documentation]]
-**** More components for [[Makefile][Makefile]] TODO List [/]
-***** TODO revisit the python_interface necessity for PYTHON_THREADS
-***** TODO Add make target for embedded multistrand (current default is the standalone, with python options object)
-***** TODO Update objects / sources / clean up other things.
-**** DONE Primary targets work: all, python-interface
-     All works fine, python-interface works up to boost errors.
-     CLOSED: [2010-08-22 Sun 08:13]
-     - State "DONE"       from "TODO"       [2010-08-22 Sun 08:13]
+** Filenames [60%]                                                     :Work:
 *** PENDING [#B] [[file:python_options.cc][python_options.cc]] [1/2]
     Needs some sub components checked, see child TODOS.
     - State "CURRENT"    from "TODO"       [2010-08-21 Sat 16:12]
@@ -63,6 +28,100 @@
      See file.
 **** TODO [[file:include/python_options.h::define%20m_printStatusLine%20obj%20a%20b%20c][print calls]]
      print calls are now all #defines, fill in data.
+*** CURRENT [[file:python_options.py][python_options.py]] [0/1]
+    Need to add in print functions / log file manipulation now.
+    - State "CURRENT"    from "DONE"       [2010-08-22 Sun 17:53]
+    Merged the rest of the changes for this file. Should be nearly the
+    same as previous.
+    CLOSED: [2010-08-22 Sun 09:04]
+    - State "DONE"       from "PENDING"    [2010-08-22 Sun 09:04]
+**** TODO Files and printing functions.
+***** code
+#+srcname: print_functions
+#+begin_src sh :exports results :results output
+      grep print[^f] options.cc
+      echo "_______"
+      grep print[^f] include/python_options.h
+#+end_src
+***** Results
+#+results: print_functions
+#+begin_example
+      void Options::printStatusLine( long r_seed, char *stop_id, double end_time )
+      void Options::printStatusLine( long r_seed )
+      void Options::printTrajLine( char *trigger_id, double cur_time )
+      void Options::printStatusLine_Warning( int warningtype, int data )
+      void Options::printStatusLine_First_Bimolecular( long r_seed, int completiontype, double completiontime, double forwardrate, char *tag )
+      void Options::printStatusLine_Final_First_Bimolecular( double total_rate, double *total_times, long *total_types, long total_count, double *computed_rate_means, double *computed_rate_mean_diff_squared )
+      void printError( int location, char **argv );
+     _______
+      #define m_printStatusLine( obj,a,b,c)
+      //#define m_printStatusLine( obj,a)
+      #define m_printTrajLine(obj,a,b)
+      #define m_printStatusLine_First_Bimolecular( obj,a,b,c,d,e)
+      #define m_printStatusLine_Final_First_Bimolecular( obj, a,b,c,d,e,f )
+      #define m_printStatusLine_Warning( obj, a, b )
+#+end_example
+*** LATER [#B] [[file:Makefile][Makefile]]    [2/4]
+    - State "LATER"      from "CURRENT"    [2010-08-23 Mon 03:06] \\
+      Currently usable, rest is managing dependencies and so
+      on. Remaining features for later work. 
+**** TODO way too much in the way of connected dependencies, see if we can remove some of the crossed ones, especially scomplex.h and loop.h
+     Can generate all these via simple scripts, e.g.: "grep loop.h
+     */*" with appropriate flags for filename of matches only.
+***** Code
+      :PROPERTIES:
+      :ID:       38BF8831-172D-4BC3-8B7A-D6B2EA95FE22
+      :END:
+#+srcname: generate_loop_deps
+#+begin_src sh :exports results :results output
+      grep -l loop.h *.cc
+      grep -l loop.h */*.cc
+      grep -l loop.h include/*.h
+#+end_src
+***** Results
+#+results: generate_loop_deps
+: loop/loop.cc
+: loop/move.cc
+: include/scomplex.h
+: include/ssystem.h
+: include/strandordering.h
+**** PENDING [[file:Makefile::TODO][documentation]]
+**** More components for [[Makefile][Makefile]] TODO List [2/3]
+***** PENDING Update objects / sources / clean up other things. [1/2]
+****** DONE Objects:
+       Object files are collected nicely, and no longer get
+       regenerated all the time. Clean, distclean, interface-clean all work.
+       CLOSED: [2010-08-23 Mon 03:02]
+       - State "DONE"       from "TODO"       [2010-08-23 Mon 03:02]
+       
+****** TODO Sourcefiles:
+       Most still need checking for includes of type "../include/",
+       which is no longer needed.
+***** DONE revisit the python_interface necessity for PYTHON_THREADS
+      It's no longer called python_interface, and is just "interface",
+      which is the collection of c++ and python objects for using
+      Multistrand via an interface rather than standalone. This is
+      likely where options should go as well.
+      CLOSED: [2010-08-23 Mon 03:00]
+      - State "DONE"       from "TODO"       [2010-08-23 Mon 03:00]
+***** DONE Add make target for embedded multistrand (current default is the standalone, with python options object)
+      Added make target "interface" which builds the multistrand.so
+      file for use in a python interpreted session. Cleaned up this
+      function dramatically.
+      CLOSED: [2010-08-23 Mon 03:01]
+      - State "DONE"       from "TODO"       [2010-08-23 Mon 03:01]
+**** CANCELED makefile substructure implementation
+     CLOSED: [2010-08-23 Mon 02:59]
+     - State "CANCELED"   from "PENDING"    [2010-08-23 Mon 02:59] \\
+       No longer needed, sub directories are managed via the main Makefile in a clean way. See other notes re: that implementation.
+***** LATER split up makefiles
+      - State "LATER"      from "TODO"       [2010-08-22 Sun 07:18] \\
+        May not be necessary, new makefile format is a lot cleaner than before.
+***** TODO sanity check
+**** DONE Primary targets work: all, python-interface
+     All works fine, python-interface works up to boost errors.
+     CLOSED: [2010-08-22 Sun 08:13]
+     - State "DONE"       from "TODO"       [2010-08-22 Sun 08:13]
 *** LATER [[file:outside_sources/re_generator.py][re_generator.py]]
     - State "LATER"      from "PENDING"    [2010-08-22 Sun 08:18] \\
       Utilities from other repos.
@@ -72,11 +131,6 @@
 *** LATER [[file:outside_sources/complecks_multistrand.py][complecks_multistrand.py]]
     - State "LATER"      from "PENDING"    [2010-08-22 Sun 08:19] \\
       Utilities from other repos.
-*** DONE [[file:python_options.py][python_options.py]]
-    Merged the rest of the changes for this file. Should be nearly the
-    same as previous.
-    CLOSED: [2010-08-22 Sun 09:04]
-    - State "DONE"       from "PENDING"    [2010-08-22 Sun 09:04]
 *** DONE [[file:optionlists.cc][optionlists.cc]]
     CLOSED: [2010-08-22 Sun 08:17]
     - State "DONE"       from "PENDING"    [2010-08-22 Sun 08:17]

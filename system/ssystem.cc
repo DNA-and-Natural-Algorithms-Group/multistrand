@@ -3,8 +3,8 @@
   Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
 */
 
-#include "../include/python_options.h"
-#include "../include/ssystem.h"
+#include "python_options.h"
+#include "ssystem.h"
 
 #include <string.h>
 #include <time.h>
