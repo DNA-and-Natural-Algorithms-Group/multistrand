@@ -83,19 +83,22 @@
  **************************************************/
 #ifdef DEBUG_MACROS
 
-#define _m_d_getAttr_DECREF( obj, name, function, pvar, vartype )     \
+#define _m_d_getAttr_DECREF( obj, name, pvar, c_type_name, py_type, py_c_type )     \
   {																	\
 	PyObject *_m_attr = PyObject_GetAttrString( obj, name);		    \
     if( _m_attr == NULL && PyErr_Occurred() != NULL)                \
       PyErr_PrintEx(1);                                             \
     else if (_m_attr == NULL )                                      \
-      fprintf(stderr,"ERROR: _m_getAttr_DECREF: No error occurred,\
+      fprintf(stderr,"WARNING: _m_getAttr_DECREF: No error occurred,\
  but the returned pointer was still NULL!\n"); \
     else                                                            \
       {                                                             \
-        *(vartype *)(pvar) = function(_m_attr);                     \
-        Py_DECREF(_m_attr);                                         \
-      }                                                             \
+        if( !Py##py_type##_Check( _m_attr ) )\
+          fprintf(stderr,"WARNING: _m_getAttr_DECREF: The attribute returned was not the expected type!\n"); \
+        else                                                            \
+          *(c_type_name *)(pvar) = Py##py_type##_AS_##py_c_type(_m_attr);                       \
+        Py_DECREF(_m_attr);                                             \
+      }                                                                 \
   }
 
 #define _m_d_setAttr_DECREF( obj, name, function, arg )               \
@@ -104,7 +107,7 @@
     if( val == NULL && PyErr_Occurred() != NULL)                    \
       PyErr_PrintEx(1);                                             \
     else if (val == NULL )                                          \
-      fprintf(stderr,"ERROR: _m_setAttr_DECREF: No error occurred,\
+      fprintf(stderr,"WARNING: _m_setAttr_DECREF: No error occurred,\
  but the returned pointer was still NULL!\n"); \
     else                                                            \
       {                                                             \
@@ -119,9 +122,11 @@
 
 
 // Getters
-#define getBoolAttr(obj, name, pvar) _m_d_getAttr_DECREF( obj, #name, PyInt_AS_LONG, pvar, bool)
-#define getLongAttr(obj, name, pvar) _m_d_getAttr_DECREF( obj, #name, PyInt_AS_LONG, pvar, long)
-#define getDoubleAttr(obj, name, pvar) _m_d_getAttr_DECREF( obj, #name, PyFloat_AS_DOUBLE, pvar, double)
+// NOTE: these three use a different footprint for the _m_getAttr_DECREF, as they need to check
+// the python object type.
+#define getBoolAttr(obj, name, pvar) _m_d_getAttr_DECREF( obj, #name, pvar, bool, Int,LONG)
+#define getLongAttr(obj, name, pvar) _m_d_getAttr_DECREF( obj, #name, pvar, long, Int, LONG)
+#define getDoubleAttr(obj, name, pvar) _m_d_getAttr_DECREF( obj, #name, pvar, double, Float, DOUBLE )
 
 // NOTE: caller is responsible for checking return values for strings!
 #define getStringAttr(obj, name, pyo) ((char *)PyString_AS_STRING(pyo=PyObject_GetAttrString(obj, #name)))
@@ -135,7 +140,7 @@
   if (_m_attr == NULL && PyErr_Occurred() == NULL )        \
     PyErr_PrintEx(1);                                      \
   else if (_m_attr == NULL )                               \
-    fprintf(stderr,"ERROR: pingAttr: No error occurred,\
+    fprintf(stderr,"WARNING: pingAttr: No error occurred,\
  but the returned pointer was still NULL!\n"); \
   else { Py_DECREF(_m_attr); }               \
   }
@@ -223,7 +228,7 @@ static inline bool _m_d_testLongAttr( PyObject *obj, const char *attrname, const
    }
  else if (_m_attr == NULL )
    {
-     fprintf(stderr,"ERROR: _m_d_testLongAttr: No error occurred,\
+     fprintf(stderr,"WARNING: _m_d_testLongAttr: No error occurred,\
  but the returned object from GetAttrString was still NULL!\n");
      return false;
    }
@@ -285,7 +290,7 @@ static inline PyObject *_m_d_newObject( const char *mod, const char *name )
     PyErr_PrintEx(1);
   else if (module == NULL)
     {
-      fprintf(stderr,"ERROR: _m_d_newObject: No error occurred,\
+      fprintf(stderr,"WARNING: _m_d_newObject: No error occurred,\
  but the returned module was still NULL!\n");
       return NULL;
     }
@@ -294,7 +299,7 @@ static inline PyObject *_m_d_newObject( const char *mod, const char *name )
     PyErr_PrintEx(1);
   else if (class_obj == NULL)
     {
-      fprintf(stderr,"ERROR: _m_d_newObject: No error occurred,\
+      fprintf(stderr,"WARNING: _m_d_newObject: No error occurred,\
  but the returned class object was still NULL!\n");
       return NULL;
     }
@@ -304,7 +309,7 @@ static inline PyObject *_m_d_newObject( const char *mod, const char *name )
     PyErr_PrintEx(1);
   else if (new_obj == NULL)
     {
-      fprintf(stderr,"ERROR: _m_d_newObject: No error occurred,\
+      fprintf(stderr,"WARNING: _m_d_newObject: No error occurred,\
  but the returned class object was still NULL!\n");
       return NULL;
     }
