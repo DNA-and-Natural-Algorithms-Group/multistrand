@@ -21,11 +21,25 @@
     To be removed.
 *** PENDING [[file:state/scomplexlist.cc][scomplexlist.cc]]
     No changes were necessary?
-*** CURRENT [[file:include/python_options.h][python_options.h]] [/]
+*** CURRENT [[file:include/python_options.h][python_options.h]] [0/4]
     added stopcondition components so that ssystem.cc will compile.
     - State "CURRENT"    from "PENDING"    [2010-08-21 Sat 15:44]
+**** TODO write debug versions of macros. [2/3]
+***** DONE Debug versions of all get/set/test macros
+      All macros have a debug version now, with a few exceptions: All
+      List references and list accessors are the caller's
+      responsibility to check whether the return value was
+      invalid. All string functions are also caller's responsibility.
+      CLOSED: [2010-08-23 Mon 13:50]
+      - State "DONE"       from "TODO"       [2010-08-23 Mon 13:50]
+***** TODO [[file:include/python_options.h::TODO%20no%20debug%20versions%20of%20these%20yet][Link ]]Debug versions of call macros
+***** DONE debug versions of static functions
+      Added debug versions for testLongAttr and newObject.
+      CLOSED: [2010-08-23 Mon 13:50]
+      - State "DONE"       from "TODO"       [2010-08-23 Mon 13:50]
 **** TODO [[file:include/python_options.h:138:][STOPCONDITION lines]]
      See file.
+**** TODO check call macros for ref counting issues.
 **** TODO [[file:include/python_options.h::define%20m_printStatusLine%20obj%20a%20b%20c][print calls]]
      print calls are now all #defines, fill in data.
 *** CURRENT [[file:python_options.py][python_options.py]] [0/1]

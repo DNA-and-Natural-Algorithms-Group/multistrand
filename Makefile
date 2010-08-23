@@ -42,7 +42,7 @@ BOOST_INCLUDES 	      = -I /opt/local/include
 
 # flag blocks for C compilation
 CFLAGS_RELEASE = -O3
-CFLAGS_DEBUG   = -g -Wconversion
+CFLAGS_DEBUG   = -g -Wconversion -DDEBUG_MACROS
 CFLAGS_INTERFACE  = -DPYTHON_THREADS
 
 CFLAGS := $(CFLAGS_RELEASE)

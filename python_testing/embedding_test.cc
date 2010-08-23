@@ -36,6 +36,10 @@ int main(int argc, char **argv)
   // str1 is clear
 
   long num1; 
+#ifdef DEBUG_MACROS
+  getLongAttr(options, integerddd, &num1);
+  // testing debug macros
+#endif DEBUG_MACROS
   getLongAttr(options, integer, &num1);
   double num2;
   getDoubleAttr(options, decimal, &num2);

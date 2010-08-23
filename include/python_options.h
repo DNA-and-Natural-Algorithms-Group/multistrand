@@ -9,6 +9,7 @@
 /* Helper functions / internal macros. */
 /***************************************/
 
+#ifndef DEBUG_MACROS
 #define _m_getAttr_DECREF( obj, name, function, pvar, vartype )     \
   {																	\
 	PyObject *_m_attr = PyObject_GetAttrString( obj, name);		\
@@ -23,21 +24,8 @@
 	Py_DECREF(val);                                                 \
   }
 
-static inline bool _testLongAttr( PyObject *obj, const char *attrname, const char *test, long value )
-{
- PyObject *_m_attr = PyObject_GetAttrString( obj, attrname);                
- long local_val = PyInt_AS_LONG(_m_attr);
- Py_DECREF(_m_attr);                                                                                        
- if( test[0] == '=' )
-       return (local_val == value);
- if( test[0] == '<' )
-       return (local_val < value );
- if( test[0] == '>' )
-       return (local_val > value );
-}
-
 // Import/instantiate
-#define newObject(mod, name) PyObject_CallObject(PyObject_GetAttrString(PyImport_ImportModule(#mod), #name), NULL)
+#define newObject(mod, name) _m_newObject( #mod, #name )
 
 // Getters
 #define getBoolAttr(obj, name, pvar) _m_getAttr_DECREF( obj, #name, PyInt_AS_LONG, pvar, bool)
@@ -46,7 +34,9 @@ static inline bool _testLongAttr( PyObject *obj, const char *attrname, const cha
 #define getStringAttr(obj, name, pyo) ((char *)PyString_AS_STRING(pyo=PyObject_GetAttrString(obj, #name)))
 #define getListAttr(obj, name) PyObject_GetAttrString(obj, #name)
 
-#define pingAttr(obj, name) Py_DECREF(PyObject_GetAttrString( obj, #name ))
+#define pingAttr(obj, name) Py_XDECREF(PyObject_GetAttrString( obj, #name ))
+// note: does not do anything crazy on a NULL return from GetAttrString, but if that 
+// returned null it might be an error...
 
 // List indexing
 #define getStringItem(list, index) PyString_AS_STRING(PyList_GET_ITEM(list, index))
@@ -66,6 +56,120 @@ static inline bool _testLongAttr( PyObject *obj, const char *attrname, const cha
 #define callFunc_NoArgsToLong(obj, name) PyInt_AS_LONG(PyObject_CallMethod(obj, #name, "()"))
 #define callFunc_DoubleToNone(obj, name, arg) PyObject_CallMethod(obj, #name, "(f)", arg)
 
+
+// Not currently used, but might be a good reference for later
+#define callFunc_IntToNone(obj, name, arg) PyObject_CallObject(PyObject_GetAttrString(obj, #name), Py_BuildValue("(i)", arg))
+// these are refcounting insensitive at the moment.
+#define callFunc_IntToString(obj, name, arg) PyString_AS_STRING(PyObject_CallObject(PyObject_GetAttrString(obj, #name), Py_BuildValue("(i)", arg)))
+
+
+
+
+
+// Print calls, currently null statements.
+#define m_printStatusLine( obj,a,b,c)
+//#define m_printStatusLine( obj,a)
+#define m_printTrajLine(obj,a,b)
+#define m_printStatusLine_First_Bimolecular( obj,a,b,c,d,e)
+#define m_printStatusLine_Final_First_Bimolecular( obj, a,b,c,d,e,f )
+#define m_printStatusLine_Warning( obj, a, b )
+
+#endif  // DEBUG_MACROS is not set.
+
+/***************************************************
+
+  Debug version of macros:
+
+ **************************************************/
+#ifdef DEBUG_MACROS
+
+#define _m_d_getAttr_DECREF( obj, name, function, pvar, vartype )     \
+  {																	\
+	PyObject *_m_attr = PyObject_GetAttrString( obj, name);		    \
+    if( _m_attr == NULL && PyErr_Occurred() != NULL)                \
+      PyErr_PrintEx(1);                                             \
+    else if (_m_attr == NULL )                                      \
+      fprintf(stderr,"ERROR: _m_getAttr_DECREF: No error occurred,\
+ but the returned pointer was still NULL!\n"); \
+    else                                                            \
+      {                                                             \
+        *(vartype *)(pvar) = function(_m_attr);                     \
+        Py_DECREF(_m_attr);                                         \
+      }                                                             \
+  }
+
+#define _m_d_setAttr_DECREF( obj, name, function, arg )               \
+  {																	\
+	PyObject *val = function(arg);                                  \
+    if( val == NULL && PyErr_Occurred() != NULL)                    \
+      PyErr_PrintEx(1);                                             \
+    else if (val == NULL )                                          \
+      fprintf(stderr,"ERROR: _m_setAttr_DECREF: No error occurred,\
+ but the returned pointer was still NULL!\n"); \
+    else                                                            \
+      {                                                             \
+        PyObject_SetAttrString( obj, name, val);                    \
+        Py_DECREF(val);                                             \
+      }                                                             \
+  }
+
+// Import/instantiate
+#define newObject(mod, name) \
+  _m_d_newObject( #mod, #name )
+
+
+// Getters
+#define getBoolAttr(obj, name, pvar) _m_d_getAttr_DECREF( obj, #name, PyInt_AS_LONG, pvar, bool)
+#define getLongAttr(obj, name, pvar) _m_d_getAttr_DECREF( obj, #name, PyInt_AS_LONG, pvar, long)
+#define getDoubleAttr(obj, name, pvar) _m_d_getAttr_DECREF( obj, #name, PyFloat_AS_DOUBLE, pvar, double)
+
+// NOTE: caller is responsible for checking return values for strings!
+#define getStringAttr(obj, name, pyo) ((char *)PyString_AS_STRING(pyo=PyObject_GetAttrString(obj, #name)))
+
+// caller responsible for checking return values of lists.
+#define getListAttr(obj, name) PyObject_GetAttrString(obj, #name)
+
+
+#define pingAttr(obj, name) { \
+  PyObject *_m_attr = PyObject_GetAttrString( obj, #name );\
+  if (_m_attr == NULL && PyErr_Occurred() == NULL )        \
+    PyErr_PrintEx(1);                                      \
+  else if (_m_attr == NULL )                               \
+    fprintf(stderr,"ERROR: pingAttr: No error occurred,\
+ but the returned pointer was still NULL!\n"); \
+  else { Py_DECREF(_m_attr); }               \
+  }
+    
+
+// List indexing
+// NOTE: caller is responsible for checking return values for strings!
+
+#define getStringItem(list, index) PyString_AS_STRING(PyList_GET_ITEM(list, index))
+
+// The following works without ref counting issues as PyList_GET_ITEM borrows the references.
+// Since these macros must be expressions and not statements, we
+//cannot raise error conditions here easily, thus it is caller's
+//responsibility.
+#define getLongItem(list, index) \
+  (PyInt_Check(PyList_GET_ITEM(list, index))?PyInt_AS_LONG(PyList_GET_ITEM(list,index)):-1)
+
+#define getLongItemFromTuple(tuple, index) \
+  (PyInt_Check(PyTuple_GET_ITEM(tuple, index))?PyInt_AS_LONG(PyTuple_GET_ITEM(tuple,index)):-1)
+
+// Setters
+#define setDoubleAttr(obj, name, arg) _m_d_setAttr_DECREF( obj, #name, PyFloat_FromDouble, arg)
+#define setLongAttr(obj, name, arg) _m_d_setAttr_DECREF( obj, #name, PyLong_FromLong, arg)
+
+// Testers
+#define testLongAttr(obj, name, test, value) _m_d_testLongAttr( obj, #name, #test, value )
+#define testBoolAttr(obj, name) _m_d_testLongAttr( obj, #name, "=", 1 )
+
+// Function calls
+// TODO: no debug versions of these yet. 
+#define callFunc_NoArgsToNone(obj, name) PyObject_CallMethod(obj, #name, "()")
+#define callFunc_NoArgsToLong(obj, name) PyInt_AS_LONG(PyObject_CallMethod(obj, #name, "()"))
+#define callFunc_DoubleToNone(obj, name, arg) PyObject_CallMethod(obj, #name, "(f)", arg)
+
 // Print calls, currently null statements.
 #define m_printStatusLine( obj,a,b,c)
 //#define m_printStatusLine( obj,a)
@@ -79,10 +183,150 @@ static inline bool _testLongAttr( PyObject *obj, const char *attrname, const cha
 // these are refcounting insensitive at the moment.
 #define callFunc_IntToString(obj, name, arg) PyString_AS_STRING(PyObject_CallObject(PyObject_GetAttrString(obj, #name), Py_BuildValue("(i)", arg)))
 
+
+#endif
+
+
+
+
+/*****************************************************
+
+Inline functions for various python macro operations.
+
+Prefixed by _m_ if used internally by macros, and by 
+_m_d_ if it's a debug version for when DEBUG_MACROS is set.
+
+*****************************************************/
+
+static inline bool _m_testLongAttr( PyObject *obj, const char *attrname, const char *test, long value )
+{
+ PyObject *_m_attr = PyObject_GetAttrString( obj, attrname);                
+ long local_val = PyInt_AS_LONG(_m_attr);
+ Py_DECREF(_m_attr);                                                                                        
+ if( test[0] == '=' )
+       return (local_val == value);
+ if( test[0] == '<' )
+       return (local_val < value );
+ if( test[0] == '>' )
+       return (local_val > value );
+}
+
+#ifdef DEBUG_MACROS
+static inline bool _m_d_testLongAttr( PyObject *obj, const char *attrname, const char *test, long value )
+{
+ PyObject *_m_attr = PyObject_GetAttrString( obj, attrname);                
+ long local_val;
+ if( _m_attr == NULL && PyErr_Occurred() != NULL )
+   {
+     PyErr_PrintEx(1);
+     return false;
+   }
+ else if (_m_attr == NULL )
+   {
+     fprintf(stderr,"ERROR: _m_d_testLongAttr: No error occurred,\
+ but the returned object from GetAttrString was still NULL!\n");
+     return false;
+   }
+ else
+   {
+     if( !PyInt_Check( _m_attr ) )
+       {
+         fprintf(stderr,"ERROR: _m_d_testLongAttr: Attribute name %s was not an integer type or subclass.\n", attrname );
+         Py_DECREF(_m_attr);
+         return false;
+       }
+     local_val = PyInt_AS_LONG(_m_attr);
+     Py_DECREF(_m_attr);                                                                                        
+     if( test[0] == '=' )
+       return (local_val == value);
+     if( test[0] == '<' )
+       return (local_val < value );
+     if( test[0] == '>' )
+       return (local_val > value );
+   }
+}
+#endif
+
+static inline PyObject *_m_newObject( const char *mod, const char *name )
+{
+  PyObject *module = NULL;
+  PyObject *class_obj = NULL;
+  PyObject *new_obj = NULL;
+
+  module = PyImport_ImportModule( mod ); // new reference
+  if(module == NULL )
+    return NULL;
+
+  class_obj = PyObject_GetAttrString(module, name ); // new reference
+  if (class_obj == NULL )
+    {
+      Py_DECREF(module);
+      return NULL;
+    }
+
+  new_obj = PyObject_CallObject( class_obj, NULL );
+
+  Py_DECREF( module );
+  Py_DECREF( class_obj );
+  // new_obj is a new reference, which we return. Caller is responsible.
+  return new_obj;
+}
+
+
+#ifdef DEBUG_MACROS
+static inline PyObject *_m_d_newObject( const char *mod, const char *name )
+{
+  PyObject *module = NULL;
+  PyObject *class_obj = NULL;
+  PyObject *new_obj = NULL;
+
+  module = PyImport_ImportModule( mod ); // new reference
+  if (module == NULL && PyErr_Occurred() != NULL)
+    PyErr_PrintEx(1);
+  else if (module == NULL)
+    {
+      fprintf(stderr,"ERROR: _m_d_newObject: No error occurred,\
+ but the returned module was still NULL!\n");
+      return NULL;
+    }
+  class_obj = PyObject_GetAttrString(module, name ); // new reference
+  if (class_obj == NULL && PyErr_Occurred() != NULL)
+    PyErr_PrintEx(1);
+  else if (class_obj == NULL)
+    {
+      fprintf(stderr,"ERROR: _m_d_newObject: No error occurred,\
+ but the returned class object was still NULL!\n");
+      return NULL;
+    }
+
+  new_obj = PyObject_CallObject( class_obj, NULL );
+  if (new_obj == NULL && PyErr_Occurred() != NULL)
+    PyErr_PrintEx(1);
+  else if (new_obj == NULL)
+    {
+      fprintf(stderr,"ERROR: _m_d_newObject: No error occurred,\
+ but the returned class object was still NULL!\n");
+      return NULL;
+    }
+  Py_DECREF( module );
+  Py_DECREF( class_obj );
+  // new_obj is a new reference, which we return. Caller is responsible.
+  return new_obj;
+}
+
+#endif // DEBUG_MACROS was set
+
+/******************************************************
+
+ Functions defined in python_options.cc
+
+******************************************************/
+
 // Functions
 class identlist *makeID_list(PyObject *strand_list);
 class stopcomplexes *getStopComplexList(PyObject *options, int index);
 class identlist *getID_list(PyObject *options, int index);
+
 
 
 /*****************************************************
