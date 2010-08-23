@@ -361,13 +361,13 @@ class MultistrandOptions( object ):
         means output as often as possible.
         """
         
-        self.output_interval = None
+        self.output_interval = -1
         """ The number of states between outputs of trajectory information.
         
         Type         Default
-        int          None
+        int          -1
         
-        A value of None corresponds to not basing outputs on output_interval
+        A value of -1 corresponds to not basing outputs on output_interval
         (but perhaps outputting based on some other condition). A value of 0 
         means output every state, 1 means every other state, and so on.
         """
