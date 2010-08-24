@@ -40,11 +40,28 @@ class _OptionsConstants( object ):
 
     @property
     def SIMULATION_MODE(self):
-        return {"Normal":       0,
-                "First Step":   1,
-                "Python Module":2,
-                "Python Module:First Step":3,
-                "Energy Only": 16}
+        return {"Normal":                   0x0010,
+                "First Step":               0x0030,
+                "Python Module":            0x0040,
+                "Python Module:First Step": 0x0060,
+                "Energy Only":              0x0100}
+
+    @property
+    def SIMULATION_MODE_FLAG(self):
+        return {"Normal":                   0x0010,
+                "First Bimolecular":        0x0020,
+                "Python Module":            0x0040}
+
+    @property
+    def STOPRESULT(self):
+        return {"Normal":                   0x0011,
+                "Time":                     0x0012,
+                "Forward":                  0x0021,
+                "Time (First Step)":        0x0022,
+                "Reverse":                  0x0024,
+                "Error":                    0x0081,
+                "NaN":                      0x0082,
+                "No Moves":                 0x0084}
     
     def __setattr__(self, name, value):
         if hasattr(self, name):
@@ -250,23 +267,23 @@ class MultistrandOptions( object ):
         """ The simulation mode: how we want the simulation system to
         perform the main loop.
 
-        Normal         [0]: Normal markov chain process.
-        First Step     [1]: Markov chain where the first move chosen is
+        'Normal'          : Normal markov chain process.
+        'First Step'      : Markov chain where the first move chosen is
                             always a bimolecular join step. See
                             thesis/other docs for more info,
                             especially on the statistics gathered by
                             this mode.
                             
-        Python Module  [2]: The simulator is compiled as a python
+        'Python Module'   : The simulator is compiled as a python
                             module.  This means the main loop is
                             outside the simulator, and it should
                             provide feedback to the controlling
                             process by way of this options object.
                             
-        Python Module: First Step [3]: Python module, running in first
+        'Python Module:First Step'   : Python module, running in first
                                        step mode. (see above)
 
-        Energy Only   [16]: Compute the energy of start structure only,
+        'Energy Only'     : Compute the energy of start structure only,
                             printing the result and finishing.
                             
         Should use the values in the _OC.SIMULATION_MODE dictionary rather
@@ -337,18 +354,10 @@ class MultistrandOptions( object ):
         Automatically set to True if RestingState objects are given as the 
         start state.
         """
-        
-        self.boltzmann_sample = True
-        """ Indicates whether the start state will be determined by Boltzmann
-        sampling or by using exact structures.
-        
-        Type         Default
-        boolean      True
-        
-        Automatically set to True if RestingState objects are given as the 
-        start state.
-        """
-        
+
+        # See accessors below.
+        self._boltzmann_sample = None
+                
         # See accessors below
         self._stop_conditions = []
         
@@ -425,17 +434,37 @@ class MultistrandOptions( object ):
         #
         ##############################
         
-        ('finalizeInput', 'finalize_input')
-        ('printStatusLine', 'print_status_line')
-        ('printStatusLine_Final_First_Bimolecular', 'print_status_line__final__first__bimolecular')
-        ('printStatusLine_First_Bimolecular', 'print_status_line__first__bimolecular')
-        ('printStatusLine_Warning', 'print_status_line__warning')
-        ('printTrajLine', 'print_traj_line')
         ('resetCompleted', 'reset_completed')
         ('resetCompleted_Python', 'reset_completed__python')
         ('setCollisionRate_Python', 'set_collision_rate__python')
         ('setCurSimTime', 'set_cur_sim_time')
-    
+
+
+    @property
+    def boltzmann_sample(self):
+        """ Indicates whether the start state will be determined by Boltzmann
+        sampling or by using exact structures.
+        
+        Type         Default
+        boolean      False
+        
+        Must be set to True when RestingState objects are given as the
+        start state in order to activate the boltzmann sampling.
+        """
+        if self._boltzmann_sample is None:
+            return False
+        else:
+            return self._boltzmann_sample
+
+    @boltzmann_sample.setter
+    def boltzmann_sample(self, val):
+        # Set all resting states to use this boltzmann flag.
+        if not isinstance( val, bool ):
+            raise ValueError("the boltzmann_sample property can only be a boolean, sorry. When set, it applies globally to all resting state used in the start complexes, unless they have already been set.")
+        for c,s in self._start_state:
+            if s is not None:
+                s.set_boltzmann( val )
+        
     
     @property
     def start_state(self):
@@ -447,14 +476,14 @@ class MultistrandOptions( object ):
         This should be used by ssystem.cc to get the (potentially sampled) 
         start state.
         """
-        if self.use_resting_states:
-            fn = lambda x: x[0]
-        elif self.boltzmann_sample:
-            fn = lambda x: boltzmann_sample(x)
-        else:
-            fn = lambda x: x
-
-        return [fn(s) for s in self._start_state]
+        def process_state(x):
+            cmplx, rest_state = x
+            if rest_state is None:
+                return cmplx
+            else:
+                return rest_state.sample()
+            
+        return [process_state(s) for s in self._start_state]
     
     @start_state.setter
     def start_state(self, *args):
@@ -482,21 +511,24 @@ class MultistrandOptions( object ):
             vals = copy.deepcopy(args[0])
         else:
             raise ValueError("Could not comprehend the start state you gave me.")
+
+        # vals is now an iterable over our starting configuration, be
+        # it complexes or resting states.
         
-        isinstance(args[0][0],Complex) or isinstance(args[0][0],RestingState)
-        # vals is now an iterable over our starting configuration, be it complexes or resting states.
+        for i in vals:
+            if not isinstance(i,Complex) and not isinstance(i,RestingState):
+                raise ValueError("Start states must be Complexes or RestingStates. Received something of type {0}.".format( type(i)) )
         
-        # our args were the complexes themselves.
-        elif len(args) == 1 and isinstance(temp_vals[0][0]
-        
-        # Set the appropriate flags, generate unique strand ids, and store
-        if t is RestingState:
+            self._add_start_complex( i )
+
+    def _add_start_complex( self, item ):
+        if isinstance(item, RestingState ):
+            # Set the appropriate flags, generate unique strand ids, and store
             self.use_resting_states = True
             self.boltzmann_sample = True
-            
-            for resting_state in start_list:
-                id_dict = {}
-                for strand in resting_state[0].strand_list:
+
+            id_dict = {}
+            for strand in item.strand_list:
                     id_dict[strand.id] = self.make_unique(strand)
                 for cmplx in resting_state:
                     cmplx.strand_list = [id_dict[s.id] for s in cmplx.strand_list]
@@ -546,7 +578,7 @@ class MultistrandOptions( object ):
         # Type checking
         for item in stop_list:
             if not isinstance(item, StopCondition):
-                raise TypeError("All items must be 'StopCondition', not '%s'." % type(item))
+                raise TypeError("All items must be 'StopCondition', not '{0}'.".format(type(item)))
         
         # Copy the input list because it's easy to do and it's safer
         stop_list = copy.deepcopy(stop_list)
@@ -679,37 +711,5 @@ class MultistrandOptions( object ):
 
 
     
-
-
-def boltzmann_sample(cmplx):
-    """Returns a new Complex object with a structure boltzmann sampled based on
-    NUPACK's sample function.
-    """
-    import os, subprocess
-    cwd = os.path.abspath(os.curdir)
-    prefix = "temp_boltzmann___"
-    
-    f = open("%s/%s.in" % (cwd, prefix), "w")
-    f.write("%d\n" % len(cmplx.strand_list))
-    for strand in cmplx.strand_list:
-        f.write(strand.sequence + "\n")
-    for i in range(len(cmplx.strand_list)):
-        f.write("%d " % (i+1))
-    f.write("\n")
-    f.close()
-    
-    subprocess.check_call(["/research/src/sample_dist/bin/sample", "-multi", "-material", "dna", "-count", "1", "%s/%s" % (cwd, prefix)], stdout=subprocess.PIPE)
-    
-    f = open("%s/%s.sample" % (cwd, prefix), "r")
-    for i in range(11):
-        line = f.readline()
-    f.close()
-    
-    return Complex(cmplx.id, cmplx.name, cmplx.strand_list, line.strip())
-
-
-
-
-
 
 

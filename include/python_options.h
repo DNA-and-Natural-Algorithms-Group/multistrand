@@ -13,8 +13,8 @@
 /***************************************/
 
 /* Utility */
-#define _m_prepStatusTuple( seed, tag, time )\
-  Py_BuildValue("(lsd)", seed, tag, time) 
+#define _m_prepStatusTuple( seed, com_type, time, tag )    \
+  Py_BuildValue("(lids)", seed,(int) (com_type), time, tag )
 
 #define _m_prepTrajTuple( tag, time )\
   Py_BuildValue("(sd)", tag, time) 
@@ -94,8 +94,8 @@
     Py_DECREF(pyo);                             \
   }while(0)
 
-#define printStatusLine( obj, seed, tag, time )   \
-  _m_pushList( obj, _m_prepStatusTuple( seed, (char *)(tag), time ), print_status_line)
+#define printStatusLine( obj, seed, com_type, time, tag )                   \
+  _m_pushList( obj, _m_prepStatusTuple( seed, com_type, time,(char *)(tag) ), print_status_line)
 
 #define printTrajLine( obj, name, time ) \
   _m_pushList( obj, _m_prepTrajTuple( (char *)(name), time ), print_traj_line )
@@ -203,14 +203,14 @@
       }                                                                 \
   }while(0)
 
-#define printStatusLine( obj, seed, tag, time )   \
-  _m_d_pushList( obj, _m_d_prepStatusTuple( seed, (char *)(tag), time ), print_status_line)
+#define printStatusLine( obj, seed, com_type,time, tag )                    \
+  _m_d_pushList( obj, _m_prepStatusTuple( seed, com_type, time,(char *)(tag) ), print_status_line)
 
 #define printTrajLine( obj, name, time ) \
-  _m_d_pushList( obj, _m_d_prepTrajTuple( (char *)(name), time ), print_traj_line )
+  _m_d_pushList( obj, _m_prepTrajTuple( (char *)(name), time ), print_traj_line )
 
 #define printStatusLine_First_Bimolecular( obj,seed,com_type,com_time,frate,tag)  \
-  _m_d_pushList( obj, _m_d_prepStatusFirstTuple( seed, com_type, com_time, frate, (char *)(tag)), print_status_line_firststep )
+  _m_d_pushList( obj, _m_prepStatusFirstTuple( seed, com_type, com_time, frate, (char *)(tag)), print_status_line_firststep )
 
 #endif
 
@@ -399,30 +399,43 @@ class identlist *getID_list(PyObject *options, int index);
 			in the file python_options.py.
 */
 
-#define SIMULATION_MODE_NORMAL              0x00
-#define SIMULATION_MODE_FIRST_BIMOLECULAR   0x01
-#define SIMULATION_MODE_PYTHON_NORMAL       0x02
-#define SIMULATION_MODE_PYTHON_FIRST_BI     0x03
 
-#define SIMULATION_MODE_ENERGY_ONLY         0x10
+#define SIMULATION_MODE_NORMAL              0x0010
+#define SIMULATION_MODE_FIRST_BIMOLECULAR   0x0030
 
-// simulation modes are bitwise -> bit 0 is normal/first bi
-//                                 bit 1 is normal interface/python interface
-//                                 bit 4 is compute energy mode only, should not 
+#define SIMULATION_MODE_PYTHON_NORMAL       0x0040
+#define SIMULATION_MODE_PYTHON_FIRST_BI     0x0060
+
+#define SIMULATION_MODE_ENERGY_ONLY         0x0100
+
+
+// simulation modes are bitwise -> bit 5 is normal mode
+//                                 bit 6 is first step mode
+//                                 bit 7 is python interface
+//                                 bit 9 is compute energy mode only, should not 
 //                                          be combined with any other flags.
 // the following are the bit definitions for tests on those:
 
-#define SIMULATION_MODE_FLAG_FIRST_BIMOLECULAR         0x01
-#define SIMULATION_MODE_FLAG_PYTHON                    0x02
+#define SIMULATION_MODE_FLAG_NORMAL                    0x0010
+#define SIMULATION_MODE_FLAG_FIRST_BIMOLECULAR         0x0020
+#define SIMULATION_MODE_FLAG_PYTHON                    0x0040
 
 // stopconditions used in ssystem. 
 // TODO: clean up/add docs.
 
-#define STOPCONDITION_NORMAL           1
-#define STOPCONDITION_REVERSE          2
-#define STOPCONDITION_TIME            -1
-#define STOPCONDITION_FORWARD          3
-#define STOPCONDITION_ERROR           -2
+// normal sim mode stop result flags.
+#define STOPRESULT_NORMAL           0x11
+#define STOPRESULT_TIME             0x12
+
+// first step mode stop result flags
+#define STOPRESULT_FORWARD          0x21
+#define STOPRESULT_FTIME            0x22
+#define STOPRESULT_REVERSE          0x24
+
+// error states
+#define STOPRESULT_ERROR            0x81
+#define STOPRESULT_NAN              0x82
+#define STOPRESULT_NOMOVES          0x84
 
 
 #endif

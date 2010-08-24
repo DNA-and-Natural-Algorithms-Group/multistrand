@@ -309,11 +309,11 @@ void SimulationSystem::SimulationLoop( void )
           complexList->printComplexList( 0 );
       
       if( stime == NAN )
-        printStatusLine(system_options, random_seed, "ERROR", stime );
+        printStatusLine(system_options, random_seed, STOPRESULT_NAN, 0.0, NULL);
       else if ( checkresult > 0 )
-        printStatusLine(system_options, random_seed, traverse->tag, stime );
+        printStatusLine(system_options, random_seed, STOPRESULT_NORMAL, stime, traverse->tag );
       else
-        printStatusLine(system_options, random_seed, "INCOMPLETE", stime );
+        printStatusLine(system_options, random_seed, STOPRESULT_TIME, stime, NULL );
       
       if( ! (sMode & SIMULATION_MODE_FLAG_PYTHON) )
         printf("Trajectory Completed\n");
@@ -333,7 +333,7 @@ void SimulationSystem::SimulationLoop( void )
             }
         }
 
-      printTrajLine(system_options,"Start",0);
+      //      printTrajLine(system_options,"Start",0);
       do {
         rchoice = (rate * random()/((double)RAND_MAX));
         stime += (log(1. / (double)((random() + 1)/(double)RAND_MAX)) / rate );
@@ -358,21 +358,22 @@ void SimulationSystem::SimulationLoop( void )
           }
         if( checkresult > 0 )
           {
-            printTrajLine(system_options, traverse->tag, stime );
+            ;// printTrajLine(system_options, traverse->tag, stime );
           }
         else
-          printTrajLine(system_options,"NOSTATE", stime );
+          ;
+          //          printTrajLine(system_options,"NOSTATE", stime );
       } while( /*rate > 0.01 && */ stime < maxsimtime && !(checkresult > 0 && stopindex == curcount-1));
       
       if( ointerval < 0 || testLongAttr(system_options, output_state ,=, 0 ))
         complexList->printComplexList( 0 );
 
       if( stime == NAN )
-        printStatusLine(system_options, random_seed, "ERROR", stime );
+        printStatusLine(system_options, random_seed, STOPRESULT_NAN, 0.0, NULL);
       else
-        printStatusLine(system_options, random_seed, "INCOMPLETE", stime );
+        printStatusLine(system_options, random_seed, STOPRESULT_TIME, stime, NULL );
       
-      printf("Trajectory Completed\n");
+      //      printf("Trajectory Completed\n");
     }
 }
 
@@ -436,7 +437,7 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( double *completiontime,
   if ( rate < 0.0 )
     { // no initial moves
       *completiontime = 0.0;
-      *completiontype = STOPCONDITION_ERROR;
+      *completiontype = STOPRESULT_NOMOVES;
       return;
     }
 
@@ -444,8 +445,9 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( double *completiontime,
 
   if( ointerval >= 0 || otime_interval >= 0.0 )
     complexList->printComplexList( 0 );
-  if( ointerval >= 0 )
+  /*  if( ointerval >= 0 )
     printf("Initial State (before join).\n",rchoice, ctime);
+  */
 
   complexList->doJoinChoice( rchoice );
 
@@ -530,18 +532,18 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( double *completiontime,
   if( checkresult > 0 )
     {
       if( strcmp( traverse->tag, "REVERSE") == 0 )
-        *completiontype = STOPCONDITION_REVERSE;
+        *completiontype = STOPRESULT_REVERSE;
       else 
         {
           *tag = traverse->tag;
-          *completiontype = STOPCONDITION_FORWARD;
+          *completiontype = STOPRESULT_FORWARD;
         }
       *completiontime = stime;
     }
   else
     {
       *completiontime = stime;
-      *completiontype = STOPCONDITION_TIME;
+      *completiontype = STOPRESULT_FTIME;
     }
   if( ! sMode )
     printf("Trajectory Completed\n");
