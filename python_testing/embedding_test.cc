@@ -43,11 +43,11 @@ int main(int argc, char **argv)
   getLongAttr(options, integer, &num1);
   double num2;
   getDoubleAttr(options, decimal, &num2);
-  printf("Number attributes are %d and %f\n", num1, num2);
+  printf("Number attributes are %ld and %f\n", num1, num2);
   
   setDoubleAttr(options, decimal, 4.5);
   getDoubleAttr(options, decimal, &num2);
-  printf("Number attributes are %d and %f\n", num1, num2);
+  printf("Number attributes are %ld and %f\n", num1, num2);
   
   char *str2 = getStringItem(getListAttr(options, list_of_strings), 1);
   printf("String from list is '%s'\n", str2);

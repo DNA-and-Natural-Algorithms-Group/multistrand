@@ -83,11 +83,15 @@
  **************************************************/
 #ifdef DEBUG_MACROS
 
+#define _m_printPyError_withLineNumber() \
+  fprintf(stderr,"ERROR: Python Interpreter error: file %s, line %d.\nERROR (Python): ", __FILE__, (int)__LINE__), PyErr_PrintEx(1)
+
+
 #define _m_d_getAttr_DECREF( obj, name, pvar, c_type_name, py_type, py_c_type )     \
   {																	\
 	PyObject *_m_attr = PyObject_GetAttrString( obj, name);		    \
     if( _m_attr == NULL && PyErr_Occurred() != NULL)                \
-      PyErr_PrintEx(1);                                             \
+      _m_printPyError_withLineNumber();                              \
     else if (_m_attr == NULL )                                      \
       fprintf(stderr,"WARNING: _m_getAttr_DECREF: No error occurred,\
  but the returned pointer was still NULL!\n"); \
@@ -105,7 +109,7 @@
   {																	\
 	PyObject *val = function(arg);                                  \
     if( val == NULL && PyErr_Occurred() != NULL)                    \
-      PyErr_PrintEx(1);                                             \
+      _m_printPyError_withLineNumber();                              \
     else if (val == NULL )                                          \
       fprintf(stderr,"WARNING: _m_setAttr_DECREF: No error occurred,\
  but the returned pointer was still NULL!\n"); \
@@ -138,7 +142,7 @@
 #define pingAttr(obj, name) { \
   PyObject *_m_attr = PyObject_GetAttrString( obj, #name );\
   if (_m_attr == NULL && PyErr_Occurred() == NULL )        \
-    PyErr_PrintEx(1);                                      \
+    _m_printPyError_withLineNumber();                       \
   else if (_m_attr == NULL )                               \
     fprintf(stderr,"WARNING: pingAttr: No error occurred,\
  but the returned pointer was still NULL!\n"); \
@@ -223,7 +227,7 @@ static inline bool _m_d_testLongAttr( PyObject *obj, const char *attrname, const
  long local_val;
  if( _m_attr == NULL && PyErr_Occurred() != NULL )
    {
-     PyErr_PrintEx(1);
+     _m_printPyError_withLineNumber();                           
      return false;
    }
  else if (_m_attr == NULL )
@@ -287,7 +291,7 @@ static inline PyObject *_m_d_newObject( const char *mod, const char *name )
 
   module = PyImport_ImportModule( mod ); // new reference
   if (module == NULL && PyErr_Occurred() != NULL)
-    PyErr_PrintEx(1);
+    _m_printPyError_withLineNumber();                            
   else if (module == NULL)
     {
       fprintf(stderr,"WARNING: _m_d_newObject: No error occurred,\
@@ -296,7 +300,7 @@ static inline PyObject *_m_d_newObject( const char *mod, const char *name )
     }
   class_obj = PyObject_GetAttrString(module, name ); // new reference
   if (class_obj == NULL && PyErr_Occurred() != NULL)
-    PyErr_PrintEx(1);
+    _m_printPyError_withLineNumber();                                
   else if (class_obj == NULL)
     {
       fprintf(stderr,"WARNING: _m_d_newObject: No error occurred,\
@@ -306,7 +310,7 @@ static inline PyObject *_m_d_newObject( const char *mod, const char *name )
 
   new_obj = PyObject_CallObject( class_obj, NULL );
   if (new_obj == NULL && PyErr_Occurred() != NULL)
-    PyErr_PrintEx(1);
+    _m_printPyError_withLineNumber();                                
   else if (new_obj == NULL)
     {
       fprintf(stderr,"WARNING: _m_d_newObject: No error occurred,\
