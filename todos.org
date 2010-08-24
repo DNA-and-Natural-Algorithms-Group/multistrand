@@ -1,9 +1,25 @@
 * File / Directory TODO List
-** DONE Rebuild the directory structure to encapsulate pieces better.
-   CLOSED: [2010-08-21 Sat 01:32]
-** TODO Update makefiles / header files / etc / to cover new directory structure.
-
-** Filenames [60%]                                                     :Work:
+** Filenames [76%]                                                     :Work:
+*** CURRENT [[file:python_options.py][python_options.py]] [0/1]
+    Need to add in print functions / log file manipulation now.
+    - State "CURRENT"    from "DONE"       [2010-08-22 Sun 17:53]
+    Merged the rest of the changes for this file. Should be nearly the
+    same as previous.
+    CLOSED: [2010-08-22 Sun 09:04]
+    - State "DONE"       from "PENDING"    [2010-08-22 Sun 09:04]
+**** TODO Files and printing functions.
+***** code
+#+srcname: print_functions
+#+begin_src sh :exports results :results output
+      echo "_____ old options.cc ____ "
+      grep -n print[^f] old/src/options.cc
+      echo "____python_options.h___"
+      grep -n print[^f] include/python_options.h
+      echo "_____ssystem.cc_____"
+      grep -n print[^f] system/ssystem.cc
+#+end_src
+***** Results
+#+results: print_functions
 *** PENDING [#B] [[file:python_options.cc][python_options.cc]] [1/2]
     Needs some sub components checked, see child TODOS.
     - State "CURRENT"    from "TODO"       [2010-08-21 Sat 16:12]
@@ -12,16 +28,7 @@
      CLOSED: [2010-08-21 Sat 16:31]
      - State "DONE"       from "TODO"       [2010-08-21 Sat 16:31]
 **** TODO [[file:python_options.cc::TODO%20check%20deallocation%20of%20new%20objects][dealloc issues for new objects?]]
-*** PENDING [#C] [[file:.hgignore][.hgignore]]
-*** PENDING [#C] [[file:include/options.h][options.h]]
-    To be removed?
-*** PENDING [[file:include/scomplexlist.h][scomplexlist.h]]
-    No changes necessary?
-*** PENDING [#C] [[file:options.cc][options.cc]]
-    To be removed.
-*** PENDING [[file:state/scomplexlist.cc][scomplexlist.cc]]
-    No changes were necessary?
-*** CURRENT [[file:include/python_options.h][python_options.h]] [0/4]
+*** CURRENT [[file:include/python_options.h][python_options.h]] [1/4]
     added stopcondition components so that ssystem.cc will compile.
     - State "CURRENT"    from "PENDING"    [2010-08-21 Sat 15:44]
 **** TODO write debug versions of macros. [2/3]
@@ -40,41 +47,12 @@
 **** TODO [[file:include/python_options.h:138:][STOPCONDITION lines]]
      See file.
 **** TODO check call macros for ref counting issues.
-**** TODO [[file:include/python_options.h::define%20m_printStatusLine%20obj%20a%20b%20c][print calls]]
+**** DONE [[file:include/python_options.h::define%20m_printStatusLine%20obj%20a%20b%20c][print calls]]
+     Print calls filled in now, they're macro calls via attribute
+     pushes. Several of them removed as they're no longer needed.
+     CLOSED: [2010-08-24 Tue 04:12]
+     - State "DONE"       from "TODO"       [2010-08-24 Tue 04:12]
      print calls are now all #defines, fill in data.
-*** CURRENT [[file:python_options.py][python_options.py]] [0/1]
-    Need to add in print functions / log file manipulation now.
-    - State "CURRENT"    from "DONE"       [2010-08-22 Sun 17:53]
-    Merged the rest of the changes for this file. Should be nearly the
-    same as previous.
-    CLOSED: [2010-08-22 Sun 09:04]
-    - State "DONE"       from "PENDING"    [2010-08-22 Sun 09:04]
-**** TODO Files and printing functions.
-***** code
-#+srcname: print_functions
-#+begin_src sh :exports results :results output
-      grep print[^f] options.cc
-      echo "_______"
-      grep print[^f] include/python_options.h
-#+end_src
-***** Results
-#+results: print_functions
-#+begin_example
-      void Options::printStatusLine( long r_seed, char *stop_id, double end_time )
-      void Options::printStatusLine( long r_seed )
-      void Options::printTrajLine( char *trigger_id, double cur_time )
-      void Options::printStatusLine_Warning( int warningtype, int data )
-      void Options::printStatusLine_First_Bimolecular( long r_seed, int completiontype, double completiontime, double forwardrate, char *tag )
-      void Options::printStatusLine_Final_First_Bimolecular( double total_rate, double *total_times, long *total_types, long total_count, double *computed_rate_means, double *computed_rate_mean_diff_squared )
-      void printError( int location, char **argv );
-     _______
-      #define m_printStatusLine( obj,a,b,c)
-      //#define m_printStatusLine( obj,a)
-      #define m_printTrajLine(obj,a,b)
-      #define m_printStatusLine_First_Bimolecular( obj,a,b,c,d,e)
-      #define m_printStatusLine_Final_First_Bimolecular( obj, a,b,c,d,e,f )
-      #define m_printStatusLine_Warning( obj, a, b )
-#+end_example
 *** LATER [#B] [[file:Makefile][Makefile]]    [2/4]
     - State "LATER"      from "CURRENT"    [2010-08-23 Mon 03:06] \\
       Currently usable, rest is managing dependencies and so
@@ -136,6 +114,7 @@
      All works fine, python-interface works up to boost errors.
      CLOSED: [2010-08-22 Sun 08:13]
      - State "DONE"       from "TODO"       [2010-08-22 Sun 08:13]
+
 *** LATER [[file:outside_sources/re_generator.py][re_generator.py]]
     - State "LATER"      from "PENDING"    [2010-08-22 Sun 08:18] \\
       Utilities from other repos.
@@ -145,6 +124,30 @@
 *** LATER [[file:outside_sources/complecks_multistrand.py][complecks_multistrand.py]]
     - State "LATER"      from "PENDING"    [2010-08-22 Sun 08:19] \\
       Utilities from other repos.
+*** DONE [#C] [[file:include/options.h][options.h]]
+    Removed to old sources directory.
+    CLOSED: [2010-08-24 Tue 01:37]
+    - State "DONE"       from "PENDING"    [2010-08-24 Tue 01:37]
+    To be removed?
+*** DONE [#C] [[file:options.cc][options.cc]]
+    Removed to old sources directory.
+    CLOSED: [2010-08-24 Tue 01:37]
+    - State "DONE"       from "PENDING"    [2010-08-24 Tue 01:37]
+    To be removed.
+*** DONE [#C] [[file:.hgignore][.hgignore]]
+    Updated to add .pyc's and other file types.
+    CLOSED: [2010-08-24 Tue 01:37]
+    - State "DONE"       from "PENDING"    [2010-08-24 Tue 01:37]
+*** DONE [[file:include/scomplexlist.h][scomplexlist.h]]
+    Checked for updates required, currently fine.
+    CLOSED: [2010-08-24 Tue 01:32]
+    - State "DONE"       from "PENDING"    [2010-08-24 Tue 01:32]
+    No changes necessary?
+*** DONE [[file:state/scomplexlist.cc][scomplexlist.cc]]
+    Checked for updates required, non necessary.
+    CLOSED: [2010-08-24 Tue 01:32]
+    - State "DONE"       from "PENDING"    [2010-08-24 Tue 01:32]
+    No changes were necessary?
 *** DONE [[file:optionlists.cc][optionlists.cc]]
     CLOSED: [2010-08-22 Sun 08:17]
     - State "DONE"       from "PENDING"    [2010-08-22 Sun 08:17]
@@ -244,6 +247,12 @@
     format, once those macros are in it should just work.
     CLOSED: [2010-08-21 Sat 15:59]
     - State "DONE"       from "PENDING"    [2010-08-21 Sat 15:59]
+** DONE Rebuild the directory structure to encapsulate pieces better.
+   CLOSED: [2010-08-21 Sat 01:32]
+** DONE Update makefiles / header files / etc / to cover new directory structure.
+   Makefiles updated to new structure. Works fairly well.
+   CLOSED: [2010-08-24 Tue 01:23]
+   - State "DONE"       from "TODO"       [2010-08-24 Tue 01:23]
 
 
 * File Notes

@@ -9,7 +9,7 @@
 #include <math.h>
 #include <assert.h>
 #include <time.h>
-#include "include/ssystem.h"
+#include "ssystem.h"
 
 #define DEBUG
 

@@ -55,11 +55,13 @@ class SimulationSystem
 
 
  private:
-  void SimulateTrajectory( void );
   void StartSimulation_First_Bimolecular( void );
-  void SimulationLoop( long r_seed );
-  void SimulationLoop_First_Bimolecular( long r_seed, double *completiontime, int *completiontype, double *frate, char **tag );
+  void SimulationLoop( void );
+  void SimulationLoop_First_Bimolecular( double *completiontime, int *completiontype, double *frate, char **tag );
   void InitializeSystem( void );
+
+  void InitializeRNG( void );
+  void generateNextRandom( void );
 
   EnergyModel *dnaEnergyModel;
 
@@ -69,7 +71,7 @@ class SimulationSystem
   PyObject *system_options;
 
   bool boltzmann_sampling;
-  bool use_fixed_random_seed;
+  long random_seed;
   bool initial_trajectory;
   long simulation_mode;
   long simulation_count_remaining;

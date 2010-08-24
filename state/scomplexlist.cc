@@ -4,13 +4,10 @@
 */
  
 #include "scomplexlist.h"
-#include "options.h"
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
 #include <math.h>
-
-//extern Options *GlobalOptions;
 
 /*
 
