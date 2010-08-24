@@ -448,18 +448,16 @@ class MultistrandOptions( object ):
         start state.
         """
         if self.use_resting_states:
-            complex_list = [rs[0] for rs in self._start_state]
+            fn = lambda x: x[0]
+        elif self.boltzmann_sample:
+            fn = lambda x: boltzmann_sample(x)
         else:
-            complex_list = self._start_state
-        
-        if self.boltzmann_sample:
-            complex_list = [boltzmann_sample(c) for c in complex_list]
-        
-        return complex_list
-    
+            fn = lambda x: x
+
+        return [fn(s) for s in self._start_state]
     
     @start_state.setter
-    def start_state(self, start_list):
+    def start_state(self, *args):
         """ Set the start state, i.e. a list of Complex or RestingState objects.
         
         Type         Default
@@ -471,18 +469,25 @@ class MultistrandOptions( object ):
         # Error checking first
         if self._start_state !=  []:
             raise Exception("Start state should only be set once.")
-        if start_list == []:
+        if len(args) == 0 or len(args[0]) == 0;
             raise ValueError("No start state given.")
         
+        # deduce our input from the type of args[0].
         # Copy the input list because it's easy to do and it's safer
-        start_list = copy.deepcopy(start_list)
         
-        # Make sure all types match
-        t = type(start_list[0])
-        if any([type(item) is not t for item in start_list]):
-            raise TypeError("All items in list must be the same type.")
-        elif t is not Complex and t is not RestingState:
-            raise TypeError("List items should be 'Complex' or 'RestingState', not '%s'." % t)
+        if isinstance(args[0],Complex) or isinstance(args[0],RestingState):
+            #args is a list of complexes or resting states.
+            vals = copy.deepcopy(args) 
+        elif len(args) == 1 and hasattr(args[0],"__iter__"):
+            vals = copy.deepcopy(args[0])
+        else:
+            raise ValueError("Could not comprehend the start state you gave me.")
+        
+        isinstance(args[0][0],Complex) or isinstance(args[0][0],RestingState)
+        # vals is now an iterable over our starting configuration, be it complexes or resting states.
+        
+        # our args were the complexes themselves.
+        elif len(args) == 1 and isinstance(temp_vals[0][0]
         
         # Set the appropriate flags, generate unique strand ids, and store
         if t is RestingState:
