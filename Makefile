@@ -161,19 +161,18 @@ $(OBJPATH)/%.o: %.cc $(INCLUDES)
 
 interface: INCLUDEPATHS := $(INCLUDEPATHS) $(BOOST_INCLUDES)
 interface: dircheck-interface $(INTERFACE_OBJECTS)
-#@echo CFLAGS=$(CFLAGS) COMPILE=$(COMPILE)
 	-rm -f multistrand.so
 	$(LINK) $(CFLAGS_INTERFACE) $(filter-out dircheck-interface,$^) -o multistrand.so $(LIB_INTERFACE)
-#-shared $(BOOSTLIB)
+
 
 
 
 Multistrand: $(MAIN_OBJECT) $(OBJECTS)
-	@echo Rule expansion: $@ is target, [$?] deps newer, all: [$^].
 	rm -f Multistrand
 	$(LINK) $(CFLAGS) $(LIBRARIES) $(filter-out dircheck,$^) -o Multistrand
 
 # old used: $(patsubst %,$(OBJPATH)/%,$(filter-out dircheck,$(^F))) 
+#	@echo Rule expansion: $@ is target, [$?] deps newer, all: [$^].
 
 # Indirectly more also depend on loop.h via headers: scomplex.h
 # ssystem.h strandordering.h should generate these directly via a

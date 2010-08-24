@@ -136,14 +136,9 @@ void SimulationSystem::StartSimulation( void )
 {
   FILE *fp; // used only for initial random number generation.
   int curcount = 0;
-  long random_seed = 0;
   long ointerval;
-  long initial_seed;
 
   getLongAttr(system_options, output_interval,&ointerval);
-  getBoolAttr( system_options, initial_seed_flag, &use_fixed_random_seed);
-  if( use_fixed_random_seed )
-    getLongAttr(system_options, initial_seed,&initial_seed);
 
   //#ifndef SRANDOMDEV
   //  srandom( time( NULL) );
@@ -159,22 +154,6 @@ void SimulationSystem::StartSimulation( void )
       //callFunc_DoubleToNone(system_options, set_python_collision_rate, -1.0);
     }
 
-  if((fp = fopen("/dev/urandom","r")) != NULL )
-    {  // if urandom exists, use it to provide a seed
-      long deviceseed;
-      fread(&deviceseed, sizeof(long), 1, fp);
-      
-      srand48( deviceseed );
-      fclose(fp);
-      //printf("device seeded: %ld\n",deviceseed);
-    }
-  else // use the possibly flawed time as a seed.
-    {
-      srand48( time(NULL) );
-      //printf("time seeded\n");
-    }
-  //#endif
-
   if( simulation_mode & SIMULATION_MODE_ENERGY_ONLY) // need energy only.
     {
       InitializeSystem();
@@ -188,38 +167,26 @@ void SimulationSystem::StartSimulation( void )
       StartSimulation_First_Bimolecular();
       return;
     }
-  
-  if( use_fixed_random_seed )
-    random_seed = initial_seed;
-  else
-    random_seed = lrand48();
+
+  InitializeRNG();
 
   while( simulation_count_remaining > 0)
     {
-      
-      //#ifdef SRANDOMDEV
-      //srandomdev(); // initialize random() generator from /dev/random device.
-      //#endif
-      srand48( random_seed );
-
-
-      if( ointerval < 0 && !(simulation_mode & SIMULATION_MODE_FLAG_PYTHON))
-        printf("Seed: 0x%lx\n",random_seed);
+      // if( ointerval < 0 && !(simulation_mode & SIMULATION_MODE_FLAG_PYTHON))
+      //   printf("Seed: 0x%lx\n",random_seed);
       InitializeSystem();
 
       if( ointerval < 0 && !(simulation_mode & SIMULATION_MODE_FLAG_PYTHON))
         {
-          //          printf("Size: %ld, %ld, %ld, %ld\n",sizeof(time_t),sizeof(long),RAND_MAX,1<<31 -1);
           printf("System %d Initialized\n",curcount);
         }
       //if( getLongAttr(system_options, trajectory_type) > 0 )
       //m_printTrajLine(system_options, NULL, curcount );
       // Currently deactivated til prints are ready.
-
     
-      SimulationLoop( random_seed );
+      SimulationLoop();
       simulation_count_remaining--;
-      random_seed = lrand48();
+      generateNextRandom();
     }
 }
 
@@ -234,7 +201,7 @@ void SimulationSystem::StartSimulation_threads( void )
 #endif
 
 
-void SimulationSystem::SimulationLoop( long r_seed )
+void SimulationSystem::SimulationLoop( void )
 {
   double rchoice,rate,stime=0.0;
   class stopcomplexes *traverse;
@@ -342,11 +309,11 @@ void SimulationSystem::SimulationLoop( long r_seed )
           complexList->printComplexList( 0 );
       
       if( stime == NAN )
-        m_printStatusLine(system_options, r_seed, "ERROR", stime );
+        m_printStatusLine(system_options, random_seed, "ERROR", stime );
       else if ( checkresult > 0 )
-        m_printStatusLine(system_options, r_seed, traverse->tag, stime );
+        m_printStatusLine(system_options, random_seed, traverse->tag, stime );
       else
-        m_printStatusLine(system_options, r_seed, "INCOMPLETE", stime );
+        m_printStatusLine(system_options, random_seed, "INCOMPLETE", stime );
       
       if( ! (sMode & SIMULATION_MODE_FLAG_PYTHON) )
         printf("Trajectory Completed\n");
@@ -401,9 +368,9 @@ void SimulationSystem::SimulationLoop( long r_seed )
         complexList->printComplexList( 0 );
 
       if( stime == NAN )
-        m_printStatusLine(system_options, r_seed, "ERROR", stime );
+        m_printStatusLine(system_options, random_seed, "ERROR", stime );
       else
-        m_printStatusLine(system_options, r_seed, "INCOMPLETE", stime );
+        m_printStatusLine(system_options, random_seed, "INCOMPLETE", stime );
       
       printf("Trajectory Completed\n");
     }
@@ -414,10 +381,10 @@ void SimulationSystem::StartSimulation_First_Bimolecular( void )
 {
   int curcount = 0;
   long random_seed = 0;
-  long ointerval;
+  long ointerval = -1;
+  long initial_seed = 0;
+
   getLongAttr(system_options, output_interval,&ointerval);
-  long initial_seed;
-  getLongAttr(system_options, initial_seed,&initial_seed);
 
   /* these are used for compiling statistics on the runs */
   double completiontime;
@@ -438,16 +405,10 @@ void SimulationSystem::StartSimulation_First_Bimolecular( void )
 
   assert( simulation_mode & SIMULATION_MODE_FLAG_FIRST_BIMOLECULAR );
 
-  // random number seed has already been generated.
+  InitializeRNG();
 
   while( simulation_count_remaining > 0 )
     {
-      random_seed = lrand48();
-
-      if( curcount == 0 && initial_seed > 0)
-        random_seed = initial_seed;
-
-      srand48( random_seed );
 
       InitializeSystem();
 
@@ -457,7 +418,7 @@ void SimulationSystem::StartSimulation_First_Bimolecular( void )
       //        callFunc_NoArgsToNone(system_options, reset_completed);
 
 
-      SimulationLoop_First_Bimolecular( random_seed, &completiontime, &completiontype, &forwardrate, &tag );
+      SimulationLoop_First_Bimolecular( &completiontime, &completiontype, &forwardrate, &tag );
 
       // now we need to process the rate, time and type information.
       total_rate = total_rate + forwardrate;
@@ -490,6 +451,7 @@ void SimulationSystem::StartSimulation_First_Bimolecular( void )
         }
 
       m_printStatusLine_First_Bimolecular(system_options, random_seed, completiontype, completiontime, forwardrate, tag );
+      generateNextRandom();
       simulation_count_remaining--;
     }
   if( !sMode )
@@ -507,7 +469,7 @@ void SimulationSystem::StartSimulation_First_Bimolecular( void )
  */
 
 
-void SimulationSystem::SimulationLoop_First_Bimolecular( long r_seed, double *completiontime, int *completiontype, double *frate, char **tag )
+void SimulationSystem::SimulationLoop_First_Bimolecular( double *completiontime, int *completiontype, double *frate, char **tag )
 {
   double rchoice,rate,stime=0.0;
   int curcount = 0;
@@ -635,11 +597,11 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( long r_seed, double *co
 
     
   /*   if( stime == NAN )
-       m_printStatusLine(system_options, r_seed, "ERROR", stime );
+       m_printStatusLine(system_options, random_seed, "ERROR", stime );
        else if ( checkresult > 0 )
-       m_printStatusLine(system_options, r_seed, traverse->tag, stime );
+       m_printStatusLine(system_options, random_seed, traverse->tag, stime );
        else
-       m_printStatusLine(system_options, r_seed, "INCOMPLETE", stime );
+       m_printStatusLine(system_options, random_seed, "INCOMPLETE", stime );
   */
   // printing is handled at the upper level for the status information. We do, however, need to return the info.
 
@@ -718,124 +680,39 @@ void SimulationSystem::InitializeSystem( void )
   return;
 }
 
+void SimulationSystem::InitializeRNG( void )
+{
+  bool use_fixed_random_seed = false;
+  long initial_seed = 0;
+  FILE *fp = NULL;
+  getBoolAttr( system_options, initial_seed_flag, &use_fixed_random_seed);
+  if( use_fixed_random_seed )
+    getLongAttr(system_options, initial_seed,&initial_seed);
 
-// int SimulationSystem::StartSimulation( int input_flags, int num_sims, double simtime )
-// {
-//   // DEPRECATED: simulations always start via StartSimulation( void ) now,
-//   // and args are passed via the constructor. 
-//   Move *tempmove;
-//   StrandComplex *newcomplex = startState;
-//   srand( time( NULL ) );
+  if( use_fixed_random_seed )
+    random_seed = initial_seed;
+  else
+    {
+      if((fp = fopen("/dev/urandom","r")) != NULL )
+        {  // if urandom exists, use it to provide a seed
+          long deviceseed;
+          fread(&deviceseed, sizeof(long), 1, fp);
+          
+          srand48( deviceseed );
+          fclose(fp);
+        }
+      else // use the possibly flawed time as a seed.
+        {
+          srand48( time(NULL) );
+        }
+      random_seed = lrand48(); // grab a seed to use as initial seed.
+    }
+  // now initialize this generator using our random seed, so that we can reproduce as necessary.
+  srand48( random_seed );
+}
 
-//   if( input_flags > 1 && input_flags < 4)
-//     {
-//       newcomplex->generateLoops();
-//       double energy = newcomplex->getEnergy();
-//       newcomplex->moveDisplay();      
-//       double rate = newcomplex->getTotalFlux();
-//       printf("%s\n%s (%6.2f) %6.4f\n",newcomplex->getSequence(),newcomplex->getStructure(),energy,rate);
-//       double stime = 0.0;
-      
-//       if( input_flags == 2 )
-//         {
-//           double rchoice = (rate*rand()/((double)RAND_MAX));
-      
-//           printf("%3.3f\n",rchoice);
-//           tempmove = newcomplex->getChoice( &rchoice );
-//           newcomplex->doChoice(tempmove);
-//           char *struc = newcomplex->getStructure();
-//           rate = newcomplex->getTotalFlux();
-//           energy = newcomplex->getEnergy();
-//           printf("%s\n%s (%6.2f) %6.4f\n",newcomplex->getSequence(),struc,energy,rate);
-//         }
-//       if( input_flags == 3 )
-//         {
-//           double rchoice,rsave,moverate;
-//           char *struc;
-//           int temp1, type;
-//           do {
-//             rsave = rchoice = (rate * rand()/((double)RAND_MAX));
-//             stime += (log(1. / (double)((rand() + 1)/(double)RAND_MAX)) / rate );
-//             tempmove = newcomplex->getChoice( &rchoice );
-//             moverate = tempmove->getRate();
-//             type = tempmove->getType();
-//             newcomplex->doChoice( tempmove );
-//             struc = newcomplex->getStructure();
-//             rate = newcomplex->getTotalFlux();
-//             energy = newcomplex->getEnergy();
-//             printf("%s (%6.2f) %6.4f %6.4f pc: %6.4f time: %6.4f type: %d\n",struc,energy,rate,moverate,rsave,stime,type);
-//             temp1=0;
-//             for( int loop = 0; loop < strlen(struc); loop++)
-//               {
-//                 if(struc[loop] == '(') temp1++;
-//                 if(struc[loop] == ')') temp1--;
-//                 assert( temp1 >= 0 );
-//                 if(loop > 0)
-//                   assert( !(struc[loop-1]=='(' && struc[loop] == ')'));
-//               }
-        
-//             assert( temp1 == 0 );
-//             // printf("%p",tempmove);
-//           } while( rate > 0.10 && stime < 1000);
-//         }
-//     }
-//   if( input_flags == 4 ) // multi-complex operation mode - print start
-//     {
-//       complexList->initializeList();
-//       complexList->printComplexList( 0 );
-//       printf("That's it!\n");
-//     }
-//   if( input_flags == 5 ) // multi-complex operation mode - run basic moves - verbose output
-//     {
-//       int curcount = 0;
-      
-//       while( curcount < num_sims )
-//         {
-//           complexList->initializeList();
-//           complexList->printComplexList( 0 );
-
-//           double rchoice,rate,stime=0.0;
-      
-//           rate = complexList->getTotalFlux();
-//           do {
-//             rchoice = (rate * rand()/((double)RAND_MAX));
-//             stime += (log(1. / (double)((rand() + 1)/(double)RAND_MAX)) / rate );
-//             complexList->doBasicChoice( rchoice, stime );
-//             rate = complexList->getTotalFlux();
-//             complexList->printComplexList( 0 );
-//           } while( rate > 0.10 && stime < simtime);
-//           complexList->printComplexList( 0 );
-//           curcount++;
-//           if( curcount != num_sims)
-//             InitializeSystem();
-//         }
-//     }
-  
-//   if( input_flags == 6 ) // multi-complex operation mode - run basic moves - silent output
-//     {
-//       int curcount = 0;
-      
-//       while( curcount < num_sims )
-//         {
-//           complexList->initializeList();
-//           //      complexList->printComplexList();
-
-//           double rchoice,rate,stime=0.0;
-      
-//           rate = complexList->getTotalFlux();
-//           do {
-//             rchoice = (rate * rand()/((double)RAND_MAX));
-//             stime += (log(1. / (double)((rand() + 1)/(double)RAND_MAX)) / rate );
-//             complexList->doBasicChoice( rchoice, stime );
-//             rate = complexList->getTotalFlux();
-//             //      complexList->printComplexList();
-//           } while( rate > 0.10 && stime < simtime);
-//           complexList->printComplexList( 0 );
-//           printf("Trajectory Complete: Time: %.2lf\n",stime);
-//           curcount++;
-//           if( curcount != num_sims)
-//             InitializeSystem();
-//         }
-//     }
-  
-// }
+void SimulationSystem::generateNextRandom( void )
+{
+  random_seed = lrand48();
+  srand48( random_seed );
+}
