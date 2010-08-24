@@ -387,8 +387,12 @@ class identlist *getID_list(PyObject *options, int index);
 #define SIMULATION_MODE_PYTHON_NORMAL       0x02
 #define SIMULATION_MODE_PYTHON_FIRST_BI     0x03
 
+#define SIMULATION_MODE_ENERGY_ONLY         0x10
+
 // simulation modes are bitwise -> bit 0 is normal/first bi
 //                                 bit 1 is normal interface/python interface
+//                                 bit 4 is compute energy mode only, should not 
+//                                          be combined with any other flags.
 // the following are the bit definitions for tests on those:
 
 #define SIMULATION_MODE_FLAG_FIRST_BIMOLECULAR         0x01

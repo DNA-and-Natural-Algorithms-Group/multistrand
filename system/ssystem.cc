@@ -175,13 +175,13 @@ void SimulationSystem::StartSimulation( void )
     }
   //#endif
 
-//  if( testLongAttr(system_options, energy_mode ,=, 1 ) ) // need energy only.
-//    {
-//      InitializeSystem();
-//      complexList->initializeList();
-//      complexList->printComplexList(1); // NUPACK energy output : bimolecular penalty, no Volume term.
-//      return;
-//    }
+  if( simulation_mode & SIMULATION_MODE_ENERGY_ONLY) // need energy only.
+    {
+      InitializeSystem();
+      complexList->initializeList();
+      complexList->printComplexList(1); // NUPACK energy output : bimolecular penalty, no Volume term.
+      return;
+    }
   
   if( simulation_mode & SIMULATION_MODE_FLAG_FIRST_BIMOLECULAR )
     {
