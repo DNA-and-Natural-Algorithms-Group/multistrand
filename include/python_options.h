@@ -98,7 +98,7 @@
     else                                                            \
       {                                                             \
         if( !Py##py_type##_Check( _m_attr ) )\
-          fprintf(stderr,"WARNING: _m_getAttr_DECREF: The attribute returned was not the expected type!\n"); \
+          fprintf(stderr,"WARNING: _m_getAttr_DECREF: The value returned by attribute '%s' was not the expected type!\n", name); \
         else                                                            \
           *(c_type_name *)(pvar) = Py##py_type##_AS_##py_c_type(_m_attr);                       \
         Py_DECREF(_m_attr);                                             \
