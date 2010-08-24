@@ -37,6 +37,14 @@ class _OptionsConstants( object ):
     def SUBSTRATE_TYPE(self):
         return {"Invalid":0, "RNA":1, \
                 "DNA":2}
+
+    @property
+    def SIMULATION_MODE(self):
+        return {"Normal":       0,
+                "First Step":   1,
+                "Python Module":2,
+                "Python Module:First Step":3,
+                "Energy Only": 16}
     
     def __setattr__(self, name, value):
         if hasattr(self, name):
@@ -238,23 +246,39 @@ class MultistrandOptions( object ):
         Transition time [1]: Transition time data kept for some set of states.
         """
 
-        self.simulation_mode = 0
-        """ The simulation mode.
-        
-        Type         Default
-        int          0: Normal
-        
-        Normal            [0]:
-        First step        [1]:
-        Python normal     [2]:
-        Python first step [3]:
+        self.simulation_mode = _OC.SIMULATION_MODE['Normal']
+        """ The simulation mode: how we want the simulation system to
+        perform the main loop.
+
+        Normal         [0]: Normal markov chain process.
+        First Step     [1]: Markov chain where the first move chosen is
+                            always a bimolecular join step. See
+                            thesis/other docs for more info,
+                            especially on the statistics gathered by
+                            this mode.
+                            
+        Python Module  [2]: The simulator is compiled as a python
+                            module.  This means the main loop is
+                            outside the simulator, and it should
+                            provide feedback to the controlling
+                            process by way of this options object.
+                            
+        Python Module: First Step [3]: Python module, running in first
+                                       step mode. (see above)
+
+        Energy Only   [16]: Compute the energy of start structure only,
+                            printing the result and finishing.
+                            
+        Should use the values in the _OC.SIMULATION_MODE dictionary rather
+        than the numbers directly, as those should be consistent with
+        the ones defined in the options_python.h headers.
         """
         
-        self.simulation_time = 10000.0
+        self.simulation_time = 600.0
         """ Maximum time (in seconds) allowed for each trajectory.
         
         Type         Default
-        double       10000.0
+        double       600.0
         """
         
         self.num_simulations = 1
