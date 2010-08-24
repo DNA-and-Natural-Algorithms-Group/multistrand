@@ -37,7 +37,12 @@ INTERFACE_OBJECTS := $(INTERFACE_OBJECTS:%=$(OBJPATH)/interface/%)
 MULTISTRAND_INCLUDES := -I $(realpath ./include)
 
 PYTHON_INCLUDES 	  = -I /usr/include/python2.6
+
+ifeq ($(shell if [ -d /opt/local/include ]; then echo 0; fi),0)
 BOOST_INCLUDES 	      = -I /opt/local/include
+else
+BOOST_INCLUDES=
+endif
 # CHANGE THESE TWO TO REFLECT YOUR PATHS
 
 # flag blocks for C compilation
@@ -47,21 +52,36 @@ CFLAGS_INTERFACE  = -DPYTHON_THREADS
 
 CFLAGS := $(CFLAGS_RELEASE)
 INCLUDEPATHS = $(MULTISTRAND_INCLUDES) $(PYTHON_INCLUDES)
-LIBRARYPATHS = -L/opt/local/lib
+
+
 
 
 #hmm, it's not actually linking as if it were a lib, so need the full path here:
 
-# CHANGE THIS OPTION TO REFLECT YOUR PATH TO THE libboost_python-mt shared library.
-BOOSTLIB = /opt/local/lib/libboost_python-mt.a
-
-#BOOSTLIB= /usr/lib/libboost_python-mt.so
-# Above option is for Chris's system, or others where you have the .so rather than .a.
-# 
+# The following code sets up the library paths. Should probably be part of a separate function if needed for more than these two.
+ifeq ($(shell if [ -d /opt/local/lib ]; then echo 0; fi),0)
+BOOSTLIBPATH = /opt/local/lib
+else
+ifeq ($(shell if [ -d /usr/lib ]; then echo 0; fi),0)
+BOOSTLIBPATH = /usr/lib
+else
+$(warning Could not find a standard library path. Please make sure you have one in your path or the make will fail.)
+endif
+endif
+ifeq ($(shell if [ -f $(BOOSTLIBPATH)/libboost_python-mt.a ]; then echo 0; fi),0)
+BOOSTLIBNAME = libboost_python-mt.a
+else
+ifeq ($(shell if [ -f $(BOOSTLIBPATH)/libboost_python-mt.so ]; then echo 0; fi),0)
+BOOSTLIBNAME = libboost_python-mt.so
+else
+$(warning Could not find a libboost_python-mt[.a]|[.so] in a normal spot. Please make sure it is in your path or this will likely fail.
+endif
+endif
+BOOSTLIB := $(BOOSTLIBPATH)/$(BOOSTLIBNAME)
 
 
 LIBRARIES= $(LIBRARYPATHS) -lpython2.6
-LIB_INTERFACE =  $(BOOSTLIBPATH) -shared $(BOOSTLIB)
+LIB_INTERFACE = -shared $(BOOSTLIB)
 
 CC = g++
 COMPILE = $(CC) $(CFLAGS) $(INCLUDEPATHS)
