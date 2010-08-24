@@ -53,9 +53,9 @@ LIBRARYPATHS = -L/opt/local/lib
 #hmm, it's not actually linking as if it were a lib, so need the full path here:
 
 # CHANGE THIS OPTION TO REFLECT YOUR PATH TO THE libboost_python-mt shared library.
-BOOSTLIB = /opt/local/lib/libboost_python-mt.a
+#BOOSTLIB = /opt/local/lib/libboost_python-mt.a
 
-#BOOSTLIB= /usr/lib/libboost_python-mt.so
+BOOSTLIB= /usr/lib/libboost_python-mt.so
 # Above option is for Chris's system, or others where you have the .so rather than .a.
 # 
 

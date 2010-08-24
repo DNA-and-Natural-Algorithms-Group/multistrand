@@ -48,8 +48,8 @@
 #define setLongAttr(obj, name, arg) _m_setAttr_DECREF( obj, #name, PyLong_FromLong, arg)
 
 // Testers
-#define testLongAttr(obj, name, test, value) _testLongAttr( obj, #name, #test, value )
-#define testBoolAttr(obj, name) _testLongAttr( obj, #name, "=", 1 )
+#define testLongAttr(obj, name, test, value) _m_testLongAttr( obj, #name, #test, value )
+#define testBoolAttr(obj, name) _m_testLongAttr( obj, #name, "=", 1 )
 
 // Function calls
 #define callFunc_NoArgsToNone(obj, name) PyObject_CallMethod(obj, #name, "()")

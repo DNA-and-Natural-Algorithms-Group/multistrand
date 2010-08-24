@@ -10,7 +10,7 @@
 ################################################################################
 
 from options_interface import Interface
-from python_objects import Strand, Complex, RestingState
+from python_objects import Strand, Complex, RestingState, StopCondition
 import copy
 
 class _OptionsConstants( object ):
@@ -477,10 +477,12 @@ class MultistrandOptions( object ):
             
             for cmplx in start_list:
                 cmplx.strand_list = [self.make_unique(s) for s in cmplx.strand_list]
+        
+        self._start_state = start_list
 
     @property
     def initial_seed_flag(self):
-        return initial_seed != None
+        return self.initial_seed != None
 
     
     @property

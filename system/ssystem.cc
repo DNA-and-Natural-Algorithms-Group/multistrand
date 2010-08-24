@@ -88,8 +88,10 @@ SimulationSystem::SimulationSystem( int argc, char **argv )
 #endif
 // end #ifndef PYTHON_THREADS - we do not want to have this constructor as it uses yyparse.
 
-SimulationSystem::SimulationSystem( PyObject *system_options )
+SimulationSystem::SimulationSystem( PyObject *system_o )
 {
+  system_options = system_o;
+  
   getLongAttr(system_options, simulation_mode, &simulation_mode );
   getLongAttr(system_options, num_simulations, &simulation_count_remaining);
   if( Loop::GetEnergyModel() == NULL)
@@ -173,13 +175,13 @@ void SimulationSystem::StartSimulation( void )
     }
   //#endif
 
-  if( testLongAttr(system_options, energy_mode ,=, 1 ) ) // need energy only.
-    {
-      InitializeSystem();
-      complexList->initializeList();
-      complexList->printComplexList(1); // NUPACK energy output : bimolecular penalty, no Volume term.
-      return;
-    }
+//  if( testLongAttr(system_options, energy_mode ,=, 1 ) ) // need energy only.
+//    {
+//      InitializeSystem();
+//      complexList->initializeList();
+//      complexList->printComplexList(1); // NUPACK energy output : bimolecular penalty, no Volume term.
+//      return;
+//    }
   
   if( simulation_mode & SIMULATION_MODE_FLAG_FIRST_BIMOLECULAR )
     {
