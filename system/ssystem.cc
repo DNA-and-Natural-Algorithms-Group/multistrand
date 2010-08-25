@@ -217,7 +217,7 @@ void SimulationSystem::SimulationLoop( void )
 
   getLongAttr(system_options, simulation_mode,&sMode); 
   getLongAttr(system_options, output_interval,&ointerval);
-  getLongAttr(system_options, stop_options,&stopoptions);
+  getLongAttr(system_options, use_stop_conditions,&stopoptions);
   getLongAttr(system_options, stop_count,&stopcount);
   getDoubleAttr(system_options, simulation_time,&maxsimtime);
   getDoubleAttr(system_options, output_time,&otime);
@@ -249,7 +249,7 @@ void SimulationSystem::SimulationLoop( void )
         complexList->doBasicChoice( rchoice, stime );
         rate = complexList->getTotalFlux();
 
-        if( stopcount > 0 && stopoptions==2)
+        if( stopcount > 0 && stopoptions)
           {
             curcount = 0;
             checkresult = 0;
@@ -489,7 +489,7 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( double *completiontime,
   getLongAttr(system_options, trajectory_type,&trajMode);
   getLongAttr(system_options, output_interval,&ointerval);
   getDoubleAttr(system_options, output_time,&otime);
-  getLongAttr(system_options, stop_options,&stopoptions);
+  getLongAttr(system_options, use_stop_conditions,&stopoptions);
   getLongAttr(system_options, stop_count,&stopcount);
   getDoubleAttr(system_options, simulation_time,&maxsimtime);
   getDoubleAttr(system_options, output_time, &otime_interval );
@@ -562,7 +562,7 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( double *completiontime,
         
       }
 
-    if( stopcount > 0 && stopoptions==2)
+    if( stopcount > 0 && stopoptions)
       {
         curcount = 0;
         checkresult = 0;
@@ -662,7 +662,7 @@ void SimulationSystem::InitializeSystem( void )
       if ( boltzmann_sampling )
         structure = getStringAttr(py_complex, boltzmann_structure, py_struc);
       else
-        structure = getStringAttr(py_complex, structure, py_seq);
+        structure = getStringAttr(py_complex, structure, py_struc);
       
       id = getID_list( system_options, index );
       

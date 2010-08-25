@@ -99,7 +99,7 @@ class identlist *getID_list(PyObject *options, int index)
   pyo_start_complex_list = PyObject_GetAttrString( options, "start_state");
   // new reference
 
-  pyo_strand_list = PyObject_GetAttrString(PyList_GET_ITEM( pyo_start_complex_list, index ) ,"strand_list");
+  pyo_strand_list = PyObject_GetAttrString(PyList_GetItem( pyo_start_complex_list, index ) ,"strand_list");
   // new reference due to PyObject_GetAttrString
   // GET_ITEM borrows the ref, so we only have to worry about the ref via PyObject_Get...
 
@@ -113,6 +113,8 @@ class identlist *getID_list(PyObject *options, int index)
 
   Py_DECREF( pyo_strand_list );
   // pyo_strand_list is now clean
+  
+  return tmp;
 }
 
 // TODO still.

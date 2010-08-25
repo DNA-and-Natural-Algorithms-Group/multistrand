@@ -452,9 +452,6 @@ class MultistrandOptions( object ):
         else:
             complex_list = self._start_state
         
-        if self.boltzmann_sample:
-            complex_list = [boltzmann_sample(c) for c in complex_list]
-        
         return complex_list
     
     

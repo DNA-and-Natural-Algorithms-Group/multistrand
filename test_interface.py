@@ -19,6 +19,7 @@ o.use_stop_states = True
 o.parameter_type  = 1
 o.substrate_type  = 2
 o.num_simulations = 1
+o.simulation_time = 0.5
 o.start_state = [c1, c2]
 #o.start_state = [RestingState("1", [c1]), RestingState("2", [c2])]
 o.stop_conditions = [sc_rev, sc_for]

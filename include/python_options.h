@@ -141,7 +141,7 @@
 
 #define pingAttr(obj, name) { \
   PyObject *_m_attr = PyObject_GetAttrString( obj, #name );\
-  if (_m_attr == NULL && PyErr_Occurred() == NULL )        \
+  if (_m_attr == NULL && PyErr_Occurred() != NULL )        \
     _m_printPyError_withLineNumber();                       \
   else if (_m_attr == NULL )                               \
     fprintf(stderr,"WARNING: pingAttr: No error occurred,\
