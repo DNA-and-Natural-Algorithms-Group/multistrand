@@ -173,7 +173,7 @@ void SimulationSystem::StartSimulation( void )
   while( simulation_count_remaining > 0)
     {
       // if( ointerval < 0 && !(simulation_mode & SIMULATION_MODE_FLAG_PYTHON))
-      //   printf("Seed: 0x%lx\n",random_seed);
+      //   printf("Seed: 0x%lx\n",current_seed);
       InitializeSystem();
 
       if( ointerval < 0 && !(simulation_mode & SIMULATION_MODE_FLAG_PYTHON))
@@ -186,6 +186,7 @@ void SimulationSystem::StartSimulation( void )
     
       SimulationLoop();
       simulation_count_remaining--;
+      pingAttr( system_options, increment_trajectory_count );
       generateNextRandom();
     }
 }
@@ -309,11 +310,11 @@ void SimulationSystem::SimulationLoop( void )
           complexList->printComplexList( 0 );
       
       if( stime == NAN )
-        m_printStatusLine(system_options, random_seed, "ERROR", stime );
+        m_printStatusLine(system_options, current_seed, "ERROR", stime );
       else if ( checkresult > 0 )
-        m_printStatusLine(system_options, random_seed, traverse->tag, stime );
+        m_printStatusLine(system_options, current_seed, traverse->tag, stime );
       else
-        m_printStatusLine(system_options, random_seed, "INCOMPLETE", stime );
+        m_printStatusLine(system_options, current_seed, "INCOMPLETE", stime );
       
       if( ! (sMode & SIMULATION_MODE_FLAG_PYTHON) )
         printf("Trajectory Completed\n");
@@ -368,9 +369,9 @@ void SimulationSystem::SimulationLoop( void )
         complexList->printComplexList( 0 );
 
       if( stime == NAN )
-        m_printStatusLine(system_options, random_seed, "ERROR", stime );
+        m_printStatusLine(system_options, current_seed, "ERROR", stime );
       else
-        m_printStatusLine(system_options, random_seed, "INCOMPLETE", stime );
+        m_printStatusLine(system_options, current_seed, "INCOMPLETE", stime );
       
       printf("Trajectory Completed\n");
     }
@@ -409,7 +410,7 @@ void SimulationSystem::StartSimulation_First_Bimolecular( void )
 
   while( simulation_count_remaining > 0 )
     {
-
+      setLongAttr( system_options, interface_current_seed, current_seed );
       InitializeSystem();
 
       //      if( getLongAttr(system_options, trajectory_type) > 0 )
@@ -419,7 +420,10 @@ void SimulationSystem::StartSimulation_First_Bimolecular( void )
 
 
       SimulationLoop_First_Bimolecular( &completiontime, &completiontype, &forwardrate, &tag );
+      if (tag != NULL )
+        setStringAttr( system_options, interface_current_tag, tag );
 
+      setLongAttr( system_options, interface_current_completion_type, completiontype );
       // now we need to process the rate, time and type information.
       total_rate = total_rate + forwardrate;
       delta = forwardrate - computed_rate_means[2];
@@ -450,8 +454,9 @@ void SimulationSystem::StartSimulation_First_Bimolecular( void )
 
         }
 
-      m_printStatusLine_First_Bimolecular(system_options, random_seed, completiontype, completiontime, forwardrate, tag );
+      m_printStatusLine_First_Bimolecular(system_options, current_seed, completiontype, completiontime, forwardrate, tag );
       generateNextRandom();
+      pingAttr( system_options, increment_trajectory_count );
       simulation_count_remaining--;
     }
   if( !sMode )
@@ -597,11 +602,11 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( double *completiontime,
 
     
   /*   if( stime == NAN )
-       m_printStatusLine(system_options, random_seed, "ERROR", stime );
+       m_printStatusLine(system_options, current_seed, "ERROR", stime );
        else if ( checkresult > 0 )
-       m_printStatusLine(system_options, random_seed, traverse->tag, stime );
+       m_printStatusLine(system_options, current_seed, traverse->tag, stime );
        else
-       m_printStatusLine(system_options, random_seed, "INCOMPLETE", stime );
+       m_printStatusLine(system_options, current_seed, "INCOMPLETE", stime );
   */
   // printing is handled at the upper level for the status information. We do, however, need to return the info.
 
@@ -687,36 +692,33 @@ void SimulationSystem::InitializeSystem( void )
 void SimulationSystem::InitializeRNG( void )
 {
   bool use_fixed_random_seed = false;
-  long initial_seed = 0;
   FILE *fp = NULL;
   getBoolAttr( system_options, initial_seed_flag, &use_fixed_random_seed);
-  if( use_fixed_random_seed )
-    getLongAttr(system_options, initial_seed,&initial_seed);
 
   if( use_fixed_random_seed )
-    random_seed = initial_seed;
+    getLongAttr(system_options, initial_seed,&current_seed);
   else
     {
       if((fp = fopen("/dev/urandom","r")) != NULL )
         {  // if urandom exists, use it to provide a seed
           long deviceseed;
           fread(&deviceseed, sizeof(long), 1, fp);
-          
-          srand48( deviceseed );
+
+          current_seed = deviceseed;
           fclose(fp);
         }
       else // use the possibly flawed time as a seed.
         {
-          srand48( time(NULL) );
+          current_seed = time(NULL);
         }
-      random_seed = lrand48(); // grab a seed to use as initial seed.
+      //      current_seed = lrand48(); // grab a seed to use as initial seed.
     }
   // now initialize this generator using our random seed, so that we can reproduce as necessary.
-  srand48( random_seed );
+  srand48( current_seed );
 }
 
 void SimulationSystem::generateNextRandom( void )
 {
-  random_seed = lrand48();
-  srand48( random_seed );
+  current_seed = lrand48();
+  srand48( current_seed );
 }

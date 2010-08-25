@@ -70,7 +70,7 @@ class SimulationSystem
 
   PyObject *system_options;
 
-  long random_seed;
+  long current_seed;
   bool initial_trajectory;
   long simulation_mode;
   long simulation_count_remaining;

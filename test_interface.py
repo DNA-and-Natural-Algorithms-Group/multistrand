@@ -28,5 +28,6 @@ s = multistrand.SimSystem(o)
 print "finished simsystem. now starting..."
 s.start()
 print "after call to start."
-print "Tag is '%s'" % o.interface.trajectory_tag
+print o.interface
+
 

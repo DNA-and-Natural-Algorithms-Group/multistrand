@@ -11,18 +11,25 @@
 
 #ifndef DEBUG_MACROS
 #define _m_getAttr_DECREF( obj, name, function, pvar, vartype )     \
-  {																	\
+  do {																	\
 	PyObject *_m_attr = PyObject_GetAttrString( obj, name);		\
 	*(vartype *)(pvar) = function(_m_attr);                         \
 	Py_DECREF(_m_attr);												\
-  }
+  } while(0)
 
 #define _m_setAttr_DECREF( obj, name, function, arg )               \
-  {																	\
+  do {																	\
 	PyObject *val = function(arg);                                  \
-    PyObject_SetAttrString( obj, #name, val);                       \
+    PyObject_SetAttrString( obj, name, val);                       \
 	Py_DECREF(val);                                                 \
-  }
+  } while(0)
+
+#define _m_setStringAttr( obj, name, arg )   \
+  do {                                                 \
+    PyObject *pyo_str = PyString_FromString( arg ); \
+    PyObject_SetAttrString( obj, name, pyo_str );   \
+    Py_XDECREF( pyo_str );                          \
+  } while(0)                                           
 
 // Import/instantiate
 #define newObject(mod, name) _m_newObject( #mod, #name )
@@ -44,8 +51,10 @@
 #define getLongItemFromTuple(tuple, index) PyInt_AS_LONG(PyTuple_GET_ITEM(tuple, index))
 
 // Setters
-#define setDoubleAttr(obj, name, arg) _m_setAttr_DECREF( obj, #name, PyFloat_FromDouble, arg)
-#define setLongAttr(obj, name, arg) _m_setAttr_DECREF( obj, #name, PyLong_FromLong, arg)
+#define setDoubleAttr(obj, name, arg) _m_setAttr_DECREF( obj, #name, PyFloat_FromDouble, (arg))
+#define setLongAttr(obj, name, arg) _m_setAttr_DECREF( obj, #name, PyLong_FromLong, (arg))
+
+#define setStringAttr(obj, name, arg) _m_setStringAttr( obj, #name, (arg) )
 
 // Testers
 #define testLongAttr(obj, name, test, value) _m_testLongAttr( obj, #name, #test, value )
@@ -97,7 +106,7 @@
   } while(0)
 
 #define _m_d_getAttr_DECREF( obj, name, pvar, c_type_name, py_type, py_c_type )     \
-  {																	\
+  do {                                                                     \
 	PyObject *_m_attr = PyObject_GetAttrString( obj, name);		    \
     if( _m_attr == NULL && PyErr_Occurred() != NULL)                \
       _m_printPyError_withLineNumber();                              \
@@ -112,10 +121,10 @@
           *(c_type_name *)(pvar) = Py##py_type##_AS_##py_c_type(_m_attr);                       \
         Py_DECREF(_m_attr);                                             \
       }                                                                 \
-  }
+  } while(0)
 
 #define _m_d_setAttr_DECREF( obj, name, function, arg )               \
-  {																	\
+  do {                                                                   \
 	PyObject *val = function(arg);                                  \
     if( val == NULL && PyErr_Occurred() != NULL)                    \
       _m_printPyError_withLineNumber();                              \
@@ -127,7 +136,18 @@
         PyObject_SetAttrString( obj, name, val);                    \
         Py_DECREF(val);                                             \
       }                                                             \
-  }
+  } while(0)
+
+#define _m_d_setStringAttr( obj, name, arg )          \
+  do {                                                   \
+    PyObject *pyo_str = PyString_FromString( arg );   \
+    if (pyo_str == NULL && PyErr_Occurred() != NULL ) \
+      _m_printPyError_withLineNumber();               \
+    if (PyObject_SetAttrString( obj, name, pyo_str ) == -1 && PyErr_Occurred() != NULL) \
+      _m_printPyError_withLineNumber();               \
+    Py_XDECREF( pyo_str );                            \
+  } while(0)                                           
+
 
 // Import/instantiate
 #define newObject(mod, name) \
@@ -176,8 +196,11 @@
   (PyInt_Check(PyTuple_GET_ITEM(tuple, index))?PyInt_AS_LONG(PyTuple_GET_ITEM(tuple,index)):-1)
 
 // Setters
-#define setDoubleAttr(obj, name, arg) _m_d_setAttr_DECREF( obj, #name, PyFloat_FromDouble, arg)
-#define setLongAttr(obj, name, arg) _m_d_setAttr_DECREF( obj, #name, PyLong_FromLong, arg)
+#define setDoubleAttr(obj, name, arg) _m_d_setAttr_DECREF( obj, #name, PyFloat_FromDouble, (arg))
+#define setLongAttr(obj, name, arg) _m_d_setAttr_DECREF( obj, #name, PyLong_FromLong, (arg))
+
+#define setStringAttr(obj, name, arg) _m_d_setStringAttr( obj, #name, (arg ))
+// note: any reference this creates is not the responsibility of the caller. 
 
 // Testers
 #define testLongAttr(obj, name, test, value) _m_d_testLongAttr( obj, #name, #test, value )
