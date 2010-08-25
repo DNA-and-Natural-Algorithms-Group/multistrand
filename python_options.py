@@ -522,24 +522,16 @@ class MultistrandOptions( object ):
             self._add_start_complex( i )
 
     def _add_start_complex( self, item ):
-        if isinstance(item, RestingState ):
-            # Set the appropriate flags, generate unique strand ids, and store
-            self.use_resting_states = True
-            self.boltzmann_sample = True
+        l = len(item)
+        item.make_unique( self.name_dict, range(self.unique_id,self.unique_id+l) )
 
-            id_dict = {}
-            for strand in item.strand_list:
-                    id_dict[strand.id] = self.make_unique(strand)
-                for cmplx in resting_state:
-                    cmplx.strand_list = [id_dict[s.id] for s in cmplx.strand_list]
+        self.unique_id += l
         
+        item.set_boltzmann( self.boltzmann_sample )
+        if isinstance(item, Complex):
+            self._start_state.append( (item,None))
         else:
-            self.use_resting_states = False
-            
-            for cmplx in start_list:
-                cmplx.strand_list = [self.make_unique(s) for s in cmplx.strand_list]
-        
-        self._start_state = start_list
+            self._start_state.append( (item[0], item) )
 
     @property
     def initial_seed_flag(self):

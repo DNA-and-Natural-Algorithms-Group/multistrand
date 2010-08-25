@@ -38,7 +38,9 @@ class Complex(object):
 
     self.unique_ids  = []
     # list of strand's unique ids that map to strand_list's names.
-
+  def __len__(self):
+    return len(self.strand_list)
+  
   @property
   def sequence(self):
     return "+".join([strand.sequence for strand in self.strand_list])
@@ -59,6 +61,9 @@ class RestingState(tuple):
   def __init__(self, name, complex_set):
     self.name = name
     self.boltzmann_sample = False
+
+  def __len__(self):
+    return super(RestingState,self).__len__()
 
   def set_boltzmann(self, val):
     self.boltzmann_sample = val
