@@ -113,7 +113,7 @@ SimulationSystem::SimulationSystem( PyObject *system_o )
   complexList = NULL; // new SComplexList( dnaEnergyModel );
   
   //  system_options->finalizeInput();
-  getBoolAttr( system_options, boltzmann_sample, &boltzmann_sampling );
+  //  getBoolAttr( system_options, boltzmann_sample, &boltzmann_sampling );
 }
 
 SimulationSystem::~SimulationSystem( void )
@@ -659,10 +659,14 @@ void SimulationSystem::InitializeSystem( void )
       sequence = getStringAttr(py_complex, sequence, py_seq);
       
       //simulation_mode == SIMULATION_MODE_FIRST_BIMOLECULAR )
-      if ( boltzmann_sampling )
-        structure = getStringAttr(py_complex, boltzmann_structure, py_struc);
-      else
-        structure = getStringAttr(py_complex, structure, py_struc);
+      //      if ( boltzmann_sampling )
+      //        structure = getStringAttr(py_complex, boltzmann_structure, py_struc);
+      //      else
+      // boltzmann sampling is not our problem - the options object
+      // should be providing structures according to the boltzmann or
+      // not as it decides, not our job now. :)
+
+      structure = getStringAttr(py_complex, structure, py_struc);
       
       id = getID_list( system_options, index );
       

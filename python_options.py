@@ -667,10 +667,6 @@ class MultistrandOptions( object ):
     def interface_suspend_flag(self):
         return self.interface.trajectory_suspend_flag
     
-    
-
-
-    
 
 
 def boltzmann_sample(cmplx):

@@ -4,7 +4,7 @@
    Edits by: Chris Berlind    (cberlind@dna.caltech.edu)
 */
  
-
+#include <string.h>
 #include "optionlists.h"
 
 /*
@@ -50,10 +50,12 @@ strandlist::~strandlist( void )
   This is a very basic linked list constructor.
 */
 
-identlist::identlist( int newuid, char *newid, PyObject *pyo, class identlist *old )
+identlist::identlist( long newuid, char *newid, class identlist *old )
 {
+  id = new char[strlen(newid)];
+  strcpy(id, newid );
+
   uid = newuid;
-  pyo_id = pyo;
   next = old;
 }
 
@@ -68,7 +70,7 @@ identlist::identlist( int newuid, char *newid, PyObject *pyo, class identlist *o
 identlist::~identlist( void )
 {
   if( id != NULL )
-    free(id);  // id is created by strdup in the parser and so we must use free here.
+    delete[] id;  
   if( next != NULL )
     delete next;
   next = NULL;

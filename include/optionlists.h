@@ -13,7 +13,6 @@
 #define STOPTYPE_PERCENT_OR_COUNT_STRUCTURE    4
 
 #include <stdlib.h>
-#include <cstring>
 #include <python2.6/Python.h>
 
 // The bodies for these functions are defined in options.cc, but the
@@ -35,11 +34,11 @@ class strandlist {
 
 class identlist {
  public:
-  int uid;
+  long uid;
   char *id;
   PyObject *pyo_id;  // needed for correct ref counting dealloc.
   class identlist *next;
-  identlist( int newuid, char *newid, PyObject *pyo, class identlist *old = NULL);
+  identlist( long newuid, char *newid, class identlist *old = NULL);
   void  make_unique( strandlist *strands);
   ~identlist( void );
 };

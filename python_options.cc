@@ -5,8 +5,8 @@
 */
  
 
-#include "include/python_options.h"
-#include "include/optionlists.h"
+#include "python_options.h"
+#include "optionlists.h"
 
 // TODO: check deallocation of new objects
 
@@ -24,25 +24,31 @@ class stopcomplexes *getStopComplexList(PyObject *options, int index)
     int stoptype;
     PyObject *cmplx;
     PyObject *tuple;
-    PyObject *stop_condition;
+    PyObject *tuple_list;
+    PyObject *pyo_stop_condition;
+    PyObject *pyo_stop_condition_list;
     PyObject *pyo_tag;
     char *tag;
-    PyObject *tuple_list;
-    PyObject *stop_conditions;
 
-    stop_conditions= PyObject_GetAttrString(options, "stop_conditions");
+
+
+    pyo_stop_condition_list= PyObject_GetAttrString(options, "stop_conditions");
     // new reference
     
-    int n = PyList_GET_SIZE(stop_conditions);
+    int n = PyList_GET_SIZE(pyo_stop_condition_list);
     for (int i = n - 1; i >= index; i--)
     {
-        stop_condition = PyList_GET_ITEM(stop_conditions, i);
+        pyo_stop_condition = PyList_GET_ITEM(pyo_stop_condition_list, i);
         pyo_tag = NULL;
 
-        tag = getStringAttr(stop_condition, tag, pyo_tag);
+        tag = getStringAttr(pyo_stop_condition, tag, pyo_tag);
         // new reference is stored in tmp_tag.
+#ifdef DEBUG
+        if(tag == NULL || pyo_tag == NULL)
+           printPyError_withLineNumber();
+#endif
 
-        tuple_list = getListAttr(stop_condition, complex_items);
+        tuple_list = getListAttr(pyo_stop_condition, complex_items);
         // new reference here
         
         int m = PyList_GET_SIZE(tuple_list);
@@ -87,7 +93,7 @@ class stopcomplexes *getStopComplexList(PyObject *options, int index)
         tag = NULL;
     }
 
-    Py_DECREF( stop_condition );
+    Py_DECREF( pyo_stop_condition );
     return return_list;
 }
 
@@ -121,11 +127,12 @@ class identlist *getID_list(PyObject *options, int index)
 class identlist *makeID_list(PyObject *strand_list)
 {
     class identlist *id_list;
-    long id;
+    long u_id;
+    long n;
     char *name;
     PyObject *pyo_name;
-    int n;
     PyObject* py_strand;
+
 
     Py_INCREF( strand_list );
 
@@ -133,12 +140,16 @@ class identlist *makeID_list(PyObject *strand_list)
     
     py_strand = PyList_GetItem(strand_list, n - 1);
     // borrowed reference, strand_list is passed to us by getStopComplex
-    getLongAttr(py_strand, id, &id);
+    getLongAttr(py_strand, id, &u_id);
 
     name = getStringAttr(py_strand, name, pyo_name);
+#ifdef DEBUG
+    if(name == NULL || pyo_name == NULL)
+       printPyError_withLineNumber();
+#endif
     // new reference
     
-    id_list = new identlist( id, name, NULL );
+    id_list = new identlist( u_id, name );  // next is NULL default.
     // id_list should make a copy of name, it is now ok to free it.
 
     Py_DECREF( pyo_name );
@@ -148,10 +159,16 @@ class identlist *makeID_list(PyObject *strand_list)
     for (int i = n - 2; i >= 0; i--)
     {
         py_strand = PyList_GetItem(strand_list, i);
+
         name = getStringAttr(py_strand, name, pyo_name);
+#ifdef DEBUG
+        if(name == NULL || pyo_name == NULL)
+           printPyError_withLineNumber();
+#endif
+        getLongAttr(py_strand, id, &u_id);
+
         // new reference
-        
-        id_list = new identlist( id, name, pyo_name, id_list );
+        id_list = new identlist( u_id, name, id_list );
         // id_list should make a copy of name, it is now ok to free it.
         
         Py_DECREF( pyo_name );
@@ -161,11 +178,4 @@ class identlist *makeID_list(PyObject *strand_list)
     
     return id_list;
 }
-
-
-
-
-
-
-
 

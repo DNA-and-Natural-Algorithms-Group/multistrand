@@ -87,6 +87,15 @@
   fprintf(stderr,"ERROR: Python Interpreter error: file %s, line %d.\nERROR (Python): ", __FILE__, (int)__LINE__), PyErr_PrintEx(1)
 
 
+#define printPyError_withLineNumber()                                   \
+  do {                                                                  \
+    if (PyErr_Occurred() != NULL )                                      \
+      {                                                                 \
+        fprintf(stderr,"ERROR: Python Interpreter error: file %s, line %d.\nERROR (Python): ", __FILE__, (int)__LINE__); \
+        PyErr_PrintEx(1);                                               \
+      }                                                                 \
+  } while(0)
+
 #define _m_d_getAttr_DECREF( obj, name, pvar, c_type_name, py_type, py_c_type )     \
   {																	\
 	PyObject *_m_attr = PyObject_GetAttrString( obj, name);		    \
@@ -133,7 +142,7 @@
 #define getDoubleAttr(obj, name, pvar) _m_d_getAttr_DECREF( obj, #name, pvar, double, Float, DOUBLE )
 
 // NOTE: caller is responsible for checking return values for strings!
-#define getStringAttr(obj, name, pyo) ((char *)PyString_AS_STRING(pyo=PyObject_GetAttrString(obj, #name)))
+#define getStringAttr(obj, name, pyo) ((char *)PyString_AsString(pyo=PyObject_GetAttrString(obj, #name)))
 
 // caller responsible for checking return values of lists.
 #define getListAttr(obj, name) PyObject_GetAttrString(obj, #name)
@@ -155,10 +164,11 @@
 
 #define getStringItem(list, index) PyString_AS_STRING(PyList_GET_ITEM(list, index))
 
-// The following works without ref counting issues as PyList_GET_ITEM borrows the references.
-// Since these macros must be expressions and not statements, we
-//cannot raise error conditions here easily, thus it is caller's
-//responsibility.
+/*  The following works without ref counting issues as PyList_GET_ITEM
+    borrows the references.  Since these macros must be expressions
+    and not statements, we cannot raise error conditions here easily,
+    thus it is caller's responsibility. */
+
 #define getLongItem(list, index) \
   (PyInt_Check(PyList_GET_ITEM(list, index))?PyInt_AS_LONG(PyList_GET_ITEM(list,index)):-1)
 

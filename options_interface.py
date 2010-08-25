@@ -66,7 +66,7 @@ class Interface(object):
         Should be set by MultistrandOptions when a trajectory completes.
         """
         
-        self.halt_trajectory_flag = False
+        self.trajectory_halt_flag = False
         """ Indicates whether Multistrand was told to halt its trajectory by an
         external Python program.
         
@@ -76,7 +76,7 @@ class Interface(object):
         Read by ssystem.cc. There should probably be a function that sets it.
         """
         
-        self.suspend_trajectory_flag = False
+        self.trajectory_suspend_flag = False
         """ Indicates whether Multistrand was told to suspend its trajectory by 
         an external Python program.
         
