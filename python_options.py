@@ -589,7 +589,8 @@ class MultistrandOptions( object ):
                         cmplx.strand_list[i] = self.name_dict[s.name][0]
                         counts[s.name] = 1
         
-        # Set the internal data member
+        # Set the internal data members
+        self.stop_count = len(stop_list)
         self._stop_conditions = stop_list
     
     @property
@@ -698,10 +699,32 @@ class MultistrandOptions( object ):
     @property
     def interface_suspend_flag(self):
         return self.interface.trajectory_suspend_flag
-    
-    
+
+    @property
+    def increment_trajectory_count(self):
+        self.interface.increment_trajectory_count()
+
+    @property
+    def interface_current_seed(self):
+        return self.interface.current_seed
+
+    @interface_current_seed.setter
+    def interface_current_seed(self, val):
+        self.interface.current_seed = val
+
+    @property
+    def interface_current_tag(self):
+        return self.interface.current_tag
+
+    @interface_current_tag.setter
+    def interface_current_tag(self, val):
+        self.interface.current_tag = val
+
+    @property
+    def interface_current_completion_type(self):
+        return self.interface.current_completion_type
 
 
-    
-
-
+    @interface_current_completion_type.setter
+    def interface_current_completion_type(self, val):
+        self.interface.current_completion_type = val

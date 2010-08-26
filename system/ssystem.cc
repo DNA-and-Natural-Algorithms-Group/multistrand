@@ -113,7 +113,7 @@ SimulationSystem::SimulationSystem( PyObject *system_o )
   complexList = NULL; // new SComplexList( dnaEnergyModel );
   
   //  system_options->finalizeInput();
-  getBoolAttr( system_options, boltzmann_sample, &boltzmann_sampling );
+  //  getBoolAttr( system_options, boltzmann_sample, &boltzmann_sampling );
 }
 
 SimulationSystem::~SimulationSystem( void )
@@ -173,7 +173,7 @@ void SimulationSystem::StartSimulation( void )
   while( simulation_count_remaining > 0)
     {
       // if( ointerval < 0 && !(simulation_mode & SIMULATION_MODE_FLAG_PYTHON))
-      //   printf("Seed: 0x%lx\n",random_seed);
+      //   printf("Seed: 0x%lx\n",current_seed);
       InitializeSystem();
 
       if( ointerval < 0 && !(simulation_mode & SIMULATION_MODE_FLAG_PYTHON))
@@ -186,6 +186,7 @@ void SimulationSystem::StartSimulation( void )
     
       SimulationLoop();
       simulation_count_remaining--;
+      pingAttr( system_options, increment_trajectory_count );
       generateNextRandom();
     }
 }
@@ -217,7 +218,7 @@ void SimulationSystem::SimulationLoop( void )
 
   getLongAttr(system_options, simulation_mode,&sMode); 
   getLongAttr(system_options, output_interval,&ointerval);
-  getLongAttr(system_options, stop_options,&stopoptions);
+  getLongAttr(system_options, use_stop_conditions,&stopoptions);
   getLongAttr(system_options, stop_count,&stopcount);
   getDoubleAttr(system_options, simulation_time,&maxsimtime);
   getDoubleAttr(system_options, output_time,&otime);
@@ -249,7 +250,7 @@ void SimulationSystem::SimulationLoop( void )
         complexList->doBasicChoice( rchoice, stime );
         rate = complexList->getTotalFlux();
 
-        if( stopcount > 0 && stopoptions==2)
+        if( stopcount > 0 && stopoptions)
           {
             curcount = 0;
             checkresult = 0;
@@ -309,11 +310,11 @@ void SimulationSystem::SimulationLoop( void )
           complexList->printComplexList( 0 );
       
       if( stime == NAN )
-        printStatusLine(system_options, random_seed, STOPRESULT_NAN, 0.0, NULL);
+        printStatusLine(system_options, current_seed, STOPRESULT_NAN, 0.0, NULL);
       else if ( checkresult > 0 )
-        printStatusLine(system_options, random_seed, STOPRESULT_NORMAL, stime, traverse->tag );
+        printStatusLine(system_options, current_seed, STOPRESULT_NORMAL, stime, traverse->tag );
       else
-        printStatusLine(system_options, random_seed, STOPRESULT_TIME, stime, NULL );
+        printStatusLine(system_options, current_seed, STOPRESULT_TIME, stime, NULL );
       
       if( ! (sMode & SIMULATION_MODE_FLAG_PYTHON) )
         printf("Trajectory Completed\n");
@@ -369,9 +370,9 @@ void SimulationSystem::SimulationLoop( void )
         complexList->printComplexList( 0 );
 
       if( stime == NAN )
-        printStatusLine(system_options, random_seed, STOPRESULT_NAN, 0.0, NULL);
+        printStatusLine(system_options, current_seed, STOPRESULT_NAN, 0.0, NULL);
       else
-        printStatusLine(system_options, random_seed, STOPRESULT_TIME, stime, NULL );
+        printStatusLine(system_options, current_seed, STOPRESULT_TIME, stime, NULL );
       
       //      printf("Trajectory Completed\n");
     }
@@ -393,11 +394,18 @@ void SimulationSystem::StartSimulation_First_Bimolecular( void )
   
   while( simulation_count_remaining > 0 )
     {
+      setLongAttr( system_options, interface_current_seed, current_seed );
       InitializeSystem();
-      
+
       SimulationLoop_First_Bimolecular( &completiontime, &completiontype, &forwardrate, &tag );
+      if (tag != NULL )
+        setStringAttr( system_options, interface_current_tag, tag );
+
+      setLongAttr( system_options, interface_current_completion_type, completiontype );
+      
       printStatusLine_First_Bimolecular(system_options, random_seed, completiontype, completiontime, forwardrate, tag );
       generateNextRandom();
+      pingAttr( system_options, increment_trajectory_count );
       simulation_count_remaining--;
     }
 }
@@ -424,7 +432,7 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( double *completiontime,
   getLongAttr(system_options, trajectory_type,&trajMode);
   getLongAttr(system_options, output_interval,&ointerval);
   getDoubleAttr(system_options, output_time,&otime);
-  getLongAttr(system_options, stop_options,&stopoptions);
+  getLongAttr(system_options, use_stop_conditions,&stopoptions);
   getLongAttr(system_options, stop_count,&stopcount);
   getDoubleAttr(system_options, simulation_time,&maxsimtime);
   getDoubleAttr(system_options, output_time, &otime_interval );
@@ -498,7 +506,7 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( double *completiontime,
         
       }
 
-    if( stopcount > 0 && stopoptions==2)
+    if( stopcount > 0 && stopoptions)
       {
         curcount = 0;
         checkresult = 0;
@@ -535,9 +543,9 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( double *completiontime,
         *completiontype = STOPRESULT_REVERSE;
       else 
         {
-          *tag = traverse->tag;
           *completiontype = STOPRESULT_FORWARD;
         }
+      *tag = traverse->tag;
       *completiontime = stime;
     }
   else
@@ -583,10 +591,14 @@ void SimulationSystem::InitializeSystem( void )
       sequence = getStringAttr(py_complex, sequence, py_seq);
       
       //simulation_mode == SIMULATION_MODE_FIRST_BIMOLECULAR )
-      if ( boltzmann_sampling )
-        structure = getStringAttr(py_complex, boltzmann_structure, py_struc);
-      else
-        structure = getStringAttr(py_complex, structure, py_seq);
+      //      if ( boltzmann_sampling )
+      //        structure = getStringAttr(py_complex, boltzmann_structure, py_struc);
+      //      else
+      // boltzmann sampling is not our problem - the options object
+      // should be providing structures according to the boltzmann or
+      // not as it decides, not our job now. :)
+
+      structure = getStringAttr(py_complex, structure, py_struc);
       
       id = getID_list( system_options, index );
       
@@ -607,36 +619,33 @@ void SimulationSystem::InitializeSystem( void )
 void SimulationSystem::InitializeRNG( void )
 {
   bool use_fixed_random_seed = false;
-  long initial_seed = 0;
   FILE *fp = NULL;
   getBoolAttr( system_options, initial_seed_flag, &use_fixed_random_seed);
-  if( use_fixed_random_seed )
-    getLongAttr(system_options, initial_seed,&initial_seed);
 
   if( use_fixed_random_seed )
-    random_seed = initial_seed;
+    getLongAttr(system_options, initial_seed,&current_seed);
   else
     {
       if((fp = fopen("/dev/urandom","r")) != NULL )
         {  // if urandom exists, use it to provide a seed
           long deviceseed;
           fread(&deviceseed, sizeof(long), 1, fp);
-          
-          srand48( deviceseed );
+
+          current_seed = deviceseed;
           fclose(fp);
         }
       else // use the possibly flawed time as a seed.
         {
-          srand48( time(NULL) );
+          current_seed = time(NULL);
         }
-      random_seed = lrand48(); // grab a seed to use as initial seed.
+      //      current_seed = lrand48(); // grab a seed to use as initial seed.
     }
   // now initialize this generator using our random seed, so that we can reproduce as necessary.
-  srand48( random_seed );
+  srand48( current_seed );
 }
 
 void SimulationSystem::generateNextRandom( void )
 {
-  random_seed = lrand48();
-  srand48( random_seed );
+  current_seed = lrand48();
+  srand48( current_seed );
 }

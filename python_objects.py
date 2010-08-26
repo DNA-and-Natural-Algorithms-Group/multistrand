@@ -46,8 +46,29 @@ class Complex(object):
     return "+".join([strand.sequence for strand in self.strand_list])
 
   @property
-  def boltzmann_sequence(self):
-    return self.sequence  # For now...
+  def boltzmann_structure(self):
+    import os, subprocess
+    cwd = os.path.abspath(os.curdir)
+    prefix = "temp_boltzmann___"
+    
+    f = open("%s/%s.in" % (cwd, prefix), "w")
+    f.write("%d\n" % len(self.strand_list))
+    for strand in self.strand_list:
+        f.write(strand.sequence + "\n")
+    for i in range(len(self.strand_list)):
+        f.write("%d " % (i+1))
+    f.write("\n")
+    f.close()
+    
+    subprocess.check_call(["/research/src/sample_dist/bin/sample", "-multi", "-material", "dna", "-count", "1", "%s/%s" % (cwd, prefix)], stdout=subprocess.PIPE)
+    
+    f = open("%s/%s.sample" % (cwd, prefix), "r")
+    for i in range(11):
+        line = f.readline()
+    f.close()
+    
+    sampled_structure = line.strip()
+    return sampled_structure
 
 
 class RestingState(tuple):

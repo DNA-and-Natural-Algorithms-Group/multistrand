@@ -1,8 +1,5 @@
 class Interface(object):
     def __init__(self):
-
-
-
         ####################
         #
         # BEGIN pythondata
@@ -11,20 +8,29 @@ class Interface(object):
         
         # TODO: change some of these to use properties and possibly rename
         
-        self.trajectory_time = None
-        """ The total elapsed time of the most recently completed trajectory.
+        # self.trajectory_time = None
+        # """ The total elapsed time of the most recently completed trajectory.
         
-        Type         Default
-        double       None
+        # Type         Default
+        # double       None
         
-        Set by ssystem.cc when a trajectory completes.
-        """
+        # Set by ssystem.cc when a trajectory completes.
+        # """
         
-        self.trajectory_tag = None
+        self.current_tag = None
         """ The tag of the stop state of the most recently completed trajectory.
         
         Type         Default
         string       None
+        
+        Set by ssystem.cc when a trajectory completes.
+        """
+
+        self.current_completion_type = None
+        """ The completion type of the most recent stop state of the trajectory.
+        
+        Type         Default
+        long         None
         
         Set by ssystem.cc when a trajectory completes.
         """
@@ -66,7 +72,7 @@ class Interface(object):
         Should be set by MultistrandOptions when a trajectory completes.
         """
         
-        self.halt_trajectory_flag = False
+        self.trajectory_halt_flag = False
         """ Indicates whether Multistrand was told to halt its trajectory by an
         external Python program.
         
@@ -76,7 +82,7 @@ class Interface(object):
         Read by ssystem.cc. There should probably be a function that sets it.
         """
         
-        self.suspend_trajectory_flag = False
+        self.trajectory_suspend_flag = False
         """ Indicates whether Multistrand was told to suspend its trajectory by 
         an external Python program.
         
@@ -85,4 +91,34 @@ class Interface(object):
         
         Read by ssystem.cc. There should probably be a function that sets it.
         """
-   
+
+        self._trajectory_count = 0
+
+    def __str__(self):
+        res = ""
+        res = res + "Most recent trajectory time: {0}\n\
+        Most recent trajectory tag: {1}\n\
+        Most recent trajectory completion type: {2}\n\
+        Most recent collision rate: {3}\n\
+        Most recent random seed: {4}\n\
+        Flags: Completed [{5}] Halt [{6}] Suspend [{7}]\n\
+        # of trajectories completed: {8}".format( self.current_time, self.current_tag,
+                                                  self.current_completion_type,
+                                                  self.collision_rate, self.current_seed,
+                                                  self.trajectory_completion_flag, self.trajectory_halt_flag,
+                                                  self.trajectory_suspend_flag, self.trajectory_count )
+        return res
+
+    @property
+    def trajectory_count( self ):
+        return self._trajectory_count
+    @trajectory_count.setter
+    def trajectory_count( self, val ):
+        if val == 0:
+            self._trajectory_count = 0
+        else:
+            raise ValueError("Current trajectory count can only be reset to 0, not arbitrarily set.")
+        
+    def increment_trajectory_count(self):
+        self._trajectory_count += 1
+    
