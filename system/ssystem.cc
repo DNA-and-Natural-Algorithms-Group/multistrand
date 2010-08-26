@@ -616,9 +616,9 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( double *completiontime,
         *completiontype = STOPCONDITION_REVERSE;
       else 
         {
-          *tag = traverse->tag;
           *completiontype = STOPCONDITION_FORWARD;
         }
+      *tag = traverse->tag;
       *completiontime = stime;
     }
   else
