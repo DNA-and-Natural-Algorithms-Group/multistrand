@@ -41,7 +41,9 @@
 #define getStringAttr(obj, name, pyo) ((char *)PyString_AS_STRING(pyo=PyObject_GetAttrString(obj, #name)))
 #define getListAttr(obj, name) PyObject_GetAttrString(obj, #name)
 
-#define pingAttr(obj, name) Py_XDECREF(PyObject_GetAttrString( obj, #name ))
+#define pingAttr(obj, name) Py_DECREF(PyObject_GetAttrString( obj, #name ))
+// CB: changed this from Py_XDECREF to Py_DECREF because it was accessing the 
+// attribute twice for each call to pingAttr (a problem for incrementors)
 // note: does not do anything crazy on a NULL return from GetAttrString, but if that 
 // returned null it might be an error...
 

@@ -120,4 +120,5 @@ class Interface(object):
             raise ValueError("Current trajectory count can only be reset to 0, not arbitrarily set.")
         
     def increment_trajectory_count(self):
-        self._trajectory_count = self._trajectory_count + 1
+        self._trajectory_count += 1
+    
