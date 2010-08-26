@@ -680,7 +680,6 @@ void SimulationSystem::InitializeSystem( void )
       
       Py_DECREF( py_seq );
       Py_DECREF( py_struc );
-      Py_DECREF( py_complex );
       startState = tempcomplex;
       complexList->addComplex( tempcomplex );
       tempcomplex = NULL;

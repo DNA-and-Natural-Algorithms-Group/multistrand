@@ -93,7 +93,7 @@ class stopcomplexes *getStopComplexList(PyObject *options, int index)
         tag = NULL;
     }
 
-    Py_DECREF( pyo_stop_condition );
+    Py_DECREF( pyo_stop_condition_list );
     return return_list;
 }
 

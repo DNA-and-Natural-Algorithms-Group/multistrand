@@ -557,7 +557,8 @@ class MultistrandOptions( object ):
                         cmplx.strand_list[i] = self.name_dict[s.name][0]
                         counts[s.name] = 1
         
-        # Set the internal data member
+        # Set the internal data members
+        self.stop_count = len(stop_list)
         self._stop_conditions = stop_list
     
     @property
