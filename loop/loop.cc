@@ -5,7 +5,7 @@
  
 #include <stdio.h>
 #include <assert.h>
-#include "../include/loop.h"
+#include "loop.h"
 
 EnergyModel *Loop::energyModel_Primary = NULL;
 extern int baseLookup(char base);

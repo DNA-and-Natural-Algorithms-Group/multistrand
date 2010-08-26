@@ -668,6 +668,32 @@ class MultistrandOptions( object ):
             self.name_dict[strand.name] = [new_strand]
 
         return new_strand
+
+    @property
+    def print_status_line(self):
+        return None
+
+    @print_status_line.setter
+    def print_status_line(self,val):
+        """ Takes a 4-tuple as the only value type, it should be:
+            (random number seed, stop result flag, completion time, stop result tag)
+
+            Prints thingies. Also sets useful values."""
+        if not isinstance(val, tuple) or len(val) != 4:
+            raise ValueError("Print status line needs a 4-tuple of values.")
+        seed,com_type, time, tag = val
+        self.interface_current_seed = seed  #uses property to get the right sub-object.
+        self.interface_current_completion_type = com_type
+        self.interface_current_time = time
+        self.interface_current_tag = tag
+
+    @property
+    def print_status_line_firststep(self, val):
+        return None
+
+    @print_status_line_firststep.setter
+    def print_status_line_firststep( self, val ):
+        pass
     
     @property
     def interface_reset_completion_flag(self):
@@ -723,7 +749,6 @@ class MultistrandOptions( object ):
     @property
     def interface_current_completion_type(self):
         return self.interface.current_completion_type
-
 
     @interface_current_completion_type.setter
     def interface_current_completion_type(self, val):

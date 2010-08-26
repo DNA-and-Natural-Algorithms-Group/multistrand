@@ -6,7 +6,7 @@
 // StrandOrdering object
 // used to track sequences and structures within a complex for easy printing, etc.
 
-#include "../include/scomplex.h" // implicitly includes strandordering.h, and is necessary for proper ordering. TODO: decorrelate these headers, they should be independent.
+#include "scomplex.h" // implicitly includes strandordering.h, and is necessary for proper ordering. TODO: decorrelate these headers, they should be independent.
 #include <string.h>
 #include <assert.h>
 

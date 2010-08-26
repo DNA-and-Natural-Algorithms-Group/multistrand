@@ -5,8 +5,8 @@
  
 #include <stdio.h>
 #include <assert.h>
-#include "../include/move.h"
-#include "../include/loop.h"
+#include "move.h"
+#include "loop.h"
 
 Move::Move( void )
 {

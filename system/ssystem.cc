@@ -10,11 +10,6 @@
 #include <time.h>
 #include <stdlib.h>
 
-//#include <math.h>
-//#include <assert.h>
-//#include <unistd.h>
-
-
 #ifndef PYTHON_THREADS
 SimulationSystem::SimulationSystem( int argc, char **argv )
 {
@@ -127,11 +122,6 @@ SimulationSystem::~SimulationSystem( void )
 
 }
 
-
-//#define SRANDOMDEV
-// uncomment above line if you have srandomdev() available for better
-// random number generation. 
-
 void SimulationSystem::StartSimulation( void )
 {
   FILE *fp; // used only for initial random number generation.
@@ -140,18 +130,10 @@ void SimulationSystem::StartSimulation( void )
 
   getLongAttr(system_options, output_interval,&ointerval);
 
-  //#ifndef SRANDOMDEV
-  //  srandom( time( NULL) );
 
   if( simulation_mode & SIMULATION_MODE_FLAG_PYTHON )
     {
       pingAttr( system_options, interface_reset_completion_flag );
-      // replaces: 
-      //   callFunc_NoArgsToNone(system_options, reset_completed_python);
-      // by making reset_completion_flag be a @property descriptor on options object.
-      
-      // no longer needed: reset_completion_flag clears the rate value.
-      //callFunc_DoubleToNone(system_options, set_python_collision_rate, -1.0);
     }
 
   if( simulation_mode & SIMULATION_MODE_ENERGY_ONLY) // need energy only.
@@ -172,8 +154,6 @@ void SimulationSystem::StartSimulation( void )
 
   while( simulation_count_remaining > 0)
     {
-      // if( ointerval < 0 && !(simulation_mode & SIMULATION_MODE_FLAG_PYTHON))
-      //   printf("Seed: 0x%lx\n",current_seed);
       InitializeSystem();
 
       if( ointerval < 0 && !(simulation_mode & SIMULATION_MODE_FLAG_PYTHON))
@@ -381,13 +361,6 @@ void SimulationSystem::SimulationLoop( void )
 
 void SimulationSystem::StartSimulation_First_Bimolecular( void )
 {
-  /* these are used for compiling statistics on the runs */
-  double completiontime;
-  int completiontype;
-  double forwardrate;
-  char *tag; // tracking stop state tag for output reasons
-
-  
   assert((simulation_mode & SIMULATION_MODE_FLAG_FIRST_BIMOLECULAR)  &&  (simulation_mode & SIMULATION_MODE_FLAG_PYTHON));
 
   InitializeRNG();
@@ -397,13 +370,7 @@ void SimulationSystem::StartSimulation_First_Bimolecular( void )
       setLongAttr( system_options, interface_current_seed, current_seed );
       InitializeSystem();
 
-      SimulationLoop_First_Bimolecular( &completiontime, &completiontype, &forwardrate, &tag );
-      if (tag != NULL )
-        setStringAttr( system_options, interface_current_tag, tag );
-
-      setLongAttr( system_options, interface_current_completion_type, completiontype );
-      
-      printStatusLine_First_Bimolecular(system_options, random_seed, completiontype, completiontime, forwardrate, tag );
+      SimulationLoop_First_Bimolecular();
       generateNextRandom();
       pingAttr( system_options, increment_trajectory_count );
       simulation_count_remaining--;
@@ -412,12 +379,11 @@ void SimulationSystem::StartSimulation_First_Bimolecular( void )
 
 
 
-void SimulationSystem::SimulationLoop_First_Bimolecular( double *completiontime, int *completiontype, double *frate, char **tag )
+void SimulationSystem::SimulationLoop_First_Bimolecular( void )
 {
-  double rchoice,rate,stime=0.0;
+  double rchoice,rate,stime=0.0, ctime=0.0;
   int curcount = 0;
   int checkresult = 0;
-  double ctime = 0.0;
 
   double maxsimtime;
   long stopcount;
@@ -428,6 +394,7 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( double *completiontime,
   long trajMode;
   double otime;
   double otime_interval;
+  double frate = 0.0;
 
   getLongAttr(system_options, trajectory_type,&trajMode);
   getLongAttr(system_options, output_interval,&ointerval);
@@ -436,16 +403,20 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( double *completiontime,
   getLongAttr(system_options, stop_count,&stopcount);
   getDoubleAttr(system_options, simulation_time,&maxsimtime);
   getDoubleAttr(system_options, output_time, &otime_interval );
-  //  long temp_r=0;
-  // double temp_deltat=0.0;
+
   complexList->initializeList();
 
   rate = complexList->getJoinFlux();
 
+  // scomplexlist returns a 0.0 rate if there was a single complex in
+  // the system, and a -1.0 rate if there are exactly 0 join moves. So
+  // the 0.0 rate should probably be caught, though if you use a
+  // single complex system for a starting state it's probably
+  // deserved.
+
   if ( rate < 0.0 )
     { // no initial moves
-      *completiontime = 0.0;
-      *completiontype = STOPRESULT_NOMOVES;
+      printStatusLine_First_Bimolecular( system_options, current_seed, STOPRESULT_NOMOVES, 0.0, 0.0, NULL );
       return;
     }
 
@@ -459,7 +430,17 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( double *completiontime,
 
   complexList->doJoinChoice( rchoice );
 
-  *frate = rate * dnaEnergyModel->getJoinRate_NoVolumeTerm() / dnaEnergyModel->getJoinRate() ; // store the forward rate used for the initial step.
+  // store the forward rate used for the initial step so we can record it.
+  frate = rate * dnaEnergyModel->getJoinRate_NoVolumeTerm() / dnaEnergyModel->getJoinRate() ; 
+
+  // rate is the total flux across all join moves - this is exactly equal to total_move_count *
+  // dnaEnergyModel->getJoinRate()
+
+  // This join rate is the dG_volume * bimolecular scaling constant
+  // used for forward transitions.  What we actually need is the
+  // bimolecular scaling constant * total move count. (dG volume is
+  // the volume dependent term that is not actually related to the
+  // 'collision' rate, but rather the volume we are simulating.
 
   if( ointerval >= 0 || otime_interval > 0.0 )
     {
@@ -467,15 +448,17 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( double *completiontime,
       printf("Current State: Choice: %6.4f, Time: %6.6e\n",rchoice, ctime);
     }
 
-  // if( sMode )
-  //   setDoubleAttr( system_options, interface_collision_rate, *frate );
- 
   // Begin normal steps.
   rate = complexList->getTotalFlux();
   do {
-
+    
     rchoice = rate * drand48();
-    stime += (log( 1. / (1.0 - drand48()) ) / rate ); // 1.0 - drand as drand returns in the [0.0, 1.0) range, we need a (0.0,1.0] range.
+    stime += (log( 1. / (1.0 - drand48()) ) / rate ); 
+    
+    // 1.0 - drand as drand returns in the [0.0, 1.0) range, 
+    //  we need a (0.0,1.0] range for this to be the correct
+    // distribution - log 1/U => U in (0.0,1.0] => 1/U => (+Inf,0.0] => 
+    //    natural log:   (log(+Inf), 1.0]
 
     if( !sMode && otime > 0.0 )
       {
@@ -488,8 +471,8 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( double *completiontime,
 
       }
 
-    if( sMode )
-      setDoubleAttr(system_options, interface_current_time, stime);
+    //    if( sMode )
+    //    setDoubleAttr(system_options, interface_current_time, stime);
       
 
     complexList->doBasicChoice( rchoice, stime );
@@ -519,7 +502,7 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( double *completiontime,
       }
     if( checkresult == 0 && sMode )
       {
-        // if external python interface has asked us to complete.
+        // if external python interface has asked us to pause.
         if( testBoolAttr(system_options, interface_suspend_flag) ) 
           {
             while( testBoolAttr(system_options, interface_suspend_flag) ) 
@@ -540,18 +523,13 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( double *completiontime,
   if( checkresult > 0 )
     {
       if( strcmp( traverse->tag, "REVERSE") == 0 )
-        *completiontype = STOPRESULT_REVERSE;
+        printStatusLine_First_Bimolecular( system_options, current_seed, STOPRESULT_REVERSE, stime, frate, traverse->tag );
       else 
-        {
-          *completiontype = STOPRESULT_FORWARD;
-        }
-      *tag = traverse->tag;
-      *completiontime = stime;
+        printStatusLine_First_Bimolecular( system_options, current_seed, STOPRESULT_FORWARD, stime, frate, traverse->tag );
     }
   else
     {
-      *completiontime = stime;
-      *completiontype = STOPRESULT_FTIME;
+      printStatusLine_First_Bimolecular( system_options, current_seed, STOPRESULT_FTIME, stime, frate, NULL );
     }
   if( ! sMode )
     printf("Trajectory Completed\n");
@@ -590,10 +568,6 @@ void SimulationSystem::InitializeSystem( void )
 
       sequence = getStringAttr(py_complex, sequence, py_seq);
       
-      //simulation_mode == SIMULATION_MODE_FIRST_BIMOLECULAR )
-      //      if ( boltzmann_sampling )
-      //        structure = getStringAttr(py_complex, boltzmann_structure, py_struc);
-      //      else
       // boltzmann sampling is not our problem - the options object
       // should be providing structures according to the boltzmann or
       // not as it decides, not our job now. :)
@@ -638,7 +612,6 @@ void SimulationSystem::InitializeRNG( void )
         {
           current_seed = time(NULL);
         }
-      //      current_seed = lrand48(); // grab a seed to use as initial seed.
     }
   // now initialize this generator using our random seed, so that we can reproduce as necessary.
   srand48( current_seed );

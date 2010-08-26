@@ -1,7 +1,7 @@
 // Compile with 
 // g++ -lpython2.6 -o embedding_test embedding_test.cc
 
-#include "../include/python_options.h"
+#include "python_options.h"
 #include <stdio.h>
 #include <string.h>
 

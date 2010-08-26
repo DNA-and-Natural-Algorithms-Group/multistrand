@@ -3,7 +3,7 @@
    Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
 */
 
-#include "../include/energymodel.h"
+#include "energymodel.h"
 
 
 EnergyModel::EnergyModel( PyObject *options )

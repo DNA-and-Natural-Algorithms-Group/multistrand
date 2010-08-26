@@ -1,7 +1,7 @@
 // Compile with 
 // g++ -g -lpython2.6 -o embedding_test2 optionlists.o embedding_test2.cc python_options.cc
 
-#include "../include/python_options.h"
+#include "python_options.h"
 #include <stdio.h>
 
 

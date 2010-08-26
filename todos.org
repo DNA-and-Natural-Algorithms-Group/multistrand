@@ -1,13 +1,16 @@
 * File / Directory TODO List
-** Filenames [76%]                                                     :Work:
-*** CURRENT [[file:python_options.py][python_options.py]] [0/1]
+** Filenames [80%]                                                     :Work:
+*** CURRENT [[file:python_options.py][python_options.py]] [0/3]
     Need to add in print functions / log file manipulation now.
     - State "CURRENT"    from "DONE"       [2010-08-22 Sun 17:53]
     Merged the rest of the changes for this file. Should be nearly the
     same as previous.
     CLOSED: [2010-08-22 Sun 09:04]
     - State "DONE"       from "PENDING"    [2010-08-22 Sun 09:04]
-**** TODO Files and printing functions.
+**** TODO File handling
+**** TODO Printing Functions
+     Broken into two parts - print macros are done on the c side now,
+     just needing support here via the push attrib.
 ***** code
 #+srcname: print_functions
 #+begin_src sh :exports results :results output
@@ -28,32 +31,7 @@
      CLOSED: [2010-08-21 Sat 16:31]
      - State "DONE"       from "TODO"       [2010-08-21 Sat 16:31]
 **** TODO [[file:python_options.cc::TODO%20check%20deallocation%20of%20new%20objects][dealloc issues for new objects?]]
-*** CURRENT [[file:include/python_options.h][python_options.h]] [1/4]
-    added stopcondition components so that ssystem.cc will compile.
-    - State "CURRENT"    from "PENDING"    [2010-08-21 Sat 15:44]
-**** TODO write debug versions of macros. [2/3]
-***** DONE Debug versions of all get/set/test macros
-      All macros have a debug version now, with a few exceptions: All
-      List references and list accessors are the caller's
-      responsibility to check whether the return value was
-      invalid. All string functions are also caller's responsibility.
-      CLOSED: [2010-08-23 Mon 13:50]
-      - State "DONE"       from "TODO"       [2010-08-23 Mon 13:50]
-***** TODO [[file:include/python_options.h::TODO%20no%20debug%20versions%20of%20these%20yet][Link ]]Debug versions of call macros
-***** DONE debug versions of static functions
-      Added debug versions for testLongAttr and newObject.
-      CLOSED: [2010-08-23 Mon 13:50]
-      - State "DONE"       from "TODO"       [2010-08-23 Mon 13:50]
-**** TODO [[file:include/python_options.h:138:][STOPCONDITION lines]]
-     See file.
-**** TODO check call macros for ref counting issues.
-**** DONE [[file:include/python_options.h::define%20m_printStatusLine%20obj%20a%20b%20c][print calls]]
-     Print calls filled in now, they're macro calls via attribute
-     pushes. Several of them removed as they're no longer needed.
-     CLOSED: [2010-08-24 Tue 04:12]
-     - State "DONE"       from "TODO"       [2010-08-24 Tue 04:12]
-     print calls are now all #defines, fill in data.
-*** LATER [#B] [[file:Makefile][Makefile]]    [2/4]
+*** LATER [#B] [[file:Makefile][Makefile]]    [3/5]
     - State "LATER"      from "CURRENT"    [2010-08-23 Mon 03:06] \\
       Currently usable, rest is managing dependencies and so
       on. Remaining features for later work. 
@@ -78,15 +56,21 @@
 : include/ssystem.h
 : include/strandordering.h
 **** PENDING [[file:Makefile::TODO][documentation]]
-**** More components for [[Makefile][Makefile]] TODO List [2/3]
-***** PENDING Update objects / sources / clean up other things. [1/2]
+**** DONE More components for [[Makefile][Makefile]] TODO List [3/3]
+     CLOSED: [2010-08-26 Thu 03:51]
+     - State "DONE"       from ""           [2010-08-26 Thu 03:51]
+***** DONE Update objects / sources / clean up other things. [2/2]
+      CLOSED: [2010-08-26 Thu 03:50]
+      - State "DONE"       from "PENDING"    [2010-08-26 Thu 03:50]
 ****** DONE Objects:
        Object files are collected nicely, and no longer get
        regenerated all the time. Clean, distclean, interface-clean all work.
        CLOSED: [2010-08-23 Mon 03:02]
        - State "DONE"       from "TODO"       [2010-08-23 Mon 03:02]
        
-****** TODO Sourcefiles:
+****** DONE Sourcefiles:
+       CLOSED: [2010-08-26 Thu 03:50]
+       - State "DONE"       from "TODO"       [2010-08-26 Thu 03:50]
        Most still need checking for includes of type "../include/",
        which is no longer needed.
 ***** DONE revisit the python_interface necessity for PYTHON_THREADS
@@ -114,7 +98,6 @@
      All works fine, python-interface works up to boost errors.
      CLOSED: [2010-08-22 Sun 08:13]
      - State "DONE"       from "TODO"       [2010-08-22 Sun 08:13]
-
 *** LATER [[file:outside_sources/re_generator.py][re_generator.py]]
     - State "LATER"      from "PENDING"    [2010-08-22 Sun 08:18] \\
       Utilities from other repos.
@@ -124,6 +107,45 @@
 *** LATER [[file:outside_sources/complecks_multistrand.py][complecks_multistrand.py]]
     - State "LATER"      from "PENDING"    [2010-08-22 Sun 08:19] \\
       Utilities from other repos.
+*** DONE [[file:include/python_options.h][python_options.h]] [4/4]
+    Most major issues finished.
+    CLOSED: [2010-08-26 Thu 03:47]
+    - State "DONE"       from "CURRENT"    [2010-08-26 Thu 03:47]
+    added stopcondition components so that ssystem.cc will compile.
+    - State "CURRENT"    from "PENDING"    [2010-08-21 Sat 15:44]
+**** DONE write debug versions of macros. [3/3]
+     CLOSED: [2010-08-26 Thu 03:45]
+     - State "DONE"       from "TODO"       [2010-08-26 Thu 03:45]
+***** DONE Debug versions of all get/set/test macros
+      All macros have a debug version now, with a few exceptions: All
+      List references and list accessors are the caller's
+      responsibility to check whether the return value was
+      invalid. All string functions are also caller's responsibility.
+      CLOSED: [2010-08-23 Mon 13:50]
+      - State "DONE"       from "TODO"       [2010-08-23 Mon 13:50]
+***** CANCELED [[file:include/python_options.h::TODO%20no%20debug%20versions%20of%20these%20yet][Link ]]Debug versions of call macros
+      CLOSED: [2010-08-26 Thu 03:44]
+      - State "CANCELED"   from "TODO"       [2010-08-26 Thu 03:45] \\
+        Removed all use of fn calls, can refer to history for base ideas later.
+***** DONE debug versions of static functions
+      Added debug versions for testLongAttr and newObject.
+      CLOSED: [2010-08-23 Mon 13:50]
+      - State "DONE"       from "TODO"       [2010-08-23 Mon 13:50]
+**** DONE [[file:include/python_options.h:138:][STOPCONDITION lines]]
+     Now stopresults.
+     CLOSED: [2010-08-26 Thu 03:47]
+     - State "DONE"       from "TODO"       [2010-08-26 Thu 03:47]
+     See file.
+**** CANCELED check call macros for ref counting issues.
+     CLOSED: [2010-08-26 Thu 03:45]
+     - State "CANCELED"   from "TODO"       [2010-08-26 Thu 03:46] \\
+       Call macros disabled for the moment.
+**** DONE [[file:include/python_options.h::define%20m_printStatusLine%20obj%20a%20b%20c][print calls]]
+     Print calls filled in now, they're macro calls via attribute
+     pushes. Several of them removed as they're no longer needed.
+     CLOSED: [2010-08-24 Tue 04:12]
+     - State "DONE"       from "TODO"       [2010-08-24 Tue 04:12]
+     print calls are now all #defines, fill in data.
 *** DONE [#C] [[file:include/options.h][options.h]]
     Removed to old sources directory.
     CLOSED: [2010-08-24 Tue 01:37]

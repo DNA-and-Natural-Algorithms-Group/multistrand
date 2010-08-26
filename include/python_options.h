@@ -90,13 +90,6 @@
 #define testBoolAttr(obj, name) _m_testLongAttr( obj, #name, "=", 1 )
 
 /* // Function calls */
-/* #define callFunc_NoArgsToNone(obj, name) PyObject_CallMethod(obj, #name, "()") */
-/* #define callFunc_NoArgsToLong(obj, name) PyInt_AS_LONG(PyObject_CallMethod(obj, #name, "()")) */
-/* #define callFunc_DoubleToNone(obj, name, arg) PyObject_CallMethod(obj, #name, "(f)", arg) */
-/* // Not currently used, but might be a good reference for later */
-/* #define callFunc_IntToNone(obj, name, arg) PyObject_CallObject(PyObject_GetAttrString(obj, #name), Py_BuildValue("(i)", arg)) */
-/* // these are refcounting insensitive at the moment. */
-/* #define callFunc_IntToString(obj, name, arg) PyString_AS_STRING(PyObject_CallObject(PyObject_GetAttrString(obj, #name), Py_BuildValue("(i)", arg))) */
 
 #define _m_pushList( obj, a, b ) \
   do {                                          \
