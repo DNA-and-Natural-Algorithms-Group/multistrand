@@ -498,7 +498,7 @@ class MultistrandOptions( object ):
         # Error checking first
         if self._start_state !=  []:
             raise Exception("Start state should only be set once.")
-        if len(args) == 0 or len(args[0]) == 0;
+        if len(args) == 0 or len(args[0]) == 0:
             raise ValueError("No start state given.")
         
         # deduce our input from the type of args[0].
