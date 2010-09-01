@@ -124,7 +124,6 @@ SimulationSystem::~SimulationSystem( void )
   if( dnaEnergyModel != NULL )
     delete dnaEnergyModel;
 #endif
-
 }
 
 
@@ -195,9 +194,9 @@ void SimulationSystem::StartSimulation( void )
 void SimulationSystem::StartSimulation_threads( void )
 {
   using namespace boost::python;
-  Py_BEGIN_ALLOW_THREADS
+  //Py_BEGIN_ALLOW_THREADS
     StartSimulation();
-  Py_END_ALLOW_THREADS
+  //Py_END_ALLOW_THREADS
     }
 #endif
 
@@ -252,13 +251,13 @@ void SimulationSystem::SimulationLoop( void )
 
         if( stopcount > 0 && stopoptions)
           {
-            curcount = 0;
             checkresult = 0;
-            while( curcount < stopcount && checkresult == 0 )
+            traverse = getStopComplexList( system_options, 0 );
+            checkresult = complexList->checkStopComplexList( traverse->citem );
+            while( traverse->next != NULL && checkresult == 0 )
               {
-                traverse = getStopComplexList( system_options, curcount );
+                traverse = traverse->next;
                 checkresult = complexList->checkStopComplexList( traverse->citem );
-                curcount++;
               }
           }
         if( checkresult == 0 && (sMode & SIMULATION_MODE_FLAG_PYTHON) )
@@ -325,12 +324,13 @@ void SimulationSystem::SimulationLoop( void )
       if( stopcount > 0 )
         {
           curcount = 0;
+          traverse = getStopComplexList( system_options, 0 );
           while( curcount < stopcount && stopindex < 0 )
             {
-              traverse = getStopComplexList( system_options, curcount );
               if( strstr( traverse->tag, "stop") != NULL )
                 stopindex = curcount;
               curcount++;
+              traverse = traverse->next;
             }
         }
 
@@ -348,11 +348,13 @@ void SimulationSystem::SimulationLoop( void )
           }
         if( stopcount > 0 )
           {
-            curcount = 0;
+            curcount = 1;
             checkresult = 0;
+            traverse = getStopComplexList( system_options, 0 );
+            checkresult = complexList->checkStopComplexList( traverse->citem );
             while( curcount < stopcount && checkresult == 0 )
               {
-                traverse = getStopComplexList( system_options, curcount );
+                traverse = traverse->next;
                 checkresult = complexList->checkStopComplexList( traverse->citem );
                 curcount++;
               }
@@ -375,6 +377,8 @@ void SimulationSystem::SimulationLoop( void )
       
       printf("Trajectory Completed\n");
     }
+  
+  delete traverse;
 }
 
 
@@ -477,14 +481,13 @@ void SimulationSystem::StartSimulation_First_Bimolecular( void )
 void SimulationSystem::SimulationLoop_First_Bimolecular( double *completiontime, int *completiontype, double *frate, char **tag )
 {
   double rchoice,rate,stime=0.0;
-  int curcount = 0;
   int checkresult = 0;
   double ctime = 0.0;
 
   double maxsimtime;
   long stopcount;
   long stopoptions;
-  class stopcomplexes *traverse;
+  class stopcomplexes *traverse = NULL, *first = NULL;
   long ointerval;
   int sMode = simulation_mode & SIMULATION_MODE_FLAG_PYTHON;
   long trajMode;
@@ -566,16 +569,21 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( double *completiontime,
         pingAttr( system_options, increment_output_state );
         
       }
-
+    if( first != NULL )
+      {
+        traverse = NULL;
+        delete first;
+      }
     if( stopcount > 0 && stopoptions)
       {
-        curcount = 0;
         checkresult = 0;
-        while( curcount < stopcount && checkresult == 0 )
+        first = getStopComplexList( system_options, 0 );
+        traverse = first;
+        checkresult = complexList->checkStopComplexList( traverse->citem );
+        while( traverse->next != NULL && checkresult == 0 )
           {
-            traverse = getStopComplexList( system_options, curcount );
+            traverse = traverse->next;
             checkresult = complexList->checkStopComplexList( traverse->citem );
-            curcount++;
           }
       }
     if( checkresult == 0 && sMode )
@@ -628,6 +636,9 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( double *completiontime,
     }
   if( ! sMode )
     printf("Trajectory Completed\n");
+  
+  //traverse = NULL;
+  //delete first;
 }
 
 
