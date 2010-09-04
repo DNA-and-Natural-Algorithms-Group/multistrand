@@ -1,8 +1,8 @@
 from python_objects import Domain, Strand, Complex, StopCondition, RestingState
 import python_options
 import multistrand
-from multiprocessing import Pool
-import cPickle
+#from multiprocessing import Pool
+#import cPickle
 import random
 
 
@@ -38,13 +38,13 @@ def run_trajectory():
   print "finished simsystem. now starting..."
   s.start()
   print "after call to start."
-  #print o.interface
+  print o.interface
   
-  tag, time, rate = o.interface.current_tag, o.interface.current_time, o.interface.collision_rate
+#  tag, time, rate = o.interface.current_tag, o.interface.current_time, o.interface.collision_rate
   del s
-  return tag, time, rate
+#  return tag, time, rate
 
-num_sims = 50
+num_sims =1
 
 #pool = Pool()
 #results = [pool.apply_async(run_trajectory, ()) for i in range(num_sims)]

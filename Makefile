@@ -37,18 +37,35 @@ INTERFACE_OBJECTS := $(INTERFACE_OBJECTS:%=$(OBJPATH)/interface/%)
 MULTISTRAND_INCLUDES := -I $(realpath ./include)
 
 PYTHON_INCLUDES 	  = -I /usr/include/python2.6
-
-ifeq ($(shell if [ -d /opt/local/include ]; then echo 0; fi),0)
-BOOST_INCLUDES 	      = -I /opt/local/include
+ifeq ($(shell if [ -n "$(which python2.6)" ]; then echo 0; fi),0)
+PYTHON_COMMAND        = python2.6
 else
-BOOST_INCLUDES=
+PYTHON_COMMAND        = python
 endif
+
+ifeq ($(shell if [ -n "$(which python2.6-dbg)" ]; then echo 0; fi),0)
+PYTHON_DEBUG_COMMAND  = python2.6-dbg
+else
+ifeq ($(shell if [ -n "$(which python-dbg)" ]; then echo 0; fi),0)
+PYTHON_DEBUG_COMMAND  = python-dbg
+else
+PYTHON_DEBUG_COMMAND  = python
+endif
+endif
+
+
+
+#ifeq ($(shell if [ -d /opt/local/include ]; then echo 0; fi),0)
+#BOOST_INCLUDES 	      = -I /opt/local/include
+#else
+#BOOST_INCLUDES=
+#endif
 # CHANGE THESE TWO TO REFLECT YOUR PATHS
 
 # flag blocks for C compilation
 CFLAGS_RELEASE = -O3
 CFLAGS_DEBUG   = -g -Wconversion -DDEBUG_MACROS -DDEBUG
-CFLAGS_INTERFACE  = -DPYTHON_THREADS
+CFLAGS_INTERFACE  = -DPYTHON_THREADS 
 
 CFLAGS := $(CFLAGS_RELEASE)
 INCLUDEPATHS = $(MULTISTRAND_INCLUDES) $(PYTHON_INCLUDES)
@@ -59,29 +76,30 @@ INCLUDEPATHS = $(MULTISTRAND_INCLUDES) $(PYTHON_INCLUDES)
 #hmm, it's not actually linking as if it were a lib, so need the full path here:
 
 # The following code sets up the library paths. Should probably be part of a separate function if needed for more than these two.
-ifeq ($(shell if [ -d /opt/local/lib ]; then echo 0; fi),0)
-BOOSTLIBPATH = /opt/local/lib
-else
-ifeq ($(shell if [ -d /usr/lib ]; then echo 0; fi),0)
-BOOSTLIBPATH = /usr/lib
-else
-$(warning Could not find a standard library path. Please make sure you have one in your path or the make will fail.)
-endif
-endif
-ifeq ($(shell if [ -f $(BOOSTLIBPATH)/libboost_python-mt.a ]; then echo 0; fi),0)
-BOOSTLIBNAME = libboost_python-mt.a
-else
-ifeq ($(shell if [ -f $(BOOSTLIBPATH)/libboost_python-mt.so ]; then echo 0; fi),0)
-BOOSTLIBNAME = libboost_python-mt.so
-else
-$(warning Could not find a libboost_python-mt[.a]|[.so] in a normal spot. Please make sure it is in your path or this will likely fail.
-endif
-endif
-BOOSTLIB := $(BOOSTLIBPATH)/$(BOOSTLIBNAME)
+# ifeq ($(shell if [ -d /opt/local/lib ]; then echo 0; fi),0)
+# BOOSTLIBPATH = /opt/local/lib
+# else
+# ifeq ($(shell if [ -d /usr/lib ]; then echo 0; fi),0)
+# BOOSTLIBPATH = /usr/lib
+# else
+# $(warning Could not find a standard library path. Please make sure you have one in your path or the make will fail.)
+# endif
+# endif
+# ifeq ($(shell if [ -f $(BOOSTLIBPATH)/libboost_python-mt.a ]; then echo 0; fi),0)
+# BOOSTLIBNAME = libboost_python-mt.a
+# else
+# ifeq ($(shell if [ -f $(BOOSTLIBPATH)/libboost_python-mt.so ]; then echo 0; fi),0)
+# BOOSTLIBNAME = libboost_python-mt.so
+# else
+# $(warning Could not find a libboost_python-mt[.a]|[.so] in a normal spot. Please make sure it is in your path or this will likely fail.
+# endif
+# endif
+# BOOSTLIB := $(BOOSTLIBPATH)/$(BOOSTLIBNAME)
 
-
-LIBRARIES= -L$(BOOSTLIBPATH) $(LIBRARYPATHS) -lpython2.6
-LIB_INTERFACE = -shared $(BOOSTLIB)
+#LIBRARIES= -L$(BOOSTLIBPATH) $(LIBRARYPATHS) -lpython2.6
+LIBRARIES= $(LIBRARYPATHS) -lpython2.6
+LIB_INTERFACE = -shared 
+#$(BOOSTLIB)
 
 CC = g++
 COMPILE = $(CC) $(CFLAGS) $(INCLUDEPATHS)
@@ -152,17 +170,21 @@ Multistrand-internal: dircheck Multistrand
 
 $(INTERFACE_OBJECTS): OBJPATH := obj/python
 $(INTERFACE_OBJECTS): obj/interface/%.o: %.cc $(INCLUDES)
-	$(COMPILE) -c $< -o $@
+	$(COMPILE) $(CFLAGS_INTERFACE) -c $< -o $@
 # note that $< is name of 1st prereq, e.g. the .cc for which this is the .o
 
 $(OBJPATH)/%.o: %.cc $(INCLUDES)
 	$(COMPILE) $< -c -o $@
 
 
-interface: INCLUDEPATHS := $(INCLUDEPATHS) $(BOOST_INCLUDES)
+#interface: INCLUDEPATHS := $(INCLUDEPATHS) $(BOOST_INCLUDES)
+interface: INCLUDEPATHS := $(INCLUDEPATHS)
 interface: dircheck-interface $(INTERFACE_OBJECTS)
 	-rm -f multistrand.so
-	$(LINK) $(CFLAGS_INTERFACE) $(filter-out dircheck-interface,$^) -o multistrand.so $(LIB_INTERFACE)
+
+#old link command [boost version]: 
+#$(LINK) $(CFLAGS_INTERFACE) $(filter-out dircheck-interface,$^) -o multistrand.so $(LIB_INTERFACE)
+#the above link command uses python and distutils to build the multistrand.so file.
 
 
 
