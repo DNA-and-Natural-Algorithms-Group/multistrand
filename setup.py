@@ -8,30 +8,45 @@
 #
 #
 
+sources = ["interface/multistrand_module.cc",
+           "interface/optionlists.cc",
+           "interface/options.cc",
+           "loop/move.cc",
+           "loop/loop.cc",
+           "energymodel/nupackenergymodel.cc",
+           "energymodel/energymodel.cc",
+           "state/scomplex.cc",
+           "state/scomplexlist.cc",
+           "system/ssystem.cc",
+           "state/strandordering.cc",
+           "energymodel/viennaenergymodel.cc"
+           ]
 
 # setup.py for multistrand module.
 from distutils.core import setup, Extension
 
-multi_ext = Extension("multistrand.system",
-                      sources=["interface/multistrand_module.cc",
-                               "loop/move.cc",
-                               "loop/loop.cc",
-                               "energymodel/nupackenergymodel.cc",
-                               "energymodel/energymodel.cc",
-                               "state/scomplex.cc",
-                               "state/scomplexlist.cc",
-                               "system/ssystem.cc",
-                               "state/strandordering.cc",
-                               "energymodel/viennaenergymodel.cc",
-                               "optionlists.cc",
-                               "python_options.cc"
-                               ],
+import sys
+if '--debug' in sys.argv:
+    multi_ext = Extension("multistrand.system",
+                      sources=sources,
                       include_dirs=["./include"],
                       language="c++",
                       define_macros=[('DEBUG',None),
-                                     ('DEBUG_MACROS',None)],
+                                     ('DEBUG_MACROS',None),
+                                     ('Py_TRACE_REFS',None)],
                       undef_macros=['NDEBUG'],
-                      extra_compile_args = ['-w'],
+#This is 'disable all warnings compiler flag' [possibly shouldn't be used for debug version]:
+                      extra_compile_args = ['-w'],  
+                      )
+
+else:
+    multi_ext = Extension("multistrand.system",
+                      sources=sources,
+                      include_dirs=["./include"],
+                      language="c++",
+                      define_macros=[('NDEBUG',None)],
+                      undef_macros=['DEBUG', 'DEBUG_MACROS'],
+                      extra_compile_args = ['-w'],   #This is 'disable all warnings compiler flag'
                       )
 
 setup(name="multistrand", version="1.0",

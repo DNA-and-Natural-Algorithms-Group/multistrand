@@ -178,20 +178,20 @@ static PyTypeObject SimSystem_Type = {
   /* 0,                              /\* tp_is_gc *\/ */
 };
 
-static PyMethodDef Multistrand_methods[] = {
+static PyMethodDef System_methods[] = {
   {NULL}  /*Sentinel*/
 };
 
 
 PyMODINIT_FUNC
-initmultistrand(void)
+initsystem(void)
 {
   PyObject *m;
   /* Finalize the simulation system object type */
   if ( PyType_Ready(&SimSystem_Type) < 0)
     return;
 
-  m = Py_InitModule3("multistrand", Multistrand_methods, "Base module for holding Multistrand objects.");
+  m = Py_InitModule3("system", System_methods, "Base module for holding System objects.");
   if (m == NULL )
     return;
 

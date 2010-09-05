@@ -1,6 +1,19 @@
-from python_objects import Domain, Strand, Complex, StopCondition, RestingState
-import python_options
-import multistrand
+###
+### Note the changed stuff below to add the 'multistrand' package.
+### If you run this file from a path other than the one it's located in, it may not
+### be able to find the package correctly.
+###
+
+# fix relative paths so we can import multistrand package.
+import os.path
+import sys
+
+sys.path.append(os.path.realpath('../../'))
+
+from multistrand.objects import Domain, Strand, Complex, StopCondition, RestingState
+from multistrand.options import Options
+from multistrand.system  import SimSystem
+
 #from multiprocessing import Pool
 #import cPickle
 import random
@@ -19,7 +32,7 @@ def run_trajectory():
   sc_rev = StopCondition(rev_tag, [(c1, 2, 0), (c2, 2, 0)])
   for_tag = "END"
   sc_for = StopCondition(for_tag, [(c3, 4, 6)])
-  o = python_options.MultistrandOptions()
+  o = Options()
   o.simulation_mode = 3
   o.use_stop_states = True
   o.parameter_type  = 1
@@ -34,7 +47,7 @@ def run_trajectory():
   #o = cPickle.load(open("../KinD/temp_options___1"))
   o.initial_seed = random.SystemRandom().randrange(-2147483648, 2147483647)
   print "finished options. creating simsystem..."
-  s = multistrand.SimSystem(o)
+  s = SimSystem(o)
   print "finished simsystem. now starting..."
   s.start()
   print "after call to start."

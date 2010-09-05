@@ -113,12 +113,12 @@
     if( _m_attr == NULL && PyErr_Occurred() != NULL)                \
       _m_printPyError_withLineNumber();                              \
     else if (_m_attr == NULL )                                      \
-      fprintf(stderr,"WARNING: _m_getAttr_DECREF: No error occurred,\
+      fprintf(stderr,"WARNING: _m_d_getAttr_DECREF: No error occurred,\
  but the returned pointer was still NULL!\n"); \
     else                                                            \
       {                                                             \
         if( !Py##py_type##_Check( _m_attr ) )\
-          fprintf(stderr,"WARNING: _m_getAttr_DECREF: The value returned by attribute '%s' was not the expected type!\n", name); \
+          fprintf(stderr,"WARNING: _m_d_getAttr_DECREF: The value returned by attribute '%s' was not the expected type!\n", name); \
         else                                                            \
           *(c_type_name *)(pvar) = Py##py_type##_AS_##py_c_type(_m_attr);                       \
         Py_DECREF(_m_attr);                                             \
@@ -131,7 +131,7 @@
     if( val == NULL && PyErr_Occurred() != NULL)                    \
       _m_printPyError_withLineNumber();                              \
     else if (val == NULL )                                          \
-      fprintf(stderr,"WARNING: _m_setAttr_DECREF: No error occurred,\
+      fprintf(stderr,"WARNING: _m_d_setAttr_DECREF: No error occurred,\
  but the returned pointer was still NULL!\n"); \
     else                                                            \
       {                                                             \

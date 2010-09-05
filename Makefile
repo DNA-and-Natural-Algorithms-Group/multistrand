@@ -6,6 +6,10 @@
 
 # A useful line for debugging dependencies:
 #    @echo Rule expansion: $@ is target, [$?] deps newer, all: [$^].
+#
+# Note that all python build deps and so on are handled by python's distutils now, this 
+#  Makefile just invokes it correctly and places the .o / built version in known locations.
+# 
 
 vpath %.h include
 INCLUDES = energymodel.h loop.h move.h optionlists.h options.h python_options.h scomplex.h scomplexlist.h ssystem.h strandordering.h
@@ -15,91 +19,84 @@ SOURCES_ENERGYMODEL = energymodel.cc nupackenergymodel.cc viennaenergymodel.cc
 SOURCES_STATE = scomplex.cc scomplexlist.cc strandordering.cc
 SOURCES_SYSTEM = ssystem.cc
 SOURCES_OPTIONS = optionlists.cc python_options.cc
-SOURCES_TESTING = embedding_test.cc embedding_test2.cc testingmain.cc
+SOURCES_TESTING = testingmain.cc
 
 SOURCES = $(SOURCES_LOOP) $(SOURCES_ENERGYMODEL) $(SOURCES_STATE) $(SOURCES_SYSTEM) $(SOURCES_OPTIONS) $(SOURCES_TESTING)
 
 # separate the objects to make it a bit easier on ourselves when compiling targets
-#  for the python library interface.
+#  for the python library package.
 
 VPATH=loop state system energymodel include interface
 
 MAIN_OBJECT = testingmain.o
 OBJECTS = loop.o scomplex.o energymodel.o viennaenergymodel.o nupackenergymodel.o move.o ssystem.o scomplexlist.o strandordering.o python_options.o optionlists.o
-INTERFACE_OBJECTS := boost_interface.o $(OBJECTS)
+
 
 OBJPATH=obj
 OBJECTS := $(OBJECTS:%=$(OBJPATH)/%)
 MAIN_OBJECT := $(MAIN_OBJECT:%=$(OBJPATH)/%)
-INTERFACE_OBJECTS := $(INTERFACE_OBJECTS:%=$(OBJPATH)/interface/%)
-
 
 MULTISTRAND_INCLUDES := -I $(realpath ./include)
 
 PYTHON_INCLUDES 	  = -I /usr/include/python2.6
-ifeq ($(shell if [ -n "$(which python2.6)" ]; then echo 0; fi),0)
-PYTHON_COMMAND        = python2.6
-else
-PYTHON_COMMAND        = python
+
+## utility function for searching a path: 
+## [main idea via the make info manual] 
+## 1st param is file to search for, 2nd is space separated list
+##  of paths (e.g. PATH environment variable with :'s changed to spaces)
+## Works by clever use of the wildcard function's expansion to
+## all matching files. addsuffix adds it to each path, so wildcard checks
+## all the combinations and firstword is the one [in standard PATH precedence]
+## that'd take priority, if it exists.
+
+any_path_search = $(firstword $(wildcard $(addsuffix /$(1), $(2))))
+path_search = $(call any_path_search,$(1),$(subst :, ,$(PATH)))
+
+## use via, eg PYTHON := $(call path_search,python)
+## or          PYTHON := $(call any_path_search,/opt/local/bin /usr/bin)
+
+find_executable = $(strip $(firstword $(foreach file,$(1),$(call path_search,$(file)))))
+
+## The next two blocks try to work out either a usable python version
+## or if it can't find that it will just use your base python version.
+##
+## The debug symbols compiled version it tries some default names,
+## which should be in the path. If you have a differently named version,
+## or one that's not in the path, consider sym linking it in ~/bin or some
+## other location in your path. E.g., I did the following:
+##
+## ln -s ~/Python2.6_debug/bin/python2.6 ~/bin/python2.6-dbg
+## 
+## Which places it in my path and with one of the searched-for names.
+## If there's a better 'default' set of names for the debug version,
+## we can add it to the list checked.
+##
+PYTHON_NAMES       := python
+PYTHON_DEBUG_NAMES := python2.6-dbg python-dbg
+PYTHON_COMMAND = $(call find_executable,$(PYTHON_NAMES))
+PYTHON_DEBUG_COMMAND = $(call find_executable,$(PYTHON_DEBUG_NAMES) $(PYTHON_NAMES))
+
+ifeq ($(PYTHON_COMMAND),)
+$(error Could not find any python executable in your PATH.)
 endif
 
-ifeq ($(shell if [ -n "$(which python2.6-dbg)" ]; then echo 0; fi),0)
-PYTHON_DEBUG_COMMAND  = python2.6-dbg
-else
-ifeq ($(shell if [ -n "$(which python-dbg)" ]; then echo 0; fi),0)
-PYTHON_DEBUG_COMMAND  = python-dbg
-else
-PYTHON_DEBUG_COMMAND  = python
+ifeq ($(call find_executable,$(PYTHON_DEBUG_NAMES)),)
+$(warning Could not find a debugging python executable in your PATH. Compiling the extension module with a standard python executable.)
 endif
-endif
-
-
-
-#ifeq ($(shell if [ -d /opt/local/include ]; then echo 0; fi),0)
-#BOOST_INCLUDES 	      = -I /opt/local/include
-#else
-#BOOST_INCLUDES=
-#endif
-# CHANGE THESE TWO TO REFLECT YOUR PATHS
 
 # flag blocks for C compilation
 CFLAGS_RELEASE = -O3
 CFLAGS_DEBUG   = -g -Wconversion -DDEBUG_MACROS -DDEBUG
-CFLAGS_INTERFACE  = -DPYTHON_THREADS 
+#CFLAGS_INTERFACE  = -DPYTHON_THREADS 
 
 CFLAGS := $(CFLAGS_RELEASE)
 INCLUDEPATHS = $(MULTISTRAND_INCLUDES) $(PYTHON_INCLUDES)
 
-
-
-
-#hmm, it's not actually linking as if it were a lib, so need the full path here:
-
-# The following code sets up the library paths. Should probably be part of a separate function if needed for more than these two.
-# ifeq ($(shell if [ -d /opt/local/lib ]; then echo 0; fi),0)
-# BOOSTLIBPATH = /opt/local/lib
-# else
-# ifeq ($(shell if [ -d /usr/lib ]; then echo 0; fi),0)
-# BOOSTLIBPATH = /usr/lib
-# else
-# $(warning Could not find a standard library path. Please make sure you have one in your path or the make will fail.)
-# endif
-# endif
-# ifeq ($(shell if [ -f $(BOOSTLIBPATH)/libboost_python-mt.a ]; then echo 0; fi),0)
-# BOOSTLIBNAME = libboost_python-mt.a
-# else
-# ifeq ($(shell if [ -f $(BOOSTLIBPATH)/libboost_python-mt.so ]; then echo 0; fi),0)
-# BOOSTLIBNAME = libboost_python-mt.so
-# else
-# $(warning Could not find a libboost_python-mt[.a]|[.so] in a normal spot. Please make sure it is in your path or this will likely fail.
-# endif
-# endif
-# BOOSTLIB := $(BOOSTLIBPATH)/$(BOOSTLIBNAME)
-
-#LIBRARIES= -L$(BOOSTLIBPATH) $(LIBRARYPATHS) -lpython2.6
 LIBRARIES= $(LIBRARYPATHS) -lpython2.6
-LIB_INTERFACE = -shared 
-#$(BOOSTLIB)
+
+# note that LIB_INTERFACE stuff is now all handled by python's distutils, we don't need to
+# worry about any boost stuff, etc.
+#LIB_INTERFACE = -shared $(BOOSTLIB)
 
 CC = g++
 COMPILE = $(CC) $(CFLAGS) $(INCLUDEPATHS)
@@ -109,16 +106,16 @@ LINK = $(CC) $(CFLAGS) $(LIBRARIES)
 
 all: Multistrand-internal
 
-.PHONY: all interface
+.PHONY: all package
 # primary targets
 
-.PHONY: debug interface-debug
+.PHONY: debug package-debug
 # debug targets
 
-.PHONY: clean interface-clean distclean
+.PHONY: clean package-clean package-debug-clean distclean
 # cleaning targets
 
-.PHONY: dircheck dircheck-interface Multistrand-internal 
+.PHONY: dircheck Multistrand-internal 
 # utilities
 
 # .PHONE: These rules MUST run their commands.  
@@ -139,62 +136,59 @@ clean:
 	-rm -f $(OBJECTS)
 	-rm -f $(MAIN_OBJECT)
 
-interface-clean:
+package-clean:
 	@echo Cleaning up old object files, shared libraries.
-	-rm -f $(INTERFACE_OBJECTS)
-	-rm -f multistrand.so
+	$(PYTHON_COMMAND) setup.py clean -b ./ -t obj/package/ --build-lib ./
+# NOTE: DO NOT USE --all IN THE ABOVE COMMAND! Perhaps later if we build binaries to ./bin
+# and libraries to ./lib it'll be possible, but right now that may
+# delete your distribution.
+	-rm -rf multistrand/
 
-distclean: interface-clean clean
+package-debug-clean:
+	@echo Cleaning up old object files, shared libraries.
+	$(PYTHON_DEBUG_COMMAND) setup.py clean -b ./ -t obj/package_debug/ --build-lib ./
+# NOTE: DO NOT USE --all IN THE ABOVE COMMAND! Perhaps later if we build binaries to ./bin
+# and libraries to ./lib it'll be possible, but right now that may
+# delete your distribution.
+	-rm -rf multistrand/
+
+distclean: package-clean package-debug-clean clean
 	@echo Removing object file directories.
-	-rmdir obj/interface/
+	-rmdir obj/package_debug/
+	-rmdir obj/package/
 	-rmdir obj/
+
+# Package build targets
+package:
+	@echo Building the 'multistrand' Python package.
+	@if [ -d obj/package_debug/ ]; then $(MAKE) package-debug-clean; fi
+	$(PYTHON_COMMAND) setup.py build -b ./ -t obj/package/ --build-lib ./
+	@echo Package is now [hopefully] built, you can import it via "import multistrand" if the current directory is in your sys.path. In the future you may be able to run 'make install' to have it installed in your Python site packages.
+
+package-debug:
+	@echo Building the 'multistrand' Python package, with debugging symbols enabled.
+	@if [ -d obj/package/ ]; then $(MAKE) package-clean; fi
+	$(PYTHON_DEBUG_COMMAND) setup.py build -b ./ -t obj/package_debug/ --build-lib ./ --debug
+	@echo Package is now [hopefully] built, you can import it via "import multistrand" if the current directory is in your sys.path. In the future you may be able to run 'make install' to have it installed in your Python site packages.
 
 # targets for setting up debugging flags.
 
 debug: CFLAGS := $(CFLAGS_DEBUG) 
 debug: clean Multistrand
 
-interface-debug: CFLAGS := $(CFLAGS_DEBUG)
-interface-debug: interface-clean interface
-
 # utilities targets
-dircheck-interface: dircheck
-	@if [ ! -d obj/interface ]; then mkdir obj/interface; echo Creating obj/interface/; fi
-
 dircheck:
 	@if [ ! -d obj ]; then mkdir obj; echo Creating obj/; fi
 
 Multistrand-internal: dircheck Multistrand
 
 # How to build the object files.
-
-$(INTERFACE_OBJECTS): OBJPATH := obj/python
-$(INTERFACE_OBJECTS): obj/interface/%.o: %.cc $(INCLUDES)
-	$(COMPILE) $(CFLAGS_INTERFACE) -c $< -o $@
-# note that $< is name of 1st prereq, e.g. the .cc for which this is the .o
-
 $(OBJPATH)/%.o: %.cc $(INCLUDES)
 	$(COMPILE) $< -c -o $@
-
-
-#interface: INCLUDEPATHS := $(INCLUDEPATHS) $(BOOST_INCLUDES)
-interface: INCLUDEPATHS := $(INCLUDEPATHS)
-interface: dircheck-interface $(INTERFACE_OBJECTS)
-	-rm -f multistrand.so
-
-#old link command [boost version]: 
-#$(LINK) $(CFLAGS_INTERFACE) $(filter-out dircheck-interface,$^) -o multistrand.so $(LIB_INTERFACE)
-#the above link command uses python and distutils to build the multistrand.so file.
-
-
-
 
 Multistrand: $(MAIN_OBJECT) $(OBJECTS)
 	rm -f Multistrand
 	$(LINK) $(CFLAGS) $(LIBRARIES) $(filter-out dircheck,$^) -o Multistrand
-
-# old used: $(patsubst %,$(OBJPATH)/%,$(filter-out dircheck,$(^F))) 
-#	@echo Rule expansion: $@ is target, [$?] deps newer, all: [$^].
 
 # Indirectly more also depend on loop.h via headers: scomplex.h
 # ssystem.h strandordering.h should generate these directly via a
@@ -202,14 +196,3 @@ Multistrand: $(MAIN_OBJECT) $(OBJECTS)
 # [[id:38BF8831-172D-4BC3-8B7A-D6B2EA95FE22][Code]]
 #
 # This is true of several others as well.
-
-# this block currently does not work as it uses the wrong .o names.
-# scomplex.o loop.o viennaenergymodel.o nupackenergymodel.o energymodel.o: energymodel.h
-# loop.o move.o scomplex.o: loop.h move.h
-# scomplex.o ssystem.o scomplexlist.o strandordering.o: scomplex.h optionlists.h
-# scomplex.o strandordering.o: strandordering.h
-# ssystem.o testingmain.o: ssystem.h
-# scomplexlist.o ssystem.o: scomplexlist.h
-
-
-
