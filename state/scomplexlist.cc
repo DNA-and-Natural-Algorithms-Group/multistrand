@@ -267,16 +267,16 @@ void SComplexList::doBasicChoice( double choice, double newtime )
   while( temp != NULL )
     {
       if( rchoice < temp->rate && pickedComplex == NULL)
-	{
-	  pickedComplex = temp->thisComplex;
-	  temp2 = temp;
-	}
+        {
+          pickedComplex = temp->thisComplex;
+          temp2 = temp;
+        }
       if( pickedComplex == NULL )
-	{
-	  //	  assert( rchoice != temp->rate && temp->next == NULL);
-	  rchoice -= temp->rate;
+        {
+          //	  assert( rchoice != temp->rate && temp->next == NULL);
+          rchoice -= temp->rate;
 	
-	}
+        }
       temp = temp->next;
     }
 

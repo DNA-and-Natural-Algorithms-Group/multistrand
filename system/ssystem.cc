@@ -10,15 +10,10 @@
 #include <time.h>
 #include <stdlib.h>
 
-//#include <math.h>
-//#include <assert.h>
-//#include <unistd.h>
-
-
-#ifndef PYTHON_THREADS
 SimulationSystem::SimulationSystem( int argc, char **argv )
 {
-  assert(0);  // entire function is fail now.
+  return;
+  // entire function is FAIL. Needs replacing.
   
   // FILE *fp = NULL;
   // if( GlobalOptions == NULL )
@@ -85,8 +80,6 @@ SimulationSystem::SimulationSystem( int argc, char **argv )
 
   // getBoolAttr( system_options, boltzmann_sample, &boltzmann_sampling );
 }
-#endif
-// end #ifndef PYTHON_THREADS - we do not want to have this constructor as it uses yyparse.
 
 SimulationSystem::SimulationSystem( PyObject *system_o )
 {
@@ -110,26 +103,21 @@ SimulationSystem::SimulationSystem( PyObject *system_o )
     }
   
   startState = NULL;
-  complexList = NULL; // new SComplexList( dnaEnergyModel );
-  
-  //  system_options->finalizeInput();
-  //  getBoolAttr( system_options, boltzmann_sample, &boltzmann_sampling );
+  complexList = NULL; 
 }
 
 SimulationSystem::~SimulationSystem( void )
 {
   if( complexList != NULL )
-    delete complexList;
-#ifndef PYTHON_THREADS
-  if( dnaEnergyModel != NULL )
-    delete dnaEnergyModel;
-#endif
+    delete complexList;  
+  complexList = NULL;
+
+  // the remaining members are not our responsibility, we null them out
+  // just in case something thread-unsafe happens.
+  dnaEnergyModel = NULL;
+  system_options = NULL;
+  startState = NULL;
 }
-
-
-//#define SRANDOMDEV
-// uncomment above line if you have srandomdev() available for better
-// random number generation. 
 
 void SimulationSystem::StartSimulation( void )
 {
@@ -139,18 +127,9 @@ void SimulationSystem::StartSimulation( void )
 
   getLongAttr(system_options, output_interval,&ointerval);
 
-  //#ifndef SRANDOMDEV
-  //  srandom( time( NULL) );
-
   if( simulation_mode & SIMULATION_MODE_FLAG_PYTHON )
     {
       pingAttr( system_options, interface_reset_completion_flag );
-      // replaces: 
-      //   callFunc_NoArgsToNone(system_options, reset_completed_python);
-      // by making reset_completion_flag be a @property descriptor on options object.
-      
-      // no longer needed: reset_completion_flag clears the rate value.
-      //callFunc_DoubleToNone(system_options, set_python_collision_rate, -1.0);
     }
 
   if( simulation_mode & SIMULATION_MODE_ENERGY_ONLY) // need energy only.
@@ -171,8 +150,6 @@ void SimulationSystem::StartSimulation( void )
 
   while( simulation_count_remaining > 0)
     {
-      // if( ointerval < 0 && !(simulation_mode & SIMULATION_MODE_FLAG_PYTHON))
-      //   printf("Seed: 0x%lx\n",current_seed);
       InitializeSystem();
 
       if( ointerval < 0 && !(simulation_mode & SIMULATION_MODE_FLAG_PYTHON))
@@ -190,30 +167,19 @@ void SimulationSystem::StartSimulation( void )
     }
 }
 
-#ifdef PYTHON_THREADS
-void SimulationSystem::StartSimulation_threads( void )
-{
-  using namespace boost::python;
-  //Py_BEGIN_ALLOW_THREADS
-    StartSimulation();
-  //Py_END_ALLOW_THREADS
-    }
-#endif
-
-
 void SimulationSystem::SimulationLoop( void )
 {
-  double rchoice,rate,stime=0.0;
-  class stopcomplexes *traverse;
-  int curcount = 0;
-  int checkresult = 0;
-  double ctime = 0.0;
-  double maxsimtime;
-  long stopcount;
-  long stopoptions;
-  long ointerval;
-  long sMode;
-  double otime;
+  double rchoice,rate,stime,ctime;
+  // Could really use some commenting on these local vars.
+  rchoice = rate = stime = ctime = 0.0;
+
+  double maxsimtime, otime;
+  maxsimtime = otime = -1.0;
+  
+  int curcount = 0, checkresult = 0;
+  long stopcount = 0, stopoptions = 0, sMode = 0;
+  long ointerval = -1;
+  class stopcomplexes *traverse = NULL;
 
   getLongAttr(system_options, simulation_mode,&sMode); 
   getLongAttr(system_options, output_interval,&ointerval);

@@ -71,7 +71,7 @@ find_executable = $(strip $(firstword $(foreach file,$(1),$(call path_search,$(f
 ## If there's a better 'default' set of names for the debug version,
 ## we can add it to the list checked.
 ##
-PYTHON_NAMES       := python
+PYTHON_NAMES       := python2.6 python
 PYTHON_DEBUG_NAMES := python2.6-dbg python-dbg
 PYTHON_COMMAND = $(call find_executable,$(PYTHON_NAMES))
 PYTHON_DEBUG_COMMAND = $(call find_executable,$(PYTHON_DEBUG_NAMES) $(PYTHON_NAMES))
@@ -162,13 +162,13 @@ distclean: package-clean package-debug-clean clean
 package:
 	@echo Building the 'multistrand' Python package.
 	@if [ -d obj/package_debug/ ]; then $(MAKE) package-debug-clean; fi
-	$(PYTHON_COMMAND) setup.py build -b ./ -t obj/package/ --build-lib ./
+	$(PYTHON_COMMAND) setup.py build -b ./ -t obj/package/ --build-lib ./ --debug
 	@echo Package is now [hopefully] built, you can import it via "import multistrand" if the current directory is in your sys.path. In the future you may be able to run 'make install' to have it installed in your Python site packages.
 
 package-debug:
 	@echo Building the 'multistrand' Python package, with debugging symbols enabled.
 	@if [ -d obj/package/ ]; then $(MAKE) package-clean; fi
-	$(PYTHON_DEBUG_COMMAND) setup.py build -b ./ -t obj/package_debug/ --build-lib ./ --debug
+	$(PYTHON_DEBUG_COMMAND) setup.py build -b ./ -t obj/package_debug/ --build-lib ./ --debug --use-debug-defs
 	@echo Package is now [hopefully] built, you can import it via "import multistrand" if the current directory is in your sys.path. In the future you may be able to run 'make install' to have it installed in your Python site packages.
 
 # targets for setting up debugging flags.

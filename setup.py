@@ -26,7 +26,8 @@ sources = ["interface/multistrand_module.cc",
 from distutils.core import setup, Extension
 
 import sys
-if '--debug' in sys.argv:
+if '--use-debug-defs' in sys.argv:
+    sys.argv.remove('--use-debug-defs')
     multi_ext = Extension("multistrand.system",
                       sources=sources,
                       include_dirs=["./include"],
@@ -36,17 +37,22 @@ if '--debug' in sys.argv:
                                      ('Py_TRACE_REFS',None)],
                       undef_macros=['NDEBUG'],
 #This is 'disable all warnings compiler flag' [possibly shouldn't be used for debug version]:
-                      extra_compile_args = ['-w'],  
+                      extra_compile_args = ['-Wno-strict-prototypes','-w','-g','-O0'],  
                       )
 
 else:
     multi_ext = Extension("multistrand.system",
-                      sources=sources,
-                      include_dirs=["./include"],
-                      language="c++",
-                      define_macros=[('NDEBUG',None)],
-                      undef_macros=['DEBUG', 'DEBUG_MACROS'],
-                      extra_compile_args = ['-w'],   #This is 'disable all warnings compiler flag'
+                          sources=sources,
+                          include_dirs=["./include"],
+                          language="c++",
+#                          define_macros=[('DEBUG',None),
+#                                         ('DEBUG_MACROS',None)],
+#                                         ('Py_TRACE_REFS',None)],
+                          undef_macros=['NDEBUG'],
+#                          define_macros=[('NDEBUG',None)],
+#                          undef_macros=['DEBUG', 'DEBUG_MACROS'],
+                          extra_compile_args = ['-O3','-g', '-w']
+#                          ['-Wno-strict-prototypes','-w','-O0','-v','-fcommon', '-fno-wrapv'],   #This is 'disable all warnings compiler flag'
                       )
 
 setup(name="multistrand", version="1.0",

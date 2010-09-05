@@ -45,7 +45,8 @@ def run_trajectory():
   #o.start_state = [RestingState("1", [c1]), RestingState("2", [c2])]
   o.stop_conditions = [sc_rev, sc_for]
   #o = cPickle.load(open("../KinD/temp_options___1"))
-  o.initial_seed = random.SystemRandom().randrange(-2147483648, 2147483647)
+  #  o.initial_seed = random.SystemRandom().randrange(-2147483648, 2147483647)
+  o.initial_seed = 610169752
   print "finished options. creating simsystem..."
   s = SimSystem(o)
   print "finished simsystem. now starting..."
