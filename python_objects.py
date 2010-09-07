@@ -57,10 +57,7 @@ class Complex(object):
     os.remove("%s/%s.in" % (cwd, prefix))
     os.remove("%s/%s.sample" % (cwd, prefix))
     
-    sampled_structure = line.strip()
-    if len(self.structure) != len(sampled_structure):
-      print "Fixed:   %s\nSampled: %s\n" % (self.structure, sampled_structure)
-    
+    sampled_structure = line.strip()    
     return sampled_structure
 
 

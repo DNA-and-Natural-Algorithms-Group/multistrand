@@ -84,6 +84,7 @@ LIBRARIES= -L$(BOOSTLIBPATH) $(LIBRARYPATHS) -lpython2.6
 LIB_INTERFACE = -shared $(BOOSTLIB)
 
 CC = g++
+COMPILE_INTERFACE = $(CC) $(CFLAGS) $(CFLAGS_INTERFACE) $(INCLUDEPATHS)
 COMPILE = $(CC) $(CFLAGS) $(INCLUDEPATHS)
 LINK = $(CC) $(CFLAGS) $(LIBRARIES)
 
@@ -152,7 +153,7 @@ Multistrand-internal: dircheck Multistrand
 
 $(INTERFACE_OBJECTS): OBJPATH := obj/python
 $(INTERFACE_OBJECTS): obj/interface/%.o: %.cc $(INCLUDES)
-	$(COMPILE) -c $< -o $@
+	$(COMPILE_INTERFACE) -c $< -o $@
 # note that $< is name of 1st prereq, e.g. the .cc for which this is the .o
 
 $(OBJPATH)/%.o: %.cc $(INCLUDES)
