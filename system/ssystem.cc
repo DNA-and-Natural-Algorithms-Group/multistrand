@@ -3,7 +3,7 @@
   Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
 */
 
-#include "python_options.h"
+#include "options.h"
 #include "ssystem.h"
 
 #include <string.h>

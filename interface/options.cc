@@ -5,7 +5,7 @@
 */
  
 
-#include "python_options.h"
+#include "options.h"
 #include "optionlists.h"
 
 // TODO: check deallocation of new objects

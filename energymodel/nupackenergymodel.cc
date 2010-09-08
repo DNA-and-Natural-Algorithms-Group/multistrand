@@ -10,8 +10,8 @@
 #include <ctype.h>
 #include <assert.h>
 
-#include "../include/energymodel.h"
-#include "../include/python_options.h"
+#include "energymodel.h"
+#include "options.h"
 
 #undef DEBUG
 //#define DEBUG

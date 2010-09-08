@@ -500,7 +500,12 @@ class MultistrandOptions( object ):
             
             for cmplx in start_list:
                 cmplx.strand_list = [self.make_unique(s) for s in cmplx.strand_list]
-        
+
+        # note that start_list is a copy of our input, so it's now
+        # safe to set boltzmann flags so the complex knows how to
+        # generate structures.
+        for i in start_list:
+            i.boltzmann_sample = self.boltzmann_sample
         self._start_state = start_list
 
     @property

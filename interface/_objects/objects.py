@@ -1,5 +1,3 @@
-
-
 class Domain(object):
   """Represents a Multistrand Domain object."""
   
@@ -19,48 +17,6 @@ class Strand(object):
     self.sequence = sequence
     self.domain_list = domain_list
 
-
-class Complex(object):
-  """Represents a Multistrand Complex object."""
-  
-  def __init__(self, id, name, strand_list, structure):
-    self.id = id
-    self.name = name
-    self.strand_list = strand_list
-    self.structure = structure
-  
-  @property
-  def sequence(self):
-    return "+".join([strand.sequence for strand in self.strand_list])
-  
-  @property
-  def boltzmann_structure(self):
-    import os, subprocess, random
-    cwd = os.path.abspath(os.curdir)
-    prefix = "temp_boltzmann___" + str(random.random())
-    
-    f = open("%s/%s.in" % (cwd, prefix), "w")
-    f.write("%d\n" % len(self.strand_list))
-    for strand in self.strand_list:
-        f.write(strand.sequence + "\n")
-    for i in range(len(self.strand_list)):
-        f.write("%d " % (i+1))
-    f.write("\n")
-    f.close()
-    
-    subprocess.check_call(["/research/src/sample_dist/bin/sample", "-multi", "-material", "dna", "-count", "1", "%s/%s" % (cwd, prefix)], stdout=subprocess.PIPE)
-    
-    f = open("%s/%s.sample" % (cwd, prefix), "r")
-    for i in range(11):
-        line = f.readline()
-    f.close()
-    os.remove("%s/%s.in" % (cwd, prefix))
-    os.remove("%s/%s.sample" % (cwd, prefix))
-    
-    sampled_structure = line.strip()    
-    return sampled_structure
-
-
 class RestingState(tuple):
   """Represents a resting state, i.e. a named set of complexes that exists as a
   strongly connected component with no outward fast transitions in the reaction
@@ -69,8 +25,26 @@ class RestingState(tuple):
   def __new__(cls, *args):
     return tuple.__new__(cls, args[-1])
   
-  def __init__(self, name, complex_set):
+  def __init__(self, name, complex_set, boltzmann_sample=False):
     self.name = name
+    self._boltzmann_sample = boltzmann_sample
+
+  @property
+  def boltzmann_sample( self ):
+    """ This property indicates whether or not this resting state should be Boltzmann sampled.
+
+    Setting it to true implies that every time any contained complex
+    is queried for the 'structure' property, it will return a sampled
+    structure.
+    """
+    return self._boltzmann_sample
+
+  @boltzmann_sample.setter
+  def boltzmann_sample(self, value ):
+    self._boltzmann_sample = value
+    # we are a tuple of complexes, iterate over those to set boltzmann flags.
+    for i in self:
+      i.boltzmann_sample = value
 
 
 class StopCondition(object):

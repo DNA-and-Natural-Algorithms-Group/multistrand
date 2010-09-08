@@ -1,36 +1,440 @@
-/*
-   Copyright (c) 2007-2008 Caltech. All rights reserved.
-   Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
+#ifndef __PYTHON_OPTIONS_H__
+#define __PYTHON_OPTIONS_H__
+
+#include <python2.6/Python.h>
+
+// Macros for Python/C interface
+
+/***************************************/
+/* Helper functions / internal macros. */
+/***************************************/
+
+#ifndef DEBUG_MACROS
+#define _m_getAttr_DECREF( obj, name, function, pvar, vartype )     \
+  do {																	\
+	PyObject *_m_attr = PyObject_GetAttrString( obj, name);		\
+	*(vartype *)(pvar) = function(_m_attr);                         \
+	Py_DECREF(_m_attr);												\
+  } while(0)
+
+#define _m_setAttr_DECREF( obj, name, function, arg )               \
+  do {																	\
+	PyObject *val = function(arg);                                  \
+    PyObject_SetAttrString( obj, name, val);                       \
+	Py_DECREF(val);                                                 \
+  } while(0)
+
+#define _m_setStringAttr( obj, name, arg )   \
+  do {                                                 \
+    PyObject *pyo_str = PyString_FromString( arg ); \
+    PyObject_SetAttrString( obj, name, pyo_str );   \
+    Py_XDECREF( pyo_str );                          \
+  } while(0)                                           
+
+// Import/instantiate
+#define newObject(mod, name) _m_newObject( #mod, #name )
+
+// Getters
+#define getBoolAttr(obj, name, pvar) _m_getAttr_DECREF( obj, #name, PyInt_AS_LONG, pvar, bool)
+#define getLongAttr(obj, name, pvar) _m_getAttr_DECREF( obj, #name, PyInt_AS_LONG, pvar, long)
+#define getDoubleAttr(obj, name, pvar) _m_getAttr_DECREF( obj, #name, PyFloat_AS_DOUBLE, pvar, double)
+#define getStringAttr(obj, name, pyo) ((char *)PyString_AS_STRING(pyo=PyObject_GetAttrString(obj, #name)))
+#define getListAttr(obj, name) PyObject_GetAttrString(obj, #name)
+
+#define pingAttr(obj, name) Py_DECREF(PyObject_GetAttrString( obj, #name ))
+// CB: changed this from Py_XDECREF to Py_DECREF because it was accessing the 
+// attribute twice for each call to pingAttr (a problem for incrementors)
+// note: does not do anything crazy on a NULL return from GetAttrString, but if that 
+// returned null it might be an error...
+
+// List indexing
+#define getStringItem(list, index) PyString_AS_STRING(PyList_GET_ITEM(list, index))
+#define getLongItem(list, index) PyInt_AS_LONG(PyList_GET_ITEM(list, index))
+#define getLongItemFromTuple(tuple, index) PyInt_AS_LONG(PyTuple_GET_ITEM(tuple, index))
+
+// Setters
+#define setDoubleAttr(obj, name, arg) _m_setAttr_DECREF( obj, #name, PyFloat_FromDouble, (arg))
+#define setLongAttr(obj, name, arg) _m_setAttr_DECREF( obj, #name, PyLong_FromLong, (arg))
+
+#define setStringAttr(obj, name, arg) _m_setStringAttr( obj, #name, (arg) )
+
+// Testers
+#define testLongAttr(obj, name, test, value) _m_testLongAttr( obj, #name, #test, value )
+#define testBoolAttr(obj, name) _m_testLongAttr( obj, #name, "=", 1 )
+
+// Function calls
+#define callFunc_NoArgsToNone(obj, name) PyObject_CallMethod(obj, #name, "()")
+#define callFunc_NoArgsToLong(obj, name) PyInt_AS_LONG(PyObject_CallMethod(obj, #name, "()"))
+#define callFunc_DoubleToNone(obj, name, arg) PyObject_CallMethod(obj, #name, "(f)", arg)
+
+
+// Not currently used, but might be a good reference for later
+#define callFunc_IntToNone(obj, name, arg) PyObject_CallObject(PyObject_GetAttrString(obj, #name), Py_BuildValue("(i)", arg))
+// these are refcounting insensitive at the moment.
+#define callFunc_IntToString(obj, name, arg) PyString_AS_STRING(PyObject_CallObject(PyObject_GetAttrString(obj, #name), Py_BuildValue("(i)", arg)))
+
+
+
+
+
+// Print calls, currently null statements.
+#define m_printStatusLine( obj,a,b,c)
+//#define m_printStatusLine( obj,a)
+#define m_printTrajLine(obj,a,b)
+#define m_printStatusLine_First_Bimolecular( obj,a,b,c,d,e)
+#define m_printStatusLine_Final_First_Bimolecular( obj, a,b,c,d,e,f )
+#define m_printStatusLine_Warning( obj, a, b )
+
+#endif  // DEBUG_MACROS is not set.
+
+/***************************************************
+
+  Debug version of macros:
+
+ **************************************************/
+#ifdef DEBUG_MACROS
+
+#define _m_printPyError_withLineNumber() \
+  fprintf(stderr,"ERROR: Python Interpreter error: file %s, line %d.\nERROR (Python): ", __FILE__, (int)__LINE__), PyErr_PrintEx(1)
+
+
+#define printPyError_withLineNumber()                                   \
+  do {                                                                  \
+    if (PyErr_Occurred() != NULL )                                      \
+      {                                                                 \
+        fprintf(stderr,"ERROR: Python Interpreter error: file %s, line %d.\nERROR (Python): ", __FILE__, (int)__LINE__); \
+        PyErr_PrintEx(1);                                               \
+      }                                                                 \
+  } while(0)
+
+#define _m_d_getAttr_DECREF( obj, name, pvar, c_type_name, py_type, py_c_type )     \
+  do {                                                                     \
+	PyObject *_m_attr = PyObject_GetAttrString( obj, name);		    \
+    if( _m_attr == NULL && PyErr_Occurred() != NULL)                \
+      _m_printPyError_withLineNumber();                              \
+    else if (_m_attr == NULL )                                      \
+      fprintf(stderr,"WARNING: _m_d_getAttr_DECREF: No error occurred,\
+ but the returned pointer was still NULL!\n"); \
+    else                                                            \
+      {                                                             \
+        if( !Py##py_type##_Check( _m_attr ) )\
+          fprintf(stderr,"WARNING: _m_d_getAttr_DECREF: The value returned by attribute '%s' was not the expected type!\n", name); \
+        else                                                            \
+          *(c_type_name *)(pvar) = Py##py_type##_AS_##py_c_type(_m_attr);                       \
+        Py_DECREF(_m_attr);                                             \
+      }                                                                 \
+  } while(0)
+
+#define _m_d_setAttr_DECREF( obj, name, function, arg )               \
+  do {                                                                   \
+	PyObject *val = function(arg);                                  \
+    if( val == NULL && PyErr_Occurred() != NULL)                    \
+      _m_printPyError_withLineNumber();                              \
+    else if (val == NULL )                                          \
+      fprintf(stderr,"WARNING: _m_d_setAttr_DECREF: No error occurred,\
+ but the returned pointer was still NULL!\n"); \
+    else                                                            \
+      {                                                             \
+        PyObject_SetAttrString( obj, name, val);                    \
+        Py_DECREF(val);                                             \
+      }                                                             \
+  } while(0)
+
+#define _m_d_setStringAttr( obj, name, arg )          \
+  do {                                                   \
+    PyObject *pyo_str = PyString_FromString( arg );   \
+    if (pyo_str == NULL && PyErr_Occurred() != NULL ) \
+      _m_printPyError_withLineNumber();               \
+    if (PyObject_SetAttrString( obj, name, pyo_str ) == -1 && PyErr_Occurred() != NULL) \
+      _m_printPyError_withLineNumber();               \
+    Py_XDECREF( pyo_str );                            \
+  } while(0)                                           
+
+
+// Import/instantiate
+#define newObject(mod, name) \
+  _m_d_newObject( #mod, #name )
+
+
+// Getters
+// NOTE: these three use a different footprint for the _m_getAttr_DECREF, as they need to check
+// the python object type.
+#define getBoolAttr(obj, name, pvar) _m_d_getAttr_DECREF( obj, #name, pvar, bool, Int,LONG)
+#define getLongAttr(obj, name, pvar) _m_d_getAttr_DECREF( obj, #name, pvar, long, Int, LONG)
+#define getDoubleAttr(obj, name, pvar) _m_d_getAttr_DECREF( obj, #name, pvar, double, Float, DOUBLE )
+
+// NOTE: caller is responsible for checking return values for strings!
+#define getStringAttr(obj, name, pyo) ((char *)PyString_AsString(pyo=PyObject_GetAttrString(obj, #name)))
+
+// caller responsible for checking return values of lists.
+#define getListAttr(obj, name) PyObject_GetAttrString(obj, #name)
+
+
+#define pingAttr(obj, name) { \
+  PyObject *_m_attr = PyObject_GetAttrString( obj, #name );\
+  if (_m_attr == NULL && PyErr_Occurred() != NULL )        \
+    _m_printPyError_withLineNumber();                       \
+  else if (_m_attr == NULL )                               \
+    fprintf(stderr,"WARNING: pingAttr: No error occurred,\
+ but the returned pointer was still NULL!\n"); \
+  else { Py_DECREF(_m_attr); }               \
+  }
+    
+
+// List indexing
+// NOTE: caller is responsible for checking return values for strings!
+
+#define getStringItem(list, index) PyString_AS_STRING(PyList_GET_ITEM(list, index))
+
+/*  The following works without ref counting issues as PyList_GET_ITEM
+    borrows the references.  Since these macros must be expressions
+    and not statements, we cannot raise error conditions here easily,
+    thus it is caller's responsibility. */
+
+#define getLongItem(list, index) \
+  (PyInt_Check(PyList_GET_ITEM(list, index))?PyInt_AS_LONG(PyList_GET_ITEM(list,index)):-1)
+
+#define getLongItemFromTuple(tuple, index) \
+  (PyInt_Check(PyTuple_GET_ITEM(tuple, index))?PyInt_AS_LONG(PyTuple_GET_ITEM(tuple,index)):-1)
+
+// Setters
+#define setDoubleAttr(obj, name, arg) _m_d_setAttr_DECREF( obj, #name, PyFloat_FromDouble, (arg))
+#define setLongAttr(obj, name, arg) _m_d_setAttr_DECREF( obj, #name, PyLong_FromLong, (arg))
+
+#define setStringAttr(obj, name, arg) _m_d_setStringAttr( obj, #name, (arg ))
+// note: any reference this creates is not the responsibility of the caller. 
+
+// Testers
+#define testLongAttr(obj, name, test, value) _m_d_testLongAttr( obj, #name, #test, value )
+#define testBoolAttr(obj, name) _m_d_testLongAttr( obj, #name, "=", 1 )
+
+// Function calls
+// TODO: no debug versions of these yet. 
+#define callFunc_NoArgsToNone(obj, name) PyObject_CallMethod(obj, #name, "()")
+#define callFunc_NoArgsToLong(obj, name) PyInt_AS_LONG(PyObject_CallMethod(obj, #name, "()"))
+#define callFunc_DoubleToNone(obj, name, arg) PyObject_CallMethod(obj, #name, "(f)", arg)
+
+// Print calls, currently null statements.
+#define m_printStatusLine( obj,a,b,c)
+//#define m_printStatusLine( obj,a)
+#define m_printTrajLine(obj,a,b)
+#define m_printStatusLine_First_Bimolecular( obj,a,b,c,d,e)
+#define m_printStatusLine_Final_First_Bimolecular( obj, a,b,c,d,e,f )
+#define m_printStatusLine_Warning( obj, a, b )
+
+// Not currently used, but might be a good reference for later
+#define callFunc_IntToNone(obj, name, arg) PyObject_CallObject(PyObject_GetAttrString(obj, #name), Py_BuildValue("(i)", arg))
+// these are refcounting insensitive at the moment.
+#define callFunc_IntToString(obj, name, arg) PyString_AS_STRING(PyObject_CallObject(PyObject_GetAttrString(obj, #name), Py_BuildValue("(i)", arg)))
+
+
+#endif
+
+
+
+
+/*****************************************************
+
+Inline functions for various python macro operations.
+
+Prefixed by _m_ if used internally by macros, and by 
+_m_d_ if it's a debug version for when DEBUG_MACROS is set.
+
+*****************************************************/
+
+static inline bool _m_testLongAttr( PyObject *obj, const char *attrname, const char *test, long value )
+{
+ PyObject *_m_attr = PyObject_GetAttrString( obj, attrname);                
+ long local_val = PyInt_AS_LONG(_m_attr);
+ Py_DECREF(_m_attr);                                                                                        
+ if( test[0] == '=' )
+       return (local_val == value);
+ if( test[0] == '<' )
+       return (local_val < value );
+ if( test[0] == '>' )
+       return (local_val > value );
+}
+
+#ifdef DEBUG_MACROS
+static inline bool _m_d_testLongAttr( PyObject *obj, const char *attrname, const char *test, long value )
+{
+ PyObject *_m_attr = PyObject_GetAttrString( obj, attrname);                
+ long local_val;
+ if( _m_attr == NULL && PyErr_Occurred() != NULL )
+   {
+     _m_printPyError_withLineNumber();                           
+     return false;
+   }
+ else if (_m_attr == NULL )
+   {
+     fprintf(stderr,"WARNING: _m_d_testLongAttr: No error occurred,\
+ but the returned object from GetAttrString was still NULL!\n");
+     return false;
+   }
+ else
+   {
+     if( !PyInt_Check( _m_attr ) )
+       {
+         fprintf(stderr,"ERROR: _m_d_testLongAttr: Attribute name %s was not an integer type or subclass.\n", attrname );
+         Py_DECREF(_m_attr);
+         return false;
+       }
+     local_val = PyInt_AS_LONG(_m_attr);
+     Py_DECREF(_m_attr);                                                                                        
+     if( test[0] == '=' )
+       return (local_val == value);
+     if( test[0] == '<' )
+       return (local_val < value );
+     if( test[0] == '>' )
+       return (local_val > value );
+   }
+}
+#endif
+
+static inline PyObject *_m_newObject( const char *mod, const char *name )
+{
+  PyObject *module = NULL;
+  PyObject *class_obj = NULL;
+  PyObject *new_obj = NULL;
+
+  module = PyImport_ImportModule( mod ); // new reference
+  if(module == NULL )
+    return NULL;
+
+  class_obj = PyObject_GetAttrString(module, name ); // new reference
+  if (class_obj == NULL )
+    {
+      Py_DECREF(module);
+      return NULL;
+    }
+
+  new_obj = PyObject_CallObject( class_obj, NULL );
+
+  Py_DECREF( module );
+  Py_DECREF( class_obj );
+  // new_obj is a new reference, which we return. Caller is responsible.
+  return new_obj;
+}
+
+
+#ifdef DEBUG_MACROS
+static inline PyObject *_m_d_newObject( const char *mod, const char *name )
+{
+  PyObject *module = NULL;
+  PyObject *class_obj = NULL;
+  PyObject *new_obj = NULL;
+
+  module = PyImport_ImportModule( mod ); // new reference
+  if (module == NULL && PyErr_Occurred() != NULL)
+    _m_printPyError_withLineNumber();                            
+  else if (module == NULL)
+    {
+      fprintf(stderr,"WARNING: _m_d_newObject: No error occurred,\
+ but the returned module was still NULL!\n");
+      return NULL;
+    }
+  class_obj = PyObject_GetAttrString(module, name ); // new reference
+  if (class_obj == NULL && PyErr_Occurred() != NULL)
+    _m_printPyError_withLineNumber();                                
+  else if (class_obj == NULL)
+    {
+      fprintf(stderr,"WARNING: _m_d_newObject: No error occurred,\
+ but the returned class object was still NULL!\n");
+      return NULL;
+    }
+
+  new_obj = PyObject_CallObject( class_obj, NULL );
+  if (new_obj == NULL && PyErr_Occurred() != NULL)
+    _m_printPyError_withLineNumber();                                
+  else if (new_obj == NULL)
+    {
+      fprintf(stderr,"WARNING: _m_d_newObject: No error occurred,\
+ but the returned class object was still NULL!\n");
+      return NULL;
+    }
+  Py_DECREF( module );
+  Py_DECREF( class_obj );
+  // new_obj is a new reference, which we return. Caller is responsible.
+  return new_obj;
+}
+
+#endif // DEBUG_MACROS was set
+
+/******************************************************
+
+ Functions defined in python_options.cc
+
+******************************************************/
+
+// Functions
+class identlist *makeID_list(PyObject *strand_list);
+class stopcomplexes *getStopComplexList(PyObject *options, int index);
+class identlist *getID_list(PyObject *options, int index);
+
+
+
+/*****************************************************
+
+ #defines for const values used in python_options.py
+
+******************************************************/
+
+/* WARNING: If you change the following defines, you must also
+            change the values in python_options._OptionsConstants.RATEMETHOD
+			in the file python_options.py.
 */
- 
-#ifndef __OPTIONS_H__
-#define __OPTIONS_H__
-
-#include "optionlists.h"
-#include <string>
-
-#define OPTION_ENERGYMODEL     0x0001
-#define OPTION_LOGFILE         0x0002
-#define OPTION_STRANDCOUNT     0x0004
-#define OPTION_STRANDLIST      0x0008
-#define OPTION_COMPLEXCOUNT    0x0010
-#define OPTION_COMPLEXLIST     0x0020
-#define OPTION_SIMULATIONTIME  0x0040
-#define OPTION_TRAJECTORYCOUNT 0x0080
-
-// Used for setEnergyModel
-#define VIENNADNA     1
-#define NUPACKDNA23   2
-#define NUPACKRNA23   3
-
-#define STOPTYPE_STRUCTURE                     0 
-#define STOPTYPE_BOUND                         1
-#define STOPTYPE_DISASSOC                      2
-#define STOPTYPE_LOOSE_STRUCTURE               3
-#define STOPTYPE_PERCENT_OR_COUNT_STRUCTURE    4
+#define RATE_METHOD_INVALID         0x00
+#define RATE_METHOD_METROPOLIS      0x01
+#define RATE_METHOD_KAWASAKI        0x02
+#define RATE_METHOD_ENTROPYENTHALPY 0x03
 
 
+/* WARNING: If you change the following defines, you must also
+            change the values in python_options._OptionsConstants.DANGLES
+			in the file python_options.py.
+*/
+#define DANGLES_NONE    0x00
+#define DANGLES_SOME    0x01
+#define DANGLES_ALL     0x02
 
+/* WARNING: If you change the following defines, you must also
+            change the values in python_options._OptionsConstants.ENERGYMODEL_TYPE
+			in the file python_options.py.
+*/
+#define ENERGYMODEL_VIENNA 0x00
+#define ENERGYMODEL_NUPACK 0x01
+
+/* WARNING: If you change the following defines, you must also
+            change the values in python_options._OptionsConstants.SUBSTRATE_TYPE
+			in the file python_options.py.
+*/
+#define SUBSTRATE_INVALID 0x00
+#define SUBSTRATE_RNA     0x01
+#define SUBSTRATE_DNA     0x02
+
+/* WARNING: If you change the following defines, you must also
+            change the values in python_options._OptionsConstants.SIMULATION_MODE
+			in the file python_options.py.
+*/
+
+#define SIMULATION_MODE_NORMAL              0x00
+#define SIMULATION_MODE_FIRST_BIMOLECULAR   0x01
+#define SIMULATION_MODE_PYTHON_NORMAL       0x02
+#define SIMULATION_MODE_PYTHON_FIRST_BI     0x03
+
+#define SIMULATION_MODE_ENERGY_ONLY         0x10
+
+// simulation modes are bitwise -> bit 0 is normal/first bi
+//                                 bit 1 is normal interface/python interface
+//                                 bit 4 is compute energy mode only, should not 
+//                                          be combined with any other flags.
+// the following are the bit definitions for tests on those:
+
+#define SIMULATION_MODE_FLAG_FIRST_BIMOLECULAR         0x01
+#define SIMULATION_MODE_FLAG_PYTHON                    0x02
+
+// stopconditions used in ssystem. 
+// TODO: clean up/add docs.
 
 #define STOPCONDITION_NORMAL           1
 #define STOPCONDITION_REVERSE          2
@@ -38,307 +442,5 @@
 #define STOPCONDITION_FORWARD          3
 #define STOPCONDITION_ERROR           -2
 
-
-
-/* 
-
-   class Options
-
-   This class contains all of the appropriate input/output options.
-   These options are read in from a file, or set via the command line (which
-   overrides any settings occuring in the input file). This class is used
-   by the Simulation System to initialize new trajectories and to handle
-   output events. Most of the data members are accessible by standard
-   accessor functions, though a few have a more specialized interface.
-
-   There are a few auxilary structures defined for use in the class, as well
-   as for data passing back to the simulation system.
-
-*/
-
-
-
-class Options
-{
- public:
-  /* The default constructor is the standard one which we will use, as 
-     most of the input takes place after reading the input file name off
-     the command line. */
-  Options( void );
-  Options( char *filename );
-
-  
-  /* Default destructor. */
-  ~Options( void );
-
-  /* Initialization functions */
-  int readCommandLine( int argc, char ** argv );
-  int loadInputFile( void );
-  void finalizeInput( void );
-
-  /* Output Function */
-
-  void printStatusLine( long r_seed, char *stop_id, double end_time );
-  void printStatusLine( long r_seed );
-  void printStatusLine_First_Bimolecular( long r_seed, int completiontype, double completiontime, double forwardrate, char *tag );
-  void printStatusLine_Final_First_Bimolecular( double total_rate, double *total_times, long *total_types, long total_count, double *computed_rate_means, double *computed_rate_mean_diff_squared );
-  void printStatusLine_Warning( int warnid, int data );
-  void printTrajLine( char *trigger_id, double cur_time );
-  FILE *getOutputDescriptor( void );
-  void closeOutput( void );
-
-  /* Accessors */  
-  int addSequence( char *id, char *seq );
-  int addSequence( char *id, char *seq, double conc );
-  int addSequence( char *id, char *seq, int count   );
-
-  int addStopStructures( class stopcomplexes *stopstructs, int errortype = 0 );
-  int addStartStructure( class complex_item *startstruct, int errortype = 0);
-
-  /* Accessors for Python Interface */
-  
-  int addSequence_Python(  std::string id, std::string seq );
-
-  //... plus other versions for later implementation
-  
-  // list of strands interface
-  //int beginStrandList_Python( void );
-  int addStrandToIdentList_Python( std::string name);  // define order as right to left
-  int clearIdentList_Python( void );
-
-  int beginStartStructure_Python( void ); 
-
-    // uses implied strand list already created
-  int addStartStructureComplex_Python( std::string struc, int type = STOPTYPE_STRUCTURE );
-
-  int finalizeStartStructure_Python( void );
-
-  int beginStopStructure_Python( std::string tag ); 
-
-    // uses implied strand list already created
-  int addStopStructureComplex_Python( std::string struc , int type = STOPTYPE_STRUCTURE, int count = 0);
-
-
-  //int completeStopStructure_Python( void );
-  int finalizeStopStructures_Python( void );
-  // ERROR CODES FOR FINALIZE STEPS:
-
-  // 0  : no stop/start list created.
-  // -1 : Strand ID not found.
-  // -2 : strand length and structure length mismatch
-  // -3 : strand break not found/not valid
-  // -4 : structure not connected
-  // -5 : invalid base pairing in structure
-  // -6 : mismatched paren, too many )'s
-  // -7 : mismatched paren, too many ('s
-
-
-  void setLogfile_Python( std::string newlogfilename );
-  void setTrajectoryfile_Python( std::string newtrajfilename );
-  void setParameterFile_Python( std::string newparamfile );
-
-  // simulation time and output methods:
-
-  void setCurSimTime( double cur_time ); // used internally by SimulationSystem object
-  double checkCurrentTime_Python(void ); 
-  int checkCompleted_Python( void );
-  void resetCompleted_Python( void ); // used in start simulation to reset completion in the options object.
-  std::string getTrajectoryTag_Python( void );
-  double getTrajectoryTime_Python( void );
-
-  void haltCurrentTrajectory_Python( void );
-  void suspendCurrentTrajectory_Python( void );
-  void resumeCurrentTrajectory_Python( void );
-
-  // directly related to the above function and the python simulation mode, but
-  // not part of the direct interface as it's used internally.
-
-  int getCurrentTrajectoryHaltFlag( void );
-  int getCurrentTrajectorySuspendFlag( void );
-
-  void setCollisionRate_Python( double newrate );
-  double getCollisionRate_Python( void );
-  long getCurrentSeed_Python( void );
-  
-  /* End Python Interface */
-
-
-  void setSimulationTime( double newtime );
-  void setDangles( int dangleopt );
-  void setStopOptions( int newoptions );
-  void setLogfile( char *newlogfilename );
-  void setTrajectoryfile( char *newtrajfilename );
-  void setTrajectoryType( int ttype );
-  void setSimulationMode( int mode ); /* See mode listing above */
-  void setTemperature( double temp );
-  void setNumSimulations( int newnumsims );
-  void setOutputInterval( int newoutputinterval );
-  void setOutputTime( double newoutputtime );
-  void setOutputComplexEnergyOptions( int complexoutputoptions );
-  void setInitialSeed( long seedval );
-  void setParameterFile( char *newparamfile );
-  void setParameterType( int type );
-  void setEnergyModel( int modeltype );
-  void setEnergyMode( int mode );
-  void setIntermolecularScaling( double rate );
-  void setIntramolecularScaling( double rate );
-  void setJoinRate( double newjoinrate );
-  void setJoinRateByConcentration( double concentration );
-  void setJoinRateByVolume( double volume ); 
-  void setJoinRateByEnergy( double energy );
-  void setJoinConcentration( double concentration );
-  void setRateMethod( int method);
-  void setGTWobble( int gtstate );
-  void setLogML( int newlogml );
-  void incrementOutputState( void );
-
-  long getInitialSeed( void );
-  char *getSequenceByID( char *id );
-  char *getStructure( int complex_id );
-  char *getBoltzmannStructure( int complex_id );
-  char *getSequence( int complex_id );
-  class identlist *getID_list( int complex_id );
-
-  char *getParameterFile( void );
-  int getParameterType( void );
-  int getEnergyModel( void );
-  double getTemperature( void );
-
-  int getOutputInterval( void );
-  double getOutputTime( void );
-  int getOutputState( void );
-  int getOutputComplexEnergyOptions( void );
-  int getNumSimulations( void );
-  double getSimulationTime( void );
-  //  double getJoinRate( void );
-  // double getJoinEnergyExtra( void );
-  double getJoinConcentration( void );
-  double getIntramolecularScaling( void );
-  double getIntermolecularScaling( void );
-  int getDangles( void );
-  int getGTWobble( void );
-  int getLogML( void );
-  int getTrajectoryType( void );
-  int getSimulationMode( void );
-  int getStopCount( void );
-  int getStopOptions( void );
-  int getEnergyMode( void );  
-  int getRateMethod( void );
-  class stopcomplexes *getStopComplexList( int index );
-
- private:
-  /* Data members */
-  /* Control data */
-  int flagarray;  // Contains bit positions for each option type to indicate 
-                  // whether those options have been set via command line, and
-                  // thus overriding the same option in the input file.
-
-  /* Options Data */
-  char energymodelfilename[80]; // Energy model paramater file. Defaults to
-                                // "dna.par", the vienna parameter file.
-
-  int energymodel_type;   // type of the parameter file. 0 for dna.par (Vienna)
-                          // 1 for mfold parameter dG filename. (Mfold)
-
-  int energymodel;        // flag for automated searching for particular energy
-                          // files. 
-
-  char inputfilename[80]; // this is the only piece of options data which
-                          // cannot be set from the input file. Duh.
-
-  char logfilename[80];   // Filename to which log entries should be written.
-                          // Stored for posterity, as the next option is the
-                          // one used for most log file entries.
-
-
-  FILE *logfile;          // Logfile file pointer.
-
-  char trajectoryfilename[80]; // Filename for trajectory output.
-  FILE *trajfile;
-  int trajtype;
-
-  int simulationmode;     // See simulation mode defines above.
-                          // Currently covers normal simulation, and the 
-                          // fixed first step simulation mode.
-
-  int energymode;         // Set to 1 for energy only, 0 otherwise.
-
-  int strandcount;        // Total number of strands in the system.
-  class strandlist *strands; // A list of all strands, containing sequence
-                              // and naming information.
-
-  int complexcount;       // Total number of complexes in the initial state
-                          // of the system.
-
-  int gtenable;           // For nupack parameter files, enables GT pairings (by default, penalizes 100000 per GT pair inside an multiloop or open loop).
-
-  int logml;              // Use logarithmic multiloop size penalties.
-                          // Nupack defaults to no, vienna to yes. 
-                          // This parameter should be -1 for default, 
-                          // and 0 or 1 to override the defaults.
-
-  class complex_item *start_structure;  // A list of all initial complexes, contains
-                                  // naming, sequence and structure information
-  class complex_item **start_list; // flat list of initial complexes.
-  int start_count;
-
-  double simulationtime;  // Max time units to run the simulation for.
-  
-  //  double joinenergy;      // Join energy. (without kT multiplier)
-  //double joinrate;        // Join rate for complex moves.
-  double joinconc;        // effective strand conc for deriving join rate
-  double temperature;
-
-  double intramolecularscaling; // Scaling factor for reactions between bases within the same complex.
-  
-  double intermolecularscaling; // Scaling factor for reactions between multiple complexes.
-
-  int trajectorycount;    // Number of trajectories to run.
-  int ratemethod;         // rate model to use
-  int dangles;            // dangle option for energy model
-  int outputinterval;     // Controls the frequency of individual state output.
-  int currentinterval;
-  double outputtime;      // alternate way to control trajectory output
-  int stopoptions;        // Flag variable for which type of stopping condition
-                          // should be used with this simulation.
-
-  int stopcount;          // Number of Stop States in the system.
-
-  class stopcomplexes *stoplist;   // A list of all complex names in the
-                                    // stop state.
-
-
-  long initialseed;     // initial random number seed to use. 0 = none.
-  
-  long unique_id;       // Stores the ID of the next strand to be input into the system. Increments from 0.
-
-  /* Auxilary Functions */
-
-  void sanitize( char *buf, int *length ); // Cleans up log file lines so that
-                                          // parsing is easier. 
-
-
-  void readStrandList( FILE *fp, char *buffer );
-  void readComplexList( FILE *fp, char *buffer );
-
-
-  /* Private Data Members for Python Interface functions */
-  class identlist *python_identlist;
-
-  class complex_item *python_start_structure;
-  class stopcomplexes *python_stop_structure;
-  class strandlist *python_strands;
-
-  double python_current_time;
-  int python_trajectory_completion_flag;
-  std::string python_trajectory_tag;
-  double python_trajectory_time;
-  int python_halt_trajectory_flag;
-  int python_suspend_trajectory_flag;
-  double python_k_collision;
-  long python_current_seed;
-
-
-};
 
 #endif
