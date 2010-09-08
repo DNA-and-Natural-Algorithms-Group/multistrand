@@ -42,14 +42,11 @@ def run_trajectory():
   o.substrate_type  = 2
   o.num_simulations = 3
   o.simulation_time = 0.5
-  #o.initial_seed = random.SystemRandom().randrange(-2147483648, 2147483647)
   o.initial_seed = 2
   o.start_state = [c1, c2]
   #o.start_state = [RestingState("1", [c1]), RestingState("2", [c2])]
   o.stop_conditions = [sc_rev, sc_for]
-  #o = cPickle.load(open("../KinD/temp_options___1"))
-  #  o.initial_seed = random.SystemRandom().randrange(-2147483648, 2147483647)
-  o.initial_seed = 610169752
+  o.initial_seed = random.SystemRandom().randrange(-2147483648, 2147483647)
   print "finished options. creating simsystem..."
   s = SimSystem(o)
   print "finished simsystem. now starting..."
@@ -61,7 +58,7 @@ def run_trajectory():
   del s
 #  return tag, time, rate
 
-num_sims =1
+num_sims = 1
 
 #pool = Pool()
 #results = [pool.apply_async(run_trajectory, ()) for i in range(num_sims)]

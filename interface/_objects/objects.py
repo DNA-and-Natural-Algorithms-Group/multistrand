@@ -35,9 +35,9 @@ class Complex(object):
   
   @property
   def boltzmann_structure(self):
-    import os, subprocess
+    import os, subprocess, random
     cwd = os.path.abspath(os.curdir)
-    prefix = "temp_boltzmann___"
+    prefix = "temp_boltzmann___" + str(random.random())
     
     f = open("%s/%s.in" % (cwd, prefix), "w")
     f.write("%d\n" % len(self.strand_list))
@@ -54,8 +54,10 @@ class Complex(object):
     for i in range(11):
         line = f.readline()
     f.close()
+    os.remove("%s/%s.in" % (cwd, prefix))
+    os.remove("%s/%s.sample" % (cwd, prefix))
     
-    sampled_structure = line.strip()
+    sampled_structure = line.strip()    
     return sampled_structure
 
 
