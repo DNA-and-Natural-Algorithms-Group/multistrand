@@ -8,7 +8,10 @@
 import os.path
 import sys
 
-sys.path.append(os.path.realpath('../../'))
+if sys.path[0] == '':
+  sys.path.append(os.path.realpath('../../'))
+else:
+  sys.path.append(os.path.realpath( os.path.join(sys.path[0], '../../')))
 
 from multistrand.objects import Domain, Strand, Complex, StopCondition, RestingState
 from multistrand.options import Options
