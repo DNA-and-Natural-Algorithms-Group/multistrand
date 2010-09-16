@@ -1,7 +1,15 @@
 class Complex(object):
   """Represents a Multistrand Complex object."""
   
-  def __init__(self, id, name, strand_list, structure, boltzmann_sample = False):
+  def __init__(self, *args, **kargs):
+    # Old init prototype:
+    #def __init__(self, id, name, strand_list, structure, boltzmann_sample = False):
+    #
+    if len( args ) == 4 or len( args ) == 5:
+      self.old_init( *args, **kargs )
+      
+
+  def old_init( self, id, name, strand_list, structure, boltzmann_sample = False):
     self.id = id
     # what is this id?
     self.name = name

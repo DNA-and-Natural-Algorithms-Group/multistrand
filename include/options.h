@@ -7,9 +7,38 @@
 
 /***************************************/
 /* Helper functions / internal macros. */
+/*                                     */
+/* These are used in all build types.  */
+/*                                     */
 /***************************************/
 
+/* Utility */
+#define _m_prepStatusTuple( seed, com_type, time, tag )    \
+  Py_BuildValue("(lids)", seed,(int) (com_type), time, tag )
+
+#define _m_prepTrajTuple( tag, time )\
+  Py_BuildValue("(sd)", tag, time) 
+
+#define _m_prepStatusFirstTuple( seed, com_type, com_time, frate, tag) \
+  Py_BuildValue("(lidds)", seed, com_type, com_time, frate, tag ) 
+/* These three prep functions return a new reference via Py_BuildValue, error checking and reference counting is the caller's responsibility. */
+
+/* Accessors (ref counting caller responsibility */
+#define getStringAttr(obj, name, pyo) ((char *)PyString_AS_STRING(pyo=PyObject_GetAttrString(obj, #name)))
+#define getListAttr(obj, name) PyObject_GetAttrString(obj, #name)
+
+/* List indexing (ref counting caller responsibility */
+#define getStringItem(list, index) PyString_AS_STRING(PyList_GET_ITEM(list, index))
+
+
+/***************************************/
+/* Helper functions / internal macros. */
+/*                                     */
+/* NON DEBUG ONLY.                     */
+/*                                     */
+/***************************************/
 #ifndef DEBUG_MACROS
+
 #define _m_getAttr_DECREF( obj, name, function, pvar, vartype )     \
   do {																	\
 	PyObject *_m_attr = PyObject_GetAttrString( obj, name);		\
@@ -34,23 +63,21 @@
 // Import/instantiate
 #define newObject(mod, name) _m_newObject( #mod, #name )
 
-// Getters
+// Accessors (no ref counting needed )
 #define getBoolAttr(obj, name, pvar) _m_getAttr_DECREF( obj, #name, PyInt_AS_LONG, pvar, bool)
 #define getLongAttr(obj, name, pvar) _m_getAttr_DECREF( obj, #name, PyInt_AS_LONG, pvar, long)
 #define getDoubleAttr(obj, name, pvar) _m_getAttr_DECREF( obj, #name, PyFloat_AS_DOUBLE, pvar, double)
-#define getStringAttr(obj, name, pyo) ((char *)PyString_AS_STRING(pyo=PyObject_GetAttrString(obj, #name)))
-#define getListAttr(obj, name) PyObject_GetAttrString(obj, #name)
 
+// Accessors (borrowed refs only)
+#define getLongItem(list, index) PyInt_AS_LONG(PyList_GET_ITEM(list, index))
+#define getLongItemFromTuple(tuple, index) PyInt_AS_LONG(PyTuple_GET_ITEM(tuple, index))
+
+/* Procedure calling (no ref counts) */
 #define pingAttr(obj, name) Py_DECREF(PyObject_GetAttrString( obj, #name ))
 // CB: changed this from Py_XDECREF to Py_DECREF because it was accessing the 
 // attribute twice for each call to pingAttr (a problem for incrementors)
 // note: does not do anything crazy on a NULL return from GetAttrString, but if that 
 // returned null it might be an error...
-
-// List indexing
-#define getStringItem(list, index) PyString_AS_STRING(PyList_GET_ITEM(list, index))
-#define getLongItem(list, index) PyInt_AS_LONG(PyList_GET_ITEM(list, index))
-#define getLongItemFromTuple(tuple, index) PyInt_AS_LONG(PyTuple_GET_ITEM(tuple, index))
 
 // Setters
 #define setDoubleAttr(obj, name, arg) _m_setAttr_DECREF( obj, #name, PyFloat_FromDouble, (arg))
@@ -62,30 +89,25 @@
 #define testLongAttr(obj, name, test, value) _m_testLongAttr( obj, #name, #test, value )
 #define testBoolAttr(obj, name) _m_testLongAttr( obj, #name, "=", 1 )
 
-// Function calls
-#define callFunc_NoArgsToNone(obj, name) PyObject_CallMethod(obj, #name, "()")
-#define callFunc_NoArgsToLong(obj, name) PyInt_AS_LONG(PyObject_CallMethod(obj, #name, "()"))
-#define callFunc_DoubleToNone(obj, name, arg) PyObject_CallMethod(obj, #name, "(f)", arg)
+/* // Function calls */
 
+#define _m_pushList( obj, a, b ) \
+  do {                                          \
+    PyObject *pyo = a;                          \
+    PyObject_SetAttrString( obj, #b, pyo );     \
+    Py_DECREF(pyo);                             \
+  }while(0)
 
-// Not currently used, but might be a good reference for later
-#define callFunc_IntToNone(obj, name, arg) PyObject_CallObject(PyObject_GetAttrString(obj, #name), Py_BuildValue("(i)", arg))
-// these are refcounting insensitive at the moment.
-#define callFunc_IntToString(obj, name, arg) PyString_AS_STRING(PyObject_CallObject(PyObject_GetAttrString(obj, #name), Py_BuildValue("(i)", arg)))
+#define printStatusLine( obj, seed, com_type, time, tag )                   \
+  _m_pushList( obj, _m_prepStatusTuple( seed, com_type, time,(char *)(tag) ), print_status_line)
 
+#define printTrajLine( obj, name, time ) \
+  _m_pushList( obj, _m_prepTrajTuple( (char *)(name), time ), print_traj_line )
 
+#define printStatusLine_First_Bimolecular( obj,seed,com_type,com_time,frate,tag)  \
+  _m_pushList( obj, _m_prepStatusFirstTuple( seed, com_type, com_time, frate, (char *)(tag)), print_status_line_firststep )
 
-
-
-// Print calls, currently null statements.
-#define m_printStatusLine( obj,a,b,c)
-//#define m_printStatusLine( obj,a)
-#define m_printTrajLine(obj,a,b)
-#define m_printStatusLine_First_Bimolecular( obj,a,b,c,d,e)
-#define m_printStatusLine_Final_First_Bimolecular( obj, a,b,c,d,e,f )
-#define m_printStatusLine_Warning( obj, a, b )
-
-#endif  // DEBUG_MACROS is not set.
+#endif  // DEBUG_MACROS is FALSE (not set).
 
 /***************************************************
 
@@ -163,13 +185,6 @@
 #define getLongAttr(obj, name, pvar) _m_d_getAttr_DECREF( obj, #name, pvar, long, Int, LONG)
 #define getDoubleAttr(obj, name, pvar) _m_d_getAttr_DECREF( obj, #name, pvar, double, Float, DOUBLE )
 
-// NOTE: caller is responsible for checking return values for strings!
-#define getStringAttr(obj, name, pyo) ((char *)PyString_AsString(pyo=PyObject_GetAttrString(obj, #name)))
-
-// caller responsible for checking return values of lists.
-#define getListAttr(obj, name) PyObject_GetAttrString(obj, #name)
-
-
 #define pingAttr(obj, name) { \
   PyObject *_m_attr = PyObject_GetAttrString( obj, #name );\
   if (_m_attr == NULL && PyErr_Occurred() != NULL )        \
@@ -180,11 +195,6 @@
   else { Py_DECREF(_m_attr); }               \
   }
     
-
-// List indexing
-// NOTE: caller is responsible for checking return values for strings!
-
-#define getStringItem(list, index) PyString_AS_STRING(PyList_GET_ITEM(list, index))
 
 /*  The following works without ref counting issues as PyList_GET_ITEM
     borrows the references.  Since these macros must be expressions
@@ -208,29 +218,29 @@
 #define testLongAttr(obj, name, test, value) _m_d_testLongAttr( obj, #name, #test, value )
 #define testBoolAttr(obj, name) _m_d_testLongAttr( obj, #name, "=", 1 )
 
-// Function calls
-// TODO: no debug versions of these yet. 
-#define callFunc_NoArgsToNone(obj, name) PyObject_CallMethod(obj, #name, "()")
-#define callFunc_NoArgsToLong(obj, name) PyInt_AS_LONG(PyObject_CallMethod(obj, #name, "()"))
-#define callFunc_DoubleToNone(obj, name, arg) PyObject_CallMethod(obj, #name, "(f)", arg)
+#define _m_d_pushList( obj, a, b )                                      \
+  do {                                                                  \
+    PyObject *pyo = a;                                                  \
+    if( pyo == NULL  && PyErr_Occurred() != NULL)                       \
+      _m_printPyError_withLineNumber();                                 \
+    else                                                                \
+      {                                                                 \
+        if(PyObject_SetAttrString( obj, #b, pyo ) == -1 && PyErr_Occurred() != NULL) \
+          _m_printPyError_withLineNumber();                             \
+        Py_DECREF(pyo);                                                 \
+      }                                                                 \
+  }while(0)
 
-// Print calls, currently null statements.
-#define m_printStatusLine( obj,a,b,c)
-//#define m_printStatusLine( obj,a)
-#define m_printTrajLine(obj,a,b)
-#define m_printStatusLine_First_Bimolecular( obj,a,b,c,d,e)
-#define m_printStatusLine_Final_First_Bimolecular( obj, a,b,c,d,e,f )
-#define m_printStatusLine_Warning( obj, a, b )
+#define printStatusLine( obj, seed, com_type,time, tag )                    \
+  _m_d_pushList( obj, _m_prepStatusTuple( seed, com_type, time,(char *)(tag) ), print_status_line)
 
-// Not currently used, but might be a good reference for later
-#define callFunc_IntToNone(obj, name, arg) PyObject_CallObject(PyObject_GetAttrString(obj, #name), Py_BuildValue("(i)", arg))
-// these are refcounting insensitive at the moment.
-#define callFunc_IntToString(obj, name, arg) PyString_AS_STRING(PyObject_CallObject(PyObject_GetAttrString(obj, #name), Py_BuildValue("(i)", arg)))
+#define printTrajLine( obj, name, time ) \
+  _m_d_pushList( obj, _m_prepTrajTuple( (char *)(name), time ), print_traj_line )
 
+#define printStatusLine_First_Bimolecular( obj,seed,com_type,com_time,frate,tag)  \
+  _m_d_pushList( obj, _m_prepStatusFirstTuple( seed, com_type, com_time, frate, (char *)(tag)), print_status_line_firststep )
 
 #endif
-
-
 
 
 /*****************************************************
@@ -417,30 +427,44 @@ class identlist *getID_list(PyObject *options, int index);
 			in the file python_options.py.
 */
 
-#define SIMULATION_MODE_NORMAL              0x00
-#define SIMULATION_MODE_FIRST_BIMOLECULAR   0x01
-#define SIMULATION_MODE_PYTHON_NORMAL       0x02
-#define SIMULATION_MODE_PYTHON_FIRST_BI     0x03
 
-#define SIMULATION_MODE_ENERGY_ONLY         0x10
+#define SIMULATION_MODE_NORMAL              0x0010
+#define SIMULATION_MODE_FIRST_BIMOLECULAR   0x0030
 
-// simulation modes are bitwise -> bit 0 is normal/first bi
-//                                 bit 1 is normal interface/python interface
-//                                 bit 4 is compute energy mode only, should not 
+#define SIMULATION_MODE_PYTHON_NORMAL       0x0040
+#define SIMULATION_MODE_PYTHON_FIRST_BI     0x0060
+
+#define SIMULATION_MODE_ENERGY_ONLY         0x0100
+
+
+// simulation modes are bitwise -> bit 5 is normal mode
+//                                 bit 6 is first step mode
+//                                 bit 7 is python interface
+//                                 bit 9 is compute energy mode only, should not 
 //                                          be combined with any other flags.
 // the following are the bit definitions for tests on those:
 
-#define SIMULATION_MODE_FLAG_FIRST_BIMOLECULAR         0x01
-#define SIMULATION_MODE_FLAG_PYTHON                    0x02
+#define SIMULATION_MODE_FLAG_NORMAL                    0x0010
+#define SIMULATION_MODE_FLAG_FIRST_BIMOLECULAR         0x0020
+#define SIMULATION_MODE_FLAG_PYTHON                    0x0040
 
 // stopconditions used in ssystem. 
 // TODO: clean up/add docs.
 
-#define STOPCONDITION_NORMAL           1
-#define STOPCONDITION_REVERSE          2
-#define STOPCONDITION_TIME            -1
-#define STOPCONDITION_FORWARD          3
-#define STOPCONDITION_ERROR           -2
+// normal sim mode stop result flags.
+#define STOPRESULT_NORMAL           0x11
+#define STOPRESULT_TIME             0x12
+
+// first step mode stop result flags
+#define STOPRESULT_FORWARD          0x21
+#define STOPRESULT_FTIME            0x22
+#define STOPRESULT_REVERSE          0x24
+
+// error states
+#define STOPRESULT_ERROR            0x81
+#define STOPRESULT_NAN              0x82
+#define STOPRESULT_NOMOVES          0x84
 
 
 #endif
+// #ifdef __PYTHON_OPTIONS_H__

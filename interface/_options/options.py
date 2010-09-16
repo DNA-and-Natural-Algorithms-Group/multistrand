@@ -147,14 +147,14 @@ class MultistrandOptions( object ):
         self._temperature_kelvin  = 310.15
 
         
-        self.unimolecular_scaling = 1.6e6
+        self._unimolecular_scaling = 1.6e6
         """ Rate scaling factor for unimolecular reactions.
 
         Type         Default
         double       1.6e6:
                      Unitless. Details on default in thesis."""
         
-        self.bimolecular_scaling = 0.5e6
+        self._bimolecular_scaling = 0.5e6
         """ Rate scaling factor for bimolecular reactions.
         
         Type         Default
@@ -362,17 +362,7 @@ class MultistrandOptions( object ):
                 
         # See accessors below
         self._stop_conditions = []
-        
-        self.use_stop_conditions = True
-        """ Indicates whether trajectories should end when stop states
-        are reached.
-        
-        Type            Default
-        boolean         True: End trajectory upon reaching stop state
-        
-        Defaults to ending trajectories upon reaching stop states, but can be
-        manually changed to False to avoid stopping at defined stop states.
-        """
+        self._use_stop_conditions = False
         
         self.stop_count = 0
         """ The number of stop states. Equivalent to 'len(self.stop_conditions)'.
@@ -441,7 +431,6 @@ class MultistrandOptions( object ):
         ('setCollisionRate_Python', 'set_collision_rate__python')
         ('setCurSimTime', 'set_cur_sim_time')
 
-
     @property
     def boltzmann_sample(self):
         """ Indicates whether the start state will be determined by Boltzmann
@@ -465,8 +454,33 @@ class MultistrandOptions( object ):
             raise ValueError("the boltzmann_sample property can only be a boolean, sorry. When set, it applies globally to all resting state used in the start complexes, unless they have already been set.")
         for c,s in self._start_state:
             if s is not None:
-                s.boltzmann_sample( val )
+                s.boltzmann_sample = val
+            else:
+                c.boltzmann_sample = val 
         
+    @property
+    def unimolecular_scaling( self ):
+        """ Rate scaling factor for unimolecular reactions.
+
+        Type         Default
+        double       1.6e6:
+            Unitless. Details on default in thesis."""
+        return self._unimolecular_scaling
+
+    @unimolecular_scaling.setter
+    def unimolecular_scaling( self, val ):
+        self._unimolecular_scaling = float( val )
+        
+    @property
+    def bimolecular_scaling( self ):
+        """ Rate scaling factor for bimolecular reactions.
+        double       0.5e6:
+                     Unitless. Details on default in thesis."""
+        return self._bimolecular_scaling
+
+    @bimolecular_scaling.setter
+    def bimolecular_scaling( self, val ):
+        self._bimolecular_scaling = float( val )
     
     @property
     def start_state(self):
@@ -594,6 +608,31 @@ class MultistrandOptions( object ):
         # Set the internal data members
         self.stop_count = len(stop_list)
         self._stop_conditions = stop_list
+        self._use_stop_conditions = True
+
+
+    @property
+    def use_stop_conditions( self ):
+        """ Indicates whether trajectories should end when stop states
+        are reached.
+        
+        Type            Default
+        boolean         False: End trajectory upon reaching max time only.
+        
+        Defaults to ending trajectories only on the max simulation
+        time, but setting any stop conditions automatically changes
+        this to True, and it will stop whenever it reaches a stop
+        condition, or at max time [whichever comes first].
+        """
+        return self._use_stop_conditions
+
+    @use_stop_conditions.setter
+    def use_stop_conditions( self, val ):
+        if val == True and len(self._stop_conditions) == 0:
+            import warnings
+            warnings.warn("Options.use_stop_conditions was set to True, but no stop conditions have been defined!")
+
+        self._use_stop_conditions = val
     
     @property
     def increment_output_state(self):
@@ -683,11 +722,13 @@ class MultistrandOptions( object ):
             Prints thingies. Also sets useful values."""
         if not isinstance(val, tuple) or len(val) != 4:
             raise ValueError("Print status line needs a 4-tuple of values.")
-        seed,com_type, time, tag = val
-        self.interface_current_seed = seed  #uses property to get the right sub-object.
-        self.interface_current_completion_type = com_type
-        self.interface_current_time = time
-        self.interface_current_tag = tag
+        self.interface.add_result( val )
+        
+        # seed,com_type, time, tag = val
+        # self.interface_current_seed = seed  #uses property to get the right sub-object.
+        # self.interface_current_completion_type = com_type
+        # self.interface_current_time = time
+        # self.interface_current_tag = tag
 
     @property
     def print_status_line_firststep(self, val):
@@ -696,44 +737,16 @@ class MultistrandOptions( object ):
     @print_status_line_firststep.setter
     def print_status_line_firststep( self, val ):
         pass
-    
-    @property
-    def interface_reset_completion_flag(self):
-        tmp = self.interface.trajectory_completion_flag
-        self.interface.trajectory_completion_flag = False
-        self.interface.collision_rate = -1.0
-        return tmp
-
-    @property
-    def interface_collision_rate(self):
-        return self.interface.collision_rate
-
-    @interface_collision_rate.setter
-    def interface_collision_rate(self, rate ):
-        self.interface.collision_rate = rate
-
-    @property
-    def interface_current_time(self):
-        return self.interface_current_time
-
-    @interface_current_time.setter
-    def interface_current_time(self, time):
-        self.interface.current_time = time
-    
-    @property
-    def interface_halt_flag(self):
-        return self.interface.trajectory_halt_flag
-
-    @property
-    def interface_suspend_flag(self):
-        return self.interface.trajectory_suspend_flag
-
-    @property
-    def increment_trajectory_count(self):
-        self.interface.increment_trajectory_count()
 
     @property
     def interface_current_seed(self):
+        """ This is the current random number seed for the trajectory currently being
+        simulated by multistrand.
+
+        This property and its setter exist mainly for use by the
+        multistrand module to provide some feedback on what seed it's
+        working on, in case that trajectory crashes before completion,
+        and other similar cases."""
         return self.interface.current_seed
 
     @interface_current_seed.setter
@@ -741,17 +754,5 @@ class MultistrandOptions( object ):
         self.interface.current_seed = val
 
     @property
-    def interface_current_tag(self):
-        return self.interface.current_tag
-
-    @interface_current_tag.setter
-    def interface_current_tag(self, val):
-        self.interface.current_tag = val
-
-    @property
-    def interface_current_completion_type(self):
-        return self.interface.current_completion_type
-
-    @interface_current_completion_type.setter
-    def interface_current_completion_type(self, val):
-        self.interface.current_completion_type = val
+    def increment_trajectory_count( self ):
+        self.interface.increment_trajectory_count()

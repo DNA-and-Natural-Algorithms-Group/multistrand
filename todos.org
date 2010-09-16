@@ -1,3 +1,9 @@
+* Stop Condition Reorganization [0%]
+** TODO ssystem.cc [0/1]
+*** TODO fix transition time data mode to use simulation modes. 
+    [[file:system/ssystem.cc::TODO%20wrap%20this%20into%20simulation%20modes][Begin if block for transition time mode.]]
+    [[file:system/ssystem.cc::begin%20transition%20times%20mode%20case][begin else case which actually holds the mode]]
+
 * File / Directory TODO List
 ** Filenames [80%]                                                     :Work:
 *** CURRENT [[file:python_options.py][python_options.py]] [0/3]

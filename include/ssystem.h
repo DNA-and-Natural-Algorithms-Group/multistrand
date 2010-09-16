@@ -28,7 +28,7 @@ class SimulationSystem
  private:
   void StartSimulation_First_Bimolecular( void );
   void SimulationLoop( void );
-  void SimulationLoop_First_Bimolecular( double *completiontime, int *completiontype, double *frate, char **tag );
+  void SimulationLoop_First_Bimolecular( void );
   void InitializeSystem( void );
 
   void InitializeRNG( void );
