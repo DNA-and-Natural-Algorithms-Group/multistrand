@@ -130,14 +130,14 @@ class MultistrandOptions( object ):
         self._temperature_kelvin  = 310.15
 
         
-        self.unimolecular_scaling = 1.6e6
+        self._unimolecular_scaling = 1.6e6
         """ Rate scaling factor for unimolecular reactions.
 
         Type         Default
         double       1.6e6:
                      Unitless. Details on default in thesis."""
         
-        self.bimolecular_scaling = 0.5e6
+        self._bimolecular_scaling = 0.5e6
         """ Rate scaling factor for bimolecular reactions.
         
         Type         Default
@@ -353,17 +353,7 @@ class MultistrandOptions( object ):
         
         # See accessors below
         self._stop_conditions = []
-        
-        self.use_stop_conditions = True
-        """ Indicates whether trajectories should end when stop states
-        are reached.
-        
-        Type            Default
-        boolean         True: End trajectory upon reaching stop state
-        
-        Defaults to ending trajectories upon reaching stop states, but can be
-        manually changed to False to avoid stopping at defined stop states.
-        """
+        self._use_stop_conditions = False
         
         self.stop_count = 0
         """ The number of stop states. Equivalent to 'len(self.stop_conditions)'.
@@ -437,7 +427,33 @@ class MultistrandOptions( object ):
         ('resetCompleted_Python', 'reset_completed__python')
         ('setCollisionRate_Python', 'set_collision_rate__python')
         ('setCurSimTime', 'set_cur_sim_time')
-    
+
+    @property
+    def unimolecular_scaling( self ):
+        """ Rate scaling factor for unimolecular reactions.
+
+        Type         Default
+        double       1.6e6:
+            Unitless. Details on default in thesis."""
+        return self._unimolecular_scaling
+
+    @unimolecular_scaling.setter
+    def unimolecular_scaling( self, val ):
+        self._unimolecular_scaling = float( val )
+        
+    @property
+    def bimolecular_scaling( self ):
+        """ Rate scaling factor for bimolecular reactions.
+        
+        Type         Default
+        double       0.5e6:
+                     Unitless. Details on default in thesis."""
+        return self._bimolecular_scaling
+
+    @bimolecular_scaling.setter
+    def bimolecular_scaling( self, val ):
+        self._bimolecular_scaling = float( val )
+
     
     @property
     def start_state(self):
@@ -567,6 +583,31 @@ class MultistrandOptions( object ):
         # Set the internal data members
         self.stop_count = len(stop_list)
         self._stop_conditions = stop_list
+        self._use_stop_conditions = True
+
+
+    @property
+    def use_stop_conditions( self ):
+        """ Indicates whether trajectories should end when stop states
+        are reached.
+        
+        Type            Default
+        boolean         False: End trajectory upon reaching max time only.
+        
+        Defaults to ending trajectories only on the max simulation
+        time, but setting any stop conditions automatically changes
+        this to True, and it will stop whenever it reaches a stop
+        condition, or at max time [whichever comes first].
+        """
+        return self._use_stop_conditions
+
+    @use_stop_conditions.setter
+    def use_stop_conditions( self, val ):
+        if val == True and len(self._stop_conditions) == 0:
+            import warnings
+            warnings.warn("Options.use_stop_conditions was set to True, but no stop conditions have been defined!")
+
+        self._use_stop_conditions = val
     
     @property
     def increment_output_state(self):
@@ -703,34 +744,6 @@ class MultistrandOptions( object ):
     @interface_current_completion_type.setter
     def interface_current_completion_type(self, val):
         self.interface.current_completion_type = val
-
-
-
-def boltzmann_sample(cmplx):
-    """Returns a new Complex object with a structure boltzmann sampled based on
-    NUPACK's sample function.
-    """
-    import os, subprocess
-    cwd = os.path.abspath(os.curdir)
-    prefix = "temp_boltzmann___"
-    
-    f = open("%s/%s.in" % (cwd, prefix), "w")
-    f.write("%d\n" % len(cmplx.strand_list))
-    for strand in cmplx.strand_list:
-        f.write(strand.sequence + "\n")
-    for i in range(len(cmplx.strand_list)):
-        f.write("%d " % (i+1))
-    f.write("\n")
-    f.close()
-    
-    subprocess.check_call(["/research/src/sample_dist/bin/sample", "-multi", "-material", "dna", "-count", "1", "%s/%s" % (cwd, prefix)], stdout=subprocess.PIPE)
-    
-    f = open("%s/%s.sample" % (cwd, prefix), "r")
-    for i in range(11):
-        line = f.readline()
-    f.close()
-    
-    return Complex(cmplx.id, cmplx.name, cmplx.strand_list, line.strip())
 
 
 
