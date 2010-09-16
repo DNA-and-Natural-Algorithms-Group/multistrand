@@ -1,0 +1,82 @@
+################################################################################
+#                                                                              #
+#                                                                              #
+#           This is a README file for the Multistrand distribution.            #
+#                                                                              #
+#           Copyright (c) 2010 Caltech. All rights reserved.                   #
+#                                                                              #
+#    This software is being provided "as is", without any express or implied   #
+#   warranty.  In particular, neither the authors nor Caltech make any         #
+#   representation or warranty of any kind concerning the merchantability      #
+#   of this software or its fitness for any particular purpose.                #
+#                                                                              #
+#   That said, the authors welcome any bug reports and other comments on the   #
+#   software. :)                                                               #
+#                                                                              #
+#                                                                              #
+################################################################################
+
+################################################################################
+#                                                                              #
+#                                                                              #
+#  Maintainer / Primary Author / Primary Contact:                              #
+#    Joseph Schaeffer (schaeffer@dna.caltech.edu)                              #
+#                                                                              #
+#  Contributing Authors:                                                       #
+#    Chris Berlind (cberlind@dna.caltech.edu)                                  #
+#    Joshua Loving (jloving@hawaii.edu)                                        #
+#                                                                              #
+#                                                                              #
+################################################################################
+
+
+###
+### Compiling
+###
+
+To compile the standard command-line Multistrand, run the command
+'make' in the root directory [the location this file should be
+in!]. You should now have an executable called "Multistrand" located
+in the same directory.
+
+###
+###  Python package
+###
+
+To prepare the Multistrand Python package, run the command 'make
+package' in the root directory of this distribution. You should now
+have a subdirectory 'multistrand/' which is the multistrand
+package. [In the future, a 'make install' at this point should move
+that into your site-packages.]
+
+###
+### Using the Multistrand package
+###
+
+1. First you must import the package: if it's in your site packages or you're in the root directory, this is straightforward - skip to #2. If it's not, you need to add it to your package search path:
+
+import sys
+sys.path.append('/path/to/Multistrand')
+
+Note that the path you should put in there is the path to your
+Multistrand source directory [the path to this README file!].
+
+2. Import the parts you need:
+
+[Options]
+from multistrand.options import Options
+or
+import multistrand.options   #NOTE: try dir(multistrand.options) to see the members.
+                             # You can then use them via 'multistrand.options.Options', etc
+
+[General objects (inputs to a Options object)]
+from multistrand.objects import Domain, Strand, Complex, StopCondition, RestingState
+or
+import multistrand.objects   #NOTE: try dir(multistrand.objects) to see the members.
+                             # You can then use them via 'multistrand.objects.Domain', etc
+
+[System object]
+from multistrand.system import SimSystem
+or 
+import multistrand.system    #NOTE: try dir(multistrand.system) to see the members.
+                             # You can then use them via 'multistrand.system.SimSystem', etc

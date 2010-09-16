@@ -1,7 +1,7 @@
 ################################################################################
 #                                                                              #
 # Python implementation of the options object.                                 #
-# Copyright blah blah blah 2010 Caltech                                        #
+# Copyright 2010 Caltech                                                       #
 # Written by:  Joseph Schaeffer.                                               #
 # Some stuff written by:  Chris Berlind                                        #
 #                                                                              #
@@ -9,8 +9,8 @@
 #                                                                              #
 ################################################################################
 
-from options_interface import Interface
-from python_objects import Strand, Complex, RestingState, StopCondition
+from interface import Interface
+from ..objects import Strand, Complex, RestingState, StopCondition
 import copy
 
 class _OptionsConstants( object ):
@@ -73,6 +73,8 @@ class _OptionsConstants( object ):
         pass
 
 _OC = _OptionsConstants()
+Constants = _OptionsConstants()
+ # The above line is for use in our containing package.
 FILLIN = None
 
 class MultistrandOptions( object ):
@@ -463,7 +465,7 @@ class MultistrandOptions( object ):
             raise ValueError("the boltzmann_sample property can only be a boolean, sorry. When set, it applies globally to all resting state used in the start complexes, unless they have already been set.")
         for c,s in self._start_state:
             if s is not None:
-                s.set_boltzmann( val )
+                s.boltzmann_sample( val )
         
     
     @property
@@ -481,7 +483,7 @@ class MultistrandOptions( object ):
             if rest_state is None:
                 return cmplx
             else:
-                return rest_state.sample()
+                return rest_state.get_starting_complex()
             
         return [process_state(s) for s in self._start_state]
     

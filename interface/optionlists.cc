@@ -52,7 +52,7 @@ strandlist::~strandlist( void )
 
 identlist::identlist( long newuid, char *newid, class identlist *old )
 {
-  id = new char[strlen(newid)];
+  id = new char[strlen(newid) + 1];
   strcpy(id, newid );
 
   uid = newuid;
@@ -88,7 +88,9 @@ identlist::~identlist( void )
 
 complex_item::complex_item( char *struc, class identlist *strands, class complex_item *old) 
 {
-  structure = struc;
+  structure = new char[strlen(struc) + 1];
+  strcpy(structure, struc );
+  
   while( strchr( structure, '_' ) != NULL )
     {
       *strchr(structure,'_') = '+';
@@ -106,7 +108,9 @@ complex_item::complex_item( char *struc, class identlist *strands, class complex
 
 complex_item::complex_item( char *struc, class identlist *strands, class complex_item *old, int newtype) 
 {
-  structure = struc;
+  structure = new char[strlen(struc) + 1];
+  strcpy(structure, struc );
+  
   if( structure != NULL )
     {
       while( strchr( structure, '_' ) != NULL )
@@ -126,7 +130,9 @@ complex_item::complex_item( char *struc, class identlist *strands, class complex
 
 complex_item::complex_item( char *struc, class identlist *strands, class complex_item *old, int newtype, int newcount) 
 {
-  structure = struc;
+  structure = new char[strlen(struc) + 1];
+  strcpy(structure, struc );
+  
   if( structure != NULL )
     {
       while( strchr( structure, '_' ) != NULL )
@@ -154,7 +160,7 @@ complex_item::complex_item( char *struc, class identlist *strands, class complex
 complex_item::~complex_item( void )
 {
   if( structure != NULL )
-    free(structure);  
+    delete[] structure;
   if( strand_ids != NULL )
     delete strand_ids;
   if( next != NULL )
@@ -173,7 +179,9 @@ complex_item::~complex_item( void )
 
 stopcomplexes::stopcomplexes( char *newtag, class complex_item *newitem, class stopcomplexes *old) 
 {
-  tag = newtag;
+  tag = new char[strlen(newtag) + 1];
+  strcpy(tag, newtag );
+  
   citem = newitem;
   next = old;
 }
@@ -188,7 +196,7 @@ stopcomplexes::stopcomplexes( char *newtag, class complex_item *newitem, class s
 stopcomplexes::~stopcomplexes( void )
 {
   if( tag != NULL )
-    free(tag);  
+    delete[] tag;
   if( citem != NULL )
     delete citem;
   if( next != NULL )

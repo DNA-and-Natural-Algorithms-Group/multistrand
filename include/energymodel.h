@@ -9,7 +9,6 @@
 
 #include <stdio.h>
 #include <python2.6/Python.h>
-#include "python_options.h"
 
 #define NUM_BASEPAIRS_VIENNA 8
     // Vienna: 0 is invalid, then CG, GC, GU, UG, AU, UA, and Special are 1-7

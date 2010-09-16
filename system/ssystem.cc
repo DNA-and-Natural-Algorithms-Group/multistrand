@@ -3,17 +3,17 @@
   Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
 */
 
-#include "python_options.h"
+#include "options.h"
 #include "ssystem.h"
 
 #include <string.h>
 #include <time.h>
 #include <stdlib.h>
 
-#ifndef PYTHON_THREADS
 SimulationSystem::SimulationSystem( int argc, char **argv )
 {
-  assert(0);  // entire function is fail now.
+  return;
+  // entire function is FAIL. Needs replacing.
   
   // FILE *fp = NULL;
   // if( GlobalOptions == NULL )
@@ -80,8 +80,6 @@ SimulationSystem::SimulationSystem( int argc, char **argv )
 
   // getBoolAttr( system_options, boltzmann_sample, &boltzmann_sampling );
 }
-#endif
-// end #ifndef PYTHON_THREADS - we do not want to have this constructor as it uses yyparse.
 
 SimulationSystem::SimulationSystem( PyObject *system_o )
 {
@@ -105,21 +103,20 @@ SimulationSystem::SimulationSystem( PyObject *system_o )
     }
   
   startState = NULL;
-  complexList = NULL; // new SComplexList( dnaEnergyModel );
-  
-  //  system_options->finalizeInput();
-  //  getBoolAttr( system_options, boltzmann_sample, &boltzmann_sampling );
+  complexList = NULL; 
 }
 
 SimulationSystem::~SimulationSystem( void )
 {
   if( complexList != NULL )
-    delete complexList;
-#ifndef PYTHON_THREADS
-  if( dnaEnergyModel != NULL )
-    delete dnaEnergyModel;
-#endif
+    delete complexList;  
+  complexList = NULL;
 
+  // the remaining members are not our responsibility, we null them out
+  // just in case something thread-unsafe happens.
+  dnaEnergyModel = NULL;
+  system_options = NULL;
+  startState = NULL;
 }
 
 void SimulationSystem::StartSimulation( void )
@@ -129,7 +126,6 @@ void SimulationSystem::StartSimulation( void )
   long ointerval;
 
   getLongAttr(system_options, output_interval,&ointerval);
-
 
   if( simulation_mode & SIMULATION_MODE_FLAG_PYTHON )
     {
@@ -171,30 +167,19 @@ void SimulationSystem::StartSimulation( void )
     }
 }
 
-#ifdef PYTHON_THREADS
-void SimulationSystem::StartSimulation_threads( void )
-{
-  using namespace boost::python;
-  Py_BEGIN_ALLOW_THREADS
-    StartSimulation();
-  Py_END_ALLOW_THREADS
-    }
-#endif
-
-
 void SimulationSystem::SimulationLoop( void )
 {
-  double rchoice,rate,stime=0.0;
-  class stopcomplexes *traverse;
-  int curcount = 0;
-  int checkresult = 0;
-  double ctime = 0.0;
-  double maxsimtime;
-  long stopcount;
-  long stopoptions;
-  long ointerval;
-  long sMode;
-  double otime;
+  double rchoice,rate,stime,ctime;
+  // Could really use some commenting on these local vars.
+  rchoice = rate = stime = ctime = 0.0;
+
+  double maxsimtime, otime;
+  maxsimtime = otime = -1.0;
+  
+  int curcount = 0, checkresult = 0;
+  long stopcount = 0, stopoptions = 0, sMode = 0;
+  long ointerval = -1;
+  class stopcomplexes *traverse = NULL, *first=NULL;
 
   getLongAttr(system_options, simulation_mode,&sMode); 
   getLongAttr(system_options, output_interval,&ointerval);
@@ -232,14 +217,21 @@ void SimulationSystem::SimulationLoop( void )
 
         if( stopcount > 0 && stopoptions)
           {
-            curcount = 0;
             checkresult = 0;
-            while( curcount < stopcount && checkresult == 0 )
+            first = getStopComplexList( system_options, 0 );
+            checkresult = complexList->checkStopComplexList( first->citem );
+            traverse = first;
+            while( traverse->next != NULL && checkresult == 0 )
               {
-                traverse = getStopComplexList( system_options, curcount );
+                traverse = traverse->next;
                 checkresult = complexList->checkStopComplexList( traverse->citem );
-                curcount++;
               }
+            // Note: we cannot delete first here if checkresult != 0,
+            // as traverse->tag may be needed. It will get checked at
+            // that point and deleted once traverse->tag is used,
+            // later.
+            if( checkresult == 0 )
+              delete first;
           }
         if( checkresult == 0 && (sMode & SIMULATION_MODE_FLAG_PYTHON) )
           {
@@ -292,7 +284,10 @@ void SimulationSystem::SimulationLoop( void )
       if( stime == NAN )
         printStatusLine(system_options, current_seed, STOPRESULT_NAN, 0.0, NULL);
       else if ( checkresult > 0 )
-        printStatusLine(system_options, current_seed, STOPRESULT_NORMAL, stime, traverse->tag );
+        {
+          printStatusLine(system_options, current_seed, STOPRESULT_NORMAL, stime, traverse->tag );
+          delete first;
+        }
       else
         printStatusLine(system_options, current_seed, STOPRESULT_TIME, stime, NULL );
       
@@ -305,16 +300,18 @@ void SimulationSystem::SimulationLoop( void )
       if( stopcount > 0 )
         {
           curcount = 0;
+          first = getStopComplexList( system_options, 0 );
+          traverse = first;
           while( curcount < stopcount && stopindex < 0 )
             {
-              traverse = getStopComplexList( system_options, curcount );
               if( strstr( traverse->tag, "stop") != NULL )
                 stopindex = curcount;
               curcount++;
+              traverse = traverse->next;
             }
+          delete first;
         }
 
-      //      printTrajLine(system_options,"Start",0);
       do {
         rchoice = (rate * random()/((double)RAND_MAX));
         stime += (log(1. / (double)((random() + 1)/(double)RAND_MAX)) / rate );
@@ -328,13 +325,20 @@ void SimulationSystem::SimulationLoop( void )
           }
         if( stopcount > 0 )
           {
-            curcount = 0;
+            curcount = 1;
             checkresult = 0;
+            first = getStopComplexList( system_options, 0 );
+            checkresult = complexList->checkStopComplexList( first->citem );
+            traverse = first;
             while( curcount < stopcount && checkresult == 0 )
               {
-                traverse = getStopComplexList( system_options, curcount );
+                traverse = traverse->next;
                 checkresult = complexList->checkStopComplexList( traverse->citem );
                 curcount++;
+              }
+            if( checkresult == 0 )
+              {
+                delete first;
               }
           }
         if( checkresult > 0 )
@@ -345,7 +349,8 @@ void SimulationSystem::SimulationLoop( void )
           ;
           //          printTrajLine(system_options,"NOSTATE", stime );
       } while( /*rate > 0.01 && */ stime < maxsimtime && !(checkresult > 0 && stopindex == curcount-1));
-      
+      if( checkresult > 0 )
+        delete first;
       if( ointerval < 0 || testLongAttr(system_options, output_state ,=, 0 ))
         complexList->printComplexList( 0 );
 
@@ -382,13 +387,12 @@ void SimulationSystem::StartSimulation_First_Bimolecular( void )
 void SimulationSystem::SimulationLoop_First_Bimolecular( void )
 {
   double rchoice,rate,stime=0.0, ctime=0.0;
-  int curcount = 0;
   int checkresult = 0;
 
   double maxsimtime;
   long stopcount;
   long stopoptions;
-  class stopcomplexes *traverse;
+  class stopcomplexes *traverse = NULL, *first = NULL;
   long ointerval;
   int sMode = simulation_mode & SIMULATION_MODE_FLAG_PYTHON;
   long trajMode;
@@ -424,9 +428,6 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( void )
 
   if( ointerval >= 0 || otime_interval >= 0.0 )
     complexList->printComplexList( 0 );
-  /*  if( ointerval >= 0 )
-    printf("Initial State (before join).\n",rchoice, ctime);
-  */
 
   complexList->doJoinChoice( rchoice );
 
@@ -471,10 +472,6 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( void )
 
       }
 
-    //    if( sMode )
-    //    setDoubleAttr(system_options, interface_current_time, stime);
-      
-
     complexList->doBasicChoice( rchoice, stime );
     rate = complexList->getTotalFlux();
     
@@ -488,19 +485,26 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( void )
         pingAttr( system_options, increment_output_state );
         
       }
-
+    if( first != NULL )
+      {
+        traverse = NULL;
+        delete first;
+      }
     if( stopcount > 0 && stopoptions)
       {
-        curcount = 0;
         checkresult = 0;
-        while( curcount < stopcount && checkresult == 0 )
+        first = getStopComplexList( system_options, 0 );
+        traverse = first;
+        checkresult = complexList->checkStopComplexList( traverse->citem );
+        while( traverse->next != NULL && checkresult == 0 )
           {
-            traverse = getStopComplexList( system_options, curcount );
+            traverse = traverse->next;
             checkresult = complexList->checkStopComplexList( traverse->citem );
-            curcount++;
           }
+        if( checkresult == 0 )
+          delete first;
       }
-    if( checkresult == 0 && sMode )
+    /*    if( checkresult == 0 && sMode )
       {
         // if external python interface has asked us to pause.
         if( testBoolAttr(system_options, interface_suspend_flag) ) 
@@ -511,7 +515,7 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( void )
         
         if( testBoolAttr( system_options, interface_halt_flag ))
           checkresult = -1;
-      }
+          }*/
   } while( stime < maxsimtime && checkresult == 0);
       
   if( !sMode && otime > 0.0 )
@@ -526,6 +530,7 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( void )
         printStatusLine_First_Bimolecular( system_options, current_seed, STOPRESULT_REVERSE, stime, frate, traverse->tag );
       else 
         printStatusLine_First_Bimolecular( system_options, current_seed, STOPRESULT_FORWARD, stime, frate, traverse->tag );
+      delete first;
     }
   else
     {
@@ -533,6 +538,7 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( void )
     }
   if( ! sMode )
     printf("Trajectory Completed\n");
+  
 }
 
 

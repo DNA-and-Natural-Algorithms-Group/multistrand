@@ -11,7 +11,7 @@
 #include <assert.h>
 
 #include "energymodel.h"
-#include "python_options.h"
+#include "options.h"
 
 #undef DEBUG
 //#define DEBUG
