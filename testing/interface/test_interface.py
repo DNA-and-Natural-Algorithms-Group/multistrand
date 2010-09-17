@@ -68,7 +68,3 @@ num_sims = 1
 
 for i in range(num_sims):
   run_trajectory()
-
-
-
-

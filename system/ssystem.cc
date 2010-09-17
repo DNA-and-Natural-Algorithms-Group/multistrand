@@ -19,7 +19,8 @@ SimulationSystem::SimulationSystem( int argc, char **argv )
 SimulationSystem::SimulationSystem( PyObject *system_o )
 {
   system_options = system_o;
-  
+  Py_INCREF( system_options );
+
   getLongAttr(system_options, simulation_mode, &simulation_mode );
   getLongAttr(system_options, num_simulations, &simulation_count_remaining);
   if( Loop::GetEnergyModel() == NULL)
@@ -50,6 +51,10 @@ SimulationSystem::~SimulationSystem( void )
   // the remaining members are not our responsibility, we null them out
   // just in case something thread-unsafe happens.
   dnaEnergyModel = NULL;
+
+  if( system_options != NULL )
+    Py_DECREF( system_options );
+
   system_options = NULL;
   startState = NULL;
 }
