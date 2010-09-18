@@ -4,17 +4,125 @@
     [[file:system/ssystem.cc::TODO%20wrap%20this%20into%20simulation%20modes][Begin if block for transition time mode.]]
     [[file:system/ssystem.cc::begin%20transition%20times%20mode%20case][begin else case which actually holds the mode]]
 
-* File / Directory TODO List
-** Filenames [80%]                                                     :Work:
-*** CURRENT [[file:python_options.py][python_options.py]] [0/3]
+* Optimization [0%]
+** TODO strstr issues?
+*** perftools
+    Sequence: GACCTCATGGTTCTGAATATACTACTCCAATCCTAAAGTT
+    MFE: -1.54 .(((....))).............................
+
+(pprof) top30
+Total: 6369 samples
+    1428  22.4%  22.4%     1428  22.4% _strstr
+     640  10.0%  32.5%     4306  67.6% OpenLoop::generateMoves
+     438   6.9%  39.3%      679  10.7% _szone_free_definite_size
+     437   6.9%  46.2%      437   6.9% NupackEnergyModel::OpenloopEnergy
+     400   6.3%  52.5%      400   6.3% _strncmp
+     354   5.6%  58.0%      418   6.6% _tiny_malloc_from_free_list
+     244   3.8%  61.9%      244   3.8% _tiny_free_list_add_ptr
+     226   3.5%  65.4%      226   3.5% _exp$fenv_access_off
+     214   3.4%  68.8%      342   5.4% MoveList::addMove
+     205   3.2%  72.0%      205   3.2% ___umodti3
+     188   3.0%  75.0%      227   3.6% NupackEnergyModel::returnRate
+     162   2.5%  77.5%      162   2.5% Move::Move
+     140   2.2%  79.7%      140   2.2% _szone_size
+     123   1.9%  81.6%     2042  32.1% NupackEnergyModel::HairpinEnergy
+*** grep for strstr
+    grep -nH -e strstr */*.cc
+    energymodel/nupackenergymodel.cc:359:      temp = strstr( hairpin_triloops  ,cmpstring);
+    energymodel/nupackenergymodel.cc:368:      temp = strstr(hairpin_tetraloops  ,cmpstring);
+    many values omitted, these are the culprits (i think)
+*** notes
+    Looks like that lookup is killer when we have it tons of times..
+* DONE File / Directory TODO List
+  Files have been fully ported from old Multistrand into at least a
+  semi-functioning state.
+  CLOSED: [2010-09-17 Fri 04:42]
+  - State "DONE"       from ""           [2010-09-17 Fri 04:42]
+** Filenames [100%]                                                     :Work:
+*** DONE [[file:.hgignore][.hgignore]]
+    Added a few directories / files.
+    CLOSED: [2010-09-17 Fri 04:19]
+    - State "DONE"       from "PENDING"    [2010-09-17 Fri 04:19]
+*** DONE [[file:include/options.h][options.h]]
+    No longer is present in nearly the same form as
+    before. The new file with this name is python_options.h.
+    CLOSED: [2010-09-17 Fri 04:20]
+    - State "DONE"       from "PENDING"    [2010-09-17 Fri 04:20]
+    To be removed?
+*** DONE [[file:include/scomplexlist.h][scomplexlist.h]]
+    No changes were made, but probably in the future.
+    CLOSED: [2010-09-17 Fri 04:25]
+    - State "DONE"       from "PENDING"    [2010-09-17 Fri 04:25]
+    
+    No changes necessary?
+*** DONE [#C] [[file:options.cc][options.cc]]
+    Removed. New options.cc is python_options.cc from this list.
+    CLOSED: [2010-09-17 Fri 04:26]
+    - State "DONE"       from "PENDING"    [2010-09-17 Fri 04:26]
+    To be removed.
+*** DONE [[file:state/scomplexlist.cc][scomplexlist.cc]]
+    No changes here.
+    CLOSED: [2010-09-17 Fri 04:31]
+    - State "DONE"       from "PENDING"    [2010-09-17 Fri 04:31]
+    No changes were necessary?o
+*** DONE [[file:include/python_options.h][python_options.h]] [4/4]
+    Is now options.h.
+    CLOSED: [2010-09-17 Fri 04:37]
+    - State "DONE"       from "CURRENT"    [2010-09-17 Fri 04:37]
+    added stopcondition components so that ssystem.cc will compile.
+    - State "CURRENT"    from "PENDING"    [2010-08-21 Sat 15:44]
+**** DONE write debug versions of macros. [3/3]
+     Written and tested at least somewhat.
+     CLOSED: [2010-09-17 Fri 04:35]
+     - State "DONE"       from "TODO"       [2010-09-17 Fri 04:35]
+***** DONE Debug versions of all get/set/test macros
+      All macros have a debug version now, with a few exceptions: All
+      List references and list accessors are the caller's
+      responsibility to check whether the return value was
+      invalid. All string functions are also caller's responsibility.
+      CLOSED: [2010-08-23 Mon 13:50]
+      - State "DONE"       from "TODO"       [2010-08-23 Mon 13:50]
+***** CANCELED [[file:include/python_options.h::TODO%20no%20debug%20versions%20of%20these%20yet][Link ]]Debug versions of call macros
+      CLOSED: [2010-09-17 Fri 04:33]
+      - State "CANCELED"   from "TODO"       [2010-09-17 Fri 04:34] \\
+        No longer have any call macros, instead the new 'print' macros do essentially the same thing by setting attributes (@property,  @blah.setter).
+***** DONE debug versions of static functions
+      Added debug versions for testLongAttr and newObject.
+      CLOSED: [2010-08-23 Mon 13:50]
+      - State "DONE"       from "TODO"       [2010-08-23 Mon 13:50]
+**** DONE [[file:include/python_options.h:138:][STOPCONDITION lines]]
+     Added lines.
+     CLOSED: [2010-09-17 Fri 04:35]
+     - State "DONE"       from "TODO"       [2010-09-17 Fri 04:35]
+     See file.
+**** CANCELED check call macros for ref counting issues.
+     CLOSED: [2010-09-17 Fri 04:36]
+     - State "CANCELED"   from "TODO"       [2010-09-17 Fri 04:36] \\
+       No call macros anymore, see print macros.
+**** DONE [[file:include/python_options.h::define%20m_printStatusLine%20obj%20a%20b%20c][print calls]]
+     Added / changed the print macros into status tuple sends.
+     CLOSED: [2010-09-17 Fri 04:36]
+     - State "DONE"       from "TODO"       [2010-09-17 Fri 04:36]
+     print calls are now all #defines, fill in data.
+*** FUTURE [[file:python_options.py][python_options.py]] [2/2]
+    Future: File handling functions currently nonexistent.
+    CLOSED: [2010-09-17 Fri 04:40]
+    - State "FUTURE"     from "CURRENT"    [2010-09-17 Fri 04:40]
     Need to add in print functions / log file manipulation now.
     - State "CURRENT"    from "DONE"       [2010-08-22 Sun 17:53]
     Merged the rest of the changes for this file. Should be nearly the
     same as previous.
     CLOSED: [2010-08-22 Sun 09:04]
     - State "DONE"       from "PENDING"    [2010-08-22 Sun 09:04]
-**** TODO File handling
-**** TODO Printing Functions
+**** CANCELED File handling
+     CLOSED: [2010-09-17 Fri 04:39]
+     - State "CANCELED"   from "TODO"       [2010-09-17 Fri 04:40] \\
+       File handling should be in next pass.
+**** DONE Printing Functions
+     Support is now in via @property and .setters - all info is passed
+     via setting an attribute value with a tuple. 
+     CLOSED: [2010-09-17 Fri 04:40]
+     - State "DONE"       from "TODO"       [2010-09-17 Fri 04:40]
      Broken into two parts - print macros are done on the c side now,
      just needing support here via the push attrib.
 ***** code
@@ -27,21 +135,16 @@
       echo "_____ssystem.cc_____"
       grep -n print[^f] system/ssystem.cc
 #+end_src
-***** Results
-#+results: print_functions
-*** PENDING [#B] [[file:python_options.cc][python_options.cc]] [1/2]
-    Needs some sub components checked, see child TODOS.
-    - State "CURRENT"    from "TODO"       [2010-08-21 Sat 16:12]
-**** DONE Make sure it compiles.
-     Compiles now, used Chris's updates to optionlists.h.
-     CLOSED: [2010-08-21 Sat 16:31]
-     - State "DONE"       from "TODO"       [2010-08-21 Sat 16:31]
-**** TODO [[file:python_options.cc::TODO%20check%20deallocation%20of%20new%20objects][dealloc issues for new objects?]]
-*** LATER [#B] [[file:Makefile][Makefile]]    [3/5]
-    - State "LATER"      from "CURRENT"    [2010-08-23 Mon 03:06] \\
+*** DONE [[file:Makefile][Makefile]]    [5/5]
+    Current incarnation works pretty well for package, etc.
+    CLOSED: [2010-09-17 Fri 04:19]
+    - State "DONE"       from "LATER"      [2010-09-17 Fri 04:19]
+   - State "LATER"      from "CURRENT"    [2010-08-23 Mon 03:06] \\
       Currently usable, rest is managing dependencies and so
       on. Remaining features for later work. 
-**** TODO way too much in the way of connected dependencies, see if we can remove some of the crossed ones, especially scomplex.h and loop.h
+**** FUTURE way too much in the way of connected dependencies, see if we can remove some of the crossed ones, especially scomplex.h and loop.h
+     CLOSED: [2010-09-17 Fri 04:18]
+     - State "FUTURE"     from "TODO"       [2010-09-17 Fri 04:18]
      Can generate all these via simple scripts, e.g.: "grep loop.h
      */*" with appropriate flags for filename of matches only.
 ***** Code
@@ -61,7 +164,11 @@
 : include/scomplex.h
 : include/ssystem.h
 : include/strandordering.h
-**** PENDING [[file:Makefile::TODO][documentation]]
+**** FIXED [[file:Makefile::TODO][documentation]]
+     Documentation is now mostly handled by not being as needed with
+     the new 'make package'.
+     CLOSED: [2010-09-17 Fri 04:18]
+     - State "FIXED"      from "PENDING"    [2010-09-17 Fri 04:18]
 **** DONE More components for [[Makefile][Makefile]] TODO List [3/3]
      CLOSED: [2010-08-26 Thu 03:51]
      - State "DONE"       from ""           [2010-08-26 Thu 03:51]
@@ -104,15 +211,47 @@
      All works fine, python-interface works up to boost errors.
      CLOSED: [2010-08-22 Sun 08:13]
      - State "DONE"       from "TODO"       [2010-08-22 Sun 08:13]
-*** LATER [[file:outside_sources/re_generator.py][re_generator.py]]
+*** DONE [[file:outside_sources/re_generator.py][re_generator.py]]
+    Outside utility, not currently used.
+    CLOSED: [2010-09-17 Fri 04:42]
+    - State "DONE"       from "LATER"      [2010-09-17 Fri 04:42]
     - State "LATER"      from "PENDING"    [2010-08-22 Sun 08:18] \\
       Utilities from other repos.
-*** LATER [[file:outside_sources/util_regexp.py][util_regexp.py]]
+*** DONE [[file:outside_sources/util_regexp.py][util_regexp.py]]
+    Outside utility, input/output usage possibly?
+    CLOSED: [2010-09-17 Fri 04:42]
+    - State "DONE"       from "LATER"      [2010-09-17 Fri 04:42]
     - State "LATER"      from "PENDING"    [2010-08-22 Sun 08:19] \\
       Utilities from other repos.
-*** LATER [[file:outside_sources/complecks_multistrand.py][complecks_multistrand.py]]
+*** CANCELED [[file:outside_sources/complecks_multistrand.py][complecks_multistrand.py]]
+    CLOSED: [2010-09-17 Fri 04:41]
+    - State "CANCELED"   from "LATER"      [2010-09-17 Fri 04:41] \\
+      No longer needed - possibly wrap some functionality from this one into complex.py.
     - State "LATER"      from "PENDING"    [2010-08-22 Sun 08:19] \\
       Utilities from other repos.
+*** CANCELED [[file:python_options.cc][python_options.cc]] [/]
+    CLOSED: [2010-09-17 Fri 04:15]
+    - State "CANCELED"   from "PENDING"    [2010-09-17 Fri 04:16] \\
+      File is now moved to options.cc, probably needs further exploration.
+    Needs some sub components checked, see child TODOS.
+    - State "CURRENT"    from "TODO"       [2010-08-21 Sat 16:12]
+**** DONE Make sure it compiles.
+     Compiles now, used Chris's updates to optionlists.h.
+     CLOSED: [2010-08-21 Sat 16:31]
+     - State "DONE"       from "TODO"       [2010-08-21 Sat 16:31]
+*** DONE test_interface.py [2/2]
+    Current file is Chris's testing file, unit tests have been
+    moved to their own files. 
+    CLOSED: [2010-09-17 Fri 03:53]
+    - State "DONE"       from "TODO"       [2010-09-17 Fri 03:53]
+**** DONE Create unit test objects rather than flat test file.
+     Unit test file was created, it's now a separate piece - unittests.py
+     CLOSED: [2010-09-17 Fri 03:51]
+     - State "DONE"       from "TODO"       [2010-09-17 Fri 03:51]
+**** CANCELED Find crash bug relating to memory allocation.
+     CLOSED: [2010-09-17 Fri 03:52]
+     - State "CANCELED"   from "CURRENT"    [2010-09-17 Fri 03:53] \\
+       Memory allocation issues possibly still present, but no crash bug at the moment.
 *** DONE [[file:include/python_options.h][python_options.h]] [4/4]
     Most major issues finished.
     CLOSED: [2010-08-26 Thu 03:47]
@@ -284,15 +423,12 @@
 
 
 * File Notes
-** obj/python:
-   subdirectory for direct interface .o files for building .so targets
-   or others.
 ** old:
-    old/options_data:
-    old options objects.
+   old/options_data:
+   old options objects.
 
-    old/src:
-    source no longer in use (iosys.lex / iosys.y)
+   old/src:
+   source no longer in use (iosys.lex / iosys.y)
 
 
 * control commands (org-mode)

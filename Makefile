@@ -152,6 +152,14 @@ package-debug-clean:
 # delete your distribution.
 	-rm -rf multistrand/
 
+package-profiler-clean:
+	@echo Cleaning up old object files, shared libraries.
+	$(PYTHON_COMMAND) setup.py clean -b ./ -t obj/package_profiler/ --build-lib ./
+# NOTE: DO NOT USE --all IN THE ABOVE COMMAND! Perhaps later if we build binaries to ./bin
+# and libraries to ./lib it'll be possible, but right now that may
+# delete your distribution.
+	-rm -rf multistrand/
+
 distclean: package-clean package-debug-clean clean
 	@echo Removing object file directories.
 	-rmdir obj/package_debug/
@@ -162,12 +170,21 @@ distclean: package-clean package-debug-clean clean
 package:
 	@echo Building the 'multistrand' Python package.
 	@if [ -d obj/package_debug/ ]; then $(MAKE) package-debug-clean; fi
+	@if [ -d obj/package_profiler/ ]; then $(MAKE) package-profiler-clean; fi
 	$(PYTHON_COMMAND) setup.py build -b ./ -t obj/package/ --build-lib ./ --debug
+	@echo Package is now [hopefully] built, you can import it via "import multistrand" if the current directory is in your sys.path. In the future you may be able to run 'make install' to have it installed in your Python site packages.
+
+package-profiler:
+	@echo Building the 'multistrand' Python package.
+	@if [ -d obj/package_debug/ ]; then $(MAKE) package-debug-clean; fi
+	@if [ -d obj/package/ ]; then $(MAKE) package-clean; fi
+	$(PYTHON_COMMAND) setup.py build -b ./ -t obj/package_profiler/ --build-lib ./ --debug --use-profiler-defs
 	@echo Package is now [hopefully] built, you can import it via "import multistrand" if the current directory is in your sys.path. In the future you may be able to run 'make install' to have it installed in your Python site packages.
 
 package-debug:
 	@echo Building the 'multistrand' Python package, with debugging symbols enabled.
 	@if [ -d obj/package/ ]; then $(MAKE) package-clean; fi
+	@if [ -d obj/package_profiler/ ]; then $(MAKE) package-profiler-clean; fi
 	$(PYTHON_DEBUG_COMMAND) setup.py build -b ./ -t obj/package_debug/ --build-lib ./ --debug --use-debug-defs
 	@echo Package is now [hopefully] built, you can import it via "import multistrand" if the current directory is in your sys.path. In the future you may be able to run 'make install' to have it installed in your Python site packages.
 

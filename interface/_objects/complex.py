@@ -21,6 +21,9 @@ class Complex(object):
     self._boltzmann_queue = []
     self.boltzmann_sample = boltzmann_sample
 
+  def get_unique_ids( self ):
+    return set([i.id for i in self.strand_list])
+  
   def __len__(self):
     """ This may not be a very good definition of length. See notes elsewhere."""
     return len(self.strand_list)

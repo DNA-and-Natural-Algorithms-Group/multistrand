@@ -7,6 +7,6 @@
 # Options module to grab the options object into this namespace.
 #
 
-from _options.options import MultistrandOptions as Options
-from _options.options import Constants
-
+from _options.options   import MultistrandOptions as Options
+from _options.constants import Constants
+from _options.interface import Result

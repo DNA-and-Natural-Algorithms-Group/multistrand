@@ -10,6 +10,10 @@
 #include <time.h>
 #include <stdlib.h>
 
+#ifdef PROFILING
+#include "google/profiler.h"
+#endif
+
 SimulationSystem::SimulationSystem( int argc, char **argv )
 {
   return;
@@ -18,6 +22,10 @@ SimulationSystem::SimulationSystem( int argc, char **argv )
 
 SimulationSystem::SimulationSystem( PyObject *system_o )
 {
+#ifdef PROFILING
+  ProfilerStart("ssystem_init_profile.prof");
+#endif
+
   system_options = system_o;
   Py_INCREF( system_options );
 
@@ -40,6 +48,9 @@ SimulationSystem::SimulationSystem( PyObject *system_o )
   
   startState = NULL;
   complexList = NULL; 
+#ifdef PROFILING
+  ProfilerStop();
+#endif
 }
 
 SimulationSystem::~SimulationSystem( void )
@@ -64,6 +75,9 @@ void SimulationSystem::StartSimulation( void )
   FILE *fp; // used only for initial random number generation.
   int curcount = 0;
   long ointerval;
+#ifdef PROFILING
+  ProfilerStart("ssystem_run_profile.prof");
+#endif
 
   getLongAttr(system_options, output_interval,&ointerval);
 
@@ -100,6 +114,9 @@ void SimulationSystem::StartSimulation( void )
       pingAttr( system_options, increment_trajectory_count );
       generateNextRandom();
     }
+#ifdef PROFILING
+  ProfilerStop();
+#endif
 }
 
 void SimulationSystem::SimulationLoop( void )
@@ -449,8 +466,8 @@ void SimulationSystem::InitializeSystem( void )
   char *sequence, *structure;
   class identlist *id;
   int start_count;
-  PyObject *py_start_state, *py_complex;
-  PyObject *py_seq, *py_struc;
+  PyObject *py_start_state = NULL, *py_complex = NULL;
+  PyObject *py_seq = NULL, *py_struc = NULL;
 
   startState = NULL;
   if( complexList != NULL )
@@ -459,22 +476,31 @@ void SimulationSystem::InitializeSystem( void )
   complexList = new SComplexList( dnaEnergyModel );
   
   py_start_state = getListAttr(system_options, start_state);
+  // new reference
+
   start_count = PyList_GET_SIZE(py_start_state);  
   // doesn't need reference counting for this size call.
   // the getlistattr call we decref later.
   
   for( int index = 0; index < start_count; index++ )
     {
+      // #ifndef DEBUG_MACROS
       py_complex = PyList_GET_ITEM(py_start_state, index);
-      // does need to decref when no longer in use.
+      // Borrowed reference, we do NOT decref it at end of loop.
+            
+      // #else
+      //       py_complex = PyList_GetItem(py_start_state, index);
+      // #endif
+
+#ifdef DEBUG_MACROS
+      printPyError_withLineNumber();
+#endif
 
       sequence = getStringAttr(py_complex, sequence, py_seq);
+      // new reference
       
-      // boltzmann sampling is not our problem - the options object
-      // should be providing structures according to the boltzmann or
-      // not as it decides, not our job now. :)
-
       structure = getStringAttr(py_complex, structure, py_struc);
+      // new reference
       
       id = getID_list( system_options, index );
       
@@ -483,7 +509,6 @@ void SimulationSystem::InitializeSystem( void )
       
       Py_DECREF( py_seq );
       Py_DECREF( py_struc );
-      Py_DECREF( py_complex );
       startState = tempcomplex;
       complexList->addComplex( tempcomplex );
       tempcomplex = NULL;

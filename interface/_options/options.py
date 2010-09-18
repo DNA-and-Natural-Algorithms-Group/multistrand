@@ -11,70 +11,12 @@
 
 from interface import Interface
 from ..objects import Strand, Complex, RestingState, StopCondition
-import copy
-
-class _OptionsConstants( object ):
-    def __init__(self):
-        self.ZERO_C_IN_K = 273.15
-        pass
-    
-    @property
-    def RATEMETHOD(self):
-        return {"Invalid" :0, "Metropolis"    :1, \
-                "Kawasaki":2, "EntropyEnthalpy":3}
-
-    @property
-    def DANGLES(self):
-        return {"None":  0, "Some" : 1, \
-                "All" :  2, "NupackDefault": 1}
-
-    @property
-    def ENERGYMODEL_TYPE(self):
-        return {"Vienna":0, "Nupack":1, \
-                "Others?":2}
-
-    @property
-    def SUBSTRATE_TYPE(self):
-        return {"Invalid":0, "RNA":1, \
-                "DNA":2}
-
-    @property
-    def SIMULATION_MODE(self):
-        return {"Normal":                   0x0010,
-                "First Step":               0x0030,
-                "Python Module":            0x0040,
-                "Python Module:First Step": 0x0060,
-                "Energy Only":              0x0100}
-
-    @property
-    def SIMULATION_MODE_FLAG(self):
-        return {"Normal":                   0x0010,
-                "First Bimolecular":        0x0020,
-                "Python Module":            0x0040}
-
-    @property
-    def STOPRESULT(self):
-        return {"Normal":                   0x0011,
-                "Time":                     0x0012,
-                "Forward":                  0x0021,
-                "Time (First Step)":        0x0022,
-                "Reverse":                  0x0024,
-                "Error":                    0x0081,
-                "NaN":                      0x0082,
-                "No Moves":                 0x0084}
-    
-    def __setattr__(self, name, value):
-        if hasattr(self, name):
-            pass
-        else:
-            object.__setattr__(self, name, value)
-    
-    def __delattr__(self, *args, **kargs):
-        pass
+from constants import _OptionsConstants
 
 _OC = _OptionsConstants()
-Constants = _OptionsConstants()
- # The above line is for use in our containing package.
+
+import copy
+
 FILLIN = None
 
 class MultistrandOptions( object ):
@@ -317,15 +259,6 @@ class MultistrandOptions( object ):
         it feels like.
         """
         
-        self.unique_id = 0
-        """ Unique identifier for strands.
-        
-        Type         Default
-        int          0
-        
-        Incremented for each strand added.
-        """
-        
         self.name_dict = {}
         """ Dictionary from strand name to a list of unique strand objects
         having that name.
@@ -492,6 +425,8 @@ class MultistrandOptions( object ):
         This should be used by ssystem.cc to get the (potentially sampled) 
         start state.
         """
+        #        import pdb
+        #        pdb.set_trace()
         def process_state(x):
             cmplx, rest_state = x
             if rest_state is None:
@@ -538,12 +473,6 @@ class MultistrandOptions( object ):
             self._add_start_complex( i )
 
     def _add_start_complex( self, item ):
-        l = len(item)
-        item.make_unique( self.name_dict, range(self.unique_id,self.unique_id+l) )
-
-        self.unique_id += l
-        
-        item.set_boltzmann( self.boltzmann_sample )
         if isinstance(item, Complex):
             self._start_state.append( (item,None))
         else:
@@ -590,7 +519,8 @@ class MultistrandOptions( object ):
         
         # Copy the input list because it's easy to do and it's safer
         stop_list = copy.deepcopy(stop_list)
-        
+        import warnings
+        warnings.warn("Unique ID assignment likely incorrect here.")
         # Assign the unique ids
         for sc in stop_list:
             counts = {}
@@ -722,7 +652,7 @@ class MultistrandOptions( object ):
             Prints thingies. Also sets useful values."""
         if not isinstance(val, tuple) or len(val) != 4:
             raise ValueError("Print status line needs a 4-tuple of values.")
-        self.interface.add_result( val )
+        self.interface.add_result( val, res_type = 'status_line' )
         
         # seed,com_type, time, tag = val
         # self.interface_current_seed = seed  #uses property to get the right sub-object.

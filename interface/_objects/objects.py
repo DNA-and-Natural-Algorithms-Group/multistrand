@@ -1,3 +1,5 @@
+import warnings
+
 class Domain(object):
   """Represents a Multistrand Domain object."""
 
@@ -10,9 +12,22 @@ class Domain(object):
 
 class Strand(object):
   """Represents a Multistrand Strand object."""
+  unique_id = 0
+  
+  def __init__(self, *args ):
+    """ Initializes a new Strand object. """
+    if len(args) == 4:
+      warnings.warn( DeprecationWarning("Passing the strand ID is deprecated, it's a private matter internal to Multistrand.") )
+      name,sequence, domain_list = args[1:4]
+    elif len(args) == 3:
+      name,sequence,domain_list = args[0:3]
+    else:
+      raise ValueError("Strands must be initialized with 3 arguments: name, sequence and domain list.")
 
-  def __init__(self, id, name, sequence, domain_list):
-    self.id = id
+
+    # removed id from the interface possibilities.
+    self.id = Strand.unique_id
+    Strand.unique_id += 1
     self.name = name
     self.sequence = sequence
     self.domain_list = domain_list

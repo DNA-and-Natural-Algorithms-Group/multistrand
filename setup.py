@@ -29,17 +29,30 @@ import sys
 if '--use-debug-defs' in sys.argv:
     sys.argv.remove('--use-debug-defs')
     multi_ext = Extension("multistrand.system",
-                      sources=sources,
-                      include_dirs=["./include"],
-                      language="c++",
-                      define_macros=[('DEBUG',None),
-                                     ('DEBUG_MACROS',None),
-                                     ('Py_TRACE_REFS',None)],
-                      undef_macros=['NDEBUG'],
-#This is 'disable all warnings compiler flag' [possibly shouldn't be used for debug version]:
-                      extra_compile_args = ['-Wno-strict-prototypes','-w','-g','-O0'],  
+                          sources=sources,
+                          include_dirs=["./include"],
+                          language="c++",
+                          define_macros=[('DEBUG',None),
+                                         ('DEBUG_MACROS',None),
+                                        ('Py_TRACE_REFS',None)],
+                          undef_macros=['NDEBUG'],
+                          #This is 'disable all warnings compiler flag' [possibly shouldn't be used for debug version]:
+                          extra_compile_args = ['-Wno-strict-prototypes','-w','-g','-O0'],
                       )
-
+elif '--use-profiler-defs' in sys.argv:
+    sys.argv.remove('--use-profiler-defs')
+    multi_ext = Extension("multistrand.system",
+                          sources=sources,
+                          include_dirs=["./include"],
+                          language="c++",
+                          define_macros=[('DEBUG',None),
+                                         ('DEBUG_MACROS',None),
+                                        ('PROFILING',None)],
+                          undef_macros=['NDEBUG'],
+                          libraries=['profiler'],  #google perftools profiler.
+                          extra_compile_args = ['-w','-g','-O0'],
+                      )
+    
 else:
     multi_ext = Extension("multistrand.system",
                           sources=sources,
@@ -51,7 +64,8 @@ else:
                           undef_macros=['NDEBUG'],
 #                          define_macros=[('NDEBUG',None)],
 #                          undef_macros=['DEBUG', 'DEBUG_MACROS'],
-                          extra_compile_args = ['-O3','-g', '-w']
+                          extra_compile_args = ['-O3','-g', '-w'],
+                          libraries = ['profiler']
 #                          ['-Wno-strict-prototypes','-w','-O0','-v','-fcommon', '-fno-wrapv'],   #This is 'disable all warnings compiler flag'
                       )
 
