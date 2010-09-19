@@ -1,15 +1,49 @@
+from objects import Strand
+
 class Complex(object):
   """Represents a Multistrand Complex object."""
+  unique_id = 0
   
   def __init__(self, *args, **kargs):
-    # Old init prototype:
-    #def __init__(self, id, name, strand_list, structure, boltzmann_sample = False):
-    #
+    """ Initialize a Complex object.
+
+    For the old style initialization function, see old_init - using
+    that type of parameters when creating a Complex will fall back to
+    that function.
+
+    New parameters [all keywords]:
+    sequence [required]:  Flat sequence to use for this complex.
+    structure [required]: Flat structure to use for this complex.
+    name [default=automatic]: Name to use for this complex. Defaults to 'automatic' + a unique integer.
+    boltzmann_sample [default=False]: Whether we should boltzmann sample this complex.
+
+    You must include both of the required keyword arguments to create a Complex with the new style init. 
+    """
     if len( args ) == 4 or len( args ) == 5:
       self.old_init( *args, **kargs )
+    elif 'sequence' in kargs and 'structure' in kargs:
+      self.id = Complex.unique_id
+      self.name = kargs.get('name') or "automatic" + str(Complex.unique_id)
+      self.strand_list = [Strand(sequence=i) for i in kargs['sequence'].split("+")]
+      self._fixed_structure = kargs['structure']
+      self.boltzmann_sample = kargs.get('boltzmann_sample', False)
+      self._last_boltzmann_structure = False
+      self._boltzmann_sizehint = 1
+      self._boltzmann_queue = []
+      Complex.unique_id += 1
       
+  def __str__( self ):
+    return "Complex: {fieldnames[0]:>9}: '{0.name}'\n       : {fieldnames[1]:>9}: {0.sequence}\n       : {fieldnames[2]:>9}: {0.structure}\n       : {fieldnames[3]:>9}: {1}\n       : {fieldnames[4]:>9}: {0.boltzmann_sample}".format( self, [i.name for i in self.strand_list], fieldnames =('Name','Sequence','Structure','Strands','Boltzmann') )
 
   def old_init( self, id, name, strand_list, structure, boltzmann_sample = False):
+    """ Old style init function, uses fixed argument list.
+
+    id:  unique identifier for this complex [Not currently used]
+    name:  name to refer to this complex by. [Vaguely used]
+    strand_list: list of multistrand.object.Strand objects to retreive the sequence from
+    structure: flat dot-paren structure of this scomplex
+    boltzmann_sample [default=False]: whether we should call a sampler when retreiving a structure from this complex.
+    """
     self.id = id
     # what is this id?
     self.name = name

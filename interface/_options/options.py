@@ -641,11 +641,11 @@ class MultistrandOptions( object ):
         return new_strand
 
     @property
-    def print_status_line(self):
+    def add_result_status_line(self):
         return None
 
-    @print_status_line.setter
-    def print_status_line(self,val):
+    @add_result_status_line.setter
+    def add_result_status_line(self,val):
         """ Takes a 4-tuple as the only value type, it should be:
             (random number seed, stop result flag, completion time, stop result tag)
 
@@ -661,11 +661,11 @@ class MultistrandOptions( object ):
         # self.interface_current_tag = tag
 
     @property
-    def print_status_line_firststep(self, val):
+    def add_result_status_line_firststep(self, val):
         return None
 
-    @print_status_line_firststep.setter
-    def print_status_line_firststep( self, val ):
+    @add_result_status_line_firststep.setter
+    def add_result_status_line_firststep( self, val ):
         pass
 
     @property

@@ -98,14 +98,26 @@
     Py_DECREF(pyo);                             \
   }while(0)
 
+#define addResultLine_Energy( obj, energy )                    \
+  _m_pushList( obj, PyFloat_FromDouble( energy ), add_result_energy)
+/* Note: if energy fails to create via PyFloat_FromDouble, it'll be
+   NULL we'll probably segfault. The only failure mode I can forsee is
+   if you don't correctly pass a double somehow, so that's a compile
+   issue rather than runtime.
+
+    The ref is a new one, but we decref always in pushList, as we no
+    longer need the ref and the SetAttrString should cause the owning
+    object to have a good ref to it.*/
+
+
 #define printStatusLine( obj, seed, com_type, time, tag )                   \
-  _m_pushList( obj, _m_prepStatusTuple( seed, com_type, time,(char *)(tag) ), print_status_line)
+  _m_pushList( obj, _m_prepStatusTuple( seed, com_type, time,(char *)(tag) ), add_result_status_line)
 
 #define printTrajLine( obj, name, time ) \
   _m_pushList( obj, _m_prepTrajTuple( (char *)(name), time ), print_traj_line )
 
 #define printStatusLine_First_Bimolecular( obj,seed,com_type,com_time,frate,tag)  \
-  _m_pushList( obj, _m_prepStatusFirstTuple( seed, com_type, com_time, frate, (char *)(tag)), print_status_line_firststep )
+  _m_pushList( obj, _m_prepStatusFirstTuple( seed, com_type, com_time, frate, (char *)(tag)), add_result_status_line_firststep )
 
 #endif  // DEBUG_MACROS is FALSE (not set).
 
@@ -231,14 +243,21 @@
       }                                                                 \
   }while(0)
 
+#define addResultLine_Energy( obj, energy )                    \
+  _m_d_pushList( obj, PyFloat_FromDouble( energy ), add_result_energy)
+/* Note: if energy fails to create via PyFloat_FromDouble, it'll be NULL and the
+    pushList error checking will catch it. The ref is a new one, but we decref always
+    in pushList, as we no longer need the ref and the SetAttrString should cause the owning
+    object to have a good ref to it.*/
+
 #define printStatusLine( obj, seed, com_type,time, tag )                    \
-  _m_d_pushList( obj, _m_prepStatusTuple( seed, com_type, time,(char *)(tag) ), print_status_line)
+  _m_d_pushList( obj, _m_prepStatusTuple( seed, com_type, time,(char *)(tag) ), add_result_status_line)
 
 #define printTrajLine( obj, name, time ) \
   _m_d_pushList( obj, _m_prepTrajTuple( (char *)(name), time ), print_traj_line )
 
 #define printStatusLine_First_Bimolecular( obj,seed,com_type,com_time,frate,tag)  \
-  _m_d_pushList( obj, _m_prepStatusFirstTuple( seed, com_type, com_time, frate, (char *)(tag)), print_status_line_firststep )
+  _m_d_pushList( obj, _m_prepStatusFirstTuple( seed, com_type, com_time, frate, (char *)(tag)), add_result_status_line_firststep )
 
 #endif
 
@@ -379,7 +398,7 @@ static inline PyObject *_m_d_newObject( const char *mod, const char *name )
 // Functions
 class identlist *makeID_list(PyObject *strand_list);
 class stopcomplexes *getStopComplexList(PyObject *options, int index);
-class identlist *getID_list(PyObject *options, int index);
+class identlist *getID_list(PyObject *options, int index, PyObject *alternate_start = NULL);
 
 
 

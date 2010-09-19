@@ -55,7 +55,6 @@ void SComplexListEntry::fillData( EnergyModel *em )
   // thisComplex->fillVisData( &visiblebases )
 }
 
-
 /*
     SComplexListEntry::printComplex
 */
@@ -221,6 +220,29 @@ double SComplexList::getJoinFlux( void )
 }
 
 
+/*
+    SComplexList::getEnergy( int volume_flag )
+*/
+
+double *SComplexList::getEnergy( int volume_flag )
+{
+  SComplexListEntry *temp = first;
+  double *energies = new double[numentries];
+  int index = 0;
+  while( temp != NULL )
+    {
+      energies[index] = temp->energy;
+
+      if( volume_flag & 0x01)
+        energies[index] -= (dnaEnergyModel->getVolumeEnergy() * (temp->thisComplex->getStrandCount() - 1));
+      if( volume_flag & 0x02)
+        energies[index] -= (dnaEnergyModel->getAssocEnergy() * (temp->thisComplex->getStrandCount() -1));
+
+      temp = temp->next;
+      index = index + 1;
+    }
+  return energies;
+}
 
 /*
     SComplexList::printComplexList
@@ -237,6 +259,11 @@ void SComplexList::printComplexList( int printoptions )
     }
 }
 
+
+int SComplexList::getCount( void )
+{
+  return numentries;
+}
 /*
     SComplexList::doBasicChoice( double choice, double newtime )
 */

@@ -53,6 +53,32 @@ SimulationSystem::SimulationSystem( PyObject *system_o )
 #endif
 }
 
+SimulationSystem::SimulationSystem( void )
+{
+  simulation_mode = -1;
+  simulation_count_remaining = -1;
+
+  if( Loop::GetEnergyModel() == NULL)
+    {
+      dnaEnergyModel = NULL;
+    }
+  else
+    {
+      dnaEnergyModel = Loop::GetEnergyModel();
+    }
+
+  system_options = NULL;
+  startState = NULL;
+  complexList = NULL; 
+}
+
+int SimulationSystem::getErrorFlag( void )
+{
+  if( dnaEnergyModel == NULL )
+    return 1;
+  return 0;
+}
+
 SimulationSystem::~SimulationSystem( void )
 {
   if( complexList != NULL )
@@ -80,14 +106,6 @@ void SimulationSystem::StartSimulation( void )
 #endif
 
   getLongAttr(system_options, output_interval,&ointerval);
-
-  if( simulation_mode & SIMULATION_MODE_ENERGY_ONLY) // need energy only.
-    {
-      InitializeSystem();
-      complexList->initializeList();
-      complexList->printComplexList(1); // NUPACK energy output : bimolecular penalty, no Volume term.
-      return;
-    }
   
   if( simulation_mode & SIMULATION_MODE_FLAG_FIRST_BIMOLECULAR )
     {
@@ -460,7 +478,7 @@ void SimulationSystem::SimulationLoop_First_Bimolecular( void )
 ///////////////////////////////////////////////////
 
         
-void SimulationSystem::InitializeSystem( void )
+void SimulationSystem::InitializeSystem( PyObject *alternate_start )
 {                             
   class StrandComplex *tempcomplex;
   char *sequence, *structure;
@@ -474,8 +492,11 @@ void SimulationSystem::InitializeSystem( void )
     delete complexList;
 
   complexList = new SComplexList( dnaEnergyModel );
-  
-  py_start_state = getListAttr(system_options, start_state);
+
+  if( alternate_start != NULL )
+    py_start_state = alternate_start;
+  else
+    py_start_state = getListAttr(system_options, start_state);
   // new reference
 
   start_count = PyList_GET_SIZE(py_start_state);  
@@ -502,7 +523,7 @@ void SimulationSystem::InitializeSystem( void )
       structure = getStringAttr(py_complex, structure, py_struc);
       // new reference
       
-      id = getID_list( system_options, index );
+      id = getID_list( system_options, index, alternate_start );
       
       tempcomplex = new StrandComplex( sequence, structure, id );
       // StrandComplex does make its own copy of the seq/structure, so we can now decref.
@@ -548,4 +569,30 @@ void SimulationSystem::generateNextRandom( void )
 {
   current_seed = lrand48();
   srand48( current_seed );
+}
+
+PyObject *SimulationSystem::calculateEnergy( PyObject *start_state, int typeflag )
+{
+  double *values = NULL;
+  PyObject *retval = NULL;
+
+  // calc based on current state, do not clean up anything.
+  if( start_state != Py_None )
+    {
+      InitializeSystem( start_state );
+      complexList->initializeList();
+    }
+
+  values = complexList->getEnergy( typeflag ); // NUPACK energy output : bimolecular penalty, no Volume term.
+  // number is complexList->getCount()
+
+  retval = PyTuple_New( complexList->getCount() );
+  // New Reference, we return it.
+  for( int loop = 0; loop < complexList->getCount(); loop++ )
+    PyTuple_SET_ITEM( retval, loop, PyFloat_FromDouble( values[loop] ) );
+  // the reference from PyFloat_FromDouble is immediately stolen by PyTuple_SET_ITEM.
+
+  delete[] values;
+
+  return retval;
 }

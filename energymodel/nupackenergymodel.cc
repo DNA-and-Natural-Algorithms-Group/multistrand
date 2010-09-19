@@ -344,9 +344,10 @@ double NupackEnergyModel::InteriorEnergy( char *seq1, char *seq2, int size1, int
 double NupackEnergyModel::HairpinEnergy( char *seq, int size )
 {
   double energy = 0.0;
-  char cmpstring[7] = {0,0,0,0,0,0,0};
-  char *temp;
+  //char cmpstring[7] = {0,0,0,0,0,0,0};
+  //  char *temp;
   int type1 = pairtypes[seq[0]][seq[size+1]]-1;
+  int lookup_index = 0;
 
   if( size <= 30 )
     energy = hairpin_37_dG[size];
@@ -355,19 +356,39 @@ double NupackEnergyModel::HairpinEnergy( char *seq, int size )
   
   if( size == 3 ) // triloop bonuses
     {
-      strncpy( cmpstring, seq, size+2 );
-      temp = strstr( hairpin_triloops  ,cmpstring);
-      if( temp != NULL )
-		energy += hairpin_triloop_37_dG[(temp - hairpin_triloops ) / 6];
+      //strncpy( cmpstring, seq, size+2 );
+      // TESTING strstr performance hits
+      // temp = strstr( hairpin_triloops  ,cmpstring);
+      //      if( temp != NULL )
+      //if( 0 )
+
+      // We now always do the lookup, if no entry then it is 0.0.
+      lookup_index = ((seq[0]-1) << 8) + 
+        ((seq[1]-1) << 6) + 
+        ((seq[2]-1) << 4) + 
+        ((seq[3]-1) << 2) +
+        (seq[4]-1);
+
+	  energy += hairpin_triloop_37_dG[lookup_index];
+
       if((type1 > 2) || (type1 == 0))
 		energy += terminal_AU;
     }
   if( size == 4)
     {
-      strncpy( cmpstring, seq, size+2 );
-      temp = strstr( hairpin_tetraloops  ,cmpstring);
-      if( temp != NULL )
-		energy += hairpin_tetraloop_37_dG[(temp - hairpin_tetraloops ) / 7];
+      //strncpy( cmpstring, seq, size+2 );
+      // TESTING strstr performance hits.
+      // temp = strstr( hairpin_tetraloops  ,cmpstring);
+      //      if( temp != NULL )
+      //if( 0 )
+      lookup_index = ((seq[0]-1) << 10) + 
+        ((seq[1]-1) << 8) + 
+        ((seq[2]-1) << 6) + 
+        ((seq[3]-1) << 4) +
+        ((seq[4]-1) << 2) +
+        (seq[5]-1);
+
+      energy += hairpin_tetraloop_37_dG[lookup_index];
     }
   if( size >= 4 )
     energy += hairpin_mismatch_37_dG[type1][seq[1]][seq[size]];
@@ -1035,12 +1056,12 @@ NupackEnergyModel::NupackEnergyModel( PyObject *energy_options ) : log_loop_pena
       for( loop3 = 0; loop3 < NUM_BASES; loop3++ )
 		hairpin_mismatch_37_dG[loop][loop2][loop3] = T_scale( hairpin_mismatch_37_dG[loop][loop2][loop3], hairpin_mismatch_37_dH[loop][loop2][loop3], temperature );
 
-  for( loop = 0; loop < 120; loop++ )
-    hairpin_tetraloop_37_dG[loop] = T_scale( hairpin_tetraloop_37_dG[loop], hairpin_tetraloop_37_dH[loop], temperature );
+  for( loop = 0; loop < 4096; loop++ )
+    *(double *)(hairpin_tetraloop_37_dG + loop) = T_scale( *(double *)(hairpin_tetraloop_37_dG + loop), *(int *)(hairpin_tetraloop_37_dH + loop), temperature );
 
 
-  for( loop = 0; loop < 40; loop++ )
-    hairpin_triloop_37_dG[loop] = T_scale( hairpin_triloop_37_dG[loop], hairpin_triloop_37_dH[loop], temperature );
+  for( loop = 0; loop < 1024; loop++ )
+    *(double *)(hairpin_triloop_37_dG + loop) = T_scale( *(double *)(hairpin_triloop_37_dG + loop), *(int *)(hairpin_triloop_37_dH + loop), temperature );
 
   for( loop = 0; loop < 31; loop++ )
     bulge_37_dG[loop] = T_scale( bulge_37_dG[loop], bulge_37_dH[loop], temperature );
@@ -1493,27 +1514,32 @@ void NupackEnergyModel::internal_set_ninio_parameters_enthalpy( FILE *fp, char *
 
 void NupackEnergyModel::internal_set_hairpin_tetraloop_parameters( FILE *fp, char *buffer )
 {
-  int tetra_index = 0;
   int buf_index = 0;
+  int lookup_index = 0;
+
   fgets( buffer, 2048, fp );
+
+  // NOTE:: 4096 = (NUM_BASES-1)^6
+  // Initialize the tetraloop parameters to 0. 
+  for( int loop = 0; loop < 4096; loop ++ )
+    {
+      hairpin_tetraloop_37_dG[loop] = 0.0;
+    }
+
   while( strlen(buffer) > 7  && buffer[0] != '>')
     {
       buf_index = 0;
       while( isspace(buffer[buf_index])) buf_index++;
-      
-      for( int loop = 0; loop < 6; loop ++ )
-		{
-		  if(buffer[buf_index+loop] == 'U')
-			hairpin_tetraloops[ (tetra_index * 7) + loop] = baseLookup('T');
-		  else
-			hairpin_tetraloops[ (tetra_index * 7) + loop] = baseLookup(buffer[buf_index + loop]);
-		}
-      hairpin_tetraloops[ (tetra_index * 7) + 6] = ' ';
-      hairpin_tetraloops[ (tetra_index * 7) + 7] = 0;
-      hairpin_tetraloop_37_dG[tetra_index] = atof( &buffer[buf_index + 6]) / 100.0;
 
-      tetra_index++;
-      fgets( buffer, 2048, fp );
+      lookup_index = ((baseLookup(buffer[buf_index+0])-1) << 10) + 
+        ((baseLookup(buffer[buf_index+1])-1) << 8) + 
+        ((baseLookup(buffer[buf_index+2])-1) << 6) + 
+        ((baseLookup(buffer[buf_index+3])-1) << 4) +
+        ((baseLookup(buffer[buf_index+4])-1) << 2) +
+        (baseLookup(buffer[buf_index+5])-1);
+      hairpin_tetraloop_37_dG[ lookup_index ] = atof( &buffer[buf_index + 6]) / 100.0;
+
+      fgets(buffer, 2048, fp );
     }
 #ifdef DEBUG
   fprintf(stderr,"Tetraloop Paramaters (MFOLD): %d read.\n",tetra_index);
@@ -1522,57 +1548,59 @@ void NupackEnergyModel::internal_set_hairpin_tetraloop_parameters( FILE *fp, cha
 
 void NupackEnergyModel::internal_set_hairpin_tetraloop_parameters_enthalpy( FILE *fp, char *buffer )
 {
-  char *index;
-  int i_index;
-  int value,loop;
-  for( loop = 0; loop < 120; loop++ )
-    hairpin_tetraloop_37_dH[loop]=0;
-  fgets( buffer, 2048, fp );
-  while( strlen(buffer) > 7 && buffer[0] != '>' )
-    {
-      value = atoi(buffer+6);
-      buffer[6] = '\0';
-      for( loop = 0; loop < 6; loop ++ )
-		{
-		  if(buffer[loop] == 'U')
-			buffer[loop] = baseLookup('T');
-		  else
-			buffer[loop] = baseLookup(buffer[loop]);
-		}     
-      index = strstr(hairpin_tetraloops,buffer);
-      if( index != NULL )
-		{
-		  i_index = (int) (index - hairpin_tetraloops) / 7;
+  int buf_index = 0;
+  int lookup_index = 0;
 
-		  hairpin_tetraloop_37_dH[i_index] = value;
-		}
+  fgets( buffer, 2048, fp );
+
+  // NOTE:: 4096 = (NUM_BASES-1)^6
+  // Initialize the tetraloop parameters to 0. 
+  for( int loop = 0; loop < 4096; loop ++ )
+    {
+      hairpin_tetraloop_37_dH[loop] = 0;
+    }
+
+  while( strlen(buffer) > 7  && buffer[0] != '>')
+    {
+      buf_index = 0;
+      while( isspace(buffer[buf_index])) buf_index++;
+
+
+      lookup_index = ((baseLookup(buffer[buf_index+0])-1) << 10) + 
+        ((baseLookup(buffer[buf_index+1])-1) << 8) + 
+        ((baseLookup(buffer[buf_index+2])-1) << 6) + 
+        ((baseLookup(buffer[buf_index+3])-1) << 4) +
+        ((baseLookup(buffer[buf_index+4])-1) << 2) +
+        (baseLookup(buffer[buf_index+5])-1);
+      hairpin_tetraloop_37_dH[ lookup_index ] = atoi( &buffer[buf_index + 6]);
+
       fgets(buffer, 2048, fp );
     }
 }
 
 void NupackEnergyModel::internal_set_hairpin_triloop_parameters( FILE *fp, char *buffer )
 {
-  int tri_index = 0;
   int buf_index = 0;
+  int lookup_index = 0;
   fgets( buffer, 2048, fp );
+
+  // NOTE:: 1024 = (NUM_BASES-1)^5
+  // Initialize the triloop parameters to 0. 
+  for( int loop = 0; loop < 1024; loop ++ )
+    {
+      hairpin_triloop_37_dG[loop] = 0.0;
+    }
   while( strlen(buffer) > 6 && buffer[0] != '>')
     {
       buf_index = 0;
       while( isspace(buffer[buf_index])) buf_index++;
-      
-      for( int loop = 0; loop < 5; loop ++ )
-		{
-		  if(buffer[buf_index+loop] == 'U')
-			hairpin_triloops[ (tri_index * 6) + loop] = baseLookup('T');
-		  else
-			hairpin_triloops[ (tri_index * 6) + loop] = baseLookup(buffer[buf_index + loop]);
-		}
+      lookup_index = ((baseLookup(buffer[buf_index+0])-1) << 8) + 
+        ((baseLookup(buffer[buf_index+1])-1) << 6) + 
+        ((baseLookup(buffer[buf_index+2])-1) << 4) + 
+        ((baseLookup(buffer[buf_index+3])-1) << 2) +
+        (baseLookup(buffer[buf_index+4])-1);
+      hairpin_triloop_37_dG[ lookup_index ] = atof( &buffer[buf_index + 5]) / 100.0;
 
-      hairpin_triloops[ (tri_index * 6) + 5] = ' ';
-      hairpin_triloops[ (tri_index * 6) + 6] = 0;
-      hairpin_triloop_37_dG[tri_index] = atof( &buffer[buf_index + 5]) / 100.0;
-
-      tri_index++;
       fgets( buffer, 2048, fp );
     }
 #ifdef DEBUG
@@ -1582,35 +1610,32 @@ void NupackEnergyModel::internal_set_hairpin_triloop_parameters( FILE *fp, char 
 
 void NupackEnergyModel::internal_set_hairpin_triloop_parameters_enthalpy( FILE *fp, char *buffer )
 {
-  char *index;
-  int i_index;
-  int value,loop;  
-  for( loop = 0; loop < 40; loop++ )
-    hairpin_triloop_37_dH[loop]=0;
-
+  int buf_index = 0;
+  int lookup_index = 0;
   fgets( buffer, 2048, fp );
-  while( strlen(buffer) > 6 && buffer[0] != '>' )
-    {
-      value = atoi(buffer+5);
-      buffer[5] = '\0';
-      for( loop = 0; loop < 5; loop ++ )
-		{
-		  if(buffer[loop] == 'U')
-			buffer[loop] = baseLookup('T');
-		  else
-			buffer[loop] = baseLookup(buffer[loop]);
-		}
-      
-      index = strstr(hairpin_triloops,buffer);
-      if( index != NULL )
-		{
-		  i_index = (int) (index - hairpin_triloops) / 6;
 
-		  hairpin_triloop_37_dH[i_index] = value;
-		}
-      fgets(buffer, 2048, fp );
+  // NOTE:: 1024 = (NUM_BASES-1)^5
+  // Initialize the triloop parameters to 0. 
+  for( int loop = 0; loop < 1024; loop ++ )
+    {
+      hairpin_triloop_37_dH[loop] = 0;
     }
 
+  while( strlen(buffer) > 6 && buffer[0] != '>')
+    {
+      buf_index = 0;
+      while( isspace(buffer[buf_index])) buf_index++;
+
+      lookup_index = ((baseLookup(buffer[buf_index+0])-1) << 8) + 
+        ((baseLookup(buffer[buf_index+1])-1) << 6) + 
+        ((baseLookup(buffer[buf_index+2])-1) << 4) + 
+        ((baseLookup(buffer[buf_index+3])-1) << 2) +
+        (baseLookup(buffer[buf_index+4])-1);
+
+      hairpin_triloop_37_dH[ lookup_index ] = atoi( &buffer[buf_index + 5]);
+
+      fgets( buffer, 2048, fp );
+    }
 }
 
 void NupackEnergyModel::internal_set_hairpin_mismatch_energies( FILE *fp, char *buffer )

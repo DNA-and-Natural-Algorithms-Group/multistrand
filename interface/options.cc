@@ -98,12 +98,18 @@ class stopcomplexes *getStopComplexList(PyObject *options, int index)
 }
 
 
-class identlist *getID_list(PyObject *options, int index)
+class identlist *getID_list(PyObject *options, int index, PyObject *alternate_start)
 {
   PyObject *pyo_strand_list = NULL;
   PyObject *pyo_start_complex_list = NULL;
-  pyo_start_complex_list = PyObject_GetAttrString( options, "start_state");
-  // new reference
+  if( alternate_start == NULL )
+    pyo_start_complex_list = PyObject_GetAttrString( options, "start_state");
+  else
+    {
+      pyo_start_complex_list = alternate_start;
+      Py_INCREF( pyo_start_complex_list );
+    }
+  // either way, we have a new reference to pyo_start_complex_list
 
   pyo_strand_list = PyObject_GetAttrString(PyList_GetItem( pyo_start_complex_list, index ) ,"strand_list");
   // new reference due to PyObject_GetAttrString

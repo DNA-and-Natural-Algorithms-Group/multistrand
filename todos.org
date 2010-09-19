@@ -33,6 +33,32 @@ Total: 6369 samples
     many values omitted, these are the culprits (i think)
 *** notes
     Looks like that lookup is killer when we have it tons of times..
+    Some base data for runs: 
+
+    Kinfold on base sequence:               0.332371
+    Multistrand[I] (w/profiling):          68.3405
+    Multistrand[I] (w/profiling,nolookup): 47.2762 
+    Multistrand (old,binary)    :          54.6929
+
+    Profile data, top5 sampled:
+    Total: 6369 samples
+    1428  22.4%  22.4%     1428  22.4% _strstr
+     634  10.0%  32.4%     4234  66.5% OpenLoop::generateMoves
+     438   6.9%  39.3%      679  10.7% _szone_free_definite_size
+     400   6.3%  45.5%      400   6.3% _strncmp
+     354   5.6%  51.1%      418   6.6% _tiny_malloc_from_free_list
+     271   4.3%  55.3%      271   4.3% NupackEnergyModel::OpenloopEnergy
+
+    Profile data, top5, strstr nulled out:
+    Total: 4325 samples
+     604  14.0%  14.0%     2618  60.5% OpenLoop::generateMoves
+     463  10.7%  24.7%      463  10.7% NupackEnergyModel::OpenloopEnergy
+     442  10.2%  34.9%      703  16.3% _szone_free_definite_size
+     321   7.4%  42.3%      400   9.2% _tiny_malloc_from_free_list
+     270   6.2%  48.6%      270   6.2% _tiny_free_list_add_ptr
+     242   5.6%  54.2%      242   5.6% _exp$fenv_access_off
+
+
 * DONE File / Directory TODO List
   Files have been fully ported from old Multistrand into at least a
   semi-functioning state.

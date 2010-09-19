@@ -10,32 +10,10 @@
 #include "Python.h"
 #include "ssystem.h"
 /* need C++ for ssystem.h... */
+#include "options.h"
 #include <string.h>
 /* for strcmp */
-/*
-class SimulationSystem
-{
- public:
-  SimulationSystem( PyObject *temp );
-  ~SimulationSystem( void );
-  void StartSimulation( void );
-};
 
-SimulationSystem::SimulationSystem( PyObject *temp )
-{
-  return;
-}
-
-SimulationSystem::~SimulationSystem( void )
-{
-  return;
-}
-
-void SimulationSystem::StartSimulation( void )
-{
-  return;
-}
-*/
 typedef struct {
   PyObject_HEAD
   SimulationSystem *ob_system;  /* Our one data member, no other attributes. */
@@ -115,6 +93,7 @@ static void SimSystemObject_dealloc( SimSystemObject *self )
   self->ob_type->tp_free((PyObject *)self);
 }
 
+
 /*static PyObject *SimSystemObject_getattr( SimSystemObject *self, char *name )
 {
   
@@ -178,7 +157,91 @@ static PyTypeObject SimSystem_Type = {
   /* 0,                              /\* tp_is_gc *\/ */
 };
 
+static PyObject *System_initialize_energymodel( PyObject *self,PyObject *args )
+{
+  PyObject *options_object = NULL;
+
+  if( !PyArg_ParseTuple(args, "|O:initialize_energy_model( [options])", &options_object) )
+    return NULL;
+  
+  EnergyModel *temp = Loop::GetEnergyModel();
+
+  if( temp != NULL )
+    delete temp;
+
+  if (options_object  == NULL || options_object == Py_None )
+    Loop::SetEnergyModel( NULL );
+  else
+    {
+      temp = NULL;
+      if(  testLongAttr(options_object, parameter_type,=,0) )
+        temp = new ViennaEnergyModel( options_object );
+      else
+        temp = new NupackEnergyModel( options_object );
+      Loop::SetEnergyModel( temp );
+    }
+  Py_INCREF( Py_None );
+  return Py_None;
+}
+
+static PyObject *System_calculate_energy( PyObject *self,PyObject *args )
+{
+  SimulationSystem *temp = NULL;
+  PyObject *options_object = NULL;
+  PyObject *start_state_object = NULL;
+  PyObject *energy;
+  int typeflag = 0;
+  if( !PyArg_ParseTuple(args, "O|Oi:energy(state, options[, energytypeflag])", &start_state_object, &options_object, &typeflag) )
+    return NULL;
+  if( options_object != NULL )
+    Py_INCREF( options_object );
+  Py_INCREF( start_state_object );
+  
+  if( options_object != NULL )
+    temp = new SimulationSystem( options_object );
+  else
+    {
+      temp = new SimulationSystem();
+      int err = temp->getErrorFlag();
+      if( err != 0 )
+        {
+          PyErr_Format(PyExc_AttributeError,"No energy model available, cannot compute energy. Please pass an options object, or use multistrand.system.initialize_energy_model(...).\n");
+          if( options_object != NULL )
+            Py_XDECREF( options_object );
+          Py_XDECREF( start_state_object );
+          return NULL;
+        }
+    }
+  energy = temp->calculateEnergy( start_state_object, typeflag );
+
+  delete temp;
+
+  Py_XDECREF( options_object );
+  Py_XDECREF( start_state_object );
+  return energy;
+}
+
+
 static PyMethodDef System_methods[] = {
+  {"energy", (PyCFunction) System_calculate_energy, METH_VARARGS,
+              PyDoc_STR(" \
+energy( start_state, options = None, energy_type = 0)\n\
+Computes the energy of the passed state [a list of complexes or resting states], using\
+temperature, etc, settings from the options object passed.\n\n\
+Parameters\n\
+energy_type = 0 [default]: no volume terms included\n\
+energy_type = 1: include dG_volume\n\
+energy_type = 2: include dG_assoc [NUPACK equivalent]\n\
+energy_type = 3: include dG_volume + dG_assoc\n\
+\n\
+options = None [default]: Use the already initialized energy model.\n\
+options = ...: If not none, should be a multistrand.options.Options object, which will be used for initializing the energy model ONLY if there is not one already present.\n")},
+  {"initialize_energy_model", (PyCFunction) System_initialize_energymodel, METH_VARARGS,
+              PyDoc_STR(" \
+initialize_energy_model( options = None )\n\
+Initialize the Multistrand module's energy model using the options object given. If a model already exists, this will remove the old model and create a new one - useful for certain parameter changes, but should be avoided if possible. This function is NOT required to use other parts of the module - by default they will create the model if it's not found, or use the one already initialized; this adds control over exactly what model is being used.\n\n\
+options [default=None]: when no options object is passed, this removes the old energy model and does not create a new one.\n")},
+
   {NULL}  /*Sentinel*/
 };
 

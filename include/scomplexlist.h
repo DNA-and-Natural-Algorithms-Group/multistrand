@@ -22,6 +22,8 @@ class SComplexList
   void initializeList( void );
   double getTotalFlux( void );
   double getJoinFlux( void );
+  int getCount( void );
+  double *getEnergy( int volume_flag );
   void printComplexList( int printoptions );
   void doBasicChoice( double choice, double newtime );
   void doJoinChoice( double choice );

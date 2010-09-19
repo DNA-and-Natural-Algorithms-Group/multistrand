@@ -307,15 +307,24 @@ class NupackEnergyModel : public EnergyModel
   double hairpin_mismatch_37_dG[NUM_BASEPAIRS_NUPACK][NUM_BASES][NUM_BASES];
   int hairpin_mismatch_37_dH[NUM_BASEPAIRS_NUPACK][NUM_BASES][NUM_BASES];
   
-  char hairpin_tetraloops[(7*120) + 1]; // 120 tetraloops
-  double hairpin_tetraloop_37_dG[120]; // why 80 here? Check Vienna Code/Datasets.
-  // Ok, changed them to 120 each, as the DNA dataset has at least 110 tetraloops listed... very odd that it was tossing out the last 30. 
-  //  int hairpin_tetraloop_37_dH; 
-  int hairpin_tetraloop_37_dH[120]; 
+  double hairpin_triloop_37_dG[1024];
+  //[NUM_BASES-1][NUM_BASES-1][NUM_BASES-1][NUM_BASES-1][NUM_BASES-1];
+  int hairpin_triloop_37_dH[1024];
+  // This needs about 1024 doubles to store the entire matrix.
+  // lookups on this are then 4 shifts, 5adds, 5 dec 1s, but better than a strstr.
+  
+  double hairpin_tetraloop_37_dG[4096];
+  int hairpin_tetraloop_37_dH[4096];
 
-  char hairpin_triloops[(6*40) + 1];
-  double hairpin_triloop_37_dG[40];
-  int hairpin_triloop_37_dH[40];
+  /* char hairpin_tetraloops[(7*120) + 1]; // 120 tetraloops */
+  /* double hairpin_tetraloop_37_dG[120]; // why 80 here? Check Vienna Code/Datasets. */
+  /* // Ok, changed them to 120 each, as the DNA dataset has at least 110 tetraloops listed... very odd that it was tossing out the last 30.  */
+  /* //  int hairpin_tetraloop_37_dH;  */
+  /* int hairpin_tetraloop_37_dH[120];  */
+
+  /* char hairpin_triloops[(6*40) + 1]; */
+  /* double hairpin_triloop_37_dG[40]; */
+  /* int hairpin_triloop_37_dH[40]; */
 
   // Bulge Info
   double bulge_37_dG[31];

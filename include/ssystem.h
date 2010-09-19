@@ -17,6 +17,7 @@ class SimulationSystem
 {
  public: 
   SimulationSystem( PyObject *system_options );
+  SimulationSystem( void  );
 
   // the following constructor is probably defunct now.
   SimulationSystem( int argc, char **argv );
@@ -25,14 +26,18 @@ class SimulationSystem
 
   void StartSimulation( void );
 
+  PyObject *calculateEnergy( PyObject *start_state, int typeflag );
+  int getErrorFlag( void );
+
  private:
   void StartSimulation_First_Bimolecular( void );
   void SimulationLoop( void );
   void SimulationLoop_First_Bimolecular( void );
-  void InitializeSystem( void );
+  void InitializeSystem( PyObject *alternate_start = NULL);
 
   void InitializeRNG( void );
   void generateNextRandom( void );
+
 
   EnergyModel *dnaEnergyModel;
 
