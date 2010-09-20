@@ -20,8 +20,22 @@ import copy
 FILLIN = None
 
 class MultistrandOptions( object ):
-    def __init__(self):
-        """ Creates an options object with default (presumably useful) values """
+    def __init__(self, *args, **kargs):
+        """ Create an options object [with default (presumably useful) values]
+
+        Now with new and improved argument lists!
+        Keyword Argument  |  Options
+        dangles           |  'None', 'Some', 'All'
+        start_state       |  List of Complex or RestingState
+        simulation_time   |  Max time to simulate
+        num_simulations   |  Number of trajectories to run
+        biscale           |  Bimolecular scaling constant
+        uniscale          |  Unimolecular scaling constant
+        parameter_type    |  'Nupack', 'Vienna'
+        substrate_type    |  'DNA','RNA'
+        ...
+        More to come!"""
+        
 
         ##################################################
         #                                                #
@@ -355,14 +369,12 @@ class MultistrandOptions( object ):
         
         ##############################
         #
-        # functions used
+        # End of __init__: call the keyword hook fn. 
         #
         ##############################
+
+        self.__init_keyword_args(self, *args, **kargs )
         
-        ('resetCompleted', 'reset_completed')
-        ('resetCompleted_Python', 'reset_completed__python')
-        ('setCollisionRate_Python', 'set_collision_rate__python')
-        ('setCurSimTime', 'set_cur_sim_time')
 
     @property
     def boltzmann_sample(self):
@@ -686,3 +698,48 @@ class MultistrandOptions( object ):
     @property
     def increment_trajectory_count( self ):
         self.interface.increment_trajectory_count()
+
+    def __init_keyword_args( self, *args, **kargs ):
+        """ Helper subfunction. """
+        
+        """ Create an options object [with default (presumably useful) values]
+
+        Now with new and improved argument lists!
+
+        Any default Options attribute can be set just by passing a
+        keyword argument with the desired value, e.g.
+        Options(simulation_time=100.0)
+
+        Listed below are some shortcuts, for attributes that have a
+        range of options, or shortened names for long attributes.
+        
+
+        Keyword Argument  |  Options
+        dangles           |  'None', 'Some', 'All'
+        parameter_type    |  'Nupack', 'Vienna'
+        substrate_type    |  'DNA','RNA'
+        
+        sim_time          | [simulation_time] Max time to simulate
+        num_sims          | [num_simulations] Number of trajectories to run
+        biscale           | [bimolecular_scaling] Bimolecular scaling constant
+        uniscale          | [unimolecular_scaling] Unimolecular scaling constant
+
+        start_state       |  List of Complex or RestingState
+
+        ...
+        More to come!"""
+        arg_lookup_table = {
+            'dangles': lambda x: self.__setattr__('dangles',_OC.DANGLES[x]),
+            'parameter_type': lambda x: self.__setattr__('parameter_type', _OC.ENERGYMODEL_TYPE[x]),
+            'substrate_type': lambda x: self.__setattr__('substrate_type', _OC.SUBSTRATE_TYPE[x]),
+            'biscale': lambda x: self.__setattr__('bimolecular_scaling', x),
+            'uniscale': lambda x: self.__setattr__('unimolecular_scaling', x),
+            'num_sims': lambda x: self.__setattr__('num_simulations', x),
+            'sim_time': lambda x: self.__setattr__('simulation_time',x)
+            }
+        
+        for k in kargs.keys():
+            if k in arg_lookup_table:
+                arg_lookup_table[k]( kargs[k] )
+            else:
+                self.__setattr__(k, kargs[k])

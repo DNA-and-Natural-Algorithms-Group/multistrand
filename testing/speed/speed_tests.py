@@ -98,7 +98,7 @@ class Speedtest_Random_Sequences( unittest.TestCase ):
         return o
     
     def helperRunSingle_Kinfold( self, sequence, time, count=1 ):
-        kinfoldproc = subprocess.Popen(["Kinfold","--noShift","--logML","--start","--nostop","--time","{0:f}".format(time),"--num","{0:d}".format(count),"--silent"], stdin=subprocess.PIPE, stdout=subprocess.PIPE )
+        kinfoldproc = subprocess.Popen(["Kinfold","--noShift","--logML","--start","--fpt","--time","{0:f}".format(time),"--num","{0:d}".format(count),"--silent"], stdin=subprocess.PIPE, stdout=subprocess.PIPE )
 
         input_str = "{0}\n{1}\n".format( sequence, "."*len(sequence) )
         def runOnce():
@@ -337,6 +337,6 @@ class MyRunner( object ):
         
 if __name__ == '__main__':
     suite = SetupSuite()
-    suite.runTests()
-    #suite.runTests_Async()
+    #suite.runTests()
+    suite.runTests_Async()
 
