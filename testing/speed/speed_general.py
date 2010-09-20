@@ -77,14 +77,10 @@ class Speedtest_FromFile( unittest.TestCase ):
     def my_test_runner( self, seq, idx, time ):
         filename = 'len_{0}_sequence_{1}.out'.format( len(seq), idx )
 
-        print("Executing Kinfold on {0} ...".format(seq))
         times_kin = self.setup_kinfold( seq, time, 100)
-        print("{0:>70}".format( times_kin[0][0] + times_kin[0][1] ) )
-
-        print("Executing Multistrand on {0} ...".format(seq))
         times_ms = self.setup_multistrand( seq, time, 100 )
-        print("{0:>70}".format( times_ms[0][0] + times_ms[0][1] ) )
 
+        print("\nSequence {2} [{3}]: {0:>35} | {1}".format(  times_kin[0][2] + times_kin[0][3], times_ms[0][0] + times_ms[0][1], idx, len(seq)))
         f = open(filename,'wt')
         f.write( repr( (times_kin, times_ms) ) )
         f.close()
