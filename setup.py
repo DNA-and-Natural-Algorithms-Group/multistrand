@@ -65,7 +65,6 @@ else:
 #                          define_macros=[('NDEBUG',None)],
 #                          undef_macros=['DEBUG', 'DEBUG_MACROS'],
                           extra_compile_args = ['-O3','-g', '-w'],
-                          libraries = ['profiler']
 #                          ['-Wno-strict-prototypes','-w','-O0','-v','-fcommon', '-fno-wrapv'],   #This is 'disable all warnings compiler flag'
                       )
 

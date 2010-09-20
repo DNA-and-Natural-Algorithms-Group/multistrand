@@ -1,8 +1,46 @@
+* Energy Model Maintenance
+** Vienna
+*** DONE StackEnergy
+    CLOSED: [2010-09-20 Mon 03:58]
+    - State "DONE"       from "TODO"       [2010-09-20 Mon 03:58]
+*** DONE HairpinEnergy[[file:energymodel/viennaenergymodel.cc::double%20ViennaEnergyModel%20HairpinEnergy%20char%20seq%20int%20size][ link]]
+    Should be complete now. Checking via python.
+    CLOSED: [2010-09-19 Sun 20:54]
+    - State "DONE"       from "TODO"       [2010-09-19 Sun 20:54]
+    main function now consistent with nupack side.
+    loading functions/headers:
+**** DONE internal_set_hairpin_triloop_parameters
+     CLOSED: [2010-09-19 Sun 20:44]
+     - State "DONE"       from ""           [2010-09-19 Sun 20:44]
+
+**** DONE internal_set_hairpin_tetraloop_parameters
+     CLOSED: [2010-09-19 Sun 20:52]
+     - State "DONE"       from ""           [2010-09-19 Sun 20:52]
+**** DONE other internal hairpin fns [removing VIENNA / MFOLD split]
+     CLOSED: [2010-09-19 Sun 20:53]
+     - State "DONE"       from ""           [2010-09-19 Sun 20:53]
+*** TODO MultiloopEnergy [/]
+**** DONE dangles=0
+     CLOSED: [2010-09-20 Mon 03:58]
+     - State "DONE"       from ""           [2010-09-20 Mon 03:58]
+*** TODO OpenloopEnergy [1/2]
+**** DONE dangles=0
+     CLOSED: [2010-09-20 Mon 03:59]
+     - State "DONE"       from ""           [2010-09-20 Mon 03:59]
+**** TODO dangles=1,2
+*** DONE Bulgeloop
+    CLOSED: [2010-09-20 Mon 03:59]
+    - State "DONE"       from ""           [2010-09-20 Mon 03:59]
+*** DONE InteriorLoop
+    CLOSED: [2010-09-20 Mon 04:00]
+    - State "DONE"       from ""           [2010-09-20 Mon 04:00]
+
 * Stop Condition Reorganization [0%]
 ** TODO ssystem.cc [0/1]
 *** TODO fix transition time data mode to use simulation modes. 
     [[file:system/ssystem.cc::TODO%20wrap%20this%20into%20simulation%20modes][Begin if block for transition time mode.]]
     [[file:system/ssystem.cc::begin%20transition%20times%20mode%20case][begin else case which actually holds the mode]]
+
 
 * Optimization [0%]
 ** TODO strstr issues?

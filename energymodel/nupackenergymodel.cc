@@ -344,9 +344,6 @@ double NupackEnergyModel::InteriorEnergy( char *seq1, char *seq2, int size1, int
 double NupackEnergyModel::HairpinEnergy( char *seq, int size )
 {
   double energy = 0.0;
-  //char cmpstring[7] = {0,0,0,0,0,0,0};
-  //  char *temp;
-  int type1 = pairtypes[seq[0]][seq[size+1]]-1;
   int lookup_index = 0;
 
   if( size <= 30 )
@@ -356,12 +353,6 @@ double NupackEnergyModel::HairpinEnergy( char *seq, int size )
   
   if( size == 3 ) // triloop bonuses
     {
-      //strncpy( cmpstring, seq, size+2 );
-      // TESTING strstr performance hits
-      // temp = strstr( hairpin_triloops  ,cmpstring);
-      //      if( temp != NULL )
-      //if( 0 )
-
       // We now always do the lookup, if no entry then it is 0.0.
       lookup_index = ((seq[0]-1) << 8) + 
         ((seq[1]-1) << 6) + 
@@ -371,16 +362,11 @@ double NupackEnergyModel::HairpinEnergy( char *seq, int size )
 
 	  energy += hairpin_triloop_37_dG[lookup_index];
 
-      if((type1 > 2) || (type1 == 0))
+      if( (seq[0] == BASE_T) || (seq[size+1] == BASE_T) )
 		energy += terminal_AU;
     }
   if( size == 4)
     {
-      //strncpy( cmpstring, seq, size+2 );
-      // TESTING strstr performance hits.
-      // temp = strstr( hairpin_tetraloops  ,cmpstring);
-      //      if( temp != NULL )
-      //if( 0 )
       lookup_index = ((seq[0]-1) << 10) + 
         ((seq[1]-1) << 8) + 
         ((seq[2]-1) << 6) + 
@@ -391,7 +377,7 @@ double NupackEnergyModel::HairpinEnergy( char *seq, int size )
       energy += hairpin_tetraloop_37_dG[lookup_index];
     }
   if( size >= 4 )
-    energy += hairpin_mismatch_37_dG[type1][seq[1]][seq[size]];
+    energy += hairpin_mismatch_37_dG[(pairtypes[seq[0]][seq[size+1]]-1)][seq[1]][seq[size]];
 
   return energy;
 }

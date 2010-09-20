@@ -17,6 +17,12 @@
 #define NUM_BASES 5
     // 0 is invalid, then A, C, G, U
 
+#define BASE_A 1
+#define BASE_C 2
+#define BASE_G 3
+#define BASE_T 4
+#define BASE_U 4
+
 #ifndef VIENNA
 #define VIENNA 0
 //#define ENERGYMODEL_VIENNA 0
@@ -161,15 +167,17 @@ class ViennaEnergyModel : public EnergyModel
   // Hairpin Info, note no enthalpies
   int hairpin_37_dG[31];
   int hairpin_mismatch_37_dG[NUM_BASEPAIRS_VIENNA][NUM_BASES][NUM_BASES];
-  
-  char hairpin_tetraloops[(7*120) + 1]; // 120 tetraloops
-  int hairpin_tetraloop_37_dG[120]; // why 80 here? Check Vienna Code/Datasets.
-  // Ok, changed them to 120 each, as the DNA dataset has at least 110 tetraloops listed... very odd that it was tossing out the last 30. 
-  int hairpin_tetraloop_37_dH; 
 
-  char hairpin_triloops[(6*40) + 1];
-  int hairpin_triloop_37_dG[40];
+  int hairpin_triloop_37_dG[1024];
   int hairpin_triloop_37_dH;
+  // This needs about 1024 ints to store the entire matrix.
+  // lookups on this are then 4 shifts, 5adds, 5 dec 1s, but better than a strstr.
+  
+  int hairpin_tetraloop_37_dG[4096];
+  int hairpin_tetraloop_37_dH;
+
+  // NOTES: the DNA dataset (dna.par) has 110 tetraloops, but their code seems to only load the first 80 of them. We load all of them, so there may be slight energy differences in exactly those 30.
+  // Also, their dataset only uses a single dH, rather than one for each tri/tetraloop.
 
   // Bulge Info
   int bulge_37_dG[31];
