@@ -1,3 +1,4 @@
+from __future__ import print_function
 import unittest
 import warnings
 import subprocess
@@ -21,6 +22,7 @@ from multistrand.options import Options, Constants
 from multistrand.system import SimSystem
 
 import tools
+
 
 #Useful decorator for timing purposes. 
 def timer( f ):
@@ -62,15 +64,21 @@ class Speedtest_FromFile( unittest.TestCase ):
         else:
             return super(Speedtest_FromFile, self).__getattr__(name)
 
-        def stub_test_runner():
-            self.my_test_runner( seq, idx, time )
+        class stub_test_runner(object):
+            def __init__(self,runner):
+                self.my_test_runner = runner
+            def __call__(self,*args):
+                print("{0} ...".format(self.__doc__))
+                self.my_test_runner( seq, idx, time )
                 
         if len(seq) > 40:
             shortname = str(len(seq)) + ': ' + seq[:40] + '...'
         else:
             shortname = str(len(seq)) + ': ' + seq
-        stub_test_runner.__doc__ = "Random Sequence (#{1},t={2}) [{0}]".format(shortname,idx,time)
-        return stub_test_runner
+
+        mystub = stub_test_runner( self.my_test_runner )
+        mystub.__doc__ = "Random Sequence (#{1},t={2}) [{0}]".format(shortname,idx,time)
+        return mystub
             
         #raise AttributeError("{0}: Invalid name for a test case file.".format(name))
 
@@ -80,7 +88,7 @@ class Speedtest_FromFile( unittest.TestCase ):
         times_kin = self.setup_kinfold( seq, time, 100)
         times_ms = self.setup_multistrand( seq, time, 100 )
 
-        print("\nSequence {2} [{3}]: {0:>35} | {1}".format(  times_kin[0][2] + times_kin[0][3], times_ms[0][0] + times_ms[0][1], idx, len(seq)))
+        print("Sequence {2} [{3}]: {0:>35} | {1}".format(  times_kin[0][2] + times_kin[0][3], times_ms[0][0] + times_ms[0][1], idx, len(seq)),sep="")
         f = open(filename,'wt')
         f.write( repr( (times_kin, times_ms) ) )
         f.close()
@@ -167,7 +175,10 @@ class Length_Tests( object ):
 
     def __init__(self):
         self._suite = unittest.TestSuite()
-        self._lengths = {'20':[],'22':[]}
+        self._lengths = {}
+        for i in range(20,100,2):
+            self._lengths[str(i)] = []
+            
         for n in self._lengths.keys():
             if not os.path.isfile('length_{0}_sequences_random.dat'.format( n )):
                 f = open('length_{0}_sequences_random.txt'.format(n),'wt')
@@ -184,25 +195,14 @@ class Length_Tests( object ):
 
         for k,v in self._lengths.iteritems():
             for i in range( len(v) ):
-                self._suite.addTest( Speedtest_FromFile('{idx}:{time}:{seq}'.format( idx=i, time=1000.0, seq=self._lengths[k][i])))
-
-        
-    def runTests(self,print_results=False):
-        if not os.path.isfile('test_sequences.txt'):
-            f = open('test_sequences.txt','wt')
-
-            for i in range(100):
-                f.write( "{0}\n".format(tools.generate_sequence( 40 ) ))
-            f.close()
-            
-        if hasattr(self, "_suite") and self._suite is not None:
-            unittest.TextTestRunner(verbosity=2).run( self._suite )
-        # if print_results:
-        #     self.printResults()
+                if len(self._lengths[k][i]) <= 40:
+                    self._suite.addTest( Speedtest_FromFile('{idx}:{time}:{seq}'.format( idx=i, time=5000.0, seq=self._lengths[k][i])))
+                else:
+                    self._suite.addTest( Speedtest_FromFile('{idx}:{time}:{seq}'.format( idx=i, time=1000.0, seq=self._lengths[k][i])))
 
     def runTests_Async(self):
         k = multiprocessing.cpu_count()
-        p = Pool( processes = k )
+        p = Pool( processes = k, maxtasksperchild = 5 )
         p.map( MyRunner , iter(self._suite), chunksize = 1 )
         p.close()
         p.join()
@@ -210,7 +210,9 @@ class Length_Tests( object ):
 
 class MyRunner( object ):
     def __init__( self, testcase ):
-        unittest.TextTestRunner( verbosity=2).run( testcase )
+        class DevNull(object):
+            def write(self, _): pass
+        unittest.TextTestRunner( descriptions=0,verbosity=0,stream=DevNull()).run( testcase )
         
 if __name__ == '__main__':
     suite = Length_Tests()
