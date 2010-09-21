@@ -15,12 +15,15 @@ import multiprocessing
 from multiprocessing import Pool
 
 import sys
-sys.path.append('/Users/zifnab/Projects/devbranchMultistrandPython')
+sys.path.append('../../')
 
-from multistrand.objects import Strand, Complex
-from multistrand.options import Options, Constants
-from multistrand.system import SimSystem
-
+try:
+    from multistrand.objects import Strand, Complex
+    from multistrand.options import Options, Constants
+    from multistrand.system import SimSystem
+except ImportError as e:
+    print("Could not import Multistrand, please add it to your sys.path, or run this program from the native testing/speed/ directory.")
+    raise e
 import tools
 
 
@@ -56,34 +59,42 @@ class Speedtest_FromFile( unittest.TestCase ):
         if len(parts) == 2:
             idx = int( parts[0] )
             seq = parts[1].upper()
+            file_prefix = ''
             time = 1000.0
         elif len(parts) == 3:
             idx = int( parts[0] )
             time = float(parts[1])
+            file_prefix = ''
             seq = parts[2].upper()
+        elif len(parts) == 4:
+            idx = int( parts[0] )
+            time = float(parts[1])
+            file_prefix = parts[2]
+            seq = parts[3].upper()
         else:
             return super(Speedtest_FromFile, self).__getattr__(name)
 
         class stub_test_runner(object):
-            def __init__(self,runner):
+            def __init__(self,runner, file_prefix):
                 self.my_test_runner = runner
+                self.prefix = file_prefix
             def __call__(self,*args):
                 print("{0} ...".format(self.__doc__))
-                self.my_test_runner( seq, idx, time )
+                self.my_test_runner( seq, idx, time, self.prefix )
                 
         if len(seq) > 40:
             shortname = str(len(seq)) + ': ' + seq[:40] + '...'
         else:
             shortname = str(len(seq)) + ': ' + seq
 
-        mystub = stub_test_runner( self.my_test_runner )
+        mystub = stub_test_runner( self.my_test_runner, file_prefix )
         mystub.__doc__ = "Random Sequence (#{1},t={2}) [{0}]".format(shortname,idx,time)
         return mystub
             
         #raise AttributeError("{0}: Invalid name for a test case file.".format(name))
 
-    def my_test_runner( self, seq, idx, time ):
-        filename = 'len_{0}_sequence_{1}.out'.format( len(seq), idx )
+    def my_test_runner( self, seq, idx, time, prefix ):
+        filename = prefix + 'len_{0}_sequence_{1}.out'.format( len(seq), idx )
 
         times_kin = self.setup_kinfold( seq, time, 100)
         times_ms = self.setup_multistrand( seq, time, 100 )
@@ -218,12 +229,13 @@ class Length_Tests( Multistrand_Suite_Base ):
                     time_to_sim = self._times[k]
                 else:
                     time_to_sim = (len(self._lengths[k][i]) <= 40 and 5000.0) or 1000.0
-                self._suite.addTest( Speedtest_FromFile('{idx}:{time}:{seq}'.format( idx=i, time=time_to_sim, seq=self._lengths[k][i])))
+                
+                self._suite.addTest( Speedtest_FromFile('{idx}:{time}:{prefix}:{seq}'.format( idx=i, time=time_to_sim, prefix=file_prefix, seq=self._lengths[k][i])))
 
         
 if __name__ == '__main__':
-    short_lengths = Length_Tests( range(20,100,2), [5000.0]*11 + [1000.0]*39)
-    long_lengths = Length_Tests( range(100,200,5), [1000.0] * 20)
+    short_lengths = Length_Tests( range(20,100,2), [5000.0]*11 + [1000.0]*39, 'length_short/')
+    long_lengths = Length_Tests( range(100,205,5), [1000.0] * 21, 'length_longs/')
     long_lengths.runTests_Async()
 
 

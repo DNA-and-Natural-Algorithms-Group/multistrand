@@ -5,3 +5,12 @@ syntax: glob
 *.so
 Multistrand
 multistrand/*
+testing/speed/*/*.dat
+testing/speed/*/*.txt
+testing/speed/*/*.out
+testing/speed/testSetSS.txt
+testing/speed/kinout.log
+testing/speed/*/kinout.log
+testing/speed/dna.par
+testing/energy/testSetSS.txt
+testing/energy/res.txt
