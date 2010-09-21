@@ -168,41 +168,11 @@ class Speedtest_FromFile( unittest.TestCase ):
                         substrate_type = 'DNA',
                         parameter_type = 'Vienna' )
 
-
-
-class Length_Tests( object ):
-    """ Uses the Speedtest_FromFile testcase class to run a bunch of test cases. """
-
-    def __init__(self):
-        self._suite = unittest.TestSuite()
-        self._lengths = {}
-        for i in range(20,100,2):
-            self._lengths[str(i)] = []
-            
-        for n in self._lengths.keys():
-            if not os.path.isfile('length_{0}_sequences_random.dat'.format( n )):
-                f = open('length_{0}_sequences_random.txt'.format(n),'wt')
-                for i in range(100):
-                    self._lengths[n].append( tools.generate_sequence( int(n)))
-                    f.write( "{0}\n".format(self._lengths[n][-1] ))
-                f.close()
-                f = open('length_{0}_sequences_random.dat'.format(n),'wb')
-                cPickle.dump( self._lengths[n], f, protocol=-1)
-                f.close()
-            else:
-                f = open('length_{0}_sequences_random.dat'.format(n),'rb')
-                self._lengths[n] = cPickle.load( f )
-
-        for k,v in self._lengths.iteritems():
-            for i in range( len(v) ):
-                if len(self._lengths[k][i]) <= 40:
-                    self._suite.addTest( Speedtest_FromFile('{idx}:{time}:{seq}'.format( idx=i, time=5000.0, seq=self._lengths[k][i])))
-                else:
-                    self._suite.addTest( Speedtest_FromFile('{idx}:{time}:{seq}'.format( idx=i, time=1000.0, seq=self._lengths[k][i])))
-
+class Multistrand_Suite_Base( object ):
+    """ Base class for test suites - defines async run, etc. """
     def runTests_Async(self):
         k = multiprocessing.cpu_count()
-        p = Pool( processes = k, maxtasksperchild = 5 )
+        p = Pool( processes = k )
         p.map( MyRunner , iter(self._suite), chunksize = 1 )
         p.close()
         p.join()
@@ -213,11 +183,48 @@ class MyRunner( object ):
         class DevNull(object):
             def write(self, _): pass
         unittest.TextTestRunner( descriptions=0,verbosity=0,stream=DevNull()).run( testcase )
+    
+
+
+class Length_Tests( Multistrand_Suite_Base ):
+    """ Uses the Speedtest_FromFile testcase class to run a bunch of test cases. """
+    def __init__(self, lengths, times, file_prefix = ""):
+        self._suite = unittest.TestSuite()
+        self._lengths = {}
+        self._times = {}
+        
+        for l in lengths:
+            self._lengths[str(l)] = []
+        for l,t in zip(lengths, times):
+            self._times[str(l)] = t
+
+        for n in self._lengths.keys():
+            if not os.path.isfile(file_prefix + 'length_{0}_sequences_random.dat'.format( n )):
+                f = open(file_prefix + 'length_{0}_sequences_random.txt'.format(n),'wt')
+                for i in range(100):
+                    self._lengths[n].append( tools.generate_sequence( int(n)))
+                    f.write( "{0}\n".format(self._lengths[n][-1] ))
+                f.close()
+                f = open(file_prefix + 'length_{0}_sequences_random.dat'.format(n),'wb')
+                cPickle.dump( self._lengths[n], f, protocol=-1)
+                f.close()
+            else:
+                f = open(file_prefix + 'length_{0}_sequences_random.dat'.format(n),'rb')
+                self._lengths[n] = cPickle.load( f )
+
+        for k,v in self._lengths.iteritems():
+            for i in range( len(v) ):
+                if k in self._times:
+                    time_to_sim = self._times[k]
+                else:
+                    time_to_sim = (len(self._lengths[k][i]) <= 40 and 5000.0) or 1000.0
+                self._suite.addTest( Speedtest_FromFile('{idx}:{time}:{seq}'.format( idx=i, time=time_to_sim, seq=self._lengths[k][i])))
+
         
 if __name__ == '__main__':
-    suite = Length_Tests()
-    #    suite.runTests()
-    suite.runTests_Async()
+    short_lengths = Length_Tests( range(20,100,2), [5000.0]*11 + [1000.0]*39)
+    long_lengths = Length_Tests( range(100,200,5), [1000.0] * 20)
+    long_lengths.runTests_Async()
 
 
 
