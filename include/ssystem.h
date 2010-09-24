@@ -37,8 +37,8 @@ class SimulationSystem
 
   void SimulationLoop_Standard( void );
   void SimulationLoop_FirstStep( void );
-  void SimulationLoop_Trajectory( void );
-  void SimulationLoop_Transition( int ointerval, double otime );
+  void SimulationLoop_Trajectory( long ointerval, double otime );
+  void SimulationLoop_Transition( void );
 
   void InitializeSystem( PyObject *alternate_start = NULL);
 

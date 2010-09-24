@@ -453,19 +453,21 @@ class identlist *getID_list(PyObject *options, int index, PyObject *alternate_st
 #define SIMULATION_MODE_PYTHON_NORMAL       0x0040
 #define SIMULATION_MODE_PYTHON_FIRST_BI     0x0060
 
-#define SIMULATION_MODE_ENERGY_ONLY         0x0100
+#define SIMULATION_MODE_ENERGY_ONLY         0x0200
 
 
 // simulation modes are bitwise -> bit 5 is normal mode
 //                                 bit 6 is first step mode
 //                                 bit 7 is python interface
-//                                 bit 9 is compute energy mode only, should not 
+//                                 bit 10 is compute energy mode only, should not 
 //                                          be combined with any other flags.
 // the following are the bit definitions for tests on those:
 
 #define SIMULATION_MODE_FLAG_NORMAL                    0x0010
 #define SIMULATION_MODE_FLAG_FIRST_BIMOLECULAR         0x0020
 #define SIMULATION_MODE_FLAG_PYTHON                    0x0040
+#define SIMULATION_MODE_FLAG_TRAJECTORY                0x0080
+#define SIMULATION_MODE_FLAG_TRANSITION                0x0100
 
 // stopconditions used in ssystem. 
 // TODO: clean up/add docs.

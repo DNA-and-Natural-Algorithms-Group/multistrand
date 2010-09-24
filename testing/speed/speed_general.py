@@ -5,6 +5,8 @@ import subprocess
 import timeit
 import os, os.path
 import cPickle
+import numpy
+import random
 
 # for IPython, some of the IPython libs used by unittest have a
 # deprecated usage of BaseException, so we turn that specific warning
@@ -57,7 +59,7 @@ class Length_Result( dict ):
         else:
             self.load = None
 
-        keyvals = [(k,v) for k,v in self.iteritems()]
+        keyvals = [i for i in self.iteritems()]
         for k,v in keyvals:
             try:
                 if len(v) == 5:
@@ -245,7 +247,7 @@ class Multistrand_Suite_Base( object ):
         p = Pool( processes = k )
 
         if shuffle_tasks:
-            random.shuffle( self._suite )
+            random.shuffle( self._suite._tests )
         
         p.map( MyRunner , iter(self._suite), chunksize = 1 )
         p.close()
@@ -301,7 +303,9 @@ class Length_Tests( Multistrand_Suite_Base ):
 if __name__ == '__main__':
     short_lengths = Length_Tests( range(20,100,2), [5000.0]*11 + [1000.0]*39, 'length_short/')
     long_lengths = Length_Tests( range(100,205,5), [1000.0] * 21, 'length_longs/')
+    very_long_lengths = Length_Tests( range(210,310,10), [100.0] * 10, 'length_very_longs/')
     single_short = Length_Tests( [30], [5000.0], 'length_short/')
+    very_long_lengths.runTests_Async()
     #long_lengths.runTests_Async()
     #single_short.runTests_Async()
 

@@ -139,6 +139,10 @@ void SimulationSystem::StartSimulation_Standard( void )
     }
 }
 
+void SimulationSystem::StartSimulation_Transition( void )
+{
+  StartSimulation_Standard();
+}
 void SimulationSystem::StartSimulation_Trajectory( void )
 {
   long ointerval;
@@ -231,18 +235,17 @@ void SimulationSystem::SimulationLoop_Standard( void )
     printStatusLine(system_options, current_seed, STOPRESULT_TIME, stime, NULL );
 }
 
-void SimulationSystem::SimulationLoop_Trajectory( void )
+void SimulationSystem::SimulationLoop_Trajectory( long ointerval, double otime )
 {
   double rchoice,rate,stime,ctime;
   // Could really use some commenting on these local vars.
   rchoice = rate = stime = ctime = 0.0;
 
-  double maxsimtime, otime;
-  maxsimtime = otime = -1.0;
+  double maxsimtime;
+  maxsimtime = -1.0;
   
   int curcount = 0, checkresult = 0;
   long stopcount = 0, stopoptions = 0, sMode = 0;
-  long ointerval = -1;
   class stopcomplexes *traverse = NULL, *first=NULL;
 
   getLongAttr(system_options, simulation_mode,&sMode); 
