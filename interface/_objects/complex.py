@@ -33,7 +33,15 @@ class Complex(object):
       Complex.unique_id += 1
       
   def __str__( self ):
-    return "Complex: {fieldnames[0]:>9}: '{0.name}'\n       : {fieldnames[1]:>9}: {0.sequence}\n       : {fieldnames[2]:>9}: {0.structure}\n       : {fieldnames[3]:>9}: {1}\n       : {fieldnames[4]:>9}: {0.boltzmann_sample}".format( self, [i.name for i in self.strand_list], fieldnames =('Name','Sequence','Structure','Strands','Boltzmann') )
+    return "\
+Complex: {fieldnames[0]:>9}: '{0.name}'\n\
+       : {fieldnames[1]:>9}: {0.sequence}\n\
+       : {fieldnames[2]:>9}: {0.structure}\n\
+       : {fieldnames[3]:>9}: {1}\n\
+       : {fieldnames[4]:>9}: {0.boltzmann_sample}".format(
+       self,
+       [i.name for i in self.strand_list],
+       fieldnames =('Name','Sequence','Structure','Strands','Boltzmann') )
 
   def old_init( self, id, name, strand_list, structure, boltzmann_sample = False):
     """ Old style init function, uses fixed argument list.

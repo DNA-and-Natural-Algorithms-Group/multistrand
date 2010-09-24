@@ -71,8 +71,8 @@ class ClusterInfo(object):
                     pid,user,pr,ni,virt,resident,shr,stat,cpu,mem,cputime,cmd = l.split(None,11)
                     self.procdata[line].append( (user, stat, cpu, mem, cmd ) )
 
-                self.res.append((address, loadavg, processor, cores))
-                print("{0}: Load (1/5/15): {load[0]}/{load[1]}/{load[2]}".format( line, load=loadavg))
+                self.res.append((address, loadavg, processor, cores, line))
+                print("{0}: Cores: {cpucount} Load: {load[0]}/{load[1]}/{load[2]}".format( line, load=loadavg, cpucount=max(cores,processor)))
                 time.sleep(.2)
             except IOError:
                 print("{0} is not responding, or there were other issues.".format( address ))
@@ -86,12 +86,21 @@ class ClusterInfo(object):
             return
         if not name in self.procdata:
             return
-        print("Machine status: {0}".format( name ))
-        print("{0[0]:<12}| {0[1]:4} | {0[2]:>5} {0[3]:>5}: {0[4]:<40}".format(['user','stat','cpu','mem','cmd']))
+        
+        def machine_load( machine_name ):
+            hits = [i for i in self.res if i[4] == machine_name ]
+            if len(hits) == 0:
+                raise IndexError("No machine with that name found in our results list.")
+            else:
+                return hits[-1]  # the most recent result for that processor.
+
+        loadinfo = machine_load( name )
+        print("Machine status: {0}\nCPU Processors/Cores: {1[2]}/{1[3]} Load: {1[1][0]}/{1[1][1]}/{1[1][2]} (Average # of CPUs used in last 1m/5m/15m)".format( name, loadinfo ))
+        print("{0[0]:<12}| {0[1]:4} | {0[2]:>5} {0[3]:>5} | {0[4]:<40}".format(['user','stat','cpu','mem','cmd']))
         procs = self.procdata[ name ]
         procs.sort(key = lambda x: float(x[2]), reverse=True)
         for p in procs[:10]:
-            print("{0[0]:<12}| {0[1]:4} | {0[2]:>5} {0[3]:>5}: {0[4]:<40}".format(p))
+            print("{0[0]:<12}| {0[1]:4} | {0[2]:>5} {0[3]:>5} | {0[4]:<40}".format(p))
         if len(procs) > 10:
             print("... [[{0} more processes omitted]] ... ".format( len(procs) - 10 ) )
         print("")

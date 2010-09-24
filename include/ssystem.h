@@ -30,9 +30,16 @@ class SimulationSystem
   int getErrorFlag( void );
 
  private:
-  void StartSimulation_First_Bimolecular( void );
-  void SimulationLoop( void );
-  void SimulationLoop_First_Bimolecular( void );
+  void StartSimulation_Standard( void );
+  void StartSimulation_FirstStep( void );
+  void StartSimulation_Trajectory( void );
+  void StartSimulation_Transition( void );
+
+  void SimulationLoop_Standard( void );
+  void SimulationLoop_FirstStep( void );
+  void SimulationLoop_Trajectory( void );
+  void SimulationLoop_Transition( int ointerval, double otime );
+
   void InitializeSystem( PyObject *alternate_start = NULL);
 
   void InitializeRNG( void );

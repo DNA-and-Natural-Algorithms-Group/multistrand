@@ -1,15 +1,5 @@
 import warnings
 
-class Domain(object):
-  """Represents a Multistrand Domain object."""
-
-  def __init__(self, id, name, length, is_complement=False):
-    self.id = id
-    self.name = name
-    self.length = length
-    self.is_complement = is_complement
-
-
 class Strand(object):
   """Represents a Multistrand Strand object."""
   unique_id = 0

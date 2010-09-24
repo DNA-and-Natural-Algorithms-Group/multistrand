@@ -20,8 +20,6 @@ typedef struct {
   //  PyObject  *member_attr;   
 } SimSystemObject;
 
-// static PyTypeObject SimSystem_Type; /* Forward decl */
-
 #define SimSystem_Check(v)  (Py_TYPE(v) == &SimSystem_Type)
 /* Should we want to use it later... */
 
@@ -76,8 +74,6 @@ static PyObject *SimSystemObject_start(SimSystemObject *self, PyObject *args)
       return NULL;
     }
   self->ob_system->StartSimulation();
-  /* Note that we no longer need the _threads variant, since it's not
-     thread safe to do that at top level now. */
 
   Py_INCREF(Py_None);
   return Py_None;

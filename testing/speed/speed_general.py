@@ -21,10 +21,12 @@ try:
     from multistrand.objects import Strand, Complex
     from multistrand.options import Options, Constants
     from multistrand.system import SimSystem
-except ImportError as e:
+    import multistrand.utils
+except ImportError:
+    # we want to tell the user how to fix this, but then reraise so it still fails. 
     print("Could not import Multistrand, please add it to your sys.path, or run this program from the native testing/speed/ directory.")
-    raise e
-import tools
+    raise
+
 
 
 #Useful decorator for timing purposes. 
@@ -38,14 +40,55 @@ def timer( f ):
     return res
 
 
-class Results_Store( object ):
-    def __init__(self):
-        self.results = []
+class Length_Result( dict ):
+    def __init__(self, in_dictionary):
+        dict.__init__( self, in_dictionary )
         
-    def add_results( self, item ):
-        self.results.append(item)
+        if 'maxtime' in self:
+            self.maxtime = self['maxtime']
+        else:
+            self.maxtime = 1000.0
+        if 'length' in self:
+            self.length = self['length']
+        else:
+            self.length = None
+        if 'load' in self:
+            self.load = self['load']
+        else:
+            self.load = None
 
-Results = Results_Store()
+        keyvals = [(k,v) for k,v in self.iteritems()]
+        for k,v in keyvals:
+            try:
+                if len(v) == 5:
+                    if k.startswith('Kinfold'):
+                        userplussys = v[2] + v[3]
+                        self[k+'_user_sys']  = userplussys
+                    if k.startswith('Multistrand'):
+                        userplussys = v[0] + v[1]
+                        self[k+'_user_sys']  = userplussys
+                    if numpy.allclose( userplussys, v[4], .01 ):
+                        self[k+'_close'] = True
+                    else:
+                        self[k+'_close'] = False
+                    self[k] = v[4]
+
+            except TypeError:
+                pass
+
+    def __str__(self):
+        res = "{fields[0]:>11} : {0[Kinfold]:<20}\n\
+{fields[1]:>11} : {0[Kinfold_init]:<}\n\
+{fields[2]:>11} : {0[Multistrand]:<20}\n\
+{fields[1]:>11} : {0[Multistrand_init]:<}\n\
+{fields[3]:>11} : {0.maxtime}".format(self, fields=['Kinfold','(init)','Multistrand','Max Time'])
+        if self.length != None:
+            res += "\n{0:>11} : {1.length}".format( 'Length', self )
+        if self.load != None:
+            res += "\n{0:>11} : {1.load}".format( 'Load', self )
+        return res
+        
+        
 
 class Speedtest_FromFile( unittest.TestCase ):
     """ This test case class handles the comparison between Kinfold and Multistrand on
@@ -101,9 +144,16 @@ class Speedtest_FromFile( unittest.TestCase ):
 
         print("Sequence {2} [{3}]: {0:>35} | {1}".format(  times_kin[0][2] + times_kin[0][3], times_ms[0][0] + times_ms[0][1], idx, len(seq)),sep="")
         f = open(filename,'wt')
-        f.write( repr( (times_kin, times_ms) ) )
+        f.write( "Length_Result({0})".format(
+            repr( {'Kinfold':times_kin[0],
+                   'Multistrand':times_ms[0],
+                   'Kinfold_init':tuple([j-i for i,j in zip(times_kin[0], times_kin[1])]),
+                   'Multistrand_init':tuple([j-i for i,j in zip(times_ms[0], times_ms[1])]),
+                   'maxtime':time,
+                   'length':len(seq),
+                   'load':os.getloadavg()} ) )
+                 )
         f.close()
-        Results.add_results( (times_kin, times_ms ))
 
     def setUp(self):
         pass
@@ -181,12 +231,27 @@ class Speedtest_FromFile( unittest.TestCase ):
 
 class Multistrand_Suite_Base( object ):
     """ Base class for test suites - defines async run, etc. """
-    def runTests_Async(self):
+    def runTests_Async(self, shuffle_tasks = True):
+        """ This runner runs the tests via an asynchronous pool of
+        workers.
+
+        The number of workers is equal to the CPU core count, and this
+        function only returns once every task has been completed. It's
+        possible we should up the chunksize so that tasks are
+        partitioned in bigger groups, but since all the cores being
+        used are local, it seems like overkill."""
+        starttime = os.times()
         k = multiprocessing.cpu_count()
         p = Pool( processes = k )
+
+        if shuffle_tasks:
+            random.shuffle( self._suite )
+        
         p.map( MyRunner , iter(self._suite), chunksize = 1 )
         p.close()
         p.join()
+        endtime = os.times()
+        print("Async run complete! Processing took [{0[4]}] of real time before completion. [u/s/cu/cs]:[{0[0]}/{0[1]}/{0[2]}/{0[3]}]".format( [j-i for i,j in zip( starttime, endtime )] ))
     
 
 class MyRunner( object ):
@@ -213,7 +278,7 @@ class Length_Tests( Multistrand_Suite_Base ):
             if not os.path.isfile(file_prefix + 'length_{0}_sequences_random.dat'.format( n )):
                 f = open(file_prefix + 'length_{0}_sequences_random.txt'.format(n),'wt')
                 for i in range(100):
-                    self._lengths[n].append( tools.generate_sequence( int(n)))
+                    self._lengths[n].append( multistrand.utils.generate_sequence( int(n)))
                     f.write( "{0}\n".format(self._lengths[n][-1] ))
                 f.close()
                 f = open(file_prefix + 'length_{0}_sequences_random.dat'.format(n),'wb')
@@ -236,8 +301,9 @@ class Length_Tests( Multistrand_Suite_Base ):
 if __name__ == '__main__':
     short_lengths = Length_Tests( range(20,100,2), [5000.0]*11 + [1000.0]*39, 'length_short/')
     long_lengths = Length_Tests( range(100,205,5), [1000.0] * 21, 'length_longs/')
-    long_lengths.runTests_Async()
-
+    single_short = Length_Tests( [30], [5000.0], 'length_short/')
+    #long_lengths.runTests_Async()
+    #single_short.runTests_Async()
 
 
 

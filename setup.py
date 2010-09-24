@@ -62,8 +62,6 @@ else:
 #                                         ('DEBUG_MACROS',None)],
 #                                         ('Py_TRACE_REFS',None)],
                           undef_macros=['NDEBUG'],
-#                          define_macros=[('NDEBUG',None)],
-#                          undef_macros=['DEBUG', 'DEBUG_MACROS'],
                           extra_compile_args = ['-O3','-g', '-w'],
 #                          ['-Wno-strict-prototypes','-w','-O0','-v','-fcommon', '-fno-wrapv'],   #This is 'disable all warnings compiler flag'
                       )
@@ -76,21 +74,3 @@ setup(name="multistrand", version="1.0",
 #      packages=['interface','interface._options','interface._objects'],
 #      package_dir={'interface':''},
 
-
-#
-# some history stuff I had that might be useful later.
-#
-
-# python2.6 interface/setup.py build -n -b ./ -t obj/interface/ --build-lib ./ --debug --force
-# python2.6 interface/setup.py build -n -b ./ -t obj/interface/ --build-lib ./ --debug --force
-# python2.6 interface/setup.py build -n -b . -t obj/interface/ --debug --force
-# python2.6 interface/setup.py build -n -b bin/ --debug --force
-# python2.6 interface/setup.py install -O0 -n --root=./ --install-lib=. --prefix=None
-# python2.6 interface/setup.py install -O0 -n --root=./ --install-lib=. --prefix
-# python2.6 interface/setup.py install -O0 -n --root=./ --install-lib=.
-# python2.6 interface/setup.py install -O0 -n --install-base=lib/ --root=./ --install-lib=.
-# python2.6 interface/setup.py install -O0 -n --install-base=lib/ --install-lib=.
-# python2.6 interface/setup.py install -O0 -n --install-base=lib/
-# python2.6 interface/setup.py install -O0 -n --root=./ --prefix=bin/
-# python2.6 interface/setup.py install -O0 -n --root=./
-# python2.6 interface/setup.py install --help

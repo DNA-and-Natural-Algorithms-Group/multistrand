@@ -7,6 +7,6 @@
 # Objects module to get the useful names into the correct namespace.
 #
 
-from _objects.objects import Domain, Strand, RestingState, StopCondition
+from _objects.objects import Strand, RestingState, StopCondition
 from _objects.complex import Complex
-
+from _objects.domain  import Domain

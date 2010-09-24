@@ -11,7 +11,7 @@ import timeit
 warnings.filterwarnings("ignore", r"BaseException[.]message has been deprecated as of Python 2[.]6", DeprecationWarning)
 
 
-import tools
+
 import sys
 sys.path.append('/Users/zifnab/Projects/devbranchMultistrandPython')
 
@@ -20,6 +20,7 @@ from multiprocessing import Pool
 from multistrand.objects import Strand, Complex
 from multistrand.options import Options, Constants
 from multistrand.system import SimSystem
+import multistrand.utils
 
 class Results_Store( object ):
     def __init__(self):
@@ -302,11 +303,11 @@ class SetupSuite( object ):
         if not os.path.isfile('test_sequences.txt'):
             f = open('test_sequences.txt','wt')
             for i in range(5):
-                f.write( "{0}\n".format(tools.generate_sequence( 20 * (i+1) ) ))
+                f.write( "{0}\n".format(utils.generate_sequence( 20 * (i+1) ) ))
             for i in range(100):
-                f.write( "{0}\n".format(tools.generate_sequence( 20 ) ))
+                f.write( "{0}\n".format(utils.generate_sequence( 20 ) ))
             for i in range(100):
-                f.write( "{0}\n".format(tools.generate_sequence( 40 ) ))
+                f.write( "{0}\n".format(utils.generate_sequence( 40 ) ))
             f.close()
             
         if hasattr(self, "_suite") and self._suite is not None:
@@ -319,11 +320,11 @@ class SetupSuite( object ):
         if not os.path.isfile('test_sequences.txt'):
             f = open('test_sequences.txt','wt')
             for i in range(5):
-                f.write( "{0}\n".format(tools.generate_sequence( 20 * (i+1) ) ))
+                f.write( "{0}\n".format(utils.generate_sequence( 20 * (i+1) ) ))
             for i in range(100):
-                f.write( "{0}\n".format(tools.generate_sequence( 20 ) ))
+                f.write( "{0}\n".format(utils.generate_sequence( 20 ) ))
             for i in range(100):
-                f.write( "{0}\n".format(tools.generate_sequence( 40 ) ))
+                f.write( "{0}\n".format(utils.generate_sequence( 40 ) ))
             f.close()
         k = multiprocessing.cpu_count()
         p = Pool( processes = k )
