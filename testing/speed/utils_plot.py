@@ -64,7 +64,7 @@ def findnames( data ):
             res.append(keyname)
     return res
     
-def plotdata( self=None, data=None, label="", namecolors=None, avg = False, interval = None, *args, **kargs ):
+def plotdata( self=None, data=None, label="", namecolors=None, avg = False, interval = None, user=False, offset=None, xrange=False, *args, **kargs ):
     """ Plots the data set, using the label name and optional args as given to
     select the plotting function style.
 
@@ -95,17 +95,32 @@ def plotdata( self=None, data=None, label="", namecolors=None, avg = False, inte
     
     names = findnames( data )
     names.sort()
+
+    if 'colors' in kargs:
+        colordict = kargs['colors']
+        del kargs['colors']
+    elif 'color' not in kargs:
+        if 'colors' in globals():
+            colordict = colors
+        elif self != None and hasattr(self,'namecolors'):
+            colordict = self.namecolors
+        else:
+            colordict = {}
+    if xrange:
+        data = data.copy()
+        # shallow copy, as we need to remove some keys here but not in the global dict.
+        # note that this sets the variable 'data' to the new value, rather than updating
+        # the k/v pairs in the already existing variable 'data'.
+        for k in data.keys():
+            if xrange[0] > k or xrange[1] <= k:
+                del data[k]
     for n in names:
         kargs['label'] = label.format(n)
-        try:
-            kargs['color'] = self.namecolors[n]
-        except:
-            try:
-                kargs['color'] = colors[n]
-            except:
-                if 'color' not in kargs: kargs['color'] = 'g'
-
-        ds = utils_load.data_series( data, name=n, avg=avg, interval=interval )
+        kargs['color'] = colordict.get(n,'g')
+                
+        ds = utils_load.data_series( data, name=n, avg=avg, interval=interval, user=user )
+        if offset != None:
+            ds[:,0] += offset
         if names.index(n) == 0:
             ds[:,0] += 0.5
 

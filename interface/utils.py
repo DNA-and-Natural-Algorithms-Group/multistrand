@@ -36,3 +36,101 @@ def generate_sequence( n, allowed_bases = ['G','C','T','A'], base_probability = 
                               # selected by the reduce since the result was a tuple.
                       for i in range(n)]
                      )
+
+class energy( object ):
+    """ Gets the energy of a particular sequence and structure, or a list of them.
+
+    If passed two non keyword args, they'll be considered the sequence and structure to compute.
+    Keywords: 'sequence','structure': for sequence and structure of a single state.
+              'sequence_list','structure_list': for sequence and structures of multiple states
+              'model':  'Vienna', 'Nupack' or 'Multistrand'
+                         (Note that Multistrand indicates the usage of one of the other
+                         models, depending on what you initialized multistrand.system with.
+                         The energy calculation is done by Multistrand natively.)
+    """
+    def __init__(self, sequence=False, structure=False,
+                 sequence_list=False, structure_list=False, model=None ):
+        if sequence and structure:
+            # single energy, no mfe
+            sequence_list=   [sequence]
+            structure_list=  [structure]
+        elif sequence:
+            # single energy, mfe
+            sequence_list = [sequence]
+            structure_list = False
+
+        if sequence_list and structure_list:
+            # multiple energy, no mfe
+            g = self.energy_generator( sequence_list, structure_list, model )
+        elif sequence_list:
+            g = self.mfe_generator( sequence_list, None, model )
+            # multiple energy, mfe
+        return [i for i in g]
+
+    def energy_generator( seql, strucl, model ):
+        if strucl == None:
+            e_call = self.__getattribute__( 'energy_' + model.lower() + '_mfe' ) # mfe
+        else:
+            e_call = self.__getattribute__( 'energy_' + model.lower() )
+
+        for seq,struc in zip(seql, strucl or [None]*len(seql)):
+            yield e_call( seq, struc )
+
+        
+        return __energy_dispatch( proc=energy_proc, seq_l = kargs['sequence_list'], struc_l = kargs['strucure_list'], *args, **kargs )
+
+    
+    elif len(args)==2:
+        return __energy_dispatch( seq = args[0], struc = args[1] )
+    else:
+        raise ValueError('Not sure how to use the passed parameters, please see the docstring.')
+
+def energy_dispatch( seq = None, struc = None, seq_l = None, struc_l = None, *args, **kargs ):
+    
+            
+
+def vienna_energy_setup( *args, **kargs ):
+    proc = subprocess.Popen(["RNAeval", "-d0","-P","dna.par",'-logML'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    def energyfunc( sequence, structure ):
+        input_str = "{seq}\n{struc}\n".format( seq=sequence, struc=structure )
+        proc.write(input_str)
+        proc.stdin.flush()
+
+        l = self.vienna_proc.stdout.readline()
+        while not (l.startswith(" energy") or (l.startswith( structure ) and len(l)>len(structure))):
+            l = self.vienna_proc.stdout.readline()
+
+        if l.startswith(" energy"):
+            energy = float(l[l.rfind('=')+1:])
+        else:
+            energy = float(l[l.rfind('(')+1:l.rfind(')')])
+        return round(energy,2)
+    return energyfunc
+
+def nupack_energy_setup( *args, **kargs ):
+    def energyfunc( sequence, structure ):
+        p = subprocess.Popen(["energy", "-material", "dna"], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+        input_str = "{seq}\n{struc}\n".format( seq=sequence, struc=structure )
+        
+        stdout_chars = p.communicate(input_str)[0]
+        flag = False
+        energy = None
+        # value we want is on the line after "% Energy"
+        result = stdout_chars.split("\n")
+        for l in result:
+            if flag:
+                energy = float( l )
+                flag = False
+            if l.startswith("% Energy"):
+                flag = True
+        return round(energy,2)
+    return energyfunc
+
+def multistrand_energy_setup( *args, **kargs ):
+    import multistrand.objects
+    import multistrand.system
+    def energyfunc( sequence, structure ):
+        c = multistrand.objects.Complex( sequence=sequence, structure=structure )
+        energy = multistrand.system.energy([c])
+        return round(energy[0],2)    
+    return energyfunc

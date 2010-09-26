@@ -55,14 +55,16 @@ def load_numbered( prefix, seq_range = False, seq_count = False ):
       results[seqlen][seqcnt] = res
   return results
 
-def data_series( data, name, avg=False, interval = None ):
+def data_series( data, name, avg=False, interval = None, user=False ):
   res = []
   keys = data.keys()
   keys.sort()
+  if user:
+    name += '_user_sys'
   if avg or interval != None:
     res = numpy.ndarray( shape=(len(keys),avg and 2 or 3) )
     for k in range(len(keys)):
-      scale = max(data[keys[k]], key=lambda x:x==None and 0 or 1)['maxtime'] * 100.0
+      scale = max(data[keys[k]], key=lambda x:x==None and -1 or 1)['maxtime'] * 100.0
       if avg:
         mn = numpy.mean( [i[name] for i in data[keys[k]] if i != None] )
         mn /= scale

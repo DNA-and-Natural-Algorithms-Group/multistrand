@@ -179,7 +179,7 @@ Complex: {fieldnames[0]:>9}: '{0.name}'\n\
     # to the nupack 'sample' occurs before /usr/bin or it may not find it correctly.
     #
 
-    p = subprocess.Popen(["sample", "-multi", "-material", "dna", "-count", str(count), tmp.name[:-7]],stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    p = subprocess.Popen(["sample", "-multi", "-material", "dna", "-count", str(count), tmp.name[:-7]],stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
     input_str = "{0}\n{1}\n{2}\n".format( len(self.strand_list),
                                         "\n".join( [i.sequence for i in self.strand_list] ),

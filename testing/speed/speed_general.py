@@ -17,7 +17,20 @@ import multiprocessing
 from multiprocessing import Pool
 
 import sys
-sys.path.append('../../')
+
+if 'MULTISTRANDHOME' in os.environ:
+    if not os.path.isfile( os.path.join( os.environ['MULTISTRANDHOME'], 'setup.py') ):
+        warnings.warn( ImportWarning("Could not find the file 'setup.py' in your MULTISTRANDHOME [{0}]; this environment variable is possibly out of date or not referring to the new Mulistrand distribution."))
+    else:
+        if os.environ['MULTISTRANDHOME'] not in sys.path:
+            sys.path.append( os.environ['MULTISTRANDHOME'] )            
+
+idx = os.getcwd().find( os.path.join('testing','speed') )
+if idx > -1:
+    rootpath = os.path.abspath(os.getcwd()[:idx])
+    #abspath cleans up the tail of the pathname as needed.
+    if rootpath not in sys.path:
+        sys.path.append( rootpath )
 
 try:
     from multistrand.objects import Strand, Complex
@@ -26,7 +39,7 @@ try:
     import multistrand.utils
 except ImportError:
     # we want to tell the user how to fix this, but then reraise so it still fails. 
-    print("Could not import Multistrand, please add it to your sys.path, or run this program from the native testing/speed/ directory.")
+    print("Could not import Multistrand, please add it to your sys.path, or make sure that MULTISTRANDHOME is set correctly. This sub-program can also be run from the native testing/speed/ directory.")
     raise
 
 
@@ -97,7 +110,9 @@ class Speedtest_FromFile( unittest.TestCase ):
     a particular input file of random sequences. """
 
     def setUp( self ):
-        print("setting up!")
+        """ Does nothing at the moment """
+        pass
+
         
     def __getattr__(self, seq):
         parts = seq.split(':')
@@ -140,7 +155,8 @@ class Speedtest_FromFile( unittest.TestCase ):
 
     def my_test_runner( self, seq, idx, time, prefix ):
         filename = prefix + 'len_{0}_sequence_{1}.out'.format( len(seq), idx )
-
+        if os.path.isfile( filename ):
+            print("File [{filename}] already exists, skipping test.".format(filename=filename))
         times_kin = self.setup_kinfold( seq, time, 100)
         times_ms = self.setup_multistrand( seq, time, 100 )
 

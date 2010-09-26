@@ -6,6 +6,8 @@
 from utils_plot import *
 from utils_load import *
 
+import cPickle
+
 #utils_plot already grabs the backends for us.
 
 # @figuresetup(10, title = "Kinfold vs Multistrand Comparison, Weak MFE sequences")
@@ -63,7 +65,29 @@ class FigureObject( object ):
     def showAll(self):
         for num,fname in self.figures:
             self.__getattribute__(fname)()
+        
+    def loaddata(self, attrname, directory ):
+        res = {}
+        if os.path.isfile(attrname + '.dat'):
+            f = open(attrname + '.dat','rb')
+            res = cPickle.load(f)
+            f.close()
 
+        read_count = 0
+        for k in res.iterkeys():
+            read_count += len([i for i in res[k] if i != None])
+
+        if read_count != len([i for i in os.listdir(directory) if i.endswith('.out')]):
+            print("Loading '{0}' from individual files.".format(attrname))
+            res = load_numbered(directory, seq_count=100)
+        else:
+            print("Loaded '{0}' from summary file.".format(attrname))
+        return res
+        
+    def dump_data(self, obj, attrname):
+        f = open(attrname + '.dat','wb')
+        cPickle.dump( obj, f, protocol=-1 )
+        f.close()
 
 class FullyRandomSequences( FigureObject ):
     _unique_id = 0
@@ -75,10 +99,18 @@ class FullyRandomSequences( FigureObject ):
     
     def __init__(self):
         FigureObject.__init__(self)
-        
-        self.data_short = load_numbered('length_short', seq_count=100)
-        self.data_long = load_numbered('length_longs',seq_count=100)
-        self.data_full = dict( self.data_long.items() + self.data_short.items() )
+        self.data_short = self.loaddata( 'data_short', 'length_short')
+        self.data_long = self.loaddata( 'data_long', 'length_longs' )
+        self.data_vlong = self.loaddata( 'data_vlong', 'length_very_longs')
+        self.data_full = self.data_short.copy()
+        self.data_full.update( self.data_long )
+        self.data_quitefull = self.data_full.copy()
+        self.data_quitefull.update( self.data_vlong )
+
+    def dump_all_data(self):
+        self.dump_data( self.data_short, 'data_short')
+        self.dump_data( self.data_vlong, 'data_vlong')
+        self.dump_data( self.data_long, 'data_long')
         
     @figuresetup( 1, yscale='linear', xlim=(0,205) )
     def plain_full_no_log(self):
@@ -96,7 +128,34 @@ class FullyRandomSequences( FigureObject ):
         plotdata( self=self, data=self.data_full, interval=.4, alpha=.3 )
         plotdata( self=self, data=self.data_full, interval=.05 )
         plotdata( self=self, data=self.data_full, interval=.2, alpha=.4)
+
         
+    @figuresetup(4,  yscale='log', xlim=(0,205) )
+    def user_sys_comparison(self):
+        plotdata( self=self, data=self.data_full, label="{0} (Real)" )
+        plotdata( self=self, data=self.data_full, avg=True )
+        plotdata( self=self, data=self.data_full, label="{0} (User+Sys)", user=True, offset=1.0, colors={'Kinfold':'m','Multistrand':'c'} )
+        plotdata( self=self, data=self.data_full, avg=True, user=True, offset=1.0, colors={'Kinfold':'m','Multistrand':'c'} )
+
+    @figuresetup(5,  yscale='log', xlim=(0,105) )
+    def user_sys_comparison_small(self):
+        plotdata( self=self, data=self.data_full, xrange=(0,105), s=.2, label="{0} (Real)" )
+        plotdata( self=self, data=self.data_full, xrange=(0,105), avg=True )
+        plotdata( self=self, data=self.data_full, xrange=(0,105), s=.2, label="{0} (User+Sys)", user=True, offset=1.0, colors={'Kinfold':'m','Multistrand':'c'} )
+        plotdata( self=self, data=self.data_full, xrange=(0,105), avg=True, user=True, offset=1.0, colors={'Kinfold':'m','Multistrand':'c'} )
+
+    @figuresetup(6,  yscale='log', xlim=(0,105) )
+    def user_sys_comparison_areas(self):
+        plotdata( self=self, data=self.data_full, xrange=(0,105), interval=.2)
+        plotdata( self=self, data=self.data_full, xrange=(0,105), interval=.2,  user=True, alpha=.3)
+        #        plotdata( self=self, data=self.data_full, xrange=(0,105), s=.2, label="{0} (Real)", alpha=.5 )
+        #       plotdata( self=self, data=self.data_full, xrange=(0,105), s=.2, label="{0} (User+Sys)", user=True, offset=1.0, colors={'Kinfold':'g','Multistrand':'g'}, alpha = 0.5 )
+        
+    @figuresetup(7,  yscale='log', xlim=(0,305) )
+    def longer_full(self):
+        plotdata( self=self, data=self.data_quitefull, label="{0} (Random Sequences)", alpha=.7 )
+        plotdata( self=self, data=self.data_quitefull, avg=True, alpha=.7 )
+        plotdata( self=self, data=self.data_quitefull, avg=True, user=True, colors={'Kinfold':'m','Multistrand':'c'} )
 
 
 if __name__ == '__main__':
