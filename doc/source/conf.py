@@ -18,6 +18,154 @@ import sys, os
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
 
+# by including the following function, we can add some event handlers to modify docstrings.
+def setup(app):
+
+    app.connect('autodoc-process-docstring',proc_docstring)
+
+def proc_docstring(app, what, name, obj, options, lines):
+    """
+    Processes docstrings to make them readable both by pydoc and by sphinx.
+
+    Examples below, for this function. Blocks are marked with exactly
+    2 spaces extra indent in this example
+    
+    Keyword Arguments:
+    app             -- the Sphinx application object
+    what [type=str] -- the type of the object which the docstring belongs to (one of 'module', 'class', 'exception', 'function', 'method', 'attribute')
+    name [type=str] -- fully qualified name of object
+    obj             -- the object itself
+    options         -- the options given to the directive: an object with
+                       attributes inherited_members, undoc_members,
+                       show_inheritance and noindex that are true if the flag
+                       option of same name was given to the auto directive
+    lines [type=list] -- the lines of the docstring
+
+    Return Value: None
+
+    Results [omitting opening section which is unchanged]:
+      :param app: the Sphinx application object
+      :param what: the type of the object which the docstring belongs to (one of 'module', 'class', 'exception', 'function', 'method', 'attribute')
+      :type what: str
+      :param name: fully qualified name of object
+      :type name: str
+      :param obj: the object itself
+      :param options: the options given to the directive: an object with attributes inherited_members, undoc_members, show_inheritance and noindex that are true if the flag option of same name was given to the auto directive
+      :param lines: the lines of the docstring
+      :type lines: list
+      
+      :rtype: None
+    """
+    if what != 'function' and what != 'method':
+        return
+    
+    import re
+    args_loc = -1
+    retval_loc = -1
+    for l in lines:
+        k = l.lower()
+        if k.startswith("arguments:") or k.startswith("keyword arguments:"):
+            args_loc = lines.index(l)
+        if k.startswith("return value:"):
+            retval_loc = lines.index(l)
+            retval_start = len(k) - 13
+
+    replacedata = []
+    # list of index, replacevalue pairs, where replacevalue is a
+    # dictionary with the following items:
+    # "argname":str
+    # 'argtext':str
+    # 'argkeywords': list of two items, the first is the 'default'
+    #                value, second is the type.  Note that these are
+    #                either strings or None
+    def add_to_val( idx, currentval, line ):
+        #helper to add more values to a specific line, following our parse rules.
+        # Returns True if it thinks we need to stop, False otherwise.
+        
+        parsed_data = re.match(r'^\s*(.*?)\s*((?:\[(.*)\]\s*)?--\s*(.*?)\s*)?$',line)
+        # note: if we don't match the above, parsed_data will be
+        # None. But this shouldn't happen, as the above can match
+        # /any/ string including a blank one, due to the conditionals
+        # and *. Note that a blank string will have group 0 == '', as
+        # that non-greedy group is the weakest possible match.
+        groups = parsed_data.groups()
+
+        if len(groups[0]) == 0 and groups[1] == None:
+            if len(currentval) > 0:
+                replacedata.append(currentval.copy())
+                currentval.clear()
+            return True
+
+        if groups[1] == None:
+            currentval['argtext'] = currentval['argtext'].strip() + ' ' + groups[0]
+            currentval['range'] = [currentval['range'][0]] + [idx]
+            return False
+
+        #If we were already processing a line and get a new starter, add the old one.
+        if len(currentval) > 0:
+            replacedata.append(currentval.copy())
+
+        #process the two parts. Left is the argument name and data
+        #about it, right side is all the text.
+        currentval.clear()
+        currentval['argname'] = groups[0]
+        currentval['argtext'] = groups[3]
+        currentval['argkeywords'] = [None,None]
+        currentval['range'] = [idx]
+        if groups[2] != None:
+            keypairs = [i.split('=') for i in groups[2].split(',')]
+            for item in keypairs:
+                stripped_name = item[0].strip().lower()
+                if stripped_name == 'default':
+                    currentval['argkeywords'][0] = item[1].strip()
+                elif stripped_name == 'type':
+                    currentval['argkeywords'][1] = item[1].strip()
+        # done with processing this line
+        return False
+
+    currentval = {}
+    if args_loc >= 0:
+        for i in range(args_loc+1,len(lines)):
+            flag = add_to_val( i, currentval, lines[i] )
+            if flag: break
+    if len(currentval) > 0:
+        replacedata.append( currentval.copy() )
+    #now we grab the return value info. 
+    if retval_loc >= 0:
+        currentval.clear()
+        if retval_start > 0:
+            add_to_val( retval_loc, currentval, '-- ' + lines[retval_loc][13:])
+        for i in range(retval_loc+1,len(lines)):
+            flag = add_to_val( i, currentval, lines[i] )
+            if flag: break
+
+    if len(currentval) > 0:
+        replacedata.append( currentval.copy() )
+
+    def get_line(replace_info):
+        if replace_info['argname'] == '':
+            return [':rtype: {0}{1}'.format('' if replace_info['argkeywords'] == [None,None] else '[type=' + replace_info['argkeywords'][1] + '] ', replace_info['argtext'])]
+        return [':param {0}: {1}{2}'.format( replace_info['argname'],  \
+                                             '' if replace_info['argkeywords'][0] == None else '[default=' + replace_info['argkeywords'][0] + '] ', \
+                                             replace_info['argtext'])] + \
+                ([] if replace_info['argkeywords'][1] == None else \
+                [':type {0}: {1}'.format( replace_info['argname'], \
+                                                    replace_info['argkeywords'][1])])
+    
+    
+    #Finally, we process the data and spit out appropriate lines.
+    replacedata.sort( key=lambda x:x['range'][-1], reverse=True ) # biggest final item is last, to avoid clobbering when we do slice replacement.
+    for i in replacedata:
+        if len(i['range']) == 1:
+            lines[i['range'][0]:i['range'][0]+1] = get_line(i)[:]
+        else:
+            lines[i['range'][0]:i['range'][1]+1] = get_line(i)[:]
+
+    for l in lines:
+        k = l.lower()
+        if k.startswith("arguments:") or k.startswith("keyword arguments:") or k.startswith("return value:"):
+            lines.remove(l)
+    return
 # -- General configuration -----------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -86,6 +234,11 @@ pygments_style = 'sphinx'
 # A list of ignored prefixes for module index sorting.
 #modindex_common_prefix = []
 
+# Include __init__ docstrings.
+autoclass_content = 'both'
+
+autodoc_default_flags = ['members', 'undoc-members']
+# add this for other defaults: , 'inherited-members', 'show-inheritance']
 
 # -- Options for HTML output ---------------------------------------------------
 

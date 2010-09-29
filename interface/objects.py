@@ -13,6 +13,13 @@ from _objects.objects import Strand, RestingState, StopCondition
 from _objects.complex import Complex
 from _objects.domain  import Domain
 
+# The following appears to be necessary [at the moment] as otherwise
+# we can't generate appropriate documentation for these sub objects as
+# they look like they are in a different package. Perhaps we should
+# change the directory hierarchy - rename _objects to objects, and
+# then moving this file into the new directory as __init__.py and
+# importing from local space.
+
 Strand.__module__ = 'multistrand.objects'
 Complex.__module__ = 'multistrand.objects'
 RestingState.__module__ = 'multistrand.objects'
