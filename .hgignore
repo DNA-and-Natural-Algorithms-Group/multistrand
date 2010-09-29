@@ -22,26 +22,26 @@ syntax: regexp
 
 # .out files are from speed tests, and .dat are pickled data files from various tests.
 # .tgz is used to copy them across sometimes.
-^testing.*\.dat$
-^testing.*\.out$
-^testing.*\.tgz$
+^test.*\.dat$
+^test.*\.out$
+^test.*\.tgz$
 
 # Log files from Multistrand (old) or Kinfold
-^testing.*\.log$
+^test.*\.log$
 
 # These text files are usualy plaintext sequences, etc. 
-^testing/speed.*\.txt$
+^test/speed.*\.txt$
 
 # Test sets from Nupack guys
-^testing.*testSetSS.txt$
-^testing.*testSetMS.txt$
+^test.*testSetSS.txt$
+^test.*testSetMS.txt$
 
 # Vienna DNA parameter set raw file [cannot be included]
 dna\.par$
 
 # Output(s) of the energy tester
-^testing/energy/res.txt$
-^testing/energy/test.*\.results\.txt$
+^test/energy/res.txt$
+^test/energy/test.*\.results\.txt$
 
 # Side effect of some energy computation commands
 # [TODO: track it down and see if we can turn it off, it's most likely
@@ -49,9 +49,9 @@ dna\.par$
 rna\.ps$
 
 # Profiler-generated pdf's and other pieces.
-^testing/profiling/.*\.pdf$
-^testing/profiling/.*\.prof$
-^testing/profiling/gmon.out$
+^test/profiling/.*\.pdf$
+^test/profiling/.*\.prof$
+^test/profiling/gmon.out$
 
 #########################################
 #                                       #
