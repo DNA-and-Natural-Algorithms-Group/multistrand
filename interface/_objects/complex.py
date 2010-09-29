@@ -1,5 +1,36 @@
 from objects import Strand
 
+def testfunc(object):
+  """Converts a (latitude, longitude) pair to an address.
+
+  Interesting bits:
+
+  >>> gmaps = GoogleMaps()
+  >>> reverse = gmaps.reverse_geocode(38.887563, -77.019929)
+  >>> address = reverse['Placemark'][0]['address']
+  >>> print address
+  200 6th St SW, Washington, DC 20024, USA
+  >>> accuracy = reverse['Placemark'][0]['AddressDetails']['Accuracy']
+  >>> print accuracy
+  8
+  
+  :param lat: latitude
+  :type lat: float
+  :param lng: longitude
+  :type lng: float
+  :return: `Reverse geocoder return value`_ dictionary giving closest
+  address(es) to `(lat, lng)`
+  :rtype: dict
+  :raises GoogleMapsError: If the coordinates could not be reverse geocoded.
+  
+  Keyword arguments and return value are identical to those of :meth:`geocode()`.
+  
+  .. _`Reverse geocoder return value`:
+  http://code.google.com/apis/maps/documentation/geocoding/index.html#ReverseGeocoding
+  
+  """
+  pass
+
 class Complex(object):
   """Represents a Multistrand Complex object."""
   unique_id = 0

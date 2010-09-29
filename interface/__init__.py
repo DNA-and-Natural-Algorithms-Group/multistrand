@@ -1,3 +1,13 @@
+"""
+.. :mod:`multistrand` -- Multistrand Kinetic Simulator
+   ===================================================
+
+   .. module:: multistrand
+      :synopsis: Multistrand package for kinetic simulaton of DNA folding.
+   .. moduleauthor:: Joseph Schaeffer <schaeffer@dna.caltech.edu>
+
+"""
+
 ####################################################################
 #                                                                  #
 #                                                                  #

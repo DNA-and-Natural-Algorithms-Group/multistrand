@@ -97,6 +97,11 @@ Total: 6369 samples
      242   5.6%  54.2%      242   5.6% _exp$fenv_access_off
 
 
+* Cleanup [0%]
+** TODO [[file:.hgignore::TODO%20track%20it%20down%20and%20see%20if%20we%20can%20turn%20it%20off%20it%20s%20most%20likely][Side effect of RNAfold]]
+   Extra files getting generated via subprocess calls in the test
+   code.
+
 * DONE File / Directory TODO List
   Files have been fully ported from old Multistrand into at least a
   semi-functioning state.
@@ -486,13 +491,19 @@ Total: 6369 samples
    - State "DONE"       from "TODO"       [2010-08-24 Tue 01:23]
 
 
-* File Notes
+* File Notes [why some files exist and where they are...]
 ** old:
    old/options_data:
    old options objects.
 
    old/src:
    source no longer in use (iosys.lex / iosys.y)
+
+** interface/working:
+   Used for code that's not yet part of the package.
+
+** doc/build:
+   Where the documentation gets built to.
 
 
 * control commands (org-mode)

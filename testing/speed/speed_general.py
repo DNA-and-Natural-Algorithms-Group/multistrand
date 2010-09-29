@@ -157,6 +157,7 @@ class Speedtest_FromFile( unittest.TestCase ):
         filename = prefix + 'len_{0}_sequence_{1}.out'.format( len(seq), idx )
         if os.path.isfile( filename ):
             print("File [{filename}] already exists, skipping test.".format(filename=filename))
+            return
         times_kin = self.setup_kinfold( seq, time, 100)
         times_ms = self.setup_multistrand( seq, time, 100 )
 
@@ -186,7 +187,9 @@ class Speedtest_FromFile( unittest.TestCase ):
         def runOnce():
             self.output_kinfold, _ = kinfoldproc.communicate( input_str )
 
-        return runOnce()[1]
+        res = runOnce()[1]
+        kinfoldproc.kill()
+        return res
 
     @timer
     def setup_old_multistrand( self, sequence, time, count ):
@@ -358,4 +361,18 @@ if __name__ == '__main__':
 # suite = unittest.TestSuite()
 # suite.addTest( a)
 # unittest.TextTestRunner(verbosity=2).run( suite )
-        
+
+# More testing code
+# import multiprocessing
+# import math
+# import time
+
+# pool = multiprocessing.Pool(2)
+# processes = pool._pool
+# results = [pool.apply_async(time.sleep, [.5]) for i in range(100)]
+
+# #results = pool = None
+# #time.sleep(2)
+# #for worker in processes:
+# #    assert not worker.is_alive()
+
