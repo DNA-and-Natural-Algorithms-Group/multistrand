@@ -23,14 +23,3 @@ Components:
    system
    utils
 
-.. Old Style
-.. ---------
-
-.. * :mod:`objects <multistrand.objects>`: basic objects for multistrand input [and output?]
-.. * :mod:`options <multistrand.options>`: what options can you give multistrand, and how you get results back
-.. * :mod:`system <multistrand.system>`: The core simulator itself.
-.. * :mod:`utils <multistrand.utils>`: Useful utilities relating to simulator usage.
-
-
-
-

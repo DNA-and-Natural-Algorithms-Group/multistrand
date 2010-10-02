@@ -8,6 +8,8 @@
 */
 
 #include "Python.h"
+#include "structmember.h"
+
 #include "ssystem.h"
 /* need C++ for ssystem.h... */
 #include "options.h"
@@ -17,7 +19,7 @@
 typedef struct {
   PyObject_HEAD
   SimulationSystem *ob_system;  /* Our one data member, no other attributes. */
-  //  PyObject  *member_attr;   
+  PyObject *options;   
 } SimSystemObject;
 
 #define SimSystem_Check(v)  (Py_TYPE(v) == &SimSystem_Type)
@@ -29,32 +31,36 @@ static PyObject *SimSystemObject_new(PyTypeObject *type, PyObject *args, PyObjec
 
   self = (SimSystemObject *)type->tp_alloc(type,0);
   /* uses the tp_alloc to create the right amount of memory - this is done since we allow sub-classes. */
-  self->ob_system = NULL;
+  if( self != NULL )
+    {
+      self->ob_system = NULL;
+      self->options = NULL;  // will be later set in _init ...
+    }
   return (PyObject *)self;
 }
 
 
 static int SimSystemObject_init(SimSystemObject *self, PyObject *args)
 {
-  PyObject *options_object;
-  if( !PyArg_ParseTuple(args, "O:SimSystem()", &options_object) )
+  if( !PyArg_ParseTuple(args, "O:SimSystem()", &self->options) )
     return -1;
 
-  Py_INCREF( options_object );  /* Will be decreffed in dealloc, or
+  Py_INCREF( self->options );  /* Will be decreffed in dealloc, or
                                    here if there's a type error. */
+
   /* check the type */
-  if( strcmp(options_object->ob_type->tp_name, "MultistrandOptions") != 0)
+  if( strcmp(self->options->ob_type->tp_name, "multistrand.options.Options") != 0)
     {
       /* Note that we'll need to change the above once it's packaged nicely. */
-      Py_DECREF(options_object);
+      Py_DECREF(self->options);
       PyErr_SetString(PyExc_TypeError,
-			        "Must be passed a single MultistrandOptions object.");
+			        "Must be passed a single Options object.");
       return -1;
     }
-  self->ob_system = new SimulationSystem( options_object );
+  self->ob_system = new SimulationSystem( self->options );
   if( self->ob_system == NULL )  /* something horrible occurred */
     {
-      Py_DECREF(options_object);
+      Py_DECREF(self->options);
       PyErr_SetString(PyExc_MemoryError,
 			        "Could not create the SimulationSystem [C++] object, possibly memory issues?.");
       return -1;
@@ -79,6 +85,18 @@ static PyObject *SimSystemObject_start(SimSystemObject *self, PyObject *args)
   return Py_None;
 }
 
+static int SimSystemObject_traverse( SimSystemObject *self, visitproc visit, void *arg )
+{
+  Py_VISIT(self->options);
+  return 0;
+}
+
+static int SimSystemObject_clear( SimSystemObject *self )
+{
+  Py_CLEAR(self->options);
+  return 0;
+}
+
 static void SimSystemObject_dealloc( SimSystemObject *self )
 {
   if( self->ob_system != NULL )
@@ -86,29 +104,57 @@ static void SimSystemObject_dealloc( SimSystemObject *self )
       delete self->ob_system;
       self->ob_system = NULL;
     }
+  
+  SimSystemObject_clear( self );
+
   self->ob_type->tp_free((PyObject *)self);
 }
 
+const char docstring_SimSystem[] = "\
+Python Wrapper for Multistrand's C++ SimulationSystem object.\n\
+\n\
+Provides a very very simple interface to the StartSimulation method, to \n\
+actually run the simulation. Otherwise fairly boring.\n";
 
-/*static PyObject *SimSystemObject_getattr( SimSystemObject *self, char *name )
-{
-  
-}*/
+const char docstring_SimSystem_start[] = "\
+SimSystem.start( self )\n\
+\n\
+Start the simulation; only returns when the simulation has been completed. \n\
+Information is only returned from the simulation via the Options object it \n\
+was created with.\n";
+
+const char docstring_SimSystem_init[] = "\
+:meth:`multistrand.system.SimSystem.__init__( self, *args )`\n\
+\n\
+Initialization of SimSystem object:\n\
+\n\
+Arguments:\n\
+options [type=:class:`multistrand.options.Options`]  -- The options to use for\n\
+                                                        this simulation. Is a\n\
+                                                        required argument.\n\
+\n";
 
 static PyMethodDef SimSystemObject_methods[] = {
+  {"__init__", (PyCFunction) SimSystemObject_init, METH_COEXIST | METH_VARARGS,
+   PyDoc_STR( docstring_SimSystem_init)},
   {"start", (PyCFunction) SimSystemObject_start, METH_VARARGS,
-              PyDoc_STR("Start this simulation running. Returns when simulation has been completed.")},
+   PyDoc_STR( docstring_SimSystem_start)},
   { NULL, NULL }  /* Sentinel */
                   /* Note that the dealloc, etc methods are not
                      defined here, they're in the type object's
                      methods table, not the basic methods table. */
 };
 
+static PyMemberDef SimSystemObject_members[] = {
+  {"options", T_OBJECT_EX, offsetof(SimSystemObject,options), 0,
+   "The :class:`multistrand.options.Options` object controlling this simulation system."},
+  {NULL} /* Sentinel */
+};
 
 static PyTypeObject SimSystem_Type = {
   /* Note that the ob_type field cannot be initialized here. */
   PyVarObject_HEAD_INIT(NULL,0)
-  "SimSystem",    /* tp_name */
+  "multistrand.system.SimSystem",    /* tp_name */
   sizeof(SimSystemObject),    /* tp_basicsize */
   0,                          /* tp_itemsize  [it's something that's a relic, should be 0] */
   /* standard method defs are next */
@@ -128,16 +174,16 @@ static PyTypeObject SimSystem_Type = {
   0,                              /* tp_getattro */
   0,                              /* tp_setattro */
   0,                              /* tp_as_buffer */
-  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,             /* tp_flags */
-  PyDoc_STR("Multistrand Simulation System object"),    /* tp_doc */
-  0,                              /* tp_traverse */
-  0,                              /* tp_clear */
+  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /* tp_flags */
+  PyDoc_STR( docstring_SimSystem ),        /* tp_doc */
+  (traverseproc)SimSystemObject_traverse,  /* tp_traverse */
+  (inquiry) SimSystemObject_clear,         /* tp_clear */
   0,                              /* tp_richcompare */
   0,                              /* tp_weaklistoffset */
   0,                              /* tp_iter */
   0,                              /* tp_iternext */
   SimSystemObject_methods,        /* tp_methods */
-  0,                              /* tp_members */
+  SimSystemObject_members,        /* tp_members */
   0,                              /* tp_getset */
   0,                              /* tp_base */
   0,                              /* tp_dict */
@@ -217,6 +263,25 @@ static PyObject *System_calculate_energy( PyObject *self,PyObject *args )
   return energy;
 }
 
+static PyObject *System_run_system( PyObject *self,PyObject *args )
+{
+  SimulationSystem *temp = NULL;
+  PyObject *options_object = NULL;
+  int typeflag = 0;
+  if( !PyArg_ParseTuple(args, "O|Oi:run_system( options )", &options_object) )
+    return NULL;
+  Py_INCREF( options_object );
+  
+  temp = new SimulationSystem( options_object );
+  temp->StartSimulation();
+
+  delete temp;
+
+  Py_XDECREF( options_object );
+  Py_INCREF( Py_None );
+  return Py_None;
+}
+
 
 static PyMethodDef System_methods[] = {
   {"energy", (PyCFunction) System_calculate_energy, METH_VARARGS,
@@ -237,7 +302,10 @@ options = ...: If not none, should be a multistrand.options.Options object, whic
 initialize_energy_model( options = None )\n\
 Initialize the Multistrand module's energy model using the options object given. If a model already exists, this will remove the old model and create a new one - useful for certain parameter changes, but should be avoided if possible. This function is NOT required to use other parts of the module - by default they will create the model if it's not found, or use the one already initialized; this adds control over exactly what model is being used.\n\n\
 options [default=None]: when no options object is passed, this removes the old energy model and does not create a new one.\n")},
-
+  {"run_system", (PyCFunction) System_run_system, METH_VARARGS,
+              PyDoc_STR(" \
+run_system( options )\n\
+Run the system defined by the passed in Options object.\n")},
   {NULL}  /*Sentinel*/
 };
 
@@ -256,4 +324,5 @@ initsystem(void)
 
   Py_INCREF( &SimSystem_Type );
   PyModule_AddObject(m, "SimSystem", (PyObject *) &SimSystem_Type );
+
 }

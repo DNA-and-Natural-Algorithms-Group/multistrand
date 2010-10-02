@@ -101,6 +101,9 @@ Total: 6369 samples
 ** TODO [[file:.hgignore::TODO%20track%20it%20down%20and%20see%20if%20we%20can%20turn%20it%20off%20it%20s%20most%20likely][Side effect of RNAfold]]
    Extra files getting generated via subprocess calls in the test
    code.
+** TODO Docstring checking.
+   Make our python files have better docstrings for auto generation of
+   docs.
 
 * DONE File / Directory TODO List
   Files have been fully ported from old Multistrand into at least a

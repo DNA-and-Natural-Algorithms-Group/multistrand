@@ -12,6 +12,7 @@ Contents:
    :maxdepth: 2
 
    multistrand
+   sample
 
 Indices and tables
 ==================

@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2007-2008 Caltech. All rights reserved.
+   Copyright (c) 2007-2010 Caltech. All rights reserved.
    Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
 */
  

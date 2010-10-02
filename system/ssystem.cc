@@ -27,7 +27,11 @@ SimulationSystem::SimulationSystem( PyObject *system_o )
 #endif
 
   system_options = system_o;
-  Py_INCREF( system_options );
+  // We no longer need the below line; we are guaranteed that options
+  // will have a good reference for the lifetime of our object, as the
+  // controlling wrapper in multistrand_module.cc grabs the reference.
+
+  //Py_INCREF( system_options );
 
   getLongAttr(system_options, simulation_mode, &simulation_mode );
   getLongAttr(system_options, num_simulations, &simulation_count_remaining);
@@ -89,8 +93,9 @@ SimulationSystem::~SimulationSystem( void )
   // just in case something thread-unsafe happens.
   dnaEnergyModel = NULL;
 
-  if( system_options != NULL )
-    Py_DECREF( system_options );
+  // now handled in multistrand_module.cc:
+  //  if( system_options != NULL )
+  //  Py_DECREF( system_options );
 
   system_options = NULL;
   startState = NULL;
@@ -143,6 +148,8 @@ void SimulationSystem::StartSimulation_Transition( void )
 {
   StartSimulation_Standard();
 }
+
+
 void SimulationSystem::StartSimulation_Trajectory( void )
 {
   long ointerval;
@@ -235,176 +242,92 @@ void SimulationSystem::SimulationLoop_Standard( void )
     printStatusLine(system_options, current_seed, STOPRESULT_TIME, stime, NULL );
 }
 
-void SimulationSystem::SimulationLoop_Trajectory( long ointerval, double otime )
+void SimulationSystem::SimulationLoop_Trajectory( long output_count_interval, double output_time_interval )
 {
-  double rchoice,rate,stime,ctime;
+  double rchoice, rate, current_simulation_time, last_trajectory_time, maxsimtime;
   // Could really use some commenting on these local vars.
-  rchoice = rate = stime = ctime = 0.0;
-
-  double maxsimtime;
+  rchoice = rate = 0.0;
   maxsimtime = -1.0;
-  
-  int curcount = 0, checkresult = 0;
-  long stopcount = 0, stopoptions = 0, sMode = 0;
-  class stopcomplexes *traverse = NULL, *first=NULL;
 
-  getLongAttr(system_options, simulation_mode,&sMode); 
-  getLongAttr(system_options, output_interval,&ointerval);
-  getLongAttr(system_options, use_stop_conditions,&stopoptions);
-  getLongAttr(system_options, stop_count,&stopcount);
+  int checkresult = 0;
+  long current_state_count = 0;
+  
+  // The tag of the stop state reached. 
+  char *tag = NULL;
+
   getDoubleAttr(system_options, simulation_time,&maxsimtime);
-  getDoubleAttr(system_options, output_time,&otime);
 
   complexList->initializeList();
-
   rate = complexList->getTotalFlux();
- 
-  if( testLongAttr(system_options, trajectory_type ,=, 0 ))
-    {
-      // Note: trajectory type 0 is normal, trajectory type 1 is transition time data.
-      // TODO: wrap this into simulation modes. 
+  
+  // We start at the beginning of time.
+  current_simulation_time = 0.0;
+  
+  // The last time we gave the output state.
+  last_trajectory_time = 0.0;
 
-      do {
+  do {
+    rchoice = rate * drand48();
 
-        rchoice = rate * drand48();
+    current_simulation_time += (log( 1. / (1.0 - drand48()) ) / rate ); 
+    // 1.0 - drand as drand returns in the [0.0, 1.0) range, we need a (0.0,1.0] range.
+    // see notes below in First Step mode.
 
-        stime += (log( 1. / (1.0 - drand48()) ) / rate ); 
-        // 1.0 - drand as drand returns in the [0.0, 1.0) range, we need a (0.0,1.0] range.
-        // see notes below in First Step mode.
+    complexList->doBasicChoice( rchoice, current_simulation_time );
+    rate = complexList->getTotalFlux();
+    current_state_count += 1;
 
-        complexList->doBasicChoice( rchoice, stime );
-        rate = complexList->getTotalFlux();
+    // checkresult = checkStopComplexes( &tag );
 
-        if( stopcount > 0 && stopoptions)
-          {
-            checkresult = 0;
-            first = getStopComplexList( system_options, 0 );
-            checkresult = complexList->checkStopComplexList( first->citem );
-            traverse = first;
-            while( traverse->next != NULL && checkresult == 0 )
-              {
-                traverse = traverse->next;
-                checkresult = complexList->checkStopComplexList( traverse->citem );
-              }
-            // Note: we cannot delete first here if checkresult != 0,
-            // as traverse->tag may be needed. It will get checked at
-            // that point and deleted once traverse->tag is used,
-            // later.
-            if( checkresult == 0 )
-              delete first;
-          }
-
-        // trajectory output via outputtime option
-        // if( otime > 0.0 )
-        //   {
-        //     if( stime - ctime > otime )
-        //       {
-        //         ctime += otime;
-        //         printf("Current State: Choice: %6.4f, Time: %6.6f\n",rchoice, ctime);
-        //         complexList->printComplexList( 0 );
-        //       }
-
-        //   }
-
-        // trajectory output via outputinterval option
-        // if( ointerval >= 0 )
-        //   {
-        //     if( testBoolAttr(system_options, output_state) )
-        //       {
-        //         printf("Current State: Choice: %6.4f, Time: %6.6f\n",rchoice, stime);
-        //         complexList->printComplexList( 0 );
-        //       }
-        //     pingAttr( system_options, increment_output_state );
-        //   }
-    
-      } while( /*rate > 0.01 &&*/ stime < maxsimtime && checkresult == 0);
-      
-      // if( otime > 0.0 )
-      //   printf("Final state reached: Time: %6.6f\n",stime);
-      // if( ! (sMode & SIMULATION_MODE_FLAG_PYTHON ) )
-      //   if( ointerval < 0 || testLongAttr(system_options, output_state ,=, 0 ))
-      //     complexList->printComplexList( 0 );
-      
-      if( stime == NAN )
-        printStatusLine(system_options, current_seed, STOPRESULT_NAN, 0.0, NULL);
-      else if ( checkresult > 0 )
+    // trajectory output via outputtime option
+    if( output_time_interval > 0.0 )
+      if( current_simulation_time - last_trajectory_time > output_time_interval )
         {
-          printStatusLine(system_options, current_seed, STOPRESULT_NORMAL, stime, traverse->tag );
-          delete first;
-        }
-      else
-        printStatusLine(system_options, current_seed, STOPRESULT_TIME, stime, NULL );
-      
-      // if( ! (sMode & SIMULATION_MODE_FLAG_PYTHON) )
-      //   printf("Trajectory Completed\n");
-    }
-  else if( testLongAttr(system_options, trajectory_type ,=, 1 ) )
-    {
-      // begin transition times mode case
-      int stopindex=-1;
-      if( stopcount > 0 )
-        {
-          curcount = 0;
-          first = getStopComplexList( system_options, 0 );
-          traverse = first;
-          while( curcount < stopcount && stopindex < 0 )
-            {
-              if( strstr( traverse->tag, "stop") != NULL )
-                stopindex = curcount;
-              curcount++;
-              traverse = traverse->next;
-            }
-          delete first;
+          last_trajectory_time += output_time_interval;
+          complexList->printComplexList( 0 );
         }
 
-      do {
-        rchoice = (rate * random()/((double)RAND_MAX));
-        stime += (log(1. / (double)((random() + 1)/(double)RAND_MAX)) / rate );
-        complexList->doBasicChoice( rchoice, stime );
-        rate = complexList->getTotalFlux();
-        // if( ointerval >= 0 )
-        //   {
-        //     if( testBoolAttr(system_options, output_state) )
-        //       complexList->printComplexList( 0 );
-        //     pingAttr( system_options, increment_output_state );
-        //   }
-        if( stopcount > 0 )
-          {
-            curcount = 1;
-            checkresult = 0;
-            first = getStopComplexList( system_options, 0 );
-            checkresult = complexList->checkStopComplexList( first->citem );
-            traverse = first;
-            while( curcount < stopcount && checkresult == 0 )
-              {
-                traverse = traverse->next;
-                checkresult = complexList->checkStopComplexList( traverse->citem );
-                curcount++;
-              }
-            if( checkresult == 0 )
-              {
-                delete first;
-              }
-          }
-        if( checkresult > 0 )
-          {
-            ;// printTrajLine(system_options, traverse->tag, stime );
-          }
-        else
-          ;
-          //          printTrajLine(system_options,"NOSTATE", stime );
-      } while( /*rate > 0.01 && */ stime < maxsimtime && !(checkresult > 0 && stopindex == curcount-1));
-      if( checkresult > 0 )
-        delete first;
-      // if( ointerval < 0 || testLongAttr(system_options, output_state ,=, 0 ))
-      //   complexList->printComplexList( 0 );
+    //    trajectory output via outputinterval option
+    if( output_count_interval >= 0 )
+      if( (current_state_count % output_count_interval) == 0)
+        complexList->printComplexList( 0 );
 
-      if( stime == NAN )
-        printStatusLine(system_options, current_seed, STOPRESULT_NAN, 0.0, NULL);
-      else
-        printStatusLine(system_options, current_seed, STOPRESULT_TIME, stime, NULL );
-      
+  } while( current_simulation_time < maxsimtime && checkresult == 0);
+            
+  if( current_simulation_time == NAN )
+    printStatusLine(system_options, current_seed, 
+                    STOPRESULT_NAN, 0.0, 
+                    NULL);
+  else if ( checkresult > 0 )
+    {
+      printStatusLine(system_options,    current_seed, 
+                      STOPRESULT_NORMAL, current_simulation_time, 
+                      tag );
+      delete first;
     }
+  else
+    printStatusLine(system_options,  current_seed, 
+                    STOPRESULT_TIME, current_simulation_time, 
+                    NULL );
+
+    // if( stopcount > 0 && stopoptions)
+    //   {
+    //     checkresult = 0;
+    //     first = getStopComplexList( system_options, 0 );
+    //     checkresult = complexList->checkStopComplexList( first->citem );
+    //     traverse = first;
+    //     while( traverse->next != NULL && checkresult == 0 )
+    //       {
+    //         traverse = traverse->next;
+    //         checkresult = complexList->checkStopComplexList( traverse->citem );
+    //       }
+    //     // Note: we cannot delete first here if checkresult != 0,
+    //     // as traverse->tag may be needed. It will get checked at
+    //     // that point and deleted once traverse->tag is used,
+    //     // later.
+    //     if( checkresult == 0 )
+    //       delete first;
+    //   }
 }
 
 void SimulationSystem::SimulationLoop_Transition( void )

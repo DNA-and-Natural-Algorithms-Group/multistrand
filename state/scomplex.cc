@@ -1,6 +1,6 @@
 /*
-   Copyright (c) 2007-2008 Caltech. All rights reserved.
-   Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
+  Copyright (c) 2007-2008 Caltech. All rights reserved.
+  Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
 */
  
 // Implementation of the StrandComplex object found in scomplex.h
@@ -19,12 +19,12 @@ StrandComplex::StrandComplex( char *seq, char *struc )
   //tempstruct = struct;
   char *tempseq = (char *) new char[strlen(seq)+1];
   char *tempstruct = (char *) new char[strlen(struc)+1];
- char * tempcseq = (char *) new char[strlen(seq)+1];
+  char * tempcseq = (char *) new char[strlen(seq)+1];
   strcpy( tempseq, seq );
   strcpy( tempcseq, seq );
   strcpy( tempstruct, struc );
   for(int loop = 0; loop < strlen(tempcseq) ; loop ++ )
-     tempcseq[loop] = baseLookup( tempcseq[loop] );
+    tempcseq[loop] = baseLookup( tempcseq[loop] );
   //  exteriorBases.A = exteriorBases.T = exteriorBases.C = exteriorBases.G = 0;
 
   beginLoop = NULL;
@@ -45,12 +45,12 @@ StrandComplex::StrandComplex( char *seq, char *struc, class identlist *id_list )
   //tempstruct = struct;
   char *tempseq = (char *) new char[strlen(seq)+1];
   char *tempstruct = (char *) new char[strlen(struc)+1];
- char * tempcseq = (char *) new char[strlen(seq)+1];
+  char * tempcseq = (char *) new char[strlen(seq)+1];
   strcpy( tempseq, seq );
   strcpy( tempcseq, seq );
   strcpy( tempstruct, struc );
   for(int loop = 0; loop < strlen(tempcseq) ; loop ++ )
-     tempcseq[loop] = baseLookup( tempcseq[loop] );
+    tempcseq[loop] = baseLookup( tempcseq[loop] );
   //  exteriorBases.A = exteriorBases.T = exteriorBases.C = exteriorBases.G = 0;
 
   beginLoop = NULL;
@@ -120,7 +120,6 @@ StrandComplex *StrandComplex::performComplexJoin( StrandComplex **complexes, cha
   loops[0] = complexes[0]->ordering->getIndex( types[0], &index[0], &locations[0] );
   loops[1] = complexes[1]->ordering->getIndex( types[1], &index[1], &locations[1] );
 
-
   // Strand Orderings are now ready to be joined.
   complexes[0]->ordering->reorder( loops[0] );
   complexes[1]->ordering->reorder( loops[1] );
@@ -186,25 +185,27 @@ StrandComplex *StrandComplex::doChoice( Move *move )
   else
     {
       if( move->getType() & MOVE_CREATE )
-	ordering->addBasepair( move->getAffected(0)->getLocation( move, 0 ), move->getAffected(0)->getLocation( move, 1));
+        ordering->addBasepair( move->getAffected(0)->getLocation( move, 0 ), 
+                               move->getAffected(0)->getLocation( move, 1));
       else if (move->getType() & MOVE_DELETE )
-	ordering->breakBasepair( move->getAffected(0)->getLocation( move, 0 ), move->getAffected(1)->getLocation( move, 1));
+        ordering->breakBasepair( move->getAffected(0)->getLocation( move, 0 ), 
+                                 move->getAffected(1)->getLocation( move, 1));
 
 
       temp = move->doChoice();
 
       if( id2 == 'O' )
-	ordering->replaceOpenLoop( temp2, temp );
+        ordering->replaceOpenLoop( temp2, temp );
       if( temp3 != NULL && id3 == 'O')
-	ordering->replaceOpenLoop( temp3, temp );
+        ordering->replaceOpenLoop( temp3, temp );
 
       if(beginLoop == temp2 || beginLoop == temp3)
-	{
-	  if( temp != NULL )
-	    beginLoop = temp;
-	  else
-	    assert(0);
-	}
+        {
+          if( temp != NULL )
+            beginLoop = temp;
+          else
+            assert(0);
+        }
       beginLoop->verifyLoop( NULL, 0, NULL );
     }
   return NULL;
@@ -260,22 +261,22 @@ int StrandComplex::generateLoops( void )
       newseq[loop] = baseLookup(charsequence[loop]);
       pairlist[loop] = -1;
       if( structure[loop] == '(' )
-	depth++;
+        depth++;
       else if( structure[loop] == ')' )
-	{
-	  for( loop2 = loop; loop2 >= 0; loop2 -- )
-	    {
-	      if( newstruc[loop2] == '(' )
-		{
-		  newstruc[loop2] = '.';
-		  newstruc[loop] = '.';
-		  pairlist[loop] = loop2;
-		  pairlist[loop2] = loop;
-		  loop2 = -1;
-		}
-	    }
-	depth--;
-	}
+        {
+          for( loop2 = loop; loop2 >= 0; loop2 -- )
+            {
+              if( newstruc[loop2] == '(' )
+                {
+                  newstruc[loop2] = '.';
+                  newstruc[loop] = '.';
+                  pairlist[loop] = loop2;
+                  pairlist[loop2] = loop;
+                  loop2 = -1;
+                }
+            }
+          depth--;
+        }
     }
   
   if(pairlist[0] != -1 )
@@ -295,15 +296,15 @@ int StrandComplex::generateLoops( void )
      the queues contain data in the form of side lengths, the type of base pairing for the branch (or loop), the predecessor loop.
      
      While ( gq is not empty )
-        {
-	  Pop a loop l off gq (implemented as a character position, startpos)
-	  Traverse l and count branches and side lengths.
-	    Add branches to q (without info on predecessor loop)
-	  Classify l and generate the Loop structure L
-	  Modify q to contain L as predecessor.
-	  Modify l's predecessor with L (use addAdjacent)
-	  add q to gq (maintain order)
-        }
+     {
+     Pop a loop l off gq (implemented as a character position, startpos)
+     Traverse l and count branches and side lengths.
+     Add branches to q (without info on predecessor loop)
+     Classify l and generate the Loop structure L
+     Modify q to contain L as predecessor.
+     Modify l's predecessor with L (use addAdjacent)
+     add q to gq (maintain order)
+     }
   */
 
   while( stacklist != NULL) // as long as we have unexplored base pairs on the stack, keep going.
@@ -315,333 +316,333 @@ int StrandComplex::generateLoops( void )
       startpos = stacklist->data;
 
       if( startpos != -1 )
-	{
-	  if( pairlist[startpos] != -1 )
-	    {
+        {
+          if( pairlist[startpos] != -1 )
+            {
 	      
-	      if( pairlist[startpos+1] != -1 ) // there was an immediate connection after the starting position. Stack or bulge, typically.
-		{
-		  traverse = pairlist[startpos+1]+1; // add one otherwise we take the same link backwards when the while loops starts.
-		  startpos = startpos+1;
-		  templist = (struct intlist *) new struct intlist;
-		  templisttail = templist;
-		  templist->data = startpos;
-		  templist->seqlen = 0;
-		  templist->predec = NULL;
-		  templist->next = NULL;
-		  templist->pairtype = pairtypes[newseq[startpos]][newseq[pairlist[startpos]]];
-		  // CHECK to make sure startpos+1 is the right index. FIXME 5/26
-		  listlength++;
-		}
-	      else // we have unpaired bases after the initiating branch 
-		{
-		  traverse = startpos+2;
-		  startpos++;
-		  seqlen++;
-		}
-	    }
-	  else
-	    {
-	      traverse = startpos + 1;
-	      seqlen++;
-	    }
-	}
+              if( pairlist[startpos+1] != -1 ) // there was an immediate connection after the starting position. Stack or bulge, typically.
+                {
+                  traverse = pairlist[startpos+1]+1; // add one otherwise we take the same link backwards when the while loops starts.
+                  startpos = startpos+1;
+                  templist = (struct intlist *) new struct intlist;
+                  templisttail = templist;
+                  templist->data = startpos;
+                  templist->seqlen = 0;
+                  templist->predec = NULL;
+                  templist->next = NULL;
+                  templist->pairtype = pairtypes[newseq[startpos]][newseq[pairlist[startpos]]];
+                  // CHECK to make sure startpos+1 is the right index. FIXME 5/26
+                  listlength++;
+                }
+              else // we have unpaired bases after the initiating branch 
+                {
+                  traverse = startpos+2;
+                  startpos++;
+                  seqlen++;
+                }
+            }
+          else
+            {
+              traverse = startpos + 1;
+              seqlen++;
+            }
+        }
       else // startpos == -1
-	{
-	  traverse = startpos+1;
-	}
+        {
+          traverse = startpos+1;
+        }
       if( startpos >= 0 )
-	if( sequence[startpos] == '_' || sequence[startpos] == '+' )
-	  {
-	    //	    printf("Open Loop at olflag = %d\n",startpos);
-	    if( olflag != -1 ) // error, we shouldn't have more than one open loop specifier in a loop.
-	      printf("Multiple open loop specifiers in one loop!\n");
+        if( sequence[startpos] == '_' || sequence[startpos] == '+' )
+          {
+            //	    printf("Open Loop at olflag = %d\n",startpos);
+            if( olflag != -1 ) // error, we shouldn't have more than one open loop specifier in a loop.
+              printf("Multiple open loop specifiers in one loop!\n");
 	    
-	    olflag = startpos;
-	    seqlen--; // does not count towards sequence length
-	    olseqlen = seqlen;
-	  }
+            olflag = startpos;
+            seqlen--; // does not count towards sequence length
+            olseqlen = seqlen;
+          }
 
       // Current problem: last item generated will be the initial loop (the one which started this computation. Identify and eliminate addition/creation.
       // 2/11/04. START HERE - Resolved, see comment below
       while( traverse != startpos && traverse < strlen(sequence))
-	{
-	  if(sequence[traverse] == '_' || sequence[traverse] == '+')
-	    {
-	      //printf("Open Loop at olflag = %d\n",traverse);
-	      if( olflag != -1 ) // error, we shouldn't have more than one open loop specifier in a loop.
-		printf("Multiple open loop specifiers in one loop!\n");
+        {
+          if(sequence[traverse] == '_' || sequence[traverse] == '+')
+            {
+              //printf("Open Loop at olflag = %d\n",traverse);
+              if( olflag != -1 ) // error, we shouldn't have more than one open loop specifier in a loop.
+                printf("Multiple open loop specifiers in one loop!\n");
 	      
-	      olflag = traverse;
-	      olseqlen = seqlen;
-	      seqlen--; // does not count towards sequence length
-	    }
-	  if( pairlist[traverse] != -1)
-	    {
-	      if( pairlist[traverse] + 1 != startpos ) // make sure this is not the initial pairing
-		{
-		  if( templisttail == NULL )
-		    {
-		      templist = (struct intlist *) new struct intlist;
-		      templisttail = templist;
-		      templist->data = traverse;
-		      templist->seqlen = seqlen;
-		      templist->predec = NULL;
-		      templist->next = NULL;
-		      templist->pairtype = pairtypes[newseq[traverse]][newseq[pairlist[traverse]]];
-		      seqlen = 0;
-		    }
-		  else
-		    {
-		      templisttail->next = (struct intlist *) new struct intlist;
-		      templisttail->next->data = traverse;
-		      templisttail->next->seqlen = seqlen;
-		      templisttail->next->predec = NULL;
-		      templisttail->next->next = NULL;
-		      templisttail->next->pairtype = pairtypes[newseq[traverse]][newseq[pairlist[traverse]]];
-		      seqlen = 0;
-		      templisttail = templisttail->next;
-		    }
-		}
-	      traverse = pairlist[traverse]+1;
-	      listlength++;
-	    }
-	  else
-	    {
-	    traverse++;
-	    seqlen++;
-	    }
-	}
+              olflag = traverse;
+              olseqlen = seqlen;
+              seqlen--; // does not count towards sequence length
+            }
+          if( pairlist[traverse] != -1)
+            {
+              if( pairlist[traverse] + 1 != startpos ) // make sure this is not the initial pairing
+                {
+                  if( templisttail == NULL )
+                    {
+                      templist = (struct intlist *) new struct intlist;
+                      templisttail = templist;
+                      templist->data = traverse;
+                      templist->seqlen = seqlen;
+                      templist->predec = NULL;
+                      templist->next = NULL;
+                      templist->pairtype = pairtypes[newseq[traverse]][newseq[pairlist[traverse]]];
+                      seqlen = 0;
+                    }
+                  else
+                    {
+                      templisttail->next = (struct intlist *) new struct intlist;
+                      templisttail->next->data = traverse;
+                      templisttail->next->seqlen = seqlen;
+                      templisttail->next->predec = NULL;
+                      templisttail->next->next = NULL;
+                      templisttail->next->pairtype = pairtypes[newseq[traverse]][newseq[pairlist[traverse]]];
+                      seqlen = 0;
+                      templisttail = templisttail->next;
+                    }
+                }
+              traverse = pairlist[traverse]+1;
+              listlength++;
+            }
+          else
+            {
+              traverse++;
+              seqlen++;
+            }
+        }
 
       // classification of loop type time.
       // classification should end up with a pointer to the new loop, newLoop.
       if( olflag != -1 ) // 'internal' open loop
-	{
-	  //printf("listlength: %d\n",listlength);
-	  //printf("seqlen#0,1,olsq: %d,%d, %d\n", seqlen, templist?templist->seqlen:-1,olseqlen);
-	  int *OL_pairtypes;
-	  int *OL_sidelengths;
-	  char **OL_sequences;
+        {
+          //printf("listlength: %d\n",listlength);
+          //printf("seqlen#0,1,olsq: %d,%d, %d\n", seqlen, templist?templist->seqlen:-1,olseqlen);
+          int *OL_pairtypes;
+          int *OL_sidelengths;
+          char **OL_sequences;
 
-	  openloopcount = 0;
-	  // listlength is at least one.
-	  OL_pairtypes = (int *) new int[listlength];
-	  OL_sidelengths = (int *) new int[listlength+1];
-	  OL_sequences = (char **) new char *[listlength+1];
-	  // deletion for these is handled in the OpenLoop destructor.
-	  temp_intlist = templist;
+          openloopcount = 0;
+          // listlength is at least one.
+          OL_pairtypes = (int *) new int[listlength];
+          OL_sidelengths = (int *) new int[listlength+1];
+          OL_sequences = (char **) new char *[listlength+1];
+          // deletion for these is handled in the OpenLoop destructor.
+          temp_intlist = templist;
 
-	  if( listlength == 1 )
-	    {
-	      OL_sequences[0] = ordering->convertIndex(olflag); // CHANGED 01/06
-	                                           // removed +1 in index to hopefully fix the offset problems with open loops. This may require olflag to always be the last _ before the open loop, but that seems acceptable.
-	      OL_sidelengths[0] = seqlen - (olflag - stacklist->data - 1);
-	      OL_pairtypes[0] = stacklist->pairtype;
-	      OL_sequences[1] = ordering->convertIndex(stacklist->data);
-	      OL_sidelengths[1] = olflag - stacklist->data - 1;
-	      openloopcount = -1;
-	    }
-	  else // Algorithm follows:
-	       // We need to find the circular rotation such that we always 
-	       // have the sequences in the correct 5'->3' ordering. 
-	       // 1. step through the list of adjacent helices till we find 
-	       //    the one immediately after the nick.
-	       // 2. start adding adjacent helices, wrap around when we reach
-	       //    the end of the list for the first time, until we've added
-	       //    all listlength helices.
-	       // 3. The final sequence and sidelength is the 5' dangle 
-	       //    adjacent to the nick.
-	    {
-	      temp_intlist = templist;
-	      for( loop = 0; loop < listlength-1; loop++, temp_intlist = temp_intlist->next )
-		{
-		  if( temp_intlist->data > olflag ) // this data item is after the nick.
-		      break; // cause this loop to end.
-		             // temp_intlist will then be the first pairing after the nick.
-		}
+          if( listlength == 1 )
+            {
+              OL_sequences[0] = ordering->convertIndex(olflag); // CHANGED 01/06
+              // removed +1 in index to hopefully fix the offset problems with open loops. This may require olflag to always be the last _ before the open loop, but that seems acceptable.
+              OL_sidelengths[0] = seqlen - (olflag - stacklist->data - 1);
+              OL_pairtypes[0] = stacklist->pairtype;
+              OL_sequences[1] = ordering->convertIndex(stacklist->data);
+              OL_sidelengths[1] = olflag - stacklist->data - 1;
+              openloopcount = -1;
+            }
+          else // Algorithm follows:
+            // We need to find the circular rotation such that we always 
+            // have the sequences in the correct 5'->3' ordering. 
+            // 1. step through the list of adjacent helices till we find 
+            //    the one immediately after the nick.
+            // 2. start adding adjacent helices, wrap around when we reach
+            //    the end of the list for the first time, until we've added
+            //    all listlength helices.
+            // 3. The final sequence and sidelength is the 5' dangle 
+            //    adjacent to the nick.
+            {
+              temp_intlist = templist;
+              for( loop = 0; loop < listlength-1; loop++, temp_intlist = temp_intlist->next )
+                {
+                  if( temp_intlist->data > olflag ) // this data item is after the nick.
+                    break; // cause this loop to end.
+                  // temp_intlist will then be the first pairing after the nick.
+                }
 		  
-	      OL_sequences[0] = ordering->convertIndex(olflag);
-	      if( temp_intlist == NULL )
-		OL_sidelengths[0] = seqlen - olseqlen;
-	      else
-		OL_sidelengths[0] = temp_intlist->seqlen - olseqlen;
-	      for( loop = 0; loop < listlength; loop++ )
-		{
-		  if( temp_intlist == NULL )
-		    {
-		      temp_intlist = templist;
-		      openloopcount = -openloopcount - 1;
+              OL_sequences[0] = ordering->convertIndex(olflag);
+              if( temp_intlist == NULL )
+                OL_sidelengths[0] = seqlen - olseqlen;
+              else
+                OL_sidelengths[0] = temp_intlist->seqlen - olseqlen;
+              for( loop = 0; loop < listlength; loop++ )
+                {
+                  if( temp_intlist == NULL )
+                    {
+                      temp_intlist = templist;
+                      openloopcount = -openloopcount - 1;
 
-		      OL_pairtypes[loop] = stacklist->pairtype;
-		      if(loop != 0 )
-			OL_sidelengths[loop] = seqlen;
-		      OL_sequences[loop+1] = ordering->convertIndex(stacklist->data);
-		    }
-		  else
-		    {
-		      if( openloopcount >= 0)
-			openloopcount++;
-		      OL_pairtypes[loop] = temp_intlist->pairtype;
-		      if(loop != 0 )
-			OL_sidelengths[loop] = temp_intlist->seqlen;
-		      OL_sequences[loop+1] = ordering->convertIndex(pairlist[temp_intlist->data]);
-		      temp_intlist = temp_intlist->next;
-		    }
-		}
-	      OL_sidelengths[listlength] = olseqlen;
-	    }
-	  //for( loop = 0; loop <= listlength ; loop ++ )
-	  //printf("Seq %d: %s\n Length %d: %d\n",loop,OL_sequences[loop],loop,OL_sidelengths[loop]);
-	  newLoop = new OpenLoop( listlength, OL_pairtypes, OL_sidelengths, OL_sequences);
-	  newLoop->initAdjacency( -(openloopcount+1) );
-	  ordering->addOpenLoop( (OpenLoop *) newLoop, olflag);
-	  olflag = -1; 
-	}
+                      OL_pairtypes[loop] = stacklist->pairtype;
+                      if(loop != 0 )
+                        OL_sidelengths[loop] = seqlen;
+                      OL_sequences[loop+1] = ordering->convertIndex(stacklist->data);
+                    }
+                  else
+                    {
+                      if( openloopcount >= 0)
+                        openloopcount++;
+                      OL_pairtypes[loop] = temp_intlist->pairtype;
+                      if(loop != 0 )
+                        OL_sidelengths[loop] = temp_intlist->seqlen;
+                      OL_sequences[loop+1] = ordering->convertIndex(pairlist[temp_intlist->data]);
+                      temp_intlist = temp_intlist->next;
+                    }
+                }
+              OL_sidelengths[listlength] = olseqlen;
+            }
+          //for( loop = 0; loop <= listlength ; loop ++ )
+          //printf("Seq %d: %s\n Length %d: %d\n",loop,OL_sequences[loop],loop,OL_sidelengths[loop]);
+          newLoop = new OpenLoop( listlength, OL_pairtypes, OL_sidelengths, OL_sequences);
+          newLoop->initAdjacency( -(openloopcount+1) );
+          ordering->addOpenLoop( (OpenLoop *) newLoop, olflag);
+          olflag = -1; 
+        }
       else if( traverse > strlen(sequence)-1 ) // Open Loop
-	                                // Will need another classifier here. (for non initiating open loops) (CHECK: This should now be covered by the above case.)
-	{
-	  int *OL_pairtypes;
-	  int *OL_sidelengths;
-	  char **OL_sequences;
-	  if( listlength != 0)
-	    {
-	      OL_pairtypes = (int *) new int[listlength];
-	      OL_sidelengths = (int *) new int[listlength+1];
-	      OL_sequences = (char **) new char *[listlength+1];
-	      // deletion for these is handled in the OpenLoop destructor.
-	      temp_intlist = templist;
-	      /*	      OL_pairtypes[0] = stacklist->pairtype;
-			      OL_sidelengths[0] = seqlen;
-			      OL_sequences[0] = &sequence[stacklist->data]; */
-	      /* Hmmm, this doesn't work. I'm currently commenting it out
-		 ... the problem appears to be that we need this for non open
-		 loops, but for open loops it doesn't make any sense. */
-	      // Possibly a problem here, need to make sure sequences get paired correctly with lengths. FIXME
+        // Will need another classifier here. (for non initiating open loops) (CHECK: This should now be covered by the above case.)
+        {
+          int *OL_pairtypes;
+          int *OL_sidelengths;
+          char **OL_sequences;
+          if( listlength != 0)
+            {
+              OL_pairtypes = (int *) new int[listlength];
+              OL_sidelengths = (int *) new int[listlength+1];
+              OL_sequences = (char **) new char *[listlength+1];
+              // deletion for these is handled in the OpenLoop destructor.
+              temp_intlist = templist;
+              /*	      OL_pairtypes[0] = stacklist->pairtype;
+                          OL_sidelengths[0] = seqlen;
+                          OL_sequences[0] = &sequence[stacklist->data]; */
+              /* Hmmm, this doesn't work. I'm currently commenting it out
+                 ... the problem appears to be that we need this for non open
+                 loops, but for open loops it doesn't make any sense. */
+              // Possibly a problem here, need to make sure sequences get paired correctly with lengths. FIXME
 
-	      OL_sequences[0] = ordering->convertIndex(stacklist->data);
-	      OL_sidelengths[listlength] = seqlen;
-	      for( loop = 0; loop < listlength; loop++, temp_intlist = temp_intlist->next)
-		{
-		  OL_pairtypes[loop] = temp_intlist->pairtype;
-		  OL_sidelengths[loop] = temp_intlist->seqlen;
-		  OL_sequences[loop+1] = ordering->convertIndex(pairlist[temp_intlist->data]);
-		}
+              OL_sequences[0] = ordering->convertIndex(stacklist->data);
+              OL_sidelengths[listlength] = seqlen;
+              for( loop = 0; loop < listlength; loop++, temp_intlist = temp_intlist->next)
+                {
+                  OL_pairtypes[loop] = temp_intlist->pairtype;
+                  OL_sidelengths[loop] = temp_intlist->seqlen;
+                  OL_sequences[loop+1] = ordering->convertIndex(pairlist[temp_intlist->data]);
+                }
 
-	      newLoop = new OpenLoop( listlength, OL_pairtypes, OL_sidelengths, OL_sequences);
-	      ordering->addOpenLoop( (OpenLoop *)newLoop, stacklist->data);
-	    }
-	  else 
-	    {
-	      OL_sidelengths = (int *) new int[listlength+1];
-	      OL_sequences = (char **) new char *[listlength+1];
-	      OL_sidelengths[0] = seqlen;
-	      OL_sequences[0] = ordering->convertIndex(-1);
-	      newLoop = new OpenLoop( 0, NULL, OL_sidelengths, OL_sequences ); // open chain
-	      ordering->addOpenLoop( (OpenLoop *) newLoop, -1);
-	    }
-	}
+              newLoop = new OpenLoop( listlength, OL_pairtypes, OL_sidelengths, OL_sequences);
+              ordering->addOpenLoop( (OpenLoop *)newLoop, stacklist->data);
+            }
+          else 
+            {
+              OL_sidelengths = (int *) new int[listlength+1];
+              OL_sequences = (char **) new char *[listlength+1];
+              OL_sidelengths[0] = seqlen;
+              OL_sequences[0] = ordering->convertIndex(-1);
+              newLoop = new OpenLoop( 0, NULL, OL_sidelengths, OL_sequences ); // open chain
+              ordering->addOpenLoop( (OpenLoop *) newLoop, -1);
+            }
+        }
       else if ( listlength > 2 ) // MultiLoop
-	{
-	  int *ML_pairtypes;
-	  int *ML_sidelengths;
-	  char **ML_sequences;
-	  ML_pairtypes = (int *) new int[listlength];
-	  ML_sidelengths = (int *) new int[listlength];
-	  ML_sequences = (char **) new char *[listlength];
-	  // deletion for these is handled in the OpenLoop destructor.
-	  temp_intlist = templist;
-	  // Possibly a problem here, need to make sure sequences get paired correctly with lengths. FIXME
-	  /*
-	  // old code for pairtypes and sidelengths for multiloop. uncomment the above and below to restore old sequencing.
-	  ML_pairtypes[0] = stacklist->pairtype;
-	  ML_sidelengths[0] = seqlen;
-	  ML_sequences[1] = &sequence[stacklist->data];
-	  for( loop = 1; loop < listlength; loop++, temp_intlist = temp_intlist->next)
-	    {
+        {
+          int *ML_pairtypes;
+          int *ML_sidelengths;
+          char **ML_sequences;
+          ML_pairtypes = (int *) new int[listlength];
+          ML_sidelengths = (int *) new int[listlength];
+          ML_sequences = (char **) new char *[listlength];
+          // deletion for these is handled in the OpenLoop destructor.
+          temp_intlist = templist;
+          // Possibly a problem here, need to make sure sequences get paired correctly with lengths. FIXME
+          /*
+          // old code for pairtypes and sidelengths for multiloop. uncomment the above and below to restore old sequencing.
+          ML_pairtypes[0] = stacklist->pairtype;
+          ML_sidelengths[0] = seqlen;
+          ML_sequences[1] = &sequence[stacklist->data];
+          for( loop = 1; loop < listlength; loop++, temp_intlist = temp_intlist->next)
+          {
 	      ML_pairtypes[loop] = temp_intlist->pairtype;
 	      ML_sidelengths[loop] = temp_intlist->seqlen;
 	      if( loop == listlength - 1 )
-		ML_sequences[0] = &sequence[pairlist[temp_intlist->data]];
+          ML_sequences[0] = &sequence[pairlist[temp_intlist->data]];
 	      else
-		ML_sequences[loop+1] = &sequence[pairlist[temp_intlist->data]];
-	    }
-	  */
+          ML_sequences[loop+1] = &sequence[pairlist[temp_intlist->data]];
+          }
+          */
 
-	  // new code for pairtypes, sidelengths, seqs for multiloop, matching sequencing correctly.
-	  ML_pairtypes[0] = stacklist->pairtype;
-	  ML_sidelengths[0] = temp_intlist->seqlen;
-	  ML_sequences[1] = ordering->convertIndex(pairlist[temp_intlist->data]);
-	  for( loop = 1; loop < listlength; loop++)
-	    {
-	      ML_pairtypes[loop] = temp_intlist->pairtype;
-	      temp_intlist = temp_intlist->next;
-	      if( loop == listlength - 1)
-		{
-		  ML_sidelengths[loop] = seqlen;
-		  ML_sequences[0] = ordering->convertIndex(stacklist->data);
-		}
-	      else
-		{
-		  ML_sidelengths[loop] = temp_intlist->seqlen;
-		  ML_sequences[loop+1] = ordering->convertIndex(pairlist[temp_intlist->data]);
-		}
-	    }
-	  // end new code.
+          // new code for pairtypes, sidelengths, seqs for multiloop, matching sequencing correctly.
+          ML_pairtypes[0] = stacklist->pairtype;
+          ML_sidelengths[0] = temp_intlist->seqlen;
+          ML_sequences[1] = ordering->convertIndex(pairlist[temp_intlist->data]);
+          for( loop = 1; loop < listlength; loop++)
+            {
+              ML_pairtypes[loop] = temp_intlist->pairtype;
+              temp_intlist = temp_intlist->next;
+              if( loop == listlength - 1)
+                {
+                  ML_sidelengths[loop] = seqlen;
+                  ML_sequences[0] = ordering->convertIndex(stacklist->data);
+                }
+              else
+                {
+                  ML_sidelengths[loop] = temp_intlist->seqlen;
+                  ML_sequences[loop+1] = ordering->convertIndex(pairlist[temp_intlist->data]);
+                }
+            }
+          // end new code.
 
-	  newLoop = new MultiLoop( listlength, ML_pairtypes, ML_sidelengths, ML_sequences);
-	}
+          newLoop = new MultiLoop( listlength, ML_pairtypes, ML_sidelengths, ML_sequences);
+        }
       else if ( listlength == 1 && seqlen >= 3 ) // Hairpin Loop
-	{
-	  newLoop = new HairpinLoop( stacklist->pairtype, seqlen, ordering->convertIndex(stacklist->data) );
-	}
+        {
+          newLoop = new HairpinLoop( stacklist->pairtype, seqlen, ordering->convertIndex(stacklist->data) );
+        }
       else if ( listlength == 2 && (seqlen > 0 && templist->seqlen > 0 )) // Interior Loop
-	{
-	  newLoop = new InteriorLoop( stacklist->pairtype, templist->pairtype, templist->seqlen, seqlen, ordering->convertIndex(startpos-1), ordering->convertIndex(pairlist[templist->data]), NULL, NULL );
-	}
+        {
+          newLoop = new InteriorLoop( stacklist->pairtype, templist->pairtype, templist->seqlen, seqlen, ordering->convertIndex(startpos-1), ordering->convertIndex(pairlist[templist->data]), NULL, NULL );
+        }
       else if ( listlength == 2 && (seqlen == 0 && templist->seqlen == 0)) // Stack Loop
-	{
-	  newLoop = new StackLoop( stacklist->pairtype, templist->pairtype, ordering->convertIndex(startpos-1), ordering->convertIndex(pairlist[templist->data]) );
-	}
+        {
+          newLoop = new StackLoop( stacklist->pairtype, templist->pairtype, ordering->convertIndex(startpos-1), ordering->convertIndex(pairlist[templist->data]) );
+        }
       else if ( listlength == 2 && (seqlen == 0 || templist->seqlen == 0 )) // Bulge Loop
 		// this must be after stackloop, otherwise it may catch stackloop's conditions. 
-	{
-	  newLoop = new BulgeLoop( stacklist->pairtype, templist->pairtype, templist->seqlen, seqlen, ordering->convertIndex(startpos-1), ordering->convertIndex(pairlist[templist->data]),NULL, NULL);
-	}
+        {
+          newLoop = new BulgeLoop( stacklist->pairtype, templist->pairtype, templist->seqlen, seqlen, ordering->convertIndex(startpos-1), ordering->convertIndex(pairlist[templist->data]),NULL, NULL);
+        }
       else if (       1          ) // Error-generating Loop
-	{
-	  // This should never happen.
-	}
+        {
+          // This should never happen.
+        }
 
 
 
       // add correct predecessor to all adjacent loops.
       templisttail = templist;
       if( templisttail != NULL )
-	{
-	  while( templisttail->next != NULL )
-	    {
-	      templisttail->predec = newLoop;
-	      templisttail = templisttail->next;
-	    }
-	  templisttail->predec = newLoop;
-	}
+        {
+          while( templisttail->next != NULL )
+            {
+              templisttail->predec = newLoop;
+              templisttail = templisttail->next;
+            }
+          templisttail->predec = newLoop;
+        }
       
       // classification is done, we should add the predecessor...
       if( stacklist->predec == NULL ) //  we are either at the start, or an error occurred.
-	{
-	  // we'll assume no error, and so the complex's beginning loop should be this one.
-	  beginLoop = newLoop;
-	}
+        {
+          // we'll assume no error, and so the complex's beginning loop should be this one.
+          beginLoop = newLoop;
+        }
       else
-	{
-	  newLoop->addAdjacent( stacklist->predec );
-	  stacklist->predec->addAdjacent( newLoop );
-	}
+        {
+          newLoop->addAdjacent( stacklist->predec );
+          stacklist->predec->addAdjacent( newLoop );
+        }
       
       // add q to gq
       stacklisttail->next = templist;
       if( templisttail != NULL )
-	stacklisttail = templisttail;
+        stacklisttail = templisttail;
       templist = NULL;
       templisttail = NULL;
 

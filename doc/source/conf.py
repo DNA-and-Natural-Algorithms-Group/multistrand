@@ -56,7 +56,7 @@ def proc_docstring(app, what, name, obj, options, lines):
       
       :rtype: None
     """
-    if what != 'function' and what != 'method':
+    if what != 'function' and what != 'method' and what != 'class' and what != 'attribute':
         return
     
     import re
@@ -237,8 +237,9 @@ pygments_style = 'sphinx'
 # Include __init__ docstrings.
 autoclass_content = 'both'
 
-autodoc_default_flags = ['members', 'undoc-members']
-# add this for other defaults: , 'inherited-members', 'show-inheritance']
+autodoc_default_flags = ['members']
+# add this for other defaults: ['undoc-members', 'inherited-members', 'show-inheritance']
+autodoc_member_order = 'groupwise'
 
 # -- Options for HTML output ---------------------------------------------------
 
