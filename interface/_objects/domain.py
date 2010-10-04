@@ -1,4 +1,5 @@
 from ..utils import generate_sequence
+from strand import Strand
 
 class Domain(object):
   """Represents a sequence domain, for use in defining strands and stop conditions for Multistrand.
@@ -7,7 +8,7 @@ class Domain(object):
   id [default=automatic]: unique id representing this domain, automatically
                           set as they are created.
   name [required]: Name of this domain.
-  sequence [default=None]: Sequence of this domain, e.g. 'AGGCAGATA'
+  sequence [default=""]: Sequence of this domain, e.g. 'AGGCAGATA'
   length [default=0]: Length of this domain. A 0-length domain may be useful
                       in some rare cases. If sequence is set, length should
                       ALWAYS be == len(sequence), but this is not strictly
@@ -23,11 +24,11 @@ class Domain(object):
     if len(args)==4 or (len(args)==3 and 'is_complement' in kargs):
       self.id, self.name, self.length = args
       self.is_complement = (len(args)==4 and args[3]) or kargs['is_complement']
-      self.sequence = None
+      self.sequence = ""
     else:
       self.id = Domain.unique_id
       Domain.unique_id += 1
-      self.sequence = None
+      self.sequence = ""
       self.length = 0
       for k,v in kargs.iteritems():
         self.__setattr__( k, v )
@@ -40,6 +41,28 @@ class Domain(object):
       del kargs['n']
     self.sequence = generate_sequence(n = self.length, *args, **kargs )
 
+  @property
+  def C(self):
+    """ The complementary domain, specifically the one whose bases in
+    the standard 5' to 3' ordering are exactly matching base pairs to
+    the original.
+
+    >>> a = Domain( sequence='AGGACCATT')
+    >>> a.sequence
+    AGGACCATT
+    >>> b = a.C
+    >>> b.sequence
+    AATCCTCCT
+    >>> b.name
+    """
+    return ComplementaryDomain( self )
+
+  def __add__( self, other ):
+    if isinstance(other,Domain):
+      return Strand( domains = [self,other] )
+    else:
+      return NotImplemented
+
   def __str__( self ):
     return ("\
 Domain : {fieldnames[0]:>9}: '{0.name}'\n\
@@ -47,3 +70,63 @@ Domain : {fieldnames[0]:>9}: '{0.name}'\n\
   (self.sequence and
      '       : {fieldname:>9}: {0}\n'.format( self.sequence, fieldname='Seq' )
      or ''))
+
+
+
+class ComplementaryDomain( Domain):
+  """Represents a complemented domain. Note that this is always
+  defined in terms of an original domain and does not have the same
+  data members, instead providing an interface to the complementary
+  members.
+
+  """
+  complement = {'G':'C',
+                'C':'G',
+                'A':'T',
+                'T':'A'}
+    
+  def __init__(self, complemented_domain ):
+    self.id = ComplementaryDomain.unique_id
+    ComplementaryDomain.unique_id += 1
+    
+    self._domain = complemented_domain
+
+  @property
+  def length(self):
+    return self._domain.length
+
+  @property
+  def name(self):
+    if self._domain.name.endswith("*") or \
+       self._domain.name.endswith("'"):
+      return self._domain.name.rstrip("*'")
+    else:
+      return self._domain.name + "*"
+
+  @property
+  def sequence( self ):
+    if self._domain.sequence == None:
+      raise ValueError
+    else:
+      return "".join([ComplementaryDomain.complement[i] for i in reversed(self._domain.sequence.upper())])
+
+  def gen_sequence( self, *args, **kargs ):
+    """ Uses the same parameters as 'multistrand.utils.generate_sequence', but sets the length to the domain's length."""
+    self._domain.gen_sequence( *args, **kargs )
+
+  @property
+  def C(self):
+    """ The complementary domain, specifically the one whose bases in
+    the standard 5' to 3' ordering are exactly matching base pairs to
+    the original.
+
+    >>> a = Domain( sequence='AGGACCATT')
+    >>> a.sequence
+    AGGACCATT
+    >>> b = a.C
+    >>> b.sequence
+    AATCCTCCT
+    >>> b.name
+    """
+    return self._domain
+

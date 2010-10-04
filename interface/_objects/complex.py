@@ -1,4 +1,4 @@
-from objects import Strand
+from strand import Strand
 
 class Complex(object):
   """Represents a Multistrand Complex object."""
@@ -21,16 +21,24 @@ class Complex(object):
     """
     if len( args ) == 4 or len( args ) == 5:
       self.old_init( *args, **kargs )
+      return
     elif 'sequence' in kargs and 'structure' in kargs:
-      self.id = Complex.unique_id
-      self.name = kargs.get('name') or "automatic" + str(Complex.unique_id)
       self.strand_list = [Strand(sequence=i) for i in kargs['sequence'].split("+")]
       self._fixed_structure = kargs['structure']
-      self.boltzmann_sample = kargs.get('boltzmann_sample', False)
-      self._last_boltzmann_structure = False
-      self._boltzmann_sizehint = 1
-      self._boltzmann_queue = []
-      Complex.unique_id += 1
+    elif 'strands' in kargs and 'structure' in kargs:
+      self.strand_list = kargs['strands']
+      self._init_parse_structure( kargs['structure'] )
+
+    self.id = Complex.unique_id
+    self.name = kargs.get('name') or "automatic" + str(Complex.unique_id)
+    # note: Boltzmann sampling is somewhat confusing if you pass a
+    # structure that is anything other than all "."'s. So maybe we
+    # should check for that.
+    self.boltzmann_sample = kargs.get('boltzmann_sample', False)
+    self._last_boltzmann_structure = False
+    self._boltzmann_sizehint = 1
+    self._boltzmann_queue = []
+    Complex.unique_id += 1
       
   def __str__( self ):
     return "\
@@ -62,6 +70,37 @@ Complex: {fieldnames[0]:>9}: '{0.name}'\n\
     self._boltzmann_sizehint = 1
     self._boltzmann_queue = []
     self.boltzmann_sample = boltzmann_sample
+
+  def _init_parse_structure( self, structure ):
+    strand_count = len(self.strand_list)
+    base_count = sum(len(s.sequence) for s in self.strand_list)
+    total_flat_length = base_count + strand_count - 1
+   
+    if len(structure) == total_flat_length:
+      self._fixed_structure = structure
+    else:
+      domain_count = sum(len(s.domain_list) for s in self.strand_list)
+      if len(structure) != domain_count + strand_count - 1:
+        error_msg = "ERROR: Could not interpret the passed structure [{0}];".format(structure)
+        if domain_count > 0:
+          error_msg += " Expected a structure composed of characters from '.()+'\
+          and with either length [{0}] for a complete structure, or length [{1}]\
+          for a domain-level structure. If giving a domain-level structure, it \
+          should have the layout [{2}].".format( total_flat_length, 
+              domain_count + strand_count - 1,
+              "+".join(''.join('x'*len(d.sequence) for d in s.domain_list)\
+                       for s in self.strand_list))
+        else:
+          error_msg += " Expected a complete structure with [{1}] total characters chosen from '.()+'.".format( total_flat_length )
+        raise ValueError( error_msg )
+      else:
+        matched_list = zip( structure,
+                            reduce( lambda x,y: x+[len(d.sequence) for d in y.domain_list] + [1], self.strand_list,[]))
+                            # the reduce just composes the
+                            # domain_lists into one big ordered list
+                            # of domains
+        self._fixed_structure = "".join(i[0]*i[1] for i in matched_list)
+
 
   def get_unique_ids( self ):
     return set([i.id for i in self.strand_list])

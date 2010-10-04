@@ -1,31 +1,5 @@
 import warnings
 
-class Strand(object):
-  """Represents a Multistrand Strand object."""
-  unique_id = 0
-  
-  def __init__(self, *args, **kargs ):
-    """ Initializes a new Strand object. """
-    if len(args) == 4:
-      warnings.warn( DeprecationWarning("Passing the strand ID is deprecated, it's a private matter internal to Multistrand.") )
-      self.name,self.sequence,self.domain_list = args[1:4]
-    elif len(args) == 3:
-      self.name,self.sequence,self.domain_list = args[0:3]
-    elif 'sequence' in kargs:
-      self.name = "Automatic_" + str(Strand.unique_id)
-      self.sequence = kargs['sequence']
-      self.domain_list = []
-    else:
-      raise ValueError("Strands must be initialized with 3 arguments: name, sequence and domain list.")
-
-    # removed id from the interface possibilities.
-    self.id = Strand.unique_id
-    Strand.unique_id += 1
-  def __str__(self):
-    if len(self.sequence) > 30:
-      return "Strand:         Name:'{0.name}'\n      : Sequence [{2}]:{0.sequence}\n             : Domains:{1}".format( self, [i.name for i in self.domain_list], len(self.sequence) )
-    else:
-      return "Strand: Name:'{0.name}' Sequence [{2}]:{0.sequence} Domains:{1}".format( self, [i.name for i in self.domain_list], len(self.sequence) )
 
 class RestingState(tuple):
   """Represents a resting state, i.e. a named set of complexes that exists as a
@@ -72,11 +46,3 @@ class RestingState(tuple):
     possible form.
     """
     return self[0]
-  
-class StopCondition(object):
-  """Represents a trajectory stopping condition."""
-
-  def __init__(self, tag, complex_items):
-    self.tag = tag
-    self.complex_items = complex_items  # List of (complex, stoptype, count) tuples
-
