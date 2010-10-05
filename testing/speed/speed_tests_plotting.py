@@ -100,12 +100,12 @@ class FullyRandomSequences( FigureObject ):
     def __init__(self):
         FigureObject.__init__(self)
         self.data_short = self.loaddata( 'data_short', 'length_short')
-        self.data_long = self.loaddata( 'data_long', 'length_longs' )
-        self.data_vlong = self.loaddata( 'data_vlong', 'length_very_longs')
+        # self.data_long = self.loaddata( 'data_long', 'length_longs' )
+        # self.data_vlong = self.loaddata( 'data_vlong', 'length_very_longs')
         self.data_full = self.data_short.copy()
-        self.data_full.update( self.data_long )
-        self.data_quitefull = self.data_full.copy()
-        self.data_quitefull.update( self.data_vlong )
+        # self.data_full.update( self.data_long )
+        # self.data_quitefull = self.data_full.copy()
+        # self.data_quitefull.update( self.data_vlong )
 
     def dump_all_data(self):
         self.dump_data( self.data_short, 'data_short')

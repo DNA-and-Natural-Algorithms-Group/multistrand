@@ -186,9 +186,6 @@ class Speedtest_FromFile( unittest.TestCase ):
                  )
         f.close()
 
-    def setUp(self):
-        pass
-    
     @timer
     def setup_kinfold( self, sequence, time, count,structure ):
         kinfoldproc = subprocess.Popen(["Kinfold","--noShift","--logML","--start","--fpt","--time","{0:f}".format(time),"--num","{0:d}".format(count),"--silent","--dangle","0","--Par","dna.par"], stdin=subprocess.PIPE, stdout=subprocess.PIPE )
@@ -205,7 +202,7 @@ class Speedtest_FromFile( unittest.TestCase ):
 
         res = runOnce()[1]
         return res
-    
+
     @timer
     def setup_old_multistrand( self, sequence, time, count, structure ):
         multistrandproc = subprocess.Popen(["Multistrand"],stdin=subprocess.PIPE, stdout=subprocess.PIPE )
@@ -397,45 +394,11 @@ if __name__ == '__main__':
     long_lengths = Length_Tests( range(100,205,5), [1000.0] * 21, 'length_longs/')
     # very_long_lengths = Length_Tests( range(210,310,10), [100.0] * 10, 'length_very_longs/')
     #single_short = Length_Tests( [30], [5000.0], 'length_short/')
-    #bm_tests = Fourway_BM_Tests( range(0,42,2), [5000.0]*10+[1000.0]*11, 'short_4way/')
-    # very_long_lengths.runTests_Async()
-    short_lengths.runTests_Async()
-    long_lengths.runTests_Async()
+    bm_tests = Fourway_BM_Tests( range(0,42,2), [5000.0]*10+[1000.0]*11, 'short_4way/')
+    #very_long_lengths.runTests_Async()
+    #short_lengths.runTests_Async()
+    #long_lengths.runTests_Async()
     #single_short.runTests_Async(False)
-    #bm_tests.runTests_Async()
+    bm_tests.runTests_Async()
 
 
-
-
-# # testing area
-# class alpha( unittest.TestCase ):
-#     def setUp( self ):
-#         if hasattr( self, 'name' ):
-#             print("Name found")
-#         else:
-#             print("Noname")  # always this case
-#         print("setting up!")
-        
-#     def __getattr__(self, name):
-#         if name.endswith("_txt"):
-#             def stub_test_runner():
-#                 self.myrun( name )
-#             stub_test_runner.__doc__ = "Random Sequences [{0}]".format( name.replace('_','.'))
-#             return stub_test_runner
-#         else:
-#             raise AttributeError
-#     def runfunct( self, name ):
-#         return lambda: self.myrun( name )
-#     def myrun( self, name):
-#         self.name = name
-#         print("Processing name: {0}".format( name ) )
-
-# # # test code:       
-# # import unittest
-
-# a = alpha('blah_txt')
-
-# suite = unittest.TestSuite()
-# suite.addTest( a)
-# unittest.TextTestRunner(verbosity=2).run( suite )
-        
