@@ -291,7 +291,8 @@ class MyRunner( object ):
     def __init__( self, testcase ):
         class DevNull(object):
             def write(self, _): pass
-        unittest.TextTestRunner( descriptions=0,verbosity=0,stream=DevNull()).run( testcase )
+        #unittest.TextTestRunner( descriptions=0,verbosity=0,stream=DevNull()).run( testcase )
+        unittest.TextTestRunner( descriptions=1,verbosity=1).run( testcase )
 
 
 class Length_Tests( Multistrand_Suite_Base ):
@@ -388,17 +389,76 @@ class Fourway_BM_Tests( Multistrand_Suite_Base ):
                     raise ValueError("Sequence mismatch.")
                 
                 self._suite.addTest( Speedtest_FromFile('{idx}:{time}:{prefix}:{seq}:{struc}'.format( idx=i, time=time_to_sim, prefix=file_prefix, seq=bm_complex.sequence, struc=bm_complex.structure)))
+
+class Threeway_BM_Tests( Multistrand_Suite_Base ):
+    """ Uses the Speedtest_FromFile testcase class to run tests on
+    3-way branch migration systems."""
+    
+    def __init__(self, lengths, times, file_prefix = ""):
+        self._suite = unittest.TestSuite()
+        self._lengths = {}
+        self._times = {}
+        
+        for l in lengths:
+            self._lengths[str(l)] = []
+        for l,t in zip(lengths, times):
+            self._times[str(l)] = t
+
+        a = Domain(name='a', length=4, sequence='GTTC')
+        b = Domain(name='b', length=4, sequence='GCCC')
+
+        T = Domain(name='T', length=3, sequence='AAA')
+        L = Domain(name='L')
+
+        primary_strand = L + a + T + a.C + L.C + b + T + b.C + L
+        primary_strand.name = "Primary"
+        
+        for n in self._lengths.keys():
+            if n > 0 and not os.path.isfile(file_prefix + 'length_{0}_sequences_random.dat'.format( n )):
+                f = open(file_prefix + 'length_{0}_sequences_random.txt'.format(n),'wt')
+                
+                for i in range(100):
+                    self._lengths[n].append( multistrand.utils.generate_sequence( int(n)))
+
+                    f.write( "{0}\n".format(self._lengths[n][-1] ))
+                f.close()
+                f = open(file_prefix + 'length_{0}_sequences_random.dat'.format(n),'wb')
+                cPickle.dump( self._lengths[n], f, protocol=-1)
+                f.close()
+            elif n == 0:
+                for i in range(100):
+                    self._lengths[n].append("")
+            else:
+                f = open(file_prefix + 'length_{0}_sequences_random.dat'.format(n),'rb')
+                self._lengths[n] = cPickle.load( f )
+        bm_complex = Complex( strands = [primary_strand], structure = "((.))(.).")
+        for k,v in self._lengths.iteritems():
+            L.length = k
+            for i in range( len(v) ):
+                L.sequence = self._lengths[k][i]
+                if i == 0:
+                    bm_complex._init_parse_structure("((.))(.).")
+                if k in self._times:
+                    time_to_sim = self._times[k]
+                else:
+                    time_to_sim = (len(self._lengths[k][i]) <= 15 and 5000.0) or 1000.0
+                if len(bm_complex.sequence) != len(bm_complex.structure):
+                    raise ValueError("Sequence mismatch.")
+                
+                self._suite.addTest( Speedtest_FromFile('{idx}:{time}:{prefix}:{seq}:{struc}'.format( idx=i, time=time_to_sim, prefix=file_prefix, seq=bm_complex.sequence, struc=bm_complex.structure)))
+
         
 if __name__ == '__main__':
-    short_lengths = Length_Tests( range(20,100,2), [5000.0]*11 + [1000.0]*39, 'length_short/')
-    long_lengths = Length_Tests( range(100,205,5), [1000.0] * 21, 'length_longs/')
+    #short_lengths = Length_Tests( range(20,100,2), [5000.0]*11 + [1000.0]*39, 'length_short/')
+    #long_lengths = Length_Tests( range(100,205,5), [1000.0] * 21, 'length_longs/')
     # very_long_lengths = Length_Tests( range(210,310,10), [100.0] * 10, 'length_very_longs/')
     #single_short = Length_Tests( [30], [5000.0], 'length_short/')
-    bm_tests = Fourway_BM_Tests( range(0,42,2), [5000.0]*10+[1000.0]*11, 'short_4way/')
+    #bm_4way_tests = Fourway_BM_Tests( range(0,42,2), [5000.0]*10+[1000.0]*11, 'short_4way/')
+    bm_3way_tests = Threeway_BM_Tests( range(0,60), [5000.0]*10+[1000.0]*50, 'short_3way/' )
     #very_long_lengths.runTests_Async()
     #short_lengths.runTests_Async()
     #long_lengths.runTests_Async()
     #single_short.runTests_Async(False)
-    bm_tests.runTests_Async()
+    bm_3way_tests.runTests_Async()
 
 

@@ -100,6 +100,7 @@ class FullyRandomSequences( FigureObject ):
     def __init__(self):
         FigureObject.__init__(self)
         self.data_short = self.loaddata( 'data_short', 'length_short')
+        self.data_bm = self.loaddata( 'data_bm', 'short_4way')
         # self.data_long = self.loaddata( 'data_long', 'length_longs' )
         # self.data_vlong = self.loaddata( 'data_vlong', 'length_very_longs')
         self.data_full = self.data_short.copy()
@@ -117,11 +118,11 @@ class FullyRandomSequences( FigureObject ):
         plotdata( self=self, data=self.data_full, label="{0} (Random Sequences)" )
         plotdata( self=self, data=self.data_full, avg=True )
 
-    @figuresetup(2,  yscale='log', xlim=(0,205) )
+    @figuresetup(2,  yscale='log', xlim=(0,105) )
     def plain_full_log(self):
         plotdata( self=self, data=self.data_full, label="{0} (Random Sequences)" )
         plotdata( self=self, data=self.data_full, avg=True )
-
+        
     @figuresetup(3,  yscale='log', xlim=(0,205) )
     def shading_full(self):
         plotdata( self=self, data=self.data_full, label="{0} (Random Sequences)", alpha=.8 )
@@ -157,6 +158,26 @@ class FullyRandomSequences( FigureObject ):
         plotdata( self=self, data=self.data_quitefull, avg=True, alpha=.7 )
         plotdata( self=self, data=self.data_quitefull, avg=True, user=True, colors={'Kinfold':'m','Multistrand':'c'} )
 
+    @figuresetup(8, yscale='log', xlim=(18,102) )
+    def alternate_colors_log( self, primary=False ):
+        if primary:
+            plotdata( self=self, data=self.data_full,
+                      label="{0} (No cheats)")
+            plotdata( self=self, data=self.data_full, avg=True )
+        else:
+            plotdata( self=self, data=self.data_full,
+                      label="{0} (Kinfold cheats)",offset=1.0,
+                      colors={'Kinfold':'m','Multistrand':'c'} )
+            plotdata( self=self, data=self.data_full, avg=True,
+                      offset=1.0, colors={'Kinfold':'m','Multistrand':'c'} )
+
+    @figuresetup(9,yscale='log',xlim=(40,202))
+    def fourway_data( self ):
+        plotdata(self=self, data=self.data_bm, label="{0} (4-way)", alpha=.8)
+        plotdata(self=self, data=self.data_bm, avg=True)
+        plotdata(self=self, data=self.data_bm, interval=.2, alpha=.4)
+        plotdata(self=self, data=self.data_bm, interval=.05)
+        plotdata(self=self, data=self.data_bm, interval=.4, alpha=.3)
 
 if __name__ == '__main__':
     Figures_FullRandom = FullyRandomSequences()

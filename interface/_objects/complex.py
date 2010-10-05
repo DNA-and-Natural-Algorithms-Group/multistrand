@@ -83,10 +83,11 @@ Complex: {fieldnames[0]:>9}: '{0.name}'\n\
       if len(structure) != domain_count + strand_count - 1:
         error_msg = "ERROR: Could not interpret the passed structure [{0}];".format(structure)
         if domain_count > 0:
-          error_msg += " Expected a structure composed of characters from '.()+'\
-          and with either length [{0}] for a complete structure, or length [{1}]\
-          for a domain-level structure. If giving a domain-level structure, it \
-          should have the layout [{2}].".format( total_flat_length, 
+          error_msg += "\
+Expected a structure composed of characters from '.()+'\
+and with either length [{0}] for a complete structure, or length [{1}]\
+for a domain-level structure. If giving a domain-level structure, it \
+should have the layout [{2}].".format( total_flat_length, 
               domain_count + strand_count - 1,
               "+".join(''.join('x'*len(d.sequence) for d in s.domain_list)\
                        for s in self.strand_list))
