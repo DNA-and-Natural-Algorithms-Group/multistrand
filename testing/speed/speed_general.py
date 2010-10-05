@@ -169,6 +169,7 @@ class Speedtest_FromFile( unittest.TestCase ):
         filename = prefix + 'len_{0}_sequence_{1}.out'.format( len(seq), idx )
         if os.path.isfile( filename ):
             print("File [{filename}] already exists, skipping test.".format(filename=filename))
+            return
         times_kin = self.setup_kinfold( seq, time, 100, structure)
         times_ms = self.setup_multistrand( seq, time, 100, structure )
 
@@ -192,8 +193,9 @@ class Speedtest_FromFile( unittest.TestCase ):
     def setup_kinfold( self, sequence, time, count,structure ):
         kinfoldproc = subprocess.Popen(["Kinfold","--noShift","--logML","--start","--fpt","--time","{0:f}".format(time),"--num","{0:d}".format(count),"--silent","--dangle","0","--Par","dna.par"], stdin=subprocess.PIPE, stdout=subprocess.PIPE )
 
+        sequence = sequence.replace("T","U")
         if structure == None:
-            input_str = "{0}\n{1}\n".format( sequence,"."*(sequence))
+            input_str = "{0}\n{1}\n".format( sequence,"."*len(sequence))
         else:
             input_str = "{0}\n{1}\n".format( sequence,structure)                                         
 
@@ -201,8 +203,9 @@ class Speedtest_FromFile( unittest.TestCase ):
         def runOnce():
             self.output_kinfold, _ = kinfoldproc.communicate( input_str )
 
-        return runOnce()[1]
-
+        res = runOnce()[1]
+        return res
+    
     @timer
     def setup_old_multistrand( self, sequence, time, count, structure ):
         multistrandproc = subprocess.Popen(["Multistrand"],stdin=subprocess.PIPE, stdout=subprocess.PIPE )
@@ -292,7 +295,6 @@ class MyRunner( object ):
         class DevNull(object):
             def write(self, _): pass
         unittest.TextTestRunner( descriptions=0,verbosity=0,stream=DevNull()).run( testcase )
-    
 
 
 class Length_Tests( Multistrand_Suite_Base ):
@@ -389,18 +391,18 @@ class Fourway_BM_Tests( Multistrand_Suite_Base ):
                     raise ValueError("Sequence mismatch.")
                 
                 self._suite.addTest( Speedtest_FromFile('{idx}:{time}:{prefix}:{seq}:{struc}'.format( idx=i, time=time_to_sim, prefix=file_prefix, seq=bm_complex.sequence, struc=bm_complex.structure)))
-
         
 if __name__ == '__main__':
-    # short_lengths = Length_Tests( range(20,100,2), [5000.0]*11 + [1000.0]*39, 'length_short/')
-    # long_lengths = Length_Tests( range(100,205,5), [1000.0] * 21, 'length_longs/')
+    short_lengths = Length_Tests( range(20,100,2), [5000.0]*11 + [1000.0]*39, 'length_short/')
+    long_lengths = Length_Tests( range(100,205,5), [1000.0] * 21, 'length_longs/')
     # very_long_lengths = Length_Tests( range(210,310,10), [100.0] * 10, 'length_very_longs/')
-    # single_short = Length_Tests( [30], [5000.0], 'length_short/')
-    bm_tests = Fourway_BM_Tests( range(0,42,2), [5000.0]*10+[1000.0]*11, 'short_4way/')
+    #single_short = Length_Tests( [30], [5000.0], 'length_short/')
+    #bm_tests = Fourway_BM_Tests( range(0,42,2), [5000.0]*10+[1000.0]*11, 'short_4way/')
     # very_long_lengths.runTests_Async()
-    #long_lengths.runTests_Async()
-    #single_short.runTests_Async()
-    bm_tests.runTests_Async()
+    short_lengths.runTests_Async()
+    long_lengths.runTests_Async()
+    #single_short.runTests_Async(False)
+    #bm_tests.runTests_Async()
 
 
 
