@@ -291,8 +291,8 @@ class MyRunner( object ):
     def __init__( self, testcase ):
         class DevNull(object):
             def write(self, _): pass
-        #unittest.TextTestRunner( descriptions=0,verbosity=0,stream=DevNull()).run( testcase )
-        unittest.TextTestRunner( descriptions=1,verbosity=1).run( testcase )
+        unittest.TextTestRunner( descriptions=0,verbosity=0,stream=DevNull()).run( testcase )
+        #unittest.TextTestRunner( descriptions=1,verbosity=1).run( testcase )
 
 
 class Length_Tests( Multistrand_Suite_Base ):
