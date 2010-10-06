@@ -1,23 +1,56 @@
 from strand import Strand
 
+def testfunc(object):
+  """Converts a (latitude, longitude) pair to an address.
+
+  Interesting bits:
+
+  >>> gmaps = GoogleMaps()
+  >>> reverse = gmaps.reverse_geocode(38.887563, -77.019929)
+  >>> address = reverse['Placemark'][0]['address']
+  >>> print address
+  200 6th St SW, Washington, DC 20024, USA
+  >>> accuracy = reverse['Placemark'][0]['AddressDetails']['Accuracy']
+  >>> print accuracy
+  8
+  
+  :param lat: latitude
+  :type lat: float
+  :param lng: longitude
+  :type lng: float
+  :return: `Reverse geocoder return value`_ dictionary giving closest
+  address(es) to `(lat, lng)`
+  :rtype: dict
+  :raises GoogleMapsError: If the coordinates could not be reverse geocoded.
+  
+  Keyword arguments and return value are identical to those of :meth:`geocode()`.
+  
+  .. _`Reverse geocoder return value`:
+  http://code.google.com/apis/maps/documentation/geocoding/index.html#ReverseGeocoding
+  
+  """
+  pass
+
 class Complex(object):
-  """Represents a Multistrand Complex object."""
+  """
+  A representation of a single connected complex of strands.
+  """
   unique_id = 0
   
-  def __init__(self, *args, **kargs):
-    """ Initialize a Complex object.
-
-    For the old style initialization function, see old_init - using
-    that type of parameters when creating a Complex will fall back to
-    that function.
-
-    New parameters [all keywords]:
-    sequence [required]:  Flat sequence to use for this complex.
-    structure [required]: Flat structure to use for this complex.
-    name [default=automatic]: Name to use for this complex. Defaults to 'automatic' + a unique integer.
-    boltzmann_sample [default=False]: Whether we should boltzmann sample this complex.
-
-    You must include both of the required keyword arguments to create a Complex with the new style init. 
+  def __init__(self, name=None, boltzmann_sample=False,*args, **kargs):
+    """
+    Initialization:
+    
+    Keyword Arguments:
+    sequence [type=str]          -- Flat sequence to use for this complex.
+    structure [type=str]         -- Flat structure to use for this complex.
+    name [type=str]              -- Name of the complex. If None (the default),
+                                    it is automatically generated with the
+                                    form 'automatic' + a unique integer.
+    boltzmann_sample [type=bool] -- Whether we should boltzmann sample this
+                                    complex.
+    
+    You must include both of the required keyword arguments to create a Complex with the new style init, or pass it the old style arguments used in `old_init`.
     """
     if len( args ) == 4 or len( args ) == 5:
       self.old_init( *args, **kargs )
@@ -52,13 +85,15 @@ Complex: {fieldnames[0]:>9}: '{0.name}'\n\
        fieldnames =('Name','Sequence','Structure','Strands','Boltzmann') )
 
   def old_init( self, id, name, strand_list, structure, boltzmann_sample = False):
-    """ Old style init function, uses fixed argument list.
+    """ Initializes a Complex using a fixed argument list.
 
-    id:  unique identifier for this complex [Not currently used]
-    name:  name to refer to this complex by. [Vaguely used]
-    strand_list: list of multistrand.object.Strand objects to retreive the sequence from
-    structure: flat dot-paren structure of this scomplex
-    boltzmann_sample [default=False]: whether we should call a sampler when retreiving a structure from this complex.
+    Arguments:
+    id          -- unique identifier for this complex [Should not be used].
+    name        -- name of this complex
+    strand_list -- list of Strand objects in this complex (ordered)
+    structure   -- flat dot-paren structure of this complex
+    boltzmann_sample [default=False] -- whether we should call a sampler when
+        retreiving a structure from this complex.
     """
     self.id = id
     # what is this id?
@@ -104,6 +139,12 @@ should have the layout [{2}].".format( total_flat_length,
 
 
   def get_unique_ids( self ):
+    """
+    Produce the set of unique strands in this Complex
+
+    Return Value:
+      -- A `set` of the unique strand names.
+    """
     return set([i.id for i in self.strand_list])
   
   def __len__(self):
@@ -149,19 +190,17 @@ should have the layout [{2}].".format( total_flat_length,
     
   @property
   def fixed_structure(self):
-    """ The structure used to create this object. """
+    """ The structure used to create this Complex. """
     return self._fixed_structure
 
   @property
   def current_boltzmann_structure(self):
-    """ What structure was used for the last sample. Is the value False if no sampling has occurred."""
+    """ The structure that was the result of our last Boltzmann sampling, or the value False if no sampling has occurred."""
     return self._last_boltzmann_structure
 
   @property
   def boltzmann_count(self):
-    """ Used to provide a hint as to how many times we're going to need boltzmann samples from this complex, so that get_boltzmann_structure can ask nupack for more in one shot.
-
-    Default: 1"""
+    """ The number of Boltzmann sampled structures we expect to be needed when using this Complex in a start structure. The default value is 1, which means every time a structure is requested it will need to call the sampling function; if you provide a better estimate, it may be a lot more efficient in how often it needs to call the sampling function. """
     return self._boltzmann_sizehint
   
   @boltzmann_count.setter
@@ -173,14 +212,19 @@ should have the layout [{2}].".format( total_flat_length,
       
   @property
   def sequence(self):
-    """ This property is actually the 'flat' sequence for the complex."""
+    """ The calculated 'flat' sequence for this complex. """
     return "+".join([strand.sequence for strand in self.strand_list])
   
   def generate_boltzmann_structure(self):
-    """ Creates a new boltzmann sampled structure for this complex.
+    """
+    Create a new boltzmann sampled structure for this complex.
 
-    Can be retrieved from other objects via the .current_boltzman_structure property, or
-    internal functions can access it directly."""
+    Mostly intended for internal use, but can access the generated structure
+    via the `current_boltzmann_structure` property.
+    
+    Return Value:
+      -- None
+    """
 
     if len(self._boltzmann_queue) > 0:
       self._pop_boltzmann()

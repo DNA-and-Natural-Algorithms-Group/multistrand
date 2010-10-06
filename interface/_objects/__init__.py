@@ -5,9 +5,10 @@
 #   Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)         #
 #                                                                  #
 #                                                                  #
-#   Options module to grab the options object into this namespace. #
+#   Objects module; contains basic objects useful for Multistrand  #
 #                                                                  #
 #                                                                  #
 ####################################################################
 
-__all__ = ['complex','domain','restingstate','stopcondition','strand']
+__all__ = ['Complex','Domain','RestingState','StopCondition','Strand']
+__module__ = 'multistrand.objects'

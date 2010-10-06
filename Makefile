@@ -104,9 +104,11 @@ LINK = $(CC) $(CFLAGS) $(LIBRARIES)
 
 
 
-all: Multistrand-internal
+all: package
 
-.PHONY: all package
+Multistrand: Multistrand-internal
+
+.PHONY: all package Multistrand
 # primary targets
 
 .PHONY: debug package-debug
@@ -117,6 +119,9 @@ all: Multistrand-internal
 
 .PHONY: dircheck Multistrand-internal 
 # utilities
+
+.PHONY: docs
+# documentation
 
 # .PHONE: These rules MUST run their commands.  
 #
@@ -187,6 +192,10 @@ package-debug:
 	@if [ -d obj/package_profiler/ ]; then $(MAKE) package-profiler-clean; fi
 	$(PYTHON_DEBUG_COMMAND) setup.py build -b ./ -t obj/package_debug/ --build-lib ./ --debug --use-debug-defs
 	@echo Package is now [hopefully] built, you can import it via "import multistrand" if the current directory is in your sys.path. In the future you may be able to run 'make install' to have it installed in your Python site packages.
+
+#documentation
+docs:
+	@cd doc/ && $(MAKE) clean; $(MAKE) html
 
 # targets for setting up debugging flags.
 

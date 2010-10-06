@@ -19,22 +19,37 @@ import copy
 
 FILLIN = None
 
-class MultistrandOptions( object ):
-    def __init__(self, *args, **kargs):
-        """ Create an options object [with default (presumably useful) values]
+class Options( object ):
+    """ The main wrapper for controlling a Multistrand simulation. Has information about the energy model, simulation options, and an interface for returning results. """
 
-        Now with new and improved argument lists!
-        Keyword Argument  |  Options
-        dangles           |  'None', 'Some', 'All'
-        start_state       |  List of Complex or RestingState
-        simulation_time   |  Max time to simulate
-        num_simulations   |  Number of trajectories to run
-        biscale           |  Bimolecular scaling constant
-        uniscale          |  Unimolecular scaling constant
-        parameter_type    |  'Nupack', 'Vienna'
-        substrate_type    |  'DNA','RNA'
-        ...
-        More to come!"""
+    defaults = {"num_simulations":1,
+                "log_ml":False,
+                "substrate_type":2,
+                "join_concentration":1.0,
+                "simulation_mode":16,
+                "parameter_type":1,
+                "simulation_time":600.0,
+                "temperature":310.15}
+    
+    def __init__(self, *args, **kargs):
+        """
+        Initialization of an Options object:
+
+        Keyword Arguments:
+        dangles -- Specifies the dangle terms used in the energy model.
+                   Can be the strings 'None', 'Some', or 'All'.
+        start_state  [type=list]     -- A list of Complex or RestingStates to
+                                        use as the initial state of the system.
+        simulation_time [type=float] -- Cap on the maximum simulation time.
+        num_simulations [type=int]   -- Number of trajectories to run
+        biscale         [type=float] -- Bimolecular scaling constant
+        uniscale        [type=float] -- Unimolecular scaling constant
+        parameter_type               -- Which set of energy parameters is
+                                        used. Available options: 'Nupack',
+                                        'Vienna'
+        substrate_type               -- Whether we want 'DNA' or 'RNA' energy
+                                        parameters.
+        """
         
 
         ##################################################
@@ -523,7 +538,7 @@ class MultistrandOptions( object ):
             raise Exception("Stop conditions should be set only once.")
         if self._start_state == []:
             raise Exception("Start state must be set before stop conditions.")
-        
+
         # Type checking
         for item in stop_list:
             if not isinstance(item, StopCondition):
@@ -599,17 +614,30 @@ class MultistrandOptions( object ):
     
     @property
     def temperature(self):
+        """
+        Temperature, in degrees Kelvin.
+        
+        Arguments:
+        temperature [type=float,default=310.15] -- Standard units of Kelvin.
+               Default value corresponds to 37(C).
+        
+        This is used mostly in scaling energy model terms, and those
+        scaling factors always use Kelvin. Note that when set, the
+        Options object will try to make sure it's actually a 'sane'
+        value, as follows:
+        
+        Temperatures in the range [0,100] are assumed to be Celsius,
+        and are converted to Kelvin.
+        
+        Temperatures in the range [273,373] are assumed to be in
+        Kelvin.
+        
+        Any temperature outside these ranges is set as the temperature
+        in Kelvin, and a warning is raised. If any conversion takes
+        place, a message is added to the Options object's errorlog.
+        """
         return self._temperature_kelvin
-    """ Temperature, in degrees Kelvin.
-    
-    Type         Default
-    double          310.15 (K)
-    
-    Standard units of degrees K, and default is the usual 37(C)
-    that's the base value in all the parameter files. Multistrand
-    uses Kelvin internally so we use it here as well.  used for
-    scaling parameters and those are always relative to degrees K.
-    """
+
 
     @temperature.setter
     def temperature(self,val):
@@ -636,7 +664,12 @@ class MultistrandOptions( object ):
             self._temperature_celsius = val
             self._temperature_kelvin = val + _OC.ZERO_C_IN_K
             self.errorlog.append("Warning: Temperature was set at the value [{0}]. We expected a value in Kelvin, or with appropriate units.\n         Temperature was automatically converted to [{1}] degrees Kelvin.\n".format(val, self._temperature_kelvin))
-    
+        else:
+            self._temperature_kelvin = val
+            self._temperature_celsius = val - _OC.ZERO_C_IN_K
+            self.errorlog.append("Warning: Temperature was set at the value [{0}]. This is outside the normal range of temperatures we expect, so it was assumed to be in Kelvin.\n".format(val))
+            raise Warning("Temperature did not fall in the usual expected ranges. Temperatures should be in units Kelvin, though the range [0,100] is assumed to mean units of Celsius.")
+        
     
     def make_unique(self, strand):
         """Returns a new Strand object with a unique identifier replacing the 
@@ -699,6 +732,22 @@ class MultistrandOptions( object ):
     def increment_trajectory_count( self ):
         self.interface.increment_trajectory_count()
 
+    def __repr__( self ):
+        items_to_save = {}
+        for k in Options.defaults.keys():
+            if self.__getattribute__(k) != Options.defaults[k]:
+                items_to_save[k] = self.__getattribute__(k)
+        def prep(k,v):
+            return "{key}={value},\n".format(key=k,value=v)
+        if len(items_to_save) == 0:
+            res = "Options()\n"
+        else:
+            res = "Options( " + "".join( [prep(*items_to_save.items()[0])] +
+                                     [pad + prep(*item) for item,pad in zip( items_to_save.items()[1:], ["         "] * (len(items_to_save) - 1))])
+            res = res[:-2]
+            res = res + ")\n"
+        return res
+
     def __init_keyword_args( self, *args, **kargs ):
         """ Helper subfunction. """
         
@@ -735,7 +784,8 @@ class MultistrandOptions( object ):
             'biscale': lambda x: self.__setattr__('bimolecular_scaling', x),
             'uniscale': lambda x: self.__setattr__('unimolecular_scaling', x),
             'num_sims': lambda x: self.__setattr__('num_simulations', x),
-            'sim_time': lambda x: self.__setattr__('simulation_time',x)
+            'sim_time': lambda x: self.__setattr__('simulation_time',x),
+            'concentration': lambda x: self.__setattr__('join_concentration',x)
             }
         
         for k in kargs.keys():
