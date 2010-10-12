@@ -49,12 +49,13 @@ static int SimSystemObject_init(SimSystemObject *self, PyObject *args)
                                    here if there's a type error. */
 
   /* check the type */
-  if( strcmp(self->options->ob_type->tp_name, "multistrand.options.Options") != 0)
+  if( strcmp(self->options->ob_type->tp_name, "Options") != 0)
     {
+      printf("[%s] options name\n",self->options->ob_type->tp_name);
       /* Note that we'll need to change the above once it's packaged nicely. */
       Py_DECREF(self->options);
       PyErr_SetString(PyExc_TypeError,
-			        "Must be passed a single Options object.");
+                      "Must be passed a single Options object.");
       return -1;
     }
   self->ob_system = new SimulationSystem( self->options );

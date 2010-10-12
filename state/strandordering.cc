@@ -129,7 +129,7 @@ StrandOrdering::StrandOrdering( char *in_seq, char *in_structure, char *in_cseq 
           count++;
           if(strand_counter == 0 && sflag == 0)
             printf("Unconnected strand in initialized complex. Strandordering.cc\n");
-          new_elem = new orderinglist (strand_size, -1, def_tag, &in_seq[index-strand_size], &in_cseq[index-strand_size], &in_structure[index-strand_size] );
+          new_elem = new orderinglist(strand_size, -1, def_tag, &in_seq[index-strand_size], &in_cseq[index-strand_size], &in_structure[index-strand_size] );
           // default tag is passed and copied, so this stack alloc should be fine.
 
           // TODO: do i want orderinglist to be circular? does it help anything?
@@ -157,7 +157,7 @@ StrandOrdering::StrandOrdering( char *in_seq, char *in_structure, char *in_cseq 
   if( in_seq[index-1] != '+' )
     {
       count++;
-      new_elem = new orderinglist (strand_size, -1, def_tag, &in_seq[index-strand_size], &in_cseq[index-strand_size], &in_structure[index-strand_size] );
+      new_elem = new orderinglist(strand_size, -1, def_tag, &in_seq[index-strand_size], &in_cseq[index-strand_size], &in_structure[index-strand_size] );
       // TODO: do i want orderinglist to be circular? does it help anything?
       if( first == NULL )
         first = last = new_elem;
@@ -209,7 +209,7 @@ StrandOrdering::StrandOrdering( char *in_seq, char *in_structure, char *in_cseq,
           if(strand_counter == 0 && sflag == 0)
             printf("Unconnected strand in initialized complex. Strandordering.cc\n");
           assert( traverse != NULL );
-          new_elem = new orderinglist (strand_size, traverse->uid, traverse->id, &in_seq[index-strand_size], &in_cseq[index-strand_size], &in_structure[index-strand_size] );
+          new_elem = new orderinglist(strand_size, traverse->uid, traverse->id, &in_seq[index-strand_size], &in_cseq[index-strand_size], &in_structure[index-strand_size] );
           traverse= traverse->next;
           // TODO: do i want orderinglist to be circular? does it help anything?
           if( first == NULL )
@@ -237,7 +237,7 @@ StrandOrdering::StrandOrdering( char *in_seq, char *in_structure, char *in_cseq,
     {
       count++;
       assert( traverse != NULL );
-      new_elem = new orderinglist (strand_size,traverse->uid, traverse->id, &in_seq[index-strand_size], &in_cseq[index-strand_size], &in_structure[index-strand_size] );
+      new_elem = new orderinglist(strand_size,traverse->uid, traverse->id, &in_seq[index-strand_size], &in_cseq[index-strand_size], &in_structure[index-strand_size] );
       traverse = traverse->next;
 
       // TODO: do i want orderinglist to be circular? does it help anything?

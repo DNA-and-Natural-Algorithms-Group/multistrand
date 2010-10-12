@@ -58,6 +58,7 @@ else:
                           sources=sources,
                           include_dirs=["./include"],
                           language="c++",
+                          libraries=['tcmalloc_minimal'],
 #                          define_macros=[('DEBUG',None),
 #                                         ('DEBUG_MACROS',None)],
 #                                         ('Py_TRACE_REFS',None)],
