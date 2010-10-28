@@ -1,33 +1,34 @@
 from ..utils import generate_sequence
 from strand import Strand
 
-class Domain(object):
-  """Represents a sequence domain, for use in defining strands and stop conditions for Multistrand.
 
-  Data Members:
-  id [default=automatic]: unique id representing this domain, automatically
-                          set as they are created.
-  name [required]: Name of this domain.
-  sequence [default=""]: Sequence of this domain, e.g. 'AGGCAGATA'
-  length [default=0]: Length of this domain. A 0-length domain may be useful
-                      in some rare cases. If sequence is set, length should
-                      ALWAYS be == len(sequence), but this is not strictly
-                      enforced.
-  is_complement [deprecated]: Whether this object is a complement of a different
-                              domain object. Should no longer be used, see other
-                              notations for handling this in Strand and higher
-                              level primitives.
+
+class Domain(object):
   """
-  unique_id = 0
-  
+  Represents a sequence domain, for use in defining strands and stop conditions for Multistrand.
+  """
+  _domain_unique_id = 0
+
   def __init__(self, *args, **kargs ):
+    """
+    Initialization:
+
+    Keyword Arguments:
+    name [type=str,required]       -- Name of this domain.
+    sequence [type=str,default=""] -- Sequence of this domain, e.g. 'AGGCAGATA'
+    length [default=0]             -- Length of this domain. A 0-length domain
+                                      may be useful in some rare cases. If
+                                      sequence is set, length should ALWAYS be
+                                      == len(sequence), but this is not strictly
+                                      enforced.
+    """
+
     if len(args)==4 or (len(args)==3 and 'is_complement' in kargs):
-      self.id, self.name, self.length = args
-      self.is_complement = (len(args)==4 and args[3]) or kargs['is_complement']
+      self.id, self.name, self.length = args[0:3]
       self.sequence = ""
     else:
-      self.id = Domain.unique_id
-      Domain.unique_id += 1
+      self.id = Domain._domain_unique_id
+      Domain._domain_unique_id += 1
       self.sequence = ""
       self.length = 0
       for k,v in kargs.iteritems():
@@ -43,7 +44,8 @@ class Domain(object):
 
   @property
   def C(self):
-    """ The complementary domain, specifically the one whose bases in
+    """
+    The complementary domain, specifically the one whose bases in
     the standard 5' to 3' ordering are exactly matching base pairs to
     the original.
 
@@ -54,6 +56,8 @@ class Domain(object):
     >>> b.sequence
     AATCCTCCT
     >>> b.name
+    >>> b.C == a
+    True
     """
     return ComplementaryDomain( self )
 
@@ -74,7 +78,8 @@ Domain : {fieldnames[0]:>9}: '{0.name}'\n\
 
 
 class ComplementaryDomain( Domain):
-  """Represents a complemented domain. Note that this is always
+  """
+  Represents a complemented domain. Note that this is always
   defined in terms of an original domain and does not have the same
   data members, instead providing an interface to the complementary
   members.
@@ -86,8 +91,7 @@ class ComplementaryDomain( Domain):
                 'T':'A'}
     
   def __init__(self, complemented_domain ):
-    self.id = ComplementaryDomain.unique_id
-    ComplementaryDomain.unique_id += 1
+    self.id = complemented_domain.id
     
     self._domain = complemented_domain
 
@@ -116,7 +120,8 @@ class ComplementaryDomain( Domain):
 
   @property
   def C(self):
-    """ The complementary domain, specifically the one whose bases in
+    """
+    The complementary domain, specifically the one whose bases in
     the standard 5' to 3' ordering are exactly matching base pairs to
     the original.
 
@@ -127,6 +132,8 @@ class ComplementaryDomain( Domain):
     >>> b.sequence
     AATCCTCCT
     >>> b.name
+    >>> b.C == a
+    True
     """
     return self._domain
 

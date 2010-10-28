@@ -146,10 +146,29 @@ should have the layout [{2}].".format( total_flat_length,
       -- A `set` of the unique strand names.
     """
     return set([i.id for i in self.strand_list])
+
+  def canonical_strand( self ):
+    """Return the name of the `canonical` strand for this complex.
+
+    This is either the strand name which appears first alphabetically,
+    or if no strands are named, this is just the name of the complex.
+
+    Return Value:
+      -- The string containing the canonical name.
+    """
+    return min(self.strand_list, key=lambda x: x.name).name
   
   def __len__(self):
-    """ This may not be a very good definition of length. See notes elsewhere."""
+    """ Length of a complex is the number of strands contained.
+
+    Use the attribute :attr:`sequence_length` if you need the sequence length. """
     return len(self.strand_list)
+
+  @property
+  def sequence_length( self ):
+    """ The total length of all contained strands. """
+    return len("".join([i.sequence for i in self.strand_list]))
+
 
   @property
   def structure(self):

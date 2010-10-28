@@ -1,9 +1,11 @@
 import warnings
 
 class Strand(object):
-  """Represents a Multistrand Strand object."""
+  """
+  Represents a Multistrand Strand object.
+  """
   unique_id = 0
-  
+
   def __init__(self, *args, **kargs ):
     """ Initializes a new Strand object. """
     if len(args) == 4:
@@ -26,14 +28,19 @@ class Strand(object):
 
   @property
   def sequence( self ):
-    """Returns the sequence of this strand, computing it as necessary from the domains.
+    """
+    The sequence associated with this strand, computing it as
+    necessary from the domains.
+    
+    Raises:
+    ValueError -- Is raised when this attribute is accessed and there was
+                  no sequence, either from Domains or by explicit assignment. 
 
-    Raises: ValueError
-      Occurs when the domains have not been initialized, or when the sequence was not set and there were no domains to query for sequences.
-
-    Note: If you set the sequence of a strand it must not have any
-    contained domains. If it does have domains, it will use those to
-    retreive a sequence.
+    .. warning::
+       While you may set the sequence of a Strand after creation,
+       it must **NOT** have any domains defined. In the future this behavior
+       may be changed, in which case it will implicitly set the sequences of
+       those domains.
     """
     if len(self.domain_list) == 0 and len(self._sequence) == 0:
       raise ValueError("ERROR: Strand was queried for a sequence, but it has no domains and no explicitly set sequence.")
@@ -47,7 +54,9 @@ class Strand(object):
 
   @sequence.setter
   def sequence( self, value ):
-    """ Check the passed in value to make sure it's sane. """
+    """
+    Check the passed in value to make sure it's sane.
+    """
     try:
       if not all([i.upper() in 'AGCT' for i in value]):
         raise ValueError("At least one of the bases in sequence [{0}] was not a valid base; The first offending character was '{1}', at position {2}.".format( value, value.lstrip('agctAGCT')[0], value.index( value.lstrip('agctAGCT')[0] ) ))
@@ -55,9 +64,8 @@ class Strand(object):
       raise ValueError("A strand may only be set to a string of valid bases.")
     self._sequence = value
 
-
   def __str__(self):
-    try: 
+    try:
       temp_seq = self.sequence
     except ValueError:
       temp_seq = self._sequence
@@ -66,12 +74,12 @@ class Strand(object):
     # want to actually print a strand at any point. Other types of
     # exceptions should still be passed on though, so we need to be
     # specific here.
-    
+
     if len(temp_seq) > 30:
       return "\
 Strand: {b}       Name:'{0.name}'\n\
       : Sequence [{2}]:{0.sequence}\n\
-      : {b}    Domains:{1}".format( self, 
+      : {b}    Domains:{1}".format( self,
                                     [i.name for i in self.domain_list],
                                     len(temp_seq),
                                     b=" "*(len(str(len(temp_seq)))))
@@ -117,13 +125,19 @@ Strand: {b}       Name:'{0.name}'\n\
 
   @property
   def C(self):
+    """
+    Returns a Strand object that is complementary to this one.
+    """
+
     return ComplementaryStrand(self)
 
 
 class ComplementaryStrand( Strand ):
-  """ Represents a complemented strand. This is always defined in
+  """
+  Represents a complemented strand. This is always defined in
   terms of an original strand, so that it reflects any change in the
-  original. It provides the same interfaces as a strand."""
+  original. It provides the same interfaces as a strand.
+  """
 
   complement = {'G':'C',
                 'C':'G',
@@ -131,13 +145,13 @@ class ComplementaryStrand( Strand ):
                 'T':'A'}
 
   unique_id = 0
-  
+
   def __init__( self, complemented_strand ):
     self.id = ComplementaryStrand.unique_id
     ComplementaryStrand.unique_id += 1
     self._strand = complemented_strand
     self._sequence = ""
-    
+
   @property
   def name( self ):
     if self._strand.name.endswith("*") or \
@@ -145,7 +159,7 @@ class ComplementaryStrand( Strand ):
       return self._strand.name.rstrip("*'")
     else:
       return self._strand.name + "*"
-    
+
   @property
   def sequence(self):
     self._sequence = "".join(
@@ -158,4 +172,12 @@ class ComplementaryStrand( Strand ):
   @property
   def domain_list(self):
     return [d.C for d in reversed(self._strand.domain_list)]
+
+  @property
+  def C(self):
+    """
+    Returns a Strand object that is complementary to this one.
+    """
+
+    return self._strand
 
