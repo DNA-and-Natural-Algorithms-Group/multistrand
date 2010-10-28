@@ -63,16 +63,12 @@ def findnames( data ):
         if keyname[0].isupper() and '_' not in keyname:
             res.append(keyname)
     return res
-    
-def plotdata( self=None, data=None, label="", namecolors=None, avg = False, interval = None, user=False, offset=None, xrange=False, *args, **kargs ):
+
+def plotdata( self=None, data=None, label="", namecolors=None, avg = False, interval = None, user=False, offset=None, x_range=False, *args, **kargs ):
     """ Plots the data set, using the label name and optional args as given to
     select the plotting function style.
 
-    data: should be a data set of the sort returned by load_numbered;
-          specifically, it's a dictionary, whose keys correspond to lengths,
-          and each value is a list of all the data points [different seqs] for
-          that length. The data points themselves are dictionaries of time values, see
-          Length_Result for an example of one.
+    data: should be a SpeedTestData object (see utils_load.py)
 
     label: Must be a string which has exactly one positional specifier, it will be replaced
            with the successive data series names.
@@ -86,15 +82,14 @@ def plotdata( self=None, data=None, label="", namecolors=None, avg = False, inte
     plotfunc = (avg and pyp.plot) or \
                (interval and pyp.fill_between) or \
                pyp.scatter
-    plotkargs = (avg and [('linewidth',2.0)] ) or \
+    plotkargs = (avg and [('linewidth',1.0)] ) or \
                 (interval and [('alpha',0.2)] ) or \
                  [('s',0.5)]
     for k,v in plotkargs:
         kargs.setdefault(k,v)
     # this prevents the defaults from overwriting any passed in kargs for those names.
     
-    names = findnames( data )
-    names.sort()
+    names = data.names
 
     if 'colors' in kargs:
         colordict = kargs['colors']
@@ -106,19 +101,15 @@ def plotdata( self=None, data=None, label="", namecolors=None, avg = False, inte
             colordict = self.namecolors
         else:
             colordict = {}
-    if xrange:
-        data = data.copy()
-        # shallow copy, as we need to remove some keys here but not in the global dict.
-        # note that this sets the variable 'data' to the new value, rather than updating
-        # the k/v pairs in the already existing variable 'data'.
-        for k in data.keys():
-            if xrange[0] > k or xrange[1] <= k:
-                del data[k]
+
+    if x_range:
+        keyrange = [i for i in keyrange if x_range[0] <= i and x_range[1] > i]
+
     for n in names:
         kargs['label'] = label.format(n)
         kargs['color'] = colordict.get(n,'g')
                 
-        ds = utils_load.data_series( data, name=n, avg=avg, interval=interval, user=user )
+        ds = data.data_series( name=n, avg=avg, interval=interval )
         if offset != None:
             ds[:,0] += offset
         if names.index(n) == 0:

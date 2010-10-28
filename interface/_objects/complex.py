@@ -37,7 +37,7 @@ class Complex(object):
   """
   unique_id = 0
   
-  def __init__(self, name=None, boltzmann_sample=False,*args, **kargs):
+  def __init__(self, *args, **kargs):
     """
     Initialization:
     

@@ -1,3 +1,22 @@
+* References into break/add basepairs.
+** Source
+#+srcname: grep_basepairs
+#+begin_src sh :exports results :results output
+      echo "_____ addBasepair _____"
+      grep -n addBasepair */*.cc
+      echo "_____ breakBasepair _____"
+      grep -n breakBasepair */*.cc
+#+end_src
+
+** Basepair locations
+   state/scomplex.cc:134:new_ordering->addBasepair( locations[0], 
+                                                    locations[1] );
+   state/scomplex.cc:175:    ordering->breakBasepair( move->getAffected(0)->getLocation( move, 0 ), move->getAffected(1)->getLocation( move, 1));
+   state/scomplex.cc:188:    ordering->addBasepair(   move->getAffected(0)->getLocation( move, 0 ), 
+   state/scomplex.cc:191:    ordering->breakBasepair( move->getAffected(0)->getLocation( move, 0 ), 
+
+
+
 * Energy Model Maintenance
 ** Vienna
 *** DONE StackEnergy
@@ -104,6 +123,7 @@ Total: 6369 samples
 ** TODO Docstring checking.
    Make our python files have better docstrings for auto generation of
    docs.
+
 
 * DONE File / Directory TODO List
   Files have been fully ported from old Multistrand into at least a
@@ -275,10 +295,16 @@ Total: 6369 samples
      CLOSED: [2010-08-23 Mon 02:59]
      - State "CANCELED"   from "PENDING"    [2010-08-23 Mon 02:59] \\
        No longer needed, sub directories are managed via the main Makefile in a clean way. See other notes re: that implementation.
-***** LATER split up makefiles
+***** CANCELED split up makefiles
+      CLOSED: [2010-09-30 Thu 18:29]
+      - State "CANCELED"   from "LATER"      [2010-09-30 Thu 18:29] \\
+        See note for containing tree.
       - State "LATER"      from "TODO"       [2010-08-22 Sun 07:18] \\
         May not be necessary, new makefile format is a lot cleaner than before.
-***** TODO sanity check
+***** CANCELED sanity check
+      CLOSED: [2010-09-30 Thu 18:29]
+      - State "CANCELED"   from "TODO"       [2010-09-30 Thu 18:30] \\
+        See note for containing tree.
 **** DONE Primary targets work: all, python-interface
      All works fine, python-interface works up to boost errors.
      CLOSED: [2010-08-22 Sun 08:13]

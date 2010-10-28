@@ -303,7 +303,6 @@ void SimulationSystem::SimulationLoop_Trajectory( long output_count_interval, do
       printStatusLine(system_options,    current_seed, 
                       STOPRESULT_NORMAL, current_simulation_time, 
                       tag );
-      delete first;
     }
   else
     printStatusLine(system_options,  current_seed, 

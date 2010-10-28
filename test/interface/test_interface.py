@@ -40,7 +40,7 @@ def run_trajectory():
   o.use_stop_states = True
   o.parameter_type  = 1
   o.substrate_type  = 2
-  o.num_simulations = 3
+  o.num_simulations = 100
   o.simulation_time = 0.5
   o.initial_seed = 2
   o.start_state = [c1, c2]
@@ -53,6 +53,7 @@ def run_trajectory():
   s.start()
   print "after call to start."
   print o.interface
+  return o
   
 #  tag, time, rate = o.interface.current_tag, o.interface.current_time, o.interface.collision_rate
   del s

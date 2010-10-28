@@ -27,6 +27,8 @@ if 'MULTISTRANDHOME' in os.environ:
             multihome= os.environ['MULTISTRANDHOME']     
 
 idx = os.getcwd().find( os.path.join('testing','speed') )
+if idx == -1:
+    idx = os.getcwd().find( os.path.join('test','speed') )
 if idx > -1:
     rootpath = os.path.abspath(os.getcwd()[:idx])
     #abspath cleans up the tail of the pathname as needed.
@@ -34,7 +36,7 @@ if idx > -1:
         sys.path.append( rootpath )
 elif multihome != None:
     sys.path.append(multihome)
-    
+
 try:
     from multistrand.objects import Strand, Complex, Domain
     from multistrand.options import Options, Constants
@@ -42,7 +44,7 @@ try:
     import multistrand.utils
 except ImportError:
     # we want to tell the user how to fix this, but then reraise so it still fails. 
-    print("Could not import Multistrand, please add it to your sys.path, or make sure that MULTISTRANDHOME is set correctly. This sub-program can also be run from the native testing/speed/ directory.")
+    print("Could not import Multistrand, please add it to your sys.path, or make sure that MULTISTRANDHOME is set correctly. This sub-program can also be run from the native test/speed/ directory.")
     raise
 
 
@@ -58,7 +60,7 @@ def timer( f ):
     return res
 
 
-class Length_Result( dict ):
+class LengthResult( dict ):
     def __init__(self, in_dictionary):
         dict.__init__( self, in_dictionary )
         
@@ -85,11 +87,11 @@ class Length_Result( dict ):
                     if k.startswith('Multistrand'):
                         userplussys = v[0] + v[1]
                         self[k+'_user_sys']  = userplussys
-                    # if numpy.allclose( userplussys, v[4], .01 ):
-                    #     self[k+'_close'] = True
-                    # else:
-                    #     self[k+'_close'] = False
-                    self[k] = v[4]
+                    if numpy.allclose( userplussys, v[4], .01 ):
+                        self[k+'_close'] = True
+                    else:
+                        self[k+'_close'] = False
+                    self[k+'_computed'] = v[4]
 
             except TypeError:
                 pass
@@ -105,7 +107,20 @@ class Length_Result( dict ):
         if self.load != None:
             res += "\n{0:>11} : {1.load}".format( 'Load', self )
         return res
+
+    def __repr__(self):
+        res = "LengthResult({"
         
+        keyvals = [i for i in self.iteritems()]
+        for k,v in keyvals:
+            if '_' in k and not k.endswith('_init'):
+                continue
+            if not res.endswith('{'):
+                res += ','
+            res += "{0!r} : {1!r}".format(k,v)
+
+        res += "})"
+        return res
         
 
 class Speedtest_FromFile( unittest.TestCase ):
@@ -175,24 +190,23 @@ class Speedtest_FromFile( unittest.TestCase ):
 
         print("Sequence {2} [{3}]: {0:>35} | {1}".format(  times_kin[0][2] + times_kin[0][3], times_ms[0][0] + times_ms[0][1], idx, len(seq)),sep="")
         f = open(filename,'wt')
-        f.write( "Length_Result({0})".format(
-            repr( {'Kinfold':times_kin[0],
-                   'Multistrand':times_ms[0],
-                   'Kinfold_init':tuple([j-i for i,j in zip(times_kin[0], times_kin[1])]),
-                   'Multistrand_init':tuple([j-i for i,j in zip(times_ms[0], times_ms[1])]),
-                   'maxtime':time,
-                   'length':len(seq),
-                   'load':os.getloadavg()} ) )
-                 )
+        f.write( repr( LengthResult(
+            {'Kinfold':times_kin[0],
+             'Multistrand':times_ms[0],
+             'Kinfold_init':tuple([j-i for i,j in zip(times_kin[0], times_kin[1])]),
+             'Multistrand_init':tuple([j-i for i,j in zip(times_ms[0], times_ms[1])]),
+             'maxtime':time,
+             'length':len(seq),
+             'load':os.getloadavg()})))
         f.close()
 
     @timer
-    def setup_kinfold( self, sequence, time, count,structure ):
-        kinfoldproc = subprocess.Popen(["Kinfold","--noShift","--logML","--start","--fpt","--time","{0:f}".format(time),"--num","{0:d}".format(count),"--silent","--dangle","0","--Par","dna.par"], stdin=subprocess.PIPE, stdout=subprocess.PIPE )
+    def setup_kinfold( self, sequence, time, count ):
+        kinfoldproc = subprocess.Popen(["Ksim","--noShift","--logML","--start","--fpt","--time","{0:f}".format(time),"--num","{0:d}".format(count),"--silent","--dangle","0","--Par","dna.par"], stdin=subprocess.PIPE, stdout=subprocess.PIPE )
 
         sequence = sequence.replace("T","U")
         if structure == None:
-            input_str = "{0}\n{1}\n".format( sequence,"."*len(sequence))
+        input_str = "{0}\n{1}\n".format( sequence, "."*len(sequence) )
         else:
             input_str = "{0}\n{1}\n".format( sequence,structure)                                         
 
@@ -223,6 +237,7 @@ class Speedtest_FromFile( unittest.TestCase ):
         def runOnce():
             s.start()
             self.output_multistrand = str(input_o.interface.results)
+            print(self.output_multistrand)
 
         res = runOnce()[1]
         return res
@@ -291,9 +306,9 @@ class MyRunner( object ):
     def __init__( self, testcase ):
         class DevNull(object):
             def write(self, _): pass
-        unittest.TextTestRunner( descriptions=0,verbosity=0,stream=DevNull()).run( testcase )
-        #unittest.TextTestRunner( descriptions=1,verbosity=1).run( testcase )
-
+        #unittest.TextTestRunner( descriptions=0,verbosity=0,stream=DevNull()).run( testcase )
+        unittest.TextTestRunner( descriptions=1,verbosity=1).run( testcase )
+    
 
 class Length_Tests( Multistrand_Suite_Base ):
     """ Uses the Speedtest_FromFile testcase class to run a bunch of test cases. """
@@ -327,19 +342,32 @@ class Length_Tests( Multistrand_Suite_Base ):
                     time_to_sim = self._times[k]
                 else:
                     time_to_sim = (len(self._lengths[k][i]) <= 40 and 5000.0) or 1000.0
-                
+                if i > 2:
+                    break
                 self._suite.addTest( Speedtest_FromFile('{idx}:{time}:{prefix}:{seq}'.format( idx=i, time=time_to_sim, prefix=file_prefix, seq=self._lengths[k][i])))
 
-
+        
+if __name__ == '__main__':
+    pass
+    #short_lengths = Length_Tests( range(20,100,2), [5000.0]*11 + [1000.0]*39, 'length_short/')
+    #long_lengths = Length_Tests( range(100,205,5), [1000.0] * 21, 'length_longs/')
+    #very_long_lengths = Length_Tests( range(210,310,10), [100.0] * 10, 'length_very_longs/')
+    single_short = Length_Tests( [30], [5000.0], 'newblock/')
+    del single_short._suite._tests[3:]
+    #single_long = Length_Tests( [105], [1000.0], 'length_longs/')
+    #single_long.runTests_Async(shuffle_tasks=False)
+    #very_long_lengths.runTests_Async()
+    #long_lengths.runTests_Async()
+    single_short.runTests_Async()
 class Fourway_BM_Tests( Multistrand_Suite_Base ):
     """ Uses the Speedtest_FromFile testcase class to run tests on
     4-way branch migration systems."""
-    
+
     def __init__(self, lengths, times, file_prefix = ""):
         self._suite = unittest.TestSuite()
         self._lengths = {}
         self._times = {}
-        
+
         for l in lengths:
             self._lengths[str(l)] = []
         for l,t in zip(lengths, times):
@@ -351,14 +379,14 @@ class Fourway_BM_Tests( Multistrand_Suite_Base ):
         d = Domain(name='d', length=4, sequence='AAGG')
         T = Domain(name='T', length=3, sequence='AAA')
         L = Domain(name='L')
-
+        
         primary_strand = a + L + b + T + b.C + L.C + c + T + c.C + L + d + T + d.C + L.C + a.C
         primary_strand.name = "Primary"
-        
+
         for n in self._lengths.keys():
             if n > 0 and not os.path.isfile(file_prefix + 'length_{0}_sequences_random.dat'.format( n )):
                 f = open(file_prefix + 'length_{0}_sequences_random.txt'.format(n),'wt')
-                
+
                 for i in range(100):
                     self._lengths[n].append( multistrand.utils.generate_sequence( int(n)))
 
@@ -387,13 +415,13 @@ class Fourway_BM_Tests( Multistrand_Suite_Base ):
                     time_to_sim = (len(self._lengths[k][i]) <= 40 and 5000.0) or 1000.0
                 if len(bm_complex.sequence) != len(bm_complex.structure):
                     raise ValueError("Sequence mismatch.")
-                
+
                 self._suite.addTest( Speedtest_FromFile('{idx}:{time}:{prefix}:{seq}:{struc}'.format( idx=i, time=time_to_sim, prefix=file_prefix, seq=bm_complex.sequence, struc=bm_complex.structure)))
 
 class Threeway_BM_Tests( Multistrand_Suite_Base ):
     """ Uses the Speedtest_FromFile testcase class to run tests on
     3-way branch migration systems."""
-    
+
     def __init__(self, lengths, times, file_prefix = ""):
         self._suite = unittest.TestSuite()
         self._lengths = {}
