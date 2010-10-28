@@ -44,7 +44,7 @@ try:
     import multistrand.utils
 except ImportError:
     # we want to tell the user how to fix this, but then reraise so it still fails. 
-    print("Could not import Multistrand, please add it to your sys.path, or make sure that MULTISTRANDHOME is set correctly. This sub-program can also be run from the native testing/speed/ directory.")
+    print("Could not import Multistrand, please add it to your sys.path, or make sure that MULTISTRANDHOME is set correctly. This sub-program can also be run from the native test/speed/ directory.")
     raise
 
 
@@ -227,6 +227,7 @@ class Speedtest_FromFile( unittest.TestCase ):
         def runOnce():
             s.start()
             self.output_multistrand = str(input_o.interface.results)
+            print(self.output_multistrand)
 
         res = runOnce()[1]
         return res
@@ -342,12 +343,13 @@ if __name__ == '__main__':
     #short_lengths = Length_Tests( range(20,100,2), [5000.0]*11 + [1000.0]*39, 'length_short/')
     #long_lengths = Length_Tests( range(100,205,5), [1000.0] * 21, 'length_longs/')
     #very_long_lengths = Length_Tests( range(210,310,10), [100.0] * 10, 'length_very_longs/')
-    #single_short = Length_Tests( [30], [5000.0], 'length_short/')
+    single_short = Length_Tests( [30], [5000.0], 'newblock/')
+    del single_short._suite._tests[3:]
     #single_long = Length_Tests( [105], [1000.0], 'length_longs/')
     #single_long.runTests_Async(shuffle_tasks=False)
     #very_long_lengths.runTests_Async()
     #long_lengths.runTests_Async()
-    #single_short.runTests_Async()
+    single_short.runTests_Async()
 
 
 
