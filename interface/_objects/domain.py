@@ -114,6 +114,10 @@ class ComplementaryDomain( Domain):
     else:
       return "".join([ComplementaryDomain.complement[i] for i in reversed(self._domain.sequence.upper())])
 
+  @sequence.setter
+  def sequence( self, value ):
+    self._domain.sequence = "".join([ComplementaryDomain.complement[i] for i in reversed(value.upper())])
+
   def gen_sequence( self, *args, **kargs ):
     """ Uses the same parameters as 'multistrand.utils.generate_sequence', but sets the length to the domain's length."""
     self._domain.gen_sequence( *args, **kargs )

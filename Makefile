@@ -134,12 +134,7 @@ Multistrand: Multistrand-internal
 # clear out all the implicit rules that might be run.
 
 # Targets for cleaning up our builds.
-clean:
-	@echo Cleaning up old object files, executables. 
-	-rm -f core
-	-rm -f Multistrand
-	-rm -f $(OBJECTS)
-	-rm -f $(MAIN_OBJECT)
+clean: package-clean
 
 package-clean:
 	@echo Cleaning up old object files, shared libraries.

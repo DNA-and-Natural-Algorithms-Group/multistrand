@@ -38,9 +38,20 @@ class Strand(object):
 
     .. warning::
        While you may set the sequence of a Strand after creation,
-       it must **NOT** have any domains defined. In the future this behavior
-       may be changed, in which case it will implicitly set the sequences of
-       those domains.
+       if domains are defined and the given sequence does not match that
+       domain specification, result is undefined. In the future this will
+       have error checking.
+
+       The following are examples of things you should not do:
+       
+       >>> d = Domain(name="d", length=5)
+       >>> s = Strand(name="s", domains=[d, d])
+       >>> s.sequence = "ACTG"
+       >>> print len(d.sequence) == d.length
+       False
+       >>> s.sequence = "AAAAATTTTT"
+       >>> print d.sequence
+       TTTTT
     """
     if len(self.domain_list) == 0 and len(self._sequence) == 0:
       raise ValueError("ERROR: Strand was queried for a sequence, but it has no domains and no explicitly set sequence.")
@@ -62,7 +73,15 @@ class Strand(object):
         raise ValueError("At least one of the bases in sequence [{0}] was not a valid base; The first offending character was '{1}', at position {2}.".format( value, value.lstrip('agctAGCT')[0], value.index( value.lstrip('agctAGCT')[0] ) ))
     except TypeError:
       raise ValueError("A strand may only be set to a string of valid bases.")
-    self._sequence = value
+
+    if not self.domain_list:
+      self._sequence = value
+    else:
+      # Do some error checking (lengths, domain assumptions, etc.)
+      current = 0
+      for d in self.domain_list:
+        d.sequence = value[current:current + d.length]
+        current += d.length
 
   def __str__(self):
     try:

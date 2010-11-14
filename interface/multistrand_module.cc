@@ -16,8 +16,10 @@
 #include <string.h>
 /* for strcmp */
 
+#ifdef PROFILING
 #include "google/profiler.h"
 #include "google/heap-profiler.h"
+#endif
 
 typedef struct {
   PyObject_HEAD

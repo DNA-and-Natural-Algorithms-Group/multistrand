@@ -49,8 +49,8 @@ def setup_flags():
 def setup_libcheck():
     # Find the library path [so we can check for tcmalloc].
     import os, os.path
-    ldflags = config_vars['LDFLAGS'].split()
-    for libpath in ldflags + os.environ['LIBRARY_PATH'].split():
+    ldflags = config_vars['LDFLAGS'].split() + ['/usr/lib']
+    for libpath in ldflags + os.environ.get('LIBRARY_PATH', '').split():
         if libpath.startswith('-L'):
             pathname = libpath[2:] # strip the -L from each entry
         else:
@@ -68,7 +68,7 @@ def setup_libcheck():
 def setup_ext( have_tcmalloc):    
     import sys
     if have_tcmalloc:
-        tcmalloc_optional = ['tcmalloc']
+        tcmalloc_optional = ['tcmalloc_minimal']
     else:
         tcmalloc_optional = []
     if '--use-debug-defs' in sys.argv:

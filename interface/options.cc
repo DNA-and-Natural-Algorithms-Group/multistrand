@@ -60,7 +60,7 @@ class stopcomplexes *getStopComplexList(PyObject *options, int index)
             count = getLongItemFromTuple(tuple, 2);
             // none of these steal the reference, only borrow.
 
-            structure = getStringAttr(cmplx, structure, pyo_structure);
+            structure = getStringAttr(cmplx, _fixed_structure, pyo_structure);
 
             strand_list = getListAttr(cmplx, strand_list);
             // new reference
