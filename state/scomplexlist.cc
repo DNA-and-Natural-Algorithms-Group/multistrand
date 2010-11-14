@@ -1,20 +1,17 @@
 /*
-   Copyright (c) 2007-2008 Caltech. All rights reserved.
-   Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
+  Copyright (c) 2007-2008 Caltech. All rights reserved.
+  Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
 */
  
 #include "scomplexlist.h"
-#include "options.h"
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
 #include <math.h>
 
-//extern Options *GlobalOptions;
-
 /*
 
-    SComplexListEntry Constructor/Destructor
+  SComplexListEntry Constructor/Destructor
 
 
 */
@@ -40,7 +37,7 @@ SComplexListEntry::~SComplexListEntry( void )
 
 /*
 
-    SComplexListEntry - InitializeComplex and FillData 
+  SComplexListEntry - InitializeComplex and FillData 
 
 
 */
@@ -58,9 +55,8 @@ void SComplexListEntry::fillData( EnergyModel *em )
   // thisComplex->fillVisData( &visiblebases )
 }
 
-
 /*
-    SComplexListEntry::printComplex
+  SComplexListEntry::printComplex
 */
 
 void SComplexListEntry::printComplex( int printtype, EnergyModel *em )
@@ -103,6 +99,13 @@ SComplexList::SComplexList( EnergyModel *energyModel )
 
 SComplexList::~SComplexList( void )
 {
+  SComplexListEntry* traverse;
+  traverse = first;
+  while( traverse != NULL )
+    {
+      traverse->thisComplex->cleanup();
+      traverse = traverse->next;
+    }
   if( first != NULL )
     delete first;
 }
@@ -129,7 +132,7 @@ SComplexListEntry *SComplexList::addComplex( StrandComplex *newComplex )
 }
 
 /*
-    SComplexList::initializeList
+  SComplexList::initializeList
 */ 
 
 void SComplexList::initializeList( void )
@@ -144,7 +147,7 @@ void SComplexList::initializeList( void )
 }
 
 /*
-    SComplexList::getTotalFlux
+  SComplexList::getTotalFlux
 */
 
 double SComplexList::getTotalFlux( void )
@@ -162,15 +165,15 @@ double SComplexList::getTotalFlux( void )
 }
 
 /*
-    double SComplexList::getJoinFlux( void )
+  double SComplexList::getJoinFlux( void )
 
-    Computes the total flux of moves which join pairs of complexes. 
+  Computes the total flux of moves which join pairs of complexes. 
 
-    Algorithm: 
-    1. Sum all exterior bases in all complexes. 
-    2. For each complex, subtract that complex's exterior bases from the sum.
-       2a. Using the new sum, compute sum.A * complex.T + sum.T * complex.A * sum.G * complex.C + sum.C * complex.G
-       2b. Add this amount * rate per join move to total.    
+  Algorithm: 
+  1. Sum all exterior bases in all complexes. 
+  2. For each complex, subtract that complex's exterior bases from the sum.
+  2a. Using the new sum, compute sum.A * complex.T + sum.T * complex.A * sum.G * complex.C + sum.C * complex.G
+  2b. Add this amount * rate per join move to total.    
 */
 
 double SComplexList::getJoinFlux( void )
@@ -224,9 +227,32 @@ double SComplexList::getJoinFlux( void )
 }
 
 
+/*
+  SComplexList::getEnergy( int volume_flag )
+*/
+
+double *SComplexList::getEnergy( int volume_flag )
+{
+  SComplexListEntry *temp = first;
+  double *energies = new double[numentries];
+  int index = 0;
+  while( temp != NULL )
+    {
+      energies[index] = temp->energy;
+
+      if( volume_flag & 0x01)
+        energies[index] -= (dnaEnergyModel->getVolumeEnergy() * (temp->thisComplex->getStrandCount() - 1));
+      if( volume_flag & 0x02)
+        energies[index] -= (dnaEnergyModel->getAssocEnergy() * (temp->thisComplex->getStrandCount() -1));
+
+      temp = temp->next;
+      index = index + 1;
+    }
+  return energies;
+}
 
 /*
-    SComplexList::printComplexList
+  SComplexList::printComplexList
 */
 
 void SComplexList::printComplexList( int printoptions )
@@ -240,8 +266,13 @@ void SComplexList::printComplexList( int printoptions )
     }
 }
 
+
+int SComplexList::getCount( void )
+{
+  return numentries;
+}
 /*
-    SComplexList::doBasicChoice( double choice, double newtime )
+  SComplexList::doBasicChoice( double choice, double newtime )
 */
 
 void SComplexList::doBasicChoice( double choice, double newtime )
@@ -267,16 +298,16 @@ void SComplexList::doBasicChoice( double choice, double newtime )
   while( temp != NULL )
     {
       if( rchoice < temp->rate && pickedComplex == NULL)
-	{
-	  pickedComplex = temp->thisComplex;
-	  temp2 = temp;
-	}
+        {
+          pickedComplex = temp->thisComplex;
+          temp2 = temp;
+        }
       if( pickedComplex == NULL )
-	{
-	  //	  assert( rchoice != temp->rate && temp->next == NULL);
-	  rchoice -= temp->rate;
+        {
+          //	  assert( rchoice != temp->rate && temp->next == NULL);
+          rchoice -= temp->rate;
 	
-	}
+        }
       temp = temp->next;
     }
 
@@ -298,23 +329,23 @@ void SComplexList::doBasicChoice( double choice, double newtime )
   temp2->fillData( dnaEnergyModel );
 
   /*  struc = pickedComplex->getStructure();
-  int temp1=0;
-  for( int loop = 0; loop < strlen(struc); loop++)
-    {
+      int temp1=0;
+      for( int loop = 0; loop < strlen(struc); loop++)
+      {
       if(struc[loop] == '(') temp1++;
       if(struc[loop] == ')') temp1--;
       assert( temp1 >= 0 );
       if(loop > 0)
-	assert( !(struc[loop-1]=='(' && struc[loop] == ')'));
-    }
+      assert( !(struc[loop-1]=='(' && struc[loop] == ')'));
+      }
   
-    assert( temp1 == 0 );*/
+      assert( temp1 == 0 );*/
 
 }
 
 
 /*
-    SComplexList::doJoinChoice( double choice )
+  SComplexList::doJoinChoice( double choice )
 */
 
 
@@ -360,119 +391,119 @@ void SComplexList::doJoinChoice( double choice )
       total_bases.T -= ext_bases->T;
 
       if( int_choice < total_bases.A * ext_bases->T )
-	{
-	  picked[0] = temp->thisComplex;
-	  types[0] = 4;
-	  types[1] = 1;
-	  temp = temp->next;
-	  while( temp != NULL )
-	    {
-	      ext_bases_temp = temp->thisComplex->getExteriorBases();
+        {
+          picked[0] = temp->thisComplex;
+          types[0] = 4;
+          types[1] = 1;
+          temp = temp->next;
+          while( temp != NULL )
+            {
+              ext_bases_temp = temp->thisComplex->getExteriorBases();
 
-	      if( int_choice < ext_bases_temp->A * ext_bases->T )
-		{
-		  picked[1] = temp->thisComplex;
-		  index[0] = (int) floor( int_choice / ext_bases_temp->A );
-		  index[1] = int_choice - index[0]*ext_bases_temp->A;
-		  temp = NULL;
-		}
-	      else
-		{
-		  temp = temp->next;
-		  int_choice -= ext_bases_temp->A * ext_bases->T;
-		}
-	    }
-	  continue; // We must have picked something, thus temp must be NULL and we need to exit the loop.
-	}
+              if( int_choice < ext_bases_temp->A * ext_bases->T )
+                {
+                  picked[1] = temp->thisComplex;
+                  index[0] = (int) floor( int_choice / ext_bases_temp->A );
+                  index[1] = int_choice - index[0]*ext_bases_temp->A;
+                  temp = NULL;
+                }
+              else
+                {
+                  temp = temp->next;
+                  int_choice -= ext_bases_temp->A * ext_bases->T;
+                }
+            }
+          continue; // We must have picked something, thus temp must be NULL and we need to exit the loop.
+        }
       else
-	int_choice -= total_bases.A * ext_bases->T;
+        int_choice -= total_bases.A * ext_bases->T;
 
       if( int_choice < total_bases.T * ext_bases->A )
-	{
-	  picked[0] = temp->thisComplex;
-	  types[0] = 1;
-	  types[1] = 4;
-	  temp = temp->next;
-	  while( temp != NULL )
-	    {
-	      ext_bases_temp = temp->thisComplex->getExteriorBases();
+        {
+          picked[0] = temp->thisComplex;
+          types[0] = 1;
+          types[1] = 4;
+          temp = temp->next;
+          while( temp != NULL )
+            {
+              ext_bases_temp = temp->thisComplex->getExteriorBases();
 
-	      if( int_choice < ext_bases_temp->T * ext_bases->A )
-		{
-		  picked[1] = temp->thisComplex;
-		  index[0] = (int) floor( int_choice / ext_bases_temp->T );
-		  index[1] = int_choice - index[0]*ext_bases_temp->T;
-		  temp = NULL;
-		}
-	      else
-		{
-		  temp = temp->next;
-		  int_choice -= ext_bases_temp->T * ext_bases->A;
-		}
-	    }
-	  continue;
-	}
+              if( int_choice < ext_bases_temp->T * ext_bases->A )
+                {
+                  picked[1] = temp->thisComplex;
+                  index[0] = (int) floor( int_choice / ext_bases_temp->T );
+                  index[1] = int_choice - index[0]*ext_bases_temp->T;
+                  temp = NULL;
+                }
+              else
+                {
+                  temp = temp->next;
+                  int_choice -= ext_bases_temp->T * ext_bases->A;
+                }
+            }
+          continue;
+        }
       else
-	int_choice -= total_bases.T * ext_bases->A;
+        int_choice -= total_bases.T * ext_bases->A;
 
       if( int_choice < total_bases.G * ext_bases->C )
-	{
-	  picked[0] = temp->thisComplex;
-	  types[0] = 2;
-	  types[1] = 3;
-	  temp = temp->next;
-	  while( temp != NULL )
-	    {
-	      ext_bases_temp = temp->thisComplex->getExteriorBases();
+        {
+          picked[0] = temp->thisComplex;
+          types[0] = 2;
+          types[1] = 3;
+          temp = temp->next;
+          while( temp != NULL )
+            {
+              ext_bases_temp = temp->thisComplex->getExteriorBases();
 
-	      if( int_choice < ext_bases_temp->G * ext_bases->C )
-		{
-		  picked[1] = temp->thisComplex;
-		  index[0] = (int) floor( int_choice / ext_bases_temp->G);
-		  index[1] = int_choice - index[0]*ext_bases_temp->G;
-		  temp = NULL;
-		}
-	      else
-		{
-		  temp = temp->next;
-		  int_choice -= ext_bases_temp->G * ext_bases->C;
-		}
-	    }
-	  continue;
-	}
+              if( int_choice < ext_bases_temp->G * ext_bases->C )
+                {
+                  picked[1] = temp->thisComplex;
+                  index[0] = (int) floor( int_choice / ext_bases_temp->G);
+                  index[1] = int_choice - index[0]*ext_bases_temp->G;
+                  temp = NULL;
+                }
+              else
+                {
+                  temp = temp->next;
+                  int_choice -= ext_bases_temp->G * ext_bases->C;
+                }
+            }
+          continue;
+        }
       else
-	int_choice -= total_bases.G * ext_bases->C;
+        int_choice -= total_bases.G * ext_bases->C;
 
       if( int_choice < total_bases.C * ext_bases->G )
-	{
-	  picked[0] = temp->thisComplex;
-	  types[0] = 3;
-	  types[1] = 2;
-	  temp = temp->next;
-	  while( temp != NULL )
-	    {
-	      ext_bases_temp = temp->thisComplex->getExteriorBases();
+        {
+          picked[0] = temp->thisComplex;
+          types[0] = 3;
+          types[1] = 2;
+          temp = temp->next;
+          while( temp != NULL )
+            {
+              ext_bases_temp = temp->thisComplex->getExteriorBases();
 
-	      if( int_choice < ext_bases_temp->C * ext_bases->G )
-		{
-		  picked[1] = temp->thisComplex;
-		  index[0] = (int) floor( int_choice / ext_bases_temp->C );
-		  index[1] = int_choice - index[0]*ext_bases_temp->C;
-		  temp = NULL;
-		}
-	      else
-		{
-		  temp = temp->next;
-		  int_choice -= ext_bases_temp->C * ext_bases->G;
-		}
-	    }
-	  continue;
-	}
+              if( int_choice < ext_bases_temp->C * ext_bases->G )
+                {
+                  picked[1] = temp->thisComplex;
+                  index[0] = (int) floor( int_choice / ext_bases_temp->C );
+                  index[1] = int_choice - index[0]*ext_bases_temp->C;
+                  temp = NULL;
+                }
+              else
+                {
+                  temp = temp->next;
+                  int_choice -= ext_bases_temp->C * ext_bases->G;
+                }
+            }
+          continue;
+        }
       else
-	int_choice -= total_bases.C * ext_bases->G;
+        int_choice -= total_bases.C * ext_bases->G;
 
       if( temp != NULL )
-	temp = temp->next;
+        temp = temp->next;
     }
 
   deleted = StrandComplex::performComplexJoin( picked, types, index );
@@ -483,15 +514,15 @@ void SComplexList::doJoinChoice( double choice )
   for( temp = first; temp != NULL; temp = temp->next )
     {
       if( temp->thisComplex == picked[0] )
-	temp->fillData( dnaEnergyModel );
+        temp->fillData( dnaEnergyModel );
       if( temp->next != NULL )
-	if( temp->next->thisComplex == deleted )
-	  {
-	    temp2 = temp->next;
-	    temp->next = temp2->next;
-	    temp2->next = NULL;
-	    delete temp2;
-	  }
+        if( temp->next->thisComplex == deleted )
+          {
+            temp2 = temp->next;
+            temp->next = temp2->next;
+            temp2->next = NULL;
+            delete temp2;
+          }
 
     }
   if( first->thisComplex == deleted )
@@ -509,7 +540,7 @@ void SComplexList::doJoinChoice( double choice )
 
 /*
 
-   int SComplexList::checkStopComplexList( class complex_item *stoplist )
+  int SComplexList::checkStopComplexList( class complex_item *stoplist )
 
 */
 int SComplexList::checkStopComplexList( class complex_item *stoplist )
@@ -523,7 +554,7 @@ int SComplexList::checkStopComplexList( class complex_item *stoplist )
 
 /*
 
-   int SComplexList::checkStopComplexList_Bound( class complex_item *stoplist )
+  int SComplexList::checkStopComplexList_Bound( class complex_item *stoplist )
 
 */
 
@@ -547,24 +578,17 @@ int SComplexList::checkStopComplexList_Bound( class complex_item *stoplist )
       entry_traverse = first;
       k_flag = 0;
       while( entry_traverse != NULL && k_flag == 0)
-	{
-	  k_flag += entry_traverse->thisComplex->checkIDBound( id_traverse->id );
-	  entry_traverse = entry_traverse->next;
-	}
+        {
+          k_flag += entry_traverse->thisComplex->checkIDBound( id_traverse->id );
+          entry_traverse = entry_traverse->next;
+        }
       if( k_flag == 0 )
-	return 0;
+        return 0;
       id_traverse = id_traverse->next;
     }
 
   return 1;
 }
-
-/*
-
-   int SComplexList::checkStopComplexList_Structure_Disassoc( class complex_item *stoplist )
-
-*/
-
 
 int SComplexList::checkStopComplexList_Structure_Disassoc( class complex_item *stoplist )
 {
@@ -598,53 +622,53 @@ int SComplexList::checkStopComplexList_Structure_Disassoc( class complex_item *s
       id_traverse = traverse->strand_ids;
 	  
       while( id_traverse != NULL )
-	{
-	  id_count++;
-	  id_traverse = id_traverse->next;
-	}
+        {
+          id_count++;
+          id_traverse = id_traverse->next;
+        }
 
       entry_traverse = first;
       successflag = 0;
       while( entry_traverse != NULL && successflag == 0)
-	{
-	  // iterate check for current stop complex (traverse) in our list of system complexes (entry_traverse)
-	  if( entry_traverse->thisComplex->checkIDList( traverse->strand_ids, id_count ) > 0 )
-	    {
-	      // if the system complex being checked has the correct circular permutation of strand ids, continue with our checks, otherwise it doesn't match.
-	      if( traverse->type == STOPTYPE_STRUCTURE )
-		{
-		  if( strcmp(entry_traverse->thisComplex->getStructure(), traverse->structure) == 0 )
-		    {
-		      // if the structures match exactly, we have a successful match.
-		      successflag = 1;
-		    }
-		}
-	      else if (traverse->type == STOPTYPE_DISASSOC )
-		{
-		  // for DISASSOC type checking, we only need the strand id lists to match correctly.
-		  successflag = 1;
-		}
-	      else if( traverse->type == STOPTYPE_LOOSE_STRUCTURE )
-		{
-		  if( checkLooseStructure( entry_traverse->thisComplex->getStructure(), traverse->structure) == 0 )
-		    {
-		      // the structure matches loosely (see definitions)
-		      successflag = 1;
-		    }
-		}
-	      else if( traverse->type == STOPTYPE_PERCENT_OR_COUNT_STRUCTURE)
-		{
-		  if( checkCountStructure( entry_traverse->thisComplex->getStructure(), traverse->structure, traverse->count ) == 0)
-		    {
-		      // this structure matches to within a % of the correct base pairs, note that %'s are converted to raw base counts by the IO system.
-		      successflag = 1;
-		    }
-		}
-	    }
-	  entry_traverse = entry_traverse->next;
-	}
+        {
+          // iterate check for current stop complex (traverse) in our list of system complexes (entry_traverse)
+          if( entry_traverse->thisComplex->checkIDList( traverse->strand_ids, id_count ) > 0 )
+            {
+              // if the system complex being checked has the correct circular permutation of strand ids, continue with our checks, otherwise it doesn't match.
+              if( traverse->type == STOPTYPE_STRUCTURE )
+                {
+                  if( strcmp(entry_traverse->thisComplex->getStructure(), traverse->structure) == 0 )
+                    {
+                      // if the structures match exactly, we have a successful match.
+                      successflag = 1;
+                    }
+                }
+              else if (traverse->type == STOPTYPE_DISASSOC )
+                {
+                  // for DISASSOC type checking, we only need the strand id lists to match correctly.
+                  successflag = 1;
+                }
+              else if( traverse->type == STOPTYPE_LOOSE_STRUCTURE )
+                {
+                  if( checkLooseStructure( entry_traverse->thisComplex->getStructure(), traverse->structure) == 0 )
+                    {
+                      // the structure matches loosely (see definitions)
+                      successflag = 1;
+                    }
+                }
+              else if( traverse->type == STOPTYPE_PERCENT_OR_COUNT_STRUCTURE)
+                {
+                  if( checkCountStructure( entry_traverse->thisComplex->getStructure(), traverse->structure, traverse->count ) == 0)
+                    {
+                      // this structure matches to within a % of the correct base pairs, note that %'s are converted to raw base counts by the IO system.
+                      successflag = 1;
+                    }
+                }
+            }
+          entry_traverse = entry_traverse->next;
+        }
       if( successflag == 0 )
-	return 0;
+        return 0;
       // we did not find a successful match for this stop complex in any system complex.
       
       // otherwise, we did, try checking the next stop complex.
@@ -657,8 +681,8 @@ int SComplexList::checkStopComplexList_Structure_Disassoc( class complex_item *s
 /* 
    Methods used for checking loose structure definitions and counting structure defs.
 
-  int SComplexList::checkLooseStructure( char *our_struc, char *stop_struc );
-  int SComplexList::checkCountStructure( char *our_struc, char *stop_struc, int count );
+   int SComplexList::checkLooseStructure( char *our_struc, char *stop_struc );
+   int SComplexList::checkCountStructure( char *our_struc, char *stop_struc, int count );
 
 */
 
@@ -676,51 +700,51 @@ int SComplexList::checkLooseStructure( char *our_struc, char *stop_struc )
   for( loop = 0; loop <= len; loop ++ )
     {
       if( our_struc[loop] == '\0' && stop_struc[loop] == '\0' )
-	{
-	  delete[] pairqueue;
-	  return 0;
-	}
+        {
+          delete[] pairqueue;
+          return 0;
+        }
       if( our_struc[loop] == '\0' || stop_struc[loop] == '\0' )
-	{
-	  delete[] pairqueue;
-	  return 1;
-	}
+        {
+          delete[] pairqueue;
+          return 1;
+        }
 
 
       if( stop_struc[loop] != '*' )
-	if( our_struc[loop] != stop_struc[loop] )
-	  {
-	    delete[] pairqueue;
-	    return 1;
-	  }
+        if( our_struc[loop] != stop_struc[loop] )
+          {
+            delete[] pairqueue;
+            return 1;
+          }
 
       if( our_struc[loop] == '(' && stop_struc[loop] == '(' )
-	{
-	  pairqueue[2*index[0]] = loop;
-	  pairqueue[2*index[1]+1] = loop;
-	  index[0]++;
-	  index[1]++;
-	}
+        {
+          pairqueue[2*index[0]] = loop;
+          pairqueue[2*index[1]+1] = loop;
+          index[0]++;
+          index[1]++;
+        }
       else if( our_struc[loop] == '(' )
-	{
-	  pairqueue[2*index[0]] = loop;
-	  index[0]++;
-	}
+        {
+          pairqueue[2*index[0]] = loop;
+          index[0]++;
+        }
 
       if( our_struc[loop] == ')' && stop_struc[loop] == ')' )
-	{
-	  index[0]--;
-	  index[1]--;
-	  assert( (index[0] >= 0) && (index[1] >= 0) );
+        {
+          index[0]--;
+          index[1]--;
+          assert( (index[0] >= 0) && (index[1] >= 0) );
 
-	  if( pairqueue[2*index[0]] != pairqueue[2*index[1]+1] )
-	    {
-	      delete [] pairqueue;
-	      return 1;
-	    }
-	}
+          if( pairqueue[2*index[0]] != pairqueue[2*index[1]+1] )
+            {
+              delete [] pairqueue;
+              return 1;
+            }
+        }
       else if( our_struc[loop] == ')' )
-	index[0]--;
+        index[0]--;
     }
 }
 
@@ -732,16 +756,16 @@ int SComplexList::checkCountStructure( char *our_struc, char *stop_struc, int co
   while(!(our_struc[loop] == '\0' && stop_struc[loop] == '\0' ))
     {
       if( our_struc[loop] == '\0' || stop_struc[loop] == '\0' )
-	return 1;
+        return 1;
       
       if( stop_struc[loop] != '*' )
-	if( our_struc[loop] != stop_struc[loop] )
-	  {
-	    if( stop_struc[loop] == '_' || our_struc[loop] == '_' )
-	      return 1;
-	    else
-	      ncount++;
-	  }
+        if( our_struc[loop] != stop_struc[loop] )
+          {
+            if( stop_struc[loop] == '_' || our_struc[loop] == '_' )
+              return 1;
+            else
+              ncount++;
+          }
       
       loop++;
     }

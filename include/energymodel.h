@@ -9,7 +9,6 @@
 
 #include <stdio.h>
 #include <python2.6/Python.h>
-#include "python_options.h"
 
 #define NUM_BASEPAIRS_VIENNA 8
     // Vienna: 0 is invalid, then CG, GC, GU, UG, AU, UA, and Special are 1-7
@@ -17,6 +16,12 @@
     // MFold/Nupack:  0 is AT, then CG, GC, TA, GT, TG
 #define NUM_BASES 5
     // 0 is invalid, then A, C, G, U
+
+#define BASE_A 1
+#define BASE_C 2
+#define BASE_G 3
+#define BASE_T 4
+#define BASE_U 4
 
 #ifndef VIENNA
 #define VIENNA 0
@@ -162,15 +167,17 @@ class ViennaEnergyModel : public EnergyModel
   // Hairpin Info, note no enthalpies
   int hairpin_37_dG[31];
   int hairpin_mismatch_37_dG[NUM_BASEPAIRS_VIENNA][NUM_BASES][NUM_BASES];
-  
-  char hairpin_tetraloops[(7*120) + 1]; // 120 tetraloops
-  int hairpin_tetraloop_37_dG[120]; // why 80 here? Check Vienna Code/Datasets.
-  // Ok, changed them to 120 each, as the DNA dataset has at least 110 tetraloops listed... very odd that it was tossing out the last 30. 
-  int hairpin_tetraloop_37_dH; 
 
-  char hairpin_triloops[(6*40) + 1];
-  int hairpin_triloop_37_dG[40];
+  int hairpin_triloop_37_dG[1024];
   int hairpin_triloop_37_dH;
+  // This needs about 1024 ints to store the entire matrix.
+  // lookups on this are then 4 shifts, 5adds, 5 dec 1s, but better than a strstr.
+  
+  int hairpin_tetraloop_37_dG[4096];
+  int hairpin_tetraloop_37_dH;
+
+  // NOTES: the DNA dataset (dna.par) has 110 tetraloops, but their code seems to only load the first 80 of them. We load all of them, so there may be slight energy differences in exactly those 30.
+  // Also, their dataset only uses a single dH, rather than one for each tri/tetraloop.
 
   // Bulge Info
   int bulge_37_dG[31];
@@ -308,15 +315,24 @@ class NupackEnergyModel : public EnergyModel
   double hairpin_mismatch_37_dG[NUM_BASEPAIRS_NUPACK][NUM_BASES][NUM_BASES];
   int hairpin_mismatch_37_dH[NUM_BASEPAIRS_NUPACK][NUM_BASES][NUM_BASES];
   
-  char hairpin_tetraloops[(7*120) + 1]; // 120 tetraloops
-  double hairpin_tetraloop_37_dG[120]; // why 80 here? Check Vienna Code/Datasets.
-  // Ok, changed them to 120 each, as the DNA dataset has at least 110 tetraloops listed... very odd that it was tossing out the last 30. 
-  //  int hairpin_tetraloop_37_dH; 
-  int hairpin_tetraloop_37_dH[120]; 
+  double hairpin_triloop_37_dG[1024];
+  //[NUM_BASES-1][NUM_BASES-1][NUM_BASES-1][NUM_BASES-1][NUM_BASES-1];
+  int hairpin_triloop_37_dH[1024];
+  // This needs about 1024 doubles to store the entire matrix.
+  // lookups on this are then 4 shifts, 5adds, 5 dec 1s, but better than a strstr.
+  
+  double hairpin_tetraloop_37_dG[4096];
+  int hairpin_tetraloop_37_dH[4096];
 
-  char hairpin_triloops[(6*40) + 1];
-  double hairpin_triloop_37_dG[40];
-  int hairpin_triloop_37_dH[40];
+  /* char hairpin_tetraloops[(7*120) + 1]; // 120 tetraloops */
+  /* double hairpin_tetraloop_37_dG[120]; // why 80 here? Check Vienna Code/Datasets. */
+  /* // Ok, changed them to 120 each, as the DNA dataset has at least 110 tetraloops listed... very odd that it was tossing out the last 30.  */
+  /* //  int hairpin_tetraloop_37_dH;  */
+  /* int hairpin_tetraloop_37_dH[120];  */
+
+  /* char hairpin_triloops[(6*40) + 1]; */
+  /* double hairpin_triloop_37_dG[40]; */
+  /* int hairpin_triloop_37_dH[40]; */
 
   // Bulge Info
   double bulge_37_dG[31];

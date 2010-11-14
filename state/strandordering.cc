@@ -1,12 +1,12 @@
 /*
-   Copyright (c) 2007-2010 Caltech. All rights reserved.
-   Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
+  Copyright (c) 2007-2010 Caltech. All rights reserved.
+  Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
 */
  
 // StrandOrdering object
 // used to track sequences and structures within a complex for easy printing, etc.
 
-#include "../include/scomplex.h" // implicitly includes strandordering.h, and is necessary for proper ordering. TODO: decorrelate these headers, they should be independent.
+#include "scomplex.h" // implicitly includes strandordering.h, and is necessary for proper ordering. TODO: decorrelate these headers, they should be independent.
 #include <string.h>
 #include <assert.h>
 
@@ -73,13 +73,17 @@ StrandOrdering::~StrandOrdering( void )
   return;
 }
 
-/*
-void StrandOrdering::Delete( void )
+void StrandOrdering::cleanup( void )
 {
-  if (first != NULL )
-    delete first;
-  first = last = NULL;
-  }*/
+  orderinglist *temp = first;
+  orderinglist *temp2;
+  while( temp != NULL )
+    {
+      temp2 = temp->next;
+      temp->thisLoop = NULL;
+      temp = temp2;
+    }
+}
 
 
 StrandOrdering::StrandOrdering(void )
@@ -119,46 +123,46 @@ StrandOrdering::StrandOrdering( char *in_seq, char *in_structure, char *in_cseq 
   for( index = 0; index < strlen(in_cseq); index++)
     {
       switch( in_structure[index] )
-	{
-	case '(':
-	  total_counter++;
-	  strand_counter++;
-	  strand_size++;
-	  break;
-	case ')':
-	  total_counter--;
-	  strand_counter--;
-	  strand_size++;
-	  if( strand_counter < 0 ) sflag = 1;
-	  break;
-	case '.':
-	  strand_size++;
-	  break;
-	case '+':
-	  count++;
-	  if(strand_counter == 0 && sflag == 0)
-	    printf("Unconnected strand in initialized complex. Strandordering.cc\n");
-	  new_elem = new orderinglist (strand_size, -1, def_tag, &in_seq[index-strand_size], &in_cseq[index-strand_size], &in_structure[index-strand_size] );
-      // default tag is passed and copied, so this stack alloc should be fine.
+        {
+        case '(':
+          total_counter++;
+          strand_counter++;
+          strand_size++;
+          break;
+        case ')':
+          total_counter--;
+          strand_counter--;
+          strand_size++;
+          if( strand_counter < 0 ) sflag = 1;
+          break;
+        case '.':
+          strand_size++;
+          break;
+        case '+':
+          count++;
+          if(strand_counter == 0 && sflag == 0)
+            printf("Unconnected strand in initialized complex. Strandordering.cc\n");
+          new_elem = new orderinglist(strand_size, -1, def_tag, &in_seq[index-strand_size], &in_cseq[index-strand_size], &in_structure[index-strand_size] );
+          // default tag is passed and copied, so this stack alloc should be fine.
 
-	  // TODO: do i want orderinglist to be circular? does it help anything?
-	  if( first == NULL )
-	    first = last = new_elem;
-	  else
-	    {
-	      last->next = new_elem;
-	      new_elem->prev = last;
-	      last = new_elem;
-	    }
-	  new_elem = NULL;
-	  strand_counter = sflag = 0;
-	  strand_size = 0;
-	  while( index < strlen(in_seq) -1  && in_seq[index+1] == '+')
-	    index++;
-	  break;
-	}
+          // TODO: do i want orderinglist to be circular? does it help anything?
+          if( first == NULL )
+            first = last = new_elem;
+          else
+            {
+              last->next = new_elem;
+              new_elem->prev = last;
+              last = new_elem;
+            }
+          new_elem = NULL;
+          strand_counter = sflag = 0;
+          strand_size = 0;
+          while( index < strlen(in_seq) -1  && in_seq[index+1] == '+')
+            index++;
+          break;
+        }
       if( total_counter < 0 )
-	printf("Mismatched ) at index %d in input.\n",index);
+        printf("Mismatched ) at index %d in input.\n",index);
     }
   if( total_counter > 0 )
     printf("Mismatched ( in input.\n");
@@ -166,16 +170,16 @@ StrandOrdering::StrandOrdering( char *in_seq, char *in_structure, char *in_cseq 
   if( in_seq[index-1] != '+' )
     {
       count++;
-      new_elem = new orderinglist (strand_size, -1, def_tag, &in_seq[index-strand_size], &in_cseq[index-strand_size], &in_structure[index-strand_size] );
+      new_elem = new orderinglist(strand_size, -1, def_tag, &in_seq[index-strand_size], &in_cseq[index-strand_size], &in_structure[index-strand_size] );
       // TODO: do i want orderinglist to be circular? does it help anything?
       if( first == NULL )
-	first = last = new_elem;
+        first = last = new_elem;
       else
-	{
-	  last->next = new_elem;
-	  new_elem->prev = last;
-	  last = new_elem;
-	}
+        {
+          last->next = new_elem;
+          new_elem->prev = last;
+          last = new_elem;
+        }
       new_elem = NULL;
     }
 
@@ -198,46 +202,46 @@ StrandOrdering::StrandOrdering( char *in_seq, char *in_structure, char *in_cseq,
   for( index = 0; index < strlen(in_cseq); index++)
     {
       switch( in_structure[index] )
-	{
-	case '(':
-	  total_counter++;
-	  strand_counter++;
-	  strand_size++;
-	  break;
-	case ')':
-	  total_counter--;
-	  strand_counter--;
-	  strand_size++;
-	  if( strand_counter < 0 ) sflag = 1;
-	  break;
-	case '.':
-	    strand_size++;
-	    break;
-	case '+':
-	  count++;
-	  if(strand_counter == 0 && sflag == 0)
-	    printf("Unconnected strand in initialized complex. Strandordering.cc\n");
-	  assert( traverse != NULL );
-	  new_elem = new orderinglist (strand_size, traverse->uid, traverse->id, &in_seq[index-strand_size], &in_cseq[index-strand_size], &in_structure[index-strand_size] );
+        {
+        case '(':
+          total_counter++;
+          strand_counter++;
+          strand_size++;
+          break;
+        case ')':
+          total_counter--;
+          strand_counter--;
+          strand_size++;
+          if( strand_counter < 0 ) sflag = 1;
+          break;
+        case '.':
+          strand_size++;
+          break;
+        case '+':
+          count++;
+          if(strand_counter == 0 && sflag == 0)
+            printf("Unconnected strand in initialized complex. Strandordering.cc\n");
+          assert( traverse != NULL );
+          new_elem = new orderinglist(strand_size, traverse->uid, traverse->id, &in_seq[index-strand_size], &in_cseq[index-strand_size], &in_structure[index-strand_size] );
 	  traverse= traverse->next;
-	  // TODO: do i want orderinglist to be circular? does it help anything?
-	  if( first == NULL )
-	    first = last = new_elem;
-	  else
-	    {
-	      last->next = new_elem;
-	      new_elem->prev = last;
-	      last = new_elem;
-	    }
-	  new_elem = NULL;
-	  strand_counter = sflag = 0;
-	  strand_size = 0;
-	  while( index < strlen(in_seq) -1  && in_seq[index+1] == '+')
-	    index++;
-	  break;
-	}
+          // TODO: do i want orderinglist to be circular? does it help anything?
+          if( first == NULL )
+            first = last = new_elem;
+          else
+            {
+              last->next = new_elem;
+              new_elem->prev = last;
+              last = new_elem;
+            }
+          new_elem = NULL;
+          strand_counter = sflag = 0;
+          strand_size = 0;
+          while( index < strlen(in_seq) -1  && in_seq[index+1] == '+')
+            index++;
+          break;
+        }
       if( total_counter < 0 )
-	printf("Mismatched ) at index %d in input.\n",index);
+        printf("Mismatched ) at index %d in input.\n",index);
     }
   if( total_counter > 0 )
     printf("Mismatched ( in input.\n");
@@ -246,21 +250,21 @@ StrandOrdering::StrandOrdering( char *in_seq, char *in_structure, char *in_cseq,
     {
       count++;
       assert( traverse != NULL );
-      new_elem = new orderinglist (strand_size,traverse->uid, traverse->id, &in_seq[index-strand_size], &in_cseq[index-strand_size], &in_structure[index-strand_size] );
+      new_elem = new orderinglist(strand_size,traverse->uid, traverse->id, &in_seq[index-strand_size], &in_cseq[index-strand_size], &in_structure[index-strand_size] );
       traverse = traverse->next;
 
       // TODO: do i want orderinglist to be circular? does it help anything?
       if( first == NULL )
-	first = last = new_elem;
+        first = last = new_elem;
       else
-	{
-	  last->next = new_elem;
-	  new_elem->prev = last;
-	  last = new_elem;
-	}
+        {
+          last->next = new_elem;
+          new_elem->prev = last;
+          last = new_elem;
+        }
       new_elem = NULL;
     }
-
+  delete strandids;
 }
 
 StrandOrdering * StrandOrdering::joinOrdering( StrandOrdering *first, StrandOrdering *second)
@@ -311,34 +315,34 @@ void StrandOrdering::reorder( OpenLoop *index )
   for( traverse_second = traverse; traverse_second != NULL; traverse_second = traverse_second->next )
     {
       for( loop = 0; loop < traverse_second->size; loop++ )
-	{
-	  if( traverse_second->thisStruct[loop] == '(')
-	    count++;
-	  if( traverse_second->thisStruct[loop] == ')')
-	    {
-	      if( count == 0 )
-		traverse_second->thisStruct[loop] = '(';
-	      else
-		count--;
-	    }
-	}
+        {
+          if( traverse_second->thisStruct[loop] == '(')
+            count++;
+          if( traverse_second->thisStruct[loop] == ')')
+            {
+              if( count == 0 )
+                traverse_second->thisStruct[loop] = '(';
+              else
+                count--;
+            }
+        }
     }
 
   count = 0;
   for( traverse_second = traverse->prev; traverse_second != NULL; traverse_second = traverse_second->prev )
     {
       for( loop = traverse_second->size - 1; loop >= 0; loop-- )
-	{
-	  if( traverse_second->thisStruct[loop] == ')')
-	    count++;
-	  if( traverse_second->thisStruct[loop] == '(')
-	    {
-	      if( count == 0 )
-		traverse_second->thisStruct[loop] = ')';
-	      else
-		count--;
-	    }
-	}
+        {
+          if( traverse_second->thisStruct[loop] == ')')
+            count++;
+          if( traverse_second->thisStruct[loop] == '(')
+            {
+              if( count == 0 )
+                traverse_second->thisStruct[loop] = ')';
+              else
+                count--;
+            }
+        }
     }
   
   
@@ -370,7 +374,7 @@ void StrandOrdering::reorder( OpenLoop *index )
 /*
 
 
-   OpenLoop *StrandOrdering::checkIDList( class identlist * stoplist, int id_count )
+  OpenLoop *StrandOrdering::checkIDList( class identlist * stoplist, int id_count )
 
 */
 
@@ -386,26 +390,26 @@ OpenLoop *StrandOrdering::checkIDList( class identlist * stoplist, int id_count 
   while( num_matched < id_count && id_traverse != NULL )
     {
       if( strcmp( traverse->thisTag, id_traverse->id) == 0 )
-	{
-	  if( num_matched == 0 )
-	    thingtoreturn = traverse->thisLoop;
-	  num_matched++;
-	  id_traverse = id_traverse->next;
-	}
+        {
+          if( num_matched == 0 )
+            thingtoreturn = traverse->thisLoop;
+          num_matched++;
+          id_traverse = id_traverse->next;
+        }
       else
-	{
-	  if( num_matched > 0 )
-	    return NULL;
-	}
+        {
+          if( num_matched > 0 )
+            return NULL;
+        }
 
       if( traverse == last )
-	{
-	  if( num_matched == 0) 
-	    return NULL;
-	  traverse = first;
-	}
+        {
+          if( num_matched == 0) 
+            return NULL;
+          traverse = first;
+        }
       else
-	traverse = traverse->next;
+        traverse = traverse->next;
     }
   
   if( num_matched == id_count )
@@ -417,7 +421,7 @@ OpenLoop *StrandOrdering::checkIDList( class identlist * stoplist, int id_count 
 
 /*
 
-   int StrandOrdering::checkIDBound( char *id )
+  int StrandOrdering::checkIDBound( char *id )
 
 */
 
@@ -435,15 +439,15 @@ int StrandOrdering::checkIDBound( char *id )
   while( traverse != NULL )
     {
       if( strcmp( traverse->thisTag, id) == 0 )
-	{
-	  flag = 0;
-	  for( loop = 0; loop < strlen( traverse->thisStruct ) && (flag == 0); loop++ )
-	    if( traverse->thisStruct[loop] == '.' )
-	      flag = 1;
+        {
+          flag = 0;
+          for( loop = 0; loop < strlen( traverse->thisStruct ) && (flag == 0); loop++ )
+            if( traverse->thisStruct[loop] == '.' )
+              flag = 1;
 
-	  if( flag == 0 )
-	    return 1;
-	}
+          if( flag == 0 )
+            return 1;
+        }
       traverse = traverse->next;
     }
   return 0;
@@ -475,19 +479,19 @@ void StrandOrdering::generateFlatSequence( char **sequence, char **structure, ch
       cpos += traverse->size;
       
       if( index != count - 1)
-	{
-	  (*sequence)[cpos] = '_';
-	  (*structure)[cpos] = '.';
-	  (*code_sequence)[cpos] = '_';
+        {
+          (*sequence)[cpos] = '_';
+          (*structure)[cpos] = '.';
+          (*code_sequence)[cpos] = '_';
 	  
-	  cpos++;
-	}
+          cpos++;
+        }
       else
-	{
-	  (*sequence)[cpos] = '\0';
-	  (*structure)[cpos] = '\0';
-	  (*code_sequence)[cpos] = '\0';
-	}
+        {
+          (*sequence)[cpos] = '\0';
+          (*structure)[cpos] = '\0';
+          (*code_sequence)[cpos] = '\0';
+        }
     }
 }
 
@@ -500,9 +504,9 @@ char *StrandOrdering::convertIndex( int index )
   for( cpos = 0, cstrand = 0, traverse = first; cstrand < count; cstrand++, traverse = traverse->next )
     {
       if( index < cpos + traverse->size ) // index is into the current strand
-	return &traverse->thisCodeSeq[index-cpos];
+        return &traverse->thisCodeSeq[index-cpos];
       else if( index == cpos+traverse->size )
-	;//fprintf(stderr, "Strandordering.cc, convertIndex: indexed into a strand break.\n");
+        ;//fprintf(stderr, "Strandordering.cc, convertIndex: indexed into a strand break.\n");
       
       cpos += traverse->size + 1;
     }
@@ -522,13 +526,13 @@ OpenLoop *StrandOrdering::getIndex( char type, int *index, char **location )
       assert( free_bases != NULL );
 
       if( *index < free_bases[type] )
-	{
-	  *location = traverse->thisLoop->getBase( type, *index );
-	  delete[] free_bases;
-	  return traverse->thisLoop;
-	}
+        {
+          *location = traverse->thisLoop->getBase( type, *index );
+          delete[] free_bases;
+          return traverse->thisLoop;
+        }
       else
-	*index = *index - free_bases[type];
+        *index = *index - free_bases[type];
 
       delete[] free_bases;
     }
@@ -549,13 +553,13 @@ void StrandOrdering::addOpenLoop( OpenLoop *newLoop, int index )
   for( cpos = 0, cstrand = 0, traverse = first; cstrand < count; cstrand++, traverse = traverse->next )
     {
       if( index < cpos + traverse->size ) // index is into the current strand
-	{
-	  assert( traverse->thisLoop == NULL );
-	  traverse->thisLoop = newLoop;
-	  return; // loop terminates once association occurs, function complete.
-	} 
+        {
+          assert( traverse->thisLoop == NULL );
+          traverse->thisLoop = newLoop;
+          return; // loop terminates once association occurs, function complete.
+        } 
       else if( index == cpos+traverse->size )
-	;//fprintf(stderr, "Strandordering.cc, convertIndex: indexed into a strand break.\n");
+        ;//fprintf(stderr, "Strandordering.cc, convertIndex: indexed into a strand break.\n");
       // message removed for spam purposes.
       
       cpos += traverse->size + 1;
@@ -574,23 +578,23 @@ StrandOrdering *StrandOrdering::breakOrdering( Loop *firstOldBreak, Loop *second
   for( traverse = first; traverse != NULL; traverse = traverse->next )
     {
       if( traverse->thisLoop == (OpenLoop *)firstOldBreak )
-	{
-	  if( temp == NULL )
-	    temp = traverse;
-	  else
-	    temp2 = traverse;
-	  traverse->thisLoop = (OpenLoop *)firstNewBreak;
-	}
+        {
+          if( temp == NULL )
+            temp = traverse;
+          else
+            temp2 = traverse;
+          traverse->thisLoop = (OpenLoop *)firstNewBreak;
+        }
       if( traverse->thisLoop == (OpenLoop *)secondOldBreak )
-	{
-	  if( temp == NULL )
-	    temp = traverse;
-	  else
-	    temp2 = traverse;
-	  traverse->thisLoop = (OpenLoop *)secondNewBreak;
-	}
+        {
+          if( temp == NULL )
+            temp = traverse;
+          else
+            temp2 = traverse;
+          traverse->thisLoop = (OpenLoop *)secondNewBreak;
+        }
       if( temp != NULL && temp2 == NULL )
-	numitems++;
+        numitems++;
     }
   if( temp == first ) // one was initial open loop
     {
@@ -660,16 +664,16 @@ char *StrandOrdering::getSequence( void )
       cpos += traverse->size;
       
       if( index != count - 1)
-	{
-	  seq[cpos] = '+';
-	  struc[cpos] = '+';
-	  cpos++;
-	}
+        {
+          seq[cpos] = '+';
+          struc[cpos] = '+';
+          cpos++;
+        }
       else
-	{
-	  seq[cpos] = '\0';
-	  struc[cpos] = '\0';
-	}
+        {
+          seq[cpos] = '\0';
+          struc[cpos] = '\0';
+        }
     }
 
   return seq;
@@ -698,16 +702,16 @@ char *StrandOrdering::getStructure( void )
       cpos += traverse->size;
       
       if( index != count - 1)
-	{
-	  seq[cpos] = '+';
-	  struc[cpos] = '+';
-	  cpos++;
-	}
+        {
+          seq[cpos] = '+';
+          struc[cpos] = '+';
+          cpos++;
+        }
       else
-	{
-	  seq[cpos] = '\0';
-	  struc[cpos] = '\0';
-	}
+        {
+          seq[cpos] = '\0';
+          struc[cpos] = '\0';
+        }
     }
 
   return struc;
@@ -755,10 +759,10 @@ void StrandOrdering::replaceOpenLoop( Loop *oldLoop, Loop *newLoop )
   for ( traverse = first; traverse != NULL; traverse = traverse->next )
     {
       if( traverse->thisLoop == (OpenLoop *) oldLoop )
-	{
-	traverse->thisLoop = (OpenLoop *)newLoop;
-	return;
-	}
+        {
+          traverse->thisLoop = (OpenLoop *)newLoop;
+          return;
+        }
     }
   assert(0); // no loop matched, that's bad. 
 }
@@ -794,32 +798,32 @@ void StrandOrdering::addBasepair( char *first_bp, char *second_bp )
   int iflag = 0;
   for( traverse = first; traverse != NULL; traverse = traverse->next, iflag = 0 )
     {
-      if( ((first_bp - traverse->thisCodeSeq) < traverse->size) && ((first_bp - traverse->thisCodeSeq) >= 0) )
-	{
-	  if( id[0] == NULL )
-	    id[0] = &traverse->thisStruct[ first_bp - traverse->thisCodeSeq];
-	  else
-	    id[1] = &traverse->thisStruct[ first_bp - traverse->thisCodeSeq];
-	  iflag = 1;
-	}
-      if( ((second_bp - traverse->thisCodeSeq) < traverse->size) && ((second_bp - traverse->thisCodeSeq) >= 0) )
-	{
-	  if( id[0] == NULL )
-	    id[0] = &traverse->thisStruct[ second_bp - traverse->thisCodeSeq];
-	  else
-	    {
-	      temp  = &traverse->thisStruct[ second_bp - traverse->thisCodeSeq];
-	      if( iflag == 1  && (temp < id[0]) )
-		{
-		  id[1] = id[0];
-		  id[0] = temp;
-		}
-	      else
-		id[1] = temp;
-
-	    }
-	}
-
+      if( ((first_bp - traverse->thisCodeSeq) < traverse->size) && 
+          ((first_bp - traverse->thisCodeSeq) >= 0) )
+        {
+          if( id[0] == NULL )
+            id[0] = &traverse->thisStruct[ first_bp - traverse->thisCodeSeq];
+          else
+            id[1] = &traverse->thisStruct[ first_bp - traverse->thisCodeSeq];
+          iflag = 1;
+        }
+      if( ((second_bp - traverse->thisCodeSeq) < traverse->size) && 
+          ((second_bp - traverse->thisCodeSeq) >= 0) )
+        {
+          if( id[0] == NULL )
+            id[0] = &traverse->thisStruct[ second_bp - traverse->thisCodeSeq];
+          else
+            {
+              temp  = &traverse->thisStruct[ second_bp - traverse->thisCodeSeq];
+              if( iflag == 1  && (temp < id[0]) )
+                {
+                  id[1] = id[0];
+                  id[0] = temp;
+                }
+              else
+                id[1] = temp;
+            }
+        }
     }
   assert( *id[0] == '.' && *id[1] == '.' );
   *id[0] = '(';
@@ -835,7 +839,6 @@ void StrandOrdering::addBasepair( char *first_bp, char *second_bp )
       struc = NULL;
     }
   return;
-
 }
 
 
@@ -847,36 +850,36 @@ void StrandOrdering::breakBasepair( char *first_bp, char *second_bp )
   int iflag = 0;
   for( traverse = first; traverse != NULL; traverse = traverse->next, iflag = 0 )
     {
-      if( ((first_bp - traverse->thisCodeSeq) < traverse->size) && ((first_bp - traverse->thisCodeSeq) >= 0) )
-	{
-	  if( id[0] == NULL )
-	    id[0] = &traverse->thisStruct[ first_bp - traverse->thisCodeSeq];
-	  else
-	    id[1] = &traverse->thisStruct[ first_bp - traverse->thisCodeSeq];
-	  iflag = 1;
-	}
-      if( ((second_bp - traverse->thisCodeSeq) < traverse->size) && ((second_bp - traverse->thisCodeSeq) >= 0) )
-	{
-	  if( id[0] == NULL )
-	    id[0] = &traverse->thisStruct[ second_bp - traverse->thisCodeSeq];
-	  else
-	    {
-	      temp  = &traverse->thisStruct[ second_bp - traverse->thisCodeSeq];
-	      if( iflag == 1  && (temp < id[0]) )
-		{
-		  id[1] = id[0];
-		  id[0] = temp;
-		}
-	      else
-		id[1] = temp;
-
-	    }
-	}
-
+      if( ((first_bp - traverse->thisCodeSeq) < traverse->size) && 
+          ((first_bp - traverse->thisCodeSeq) >= 0) )
+        {
+          if( id[0] == NULL )
+            id[0] = &traverse->thisStruct[ first_bp - traverse->thisCodeSeq];
+          else
+            id[1] = &traverse->thisStruct[ first_bp - traverse->thisCodeSeq];
+          iflag = 1;
+        }
+      if( ((second_bp - traverse->thisCodeSeq) < traverse->size) && 
+          ((second_bp - traverse->thisCodeSeq) >= 0) )
+        {
+          if( id[0] == NULL )
+            id[0] = &traverse->thisStruct[ second_bp - traverse->thisCodeSeq];
+          else
+            {
+              temp  = &traverse->thisStruct[ second_bp - traverse->thisCodeSeq];
+              if( iflag == 1  && (temp < id[0]) )
+                {
+                  id[1] = id[0];
+                  id[0] = temp;
+                }
+              else
+                id[1] = temp;
+            }
+        }
     }
   //  printf("%c, %c\n",*id[0],*id[1]);
   assert( (*id[0] == '(' && *id[1] == ')' ) );
-	  // || (*id[0] == '(' && *id[1] == '(' ) || (*id[0] == ')' && *id[1] == ')' ) );
+  // || (*id[0] == '(' && *id[1] == '(' ) || (*id[0] == ')' && *id[1] == ')' ) );
   *id[0] = '.';
   *id[1] = '.';
   if( seq != NULL )
@@ -889,7 +892,7 @@ void StrandOrdering::breakBasepair( char *first_bp, char *second_bp )
       delete[] struc;
       struc = NULL;
     } 
- return;
+  return;
 }
 
 int StrandOrdering::getStrandCount( void )

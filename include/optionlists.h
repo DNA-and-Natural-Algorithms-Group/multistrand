@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2007-2008 Caltech. All rights reserved.
+   Copyright (c) 2007-2010 Caltech. All rights reserved.
    Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
 */
  
@@ -12,8 +12,8 @@
 #define STOPTYPE_LOOSE_STRUCTURE               3
 #define STOPTYPE_PERCENT_OR_COUNT_STRUCTURE    4
 
-#include <stdlib.h>
 #include <python2.6/Python.h>
+// for PyObject *
 
 // The bodies for these functions are defined in options.cc, but the
 // actual classes get used across a bunch of the files so they have been

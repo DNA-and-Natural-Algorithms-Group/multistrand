@@ -5,8 +5,8 @@
  
 #include <stdio.h>
 #include <assert.h>
-#include "../include/move.h"
-#include "../include/loop.h"
+#include "move.h"
+#include "loop.h"
 
 Move::Move( void )
 {
@@ -48,7 +48,7 @@ Move::Move( int mtype, double mrate, Loop *affected_1, Loop *affected_2, int ind
   index[0] = index1;
   index[1] = index2;
   index[2] = -1;
-
+  index[3] = -1;
 }
 
 Move::Move( int mtype, double mrate, Loop *affected_1, Loop *affected_2, int index1)
@@ -60,7 +60,7 @@ Move::Move( int mtype, double mrate, Loop *affected_1, Loop *affected_2, int ind
   index[0] = index1;
   index[1] = -1;
   index[2] = -1;
-
+  index[3] = -1;
 }
 
 Move::Move( int mtype, double mrate, Loop *affected_1, int index1, int index2, int index3, int index4)

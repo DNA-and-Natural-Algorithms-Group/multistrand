@@ -13,55 +13,38 @@
 #include "scomplex.h"
 #include "scomplexlist.h"
 
-/* Defining PYTHON_THREADS will allow multithreading in Python to work properly when
-   simulations are run in separate Python threads.
-   
-   Defining PYTHON_THREADS is only necessary when the Boost.Python interface is being
-   used along with Python threading.
-   
-   Currently, this symbol only affects SimulationSystem::StartSimulation_threads(void).
-*/
-#ifdef PYTHON_THREADS
-#include <boost/python.hpp>
-#endif
-
-
 class SimulationSystem
 {
  public: 
-
-  //  SimulationSystem( char *filename ); // standard constructor, filename is so we can load an energy model. Future constructors will handle command-line processing and sother input files.
   SimulationSystem( PyObject *system_options );
+  SimulationSystem( void  );
 
-  //  SimulationSystem( Options &globalOpts );
-
-
-#ifndef PYTHON_THREADS
-	// we do not want this when using the python interface, as it requires the parsing code.
+  // the following constructor is probably defunct now.
   SimulationSystem( int argc, char **argv );
-#endif
-
 
   ~SimulationSystem( void ); 
-  //  int LoadSystem( FILE *instream );
-  //  int ResetSystem( void );
-  //  int StartSimulation( int input_flags, int num_sims, double simtime );
-
 
   void StartSimulation( void );
-#ifdef PYTHON_THREADS
-  void StartSimulation_threads( void );
-#endif
 
+  PyObject *calculateEnergy( PyObject *start_state, int typeflag );
+  int getErrorFlag( void );
 
  private:
-  void StartSimulation_First_Bimolecular( void );
-  void SimulationLoop( void );
-  void SimulationLoop_First_Bimolecular( double *completiontime, int *completiontype, double *frate, char **tag );
-  void InitializeSystem( void );
+  void StartSimulation_Standard( void );
+  void StartSimulation_FirstStep( void );
+  void StartSimulation_Trajectory( void );
+  void StartSimulation_Transition( void );
+
+  void SimulationLoop_Standard( void );
+  void SimulationLoop_FirstStep( void );
+  void SimulationLoop_Trajectory( long ointerval, double otime );
+  void SimulationLoop_Transition( void );
+
+  void InitializeSystem( PyObject *alternate_start = NULL);
 
   void InitializeRNG( void );
   void generateNextRandom( void );
+
 
   EnergyModel *dnaEnergyModel;
 

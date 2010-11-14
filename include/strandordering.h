@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2007-2008 Caltech. All rights reserved.
+   Copyright (c) 2007-2010 Caltech. All rights reserved.
    Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
 */
  
@@ -32,7 +32,7 @@ class StrandOrdering
   StrandOrdering( orderinglist *beginning, orderinglist *ending, int numitems);
   StrandOrdering( char *in_seq, char *in_structure, char *in_cseq, class identlist *strandids );
   ~StrandOrdering( void );
-  // void Delete ( void );
+  void cleanup( void );
   static StrandOrdering * joinOrdering( StrandOrdering *first, StrandOrdering *second);
   StrandOrdering *breakOrdering( Loop *firstOldBreak, Loop *secondOldBreak, Loop *firstNewBreak, Loop *secondNewBreak ); // maybe id or openloop pointer
   void reorder( OpenLoop *index ); // reorder so that open loop passed is the available openloop
