@@ -12,6 +12,7 @@
 
 #ifdef PROFILING
 #include "google/profiler.h"
+#include "google/heap-profiler.h"
 #endif
 
 SimulationSystem::SimulationSystem( int argc, char **argv )
@@ -22,7 +23,13 @@ SimulationSystem::SimulationSystem( int argc, char **argv )
 
 SimulationSystem::SimulationSystem( PyObject *system_o )
 {
+  bool hflag = false;
 #ifdef PROFILING
+  if (!IsHeapProfilerRunning())
+    {
+      HeapProfilerStart("ssystem_init.heap");
+      hflag = true;
+    }
   ProfilerStart("ssystem_init_profile.prof");
 #endif
 
@@ -54,6 +61,11 @@ SimulationSystem::SimulationSystem( PyObject *system_o )
   complexList = NULL; 
 #ifdef PROFILING
   ProfilerStop();
+  if (hflag)
+    {
+    HeapProfilerDump("init");
+    HeapProfilerStop();
+    }
 #endif
 }
 
@@ -103,7 +115,13 @@ SimulationSystem::~SimulationSystem( void )
 
 void SimulationSystem::StartSimulation( void )
 {
+  bool hflag = false;
 #ifdef PROFILING
+  if (!IsHeapProfilerRunning())
+    {
+      HeapProfilerStart("ssystem_run.heap");
+      hflag = true;
+    }
   ProfilerStart("ssystem_run_profile.prof");
 #endif
 
@@ -124,6 +142,11 @@ void SimulationSystem::StartSimulation( void )
 
 #ifdef PROFILING
   ProfilerStop();
+  if (hflag)
+    {
+      HeapProfilerDump("final");
+      HeapProfilerStop();
+    }
 #endif
 }
 

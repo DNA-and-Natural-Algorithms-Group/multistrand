@@ -17,7 +17,7 @@ import multiprocessing
 from multiprocessing import Pool
 
 import sys
-
+multihome = None
 if 'MULTISTRANDHOME' in os.environ:
     if not os.path.isfile( os.path.join( os.environ['MULTISTRANDHOME'], 'setup.py') ):
         warnings.warn( ImportWarning("Could not find the file 'setup.py' in your MULTISTRANDHOME [{0}]; this environment variable is possibly out of date or not referring to the new Mulistrand distribution."))
@@ -206,7 +206,7 @@ class Speedtest_FromFile( unittest.TestCase ):
 
         sequence = sequence.replace("T","U")
         if structure == None:
-        input_str = "{0}\n{1}\n".format( sequence, "."*len(sequence) )
+            input_str = "{0}\n{1}\n".format( sequence, "."*len(sequence) )
         else:
             input_str = "{0}\n{1}\n".format( sequence,structure)                                         
 
@@ -352,13 +352,13 @@ if __name__ == '__main__':
     #short_lengths = Length_Tests( range(20,100,2), [5000.0]*11 + [1000.0]*39, 'length_short/')
     #long_lengths = Length_Tests( range(100,205,5), [1000.0] * 21, 'length_longs/')
     #very_long_lengths = Length_Tests( range(210,310,10), [100.0] * 10, 'length_very_longs/')
-    single_short = Length_Tests( [30], [5000.0], 'newblock/')
-    del single_short._suite._tests[3:]
+    #single_short = Length_Tests( [30], [5000.0], 'newblock/')
+    #del single_short._suite._tests[3:]
     #single_long = Length_Tests( [105], [1000.0], 'length_longs/')
     #single_long.runTests_Async(shuffle_tasks=False)
     #very_long_lengths.runTests_Async()
     #long_lengths.runTests_Async()
-    single_short.runTests_Async()
+    #single_short.runTests_Async()
 class Fourway_BM_Tests( Multistrand_Suite_Base ):
     """ Uses the Speedtest_FromFile testcase class to run tests on
     4-way branch migration systems."""
@@ -477,16 +477,17 @@ class Threeway_BM_Tests( Multistrand_Suite_Base ):
 
         
 if __name__ == '__main__':
+    pass
     #short_lengths = Length_Tests( range(20,100,2), [5000.0]*11 + [1000.0]*39, 'length_short/')
     #long_lengths = Length_Tests( range(100,205,5), [1000.0] * 21, 'length_longs/')
     # very_long_lengths = Length_Tests( range(210,310,10), [100.0] * 10, 'length_very_longs/')
     #single_short = Length_Tests( [30], [5000.0], 'length_short/')
     #bm_4way_tests = Fourway_BM_Tests( range(0,42,2), [5000.0]*10+[1000.0]*11, 'short_4way/')
-    bm_3way_tests = Threeway_BM_Tests( range(0,60), [5000.0]*10+[1000.0]*50, 'short_3way/' )
+    #bm_3way_tests = Threeway_BM_Tests( range(0,60), [5000.0]*10+[1000.0]*50, 'short_3way/' )
     #very_long_lengths.runTests_Async()
     #short_lengths.runTests_Async()
     #long_lengths.runTests_Async()
     #single_short.runTests_Async(False)
-    bm_3way_tests.runTests_Async()
+    #bm_3way_tests.runTests_Async()
 
 

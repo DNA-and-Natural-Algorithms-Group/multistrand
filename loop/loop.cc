@@ -28,11 +28,16 @@ char Loop::getType( void )
 }
  
 
-Loop* Loop::getAdjacent( void )
+Loop* Loop::getAdjacent( int index )
 {
   if( adjacentLoops != NULL )
-    return adjacentLoops[0];
+    return adjacentLoops[index];
   return NULL;
+}
+
+int Loop::getCurAdjacent( void )
+{
+  return curAdjacent;
 }
 
 void Loop::cleanupAdjacent( void )
@@ -3547,19 +3552,6 @@ BulgeLoop::BulgeLoop( void )
   identity = 'B';
 }
 
-BulgeLoop::~BulgeLoop( void )
-{
-  if( adjacentLoops != NULL )
-    {
-      delete[] adjacentLoops;
-      adjacentLoops = NULL;
-    }
-  if( moves != NULL )
-    {
-      delete moves;
-      moves = NULL;
-    }
-}
 
 BulgeLoop::BulgeLoop( int type1, int type2, int size1, int size2, char *bulge_sequence1, char *bulge_sequence2, Loop *left , Loop *right )
 {

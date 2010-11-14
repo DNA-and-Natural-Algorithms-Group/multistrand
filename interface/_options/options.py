@@ -536,8 +536,6 @@ class Options( object ):
         # Error checking
         if self._stop_conditions != []:
             raise Exception("Stop conditions should be set only once.")
-        if self._start_state == []:
-            raise Exception("Start state must be set before stop conditions.")
 
         # Type checking
         for item in stop_list:
@@ -546,21 +544,6 @@ class Options( object ):
         
         # Copy the input list because it's easy to do and it's safer
         stop_list = copy.deepcopy(stop_list)
-        import warnings
-        warnings.warn("Unique ID assignment likely incorrect here.")
-        # Assign the unique ids
-        for sc in stop_list:
-            counts = {}
-            for cmplx, st, cn in sc.complex_items:
-                for i, s in enumerate(cmplx.strand_list):
-                    if s.name not in self.name_dict:
-                        raise ValueError("Stop state contains a strand not present in start state.")
-                    try:
-                        cmplx.strand_list[i] = self.name_dict[s.name][counts[s.name]]
-                        counts[s.name] += 1
-                    except KeyError:
-                        cmplx.strand_list[i] = self.name_dict[s.name][0]
-                        counts[s.name] = 1
         
         # Set the internal data members
         self.stop_count = len(stop_list)
@@ -698,20 +681,20 @@ class Options( object ):
         if not isinstance(val, tuple) or len(val) != 4:
             raise ValueError("Print status line needs a 4-tuple of values.")
         self.interface.add_result( val, res_type = 'status_line' )
-        
-        # seed,com_type, time, tag = val
-        # self.interface_current_seed = seed  #uses property to get the right sub-object.
-        # self.interface_current_completion_type = com_type
-        # self.interface_current_time = time
-        # self.interface_current_tag = tag
-
+    
     @property
     def add_result_status_line_firststep(self, val):
         return None
 
     @add_result_status_line_firststep.setter
     def add_result_status_line_firststep( self, val ):
-        pass
+        """ Takes a 5-tuple as the only value type, it should be:
+            (random number seed, stop result flag, completion time, collision rate, stop result tag)
+
+            Prints thingies. Also sets useful values."""
+        if not isinstance(val, tuple) or len(val) != 5:
+            raise ValueError("Print status line needs a 5-tuple of values.")
+        self.interface.add_result( val, res_type = 'firststep' )
 
     @property
     def interface_current_seed(self):
@@ -778,6 +761,7 @@ class Options( object ):
         ...
         More to come!"""
         arg_lookup_table = {
+            'simulation_mode': lambda x: self.__setattr__('simulation_mode',_OC.SIMULATION_MODE[x]),
             'dangles': lambda x: self.__setattr__('dangles',_OC.DANGLES[x]),
             'parameter_type': lambda x: self.__setattr__('parameter_type', _OC.ENERGYMODEL_TYPE[x]),
             'substrate_type': lambda x: self.__setattr__('substrate_type', _OC.SUBSTRATE_TYPE[x]),

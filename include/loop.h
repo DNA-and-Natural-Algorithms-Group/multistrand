@@ -26,7 +26,8 @@ class Loop
   virtual double doChoice( Move *move, Loop **returnLoop ) = 0;
   virtual char *getLocation( Move *move, int index ) =0;
   virtual char *verifyLoop( char *incoming_sequence, int incoming_pairtype, Loop *from ) =0;
-  Loop *getAdjacent( void );
+  Loop *getAdjacent( int index );
+  int getCurAdjacent( void );
   void addAdjacent( Loop *loopToAdd );
   void initAdjacency( int index );
   int replaceAdjacent( Loop *loopToReplace, Loop *loopToReplaceWith );
@@ -41,6 +42,7 @@ class Loop
   static double generateDeleteMoveRate( Loop *start, Loop *end );
   static Loop *performDeleteMove( Move *move );
   static void performComplexSplit( Move *move, Loop **firstOpen, Loop **secondOpen );
+  
 
  protected:
   static EnergyModel *energyModel_Primary;
@@ -115,7 +117,6 @@ class BulgeLoop : public Loop
   char *getLocation( Move *move, int index );
   char *verifyLoop( char *incoming_sequence, int incoming_pairtype, Loop *from );
   BulgeLoop( void );
-  ~BulgeLoop( void );
   BulgeLoop( int type1, int type2, int size1, int size2, char *bulge_sequence1, char *bulge_sequence2, Loop *left = NULL, Loop *right = NULL);
   friend Loop * Loop::performDeleteMove( Move *move );
   friend double Loop::generateDeleteMoveRate( Loop *start, Loop *end );

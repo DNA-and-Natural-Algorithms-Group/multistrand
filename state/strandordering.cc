@@ -73,6 +73,19 @@ StrandOrdering::~StrandOrdering( void )
   return;
 }
 
+void StrandOrdering::cleanup( void )
+{
+  orderinglist *temp = first;
+  orderinglist *temp2;
+  while( temp != NULL )
+    {
+      temp2 = temp->next;
+      temp->thisLoop = NULL;
+      temp = temp2;
+    }
+}
+
+
 StrandOrdering::StrandOrdering(void )
 {
   first = last = NULL;
@@ -210,7 +223,7 @@ StrandOrdering::StrandOrdering( char *in_seq, char *in_structure, char *in_cseq,
             printf("Unconnected strand in initialized complex. Strandordering.cc\n");
           assert( traverse != NULL );
           new_elem = new orderinglist(strand_size, traverse->uid, traverse->id, &in_seq[index-strand_size], &in_cseq[index-strand_size], &in_structure[index-strand_size] );
-          traverse= traverse->next;
+	  traverse= traverse->next;
           // TODO: do i want orderinglist to be circular? does it help anything?
           if( first == NULL )
             first = last = new_elem;
@@ -251,7 +264,7 @@ StrandOrdering::StrandOrdering( char *in_seq, char *in_structure, char *in_cseq,
         }
       new_elem = NULL;
     }
-
+  delete strandids;
 }
 
 StrandOrdering * StrandOrdering::joinOrdering( StrandOrdering *first, StrandOrdering *second)

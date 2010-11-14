@@ -99,6 +99,13 @@ SComplexList::SComplexList( EnergyModel *energyModel )
 
 SComplexList::~SComplexList( void )
 {
+  SComplexListEntry* traverse;
+  traverse = first;
+  while( traverse != NULL )
+    {
+      traverse->thisComplex->cleanup();
+      traverse = traverse->next;
+    }
   if( first != NULL )
     delete first;
 }

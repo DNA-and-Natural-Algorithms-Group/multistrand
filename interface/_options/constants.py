@@ -40,7 +40,7 @@ class _OptionsConstants( object ):
                 "First Step":               0x0030,
                 "Python Module":            0x0040,
                 "Python Module:First Step": 0x0060,
-                "Energy Only":              0x0100}
+                "Energy Only":              0x0200}
 
     @property
     def SIMULATION_MODE_FLAG(self):

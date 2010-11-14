@@ -16,6 +16,9 @@
 #include <string.h>
 /* for strcmp */
 
+#include "google/profiler.h"
+#include "google/heap-profiler.h"
+
 typedef struct {
   PyObject_HEAD
   SimulationSystem *ob_system;  /* Our one data member, no other attributes. */
@@ -266,6 +269,10 @@ static PyObject *System_calculate_energy( PyObject *self,PyObject *args )
 
 static PyObject *System_run_system( PyObject *self,PyObject *args )
 {
+#ifdef PROFILING
+  HeapProfilerStart("ssystem_run_system.heap");
+#endif
+
   SimulationSystem *temp = NULL;
   PyObject *options_object = NULL;
   int typeflag = 0;
@@ -277,10 +284,17 @@ static PyObject *System_run_system( PyObject *self,PyObject *args )
   temp->StartSimulation();
 
   delete temp;
+  temp = NULL;
+  
+#ifdef PROFILING
+  HeapProfilerDump("run_system");
+  HeapProfilerStop();
+#endif
 
   Py_XDECREF( options_object );
   Py_INCREF( Py_None );
   return Py_None;
+
 }
 
 

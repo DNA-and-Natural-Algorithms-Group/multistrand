@@ -50,8 +50,11 @@ def setup_libcheck():
     # Find the library path [so we can check for tcmalloc].
     import os, os.path
     ldflags = config_vars['LDFLAGS'].split()
-    for libpath in ldflags:
-        pathname = libpath[2:] # strip the -L from each entry
+    for libpath in ldflags + os.environ['LIBRARY_PATH'].split():
+        if libpath.startswith('-L'):
+            pathname = libpath[2:] # strip the -L from each entry
+        else:
+	     pathname = libpath
         try:
             items = iter( os.listdir(pathname) )
         except OSError:
@@ -65,7 +68,7 @@ def setup_libcheck():
 def setup_ext( have_tcmalloc):    
     import sys
     if have_tcmalloc:
-        tcmalloc_optional = ['tcmalloc_minimal']
+        tcmalloc_optional = ['tcmalloc']
     else:
         tcmalloc_optional = []
     if '--use-debug-defs' in sys.argv:
@@ -92,7 +95,7 @@ def setup_ext( have_tcmalloc):
                                              ('DEBUG_MACROS',None),
                                              ('PROFILING',None)],
                               undef_macros=['NDEBUG'],
-                              libraries=['profiler'],  #google perftools profiler.
+                              libraries=['tcmalloc_and_profiler'],  #google perftools profiler.
                               extra_compile_args = ['-w','-g','-O0'],
                               )
         

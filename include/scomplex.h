@@ -35,6 +35,7 @@ class StrandComplex
 
   // Destructor, basic.
   ~StrandComplex( void );
+  void cleanup( void );
 
 
   // information retreival functions

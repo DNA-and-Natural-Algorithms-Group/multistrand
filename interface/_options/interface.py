@@ -30,7 +30,10 @@ class Interface(object):
         return self._results
 
     def add_result( self, val, res_type= None ):
-        new_result = Result( value_list = val, result_type=res_type )
+        if res_type == "status_line":
+            new_result = Result( value_list = val, result_type=res_type )
+        else:
+            new_result = FirstStepResult( value_list = val )
         self._results.append( new_result )
 
     def __str__(self):
@@ -97,6 +100,44 @@ class Result( object ):
 
     def __repr__( self ):
         return "({0}, {1}, {2}, '{3}', result_type='status_line' )".format(self.seed, self.com_type, self.time, self.tag )
+
+
+class FirstStepResult( object ):
+    """ Holds the results of a single trajectory run by multistrand.
+
+    How to look at the data of a Result object 'r':
+
+    str(r):  printable representation of the data (e.g. print(r) looks nice)
+    repr(r): raw data - the python tuple representing this Result object."""
+
+    def __init__(self, value_list=None):
+        """ Takes the input list and parses it into something intelligible. """
+        self.seed, self.com_type, self.time, self.collision_rate, self.tag = value_list
+
+        try:
+            self.type_name = Constants.STOPRESULT_inv[ self.com_type ]
+        except KeyError:
+            self.type_name = "Invalid Type: {0}".format( self.com_type )
+
+    def __str__( self ):
+        res = "Trajectory Seed [{0.seed}]\n\
+        Result: {0.type_name}\n\
+        Completion Time: {0.time}\n\
+        Collision Rate: {0.collision_rate}\n\
+        Completion Tag: {0.tag}".format( self )
+        
+        return res
+
+    def format( self, columns ):
+        """ Returns a list of formatted strings according to columns. """
+        res = []
+        for k,fmtstring in columns:
+            res.append("{0:{1}}".format( (hasattr( self,k) and getattr( self, k ) ) or "N/A",
+                                     fmtstring ))
+        return res
+
+    def __repr__( self ):
+        return "({0}, {1}, {2}, {4}, '{3}', result_type='firststep' )".format(self.seed, self.com_type, self.time, self.tag, self.collision_rate)
 
 
 class ResultList( list ):

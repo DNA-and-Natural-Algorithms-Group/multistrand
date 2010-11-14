@@ -8,6 +8,7 @@
 #include <string.h>
 #include <assert.h>
 #include "scomplex.h"
+#include <vector>
 
 // TODO: i'd like to optimize this lookup. It really should be just a bitwise
 //  or, and an array lookup, the extra function call annoys me.
@@ -84,6 +85,25 @@ StrandComplex::~StrandComplex( void )
   // we cannot delete this here now, as they could be associated with a strandordering that will live on when the complex dies.
   if( ordering != NULL )
     delete ordering;
+}
+
+typedef std::vector<Loop*> LoopVector;
+
+void StrandComplex::cleanup( void )
+{
+  LoopVector loops;
+  loops.push_back(beginLoop);
+  while( loops.size() > 0 )
+    {
+      Loop* current = loops.back();
+      loops.pop_back();
+      for (int i = 0; i < current->getCurAdjacent(); i++)
+        if (current->getAdjacent(i) != NULL)
+	  loops.push_back(current->getAdjacent(i));
+      delete current;
+    }
+  beginLoop = NULL;
+  ordering->cleanup();
 }
 
 /* 
