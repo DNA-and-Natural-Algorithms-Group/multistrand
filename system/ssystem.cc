@@ -532,7 +532,6 @@ void SimulationSystem::StartSimulation_FirstStep( void )
   
   while( simulation_count_remaining > 0 )
     {
-      setLongAttr( system_options, interface_current_seed, current_seed );
       InitializeSystem();
 
       SimulationLoop_FirstStep();
@@ -690,7 +689,7 @@ void SimulationSystem::SimulationLoop_FirstStep( void )
 
         
 void SimulationSystem::InitializeSystem( PyObject *alternate_start )
-{                             
+{
   class StrandComplex *tempcomplex;
   char *sequence, *structure;
   class identlist *id;
@@ -746,6 +745,10 @@ void SimulationSystem::InitializeSystem( PyObject *alternate_start )
       tempcomplex = NULL;
     }
   Py_DECREF( py_start_state );
+  
+  // Update the current seed and store the starting structures
+  setLongAttr( system_options, interface_current_seed, current_seed );
+  
   return;
 }
 

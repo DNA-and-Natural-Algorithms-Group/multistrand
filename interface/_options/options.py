@@ -709,7 +709,25 @@ class Options( object ):
 
     @interface_current_seed.setter
     def interface_current_seed(self, val):
+        
         self.interface.current_seed = val
+        
+        def get_structure(s):
+            if s.boltzmann_sample:
+                return s._last_boltzmann_structure
+            else:
+                return s._fixed_structure
+        
+        def process_state(x):
+            cmplx, rest_state = x
+            if rest_state is None:
+                return get_structure(cmplx)
+            else:
+                return get_structure(rest_state.get_starting_complex())
+        
+        structures = [process_state(s) for s in self._start_state]
+        
+        self.interface.start_structures[val] = structures
 
     @property
     def increment_trajectory_count( self ):

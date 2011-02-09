@@ -18,6 +18,19 @@ class Interface(object):
         [is repeated in the results it prints at the end].
         """
         
+        self.start_structures = {}
+        """ A dictionary storing the start structures for each trajectory. The
+        keys are trajectory seeds and each value is a list of the starting 
+        structures for each complex of the trajectory associated with that seed.
+        
+        Type         Default
+        dict         {}
+        
+        Modified by MultistrandOptions whenever the current seed is set (which
+        should occur immediately after the initial structures are chosen). Items
+        are removed whenever a trajectory is completed.
+        """
+        
         self._trajectory_count = 0
         # Current number of trajectories completed, is an internal that gets incremented
         # by the simsystem as it completes trajectories.
@@ -31,9 +44,15 @@ class Interface(object):
 
     def add_result( self, val, res_type= None ):
         if res_type == "status_line":
-            new_result = Result( value_list = val, result_type=res_type )
+            seed, com_type, time, tag = val
+            start = self.start_structures[seed]
+            del self.start_structures[seed]
+            new_result = Result( value_list=val, result_type=res_type, start_state=start )
         else:
-            new_result = FirstStepResult( value_list = val )
+            seed, com_type, time, rate, tag = val
+            start = self.start_structures[seed]
+            del self.start_structures[seed]
+            new_result = FirstStepResult( value_list = val, start_state = start)
         self._results.append( new_result )
 
     def __str__(self):
@@ -64,11 +83,12 @@ class Result( object ):
     str(r):  printable representation of the data (e.g. print(r) looks nice)
     repr(r): raw data - the python tuple representing this Result object."""
 
-    def __init__(self, value_list=None, result_type=None):
+    def __init__(self, value_list=None, result_type=None, start_state=None):
         """ Takes the input list and parses it into something intelligible. """
         if result_type == 'status_line':
             self.seed, self.com_type, self.time, self.tag = value_list
             self.result_type = result_type
+            self.start_state = start_state
             
         else:
             self.seed = -1
@@ -110,10 +130,11 @@ class FirstStepResult( object ):
     str(r):  printable representation of the data (e.g. print(r) looks nice)
     repr(r): raw data - the python tuple representing this Result object."""
 
-    def __init__(self, value_list=None):
+    def __init__(self, value_list=None, start_state=None):
         """ Takes the input list and parses it into something intelligible. """
         self.seed, self.com_type, self.time, self.collision_rate, self.tag = value_list
-
+        self.start_state = start_state
+        
         try:
             self.type_name = Constants.STOPRESULT_inv[ self.com_type ]
         except KeyError:
