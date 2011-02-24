@@ -61,7 +61,6 @@ void SComplexListEntry::fillData( EnergyModel *em )
 
 void SComplexListEntry::printComplex( int printtype, EnergyModel *em )
 {
-  char *temp,*temp2;
   printf("Complex %02d: %s\n", id, thisComplex->getStrandNames() );
   printf("          : %s\n",thisComplex->getSequence());
   printf("          : %s\n",thisComplex->getStructure());
@@ -72,6 +71,15 @@ void SComplexListEntry::printComplex( int printtype, EnergyModel *em )
   else
     printf("          : Energy: (%6.6f) TotalFlux: %6.2f\n", energy, rate);
 
+}
+
+void SComplexListEntry::dumpComplexEntryToPython( int *our_id, char **names, char **sequence, char **structure, double *our_energy)
+{
+  *our_id = id;
+  *names = thisComplex->getStrandNames();
+  *sequence = thisComplex->getSequence();
+  *structure = thisComplex->getStructure();
+  *our_energy = energy;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -265,6 +273,12 @@ void SComplexList::printComplexList( int printoptions )
       temp = temp->next;
     }
 }
+
+SComplexListEntry *SComplexList::dumpComplexListToPython( void )
+{
+  return first;
+}
+
 
 
 int SComplexList::getCount( void )

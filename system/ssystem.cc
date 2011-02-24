@@ -668,6 +668,7 @@ void SimulationSystem::SimulationLoop_FirstStep( void )
 
   if( checkresult > 0 )
     {
+	  dumpCurrentStateToPython();
       if( strcmp( traverse->tag, "REVERSE") == 0 )
         printStatusLine_First_Bimolecular( system_options, current_seed, STOPRESULT_REVERSE, stime, frate, traverse->tag );
       else 
@@ -677,12 +678,34 @@ void SimulationSystem::SimulationLoop_FirstStep( void )
   else
     {
       printStatusLine_First_Bimolecular( system_options, current_seed, STOPRESULT_FTIME, stime, frate, NULL );
+	  dumpCurrentStateToPython();
     }
   // if( ! sMode )
   //   printf("Trajectory Completed\n");
   
 }
 
+ 
+ ///////////////////////////////////////////////////////////
+ // void dumpCurrentStateToPython( void );				  //
+ // 													  //
+ // Helper function to send current state to python side. //
+ ///////////////////////////////////////////////////////////
+
+void SimulationSystem::dumpCurrentStateToPython( void )
+{
+  int id;
+  char *names, *sequence, *structure;
+  double energy;
+  SComplexListEntry *temp;
+  temp = complexList->dumpComplexListToPython();
+  while( temp != NULL )
+	{
+	  temp->dumpComplexEntryToPython( &id, &names, &sequence, &structure, &energy );
+	  printComplexStateLine( system_options, current_seed, id, names, sequence, structure, energy );
+	  temp = temp->next;
+	}
+}
 
 ///////////////////////////////////////////////////
 // This has now been ref count checked, etc etc. //

@@ -25,6 +25,7 @@ class SComplexList
   int getCount( void );
   double *getEnergy( int volume_flag );
   void printComplexList( int printoptions );
+  SComplexListEntry *dumpComplexListToPython( void );
   void doBasicChoice( double choice, double newtime );
   void doJoinChoice( double choice );
   int checkStopComplexList( class complex_item *stoplist );
@@ -52,7 +53,7 @@ class SComplexListEntry
   void initializeComplex( void );
   void fillData( EnergyModel *em );
   void printComplex( int printtype, EnergyModel *em );
-
+  void dumpComplexEntryToPython( int *our_id, char **names, char **sequence, char **structure, double *our_energy);
   int id;
   StrandComplex *thisComplex;
   double energy;

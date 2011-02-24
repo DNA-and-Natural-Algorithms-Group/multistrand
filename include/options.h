@@ -21,7 +21,10 @@
 
 #define _m_prepStatusFirstTuple( seed, com_type, com_time, frate, tag) \
   Py_BuildValue("(lidds)", seed, com_type, com_time, frate, tag ) 
-/* These three prep functions return a new reference via Py_BuildValue, error checking and reference counting is the caller's responsibility. */
+
+#define _m_prepComplexStateTuple( seed, id, names, sequence, structure, energy ) \
+  Py_BuildValue("(lisssd)", seed, id, names, sequence, structure, energy )
+/* These four prep functions return a new reference via Py_BuildValue, error checking and reference counting is the caller's responsibility. */
 
 /* Accessors (ref counting caller responsibility */
 #define getStringAttr(obj, name, pyo) ((char *)PyString_AS_STRING(pyo=PyObject_GetAttrString(obj, #name)))
@@ -118,6 +121,9 @@
 
 #define printStatusLine_First_Bimolecular( obj,seed,com_type,com_time,frate,tag)  \
   _m_pushList( obj, _m_prepStatusFirstTuple( seed, com_type, com_time, frate, (char *)(tag)), add_result_status_line_firststep )
+
+#define printComplexStateLine( obj, seed, id, names, sequence, structure, energy ) \
+  _m_pushList( obj, _m_prepComplexStateTuple( seed, id, names, sequence, structure, energy ), add_complex_state_line )
 
 #endif  // DEBUG_MACROS is FALSE (not set).
 
@@ -259,6 +265,8 @@
 #define printStatusLine_First_Bimolecular( obj,seed,com_type,com_time,frate,tag)  \
   _m_d_pushList( obj, _m_prepStatusFirstTuple( seed, com_type, com_time, frate, (char *)(tag)), add_result_status_line_firststep )
 
+#define printComplexStateLine( obj, seed, id, names, sequence, structure, energy ) \
+  _m_d_pushList( obj, _m_prepComplexStateTuple( seed, id, names, sequence, structure, energy ), add_complex_state_line )
 #endif
 
 
