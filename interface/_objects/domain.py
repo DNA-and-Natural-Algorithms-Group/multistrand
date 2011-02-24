@@ -33,6 +33,8 @@ class Domain(object):
       self.length = 0
       for k,v in kargs.iteritems():
         self.__setattr__( k, v )
+      if self.length == 0 and len(self.sequence) > 0:
+        self.length = len(self.sequence)
       if 'name' not in kargs:
         raise ValueError("Must pass a 'name' keyword argument.")
 

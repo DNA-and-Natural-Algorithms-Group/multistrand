@@ -697,6 +697,17 @@ class Options( object ):
         self.interface.add_result( val, res_type = 'firststep' )
 
     @property
+    def add_complex_state_line( self ):
+        return None
+
+    @add_complex_state_line.setter
+    def add_complex_state_line( self, val ):
+        """ Takes a 6-tuple as only value, it should be:
+            (random number seed, unique complex id, strand names, sequence, structure, energy )
+            Adds this data to the interface's results object."""
+        print( "{0[0]}: [{0[1]}] '{0[2]}' - {0[5]} \n{0[3]}\n{0[4]}\n".format( val ))
+        
+    @property
     def interface_current_seed(self):
         """ This is the current random number seed for the trajectory currently being
         simulated by multistrand.

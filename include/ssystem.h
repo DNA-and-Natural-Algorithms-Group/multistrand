@@ -45,6 +45,8 @@ class SimulationSystem
   void InitializeRNG( void );
   void generateNextRandom( void );
 
+  // helper function for sending current state to Python side
+  void dumpCurrentStateToPython( void );
 
   EnergyModel *dnaEnergyModel;
 
