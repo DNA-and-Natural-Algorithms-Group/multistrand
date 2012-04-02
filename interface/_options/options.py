@@ -12,6 +12,7 @@
 from interface import Interface
 from ..objects import Strand, Complex, RestingState, StopCondition
 from constants import _OptionsConstants
+#from ..pygraphviztesting import create_graph,update_graph
 
 _OC = _OptionsConstants()
 
@@ -67,7 +68,15 @@ class Options( object ):
 
         TODO: implement some functions to report the errors found here.
         """
-        
+        self.full_trajectory = []
+        self.full_trajectory_times = []
+        self.trajectory_complexes = []
+        self.trajectory_state_count = 0
+        self._current_end_state = []
+        self._current_transition_list = []
+        self.special_count = 0
+        self.trajectory_current_time = 0.0
+        self.current_graph = None
 
         #############################################
         #                                           #
@@ -226,15 +235,15 @@ class Options( object ):
         ##char
 
 
-        self.trajectory_type = 0
-        """ The type of trajectory data we are concerned with.
+        # self.trajectory_type = 0
+        # """ The type of trajectory data we are concerned with.
         
-        Type         Default
-        int          0: Normal
+        # Type         Default
+        # int          0: Normal
         
-        Normal          [0]: First passage time only.
-        Transition time [1]: Transition time data kept for some set of states.
-        """
+        # Normal          [0]: First passage time only.
+        # Transition time [1]: Transition time data kept for some set of states.
+        # """
 
         self.simulation_mode = _OC.SIMULATION_MODE['Normal']
         """ The simulation mode: how we want the simulation system to
@@ -681,6 +690,9 @@ class Options( object ):
         if not isinstance(val, tuple) or len(val) != 4:
             raise ValueError("Print status line needs a 4-tuple of values.")
         self.interface.add_result( val, res_type = 'status_line' )
+        if len(self._current_end_state) > 0:
+            self.interface.end_states.append( self._current_end_state )
+            self._current_end_state = []
     
     @property
     def add_result_status_line_firststep(self, val):
@@ -695,7 +707,10 @@ class Options( object ):
         if not isinstance(val, tuple) or len(val) != 5:
             raise ValueError("Print status line needs a 5-tuple of values.")
         self.interface.add_result( val, res_type = 'firststep' )
-
+        if len(self._current_end_state) > 0:
+            self.interface.end_states.append( self._current_end_state )
+            self._current_end_state = []
+            
     @property
     def add_complex_state_line( self ):
         return None
@@ -705,7 +720,67 @@ class Options( object ):
         """ Takes a 6-tuple as only value, it should be:
             (random number seed, unique complex id, strand names, sequence, structure, energy )
             Adds this data to the interface's results object."""
-        print( "{0[0]}: [{0[1]}] '{0[2]}' - {0[5]} \n{0[3]}\n{0[4]}\n".format( val ))
+
+        self._current_end_state.append( val )
+        print( "{0[0]}: [{0[1]}] '{0[2]}': {0[5]} \n{0[3]}\n{0[4]}\n".format( val ))
+
+
+    @property
+    def add_transition_info( self ):
+        return None
+
+    @add_transition_info.setter
+    def add_transition_info( self, val ):
+        """ Takes a 2-tuple, 1st value is current time, 2nd value is a
+            list of boolean values indicating which stop conditions we
+            currently meet."""
+        print( "Time: {0[0]} Membership: {0[1]}".format( val ))
+        self._current_transition_list.append( val )
+
+    @property
+    def add_trajectory_complex( self ):
+        return None
+
+    @add_trajectory_complex.setter
+    def add_trajectory_complex( self, val ):
+        """ Takes a 6-tuple as only value, it should be:
+            (random number seed, unique complex id, strand names, sequence, structure, energy )
+            Adds this data to the interface's results object."""
+
+        self.trajectory_complexes.append( val )
+        #print "Number of complexes in current traj output:" + str(len(self.trajectory_complexes))
+
+    @property
+    def add_trajectory_current_time( self ):
+        return None
+
+    @add_trajectory_current_time.setter
+    def add_trajectory_current_time( self, val ):
+        self.trajectory_current_time = val
+        self.trajectory_state_count += 1
+        self.full_trajectory.append( self.trajectory_complexes )
+        self.full_trajectory_times.append( self.trajectory_current_time )
+        self.trajectory_complexes = []
+        if self.trajectory_state_count % 10 == 0:
+            print "Count: {0} Time: {1}".format(self.trajectory_state_count,self.trajectory_current_time)
+
+
+        # if self.current_graph == None:
+        #     self.current_graph = create_graph( val[3], val[4], 0 )
+        #     print "hi"
+        #     try:
+
+        #     except:
+        #         print "Error"
+        #     self.trajectory_count = 1
+        #     self.current_graph.draw('test0000.png')
+        # for state in self.trajectory_complexes:
+        #     new_graph = update_graph( self.current_graph, self.basepairlist, state[4] )
+        #     self.current_graph = new_graph
+        #     self.current_graph.draw('test{0:04d}.png'.format(self.trajectory_count))
+            
+        #     print( "{2}, {1:3e}(s): [{0[1]}] '{0[2]}' Energy (kcal/mol): {0[5]} \n{0[3]}\n{0[4]}\n".format( state, val, self.trajectory_count ))
+        #from IPython.Debugger import Pdb; Pdb().set_trace()
         
     @property
     def interface_current_seed(self):
@@ -743,6 +818,9 @@ class Options( object ):
     @property
     def increment_trajectory_count( self ):
         self.interface.increment_trajectory_count()
+        if len(self._current_transition_list) > 0:
+            self.interface.transition_lists.append(self._current_transition_list )
+            self._current_transition_list = []
 
     def __repr__( self ):
         items_to_save = {}

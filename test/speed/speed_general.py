@@ -477,8 +477,9 @@ class Threeway_BM_Tests( Multistrand_Suite_Base ):
 
         
 if __name__ == '__main__':
-    pass
-    #short_lengths = Length_Tests( range(20,100,2), [5000.0]*11 + [1000.0]*39, 'length_short/')
+    #pass
+    short_lengths = Length_Tests( range(20,100,2), [5000.0]*11 + [1000.0]*39, 'length_short/')
+    short_lengths.runTests_Async()
     #long_lengths = Length_Tests( range(100,205,5), [1000.0] * 21, 'length_longs/')
     # very_long_lengths = Length_Tests( range(210,310,10), [100.0] * 10, 'length_very_longs/')
     #single_short = Length_Tests( [30], [5000.0], 'length_short/')

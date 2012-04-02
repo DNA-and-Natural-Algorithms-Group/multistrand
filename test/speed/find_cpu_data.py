@@ -29,6 +29,7 @@ class ClusterInfo(object):
 
     def check_machines(self, username ):
         self.lastupdate = (time.asctime(),time.time())
+        self.res = []
         for line in machines:
             try:
                 address = line + '.dna.caltech.edu'

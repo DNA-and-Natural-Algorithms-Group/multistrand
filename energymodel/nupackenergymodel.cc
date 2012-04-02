@@ -56,7 +56,8 @@ double NupackEnergyModel::returnRate( double start_energy, double end_energy, in
   double dE = end_energy - start_energy;
   //  double dE = ((double) ( end_energy - start_energy )) / 100.;
   if( enth_entr_toggle == 3 ) // O/O delete, needs bi scale and full dE.
-    return biscale * exp( -(dE) / _RT ); 
+	//    return biscale * exp( -(dE) / _RT ); 
+      return biscale * exp( -(dE-dG_assoc) / _RT ); 
   // dG_assoc, if it were included in (start_energy, end_energy), would need to be deleted here. However, it never gets added into any energies except for display purposes. So it gets used in the join move rate, but not here.
   // OLD: dG_assoc is typically a negative number, and included as part of the complex before disassociation. Thus it must be subtracted from the dE (leading to a typically slower disassociation rate.).
   if( kinetic_rate_method == RATE_METHOD_KAWASAKI )  // Kawasaki
@@ -517,7 +518,7 @@ double NupackEnergyModel::OpenloopEnergy( int size, int *sidelen, char **sequenc
 // constructors, internal functions
 
 
-NupackEnergyModel::NupackEnergyModel( PyObject *energy_options ) : log_loop_penalty_37(107.856) , kinetic_rate_method( RATE_METHOD_KAWASAKI) , bimolecular_penalty(196), kBoltzmann(.00198717),current_temp(310.15) // Check references for this loop penalty term.
+NupackEnergyModel::NupackEnergyModel( PyObject *energy_options ) : log_loop_penalty_37(107.856) , kinetic_rate_method( RATE_METHOD_KAWASAKI) , bimolecular_penalty(1.96), kBoltzmann(.00198717),current_temp(310.15) // Check references for this loop penalty term.
 {
   // This is the tough part, performing all read/input duties.
   char in_buffer[2048];
@@ -1020,7 +1021,7 @@ NupackEnergyModel::NupackEnergyModel( PyObject *energy_options ) : log_loop_pena
   if(!((temperature < CELSIUS37_IN_KELVIN - .00001) || (temperature > CELSIUS37_IN_KELVIN + .00001) ))
     {
       current_temp = CELSIUS37_IN_KELVIN;
-      bimolecular_penalty = bimolecular_penalty - kBoltzmann * current_temp * log( waterdensity);
+      //bimolecular_penalty = bimolecular_penalty - kBoltzmann * current_temp * log( waterdensity);
       setupRates( energy_options );  
       return;
     }
@@ -1103,7 +1104,8 @@ NupackEnergyModel::NupackEnergyModel( PyObject *energy_options ) : log_loop_pena
 
   terminal_AU = T_scale( terminal_AU, terminal_AU_dH, temperature );
 
-  bimolecular_penalty = T_scale( bimolecular_penalty, bimolecular_penalty_dH, temperature ) - kBoltzmann * temperature * log( waterdensity );
+  //bimolecular_penalty = T_scale( bimolecular_penalty, bimolecular_penalty_dH, temperature ) - kBoltzmann * temperature * log( waterdensity );
+  bimolecular_penalty = T_scale( bimolecular_penalty, bimolecular_penalty_dH, temperature );
   // need additional conversion as well
 
   _RT = kBoltzmann * temperature;

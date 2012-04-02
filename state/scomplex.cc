@@ -99,7 +99,7 @@ void StrandComplex::cleanup( void )
       loops.pop_back();
       for (int i = 0; i < current->getCurAdjacent(); i++)
         if (current->getAdjacent(i) != NULL)
-	  loops.push_back(current->getAdjacent(i));
+		  loops.push_back(current->getAdjacent(i));
       delete current;
     }
   beginLoop = NULL;

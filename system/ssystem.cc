@@ -124,7 +124,7 @@ void SimulationSystem::StartSimulation( void )
     }
   ProfilerStart("ssystem_run_profile.prof");
 #endif
-
+  printf("Simulation Mode: %d\n",simulation_mode);
   if( simulation_mode & SIMULATION_MODE_FLAG_FIRST_BIMOLECULAR )
     {
       StartSimulation_FirstStep();
@@ -169,7 +169,17 @@ void SimulationSystem::StartSimulation_Standard( void )
 
 void SimulationSystem::StartSimulation_Transition( void )
 {
-  StartSimulation_Standard();
+  InitializeRNG();  
+  while( simulation_count_remaining > 0)
+    {
+      InitializeSystem();
+
+      SimulationLoop_Transition();
+
+      simulation_count_remaining--;
+      pingAttr( system_options, increment_trajectory_count );
+      generateNextRandom();
+    }
 }
 
 
@@ -205,7 +215,8 @@ void SimulationSystem::SimulationLoop_Standard( void )
   double maxsimtime;
   maxsimtime = -1.0;
   
-  int curcount = 0, checkresult = 0;
+  int curcount = 0;
+  bool checkresult = false;
   long stopcount = 0, stopoptions = 0;
   class stopcomplexes *traverse = NULL, *first=NULL;
 
@@ -225,44 +236,62 @@ void SimulationSystem::SimulationLoop_Standard( void )
     // 1.0 - drand as drand returns in the [0.0, 1.0) range, we need a (0.0,1.0] range.
     // see notes below in First Step mode.
 
-    complexList->doBasicChoice( rchoice, stime );
-    rate = complexList->getTotalFlux();
+	if( stime < maxsimtime )  
+	  {
+		// Why check here? Because we want to report the final state
+		// as the one we were in before transitioning past the maximum
+		// time, rather than the one after it. This is not entirely
+		// obvious - to see why, look at a max time simulation for
+		// finding an equilibrium distribution. What state are we
+		// likely to observe after the time expires? Let's look at the
+		// previous state - the more stable the state, the less total
+		// rate out and thus the expected time for transition is
+		// higher. So in our most likely case for what state we'll see
+		// /after/ the max sim time is hit is actually the (more)
+		// unstable state it transitioned to! 
 
-    if( stopoptions )
-      {
-        if( stopcount <= 0 )
-          {
-            printStatusLine(system_options, current_seed, STOPRESULT_ERROR, 0.0, NULL);
-            return;
-          }
-        checkresult = 0;
-        first = getStopComplexList( system_options, 0 );
-        checkresult = complexList->checkStopComplexList( first->citem );
-        traverse = first;
-        while( traverse->next != NULL && checkresult == 0 )
-          {
-            traverse = traverse->next;
-            checkresult = complexList->checkStopComplexList( traverse->citem );
-          }
-        // Note: we cannot delete first here if checkresult != 0,
-        // as traverse->tag may be needed. It will get checked at
-        // that point and deleted once traverse->tag is used,
-        // later.
-        if( checkresult == 0 )
-          delete first;
-      }
-    
-  } while( stime < maxsimtime && checkresult == 0);
+		complexList->doBasicChoice( rchoice, stime );
+		rate = complexList->getTotalFlux();
+
+		if( stopoptions )
+		  {
+			if( stopcount <= 0 )
+			  {
+				printStatusLine(system_options, current_seed, STOPRESULT_ERROR, 0.0, NULL);
+				return; 
+			  }
+			checkresult = false;
+			first = getStopComplexList( system_options, 0 );
+			checkresult = complexList->checkStopComplexList( first->citem );
+			traverse = first;
+			while( traverse->next != NULL && !checkresult )
+			  {
+				traverse = traverse->next;
+				checkresult = complexList->checkStopComplexList( traverse->citem );
+			  }
+			// Note: we cannot delete first here if checkresult != 0,
+			// as traverse->tag may be needed. It will get checked at
+			// that point and deleted once traverse->tag is used,
+			// later.
+			if( !checkresult )
+			  delete first;
+		  }
+	  }
+  } while( stime < maxsimtime && !checkresult);
   
   if( stime == NAN )
     printStatusLine(system_options, current_seed, STOPRESULT_NAN, 0.0, NULL);
-  else if ( checkresult > 0 )
+  else if ( checkresult  )
     {
+	  dumpCurrentStateToPython();
       printStatusLine(system_options, current_seed, STOPRESULT_NORMAL, stime, traverse->tag );
       delete first;
     }
-  else
-    printStatusLine(system_options, current_seed, STOPRESULT_TIME, stime, NULL );
+  else // stime >= maxsimtime
+	{
+	  dumpCurrentStateToPython();
+	  printStatusLine(system_options, current_seed, STOPRESULT_TIME, maxsimtime, NULL );
+	}
 }
 
 void SimulationSystem::SimulationLoop_Trajectory( long output_count_interval, double output_time_interval )
@@ -272,11 +301,13 @@ void SimulationSystem::SimulationLoop_Trajectory( long output_count_interval, do
   rchoice = rate = 0.0;
   maxsimtime = -1.0;
 
-  int checkresult = 0;
+  bool checkresult = false;
   long current_state_count = 0;
   
   // The tag of the stop state reached. 
   char *tag = NULL;
+
+  //  SComplexListEntry *affectedComplex = NULL;
 
   getDoubleAttr(system_options, simulation_time,&maxsimtime);
 
@@ -307,21 +338,26 @@ void SimulationSystem::SimulationLoop_Trajectory( long output_count_interval, do
       if( current_simulation_time - last_trajectory_time > output_time_interval )
         {
           last_trajectory_time += output_time_interval;
-          complexList->printComplexList( 0 );
+		  sendTrajectory_CurrentStateToPython( last_trajectory_time );
+          //complexList->printComplexList( 0 );
         }
 
     //    trajectory output via outputinterval option
     if( output_count_interval >= 0 )
       if( (current_state_count % output_count_interval) == 0)
-        complexList->printComplexList( 0 );
+		{
+		  sendTrajectory_CurrentStateToPython( current_simulation_time );
+		  //         complexList->printComplexList( 0 );
+		}
 
-  } while( current_simulation_time < maxsimtime && checkresult == 0);
+
+  } while( current_simulation_time < maxsimtime && !checkresult );
             
   if( current_simulation_time == NAN )
     printStatusLine(system_options, current_seed, 
                     STOPRESULT_NAN, 0.0, 
                     NULL);
-  else if ( checkresult > 0 )
+  else if ( !checkresult )
     {
       printStatusLine(system_options,    current_seed, 
                       STOPRESULT_NORMAL, current_simulation_time, 
@@ -332,24 +368,6 @@ void SimulationSystem::SimulationLoop_Trajectory( long output_count_interval, do
                     STOPRESULT_TIME, current_simulation_time, 
                     NULL );
 
-    // if( stopcount > 0 && stopoptions)
-    //   {
-    //     checkresult = 0;
-    //     first = getStopComplexList( system_options, 0 );
-    //     checkresult = complexList->checkStopComplexList( first->citem );
-    //     traverse = first;
-    //     while( traverse->next != NULL && checkresult == 0 )
-    //       {
-    //         traverse = traverse->next;
-    //         checkresult = complexList->checkStopComplexList( traverse->citem );
-    //       }
-    //     // Note: we cannot delete first here if checkresult != 0,
-    //     // as traverse->tag may be needed. It will get checked at
-    //     // that point and deleted once traverse->tag is used,
-    //     // later.
-    //     if( checkresult == 0 )
-    //       delete first;
-    //   }
 }
 
 void SimulationSystem::SimulationLoop_Transition( void )
@@ -361,7 +379,9 @@ void SimulationSystem::SimulationLoop_Transition( void )
   double maxsimtime, otime;
   maxsimtime = otime = -1.0;
   
-  int curcount = 0, checkresult = 0;
+  bool checkresult = false;
+  bool stop_flag = false;
+  bool state_changed = false;
   long stopcount = 0, stopoptions = 0, sMode = 0;
   long ointerval = -1;
   class stopcomplexes *traverse = NULL, *first=NULL;
@@ -373,156 +393,144 @@ void SimulationSystem::SimulationLoop_Transition( void )
   getDoubleAttr(system_options, simulation_time,&maxsimtime);
   getDoubleAttr(system_options, output_time,&otime);
 
+  if( stopcount <= 0 || !stopoptions)
+	{
+	  // this simulation mode MUST have some stop conditions set.
+	  printStatusLine(system_options, current_seed, STOPRESULT_ERROR, 0.0, NULL);
+	  return; 
+	}
+
+
+  // figure out which stop entries should cause us to halt, update a bool vector to
+  // have true in the indices corresponding to which stop states are halting states.
+
+  boolvector stop_entries;
+  boolvector transition_states;
+  stop_entries.resize( stopcount, false );
+  transition_states.resize( stopcount, false );
+
   complexList->initializeList();
 
+  first = getStopComplexList( system_options, 0 );
+  traverse = first;
+  checkresult = false;
+  for( int idx = 0; idx < stopcount; idx++ )
+	{
+	  if( strstr( traverse->tag, "stop:") == traverse->tag )
+		stop_entries[idx] = true;
+
+	  checkresult = complexList->checkStopComplexList( traverse->citem );
+
+	  transition_states[idx] = checkresult;
+	  traverse = traverse->next;
+	}
+  delete first;
+  sendTransitionStateVectorToPython( transition_states, stime );
+  // start
+
+
   rate = complexList->getTotalFlux();
- 
-  if( testLongAttr(system_options, trajectory_type ,=, 0 ))
-    {
-      // Note: trajectory type 0 is normal, trajectory type 1 is transition time data.
-      // TODO: wrap this into simulation modes. 
+  state_changed = false;
+  stop_flag = false;
+  do {
 
-      do {
-
-        rchoice = rate * drand48();
-
-        stime += (log( 1. / (1.0 - drand48()) ) / rate ); 
-        // 1.0 - drand as drand returns in the [0.0, 1.0) range, we need a (0.0,1.0] range.
-        // see notes below in First Step mode.
-
-        complexList->doBasicChoice( rchoice, stime );
-        rate = complexList->getTotalFlux();
-
-        if( stopcount > 0 && stopoptions)
-          {
-            checkresult = 0;
-            first = getStopComplexList( system_options, 0 );
-            checkresult = complexList->checkStopComplexList( first->citem );
-            traverse = first;
-            while( traverse->next != NULL && checkresult == 0 )
-              {
-                traverse = traverse->next;
-                checkresult = complexList->checkStopComplexList( traverse->citem );
-              }
-            // Note: we cannot delete first here if checkresult != 0,
-            // as traverse->tag may be needed. It will get checked at
-            // that point and deleted once traverse->tag is used,
-            // later.
-            if( checkresult == 0 )
-              delete first;
-          }
-
-        // trajectory output via outputtime option
-        // if( otime > 0.0 )
-        //   {
-        //     if( stime - ctime > otime )
-        //       {
-        //         ctime += otime;
-        //         printf("Current State: Choice: %6.4f, Time: %6.6f\n",rchoice, ctime);
-        //         complexList->printComplexList( 0 );
-        //       }
-
-        //   }
-
-        // trajectory output via outputinterval option
-        // if( ointerval >= 0 )
-        //   {
-        //     if( testBoolAttr(system_options, output_state) )
-        //       {
-        //         printf("Current State: Choice: %6.4f, Time: %6.6f\n",rchoice, stime);
-        //         complexList->printComplexList( 0 );
-        //       }
-        //     pingAttr( system_options, increment_output_state );
-        //   }
+    rchoice = rate * drand48();
     
-      } while( /*rate > 0.01 &&*/ stime < maxsimtime && checkresult == 0);
-      
-      // if( otime > 0.0 )
-      //   printf("Final state reached: Time: %6.6f\n",stime);
-      // if( ! (sMode & SIMULATION_MODE_FLAG_PYTHON ) )
-      //   if( ointerval < 0 || testLongAttr(system_options, output_state ,=, 0 ))
-      //     complexList->printComplexList( 0 );
-      
-      if( stime == NAN )
-        printStatusLine(system_options, current_seed, STOPRESULT_NAN, 0.0, NULL);
-      else if ( checkresult > 0 )
-        {
-          printStatusLine(system_options, current_seed, STOPRESULT_NORMAL, stime, traverse->tag );
-          delete first;
-        }
-      else
-        printStatusLine(system_options, current_seed, STOPRESULT_TIME, stime, NULL );
-      
-      // if( ! (sMode & SIMULATION_MODE_FLAG_PYTHON) )
-      //   printf("Trajectory Completed\n");
-    }
-  else if( testLongAttr(system_options, trajectory_type ,=, 1 ) )
+    stime += (log( 1. / (1.0 - drand48()) ) / rate ); 
+    // 1.0 - drand as drand returns in the [0.0, 1.0) range, we need a (0.0,1.0] range.
+    // see notes below in First Step mode.
+
+	if( stime < maxsimtime )  
+	  {
+		// See note in SimulationLoop_Standard
+
+		complexList->doBasicChoice( rchoice, stime );
+		rate = complexList->getTotalFlux();
+
+		// check if our transition state membership vector has changed
+		checkresult = false;
+		first = getStopComplexList( system_options, 0 );
+		traverse = first;
+		for( int idx = 0; idx < stopcount; idx++ )
+		  {
+			checkresult = complexList->checkStopComplexList( traverse->citem );
+			if( checkresult && stop_entries[idx] == true)
+			  {
+				// multiple stop states could suddenly be true, we add
+				// a status line entry for the first one found.
+				if( !stop_flag)
+				  printStatusLine(system_options, current_seed, STOPRESULT_NORMAL, stime, traverse->tag );
+				
+				stop_flag = true;
+			  }
+			if( !state_changed && transition_states[idx] != checkresult)
+			  state_changed = true;
+			transition_states[idx] = checkresult;
+			traverse = traverse->next;
+		  }
+		delete first; // we can do this now as we no longer need to
+					  // save the stoplist until the loop exits, due
+					  // to moving printStatusLine to immediately upon
+					  // finding the stopping condition.
+		if( state_changed )
+		  {
+			sendTransitionStateVectorToPython( transition_states, stime );
+			state_changed = false;
+		  }
+	  }
+  } while( stime < maxsimtime && !stop_flag);
+  
+  if( stime == NAN )
+    printStatusLine(system_options, current_seed, STOPRESULT_NAN, 0.0, NULL);
+  else if ( stop_flag )
     {
-      // begin transition times mode case
-      int stopindex=-1;
-      if( stopcount > 0 )
-        {
-          curcount = 0;
-          first = getStopComplexList( system_options, 0 );
-          traverse = first;
-          while( curcount < stopcount && stopindex < 0 )
-            {
-              if( strstr( traverse->tag, "stop") != NULL )
-                stopindex = curcount;
-              curcount++;
-              traverse = traverse->next;
-            }
-          delete first;
-        }
-
-      do {
-        rchoice = (rate * random()/((double)RAND_MAX));
-        stime += (log(1. / (double)((random() + 1)/(double)RAND_MAX)) / rate );
-        complexList->doBasicChoice( rchoice, stime );
-        rate = complexList->getTotalFlux();
-        // if( ointerval >= 0 )
-        //   {
-        //     if( testBoolAttr(system_options, output_state) )
-        //       complexList->printComplexList( 0 );
-        //     pingAttr( system_options, increment_output_state );
-        //   }
-        if( stopcount > 0 )
-          {
-            curcount = 1;
-            checkresult = 0;
-            first = getStopComplexList( system_options, 0 );
-            checkresult = complexList->checkStopComplexList( first->citem );
-            traverse = first;
-            while( curcount < stopcount && checkresult == 0 )
-              {
-                traverse = traverse->next;
-                checkresult = complexList->checkStopComplexList( traverse->citem );
-                curcount++;
-              }
-            if( checkresult == 0 )
-              {
-                delete first;
-              }
-          }
-        if( checkresult > 0 )
-          {
-            ;// printTrajLine(system_options, traverse->tag, stime );
-          }
-        else
-          ;
-          //          printTrajLine(system_options,"NOSTATE", stime );
-      } while( /*rate > 0.01 && */ stime < maxsimtime && !(checkresult > 0 && stopindex == curcount-1));
-      if( checkresult > 0 )
-        delete first;
-      // if( ointerval < 0 || testLongAttr(system_options, output_state ,=, 0 ))
-      //   complexList->printComplexList( 0 );
-
-      if( stime == NAN )
-        printStatusLine(system_options, current_seed, STOPRESULT_NAN, 0.0, NULL);
-      else
-        printStatusLine(system_options, current_seed, STOPRESULT_TIME, stime, NULL );
-      
+	  dumpCurrentStateToPython();
     }
+  else // stime >= maxsimtime
+	{
+	  dumpCurrentStateToPython();
+	  printStatusLine(system_options, current_seed, STOPRESULT_TIME, maxsimtime, NULL );
+	}  
+
+
+  // 	if( stopcount > 0 )
+  // 	  {
+  // 		curcount = 1;
+  // 		checkresult = 0;
+  // 		first = getStopComplexList( system_options, 0 );
+  // 		checkresult = complexList->checkStopComplexList( first->citem );
+  // 		traverse = first;
+  // 		while( curcount < stopcount && checkresult == 0 )
+  // 		  {
+  // 			traverse = traverse->next;
+  // 			checkresult = complexList->checkStopComplexList( traverse->citem );
+  // 			curcount++;
+  // 		  }
+  // 		if( checkresult == 0 )
+  // 		  {
+  // 			delete first;
+  // 		  }
+  // 	  }
+  // 	if( checkresult > 0 )
+  // 	  {
+  // 		;// printTrajLine(system_options, traverse->tag, stime );
+  // 	  }
+  // 	else
+  // 	  ;
+  // 	//          printTrajLine(system_options,"NOSTATE", stime );
+  // } while( /*rate > 0.01 && */ stime < maxsimtime && !(checkresult > 0 && stopindex == curcount-1));
+  // if( checkresult > 0 )
+  // 	delete first;
+  // // if( ointerval < 0 || testLongAttr(system_options, output_state ,=, 0 ))
+  // //   complexList->printComplexList( 0 );
+
+  // if( stime == NAN )
+  // 	printStatusLine(system_options, current_seed, STOPRESULT_NAN, 0.0, NULL);
+  // else
+  // 	printStatusLine(system_options, current_seed, STOPRESULT_TIME, stime, NULL );
+    
+
+
 }
 
 
@@ -546,7 +554,7 @@ void SimulationSystem::StartSimulation_FirstStep( void )
 void SimulationSystem::SimulationLoop_FirstStep( void )
 {
   double rchoice,rate,stime=0.0, ctime=0.0;
-  int checkresult = 0;
+  bool checkresult = false;
 
   double maxsimtime;
   long stopcount;
@@ -558,7 +566,6 @@ void SimulationSystem::SimulationLoop_FirstStep( void )
   double otime_interval;
   double frate = 0.0;
 
-  getLongAttr(system_options, trajectory_type,&trajMode);
   getLongAttr(system_options, output_interval,&ointerval);
   getDoubleAttr(system_options, output_time,&otime);
   getLongAttr(system_options, use_stop_conditions,&stopoptions);
@@ -645,19 +652,19 @@ void SimulationSystem::SimulationLoop_FirstStep( void )
     //   }
     if( stopcount > 0 && stopoptions)
       {
-        checkresult = 0;
+        checkresult = false;
         first = getStopComplexList( system_options, 0 );
         traverse = first;
         checkresult = complexList->checkStopComplexList( traverse->citem );
-        while( traverse->next != NULL && checkresult == 0 )
+        while( traverse->next != NULL && !checkresult )
           {
             traverse = traverse->next;
             checkresult = complexList->checkStopComplexList( traverse->citem );
           }
-        if( checkresult == 0 && first != NULL)
+        if( !checkresult && first != NULL)
           delete first;
       }
-  } while( stime < maxsimtime && checkresult == 0);
+  } while( stime < maxsimtime && !checkresult );
       
   // if( !sMode && otime > 0.0 )
   //   {
@@ -665,7 +672,7 @@ void SimulationSystem::SimulationLoop_FirstStep( void )
   //     printf("Final state reached: Time: %6.6e\n",stime);
   //   }
 
-  if( checkresult > 0 )
+  if( checkresult )
     {
 	  dumpCurrentStateToPython();
       if( strcmp( traverse->tag, "REVERSE") == 0 )
@@ -676,8 +683,8 @@ void SimulationSystem::SimulationLoop_FirstStep( void )
     }
   else
     {
-      printStatusLine_First_Bimolecular( system_options, current_seed, STOPRESULT_FTIME, stime, frate, NULL );
 	  dumpCurrentStateToPython();
+      printStatusLine_First_Bimolecular( system_options, current_seed, STOPRESULT_FTIME, stime, frate, NULL );
     }
   // if( ! sMode )
   //   printf("Trajectory Completed\n");
@@ -704,6 +711,79 @@ void SimulationSystem::dumpCurrentStateToPython( void )
 	  printComplexStateLine( system_options, current_seed, id, names, sequence, structure, energy );
 	  temp = temp->next;
 	}
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////
+// void sendTransitionStateVectorToPython( boolvector transition_states );		   //
+// 																				   //
+// Helper function to prepare a Python list object containing the bool information //
+//  about which transition states we are in.									   //
+/////////////////////////////////////////////////////////////////////////////////////
+
+void SimulationSystem::sendTransitionStateVectorToPython( boolvector transition_states, double current_time)
+{
+  PyObject *mylist = PyList_New( (Py_ssize_t) transition_states.size() );
+  // we now have a new reference here that we'll need to DECREF.
+
+  if( mylist == NULL )
+	return; // TODO: Perhaps raise an exception to the Python side here that
+			// we couldn't pass the information back...
+  
+  boolvector_iterator it;
+  Py_ssize_t index = 0;
+
+  for( it=transition_states.begin(); it<transition_states.end(); it++ )
+	{
+	  if( *it ) // bool value was true
+		{
+		  Py_INCREF( Py_True );
+		  PyList_SET_ITEM( mylist, index, Py_True );
+		  // ownership of this reference to Py_True has now been stolen by PyList_SET_ITEM.
+		}
+	  else
+		{
+		  Py_INCREF( Py_False );
+		  PyList_SET_ITEM( mylist, index, Py_False );
+		  // ownership of this reference to Py_False has now been stolen by PyList_SET_ITEM.
+		}
+	  index++;
+	}
+
+  PyObject *transition_tuple = Py_BuildValue("dO", current_time, mylist);
+  // we now have a new reference to transition_tuple.  note that our
+  // reference to mylist has NOT been stolen by this call [it was
+  // increffed in the call itself, so we can decref now with no
+  // worries]
+  Py_DECREF( mylist );
+  // we now have no references to mylist directly owned [though transition tuple has one via BuildValue]
+  
+  pushTransitionInfo( system_options, transition_tuple );
+  // transition_tuple has been decreffed by this macro, so we no longer own any references to it
+
+}
+
+
+ ///////////////////////////////////////////////////////////
+ // void sendTrajectory_CurrentStateToPython( void );	  //
+ // 													  //
+ // Helper function to send current state to python side. //
+ ///////////////////////////////////////////////////////////
+
+void SimulationSystem::sendTrajectory_CurrentStateToPython( double current_time )
+{
+  int id;
+  char *names, *sequence, *structure;
+  double energy;
+  SComplexListEntry *temp;
+  temp = complexList->dumpComplexListToPython();
+  while( temp != NULL )
+	{
+	  temp->dumpComplexEntryToPython( &id, &names, &sequence, &structure, &energy );
+	  pushTrajectoryComplex( system_options, current_seed, id, names, sequence, structure, energy );
+	  temp = temp->next;
+	}
+  pushTrajectoryInfo( system_options, current_time );
 }
 
 ///////////////////////////////////////////////////

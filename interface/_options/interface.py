@@ -30,7 +30,19 @@ class Interface(object):
         should occur immediately after the initial structures are chosen). Items
         are removed whenever a trajectory is completed.
         """
-        
+
+        self.end_states = []
+        """ A list of ending states for the trajectorys in results.
+        Each value is a list of 6-tuples, which are
+        (random number seed, unique complex id, strand names, sequence, structure, energy )
+        """
+
+        self.transition_lists = []
+        """ A list of transition lists created via Transition Mode.
+        Each value is a list of 2-tuples, which are (current time,
+        stop condition membership list)
+        """
+
         self._trajectory_count = 0
         # Current number of trajectories completed, is an internal that gets incremented
         # by the simsystem as it completes trajectories.
@@ -45,13 +57,19 @@ class Interface(object):
     def add_result( self, val, res_type= None ):
         if res_type == "status_line":
             seed, com_type, time, tag = val
-            start = self.start_structures[seed]
-            del self.start_structures[seed]
+            try:
+                start = self.start_structures[seed]
+                del self.start_structures[seed]
+            except:
+                pass
             new_result = Result( value_list=val, result_type=res_type, start_state=start )
         else:
             seed, com_type, time, rate, tag = val
-            start = self.start_structures[seed]
-            del self.start_structures[seed]
+            try:
+                start = self.start_structures[seed]
+                del self.start_structures[seed]
+            except:
+                pass
             new_result = FirstStepResult( value_list = val, start_state = start)
         self._results.append( new_result )
 

@@ -8,6 +8,10 @@
 #include <string.h>
 #include <assert.h>
 #include <math.h>
+#include <vector>
+
+typedef std::vector<int> intvec;
+typedef std::vector<int>::iterator intvec_it;
 
 /*
 
@@ -248,9 +252,9 @@ double *SComplexList::getEnergy( int volume_flag )
     {
       energies[index] = temp->energy;
 
-      if( volume_flag & 0x01)
+      if( !(volume_flag & 0x01))
         energies[index] -= (dnaEnergyModel->getVolumeEnergy() * (temp->thisComplex->getStrandCount() - 1));
-      if( volume_flag & 0x02)
+      if( !(volume_flag & 0x02))
         energies[index] -= (dnaEnergyModel->getAssocEnergy() * (temp->thisComplex->getStrandCount() -1));
 
       temp = temp->next;
@@ -286,10 +290,10 @@ int SComplexList::getCount( void )
   return numentries;
 }
 /*
-  SComplexList::doBasicChoice( double choice, double newtime )
+  SComplexListEntry *SComplexList::doBasicChoice( double choice, double newtime )
 */
 
-void SComplexList::doBasicChoice( double choice, double newtime )
+SComplexListEntry *SComplexList::doBasicChoice( double choice, double newtime )
 {
   double rchoice = choice, moverate;
   int type;
@@ -301,7 +305,7 @@ void SComplexList::doBasicChoice( double choice, double newtime )
   if( rchoice < joinRate )
     {
       doJoinChoice( rchoice );
-      return;
+      return NULL;
     }
   else
     {
@@ -335,12 +339,12 @@ void SComplexList::doBasicChoice( double choice, double newtime )
     {
       temp = addComplex(newComplex);
       temp->fillData( dnaEnergyModel );
+	  temp2->fillData( dnaEnergyModel );
+	  return NULL;
     }
 
-  //  if( GlobalOptions->getOutputState() )
-  // printf("Move done: Complex %d, Move rate: %6.4f Type: %d New time: %6.2f\n",temp2->id, moverate,type,newtime);
-
   temp2->fillData( dnaEnergyModel );
+  return temp2;
 
   /*  struc = pickedComplex->getStructure();
       int temp1=0;
@@ -554,10 +558,10 @@ void SComplexList::doJoinChoice( double choice )
 
 /*
 
-  int SComplexList::checkStopComplexList( class complex_item *stoplist )
+  bool SComplexList::checkStopComplexList( class complex_item *stoplist )
 
 */
-int SComplexList::checkStopComplexList( class complex_item *stoplist )
+bool SComplexList::checkStopComplexList( class complex_item *stoplist )
 {
   //if( stoplist->type == STOPTYPE_STRUCTURE || stoplist->type == STOPTYPE_DISASSOC )
   if( stoplist->type == STOPTYPE_BOUND )
@@ -568,11 +572,11 @@ int SComplexList::checkStopComplexList( class complex_item *stoplist )
 
 /*
 
-  int SComplexList::checkStopComplexList_Bound( class complex_item *stoplist )
+  bool SComplexList::checkStopComplexList_Bound( class complex_item *stoplist )
 
 */
 
-int SComplexList::checkStopComplexList_Bound( class complex_item *stoplist )
+bool SComplexList::checkStopComplexList_Bound( class complex_item *stoplist )
 {
   class identlist *id_traverse = stoplist->strand_ids;
   class SComplexListEntry *entry_traverse = first;
@@ -580,7 +584,7 @@ int SComplexList::checkStopComplexList_Bound( class complex_item *stoplist )
   if( stoplist->next != NULL ) 
     {
       fprintf(stderr,"ERROR: (scomplexlist.cc) Attempting to check for multiple complexes being bound, not currently supported.\n");
-      return 0;  // ERROR: can only check for a single complex/group being bound in current version.
+      return false;  // ERROR: can only check for a single complex/group being bound in current version.
     }
 
   // Check for each listed strand ID, and whether it's bound. 
@@ -597,19 +601,19 @@ int SComplexList::checkStopComplexList_Bound( class complex_item *stoplist )
           entry_traverse = entry_traverse->next;
         }
       if( k_flag == 0 )
-        return 0;
+        return false;
       id_traverse = id_traverse->next;
     }
 
-  return 1;
+  return true;
 }
 
-int SComplexList::checkStopComplexList_Structure_Disassoc( class complex_item *stoplist )
+bool SComplexList::checkStopComplexList_Structure_Disassoc( class complex_item *stoplist )
 {
   class SComplexListEntry *entry_traverse = first;
   class complex_item *traverse = stoplist;
   int id_count=0,max_complexes=0; 
-  int successflag;
+  bool successflag = false;
   class identlist *id_traverse = stoplist->strand_ids;
 
 
@@ -642,7 +646,7 @@ int SComplexList::checkStopComplexList_Structure_Disassoc( class complex_item *s
         }
 
       entry_traverse = first;
-      successflag = 0;
+      successflag = false;
       while( entry_traverse != NULL && successflag == 0)
         {
           // iterate check for current stop complex (traverse) in our list of system complexes (entry_traverse)
@@ -654,137 +658,173 @@ int SComplexList::checkStopComplexList_Structure_Disassoc( class complex_item *s
                   if( strcmp(entry_traverse->thisComplex->getStructure(), traverse->structure) == 0 )
                     {
                       // if the structures match exactly, we have a successful match.
-                      successflag = 1;
+                      successflag = true;
                     }
                 }
               else if (traverse->type == STOPTYPE_DISASSOC )
                 {
                   // for DISASSOC type checking, we only need the strand id lists to match correctly.
-                  successflag = 1;
+                  successflag = true;
                 }
               else if( traverse->type == STOPTYPE_LOOSE_STRUCTURE )
                 {
-                  if( checkLooseStructure( entry_traverse->thisComplex->getStructure(), traverse->structure) == 0 )
-                    {
-                      // the structure matches loosely (see definitions)
-                      successflag = 1;
-                    }
+                  successflag = checkLooseStructure( entry_traverse->thisComplex->getStructure(), traverse->structure, traverse->count);
+					// the structure matches loosely (see definitions)
                 }
               else if( traverse->type == STOPTYPE_PERCENT_OR_COUNT_STRUCTURE)
                 {
-                  if( checkCountStructure( entry_traverse->thisComplex->getStructure(), traverse->structure, traverse->count ) == 0)
-                    {
-                      // this structure matches to within a % of the correct base pairs, note that %'s are converted to raw base counts by the IO system.
-                      successflag = 1;
-                    }
+                  successflag = checkCountStructure( entry_traverse->thisComplex->getStructure(), traverse->structure, traverse->count );
+					// this structure matches to within a % of the correct base pairs, note that %'s are converted to raw base counts by the IO system.
                 }
             }
           entry_traverse = entry_traverse->next;
         }
-      if( successflag == 0 )
-        return 0;
+      if( !successflag )
+        return false;
       // we did not find a successful match for this stop complex in any system complex.
       
       // otherwise, we did, try checking the next stop complex.
       traverse = traverse->next;
     }
-	      
-  return 1;
+  return true;
 }
 
 /* 
    Methods used for checking loose structure definitions and counting structure defs.
 
-   int SComplexList::checkLooseStructure( char *our_struc, char *stop_struc );
+   int SComplexList::checkLooseStructure( char *our_struc, char *stop_struc, int count );
    int SComplexList::checkCountStructure( char *our_struc, char *stop_struc, int count );
 
 */
 
 
-int SComplexList::checkLooseStructure( char *our_struc, char *stop_struc )
+bool SComplexList::checkLooseStructure( char *our_struc, char *stop_struc, int count )
 {
   int loop,len;
-  int *pairqueue;
-  int index[2] = {0,0};
-  // WARNING: implicit assumption that strings are NULL terminated
+  intvec our_pairs, stop_pairs;
+  int remaining_distance = count;
 
   len = strlen(our_struc);
-  pairqueue = new int [len+2];
+  if( len != strlen(stop_struc) )
+	return false;  // something weird happened, as it should have the
+				   // same ID list...
 
-  for( loop = 0; loop <= len; loop ++ )
+  for( loop = 0; loop < len; loop ++ )
     {
-      if( our_struc[loop] == '\0' && stop_struc[loop] == '\0' )
-        {
-          delete[] pairqueue;
-          return 0;
-        }
-      if( our_struc[loop] == '\0' || stop_struc[loop] == '\0' )
-        {
-          delete[] pairqueue;
-          return 1;
-        }
-
-
       if( stop_struc[loop] != '*' )
         if( our_struc[loop] != stop_struc[loop] )
           {
-            delete[] pairqueue;
-            return 1;
+			remaining_distance--;
           }
 
-      if( our_struc[loop] == '(' && stop_struc[loop] == '(' )
-        {
-          pairqueue[2*index[0]] = loop;
-          pairqueue[2*index[1]+1] = loop;
-          index[0]++;
-          index[1]++;
-        }
-      else if( our_struc[loop] == '(' )
-        {
-          pairqueue[2*index[0]] = loop;
-          index[0]++;
-        }
+      if( our_struc[loop] == '(')
+		our_pairs.push_back( loop );
+	  if( stop_struc[loop] == '(' )
+		stop_pairs.push_back( loop );
 
       if( our_struc[loop] == ')' && stop_struc[loop] == ')' )
         {
-          index[0]--;
-          index[1]--;
-          assert( (index[0] >= 0) && (index[1] >= 0) );
-
-          if( pairqueue[2*index[0]] != pairqueue[2*index[1]+1] )
-            {
-              delete [] pairqueue;
-              return 1;
-            }
+		  if( our_pairs.back() != stop_pairs.back() )
+			{
+			  remaining_distance--; // for position loop, which had
+									// ),) but they were paired wrong
+			  if( our_struc[stop_pairs.back()] == '(' )
+				remaining_distance--; // for the position we were
+									  // paired with in stop_struc,
+									  // because it was ( in our_struc
+									  // as well, but paired wrong
+			}
+		  our_pairs.pop_back();
+		  stop_pairs.pop_back();
         }
-      else if( our_struc[loop] == ')' )
-        index[0]--;
-    }
+      else 
+		{
+		  if( our_struc[loop] == ')' )
+			our_pairs.pop_back();
+		  if( stop_struc[loop] == ')' )
+			{
+			  if( our_struc[stop_pairs.back()] == '(' )
+				remaining_distance--;  // for the position we were
+									   // paired with in stop_struc,
+									   // because it was ( in our
+									   // struc but paired wrong. Note
+									   // we have already subtracted
+									   // for current position loop,
+									   // as our_struc[loop] !=
+									   // stop_struc[loop] in this
+									   // conditional block.
+			  stop_pairs.pop_back();
+			}
+		}
+
+	  if( remaining_distance < 0 )
+		return false;
+	}
+  return true;
 }
 
 
-int SComplexList::checkCountStructure( char *our_struc, char *stop_struc, int count )
+bool SComplexList::checkCountStructure( char *our_struc, char *stop_struc, int count )
 {
-  int loop=0;
-  int ncount=0;
-  while(!(our_struc[loop] == '\0' && stop_struc[loop] == '\0' ))
+
+  int loop,len;
+  intvec our_pairs, stop_pairs;
+  int remaining_distance = count;
+
+  len = strlen(our_struc);
+  if( len != strlen(stop_struc) )
+	return false;  // something weird happened, as it should have the
+				   // same ID list...
+
+  for( loop = 0; loop < len; loop ++ )
     {
-      if( our_struc[loop] == '\0' || stop_struc[loop] == '\0' )
-        return 1;
-      
-      if( stop_struc[loop] != '*' )
-        if( our_struc[loop] != stop_struc[loop] )
-          {
-            if( stop_struc[loop] == '_' || our_struc[loop] == '_' )
-              return 1;
-            else
-              ncount++;
-          }
-      
-      loop++;
-    }
-  if (ncount <= count)
-    return 0;
-  else
-    return 1;
+	  if( our_struc[loop] != stop_struc[loop] )
+		{
+		  remaining_distance--;
+		}
+
+      if( our_struc[loop] == '(')
+		our_pairs.push_back( loop );
+	  if( stop_struc[loop] == '(' )
+		stop_pairs.push_back( loop );
+
+      if( our_struc[loop] == ')' && stop_struc[loop] == ')' )
+        {
+		  if( our_pairs.back() != stop_pairs.back() )
+			{
+			  remaining_distance--; // for position loop, which had
+									// ),) but they were paired wrong
+			  if( our_struc[stop_pairs.back()] == '(' )
+				remaining_distance--; // for the position we were
+									  // paired with in stop_struc,
+									  // because it was ( in our_struc
+									  // as well, but paired wrong
+			}
+		  our_pairs.pop_back();
+		  stop_pairs.pop_back();
+        }
+      else 
+		{
+		  if( our_struc[loop] == ')' )
+			our_pairs.pop_back();
+		  if( stop_struc[loop] == ')' )
+			{
+			  if( our_struc[stop_pairs.back()] == '(' )
+				remaining_distance--;  // for the position we were
+									   // paired with in stop_struc,
+									   // because it was ( in our
+									   // struc but paired wrong. Note
+									   // we have already subtracted
+									   // for current position loop,
+									   // as our_struc[loop] !=
+									   // stop_struc[loop] in this
+									   // conditional block.
+			  stop_pairs.pop_back();
+			}
+		}
+
+	  if( remaining_distance < 0 )
+		return false;
+	}
+  return true;
 }

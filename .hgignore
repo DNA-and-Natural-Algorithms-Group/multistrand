@@ -11,6 +11,11 @@ syntax: glob
 Multistrand
 multistrand/*
 
+# OS X crud
+syntax: regexp
+
+^.*\.DS_Store$
+
 
 #########################################
 #                                       #
@@ -31,6 +36,8 @@ syntax: regexp
 
 # These text files are usualy plaintext sequences, etc. 
 ^test/speed.*\.txt$
+^test/calibration.*\.txt$
+
 
 # Test sets from Nupack guys
 ^test.*testSetSS.txt$

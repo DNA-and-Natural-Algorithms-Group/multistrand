@@ -1443,7 +1443,7 @@ double Loop::generateDeleteMoveRate( Loop *start, Loop *end )
     {
       //fprintf(stderr,"Openloop/Openloop deletion not yet implemented\n");
       //      assert(0);
-      return energyModel_Primary->returnRate( 0.0, 0.0, 3) / 2.0;
+      return energyModel_Primary->returnRate( start->getEnergy() + end->getEnergy(), 0.0, 3) / 2.0;
     }
 
   // end openloop

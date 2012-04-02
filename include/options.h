@@ -125,6 +125,16 @@
 #define printComplexStateLine( obj, seed, id, names, sequence, structure, energy ) \
   _m_pushList( obj, _m_prepComplexStateTuple( seed, id, names, sequence, structure, energy ), add_complex_state_line )
 
+#define pushTrajectoryComplex( obj, seed, id, names, sequence, structure, energy ) \
+  _m_pushList( obj, _m_prepComplexStateTuple( seed, id, names, sequence, structure, energy ), add_trajectory_complex )
+
+#define pushTrajectoryInfo( obj, time ) \
+  setDoubleAttr( obj, add_trajectory_current_time, time )
+
+// This macro DECREFs the passed obj once it's done with it.
+#define pushTransitionInfo( options_obj, obj ) \
+  _m_pushList( options_obj, obj, add_transition_info )
+
 #endif  // DEBUG_MACROS is FALSE (not set).
 
 /***************************************************
@@ -267,6 +277,11 @@
 
 #define printComplexStateLine( obj, seed, id, names, sequence, structure, energy ) \
   _m_d_pushList( obj, _m_prepComplexStateTuple( seed, id, names, sequence, structure, energy ), add_complex_state_line )
+
+// This macro DECREFs the passed obj once it's done with it.
+#define pushTransitionInfo( options_obj, obj ) \
+  _m_d_pushList( options_obj, obj, add_transition_info )
+
 #endif
 
 
@@ -399,7 +414,7 @@ static inline PyObject *_m_d_newObject( const char *mod, const char *name )
 
 /******************************************************
 
- Functions defined in python_options.cc
+ Functions defined in interface/options.cc
 
 ******************************************************/
 
@@ -412,7 +427,7 @@ class identlist *getID_list(PyObject *options, int index, PyObject *alternate_st
 
 /*****************************************************
 
- #defines for const values used in python_options.py
+ #defines for const values used in interface/options.py
 
 ******************************************************/
 

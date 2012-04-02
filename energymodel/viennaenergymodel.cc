@@ -277,10 +277,10 @@ ViennaEnergyModel::ViennaEnergyModel( PyObject *energy_options ) : log_loop_pena
     }
   else if( testLongAttr(energy_options, parameter_type, =, ENERGYMODEL_VIENNA) && testLongAttr(energy_options, substrate_type, =, SUBSTRATE_RNA) )
     {
-      fp = fopen( "rna.par", "rt");
+      fp = fopen( "default.par", "rt");
       if( fp == NULL )
         {
-          fprintf(stderr,"ERROR: Could not find Vienna RNA parameter file \"rna.par\" in the path.\n" );
+          fprintf(stderr,"ERROR: Could not find Vienna RNA parameter file \"default.par\" in the path.\n" );
           exit(1);
         }
     }

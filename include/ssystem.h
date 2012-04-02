@@ -12,6 +12,10 @@
 #include "loop.h"
 #include "scomplex.h"
 #include "scomplexlist.h"
+#include <vector>
+
+typedef std::vector<bool> boolvector;
+typedef std::vector<bool>::iterator boolvector_iterator;
 
 class SimulationSystem
 {
@@ -47,6 +51,9 @@ class SimulationSystem
 
   // helper function for sending current state to Python side
   void dumpCurrentStateToPython( void );
+  void sendTrajectory_CurrentStateToPython( double current_time );
+  void sendTransitionStateVectorToPython( boolvector transition_states, double current_time);
+
 
   EnergyModel *dnaEnergyModel;
 

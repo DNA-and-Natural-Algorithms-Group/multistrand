@@ -26,16 +26,16 @@ class SComplexList
   double *getEnergy( int volume_flag );
   void printComplexList( int printoptions );
   SComplexListEntry *dumpComplexListToPython( void );
-  void doBasicChoice( double choice, double newtime );
+  SComplexListEntry *doBasicChoice( double choice, double newtime );
   void doJoinChoice( double choice );
-  int checkStopComplexList( class complex_item *stoplist );
+  bool checkStopComplexList( class complex_item *stoplist );
 
 
  private:
-  int checkStopComplexList_Bound( class complex_item *stoplist );
-  int checkStopComplexList_Structure_Disassoc( class complex_item *stoplist );
-  int checkLooseStructure( char *our_struc, char *stop_struc );
-  int checkCountStructure( char *our_struc, char *stop_struc, int count );
+  bool checkStopComplexList_Bound( class complex_item *stoplist );
+  bool checkStopComplexList_Structure_Disassoc( class complex_item *stoplist );
+  bool checkLooseStructure( char *our_struc, char *stop_struc, int count );
+  bool checkCountStructure( char *our_struc, char *stop_struc, int count );
   int numentries;
   int idcounter;
   SComplexListEntry *first;
