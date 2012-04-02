@@ -258,7 +258,7 @@ double ViennaEnergyModel::OpenloopEnergy( int size, int *sidelen, char **sequenc
 // constructors, internal functions
 
 
-ViennaEnergyModel::ViennaEnergyModel( PyObject *energy_options ) : log_loop_penalty_37(107.856) , kinetic_rate_method(2) , _RT(.6) , bimolecular_penalty(196) // Check references for this loop penalty term.
+ViennaEnergyModel::ViennaEnergyModel( PyObject *energy_options ) : log_loop_penalty_37(107.856) , kinetic_rate_method(2) , _RT(.6) , bimolecular_penalty(1.96) // Check references for this loop penalty term.
 {
   // This is the tough part, performing all read/input duties.
   char in_buffer[2048];

@@ -396,6 +396,9 @@ class Threeway_BM_Calibration( Multistrand_Suite_Base ):
     """
 
     def __init__(self, lengths, times, dangles, ratemethod, temperature, energymodel, substrate_type, file_prefix="" ):
+        if not os.path.isdir( file_prefix ):
+            os.mkdir( file_prefix )
+
         self._suite = unittest.TestSuite()
         self._lengths = {}
         self._times = {}
@@ -471,21 +474,27 @@ def list_of_parameters():
                         parameters.append( (a,b,c,d,e) )
     return parameters
 
+def args_from_param_number( num ):
+    """ Returns the proper argument list for Threeway_BM_Calibration, using the index num into the list of all parameter combinations """
+    
+    parameter_list = list_of_parameters()
+    pm = parameter_list[num]
+    args = ([10,20,30], [1.0e5, 1.0e6, 1.0e6]) + pm + ("calibration_{0[4]}_{0[5]}_{0[1]}_{0[0]}_{1}C/".format( pm, int(pm[2] - 273.15)),)
+    return args
 
 if __name__ == '__main__':
-    def args_from_param_number( num ):
-        """ Returns the proper argument list for Threeway_BM_Calibration, using the index num into the list of all parameter combinations """
-        
-        parameter_list = list_of_parameters()
-        pm = parameter_list[num]
-        args = ([10,20,30], [1.0e5, 1.0e6, 1.0e6]) + pm + ("calibration_{0[4]}_{0[5]}_{0[1]}_{0[0]}_{1}C/".format( pm, int(pm[2] - 273.15)),)
-        return args
-    
+    if len(sys.argv) < 2:
+        idx = 0
+    else:
+        idx = int(sys.argv[1])
 
-
-    calibration = Threeway_BM_Calibration( [10,20,30], [1.0e5,1.0e6,1.0e6],  "None", "Kawasaki", 310.15, "Nupack", "DNA", 'calibration_test/' )
+    calibration = Threeway_BM_Calibration( *args_from_param_number( idx ))
     calibration.runTests_Async()
 
+    #    calibration = Threeway_BM_Calibration( [10,20,30], [1.0e5,1.0e6,1.0e6],  "None", "Kawasaki", 310.15, "Nupack", "DNA", 'calibration_test/' )
+
+
+    
 #            def __init__(self, lengths, times, file_prefix="", dangles, ratemethod, temperature, energymodel, substrate_type):
 # if __name__ == '__main__':
 #     pass
