@@ -277,7 +277,7 @@ class ThreewayBMTest( unittest.TestCase ):
             print("File [{filename}] already exists, skipping test.".format(filename=filename))
             return
 
-        count = 1
+        count = 1000
         times_ms = self.setup_multistrand( filename, seq, time, count, dangles, ratemethod, temperature, energymodel, substratetype )
 
         print("Sequence {1} [{2}]: {0}".format(  times_ms[0][0] + times_ms[0][1], idx, len(seq)),sep="")
@@ -479,7 +479,7 @@ def args_from_param_number( num ):
     
     parameter_list = list_of_parameters()
     pm = parameter_list[num]
-    args = ([10,20,30], [1.0e5, 1.0e6, 1.0e6]) + pm + ("calibration_{0[4]}_{0[5]}_{0[1]}_{0[0]}_{1}C/".format( pm, int(pm[2] - 273.15)),)
+    args = ([10,20,30], [1.0e5, 1.0e6, 1.0e6]) + pm + ("calibration_{0[3]}_{0[4]}_{0[1]}_{0[0]}_{1}C/".format( pm, int(pm[2] - 273.15)),)
     return args
 
 if __name__ == '__main__':
