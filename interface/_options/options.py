@@ -78,6 +78,8 @@ class Options( object ):
         self.trajectory_current_time = 0.0
         self.current_graph = None
 
+        self._verbosity = 1
+        
         #############################################
         #                                           #
         # Data Members: Energy Model                #
@@ -398,8 +400,25 @@ class Options( object ):
         ##############################
 
         self.__init_keyword_args(self, *args, **kargs )
-        
 
+    @property
+    def verbosity(self):
+        """ Indicates how much output will be generated for each trajectory run.
+
+        Type         Default
+        int          1
+
+        Currently of limited use:
+        Value  = 0:  no end state reporting
+        Value >= 1:  end state reports to stdout
+        """
+        return self._verbosity
+
+    @verbosity.setter
+    def verbosity( self, val):
+        self._verbosity = int(val)
+        
+    
     @property
     def boltzmann_sample(self):
         """ Indicates whether the start state will be determined by Boltzmann
@@ -722,7 +741,8 @@ class Options( object ):
             Adds this data to the interface's results object."""
 
         self._current_end_state.append( val )
-        print( "{0[0]}: [{0[1]}] '{0[2]}': {0[5]} \n{0[3]}\n{0[4]}\n".format( val ))
+        if self.verbosity > 0:
+            print( "{0[0]}: [{0[1]}] '{0[2]}': {0[5]} \n{0[3]}\n{0[4]}\n".format( val ))
 
 
     @property

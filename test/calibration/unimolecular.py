@@ -311,7 +311,8 @@ class ThreewayBMTest( unittest.TestCase ):
             cPickle.dump( input_o.interface.results, f, protocol=-1)
             cPickle.dump( input_o , f, protocol=-1)
             f.close()
-            print(self.output_multistrand)
+            if input_o.verbosity > 0:
+                print(self.output_multistrand)
 
         res = runOnce()[1]
         return res
@@ -341,7 +342,8 @@ class ThreewayBMTest( unittest.TestCase ):
                      biscale = 1.0,
                      uniscale = 1.0,
                      start_state = [bm_complex],
-                     temp = temperature )
+                     temp = temperature,
+                     verbosity = 0)
 
         # o.parameter_type = Constants.ENERGYMODEL_TYPE[energymodel]
         # o.substrate_type = Constants.SUBSTRATE_TYPE[substratetype]
