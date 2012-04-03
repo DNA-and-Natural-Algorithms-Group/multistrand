@@ -124,7 +124,7 @@ void SimulationSystem::StartSimulation( void )
     }
   ProfilerStart("ssystem_run_profile.prof");
 #endif
-  printf("Simulation Mode: %d\n",simulation_mode);
+  //printf("Simulation Mode: %d\n",simulation_mode);
   if( simulation_mode & SIMULATION_MODE_FLAG_FIRST_BIMOLECULAR )
     {
       StartSimulation_FirstStep();

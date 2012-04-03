@@ -120,112 +120,6 @@ class LengthResult( dict ):
         res += "})"
         return res
 
-
-# class Speedtest_FromFile( unittest.TestCase ):
-#     """ This test case class handles the comparison between Kinfold and Multistrand on
-#     a particular input file of random sequences. """
-
-#     def setUp( self ):
-#         """ Does nothing at the moment """
-#         pass
-
-        
-#     def __getattr__(self, seq):
-#         parts = seq.split(':')
-#         structure = None
-#         if len(parts) == 2:
-#             idx = int( parts[0] )
-#             seq = parts[1].upper()
-#             file_prefix = ''
-#             time = 1000.0
-#         elif len(parts) == 3:
-#             idx = int( parts[0] )
-#             time = float(parts[1])
-#             file_prefix = ''
-#             seq = parts[2].upper()
-#         elif len(parts) == 4:
-#             idx = int( parts[0] )
-#             time = float(parts[1])
-#             file_prefix = parts[2]
-#             seq = parts[3].upper()
-#         elif len(parts) == 5:
-#             idx = int( parts[0] )
-#             time = float(parts[1])
-#             file_prefix = parts[2]
-#             seq = parts[3].upper()
-#             structure = parts[4]
-#         else:
-#             return super(Speedtest_FromFile, self).__getattr__(name)
-
-#         class stub_test_runner(object):
-#             def __init__(self,runner, file_prefix):
-#                 self.my_test_runner = runner
-#                 self.prefix = file_prefix
-#             def __call__(self,*args):
-#                 print("{0} ...".format(self.__doc__))
-#                 self.my_test_runner( seq, idx, time, self.prefix, structure )
-                
-#         if len(seq) > 40:
-#             shortname = str(len(seq)) + ': ' + seq[:40] + '...'
-#         else:
-#             shortname = str(len(seq)) + ': ' + seq
-
-#         mystub = stub_test_runner( self.my_test_runner, file_prefix )
-#         mystub.__doc__ = "Random Sequence (#{1},t={2}) [{0}]".format(shortname,idx,time)
-#         if structure != None and len(structure)<80:
-#             mystub.__doc__  += "\nStructure [{0}]".format(structure)
-#         return mystub
-            
-#         #raise AttributeError("{0}: Invalid name for a test case file.".format(name))
-
-#     def my_test_runner( self, seq, idx, time, prefix, structure ):
-#         filename = prefix + 'len_{0}_sequence_{1}.out'.format( len(seq), idx )
-#         if os.path.isfile( filename ):
-#             print("File [{filename}] already exists, skipping test.".format(filename=filename))
-#             return
-#         times_kin = self.setup_kinfold( seq, time, 100, structure)
-#         times_ms = self.setup_multistrand( seq, time, 100, structure )
-
-#         print("Sequence {2} [{3}]: {0:>35} | {1}".format(  times_kin[0][2] + times_kin[0][3], times_ms[0][0] + times_ms[0][1], idx, len(seq)),sep="")
-#         f = open(filename,'wt')
-#         f.write( repr( LengthResult(
-#             {'Kinfold':times_kin[0],
-#              'Multistrand':times_ms[0],
-#              'Kinfold_init':tuple([j-i for i,j in zip(times_kin[0], times_kin[1])]),
-#              'Multistrand_init':tuple([j-i for i,j in zip(times_ms[0], times_ms[1])]),
-#              'maxtime':time,
-#              'length':len(seq),
-#              'load':os.getloadavg()})))
-#         f.close()
-
-#     @timer
-#     def setup_multistrand( self, sequence, time, count, structure ):
-#         input_o = self.helper_create_Multistrand_options( sequence, time, count, structure)
-#         s = SimSystem( input_o )
-
-#         @timer
-#         def runOnce():
-#             s.start()
-#             self.output_multistrand = str(input_o.interface.results)
-#             print(self.output_multistrand)
-
-#         res = runOnce()[1]
-#         return res
-
-#     def helper_create_Multistrand_options( self, sequence, time, count, struc):
-#         """ helper """
-        
-#         return Options( num_sims= count,
-#                         sim_time= time,
-#                         start_state= [Complex(sequence=sequence,
-#                                               structure = struc or "." * len( sequence ) )],
-#                         dangles = 'None',
-#                         biscale = 1.0,
-#                         uniscale = 1.0,
-#                         substrate_type = 'DNA',
-#                         parameter_type = 'Vienna' )
-
-
 class ThreewayBMTest( unittest.TestCase ):
     """ This test case class handles the comparison between Kinfold and Multistrand on
     a particular input file of random sequences. """
@@ -272,7 +166,7 @@ class ThreewayBMTest( unittest.TestCase ):
      
 
     def my_test_runner( self, seq, idx, time, prefix, dangles, ratemethod, temperature, energymodel, substratetype ):
-        filename = prefix + 'len_{0}_sequence_{1}.out'.format( len(seq), idx )
+        filename = prefix + 'len_{0}_sequence_{1:03}.out'.format( len(seq), idx )
         if os.path.isfile( filename ):
             print("File [{filename}] already exists, skipping test.".format(filename=filename))
             return
@@ -330,9 +224,12 @@ class ThreewayBMTest( unittest.TestCase ):
 
         bm_complex = Complex( strands = [invading_strand, incumbent_strand, base_strand], structure = "(.+((+)))" )
         end_complex = Complex( strands = [invading_strand, incumbent_strand, base_strand], structure = "((+.(+)))" )
+        disassoc_complex = Complex( strands = [invading_strand], structure="..")
         
         stop_conditions = []
         stop_conditions.append( StopCondition("forward_bm", [(end_complex,0,0)] ))
+        stop_conditions.append( StopCondition("disassoc", [(end_complex,2,0)] ))
+        
 
         o = Options( simulation_mode="Normal",
                      substrate_type = substratetype,

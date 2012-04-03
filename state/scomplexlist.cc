@@ -233,7 +233,7 @@ double SComplexList::getJoinFlux( void )
 
   //  printf("Total join moves: %d\n",total_move_count);
   if( total_move_count == 0) 
-    return -1.0;
+    return 0.0;  // CANNOT BE ANYTHING OTHER THAN 0.0! There are plenty of multi-complex structures with no total moves.
   else
     return (double) total_move_count * dnaEnergyModel->getJoinRate();
 }
