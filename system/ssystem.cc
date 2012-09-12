@@ -156,7 +156,8 @@ void SimulationSystem::StartSimulation_Standard( void )
   InitializeRNG();  
   while( simulation_count_remaining > 0)
     {
-      InitializeSystem();
+      if( InitializeSystem() != 0)
+		return;
 
       SimulationLoop_Standard();
 
@@ -172,7 +173,8 @@ void SimulationSystem::StartSimulation_Transition( void )
   InitializeRNG();  
   while( simulation_count_remaining > 0)
     {
-      InitializeSystem();
+      if( InitializeSystem() != 0)
+		return;
 
       SimulationLoop_Transition();
 
@@ -194,7 +196,8 @@ void SimulationSystem::StartSimulation_Trajectory( void )
   InitializeRNG();  
   while( simulation_count_remaining > 0)
     {
-      InitializeSystem();
+      if( InitializeSystem() != 0)
+		return;
 
       SimulationLoop_Trajectory( ointerval, otime );
 
@@ -540,7 +543,8 @@ void SimulationSystem::StartSimulation_FirstStep( void )
   
   while( simulation_count_remaining > 0 )
     {
-      InitializeSystem();
+      if( InitializeSystem() != 0)
+		return;
 
       SimulationLoop_FirstStep();
       generateNextRandom();
@@ -583,7 +587,7 @@ void SimulationSystem::SimulationLoop_FirstStep( void )
   // single complex system for a starting state it's probably
   // deserved.
 
-  if ( rate < 0.0 )
+  if ( rate == 0.0 )
     { // no initial moves
       printStatusLine_First_Bimolecular( system_options, current_seed, STOPRESULT_NOMOVES, 0.0, 0.0, NULL );
       return;
@@ -791,7 +795,7 @@ void SimulationSystem::sendTrajectory_CurrentStateToPython( double current_time 
 ///////////////////////////////////////////////////
 
         
-void SimulationSystem::InitializeSystem( PyObject *alternate_start )
+int SimulationSystem::InitializeSystem( PyObject *alternate_start )
 {
   class StrandComplex *tempcomplex;
   char *sequence, *structure;
@@ -799,6 +803,7 @@ void SimulationSystem::InitializeSystem( PyObject *alternate_start )
   int start_count;
   PyObject *py_start_state = NULL, *py_complex = NULL;
   PyObject *py_seq = NULL, *py_struc = NULL;
+  PyObject *py_err = NULL;
 
   startState = NULL;
   if( complexList != NULL )
@@ -835,6 +840,18 @@ void SimulationSystem::InitializeSystem( PyObject *alternate_start )
       
       structure = getStringAttr(py_complex, structure, py_struc);
       // new reference
+	  // Need to check if an error occurred, specifically, it could be an IOError due to sample failing. If so, we need to get the heck out of dodge right now.
+	  py_err = PyErr_Occurred(); 
+	  // py_err is a borrowed reference
+	  if( py_err != NULL )
+		{ // then an error occurred while getting the structure. Test for IOError (sample failure):
+		  if( PyErr_ExceptionMatches(PyExc_IOError) )
+			fprintf(stderr,"MULTISTRAND: Starting Structure could not be retrieved for index %d in your options object's start_state. This is likely due to Boltzmann sampling failing: please check that the program 'sample' exists and points correctly to the NUPACK sample binary. Or try 'print o.start_state[%d].structure' where 'o' is your options object and refer to that error message (if any).\n", index,index );
+		  else
+			fprintf(stderr,"MULTISTRAND: An unidentified exception occurred while trying to initialize the system.\n");
+		  return -1;
+		}
+	  
       
       id = getID_list( system_options, index, alternate_start );
       
@@ -850,9 +867,11 @@ void SimulationSystem::InitializeSystem( PyObject *alternate_start )
   Py_DECREF( py_start_state );
   
   // Update the current seed and store the starting structures
-  setLongAttr( system_options, interface_current_seed, current_seed );
+  //   note: only if we actually have a system_options, e.g. no alternate start
+  if( alternate_start == NULL && system_options != NULL)
+	setLongAttr( system_options, interface_current_seed, current_seed );
   
-  return;
+  return 0;
 }
 
 void SimulationSystem::InitializeRNG( void )

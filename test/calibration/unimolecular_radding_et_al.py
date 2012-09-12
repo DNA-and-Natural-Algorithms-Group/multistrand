@@ -42,7 +42,7 @@ try:
     import multistrand.utils
 except ImportError:
     # we want to tell the user how to fix this, but then reraise so it still fails. 
-    print("Could not import Multistrand, please add it to your sys.path, or make sure that MULTISTRANDHOME is set correctly. This sub-program can also be run from the native test/speed/ directory.")
+    print("Could not import Multistrand, please add it to your sys.path, or make sure that MULTISTRANDHOME is set correctly. This sub-program can also be run from the native test/calibration/ directory.")
     raise
 
 
@@ -228,7 +228,7 @@ class ThreewayBMTest( unittest.TestCase ):
         
         stop_conditions = []
         stop_conditions.append( StopCondition("forward_bm", [(end_complex,0,0)] ))
-        stop_conditions.append( StopCondition("disassoc", [(end_complex,2,0)] ))
+        stop_conditions.append( StopCondition("disassoc", [(disassoc_complex,2,0)] ))
         
 
         o = Options( simulation_mode="Normal",
@@ -239,7 +239,7 @@ class ThreewayBMTest( unittest.TestCase ):
                      biscale = 1.0,
                      uniscale = 1.0,
                      start_state = [bm_complex],
-                     temp = temperature,
+                     temperature = temperature,
                      verbosity = 0)
 
         # o.parameter_type = Constants.ENERGYMODEL_TYPE[energymodel]
@@ -353,12 +353,12 @@ class Threeway_BM_Calibration( Multistrand_Suite_Base ):
 
 #         self._suite.addTest( Speedtest_FromFile('{idx}:{time}:{prefix}:{seq}:{struc}'.format( idx=i, time=time_to_sim, prefix=file_prefix, seq=bm_complex.sequence, struc=bm_complex.structure)))
 
-
+# WARNING: This is copied into analysis_unimolecular.py, any changes should go to both files
 def list_of_parameters():
 
     dangles_types = ["None", "Some", "All"]
     rate_methods = ["Kawasaki", "Metropolis"]
-    temperatures = [310.15, 273.15+25]
+    temperatures = [310.15, 273.15+25.0]
     models = ["Nupack","Vienna"]
     substrates = ["DNA","RNA"]
     # With these 5 variables, there are 48 total parameter sets we wish to calibrate for.
@@ -373,6 +373,7 @@ def list_of_parameters():
                         parameters.append( (a,b,c,d,e) )
     return parameters
 
+# WARNING: This is copied into analysis_unimolecular.py, any changes should go to both files
 def args_from_param_number( num ):
     """ Returns the proper argument list for Threeway_BM_Calibration, using the index num into the list of all parameter combinations """
     
@@ -391,22 +392,5 @@ if __name__ == '__main__':
     calibration.runTests_Async()
 
     #    calibration = Threeway_BM_Calibration( [10,20,30], [1.0e5,1.0e6,1.0e6],  "None", "Kawasaki", 310.15, "Nupack", "DNA", 'calibration_test/' )
-
-
-    
-#            def __init__(self, lengths, times, file_prefix="", dangles, ratemethod, temperature, energymodel, substrate_type):
-# if __name__ == '__main__':
-#     pass
-#     #short_lengths = Length_Tests( range(20,100,2), [5000.0]*11 + [1000.0]*39, 'length_short/')
-#     #long_lengths = Length_Tests( range(100,205,5), [1000.0] * 21, 'length_longs/')
-#     # very_long_lengths = Length_Tests( range(210,310,10), [100.0] * 10, 'length_very_longs/')
-#     #single_short = Length_Tests( [30], [5000.0], 'length_short/')
-#     #bm_4way_tests = Fourway_BM_Tests( range(0,42,2), [5000.0]*10+[1000.0]*11, 'short_4way/')
-#     #bm_3way_tests = Threeway_BM_Tests( range(0,60), [5000.0]*10+[1000.0]*50, 'short_3way/' )
-#     #very_long_lengths.runTests_Async()
-#     #short_lengths.runTests_Async()
-#     #long_lengths.runTests_Async()
-#     #single_short.runTests_Async(False)
-#     #bm_3way_tests.runTests_Async()
 
 

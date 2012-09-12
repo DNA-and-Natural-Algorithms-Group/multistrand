@@ -268,6 +268,7 @@ void Loop::performComplexSplit( Move *move, Loop **firstOpen, Loop **secondOpen 
       else
         *secondOpen = newLoop;      
     }
+  //printf("O/O performed, new energies: %lf  %lf\n", (*firstOpen)->getEnergy(), (*secondOpen)->getEnergy() );
   return;
 }
 
@@ -1441,9 +1442,78 @@ double Loop::generateDeleteMoveRate( Loop *start, Loop *end )
 
   if( start->identity == 'O' && end->identity == 'O')
     {
-      //fprintf(stderr,"Openloop/Openloop deletion not yet implemented\n");
-      //      assert(0);
-      return energyModel_Primary->returnRate( start->getEnergy() + end->getEnergy(), 0.0, 3) / 2.0;
+	  //  return;
+	  // OpenLoop *start_, *end_;
+	  OpenLoop *tempLoop[2];
+	  double new_energies[2] = {0.0, 0.0};
+	  int index[2],sizes[2],loop,flipflop=0,temp;
+	  int *pairtypes = NULL;
+	  int *sidelen   = NULL;
+	  char **seqs    = NULL;
+	  
+	  tempLoop[0] = (OpenLoop *) start;
+	  tempLoop[1] = (OpenLoop *) end;
+	  	  
+	  for( loop = 0; loop < tempLoop[1]->numAdjacent || loop < tempLoop[0]->numAdjacent; loop++ )
+        {
+          if( loop < tempLoop[0]->numAdjacent )
+            if( tempLoop[0]->adjacentLoops[loop] == tempLoop[1] )
+              {
+                index[0] = loop;
+              }
+          if( loop < tempLoop[1]->numAdjacent )
+            if( tempLoop[1]->adjacentLoops[loop] == tempLoop[0] )
+              {
+                index[1] = loop;
+              }
+        }
+
+	  sizes[0] = index[0] + tempLoop[1]->numAdjacent - index[1] - 1;
+	  sizes[1] = index[1] + tempLoop[0]->numAdjacent - index[0] - 1;
+	  
+	  for( flipflop = 0; flipflop < 2; flipflop++ )
+		{
+		  
+		  // pairtypes = new int[sizes[flipflop]];
+		  sidelen  = new int[sizes[flipflop]+1];
+		  seqs    = new char *[sizes[flipflop]+1];
+		  
+		  for( loop = 0; loop < sizes[flipflop]+1; loop++ )
+			{
+			  if( loop < index[flipflop] )
+				{
+				  // if( loop < sizes[flipflop] ) // should never be false?
+				  // 	pairtypes[loop] = tempLoop[flipflop]->pairtype[loop];
+				  sidelen[loop] = tempLoop[flipflop]->sidelen[loop];
+				  seqs[loop] = tempLoop[flipflop]->seqs[loop];
+				  
+				}
+			  if( loop == index[flipflop] )
+				{
+				  // if( loop < sizes[flipflop] )
+				  // 	pairtypes[loop] = tempLoop[1-flipflop]->pairtype[loop - index[flipflop] + index[1-flipflop] +1];
+				  sidelen[loop] = tempLoop[flipflop]->sidelen[loop] + tempLoop[1-flipflop]->sidelen[index[1-flipflop]+1] + 1;
+				  seqs[loop] = tempLoop[flipflop]->seqs[loop];
+				}
+			  if( loop > index[flipflop] )
+				{
+				  // if( loop < sizes[flipflop] )
+				  // 	pairtypes[loop] = tempLoop[1-flipflop]->pairtype[loop - index[flipflop] + index[1-flipflop] +1];
+				  sidelen[loop] = tempLoop[1-flipflop]->sidelen[ loop - index[flipflop] + index[1-flipflop] + 1];
+				  seqs[loop] = tempLoop[1-flipflop]->seqs[ loop - index[flipflop] + index[1-flipflop] + 1];
+				}
+			}
+		  //initialize the new openloops, and connect them correctly, then initialize their moves, etc.
+		  new_energies[flipflop] = energyModel_Primary->OpenloopEnergy( sizes[flipflop], sidelen, seqs );
+
+		  delete[] sidelen;
+		  delete[] seqs;
+		}
+
+	  old_energy = start->getEnergy() + end->getEnergy();
+	  new_energy = new_energies[0] + new_energies[1];
+	  //printf("O/O delete rate calculate: old: %lf %lf, new: %lf %lf\n", start->getEnergy(), end->getEnergy(), new_energies[0], new_energies[1] );
+      return energyModel_Primary->returnRate( old_energy, new_energy, 3) / 2.0;
     }
 
   // end openloop

@@ -44,7 +44,7 @@ class SimulationSystem
   void SimulationLoop_Trajectory( long ointerval, double otime );
   void SimulationLoop_Transition( void );
 
-  void InitializeSystem( PyObject *alternate_start = NULL);
+  int InitializeSystem( PyObject *alternate_start = NULL);
 
   void InitializeRNG( void );
   void generateNextRandom( void );

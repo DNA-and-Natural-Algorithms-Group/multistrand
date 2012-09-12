@@ -18,6 +18,10 @@ class _OptionsConstants( object ):
     def RATEMETHOD(self):
         return {"Invalid" :0, "Metropolis"    :1, \
                 "Kawasaki":2, "EntropyEnthalpy":3}
+    @property
+    def RATEMETHOD_inv(self):
+        return {0:"Invalid",1:"Metropolis", \
+                2:"Kawasaki",3:"EntropyEnthalpy"}
 
     @property
     def DANGLES(self):
@@ -25,14 +29,29 @@ class _OptionsConstants( object ):
                 "All" :  2, "NupackDefault": 1}
 
     @property
+    def DANGLES_inv(self):
+        return {0:"None", 1:"Some", \
+                2:"All" }
+
+    @property
     def ENERGYMODEL_TYPE(self):
         return {"Vienna":0, "Nupack":1, \
                 "Others?":2}
+    
+    @property
+    def ENERGYMODEL_TYPE_inv(self):
+        return {0:"Vienna", 1:"Nupack", \
+                2:"Others?"}
 
     @property
     def SUBSTRATE_TYPE(self):
         return {"Invalid":0, "RNA":1, \
                 "DNA":2}
+
+    @property
+    def SUBSTRATE_TYPE_inv(self):
+        return {0:"Invalid", 1:"RNA", \
+                2:"DNA"}
 
     @property
     def SIMULATION_MODE(self):
@@ -75,6 +94,71 @@ class _OptionsConstants( object ):
                 0x0081:                    "Error",
                 0x0082:                      "NaN",
                 0x0084:                 "No Moves"}
+
+    @property
+    def rate_scaling_sets(self):
+        return {"Bimolecular_Calibrate": ## WETMUR unimolecular parameters
+                {"description":   "Calibration data set for determining bimolecular parameters. Uses the Wetmur unimolecular calibration.\n Unimolecular: {0}  Bimolecular: {1}. Concentration: {3:e}M\n Model: [{2[1]}] Substrate: [{2[0]}] Dangles: [{2[2]}] Rate Method: [{2[3]}]\n",
+                 "DNA:Nupack:None:Kawasaki"  :    {"uni": 2.1e8,
+                                                   "bi": 1.0e4},
+                 "DNA:Nupack:Some:Kawasaki"  :    {"uni": 1.5e8,
+                                                   "bi": 1.0e4},
+                 "DNA:Nupack:All:Kawasaki"   :    {"uni": 1.5e8,
+                                                   "bi": 1.0e4},
+                 "DNA:Nupack:None:Metropolis":    {"uni": 6.8e8,
+                                                   "bi": 1.0e4},
+#                 "DNA:Nupack:Some:Metropolis":    {"uni": 7.3e8,
+#                                                   "bi":  7.2e8},
+#                 "DNA:Nupack:Some:Metropolis":    {"uni": 7.3e8,
+#                                                   "bi":  3.6e8},
+#                 "DNA:Nupack:Some:Metropolis":    {"uni": 7.3e8,
+#                                                   "bi":  7.3e7},
+                 "DNA:Nupack:Some:Metropolis":    {"uni": 7.3e8,
+                                                   "bi":  1.0e4},
+                 "DNA:Nupack:All:Metropolis" :    {"uni": 7.3e8,
+                                                   "bi": 1.0e4},
+                 "DNA:Nupack:None:Kawasaki:298.15"  :    {"uni": 9.5e7,
+                                                   "bi": 1.0e4},
+                 "DNA:Nupack:Some:Kawasaki:298.15"  :    {"uni": 6.1e7,
+                                                   "bi": 1.0e4},
+                 "DNA:Nupack:All:Kawasaki:298.15"   :    {"uni": 6.1e7,
+                                                   "bi": 1.0e4},
+                 "DNA:Nupack:None:Metropolis:298.15":    {"uni": 4.2e8,
+                                                   "bi": 1.0e4},
+                 "DNA:Nupack:Some:Metropolis:298.15":    {"uni": 4.4e8,
+                                                   "bi":  1.0e4},
+                 "DNA:Nupack:All:Metropolis:298.15" :    {"uni": 4.4e8,
+                                                   "bi": 1.0e4},
+
+                 "default": {"uni": 7.3e8,
+                             "bi": 1.0e3}
+                 },
+
+
+            "Bimolecular_Raddison_Calibrate":
+                {"description":   "Calibration data set for determining bimolecular parameters. Uses the Raddison unimolecular calibration.\n Unimolecular: {0}  Bimolecular: {1}. Concentration: {3:e}M\n Model: [{2[1]}] Substrate: [{2[0]}] Dangles: [{2[2]}] Rate Method: [{2[3]}]\n",
+                 "DNA:Nupack:None:Kawasaki"  :    {"uni": 5.14e5,
+                                                   "bi": 1.0},
+                 "DNA:Nupack:Some:Kawasaki"  :    {"uni": 6.74e5,
+                                                   "bi": 1.0},
+                 "DNA:Nupack:All:Kawasaki"   :    {"uni": 1.93e6,
+                                                   "bi": 1.0},
+                 "DNA:Nupack:None:Metropolis":    {"uni": 2.15e6,
+                                                   "bi": 1.0},
+                 "DNA:Nupack:Some:Metropolis":    {"uni": 2.38e6,
+                                                   "bi":  1.0},
+                 "DNA:Nupack:All:Metropolis" :    {"uni": 9.15e6,
+                                                   "bi": 1.0},
+                 "default": {"uni": 2.38e6,
+                             "bi": 1.0}
+                 },
+
+            "Default":
+                {"description": "Default 1.0/1.0.",
+                 "default": {"uni":1.0,
+                             "bi":1.0}
+                }
+            }
 
     def __setattr__(self, name, value):
         if hasattr(self, name):
