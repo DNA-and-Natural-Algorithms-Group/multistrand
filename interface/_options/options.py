@@ -484,9 +484,29 @@ class Options( object ):
                       self.temperature)
 
         if self._rate_scaling == 'Fixed':
-            return "User-defined scaling: Unimolecular: {0}\n                       Bimolecular: {1}".format( self.unimolecular_scaling, self.bimolecular_scaling )
+            return "User-defined scaling rates: Unimolecular: {0}\n                            Bimolecular: {1}\nEnergy Model Parameters: Concentration: {3:.2e}M Temperature: {2[4]:.2f}K\n Model: [{2[1]}] Substrate: [{2[0]}] Dangles: [{2[2]}] Rate Method: [{2[3]}]\n".format( self.unimolecular_scaling, self.bimolecular_scaling, model_data , self.join_concentration)
         else:
             return _OC.rate_scaling_sets[self._rate_scaling]['description'].format( self.unimolecular_scaling, self.bimolecular_scaling, model_data, self.join_concentration )
+
+    @property
+    def calibration_data( self ):
+        """ Returns a tuple containing the current calibration data.
+            Note: text versions of any numerical choice, e.g. 'None'
+                  rather than 0 for dangles.
+            Tuple is:
+            (self.substrate_type, self.parameter_type, self.dangles,
+             self.rate_method, self.temperature, self.join_concentration,
+             self.unimolecular_scaling, self.bimolecular_scaling,self.rate_scaling)
+        """
+        return (_OC.SUBSTRATE_TYPE_inv[self.substrate_type],
+                _OC.ENERGYMODEL_TYPE_inv[self.parameter_type],
+                _OC.DANGLES_inv[self.dangles],
+                _OC.RATEMETHOD_inv[self.rate_method],
+                self.temperature,
+                self.join_concentration,
+                self.unimolecular_scaling,
+                self.bimolecular_scaling,
+                self.rate_scaling)
         
         
     @property
