@@ -227,3 +227,25 @@ def final_values( params, length ):
 
             uni, bi, conc = parse_calibration_string( [j for j in dataset if j is not None][0])
             print("Param set [{0}]:\n  Model: [{1}] Method: [{2}] Substrate: [{3}] Temperature: [{4}]\n  Simulation Parameters: k_uni: {5:.2e}  k_bi: {6:.2e}  Concentration: {7:.2e} (M)\n  Expected time (sim): {8:.3e}\n  Expected time (experiment): {9:.3e}\n  Calculated k_bi: {10:.2e} [std:{11:.3e}] [err:{12:.3e}]".format(i, model, method, substrate, temperature, uni, bi, conc, data_et, exp_et, k_bi, k_bi_std, k_bi_err))
+
+def ratios( params, length ):
+    lp = list_of_parameters()
+    ratio_list = []
+    for i in params:
+        param_values = lp[i]
+        dangles = param_values[0]
+        method = param_values[1]
+        temperature = param_values[2]
+        model = param_values[3]
+        substrate = param_values[4]
+
+        dataset = load_dataset( i, length,verbose=False )
+        if len(dataset) > 0:
+            
+            data_et, exp_et, _,_,_ = compute_k_bi_value( dataset, temperature, length )
+            ratio_list.append( data_et / exp_et )
+
+    return ratio_list
+
+
+

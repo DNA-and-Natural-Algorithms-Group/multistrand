@@ -1888,8 +1888,20 @@ void NupackEnergyModel::setupRates( PyObject *energy_options )
   // Two components to the join rate, the dG_assoc from mass action, and the dG_volume term which is related to the concentration. We compute each individually, following my derivation for the volume term, and the method used in Nupack for the dG_assoc term.
 
   // Please note, waterdensity is actually the Mols H2O / L, not the actual density of water (g/mol).
-  dG_volume = _RT * log( waterdensity / joinconc);
-  joinrate_volume = joinconc / waterdensity;
+
+  // concentration units
+  dG_volume = _RT * log( 1.0 / joinconc);
+  
+  // mole fraction units
+  //dG_volume = _RT * log( waterdensity / joinconc);
+
+  // concentration units
+  joinrate_volume = joinconc;
+  
+  // mole fraction units
+  //joinrate_volume = joinconc / waterdensity;
+
+  // joinrate_volume
   //              = exp( -dG_volume / _RT )
 
   // dG_volume = _RT * log( waterdensity / (.001 * joinconc));
@@ -1897,12 +1909,13 @@ void NupackEnergyModel::setupRates( PyObject *energy_options )
   // old, for units of mM
 
 
+  // concentration units
+  dG_assoc = bimolecular_penalty; // already computed and scaled for water density.
+  // mole fraction units
+  // dG_assoc = bimolecular_penalty - _RT * log( waterdensity )
   
-  dG_assoc = bimolecular_penalty; // already computed and scaled for water density. 
 
-  // joinenergy = dG_volume + dG_assoc;
-  joinrate = biscale * joinrate_volume; // * exp( - dG_assoc / _RT );
-
+  joinrate = biscale * joinrate_volume; 
 }
 
 double NupackEnergyModel::setWaterDensity( double temp )

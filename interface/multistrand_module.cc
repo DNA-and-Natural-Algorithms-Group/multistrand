@@ -269,6 +269,72 @@ static PyObject *System_calculate_energy( PyObject *self,PyObject *args )
   return energy;
 }
 
+static PyObject *System_calculate_rate( PyObject *self,PyObject *args, PyObject *keywds )
+{
+  SimulationSystem *temp = NULL;
+  PyObject *options_object = NULL;
+  PyObject *rate;
+  double drate = -1.0;
+  double start_energy, end_energy;
+  int joinflag = 0;
+  EnergyModel *em = NULL;
+
+  static char *kwlist[] = {"start_energy", "end_energy", "options", "joinflag", NULL};
+
+  if (!PyArg_ParseTupleAndKeywords(args, keywds, "dd|Oi:calculate_rate(start_energy, end_energy, [options=None, joinflag=0])", kwlist, &start_energy, &end_energy, &options_object, &joinflag))
+	return NULL;
+
+  if( options_object != NULL )
+    Py_INCREF( options_object );
+  
+  if(options_object == NULL )
+	{
+	  em = Loop::GetEnergyModel();
+      if( em == NULL )
+        {
+          PyErr_Format(PyExc_AttributeError,"No energy model available, cannot compute rates. Please pass an options object, or use multistrand.system.initialize_energy_model(...).\n");
+          if( options_object != NULL )
+            Py_XDECREF( options_object );
+          return NULL;
+        }
+
+	}
+  else if(options_object != NULL )
+	{
+      if(  testLongAttr(options_object, parameter_type,=,0) )
+        em = new ViennaEnergyModel( options_object );
+      else
+        em = new NupackEnergyModel( options_object );
+
+      if( em == NULL )
+        {
+          PyErr_Format(PyExc_AttributeError,"Could not initialize the energy model, cannot compute rates. Please pass a valid options object, or use multistrand.system.initialize_energy_model(...).\n");
+          if( options_object != NULL )
+            Py_XDECREF( options_object );
+          return NULL;
+        }
+	  if( Loop::GetEnergyModel() == NULL)
+		Loop::SetEnergyModel( em );
+    }
+
+  if( joinflag == 1 ) // join
+	drate = em->getJoinRate();
+  else if( joinflag == 2 ) // break
+	drate = em->returnRate( start_energy, end_energy, 3 );
+  else
+	drate = em->returnRate( start_energy, end_energy, 0 );
+
+  rate = PyFloat_FromDouble( drate );
+
+  if( em != Loop::GetEnergyModel() )
+	delete em;
+
+  Py_XDECREF( options_object );
+
+  return rate;
+}
+
+
 static PyObject *System_run_system( PyObject *self,PyObject *args )
 {
 #ifdef PROFILING
@@ -303,7 +369,7 @@ static PyObject *System_run_system( PyObject *self,PyObject *args )
 static PyMethodDef System_methods[] = {
   {"energy", (PyCFunction) System_calculate_energy, METH_VARARGS,
               PyDoc_STR(" \
-energy( start_state, options = None, energy_type = 0)\n\
+energy( start_state, options=None, energy_type=0)\n\
 Computes the energy of the passed state [a list of complexes or resting states], using\
 temperature, etc, settings from the options object passed.\n\n\
 Parameters\n\
@@ -314,6 +380,20 @@ energy_type = 3: include dG_volume + dG_assoc\n\
 \n\
 options = None [default]: Use the already initialized energy model.\n\
 options = ...: If not none, should be a multistrand.options.Options object, which will be used for initializing the energy model ONLY if there is not one already present.\n")},
+  {"calculate_rate", (PyCFunction) System_calculate_rate, METH_VARARGS | METH_KEYWORDS,
+              PyDoc_STR(" \
+calculate_rate(start_energy, end_energy, options=None, joinflag=0)\n\
+Computes the rate of transition for the current kinetics model.\n\
+\n\
+Parameters\n\
+start_energy, end_energy: Energies should always be WITHOUT dG_assoc and dG_volume.\n\
+\n\
+options = None [default]: Use the already initialized energy model.\n\
+options = ...: If not none, should be a multistrand.options.Options object, which will be used for the energy model. Sets the default energy model for later calls ONLY if there is not one already present.\n\
+\n\
+joinflag = 0 [default]: unimolecular transition\n\
+joinflag = 1: bimolecular join, passed energies are not relevant\n\
+joinflag = 2: bimolecular break, energies are relevant\n")},
   {"initialize_energy_model", (PyCFunction) System_initialize_energymodel, METH_VARARGS,
               PyDoc_STR(" \
 initialize_energy_model( options = None )\n\

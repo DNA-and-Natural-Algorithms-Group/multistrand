@@ -263,11 +263,11 @@ class Bimolecular_Calibration_TestCase( unittest.TestCase ):
                      sim_time = time,
                      start_state = [start_complex_A,start_complex_B],
                      temperature = temperature,
-                     concentration = 1.0e-2,
+                     concentration = 1.0,
                      verbosity = 0)
         
-#        o.rate_scaling = "Bimolecular_Calibrate"
-        o.rate_scaling = "Calibrated"
+        o.rate_scaling = "Bimolecular_Calibrate"
+#        o.rate_scaling = "Calibrated"
         o.stop_conditions = [complete_stopcondition] # must be a list of StopCondition items.
         # for testing purposes, see how long it takes to "touch":
         #o.stop_conditions = [touching_stopcondition]
@@ -364,12 +364,17 @@ def args_from_param_number( num ):
 
 
 if __name__ == '__main__':
-    
-    calibration = Bimolecular_Calibration([0,1,2,3,4,5,6,7,8,9,10,11], 10, 10) #param type 0, length 10, 1 trial run (1000 trajectories)
-    calibration.runTests_Async()
+    if len(sys.argv) < 2:
+        idx = 0
+    else:
+        idx = int(sys.argv[1])
 
-    calibration = Bimolecular_Calibration([0,1,2,3,4,5,6,7,8,9,10,11], 20, 10) #param type 0, length 10, 1 trial run (1000 trajectories)
-    calibration.runTests_Async()
+    if idx == 0:
+        calibration = Bimolecular_Calibration([0,1,2,3,4,5,6,7,8,9,10,11], 10, 10) #param type 0, length 10, 1 trial run (1000 trajectories)
+        calibration.runTests_Async()
+    else:
+        calibration = Bimolecular_Calibration([0,1,2,3,4,5,6,7,8,9,10,11], 20, 10) #param type 0, length 10, 1 trial run (1000 trajectories)
+        calibration.runTests_Async()
 
 
 
