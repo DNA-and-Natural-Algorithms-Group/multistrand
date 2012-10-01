@@ -163,7 +163,7 @@ class Bimolecular_Calibration_TestCase( unittest.TestCase ):
             print("File [{filename}] already exists, skipping test.".format(filename=filename))
             return
 
-        count = 100
+        count = 1000
         times_ms = self.setup_multistrand( filename, length, time, count, dangles, ratemethod, temperature, energymodel, substratetype )
 
         print("Trial {1} [{2}]: {0}".format(  times_ms[0][0] + times_ms[0][1], idx, length),sep="")
@@ -263,11 +263,11 @@ class Bimolecular_Calibration_TestCase( unittest.TestCase ):
                      sim_time = time,
                      start_state = [start_complex_A,start_complex_B],
                      temperature = temperature,
-                     concentration = 1.0,
+                     concentration = 1.0e-3,
                      verbosity = 0)
         
-        o.rate_scaling = "Bimolecular_Calibrate"
-#        o.rate_scaling = "Calibrated"
+#        o.rate_scaling = "Bimolecular_Calibrate"
+        o.rate_scaling = "Calibrated"
         o.stop_conditions = [complete_stopcondition] # must be a list of StopCondition items.
         # for testing purposes, see how long it takes to "touch":
         #o.stop_conditions = [touching_stopcondition]

@@ -14,11 +14,14 @@ if 'MULTISTRANDHOME' in os.environ:
 
 idx = os.getcwd().find( os.path.join('test','calibration') )
 if idx > -1:
+    # if os.getcwd[0] != '/':
+    #     rootpath = os.path.expanduser('~' + os.getcwd()[:idx])
     rootpath = os.path.abspath(os.getcwd()[:idx])
     #abspath cleans up the tail of the pathname as needed.
     if rootpath not in sys.path:
         sys.path.append( rootpath )
-elif multihome != None:
+
+if multihome != None:
     sys.path.append(multihome)
 
 try:
