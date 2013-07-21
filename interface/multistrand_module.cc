@@ -234,6 +234,15 @@ static PyObject *System_initialize_energymodel( PyObject *self,PyObject *args )
 
 static PyObject *System_calculate_energy( PyObject *self,PyObject *args )
 {
+  // TODO: there is a bug where this destroys/invalidates the incoming python objects used to initialize the state.   02-21-13 JS
+  // REPRODUCE:
+  //   let c be a valid complex, o be the options object (e.g. energy model),
+  //   and energy the name for multistrand.system.energy
+  //   then try (python):
+  //   en = energy( [c], o, 0 )
+  //   print en  # will be correct
+  //   print c   # will crash out, as object has been mangled.
+
   SimulationSystem *temp = NULL;
   PyObject *options_object = NULL;
   PyObject *start_state_object = NULL;

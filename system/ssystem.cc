@@ -306,10 +306,12 @@ void SimulationSystem::SimulationLoop_Trajectory( long output_count_interval, do
 
   bool checkresult = false;
   long current_state_count = 0;
-  
-  // The tag of the stop state reached. 
-  char *tag = NULL;
+  long stopcount = 0, stopoptions = 0;
+  class stopcomplexes *traverse = NULL, *first=NULL;
 
+  // The tag of the stop state reached. 
+  //char *tag = NULL;
+  
   //  SComplexListEntry *affectedComplex = NULL;
 
   getDoubleAttr(system_options, simulation_time,&maxsimtime);
@@ -323,20 +325,29 @@ void SimulationSystem::SimulationLoop_Trajectory( long output_count_interval, do
   // The last time we gave the output state.
   last_trajectory_time = 0.0;
 
+
+  getLongAttr(system_options, use_stop_conditions,&stopoptions);
+  getLongAttr(system_options, stop_count,&stopcount);
+
+  if( stopoptions )
+	{
+	  if( stopcount <= 0 )
+		{
+		  printStatusLine(system_options, current_seed, STOPRESULT_ERROR, 0.0, NULL);
+		  return; 
+		}
+	  first = getStopComplexList( system_options, 0 );
+	}
+
+
   do {
     rchoice = rate * drand48();
 
     current_simulation_time += (log( 1. / (1.0 - drand48()) ) / rate ); 
-    // 1.0 - drand as drand returns in the [0.0, 1.0) range, we need a (0.0,1.0] range.
-    // see notes below in First Step mode.
-
-    complexList->doBasicChoice( rchoice, current_simulation_time );
-    rate = complexList->getTotalFlux();
-    current_state_count += 1;
-
-    // checkresult = checkStopComplexes( &tag );
 
     // trajectory output via outputtime option
+	// we check this here so the reported state is the one present at the time
+	// listed, rather than the one /after/ that.
     if( output_time_interval > 0.0 )
       if( current_simulation_time - last_trajectory_time > output_time_interval )
         {
@@ -344,6 +355,27 @@ void SimulationSystem::SimulationLoop_Trajectory( long output_count_interval, do
 		  sendTrajectory_CurrentStateToPython( last_trajectory_time );
           //complexList->printComplexList( 0 );
         }
+
+
+    // 1.0 - drand as drand returns in the [0.0, 1.0) range, we need a (0.0,1.0] range.
+    // see notes below in First Step mode.
+
+    complexList->doBasicChoice( rchoice, current_simulation_time );
+    rate = complexList->getTotalFlux();
+    current_state_count += 1;
+	
+
+	if( stopoptions )
+	  {
+		checkresult = false;
+		checkresult = complexList->checkStopComplexList( first->citem );
+		traverse = first;
+		while( traverse->next != NULL && !checkresult )
+		  {
+			traverse = traverse->next;
+			checkresult = complexList->checkStopComplexList( traverse->citem );
+		  }
+	  }
 
     //    trajectory output via outputinterval option
     if( output_count_interval >= 0 )
@@ -360,17 +392,19 @@ void SimulationSystem::SimulationLoop_Trajectory( long output_count_interval, do
     printStatusLine(system_options, current_seed, 
                     STOPRESULT_NAN, 0.0, 
                     NULL);
-  else if ( !checkresult )
+  else if ( checkresult )
     {
       printStatusLine(system_options,    current_seed, 
                       STOPRESULT_NORMAL, current_simulation_time, 
-                      tag );
+                      traverse->tag );
     }
   else
     printStatusLine(system_options,  current_seed, 
                     STOPRESULT_TIME, current_simulation_time, 
                     NULL );
 
+  if( first != NULL )
+	delete first;
 }
 
 void SimulationSystem::SimulationLoop_Transition( void )

@@ -171,8 +171,10 @@ class FirstStepResult( object ):
         """ Returns a list of formatted strings according to columns. """
         res = []
         for k,fmtstring in columns:
-            res.append("{0:{1}}".format( (hasattr( self,k) and getattr( self, k ) ) or "N/A",
-                                     fmtstring ))
+            if hasattr( self,k):
+                res.append("{0:{1}}".format( getattr( self,k), fmtstring ))
+            else:
+                res.append("{0:{1}}".format( "N/A", fmtstring ))
         return res
 
     def __repr__( self ):
