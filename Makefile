@@ -172,25 +172,30 @@ package:
 	@if [ -d obj/package_debug/ ]; then $(MAKE) package-debug-clean; fi
 	@if [ -d obj/package_profiler/ ]; then $(MAKE) package-profiler-clean; fi
 	$(PYTHON_COMMAND) setup.py build -b ./ -t obj/package/ --build-lib ./ --debug
-	@echo Package is now [hopefully] built, you can import it via "import multistrand" if the current directory is in your sys.path. In the future you may be able to run 'make install' to have it installed in your Python site packages.
+	@echo Package is now [hopefully] built, you can import it via "import multistrand" if the current directory is in your sys.path. You can install the package via'make install' to have it installed in your Python site packages - you may need to 'sudo make install' if it complains about permissions..
 
 package-profiler:
 	@echo Building the 'multistrand' Python package.
 	@if [ -d obj/package_debug/ ]; then $(MAKE) package-debug-clean; fi
 	@if [ -d obj/package/ ]; then $(MAKE) package-clean; fi
 	$(PYTHON_COMMAND) setup.py build -b ./ -t obj/package_profiler/ --build-lib ./ --debug --use-profiler-defs
-	@echo Package is now [hopefully] built, you can import it via "import multistrand" if the current directory is in your sys.path. In the future you may be able to run 'make install' to have it installed in your Python site packages.
-
+	@echo Package is now [hopefully] built, you can import it via "import multistrand" if the current directory is in your sys.path. You can install the package via'make install' to have it installed in your Python site packages - you may need to 'sudo make install' if it complains about permissions.
 package-debug:
 	@echo Building the 'multistrand' Python package, with debugging symbols enabled.
 	@if [ -d obj/package/ ]; then $(MAKE) package-clean; fi
 	@if [ -d obj/package_profiler/ ]; then $(MAKE) package-profiler-clean; fi
 	$(PYTHON_DEBUG_COMMAND) setup.py build -b ./ -t obj/package_debug/ --build-lib ./ --debug --use-debug-defs
-	@echo Package is now [hopefully] built, you can import it via "import multistrand" if the current directory is in your sys.path. In the future you may be able to run 'make install' to have it installed in your Python site packages.
+	@echo Package is now [hopefully] built, you can import it via "import multistrand" if the current directory is in your sys.path. You can install the package via'make install' to have it installed in your Python site packages - you may need to 'sudo make install' if it complains about permissions..
 
 #documentation
 docs:
 	@cd doc/ && $(MAKE) clean; $(MAKE) html
+
+#install
+install:
+	@echo Installing the 'multistrand' Python package to your python site-packages.
+	$(PYTHON_COMMAND) setup.py install
+
 
 # targets for setting up debugging flags.
 
