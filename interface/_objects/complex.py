@@ -26,10 +26,10 @@ class Complex(object):
       return
     elif 'sequence' in kargs and 'structure' in kargs:
       self.strand_list = [Strand(sequence=i) for i in kargs['sequence'].split("+")]
-      self._fixed_structure = kargs['structure']
+      self._fixed_structure = str(kargs['structure'])
     elif 'strands' in kargs and 'structure' in kargs:
       self.strand_list = kargs['strands']
-      self._init_parse_structure( kargs['structure'] )
+      self._init_parse_structure( str(kargs['structure']) )
 
     self.id = Complex.unique_id
     self.name = kargs.get('name') or "automatic" + str(Complex.unique_id)
@@ -66,10 +66,10 @@ Complex: {fieldnames[0]:>9}: '{0.name}'\n\
     """
     self.id = id
     # what is this id?
-    self.name = name
+    self.name = str(name)
     # what is this name?
     self.strand_list = strand_list
-    self._fixed_structure = structure
+    self._fixed_structure = str(structure)
     self._last_boltzmann_structure = False
     self._boltzmann_sizehint = 1
     self._boltzmann_queue = []

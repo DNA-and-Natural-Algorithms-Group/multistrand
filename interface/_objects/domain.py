@@ -24,19 +24,43 @@ class Domain(object):
     """
 
     if len(args)==4 or (len(args)==3 and 'is_complement' in kargs):
-      self.id, self.name, self.length = args[0:3]
-      self.sequence = ""
+      self.id = args[0]
+      self.name = str(args[1])
+      self.length = int(args[2])
+      self._sequence = ""
     else:
       self.id = Domain._domain_unique_id
       Domain._domain_unique_id += 1
-      self.sequence = ""
+      self._sequence = ""
       self.length = 0
       for k,v in kargs.iteritems():
         self.__setattr__( k, v )
-      if self.length == 0 and len(self.sequence) > 0:
-        self.length = len(self.sequence)
       if 'name' not in kargs:
         raise ValueError("Must pass a 'name' keyword argument.")
+
+  @property
+  def sequence( self ):
+    """
+    The sequence associated with this domain.
+    """
+    return self._sequence
+
+  @sequence.setter
+  def sequence( self, value ):
+    """
+    Check the passed in value to make sure it's sane and convert from unicode. Also automatically set the length.
+    """
+    value = str(value)  # convert from unicode if needed
+    try:
+      if not all([i.upper() in 'AGCT' for i in value]):
+        raise ValueError("At least one of the bases in sequence [{0}] was not a valid base; The first offending character was '{1}', at position {2}.".format( value, value.lstrip('agctAGCT')[0], value.index( value.lstrip('agctAGCT')[0] ) ))
+    except TypeError:
+      raise ValueError("A strand may only be set to a string of valid bases.")
+
+    self._sequence = value
+    if len(self._sequence) > 0:
+      self.length = len(self._sequence)
+
 
   def gen_sequence( self, *args, **kargs ):
     """ Uses the same parameters as 'multistrand.utils.generate_sequence', but sets the length to the domain's length."""

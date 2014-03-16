@@ -12,12 +12,14 @@ class Strand(object):
       warnings.warn( DeprecationWarning("Passing the strand ID is deprecated, it's a private matter internal to Multistrand.") )
       self.name,self._sequence,self.domain_list = args[1:4]
     elif len(args) == 3:
-      self.name,self._sequence,self.domain_list = args[0:3]
+      self.name = str(args[0])
+      self._sequence = str(args[1])
+      self.domain_list = args[2]
     else:
-      try:    self._sequence = kargs['sequence']
+      try:    self._sequence = str(kargs['sequence'])
       except: self._sequence = ""
 
-      try:    self.name = kargs['name']
+      try:    self.name = str(kargs['name'])
       except: self.name = "Automatic_" + str(Strand.unique_id)
 
       try:    self.domain_list = kargs['domains']
@@ -68,6 +70,7 @@ class Strand(object):
     """
     Check the passed in value to make sure it's sane.
     """
+    value = str(value) # convert from unicode if needed
     try:
       if not all([i.upper() in 'AGCT' for i in value]):
         raise ValueError("At least one of the bases in sequence [{0}] was not a valid base; The first offending character was '{1}', at position {2}.".format( value, value.lstrip('agctAGCT')[0], value.index( value.lstrip('agctAGCT')[0] ) ))

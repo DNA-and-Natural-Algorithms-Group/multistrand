@@ -38,7 +38,7 @@ MAIN_OBJECT := $(MAIN_OBJECT:%=$(OBJPATH)/%)
 
 MULTISTRAND_INCLUDES := -I $(realpath ./include)
 
-PYTHON_INCLUDES 	  = -I /usr/include/python2.6
+PYTHON_INCLUDES 	  = -I /usr/include/python2.7
 
 ## utility function for searching a path: 
 ## [main idea via the make info manual] 
@@ -71,7 +71,7 @@ find_executable = $(strip $(firstword $(foreach file,$(1),$(call path_search,$(f
 ## If there's a better 'default' set of names for the debug version,
 ## we can add it to the list checked.
 ##
-PYTHON_NAMES       := python2.6 python
+PYTHON_NAMES       := python python2.6
 PYTHON_DEBUG_NAMES := python2.6-dbg python-dbg
 PYTHON_COMMAND = $(call find_executable,$(PYTHON_NAMES))
 PYTHON_DEBUG_COMMAND = $(call find_executable,$(PYTHON_DEBUG_NAMES) $(PYTHON_NAMES))
@@ -92,7 +92,7 @@ CFLAGS_DEBUG   = -g -Wconversion -DDEBUG_MACROS -DDEBUG
 CFLAGS := $(CFLAGS_RELEASE)
 INCLUDEPATHS = $(MULTISTRAND_INCLUDES) $(PYTHON_INCLUDES)
 
-LIBRARIES= $(LIBRARYPATHS) -lpython2.6
+LIBRARIES= $(LIBRARYPATHS) -lpython2.7
 
 # note that LIB_INTERFACE stuff is now all handled by python's distutils, we don't need to
 # worry about any boost stuff, etc.

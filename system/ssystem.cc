@@ -958,7 +958,8 @@ PyObject *SimulationSystem::calculateEnergy( PyObject *start_state, int typeflag
 
   retval = PyTuple_New( complexList->getCount() );
   // New Reference, we return it.
-  for( int loop = 0; loop < complexList->getCount(); loop++ )
+  // The complex list is a linked list and new items are added at the head; so we need to reverse the resulting list to get the data back out.
+  for( int loop = complexList->getCount() -1 ; loop >= 0; loop-- )
     PyTuple_SET_ITEM( retval, loop, PyFloat_FromDouble( values[loop] ) );
   // the reference from PyFloat_FromDouble is immediately stolen by PyTuple_SET_ITEM.
 

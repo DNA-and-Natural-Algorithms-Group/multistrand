@@ -53,7 +53,7 @@ def add_backbone( sequence, start_idx, graph, draw_labels = True, draw_3prime=Fa
     #edges
     backbone = [("{0:04d}".format(i),"{0:04d}".format(i+1)) for i in indices[:-1]]
     
-    graph.add_edges_from(backbone, len=.5, weight=1.0)
+    graph.add_edges_from(backbone, len=.5, weight=1.0, color='white')
     if draw_3prime:
         graph.add_edge("{0:04d}".format(start_idx+len(sequence)-1),newnodename,arrowhead="rvee",dir="forward",len=.6,headlabel="3'",labelangle="90",labeldistance="1.0")
 
@@ -80,10 +80,10 @@ def backbone_elements( sequence, start_idx, draw_labels = True, draw_3prime=Fals
     C_bases = ["{0:04d}".format(idx) for idx,base in zip(indices,sequence) if base == 'C' or base == 'c']
 
     if draw_labels:
-        A_dict = {'color':'red','label':'A'}
-        T_dict = {'color':'purple','label':'T'}
-        G_dict = {'color':'blue','label':'G'}
-        C_dict = {'color':'green','label':'C'}
+        A_dict = {'color':'red','label':'A','fontcolor':'white','fillcolor':'red','style':'filled'}
+        T_dict = {'color':'purple','label':'T','fontcolor':'white','fillcolor':'purple','style':'filled'}
+        G_dict = {'color':'blue','label':'G','fontcolor':'white','fillcolor':'blue','style':'filled'}
+        C_dict = {'color':'green','label':'C','fontcolor':'white','fillcolor':'green','style':'filled'}
     else:
         A_dict = {'color':'red','label':' ','fillcolor':'red','style':'filled'}
         T_dict = {'color':'purple','label':' ','fillcolor':'purple','style':'filled'}
@@ -114,11 +114,11 @@ def backbone_elements( sequence, start_idx, draw_labels = True, draw_3prime=Fals
     backbone = [("{0:04d}".format(i),"{0:04d}".format(i+1)) for i in indices[:-1]]
 
     for e in backbone:
-        edges.append((e,{'len':.5,'weight':1.0}))
+        edges.append((e,{'len':.5,'weight':1.0,'color':'white'}))
         
     # graph.add_edges_from(backbone, len=.5, weight=1.0) 
     if draw_3prime:
-        edges.append((("{0:04d}".format(start_idx+len(sequence)-1),newnodename),{'arrowhead':"lvee",'dir':"forward",'len':.6,'headlabel':"3'",'labelangle':"90",'labeldistance':"1.0"}))
+        edges.append((("{0:04d}".format(start_idx+len(sequence)-1),newnodename),{'arrowhead':"lvee",'dir':"forward",'len':.6,'headlabel':"3'",'labelangle':"90",'labeldistance':"1.0",'color':'white','fontcolor':'white'}))
     return (nodes,edges)
 
     
@@ -126,13 +126,13 @@ def create_graph( input_seq, input_struc, start_idx ):
     g = pygv.AGraph(normalize=True,start='regular')
     initial_idx = start_idx
     g.node_attr.update(shape = 'circle', width = 0.3, fontsize=10, height = 0.3 )
-    g.graph_attr['viewport'] = '600.0,600.0,.5'
-#    g.graph_attr['bgcolor'] = 'transparent'
+    g.graph_attr['viewport'] = '400.0,400.0,1.0'
+    g.graph_attr['bgcolor'] = 'transparent'
     nodes = []
     edges = []
     for seq in input_seq.split("+"):
         #seq   = seq
-        new_nodes,new_edges = backbone_elements( seq, start_idx, draw_labels=False, draw_3prime=True)
+        new_nodes,new_edges = backbone_elements( seq, start_idx, draw_labels=True, draw_3prime=True)
         nodes = nodes + new_nodes
         edges = edges + new_edges
         start_idx += len(seq)
@@ -155,17 +155,17 @@ def create_graph( input_seq, input_struc, start_idx ):
     if not g.has_edge( "{0:04d}".format(initial_idx), "{0:04d}".format(len(struc) + initial_idx - 1) ):
         g.add_edge( "{0:04d}".format(initial_idx), "{0:04d}".format(len(struc) + initial_idx - 1), style="invis", len=1.0, weight = 1)
     g.layout(prog='neato')
-    # g2 = g.copy()
-    # bounds = g2.graph_attr['bb'].split(",")
-    # bounds = [float(x) for x in bounds]
-    # if bounds[2] > 600.0 or bounds[3] > 600.0:
-    #     if bounds[2] > bounds[3]:
-    #         scaling = 600.0 / bounds[2]
-    #     else:
-    #         scaling = 600.0 / bounds[3]
-    #     g = g.copy()
-    #     g.graph_attr['viewport'] = '600.0,600.0,{0:.2f}'.format(scaling)
-    #     g.layout(prog='neato',args="-s")
+    g2 = g.copy()
+    bounds = g2.graph_attr['bb'].split(",")
+    bounds = [float(x) for x in bounds]
+    if bounds[2] > 400.0 or bounds[3] > 400.0:
+        if bounds[2] > bounds[3]:
+            scaling = 400.0 / bounds[2]
+        else:
+            scaling = 400.0 / bounds[3]
+        g = g.copy()
+        g.graph_attr['viewport'] = '400.0,400.0,{0:.2f}'.format(scaling)
+        g.layout(prog='neato',args="-s")
 
     return g,basepairs
 

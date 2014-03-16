@@ -17,6 +17,9 @@ class StopCondition(object):
                4 - count-based structure stopping condition: the count parameter is the integer number of base-pairs allowed to differ and still match this structure
 
     """
-    self.tag = tag
+    self.tag = str(tag)
     self.complex_items = complex_items  # List of (complex, stoptype, count) tuples
 
+
+class Macrostate( StopCondition ):
+    pass

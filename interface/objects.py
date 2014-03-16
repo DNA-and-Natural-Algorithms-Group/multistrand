@@ -13,7 +13,7 @@ from _objects.domain  import Domain
 from _objects.complex import Complex
 from _objects.strand import Strand
 from _objects.restingstate import RestingState
-from _objects.stopcondition import StopCondition
+from _objects.stopcondition import StopCondition, Macrostate
 
 __all__ = ['Strand','RestingState','StopCondition','Complex','Domain']
 

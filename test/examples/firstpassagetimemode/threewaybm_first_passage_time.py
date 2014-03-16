@@ -92,8 +92,6 @@ def create_setup():
     
     return o,o2
 
-
-
 def create_setup_long_toehold():
 
     toehold_seq = "GTGGGTAGGT"
