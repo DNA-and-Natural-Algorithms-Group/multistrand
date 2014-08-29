@@ -2,13 +2,13 @@
    Copyright (c) 2007-2008 Caltech. All rights reserved.
    Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
 */
- 
-/* Energy Model class header */ 
+
+/* Energy Model class header */
 #ifndef __ENERGYMODEL_H__
 #define __ENERGYMODEL_H__
 
 #include <stdio.h>
-#include <python2.6/Python.h>
+#include <Python.h>
 
 #define NUM_BASEPAIRS_VIENNA 8
     // Vienna: 0 is invalid, then CG, GC, GU, UG, AU, UA, and Special are 1-7
@@ -73,13 +73,13 @@ int baseLookup( char base );
 class energyS
 {
  public:
-  double dH; // enthalpy 
+  double dH; // enthalpy
   double nTdS; // entropy - actually -TdS, such that dH + nTds = dG
 };
 
 class EnergyModel
 {
- public: 
+ public:
   EnergyModel( void );
   EnergyModel( PyObject *options );
   virtual ~EnergyModel( void ) ;
@@ -97,7 +97,7 @@ class EnergyModel
 
   virtual double BulgeEnergy( int i, int j, int p, int q, int bulgesize ) = 0;
   //    This is: 5' i x p 3'
-  //             3' j x q 5'  
+  //             3' j x q 5'
   //  Where one of the x's is a sequence of length bulgesize and the other is size 0.
 
   virtual double InteriorEnergy( char *seq1, char *seq2, int size1, int size2) = 0;
@@ -126,7 +126,7 @@ class EnergyModel
 
 class ViennaEnergyModel : public EnergyModel
 {
- public: 
+ public:
   ViennaEnergyModel( void );
   ViennaEnergyModel( PyObject *options );
   ~ViennaEnergyModel( void );
@@ -134,8 +134,8 @@ class ViennaEnergyModel : public EnergyModel
   double returnRate( double start_energy, double end_energy, int enth_entr_toggle );
   double returnRate( energyS &start_energy, energyS &end_energy );
   double getJoinRate( void );
-  double getJoinRate_NoVolumeTerm( void ); 
- 
+  double getJoinRate_NoVolumeTerm( void );
+
   double getVolumeEnergy( void );
   double getAssocEnergy( void );
 
@@ -161,9 +161,9 @@ class ViennaEnergyModel : public EnergyModel
 
   // Stacking Info
   int stack_37_dG[NUM_BASEPAIRS_VIENNA][NUM_BASEPAIRS_VIENNA]; // Delta G's for stacks, matrix form, at 37 degrees C.
-  int stack_37_dH[NUM_BASEPAIRS_VIENNA][NUM_BASEPAIRS_VIENNA]; // Delta H's for stacks, matrix form, for use comparing to dG at 37 deg C. 
+  int stack_37_dH[NUM_BASEPAIRS_VIENNA][NUM_BASEPAIRS_VIENNA]; // Delta H's for stacks, matrix form, for use comparing to dG at 37 deg C.
 
-  
+
   // Hairpin Info, note no enthalpies
   int hairpin_37_dG[31];
   int hairpin_mismatch_37_dG[NUM_BASEPAIRS_VIENNA][NUM_BASES][NUM_BASES];
@@ -172,7 +172,7 @@ class ViennaEnergyModel : public EnergyModel
   int hairpin_triloop_37_dH;
   // This needs about 1024 ints to store the entire matrix.
   // lookups on this are then 4 shifts, 5adds, 5 dec 1s, but better than a strstr.
-  
+
   int hairpin_tetraloop_37_dG[4096];
   int hairpin_tetraloop_37_dH;
 
@@ -191,7 +191,7 @@ class ViennaEnergyModel : public EnergyModel
                               // It appears only [2] is used. Perhaps change
                               // this to a single parameter.
 
-  /* special internal loop lookup tables */ 
+  /* special internal loop lookup tables */
   int internal_1_1_37_dG[NUM_BASEPAIRS_VIENNA][NUM_BASEPAIRS_VIENNA][NUM_BASES][NUM_BASES];
   int internal_1_1_37_dH[NUM_BASEPAIRS_VIENNA][NUM_BASEPAIRS_VIENNA][NUM_BASES][NUM_BASES];
 
@@ -211,7 +211,7 @@ class ViennaEnergyModel : public EnergyModel
   int multiloop_internal;
 
   // should this really not be tied to one of the others?
-  // it actually appears to be the scaling term for internal, hairpin and (the outdated) multiloop mismatches. 
+  // it actually appears to be the scaling term for internal, hairpin and (the outdated) multiloop mismatches.
 
   int mismatch_37_dH[NUM_BASEPAIRS_VIENNA][NUM_BASES][NUM_BASES];
 
@@ -230,7 +230,7 @@ class ViennaEnergyModel : public EnergyModel
 
   // parameter type, used for the internal data loading.
   int ptype;
-  
+
 
   // biomolecular penalty
   int bimolecular_penalty;
@@ -273,7 +273,7 @@ class ViennaEnergyModel : public EnergyModel
 
 class NupackEnergyModel : public EnergyModel
 {
- public: 
+ public:
   NupackEnergyModel( void );
   NupackEnergyModel( PyObject *options );
   ~NupackEnergyModel( void );
@@ -281,7 +281,7 @@ class NupackEnergyModel : public EnergyModel
   double returnRate( double start_energy, double end_energy, int enth_entr_toggle );
   double returnRate( energyS &start_energy, energyS &end_energy );
   double getJoinRate( void );
-  double getJoinRate_NoVolumeTerm( void ); 
+  double getJoinRate_NoVolumeTerm( void );
 
   double getVolumeEnergy( void );
   double getAssocEnergy( void );
@@ -306,21 +306,21 @@ class NupackEnergyModel : public EnergyModel
 
   // Stacking Info
   double stack_37_dG[NUM_BASEPAIRS_NUPACK][NUM_BASEPAIRS_NUPACK]; // Delta G's for stacks, matrix form, at 37 degrees C.
-  int stack_37_dH[NUM_BASEPAIRS_NUPACK][NUM_BASEPAIRS_NUPACK]; // Delta H's for stacks, matrix form, for use comparing to dG at 37 deg C. 
+  int stack_37_dH[NUM_BASEPAIRS_NUPACK][NUM_BASEPAIRS_NUPACK]; // Delta H's for stacks, matrix form, for use comparing to dG at 37 deg C.
 
-  
+
   // Hairpin Info
   double hairpin_37_dG[31];
   int hairpin_37_dH[31];
   double hairpin_mismatch_37_dG[NUM_BASEPAIRS_NUPACK][NUM_BASES][NUM_BASES];
   int hairpin_mismatch_37_dH[NUM_BASEPAIRS_NUPACK][NUM_BASES][NUM_BASES];
-  
+
   double hairpin_triloop_37_dG[1024];
   //[NUM_BASES-1][NUM_BASES-1][NUM_BASES-1][NUM_BASES-1][NUM_BASES-1];
   int hairpin_triloop_37_dH[1024];
   // This needs about 1024 doubles to store the entire matrix.
   // lookups on this are then 4 shifts, 5adds, 5 dec 1s, but better than a strstr.
-  
+
   double hairpin_tetraloop_37_dG[4096];
   int hairpin_tetraloop_37_dH[4096];
 
@@ -349,9 +349,9 @@ class NupackEnergyModel : public EnergyModel
   double maximum_NINIO;
   int maximum_NINIO_dH;
   double ninio_correction_37[5];
-  int ninio_correction_37_dH[5]; 
+  int ninio_correction_37_dH[5];
 
-  /* special internal loop lookup tables */ 
+  /* special internal loop lookup tables */
   double internal_1_1_37_dG[NUM_BASEPAIRS_NUPACK][NUM_BASEPAIRS_NUPACK][NUM_BASES][NUM_BASES];
   int internal_1_1_37_dH[NUM_BASEPAIRS_NUPACK][NUM_BASEPAIRS_NUPACK][NUM_BASES][NUM_BASES];
 
@@ -375,7 +375,7 @@ class NupackEnergyModel : public EnergyModel
   int multiloop_internal_dH;
 
   // should this really not be tied to one of the others?
-  // it actually appears to be the scaling term for internal, hairpin and (the outdated) multiloop mismatches. 
+  // it actually appears to be the scaling term for internal, hairpin and (the outdated) multiloop mismatches.
 
   //int mismatch_37_dH[NUM_BASEPAIRS_NUPACK][NUM_BASES][NUM_BASES];
 

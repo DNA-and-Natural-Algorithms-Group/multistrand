@@ -2,17 +2,17 @@
    Copyright (c) 2007-2010 Caltech. All rights reserved.
    Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
 */
- 
+
 #ifndef __OPTIONLISTS_H__
 #define __OPTIONLISTS_H__
 
-#define STOPTYPE_STRUCTURE                     0 
+#define STOPTYPE_STRUCTURE                     0
 #define STOPTYPE_BOUND                         1
 #define STOPTYPE_DISASSOC                      2
 #define STOPTYPE_LOOSE_STRUCTURE               3
 #define STOPTYPE_PERCENT_OR_COUNT_STRUCTURE    4
 
-#include <python2.6/Python.h>
+#include <Python.h>
 // for PyObject *
 
 // The bodies for these functions are defined in options.cc, but the

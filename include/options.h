@@ -1,7 +1,7 @@
 #ifndef __PYTHON_OPTIONS_H__
 #define __PYTHON_OPTIONS_H__
 
-#include <python2.6/Python.h>
+#include <Python.h>
 
 // Macros for Python/C interface
 
@@ -17,10 +17,10 @@
   Py_BuildValue("(lids)", seed,(int) (com_type), time, tag )
 
 #define _m_prepTrajTuple( tag, time )\
-  Py_BuildValue("(sd)", tag, time) 
+  Py_BuildValue("(sd)", tag, time)
 
 #define _m_prepStatusFirstTuple( seed, com_type, com_time, frate, tag) \
-  Py_BuildValue("(lidds)", seed, com_type, com_time, frate, tag ) 
+  Py_BuildValue("(lidds)", seed, com_type, com_time, frate, tag )
 
 #define _m_prepComplexStateTuple( seed, id, names, sequence, structure, energy ) \
   Py_BuildValue("(lisssd)", seed, id, names, sequence, structure, energy )
@@ -61,7 +61,7 @@
     PyObject *pyo_str = PyString_FromString( arg ); \
     PyObject_SetAttrString( obj, name, pyo_str );   \
     Py_XDECREF( pyo_str );                          \
-  } while(0)                                           
+  } while(0)
 
 // Import/instantiate
 #define newObject(mod, name) _m_newObject( #mod, #name )
@@ -77,9 +77,9 @@
 
 /* Procedure calling (no ref counts) */
 #define pingAttr(obj, name) Py_DECREF(PyObject_GetAttrString( obj, #name ))
-// CB: changed this from Py_XDECREF to Py_DECREF because it was accessing the 
+// CB: changed this from Py_XDECREF to Py_DECREF because it was accessing the
 // attribute twice for each call to pingAttr (a problem for incrementors)
-// note: does not do anything crazy on a NULL return from GetAttrString, but if that 
+// note: does not do anything crazy on a NULL return from GetAttrString, but if that
 // returned null it might be an error...
 
 // Setters
@@ -198,7 +198,7 @@
     if (PyObject_SetAttrString( obj, name, pyo_str ) == -1 && PyErr_Occurred() != NULL) \
       _m_printPyError_withLineNumber();               \
     Py_XDECREF( pyo_str );                            \
-  } while(0)                                           
+  } while(0)
 
 
 // Import/instantiate
@@ -222,7 +222,7 @@
  but the returned pointer was still NULL!\n"); \
   else { Py_DECREF(_m_attr); }               \
   }
-    
+
 
 /*  The following works without ref counting issues as PyList_GET_ITEM
     borrows the references.  Since these macros must be expressions
@@ -240,7 +240,7 @@
 #define setLongAttr(obj, name, arg) _m_d_setAttr_DECREF( obj, #name, PyLong_FromLong, (arg))
 
 #define setStringAttr(obj, name, arg) _m_d_setStringAttr( obj, #name, (arg ))
-// note: any reference this creates is not the responsibility of the caller. 
+// note: any reference this creates is not the responsibility of the caller.
 
 // Testers
 #define testLongAttr(obj, name, test, value) _m_d_testLongAttr( obj, #name, #test, value )
@@ -289,16 +289,16 @@
 
 Inline functions for various python macro operations.
 
-Prefixed by _m_ if used internally by macros, and by 
+Prefixed by _m_ if used internally by macros, and by
 _m_d_ if it's a debug version for when DEBUG_MACROS is set.
 
 *****************************************************/
 
 static inline bool _m_testLongAttr( PyObject *obj, const char *attrname, const char *test, long value )
 {
- PyObject *_m_attr = PyObject_GetAttrString( obj, attrname);                
+ PyObject *_m_attr = PyObject_GetAttrString( obj, attrname);
  long local_val = PyInt_AS_LONG(_m_attr);
- Py_DECREF(_m_attr);                                                                                        
+ Py_DECREF(_m_attr);
  if( test[0] == '=' )
        return (local_val == value);
  if( test[0] == '<' )
@@ -310,11 +310,11 @@ static inline bool _m_testLongAttr( PyObject *obj, const char *attrname, const c
 #ifdef DEBUG_MACROS
 static inline bool _m_d_testLongAttr( PyObject *obj, const char *attrname, const char *test, long value )
 {
- PyObject *_m_attr = PyObject_GetAttrString( obj, attrname);                
+ PyObject *_m_attr = PyObject_GetAttrString( obj, attrname);
  long local_val;
  if( _m_attr == NULL && PyErr_Occurred() != NULL )
    {
-     _m_printPyError_withLineNumber();                           
+     _m_printPyError_withLineNumber();
      return false;
    }
  else if (_m_attr == NULL )
@@ -332,7 +332,7 @@ static inline bool _m_d_testLongAttr( PyObject *obj, const char *attrname, const
          return false;
        }
      local_val = PyInt_AS_LONG(_m_attr);
-     Py_DECREF(_m_attr);                                                                                        
+     Py_DECREF(_m_attr);
      if( test[0] == '=' )
        return (local_val == value);
      if( test[0] == '<' )
@@ -378,7 +378,7 @@ static inline PyObject *_m_d_newObject( const char *mod, const char *name )
 
   module = PyImport_ImportModule( mod ); // new reference
   if (module == NULL && PyErr_Occurred() != NULL)
-    _m_printPyError_withLineNumber();                            
+    _m_printPyError_withLineNumber();
   else if (module == NULL)
     {
       fprintf(stderr,"WARNING: _m_d_newObject: No error occurred,\
@@ -387,7 +387,7 @@ static inline PyObject *_m_d_newObject( const char *mod, const char *name )
     }
   class_obj = PyObject_GetAttrString(module, name ); // new reference
   if (class_obj == NULL && PyErr_Occurred() != NULL)
-    _m_printPyError_withLineNumber();                                
+    _m_printPyError_withLineNumber();
   else if (class_obj == NULL)
     {
       fprintf(stderr,"WARNING: _m_d_newObject: No error occurred,\
@@ -397,7 +397,7 @@ static inline PyObject *_m_d_newObject( const char *mod, const char *name )
 
   new_obj = PyObject_CallObject( class_obj, NULL );
   if (new_obj == NULL && PyErr_Occurred() != NULL)
-    _m_printPyError_withLineNumber();                                
+    _m_printPyError_withLineNumber();
   else if (new_obj == NULL)
     {
       fprintf(stderr,"WARNING: _m_d_newObject: No error occurred,\
@@ -482,7 +482,7 @@ class identlist *getID_list(PyObject *options, int index, PyObject *alternate_st
 // simulation modes are bitwise -> bit 5 is normal mode
 //                                 bit 6 is first step mode
 //                                 bit 7 is python interface
-//                                 bit 10 is compute energy mode only, should not 
+//                                 bit 10 is compute energy mode only, should not
 //                                          be combined with any other flags.
 // the following are the bit definitions for tests on those:
 
@@ -492,7 +492,7 @@ class identlist *getID_list(PyObject *options, int index, PyObject *alternate_st
 #define SIMULATION_MODE_FLAG_TRAJECTORY                0x0080
 #define SIMULATION_MODE_FLAG_TRANSITION                0x0100
 
-// stopconditions used in ssystem. 
+// stopconditions used in ssystem.
 // TODO: clean up/add docs.
 
 // normal sim mode stop result flags.

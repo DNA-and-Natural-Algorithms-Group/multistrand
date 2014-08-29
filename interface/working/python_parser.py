@@ -1,5 +1,5 @@
 #
-#!/usr/bin/python2.6
+#!/usr/bin/python
 #
 #
 
@@ -34,7 +34,7 @@ class MultistrandInputFile_BaseRegexps( object ):
         if unique_count > 0:
             raise UserWarning("There only be one MultistrandInputFile_BaseRegexps object.")
         super(MultistrandInputFile_BaseRegexps,self).__init__()
-        
+
         unique_count = 1
 
         self.regexp_names = ["_regexp_comment","_regexp_strand","_regexp_startst","_regexp_stopst","_regexp_onelines"]
@@ -47,7 +47,3 @@ class MultistrandInputFile_BaseRegexps( object ):
         # done setting the object up, if it can't find the attribute.
 
     def _regexp_comment( self ):
-        
-            
-            
-
