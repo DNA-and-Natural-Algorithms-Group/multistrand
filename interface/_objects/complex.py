@@ -5,11 +5,11 @@ class Complex(object):
   A representation of a single connected complex of strands.
   """
   unique_id = 0
-  
+
   def __init__(self, *args, **kargs):
     """
     Initialization:
-    
+
     Keyword Arguments:
     sequence [type=str]          -- Flat sequence to use for this complex.
     structure [type=str]         -- Flat structure to use for this complex.
@@ -18,7 +18,7 @@ class Complex(object):
                                     form 'automatic' + a unique integer.
     boltzmann_sample [type=bool] -- Whether we should boltzmann sample this
                                     complex.
-    
+
     You must include both of the required keyword arguments to create a Complex with the new style init, or pass it the old style arguments used in `old_init`.
     """
     if len( args ) == 4 or len( args ) == 5:
@@ -41,7 +41,7 @@ class Complex(object):
     self._boltzmann_sizehint = 1
     self._boltzmann_queue = []
     Complex.unique_id += 1
-      
+
   def __str__( self ):
     return "\
 Complex: {fieldnames[0]:>9}: '{0.name}'\n\
@@ -79,7 +79,7 @@ Complex: {fieldnames[0]:>9}: '{0.name}'\n\
     strand_count = len(self.strand_list)
     base_count = sum(len(s.sequence) for s in self.strand_list)
     total_flat_length = base_count + strand_count - 1
-   
+
     if len(structure) == total_flat_length:
       self._fixed_structure = structure
     else:
@@ -91,7 +91,7 @@ Complex: {fieldnames[0]:>9}: '{0.name}'\n\
 Expected a structure composed of characters from '.()+' \
 and with either length [{0}] for a complete structure, or length [{1}] \
 for a domain-level structure. If giving a domain-level structure, it \
-should have the layout [{2}].".format( total_flat_length, 
+should have the layout [{2}].".format( total_flat_length,
               domain_count + strand_count - 1,
               "+".join(''.join('x' for d in s.domain_list)\
                        for s in self.strand_list))
@@ -126,7 +126,7 @@ should have the layout [{2}].".format( total_flat_length,
       -- The string containing the canonical name.
     """
     return min(self.strand_list, key=lambda x: x.name).name
-  
+
   def __len__(self):
     """ Length of a complex is the number of strands contained.
 
@@ -160,7 +160,7 @@ should have the layout [{2}].".format( total_flat_length,
     #
     # In practice, I can see a case where it may be useful to modify it if you're using an interactive mode, but even in those cases it may not do what the user wants, if they're relying on that changing previous parts. For example:
     # c1 = Complex("c1","c1", "......((.......)).....")
-    # o = Options()           
+    # o = Options()
     # o.start_state = [c1]
     # ... user runs a simulation and gets a syntax warning about mismatched parens...
     # c1.structure = "......((........))...."
@@ -175,7 +175,7 @@ should have the layout [{2}].".format( total_flat_length,
     retval = copy.deepcopy(self)
     retval._fixed_structure = value
     return retval
-    
+
   @property
   def fixed_structure(self):
     """ The structure used to create this Complex. """
@@ -190,26 +190,26 @@ should have the layout [{2}].".format( total_flat_length,
   def boltzmann_count(self):
     """ The number of Boltzmann sampled structures we expect to be needed when using this Complex in a start structure. The default value is 1, which means every time a structure is requested it will need to call the sampling function; if you provide a better estimate, it may be a lot more efficient in how often it needs to call the sampling function. """
     return self._boltzmann_sizehint
-  
+
   @boltzmann_count.setter
   def boltzmann_count(self,value):
     if value >= 1:
       self._boltzmann_sizehint = value
     else:
       self._boltzmann_sizehint = 1
-      
+
   @property
   def sequence(self):
     """ The calculated 'flat' sequence for this complex. """
     return "+".join([strand.sequence for strand in self.strand_list])
-  
+
   def generate_boltzmann_structure(self):
     """
     Create a new boltzmann sampled structure for this complex.
 
     Mostly intended for internal use, but can access the generated structure
     via the `current_boltzmann_structure` property.
-    
+
     Return Value:
       -- None
     """
@@ -219,7 +219,7 @@ should have the layout [{2}].".format( total_flat_length,
       return
 
     import subprocess, tempfile, os
-    
+
     tmp = tempfile.NamedTemporaryFile(delete=False,suffix=".sample")
     tmp.close()
     # we close it here as some OS's have issues opening the same file
@@ -251,15 +251,16 @@ should have the layout [{2}].".format( total_flat_length,
     # to the nupack 'sample' occurs before /usr/bin or it may not find it correctly.
     #
 
-    p = subprocess.Popen(["sample", "-multi", "-material", "dna", "-count", str(count), tmp.name[:-7]],stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    p = subprocess.Popen(["sample", "-multi", "-material", "dna", "-samples", str(count)], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
-    input_str = "{0}\n{1}\n{2}\n".format( len(self.strand_list),
+    input_str = "{0}\n{1}\n{2}\n{3}\n".format( tmp.name[:-7],
+                                        len(self.strand_list),
                                         "\n".join( [i.sequence for i in self.strand_list] ),
                                         " ".join( [str(i+1) for i in range( len( self.strand_list ))])
-                                          )
+                                        )
     result = p.communicate(input_str)[0]
     # note we toss the result as it's mostly just spam from the subprocess
-    
+
     f = open(tmp.name, "rt")
     lines = f.readlines()
     f.close()
@@ -271,7 +272,7 @@ should have the layout [{2}].".format( total_flat_length,
       raise IOError("Did not get any results back from the boltzmann sampler function.")
 
     self._pop_boltzmann()
-    
+
   def _pop_boltzmann(self):
     """ Pops a structure off our waiting queue, putting it in the correct internal.
 
