@@ -37,7 +37,7 @@ This package is easiest to install on a linux or Mac OSX machine, with Python ve
 
 It is highly recommended to get the tcmalloc library from Google Perftools (https://code.google.com/p/gperftools/ ). It should be detected automatically if installed into your standard library path, and it will greatly speed up Multistrand as highly optimized memory librarys really assist the core simulation loop.
 
-You will also need the NUPACK thermodynamic parameter files - download the NUPACK source from http://www.nupack.org and install it. Then make sure you have NUPACK_HOME set in your environment when you run python/multistrand so it can find the parameter files.
+You will also need the NUPACK thermodynamic parameter files - download the NUPACK source from http://www.nupack.org and install it. Then make sure you have NUPACKHOME set in your environment when you run python/multistrand so it can find the parameter files.
 
 ###
 ###  Python package
