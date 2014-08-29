@@ -56,8 +56,8 @@ double NupackEnergyModel::returnRate( double start_energy, double end_energy, in
   double dE = end_energy - start_energy;
   //  double dE = ((double) ( end_energy - start_energy )) / 100.;
   if( enth_entr_toggle == 3 ) // O/O delete, needs bi scale and full dE.
-	//    return biscale * exp( -(dE) / _RT ); 
-      return biscale * exp( -(dE-dG_assoc) / _RT ); 
+	//    return biscale * exp( -(dE) / _RT );
+      return biscale * exp( -(dE-dG_assoc) / _RT );
   // dG_assoc, if it were included in (start_energy, end_energy), would need to be deleted here. However, it never gets added into any energies except for display purposes. So it gets used in the join move rate, but not here.
   // OLD: dG_assoc is typically a negative number, and included as part of the complex before disassociation. Thus it must be subtracted from the dE (leading to a typically slower disassociation rate.).
   if( kinetic_rate_method == RATE_METHOD_KAWASAKI )  // Kawasaki
@@ -159,14 +159,14 @@ void NupackEnergyModel::eStackEnergy( int type1, int type2, energyS *energy )
    energy = internal_37_dG[30] + (int) (log((double)(size1+size2) / 30.0) * log_loop_penalty);
 
    // NINIO term... no idea why this is used.
-   ninio = abs(size2 - size1) * ninio_correction_37[2]; // don't ask me why, this is according to the Vienna energy model and this term is in it. 
-  
+   ninio = abs(size2 - size1) * ninio_correction_37[2]; // don't ask me why, this is according to the Vienna energy model and this term is in it.
+
    if( maximum_NINIO < ninio )
    energy += maximum_NINIO;
    else
    energy += ninio;
 
-   energy += internal_mismatch_37_dG[type1][mismatch[0]][mismatch[1]] + 
+   energy += internal_mismatch_37_dG[type1][mismatch[0]][mismatch[1]] +
    internal_mismatch_37_dG[basepair_sw[type2]][mismatch[3]][mismatch[2]];
 
    return energy;
@@ -182,7 +182,7 @@ void NupackEnergyModel::eStackEnergy( int type1, int type2, energyS *energy )
    energy = hairpin_37_dG[size];
    else
    energy = hairpin_37_dG[30] + (log((double)size / 30.0) * log_loop_penalty / 100.0);
-  
+
    if( size == 3 ) // triloop bonuses
    {
    strncpy( cmpstring, special, size+2 );
@@ -305,7 +305,7 @@ double NupackEnergyModel::InteriorEnergy( char *seq1, char *seq2, int size1, int
   else
     energy = internal_37_dG[30] + (log((double)(size1+size2) / 30.0) * log_loop_penalty/100.0);
 
-  // NINIO term... 
+  // NINIO term...
   int asym;
   if ( size1 < size2)
     asym = size1;
@@ -313,7 +313,7 @@ double NupackEnergyModel::InteriorEnergy( char *seq1, char *seq2, int size1, int
     asym = size2;
   if( asym > 4 )
     asym = 4;
-  ninio = abs(size2 - size1) * ninio_correction_37[asym-1]; 
+  ninio = abs(size2 - size1) * ninio_correction_37[asym-1];
 
   if( maximum_NINIO < ninio )
     energy += maximum_NINIO;
@@ -321,10 +321,10 @@ double NupackEnergyModel::InteriorEnergy( char *seq1, char *seq2, int size1, int
     energy += ninio;
 
   // TODO: derotate this in the input rather than the output. see ene.c from nupack and the parameter file for details.
-  //    energy += internal_mismatch_37_dG[type1][seq2[size2]][seq1[1]] + 
+  //    energy += internal_mismatch_37_dG[type1][seq2[size2]][seq1[1]] +
   //  internal_mismatch_37_dG[basepair_sw_mfold_actual[type2+1]-1][seq1[size1]][seq2[1]];
   // OLD VERSION:
-  //  energy += internal_mismatch_37_dG[type1][seq1[1]][seq2[size2]] + 
+  //  energy += internal_mismatch_37_dG[type1][seq1[1]][seq2[size2]] +
   //  internal_mismatch_37_dG[basepair_sw_mfold_actual[type2+1]-1][seq2[1]][seq1[size1]];
 
   // try gail params?
@@ -351,13 +351,13 @@ double NupackEnergyModel::HairpinEnergy( char *seq, int size )
     energy = hairpin_37_dG[size];
   else
     energy = hairpin_37_dG[30] + (log((double)size / 30.0) * log_loop_penalty/100.0);
-  
+
   if( size == 3 ) // triloop bonuses
     {
       // We now always do the lookup, if no entry then it is 0.0.
-      lookup_index = ((seq[0]-1) << 8) + 
-        ((seq[1]-1) << 6) + 
-        ((seq[2]-1) << 4) + 
+      lookup_index = ((seq[0]-1) << 8) +
+        ((seq[1]-1) << 6) +
+        ((seq[2]-1) << 4) +
         ((seq[3]-1) << 2) +
         (seq[4]-1);
 
@@ -368,9 +368,9 @@ double NupackEnergyModel::HairpinEnergy( char *seq, int size )
     }
   if( size == 4)
     {
-      lookup_index = ((seq[0]-1) << 10) + 
-        ((seq[1]-1) << 8) + 
-        ((seq[2]-1) << 6) + 
+      lookup_index = ((seq[0]-1) << 10) +
+        ((seq[1]-1) << 8) +
+        ((seq[2]-1) << 6) +
         ((seq[3]-1) << 4) +
         ((seq[4]-1) << 2) +
         (seq[5]-1);
@@ -430,11 +430,11 @@ double NupackEnergyModel::MultiloopEnergy( int size, int *sidelen, char **sequen
       for( int loop = 0; loop < size; loop++)
 		{
 		  rt_pt = pairtypes[
-							sequences[loop][0]			  
+							sequences[loop][0]
 							][
 							  sequences[loopminus1][sidelen[loopminus1]+1]
 							  ] -1;
-	  
+
 		  if( !(dangles == DANGLES_SOME && sidelen[loopminus1] == 0 ))
 			{
 			  dangle5 = dangle_5_37_dG[ pt ][ sequences[loopminus1][1] ];
@@ -444,12 +444,12 @@ double NupackEnergyModel::MultiloopEnergy( int size, int *sidelen, char **sequen
 			  else
 				energy += dangle3 + dangle5;
 			}
-	    
+
 		  loopminus1++;
 		  if( loopminus1 == size ) loopminus1 = 0;
 		  pt = rt_pt;
 		}
-      
+
       return energy;
     }
 }
@@ -477,12 +477,12 @@ double NupackEnergyModel::OpenloopEnergy( int size, int *sidelen, char **sequenc
     {
       double dangle3=0.0,dangle5=0.0;
 
-      // 5' most sequence's dangle3 component. 
+      // 5' most sequence's dangle3 component.
       pt = pairtypes[ sequences[1][0] ][ sequences[0][sidelen[0]+1] ] -1;
-      
+
       if( sidelen[0] == 0 )
 		dangle3 = 0.0;
-      else	  
+      else
 		dangle3 = dangle_3_37_dG[ pt ][ sequences[0][sidelen[0]] ];
 
       energy += dangle3; // added for either dangle version.
@@ -537,7 +537,7 @@ NupackEnergyModel::NupackEnergyModel( PyObject *energy_options ) : log_loop_pena
 
   //  if( logml == -1 ) logml = 0;
   // JS: Should now be correct via new python options object.
-  
+
   waterdensity = setWaterDensity( temperature - TEMPERATURE_ZERO_CELSIUS_IN_KELVIN);
 
 
@@ -553,8 +553,8 @@ NupackEnergyModel::NupackEnergyModel( PyObject *energy_options ) : log_loop_pena
 
   if( testLongAttr(energy_options, substrate_type ,=, SUBSTRATE_INVALID ) )
     {
-      PyObject *tmpStr=NULL;  
-	  
+      PyObject *tmpStr=NULL;
+
       char *tmp = (char *) getStringAttr( energy_options, parameter_file,tmpStr);
 	  if( tmp != NULL )
 		{
@@ -578,32 +578,32 @@ NupackEnergyModel::NupackEnergyModel( PyObject *energy_options ) : log_loop_pena
       char *nupackhome;
       char fullpath[512];
       char fullpath_dH[512];
-      
+
       nupackhome = getenv("NUPACKHOME");
-     
+
       if( nupackhome == NULL )
 		{
-		  strcpy(fullpath,"DNA_mfold2.3.dG");
-		  strcpy(fullpath_dH,"DNA_mfold2.3.dH");
+		   strcpy(fullpath,"dna1998.dG");
+		  strcpy(fullpath_dH,"dna1998.dH");
 		}
       else
 		{
 		  strcpy(fullpath,nupackhome);
 		  strcpy(fullpath_dH,nupackhome);
-		  strcat(fullpath,"/parameters/DNA_mfold2.3.dG");
-		  strcat(fullpath_dH,"/parameters/DNA_mfold2.3.dH");
+		  strcat(fullpath,"/parameters/dna1998.dG");
+		  strcat(fullpath_dH,"/parameters/dna1998.dH");
 		}
       //printf("fp: %s\n fpdh: %s\n",fullpath, fullpath_dH);
 
       fp = fopen( fullpath, "rt");
       fp2 = fopen(fullpath_dH,"rt");
-      
+
       if( fp == NULL )
 		{
-		  fp = fopen("DNA_mfold2.3.dG","rt");
+		  fp = fopen("dna1998.dG","rt");
 		  if( fp == NULL )
 			{
-			  fprintf(stderr,"ERROR: nupack/mfold parameter file not found: $NUPACKHOME/parameters/DNA_mfold2.3.dG or DNA_mfold2.3.dG in current directory.\n");
+			  fprintf(stderr,"ERROR: nupack/mfold parameter file not found: $NUPACKHOME/parameters/dna1998.dG or dna1998.dG in current directory.\n");
 			  exit(0);
 			}
 
@@ -611,10 +611,10 @@ NupackEnergyModel::NupackEnergyModel( PyObject *energy_options ) : log_loop_pena
 
       if( fp2 == NULL )
 		{
-		  fp2 = fopen("DNA_mfold2.3.dH","rt");
+		  fp2 = fopen("dna1998.dH","rt");
 		  if( fp2 == NULL )
 			{
-			  fprintf(stderr,"ERROR: nupack/mfold parameter file not found: $NUPACKHOME/parameters/DNA_mfold2.3.dH or DNA_mfold2.3.dH in current directory.\n");
+			  fprintf(stderr,"ERROR: nupack/mfold parameter file not found: $NUPACKHOME/parameters/dna1998.dH or dna1998.dH in current directory.\n");
 			  exit(0);
 			}
 
@@ -625,10 +625,10 @@ NupackEnergyModel::NupackEnergyModel( PyObject *energy_options ) : log_loop_pena
       char *nupackhome;
       char fullpath[512];
       char fullpath_dH[512];
-      
+
       nupackhome = getenv("NUPACKHOME");
       //      printf("nupackhome = %s\n",nupackhome);
-     
+
       if( nupackhome == NULL )
 		{
 		  strcpy(fullpath,"RNA_mfold2.3.dG");
@@ -645,7 +645,7 @@ NupackEnergyModel::NupackEnergyModel( PyObject *energy_options ) : log_loop_pena
 
       fp = fopen( fullpath, "rt");
       fp2 = fopen(fullpath_dH,"rt");
-      
+
       if( fp == NULL )
 		{
 		  fp = fopen("RNA_mfold2.3.dG","rt");
@@ -668,8 +668,8 @@ NupackEnergyModel::NupackEnergyModel( PyObject *energy_options ) : log_loop_pena
 
 		}
     }
-  
-  
+
+
   fgets( in_buffer, 2048, fp );
   while( !feof(fp) )
     {
@@ -685,7 +685,7 @@ NupackEnergyModel::NupackEnergyModel( PyObject *energy_options ) : log_loop_pena
 			  if( feof(fp) )
 				continue;
 			}
-	      
+
 	      else if( strncmp( in_buffer, ">Hairpin Loop Energies:", 23) == 0)
 			{
 #ifdef DEBUG
@@ -696,7 +696,7 @@ NupackEnergyModel::NupackEnergyModel( PyObject *energy_options ) : log_loop_pena
 			  if( feof(fp) )
 				continue;
 			}
-	      
+
 	      else if( strncmp( in_buffer, ">Bulge loop Energies:", 21) == 0)
 			{
 #ifdef DEBUG
@@ -705,7 +705,7 @@ NupackEnergyModel::NupackEnergyModel( PyObject *energy_options ) : log_loop_pena
 			  internal_set_bulge_energies( fp, in_buffer );
 			  fgets( in_buffer, 2048, fp );
 			  if( feof(fp) )
-				continue;	    
+				continue;
 			}
 	      else if( strncmp( in_buffer, ">Interior Loop Energies:", 24) == 0)
 			{
@@ -715,9 +715,9 @@ NupackEnergyModel::NupackEnergyModel( PyObject *energy_options ) : log_loop_pena
 			  internal_set_interior_loop_energies( fp, in_buffer );
 			  fgets( in_buffer, 2048, fp );
 			  if( feof(fp) )
-				continue;	    
+				continue;
 			}
-	      
+
 	      else if( strncmp( in_buffer, ">NINIO asymmetry", 16) == 0)
 			{
 #ifdef DEBUG
@@ -726,9 +726,9 @@ NupackEnergyModel::NupackEnergyModel( PyObject *energy_options ) : log_loop_pena
 			  internal_set_ninio_parameters( fp, in_buffer );
 			  fgets( in_buffer, 2048, fp );
 			  if( feof(fp) )
-				continue;	    
+				continue;
 			}
-	      
+
 	      else if( strncmp( in_buffer, ">Triloops ", 10) == 0)
 			{
 #ifdef DEBUG
@@ -750,7 +750,7 @@ NupackEnergyModel::NupackEnergyModel( PyObject *energy_options ) : log_loop_pena
 #endif
 			  internal_set_hairpin_mismatch_energies( fp, in_buffer );
 			  fgets( in_buffer, 2048, fp );
-			}	    
+			}
 	      else if( strncmp( in_buffer, ">Mismatch Interior", 18) == 0)
 			{
 #ifdef DEBUG
@@ -827,14 +827,14 @@ NupackEnergyModel::NupackEnergyModel( PyObject *energy_options ) : log_loop_pena
 			{
 			  fgets( in_buffer, 2048, fp );
 			}
-	      
+
 	    }
 	  else
 	    fgets( in_buffer, 2048, fp );
 	}
   fclose(fp);
   /* Enthalpy loading section for all those pesky dH terms. */
-  
+
   if(fp2 == NULL )
     {
       if( temperature < CELSIUS37_IN_KELVIN - .0001 || temperature > CELSIUS37_IN_KELVIN + .0001)
@@ -844,7 +844,7 @@ NupackEnergyModel::NupackEnergyModel( PyObject *energy_options ) : log_loop_pena
 		}
       return;
     }
-  
+
   fgets( in_buffer, 2048, fp2 );
   while( !feof(fp2) )
     {
@@ -860,7 +860,7 @@ NupackEnergyModel::NupackEnergyModel( PyObject *energy_options ) : log_loop_pena
 			  if( feof(fp2) )
 				continue;
 			}
-		  
+
 		  else if( strncmp( in_buffer, ">Hairpin Loop Energies:", 23) == 0)
 			{
 #ifdef DEBUG
@@ -871,7 +871,7 @@ NupackEnergyModel::NupackEnergyModel( PyObject *energy_options ) : log_loop_pena
 			  if( feof(fp2) )
 				continue;
 			}
-		  
+
 		  else if( strncmp( in_buffer, ">Bulge loop Energies:", 21) == 0)
 			{
 #ifdef DEBUG
@@ -880,7 +880,7 @@ NupackEnergyModel::NupackEnergyModel( PyObject *energy_options ) : log_loop_pena
 			  internal_set_bulge_enthalpies( fp2, in_buffer );
 			  fgets( in_buffer, 2048, fp2);
 			  if( feof(fp2) )
-				continue;	    
+				continue;
 			}
 		  else if( strncmp( in_buffer, ">Interior Loop Energies:", 24) == 0)
 			{
@@ -890,9 +890,9 @@ NupackEnergyModel::NupackEnergyModel( PyObject *energy_options ) : log_loop_pena
 			  internal_set_interior_loop_enthalpies( fp2, in_buffer );
 			  fgets( in_buffer, 2048, fp2 );
 			  if( feof(fp2) )
-				continue;	    
+				continue;
 			}
-		  
+
 		  else if( strncmp( in_buffer, ">NINIO asymmetry", 16) == 0)
 			{
 #ifdef DEBUG
@@ -901,9 +901,9 @@ NupackEnergyModel::NupackEnergyModel( PyObject *energy_options ) : log_loop_pena
 			  internal_set_ninio_parameters_enthalpy( fp2, in_buffer );
 			  fgets( in_buffer, 2048, fp2 );
 			  if( feof(fp2) )
-				continue;	    
+				continue;
 			}
-		  
+
 		  else if( strncmp( in_buffer, ">Triloops ", 10) == 0)
 			{
 #ifdef DEBUG
@@ -925,7 +925,7 @@ NupackEnergyModel::NupackEnergyModel( PyObject *energy_options ) : log_loop_pena
 #endif
 			  internal_set_hairpin_mismatch_enthalpies( fp2, in_buffer );
 			  fgets( in_buffer, 2048, fp2 );
-			}	    
+			}
 		  else if( strncmp( in_buffer, ">Mismatch Interior", 18) == 0)
 			{
 #ifdef DEBUG
@@ -1002,17 +1002,17 @@ NupackEnergyModel::NupackEnergyModel( PyObject *energy_options ) : log_loop_pena
 			{
 			  fgets( in_buffer, 2048, fp2 );
 			}
-		  
+
 		}
 	  else
 		fgets( in_buffer, 2048, fp2 );
 	}
-  
+
   fclose(fp2);
 
   // Temperature change section.
   //  double getDoubleAttr(energy_options, temperature,&temperature);
-  
+
   // Note: #define T_scale( dG, dH, T ) ((((dG) - (dH)) * (T) / 310.15) + dH)
 
   _RT = kBoltzmann * current_temp;
@@ -1022,7 +1022,7 @@ NupackEnergyModel::NupackEnergyModel( PyObject *energy_options ) : log_loop_pena
     {
       current_temp = CELSIUS37_IN_KELVIN;
       //bimolecular_penalty = bimolecular_penalty - kBoltzmann * current_temp * log( waterdensity);
-      setupRates( energy_options );  
+      setupRates( energy_options );
       return;
     }
 
@@ -1055,7 +1055,7 @@ NupackEnergyModel::NupackEnergyModel( PyObject *energy_options ) : log_loop_pena
 
   for( loop = 0; loop < 31; loop++ )
     internal_37_dG[loop] = T_scale( internal_37_dG[loop], internal_37_dH[loop], temperature );
-  
+
   for( loop = 0; loop < NUM_BASES; loop++ )
     //  for( loop = 0; loop < NUM_BASEPAIRS_NUPACK; loop++ )
     for( loop2 = 0; loop2 < NUM_BASES; loop2++ )
@@ -1110,13 +1110,13 @@ NupackEnergyModel::NupackEnergyModel( PyObject *energy_options ) : log_loop_pena
 
   _RT = kBoltzmann * temperature;
   current_temp = temperature;
-  setupRates( energy_options );  
+  setupRates( energy_options );
 }
 
 
 
 /* ------------------------------------------------------------------------
-   
+
 
    Private functions for use in loading and setting data by the main constructor
 
@@ -1128,7 +1128,7 @@ void NupackEnergyModel::internal_set_stack_energies( FILE *fp, char *buffer )
 {
   int loop;
   char *cur_bufspot;
-  
+
   while( buffer[0] == '>' )
     fgets( buffer, 2048, fp );
   //      for( loop = 0; loop < NUM_BASEPAIRS_NUPACK; loop++ )
@@ -1149,7 +1149,7 @@ void NupackEnergyModel::internal_set_stack_enthalpies( FILE *fp, char *buffer )
 {
   int loop;
   char *cur_bufspot;
-  
+
   while( buffer[0] == '>' )
     fgets( buffer, 2048, fp );
 
@@ -1203,15 +1203,15 @@ void NupackEnergyModel::internal_set_interior_1_1_energies( FILE *fp, char *buff
   char *cur_bufspot;
 
   while( buffer[0] == '>' ) fgets( buffer, 2048, fp );
-      
+
   cur_bufspot = buffer;
-  
+
   for( loop = 0; loop < NUM_BASEPAIRS_NUPACK; loop++ )
     for( loop2 = 0; loop2 < NUM_BASEPAIRS_NUPACK; loop2++ )
       {
-		if( buffer[0] == 'A' || buffer[0] == 'T' || buffer[0] == 'G' || buffer[0] == 'C') 
+		if( buffer[0] == 'A' || buffer[0] == 'T' || buffer[0] == 'G' || buffer[0] == 'C')
 		  fgets( buffer, 2048, fp); // eat the lines with AT..AT, etc, just in case.
-	
+
 		for( loop3 = 0; loop3 < NUM_BASES; loop3++ )
 		  {
 			internal_1_1_37_dG[loop][loop2][loop3][0] = 0;
@@ -1219,7 +1219,7 @@ void NupackEnergyModel::internal_set_interior_1_1_energies( FILE *fp, char *buff
 		  }
 		for( loop3 = 1; loop3 < NUM_BASES; loop3++ )
 		  cur_bufspot = internal_read_array_data( fp, buffer, cur_bufspot, &internal_1_1_37_dG[loop][loop2][loop3][1], NUM_BASES-1);
-	
+
       }
 }
 
@@ -1229,15 +1229,15 @@ void NupackEnergyModel::internal_set_interior_1_1_enthalpies( FILE *fp, char *bu
   char *cur_bufspot;
 
   while( buffer[0] == '>' ) fgets( buffer, 2048, fp );
-      
+
   cur_bufspot = buffer;
-  
+
   for( loop = 0; loop < NUM_BASEPAIRS_NUPACK; loop++ )
     for( loop2 = 0; loop2 < NUM_BASEPAIRS_NUPACK; loop2++ )
       {
-		if( buffer[0] == 'A' || buffer[0] == 'T' || buffer[0] == 'G' || buffer[0] == 'C') 
+		if( buffer[0] == 'A' || buffer[0] == 'T' || buffer[0] == 'G' || buffer[0] == 'C')
 		  fgets( buffer, 2048, fp); // eat the lines with AT..AT, etc, just in case.
-	
+
 		for( loop3 = 0; loop3 < NUM_BASES; loop3++ )
 		  {
 			internal_1_1_37_dG[loop][loop2][loop3][0] = 0;
@@ -1245,7 +1245,7 @@ void NupackEnergyModel::internal_set_interior_1_1_enthalpies( FILE *fp, char *bu
 		  }
 		for( loop3 = 1; loop3 < NUM_BASES; loop3++ )
 		  cur_bufspot = internal_read_array_data( fp, buffer, cur_bufspot, &internal_1_1_37_dH[loop][loop2][loop3][1], NUM_BASES-1);
-	
+
       }
 }
 
@@ -1254,16 +1254,16 @@ void NupackEnergyModel::internal_set_interior_2_1_energies( FILE *fp, char *buff
   int loop, loop2,loop3,loop4;
   char *cur_bufspot;
 
-  while( buffer[0] == '>' ) fgets( buffer, 2048, fp );  
+  while( buffer[0] == '>' ) fgets( buffer, 2048, fp );
 
   cur_bufspot = buffer;
   for( loop = 0; loop < NUM_BASEPAIRS_NUPACK; loop++ )
     {
       for( loop2 = 0; loop2 < NUM_BASEPAIRS_NUPACK; loop2++ )
-		{	
+		{
 		  if( buffer[0] == 'A' || buffer[0] == 'T' || buffer[0] == 'G' || buffer[0] == 'C')
-			fgets( buffer, 2048, fp); // eat the lines with AT..AT, etc, just in case. 
-	  
+			fgets( buffer, 2048, fp); // eat the lines with AT..AT, etc, just in case.
+
 		  for( loop3 = 1; loop3 < NUM_BASES; loop3++ )
 			{
 			  for( loop4 = 1; loop4 < NUM_BASES; loop4++ )
@@ -1278,16 +1278,16 @@ void NupackEnergyModel::internal_set_interior_2_1_enthalpies( FILE *fp, char *bu
   int loop, loop2,loop3,loop4;
   char *cur_bufspot;
 
-  while( buffer[0] == '>' ) fgets( buffer, 2048, fp );  
+  while( buffer[0] == '>' ) fgets( buffer, 2048, fp );
 
   cur_bufspot = buffer;
   for( loop = 0; loop < NUM_BASEPAIRS_NUPACK; loop++ )
     {
       for( loop2 = 0; loop2 < NUM_BASEPAIRS_NUPACK; loop2++ )
-		{	
+		{
 		  if( buffer[0] == 'A' || buffer[0] == 'T' || buffer[0] == 'G' || buffer[0] == 'C')
-			fgets( buffer, 2048, fp); // eat the lines with AT..AT, etc, just in case. 
-	  
+			fgets( buffer, 2048, fp); // eat the lines with AT..AT, etc, just in case.
+
 		  for( loop3 = 1; loop3 < NUM_BASES; loop3++ )
 			{
 			  for( loop4 = 1; loop4 < NUM_BASES; loop4++ )
@@ -1310,9 +1310,9 @@ void NupackEnergyModel::internal_set_interior_2_2_energies( FILE *fp, char *buff
 	{
 	  for( loop2 = 0; loop2 < NUM_BASEPAIRS_NUPACK; loop2++ )
 	    {
-	      if( buffer[0] == 'A' || buffer[0] == 'T' || buffer[0] == 'G' || buffer[0] == 'C') 
+	      if( buffer[0] == 'A' || buffer[0] == 'T' || buffer[0] == 'G' || buffer[0] == 'C')
 			fgets( buffer, 2048, fp ); // eat the description lines.
-	      
+
 	      //cur_bufspot=buffer;
 	      for( loop3 = 1; loop3 < NUM_BASES; loop3++ )
 			{
@@ -1325,7 +1325,7 @@ void NupackEnergyModel::internal_set_interior_2_2_energies( FILE *fp, char *buff
 				}
 			}
 	    }
-	} 
+	}
 }
 
 void NupackEnergyModel::internal_set_interior_2_2_enthalpies( FILE *fp, char *buffer )
@@ -1341,9 +1341,9 @@ void NupackEnergyModel::internal_set_interior_2_2_enthalpies( FILE *fp, char *bu
 	{
 	  for( loop2 = 0; loop2 < NUM_BASEPAIRS_NUPACK; loop2++ )
 	    {
-	      if( buffer[0] == 'A' || buffer[0] == 'T' || buffer[0] == 'G' || buffer[0] == 'C') 
+	      if( buffer[0] == 'A' || buffer[0] == 'T' || buffer[0] == 'G' || buffer[0] == 'C')
 			fgets( buffer, 2048, fp ); // eat the description lines.
-	      
+
 	      //cur_bufspot=buffer;
 	      for( loop3 = 1; loop3 < NUM_BASES; loop3++ )
 			{
@@ -1356,7 +1356,7 @@ void NupackEnergyModel::internal_set_interior_2_2_enthalpies( FILE *fp, char *bu
 				}
 			}
 	    }
-	} 
+	}
 }
 
 void NupackEnergyModel::internal_set_dangle_5_energies( FILE *fp, char *buffer )
@@ -1371,7 +1371,7 @@ void NupackEnergyModel::internal_set_dangle_5_energies( FILE *fp, char *buffer )
 
   cur_bufspot=buffer;
   for( loop = 0; loop < NUM_BASEPAIRS_NUPACK; loop++)
-    cur_bufspot = internal_read_array_data( fp, buffer, cur_bufspot, &dangle_5_37_dG[loop][1], NUM_BASES -1);      
+    cur_bufspot = internal_read_array_data( fp, buffer, cur_bufspot, &dangle_5_37_dG[loop][1], NUM_BASES -1);
 }
 
 void NupackEnergyModel::internal_set_dangle_5_enthalpies( FILE *fp, char *buffer )
@@ -1383,10 +1383,10 @@ void NupackEnergyModel::internal_set_dangle_5_enthalpies( FILE *fp, char *buffer
   for( loop = 0; loop < NUM_BASEPAIRS_NUPACK; loop++ )
     for( loop2 = 0; loop2 < NUM_BASES; loop2++)
       dangle_5_37_dH[loop][loop2] = 0;
-  
+
   cur_bufspot = buffer;
   for( loop = 0; loop < NUM_BASEPAIRS_NUPACK; loop++)
-    cur_bufspot = internal_read_array_data( fp, buffer, cur_bufspot, &dangle_5_37_dH[loop][1], NUM_BASES -1);      
+    cur_bufspot = internal_read_array_data( fp, buffer, cur_bufspot, &dangle_5_37_dH[loop][1], NUM_BASES -1);
 }
 
 
@@ -1394,30 +1394,30 @@ void NupackEnergyModel::internal_set_dangle_3_energies( FILE *fp, char *buffer )
 {
   char *cur_bufspot;
   while( buffer[0] == '>' ) fgets(buffer, 2048, fp);
-  
+
   int loop,loop2;
   for( loop = 0; loop < NUM_BASEPAIRS_NUPACK; loop++ )
     for( loop2 = 0; loop2 < NUM_BASES; loop2++)
       dangle_3_37_dG[loop][loop2] = 0.0;
-  
+
   cur_bufspot = buffer;
   for( loop = 0; loop < NUM_BASEPAIRS_NUPACK; loop++)
-    cur_bufspot = internal_read_array_data( fp, buffer, cur_bufspot, &dangle_3_37_dG[loop][1], NUM_BASES -1);      
+    cur_bufspot = internal_read_array_data( fp, buffer, cur_bufspot, &dangle_3_37_dG[loop][1], NUM_BASES -1);
 }
 
 void NupackEnergyModel::internal_set_dangle_3_enthalpies( FILE *fp, char *buffer )
 {
   char *cur_bufspot;
   while( buffer[0] == '>' ) fgets(buffer, 2048, fp);
-  
+
   int loop,loop2;
   for( loop = 0; loop < NUM_BASEPAIRS_NUPACK; loop++ )
     for( loop2 = 0; loop2 < NUM_BASES; loop2++)
       dangle_3_37_dH[loop][loop2] = 0;
-  
+
   cur_bufspot = buffer;
   for( loop = 0; loop < NUM_BASEPAIRS_NUPACK; loop++)
-    cur_bufspot = internal_read_array_data( fp, buffer, cur_bufspot, &dangle_3_37_dH[loop][1], NUM_BASES -1);      
+    cur_bufspot = internal_read_array_data( fp, buffer, cur_bufspot, &dangle_3_37_dH[loop][1], NUM_BASES -1);
 }
 
 void NupackEnergyModel::internal_set_multiloop_parameters( FILE *fp, char *buffer )
@@ -1434,9 +1434,9 @@ void NupackEnergyModel::internal_set_multiloop_parameters( FILE *fp, char *buffe
 void NupackEnergyModel::internal_set_multiloop_parameters_enthalpies( FILE *fp, char *buffer )
 {
   int temp[4];
- 
+
   while( buffer[0] == '>') fgets(buffer, 2048, fp);
-  
+
   internal_read_array_data( fp, buffer, buffer, temp, 3 );
   multiloop_base_dH = temp[2];
   multiloop_closing_dH = temp[0];
@@ -1446,14 +1446,14 @@ void NupackEnergyModel::internal_set_multiloop_parameters_enthalpies( FILE *fp, 
 void NupackEnergyModel::internal_set_at_penalty( FILE *fp, char *buffer )
 {
   while( buffer[0] == '>' ) fgets( buffer, 2048, fp);
-      
+
   internal_read_array_data( fp, buffer, buffer, &terminal_AU, 1 );
 }
 
 void NupackEnergyModel::internal_set_at_penalty_enthalpy( FILE *fp, char *buffer )
 {
   while( buffer[0] == '>' ) fgets( buffer, 2048, fp);
-      
+
   internal_read_array_data( fp, buffer, buffer, &terminal_AU_dH, 1 );
 }
 
@@ -1508,7 +1508,7 @@ void NupackEnergyModel::internal_set_hairpin_tetraloop_parameters( FILE *fp, cha
   fgets( buffer, 2048, fp );
 
   // NOTE:: 4096 = (NUM_BASES-1)^6
-  // Initialize the tetraloop parameters to 0. 
+  // Initialize the tetraloop parameters to 0.
   for( int loop = 0; loop < 4096; loop ++ )
     {
       hairpin_tetraloop_37_dG[loop] = 0.0;
@@ -1519,9 +1519,9 @@ void NupackEnergyModel::internal_set_hairpin_tetraloop_parameters( FILE *fp, cha
       buf_index = 0;
       while( isspace(buffer[buf_index])) buf_index++;
 
-      lookup_index = ((baseLookup(buffer[buf_index+0])-1) << 10) + 
-        ((baseLookup(buffer[buf_index+1])-1) << 8) + 
-        ((baseLookup(buffer[buf_index+2])-1) << 6) + 
+      lookup_index = ((baseLookup(buffer[buf_index+0])-1) << 10) +
+        ((baseLookup(buffer[buf_index+1])-1) << 8) +
+        ((baseLookup(buffer[buf_index+2])-1) << 6) +
         ((baseLookup(buffer[buf_index+3])-1) << 4) +
         ((baseLookup(buffer[buf_index+4])-1) << 2) +
         (baseLookup(buffer[buf_index+5])-1);
@@ -1542,7 +1542,7 @@ void NupackEnergyModel::internal_set_hairpin_tetraloop_parameters_enthalpy( FILE
   fgets( buffer, 2048, fp );
 
   // NOTE:: 4096 = (NUM_BASES-1)^6
-  // Initialize the tetraloop parameters to 0. 
+  // Initialize the tetraloop parameters to 0.
   for( int loop = 0; loop < 4096; loop ++ )
     {
       hairpin_tetraloop_37_dH[loop] = 0;
@@ -1554,9 +1554,9 @@ void NupackEnergyModel::internal_set_hairpin_tetraloop_parameters_enthalpy( FILE
       while( isspace(buffer[buf_index])) buf_index++;
 
 
-      lookup_index = ((baseLookup(buffer[buf_index+0])-1) << 10) + 
-        ((baseLookup(buffer[buf_index+1])-1) << 8) + 
-        ((baseLookup(buffer[buf_index+2])-1) << 6) + 
+      lookup_index = ((baseLookup(buffer[buf_index+0])-1) << 10) +
+        ((baseLookup(buffer[buf_index+1])-1) << 8) +
+        ((baseLookup(buffer[buf_index+2])-1) << 6) +
         ((baseLookup(buffer[buf_index+3])-1) << 4) +
         ((baseLookup(buffer[buf_index+4])-1) << 2) +
         (baseLookup(buffer[buf_index+5])-1);
@@ -1573,7 +1573,7 @@ void NupackEnergyModel::internal_set_hairpin_triloop_parameters( FILE *fp, char 
   fgets( buffer, 2048, fp );
 
   // NOTE:: 1024 = (NUM_BASES-1)^5
-  // Initialize the triloop parameters to 0. 
+  // Initialize the triloop parameters to 0.
   for( int loop = 0; loop < 1024; loop ++ )
     {
       hairpin_triloop_37_dG[loop] = 0.0;
@@ -1582,9 +1582,9 @@ void NupackEnergyModel::internal_set_hairpin_triloop_parameters( FILE *fp, char 
     {
       buf_index = 0;
       while( isspace(buffer[buf_index])) buf_index++;
-      lookup_index = ((baseLookup(buffer[buf_index+0])-1) << 8) + 
-        ((baseLookup(buffer[buf_index+1])-1) << 6) + 
-        ((baseLookup(buffer[buf_index+2])-1) << 4) + 
+      lookup_index = ((baseLookup(buffer[buf_index+0])-1) << 8) +
+        ((baseLookup(buffer[buf_index+1])-1) << 6) +
+        ((baseLookup(buffer[buf_index+2])-1) << 4) +
         ((baseLookup(buffer[buf_index+3])-1) << 2) +
         (baseLookup(buffer[buf_index+4])-1);
       hairpin_triloop_37_dG[ lookup_index ] = atof( &buffer[buf_index + 5]) / 100.0;
@@ -1603,7 +1603,7 @@ void NupackEnergyModel::internal_set_hairpin_triloop_parameters_enthalpy( FILE *
   fgets( buffer, 2048, fp );
 
   // NOTE:: 1024 = (NUM_BASES-1)^5
-  // Initialize the triloop parameters to 0. 
+  // Initialize the triloop parameters to 0.
   for( int loop = 0; loop < 1024; loop ++ )
     {
       hairpin_triloop_37_dH[loop] = 0;
@@ -1614,9 +1614,9 @@ void NupackEnergyModel::internal_set_hairpin_triloop_parameters_enthalpy( FILE *
       buf_index = 0;
       while( isspace(buffer[buf_index])) buf_index++;
 
-      lookup_index = ((baseLookup(buffer[buf_index+0])-1) << 8) + 
-        ((baseLookup(buffer[buf_index+1])-1) << 6) + 
-        ((baseLookup(buffer[buf_index+2])-1) << 4) + 
+      lookup_index = ((baseLookup(buffer[buf_index+0])-1) << 8) +
+        ((baseLookup(buffer[buf_index+1])-1) << 6) +
+        ((baseLookup(buffer[buf_index+2])-1) << 4) +
         ((baseLookup(buffer[buf_index+3])-1) << 2) +
         (baseLookup(buffer[buf_index+4])-1);
 
@@ -1630,7 +1630,7 @@ void NupackEnergyModel::internal_set_hairpin_mismatch_energies( FILE *fp, char *
 {
   int loop, loop2,loop3;
   char *cur_bufspot;
-  
+
   double temp[NUM_BASEPAIRS_NUPACK];
   cur_bufspot = buffer;
   while( buffer[0] == '>' ) fgets(buffer, 2048, fp);
@@ -1638,14 +1638,14 @@ void NupackEnergyModel::internal_set_hairpin_mismatch_energies( FILE *fp, char *
     for( loop2 = 0; loop2 < NUM_BASES; loop2++ )
       for( loop3 = 0; loop3 < NUM_BASES; loop3++ )
 		hairpin_mismatch_37_dG[loop][loop2][loop3] = 0;
-  
+
   for( loop = 0; loop < (NUM_BASES-1) * (NUM_BASES-1); loop++)
     {
       cur_bufspot = internal_read_array_data( fp, buffer, cur_bufspot, &temp[0], NUM_BASEPAIRS_NUPACK);
       loop3 = (loop-(loop % (NUM_BASES-1))) / (NUM_BASES-1);
       for( loop2 = 0; loop2 < NUM_BASEPAIRS_NUPACK; loop2++ )
 		hairpin_mismatch_37_dG[loop2][loop3+1][(loop % (NUM_BASES-1))+1] = temp[loop2];
-      
+
     }
 }
 
@@ -1654,8 +1654,8 @@ void NupackEnergyModel::internal_set_hairpin_mismatch_enthalpies( FILE *fp, char
 {
   int loop, loop2,loop3;
   char *cur_bufspot;
-  
-  
+
+
   int temp[NUM_BASEPAIRS_NUPACK];
   cur_bufspot = buffer;
   while( buffer[0] == '>' ) fgets(buffer, 2048, fp);
@@ -1663,14 +1663,14 @@ void NupackEnergyModel::internal_set_hairpin_mismatch_enthalpies( FILE *fp, char
     for( loop2 = 0; loop2 < NUM_BASES; loop2++ )
       for( loop3 = 0; loop3 < NUM_BASES; loop3++ )
 		hairpin_mismatch_37_dH[loop][loop2][loop3] = 0;
-  
+
   for( loop = 0; loop < (NUM_BASES-1) * (NUM_BASES-1); loop++)
     {
       cur_bufspot = internal_read_array_data( fp, buffer, cur_bufspot, &temp[0], NUM_BASEPAIRS_NUPACK);
       loop3 = (loop-(loop % (NUM_BASES-1))) / (NUM_BASES-1);
       for( loop2 = 0; loop2 < NUM_BASEPAIRS_NUPACK; loop2++ )
 		hairpin_mismatch_37_dH[loop2][loop3+1][(loop % (NUM_BASES-1))+1] = temp[loop2];
-      
+
     }
 }
 
@@ -1757,7 +1757,7 @@ char *NupackEnergyModel::internal_read_array_data( FILE *fp, char *buffer, char 
 				  {
 					break;
 				  }
-	      
+
 			  if( loop2 != strlen(cur_bufspot))
 				cur_bufspot = cur_bufspot + loop2 - 1;
 			  else
@@ -1826,7 +1826,7 @@ char *NupackEnergyModel::internal_read_array_data( FILE *fp, char *buffer, char 
 				  {
 					break;
 				  }
-	      
+
 			  if( loop2 != strlen(cur_bufspot))
 				cur_bufspot = cur_bufspot + loop2 - 1;
 			  else
@@ -1870,7 +1870,7 @@ void NupackEnergyModel::setupRates( PyObject *energy_options )
   // This result is our M_s, the number of solvent molecules in our volume.
 
   // Shortened form, to try and avoid floating point error:
-  // joinenergy = kT log( W / C) 
+  // joinenergy = kT log( W / C)
   // W = 55.6 mol/L (molarity of water)
 
   // joinrate = exp( -dG / kT )
@@ -1891,13 +1891,13 @@ void NupackEnergyModel::setupRates( PyObject *energy_options )
 
   // concentration units
   dG_volume = _RT * log( 1.0 / joinconc);
-  
+
   // mole fraction units
   //dG_volume = _RT * log( waterdensity / joinconc);
 
   // concentration units
   joinrate_volume = joinconc;
-  
+
   // mole fraction units
   //joinrate_volume = joinconc / waterdensity;
 
@@ -1913,21 +1913,21 @@ void NupackEnergyModel::setupRates( PyObject *energy_options )
   dG_assoc = bimolecular_penalty; // already computed and scaled for water density.
   // mole fraction units
   // dG_assoc = bimolecular_penalty - _RT * log( waterdensity )
-  
 
-  joinrate = biscale * joinrate_volume; 
+
+  joinrate = biscale * joinrate_volume;
 }
 
 double NupackEnergyModel::setWaterDensity( double temp )
 {
   // returns the density of water at a given temperature (currently passed in degrees C)
   // Need to use data via appropriate table - nupack references:
-  // "Recommended table for the density of water between 0C and 40C based on recent experimental reports", Tanaka M., Girard, G. et al, Metrologia, 2001 38, 301-309. 
+  // "Recommended table for the density of water between 0C and 40C based on recent experimental reports", Tanaka M., Girard, G. et al, Metrologia, 2001 38, 301-309.
   // Look this up and enter the full formula from there. The paper is not available for free, probably need to use a caltech login or order it.
 
   // uses formulation via Nupack:
   double values[6] = { -3.983035, 301.797, 522528.9, 69.34881, 999.97495, 18.0152 };
-  
+
   values[0] = temp + values[0];
   values[1] = temp + values[1];
   values[3] = temp + values[3];
@@ -1935,8 +1935,3 @@ double NupackEnergyModel::setWaterDensity( double temp )
 
   //  return 55.6; // default for now, in units of mols/liter.
 }
-
-
-
-
-
