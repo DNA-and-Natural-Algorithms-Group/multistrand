@@ -250,9 +250,11 @@ should have the layout [{2}].".format( total_flat_length,
     # standard BSD tool with that name: if you are using OS X, make sure that your path
     # to the nupack 'sample' occurs before /usr/bin or it may not find it correctly.
     #
+    # editing here by EW 1/26/2014 to update from NUPACK 2.1 command line options & output to NUPACK 3.0.2
 
     p = subprocess.Popen(["sample", "-multi", "-material", "dna", "-samples", str(count)], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
+    # new: NUPACK 3.0.2 takes the file name as user input
     input_str = "{0}\n{1}\n{2}\n{3}\n".format( tmp.name[:-7],
                                         len(self.strand_list),
                                         "\n".join( [i.sequence for i in self.strand_list] ),
