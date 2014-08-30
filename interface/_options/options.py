@@ -159,7 +159,7 @@ class Options( object ):
         that used in the energymodel.h headers.
         """
 
-        self.dangles = _OC.DANGLES['NupackDefault']
+        self._dangles = _OC.DANGLES['NupackDefault']
         """ Dangles options for the energy model.
         
         Type         Default
@@ -190,7 +190,7 @@ class Options( object ):
         the ones defined in the options_python.h headers.
         """
 
-        self.substrate_type = _OC.SUBSTRATE_TYPE['DNA']
+        self._substrate_type = _OC.SUBSTRATE_TYPE['DNA']
         """ What substrate's parameter files to use. Note that some
         combinations of this and energymodel_type will be invalid and
         Multistrand will complain.
@@ -649,8 +649,14 @@ class Options( object ):
     def _add_start_complex( self, item ):
         if isinstance(item, Complex):
             self._start_state.append( (item,None))
+            item.set_boltzmann_parameters( _OC.DANGLES_inv[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius )
         else:
             self._start_state.append( (item[0], item) )
+            # JS 8/30/2014 Not entirely sure about this one. If I remember right, resting states may have more than one
+            # component, so setting only the first to have proper Boltzmann sampling might be an error.
+            # 
+            # If so, it should probably be 'for i in item: i.set_boltzmann_parameters'... {etc}
+            item[0].set_boltzmann_parameters( _OC.DANGLES_inv[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius )
 
     @property
     def initial_seed_flag(self):
@@ -741,6 +747,72 @@ class Options( object ):
         self.output_state = (self.current_interval == self.output_interval)
 
         return None
+
+
+    @property
+    def substrate_type( self ):
+        """ What substrate's parameter files to use. Note that some
+        combinations of this and energymodel_type will be invalid and
+        Multistrand will complain.
+        
+        Type         Default
+        int          2: DNA
+
+        Invalid [0]: Indicates we should not auto-search for a param file.
+        RNA     [1]: RNA parameters are available for Vienna and Nupack, see also
+                     the comment in parameter_file_version.
+        DNA     [2]: DNA parameters are publicly available via the Nupack distribution,
+                     and possibly by the Vienna group upon request.
+
+        Should use the values in the _OC.SUBSTRATE_TYPE dictionary rather
+        than the numbers directly, as those should be consistent with
+        the ones defined in the options_python.h headers.
+        """
+        return self._substrate_type
+
+    @substrate_type.setter
+    def substrate_type( self, value ):
+        # see if it's a valid key for the dangles dictionary
+        try:
+            self._substrate_type = _OC.SUBSTRATE_TYPE[value]
+        except KeyError:
+            # if it isn't, assume int and let any exception go upwards
+            self._substrate_type = int(value)
+            if len( self._start_state) > 0:
+                for c,s in self._start_state:
+                    c.set_boltzmann_parameters( _OC.DANGLES_inv[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius )
+
+
+
+    @property
+    def dangles(self):
+        """ Dangles options for the energy model.
+        
+        Type         Default
+        int          1: NupackDefault
+
+        None [0]: Do not include any dangles terms in the energy model.
+        Some [1]: Some dangles terms.  (Nupack Default)
+        All  [2]: Include all dangles terms, including odd overlapping ones.
+
+        See notes elsewhere re: what each term does.
+        Should use the values in the _OC.DANGLES dictionary rather
+        than the numbers directly, as those should be consistent with
+        that used in the energymodel.h headers.
+        """
+        return self._dangles
+
+    @dangles.setter
+    def dangles(self, value):
+        # See if it's a valid key for the dangles dictionary
+        try:
+            self._dangles = _OC.DANGLES[value]
+        except KeyError:
+            # if it isn't, just pretend it's an int. If that fails, let the exception go upwards.
+            self._dangles = int(value)
+            if len( self._start_state) > 0:
+                for c,s in self._start_state:
+                    c.set_boltzmann_parameters( _OC.DANGLES_inv[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius )
     
     @property
     def temperature(self):
@@ -790,13 +862,24 @@ class Options( object ):
         if 273.0 < val < 373.0:
             self._temperature_kelvin = val
             self._temperature_celsius = val - _OC.ZERO_C_IN_K
+            if len( self._start_state) > 0:
+                for c,s in self._start_state:
+                    c.set_boltzmann_parameters( _OC.DANGLES_inv[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius )
+
         elif 0.0 < val < 100.0:
             self._temperature_celsius = val
             self._temperature_kelvin = val + _OC.ZERO_C_IN_K
+            if len( self._start_state) > 0:
+                for c,s in self._start_state:
+                    c.set_boltzmann_parameters( _OC.DANGLES_inv[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius )
             self.errorlog.append("Warning: Temperature was set at the value [{0}]. We expected a value in Kelvin, or with appropriate units.\n         Temperature was automatically converted to [{1}] degrees Kelvin.\n".format(val, self._temperature_kelvin))
+
         else:
             self._temperature_kelvin = val
             self._temperature_celsius = val - _OC.ZERO_C_IN_K
+            if len( self._start_state) > 0:
+                for c,s in self._start_state:
+                    c.set_boltzmann_parameters( _OC.DANGLES_inv[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius )
             self.errorlog.append("Warning: Temperature was set at the value [{0}]. This is outside the normal range of temperatures we expect, so it was assumed to be in Kelvin.\n".format(val))
             raise Warning("Temperature did not fall in the usual expected ranges. Temperatures should be in units Kelvin, though the range [0,100] is assumed to mean units of Celsius.")
         

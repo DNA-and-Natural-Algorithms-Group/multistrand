@@ -40,6 +40,12 @@ class Complex(object):
     self._last_boltzmann_structure = False
     self._boltzmann_sizehint = 1
     self._boltzmann_queue = []
+
+    # Adjust here for default Boltzmann Parameters. 'None' in this case means to not pass that parameter and let the sample binary use its default. Substrate defaults to DNA.
+    self._dangles = None
+    self._substrate_type = None
+    self._temperature = None
+
     Complex.unique_id += 1
 
   def __str__( self ):
@@ -203,6 +209,17 @@ should have the layout [{2}].".format( total_flat_length,
     """ The calculated 'flat' sequence for this complex. """
     return "+".join([strand.sequence for strand in self.strand_list])
 
+  def set_boltzmann_parameters(self, dangles, substrate_type, temperature ):
+    """
+    Sets the parameters to be passed on to NUPACK for Boltzmann sampling of this complex.
+    Uses the private properties which are then read by generate_boltzmann_structure.
+
+    Called by the start_state setter in an Options object, and the setters for dangles, substrate_type and temperature properties in an Options object.
+    """
+    self._dangles = dangles
+    self._substrate_type = substrate_type
+    self._temperature = temperature
+
   def generate_boltzmann_structure(self):
     """
     Create a new boltzmann sampled structure for this complex.
@@ -250,16 +267,37 @@ should have the layout [{2}].".format( total_flat_length,
     # standard BSD tool with that name: if you are using OS X, make sure that your path
     # to the nupack 'sample' occurs before /usr/bin or it may not find it correctly.
     #
-    # editing here by EW 1/26/2014 to update from NUPACK 2.1 command line options & output to NUPACK 3.0.2
 
-    p = subprocess.Popen(["sample", "-multi", "-material", "dna", "-samples", str(count)], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    material = []
+    if self._substrate_type == None:
+      material = ['-material', 'dna']
+    else:
+      # should always be a string via the caller inverting any int index into Constants.SUBSTRATE_TYPE strings.
+      material = ['-material', self._substrate_type.lower()]
+
+    dangles = []
+    if self._dangles == None:
+      pass
+    else:
+      dangles = ['-dangles', self._dangles.lower()]   # Note that self._dangles should always be the string as long as the calls to the setter always invert the int back into string form. NUPACK appears to use the lowercase string name as the dangles names.
+
+    temperature = []
+    if self._temperature == None:
+      pass
+    else:
+      temperature = ['-T', '{0}'.format( self._temperature )]
+
+
+    # editing here by EW 1/26/2014 to update from NUPACK 2.1 command line options & output to NUPACK 3.0.2
+    popen_params = ["sample", "-multi"] + material + dangles + temperature + ["-samples", str(count)]
+    p = subprocess.Popen( popen_params,stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
     # new: NUPACK 3.0.2 takes the file name as user input
     input_str = "{0}\n{1}\n{2}\n{3}\n".format( tmp.name[:-7],
-                                        len(self.strand_list),
-                                        "\n".join( [i.sequence for i in self.strand_list] ),
-                                        " ".join( [str(i+1) for i in range( len( self.strand_list ))])
-                                        )
+                                               len(self.strand_list),
+                                               "\n".join( [i.sequence for i in self.strand_list] ),
+                                               " ".join( [str(i+1) for i in range( len( self.strand_list ))])
+                                             )
     result = p.communicate(input_str)[0]
     # note we toss the result as it's mostly just spam from the subprocess
 
