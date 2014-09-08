@@ -119,11 +119,14 @@ if __name__ == '__main__':
     tcmalloc_flag = setup_libcheck()
     multi_ext = setup_ext( have_tcmalloc=tcmalloc_flag)
     
-    setup(name="multistrand", version="1.0",
-          packages=['multistrand','multistrand._options','multistrand._objects'],
+    setup(name="multistrand", version="2.0",
+          packages=['multistrand','multistrand._options','multistrand._objects','nupack'],
+          url='http://www.multistrand.org',
+          license='MIT',
+          author='The Multistrand Team',
+          author_email='help@multistrand.org',
           package_dir={'multistrand':'interface'},
-          ext_modules=[multi_ext])
+          ext_modules=[multi_ext],
+          zip_safe=False)
 
-    #      packages=['interface','interface._options','interface._objects'],
-    #      package_dir={'interface':''},
 
