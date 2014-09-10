@@ -69,7 +69,9 @@ def setup_ext( have_tcmalloc):
     import sys
     if have_tcmalloc:
         tcmalloc_optional = ['tcmalloc_minimal']
+        print "Found tcmalloc, will attempt to use it."
     else:
+        print "Cannot find tcmalloc, proceeding with standard memory management."
         tcmalloc_optional = []
     if '--use-debug-defs' in sys.argv:
         sys.argv.remove('--use-debug-defs')
@@ -126,7 +128,8 @@ if __name__ == '__main__':
           author='The Multistrand Team',
           author_email='help@multistrand.org',
           package_dir={'multistrand':'interface'},
-          ext_modules=[multi_ext],
-          zip_safe=False)
+          ext_modules=[multi_ext])
+
+#          zip_safe=False)
 
 

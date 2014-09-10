@@ -1,0 +1,85 @@
+
+# The following was successful for installing Multistrand 2.0 on a new Macbook Pro running OS X 10.9.4 Mavericks.
+
+# Install homebrew
+ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)”
+
+# Prioritize /usr/local/bin in $PATH 
+# You'll want to put this in your .bash_profile or equivalent.  
+# See http://hackercodex.com/guide/mac-osx-mavericks-10.9-configuration/ 
+export ARCHFLAGS="-arch x86_64"
+export PATH=/usr/local/bin:$PATH
+
+# Make sure homebrew is up to date and ready to go
+brew update
+brew doctor
+
+# Necessary only for making animations, e.g. with MultistrandMovies
+brew install ffmpeg
+
+# Start using a more up-to-date version of python in /usr/local/  (which the above $PATH change will select)
+brew install python
+
+# Load brewing instructions specific to installing pythonic stuff
+brew tap Homebrew/python
+
+# You may or may not need the following two commands:
+pip install --upgrade setuptools 
+pip install --upgrade pip 
+
+# This package is required for python that tries to be v2 and v3 compatible, like matplotlib
+pip install six
+brew install numpy
+brew install scipy
+brew install matplotlib
+
+# Many people find ipython and ipython notebook to be very convenient.  This is optional but recommended for everyone.
+pip install ipython[notebook] 
+
+# This isn't necessary to compile and run multistrand, but it is necessary for building the documentation with 'make docs'.
+pip install sphinx
+pip install rst2pdf
+
+# Multistrand can exploit this more efficient memory allocator, if it's present.  Again optional, but recommended for speed.
+brew install gperftools
+
+# Multistrand uses nosetest for verifying that nothing broke after code changes.  Only needed for development and debugging.
+sudo pip install --upgrade nose
+
+# Decide on a place to install NUPACK and Multistrand.  This was my choice:
+mkdir Research_Software
+cd Research_Software
+
+# We must install NUPACK first.  Go get the tar file from nupack.org.
+tar -xzvf nupack3.0.4.tgz
+cd nupack3.0.4
+make
+cd ..
+
+# Now let's install Multistrand.  Go get the tar file from multistrand.org.
+tar -xzvf Multistrand2.0.tgz
+cd Multistrand2.0
+make clean
+make
+make install
+make docs 
+cd ..
+
+# Before we can try it out, we need to adjust our $PATH and set other environment variables.
+# These should also go in your .bash_profile or .bashrc or equivalent.
+PATH=~/Research_Software/nupack3.0.4/bin:$PATH
+export NUPACKHOME=~/Research_Software/nupack3.0.4
+export MULTISTRANDHOME=~/Research_Software/Multistrand
+
+# Finally, we can test it.
+python -i Multistrand2.0/tutorials/threewaybm_energies.py 
+
+ipython -i Multistrand2.0/tutorials/hybridization_first_step_mode.py 
+
+ipython notebook
+
+
+
+
+
+
