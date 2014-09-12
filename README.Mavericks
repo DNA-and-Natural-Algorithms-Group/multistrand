@@ -1,6 +1,6 @@
 
 # There are many ways to successfully install Multistrand from source files.  If you know what you're doing, do it!
-# If you not comfortable with source installs, use our pre-packaged setup on terminal.com to run Multistrand in the cloud,
+# If you're not comfortable with source installs, use our pre-packaged setup on terminal.com to run Multistrand in the cloud,
 # or download our VirtualBox snapshot and run in a virtual machine on your own computer.
 
 # The following was successful for installing Multistrand 2.0 on a new Macbook Pro running OS X 10.9.4 Mavericks.
