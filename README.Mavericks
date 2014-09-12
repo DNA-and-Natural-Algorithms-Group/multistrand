@@ -9,10 +9,10 @@
 # modified accordingly... and we leave that to you.  We do not provide support for installation of Multistrand.
 
 # For any of this to work, you will need to first install the Mac Development Kit (Xcode) from the App Store.
-# Go ahead, do it now.
+# ---> Go ahead, do it now.
 
 # Install homebrew
-ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"   (brew.sh's recommendation)
+ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
 # Expect a comment about the Xcode/iOS license agreement being required.  To sign the agreement, run e.g. 
 sudo gcc --help
@@ -38,7 +38,8 @@ brew install python
 # Load brewing instructions specific to installing pythonic stuff
 brew tap Homebrew/python
 
-# You may or may not need the following two commands:  (( not needed on my second run, after PATH corrected ))
+# It's not needed when installing on a fresh Mavericks as above, but
+# you may need the following two commands if you are using an existing python instead of homebrew's:  
 # pip install --upgrade setuptools 
 # pip install --upgrade pip 
 
