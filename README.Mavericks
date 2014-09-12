@@ -12,7 +12,6 @@
 # Go ahead, do it now.
 
 # Install homebrew
-# ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)"  (thachuk's recommendation)
 ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"   (brew.sh's recommendation)
 
 # Expect a comment about the Xcode/iOS license agreement being required.  To sign the agreement, run e.g. 
