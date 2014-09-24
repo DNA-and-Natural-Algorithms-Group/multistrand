@@ -15,7 +15,7 @@ from _objects.strand import Strand
 from _objects.restingstate import RestingState
 from _objects.stopcondition import StopCondition, Macrostate
 
-__all__ = ['Strand','RestingState','StopCondition','Complex','Domain']
+__all__ = ['Strand','RestingState','StopCondition','Macrostate','Complex','Domain']
 
 # The following appears to be necessary [at the moment] as otherwise
 # we can't generate appropriate documentation for these sub objects as
@@ -27,5 +27,6 @@ __all__ = ['Strand','RestingState','StopCondition','Complex','Domain']
 Strand.__module__ = 'multistrand.objects'
 Complex.__module__ = 'multistrand.objects'
 RestingState.__module__ = 'multistrand.objects'
+Macrostate.__module__ = 'multistrand.objects'
 StopCondition.__module__ = 'multistrand.objects'
 Domain.__module__ = 'multistrand.objects'

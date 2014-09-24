@@ -956,7 +956,7 @@ class Options( object ):
         """ Takes a 2-tuple, 1st value is current time, 2nd value is a
             list of boolean values indicating which stop conditions we
             currently meet."""
-        print( "Time: {0[0]} Membership: {0[1]}".format( val ))
+        # print( "Time: {0[0]} Membership: {0[1]}".format( val ))
         self._current_transition_list.append( val )
 
     @property

@@ -1,7 +1,6 @@
 # threewaybm_energies.py
 #
-# Adapted from basic_3waytesting.py.
-#
+
 # This example walks you through how to create multistranded complexes, how to find their energies, 
 # and how to find the energy of a test tube state with multiple complexes at a chosen concentration (i.e. box volume).
 # The example is toehold-initiated three-way branch migration, as per Zhang & Winfree, JACS, 2009.
@@ -12,20 +11,10 @@
 # Invoke as "python -i threewaybm_energies.py" to see a plot and then drop into the python interpreted to investigate further.
 # Start python and "import threewaybm_energies as te" to calculate energies and steps as te.energies and te.steps, without making a plot.
 # Start python and "from threewaybm_energies import *" to do the calculations and refer to the variables directly, as well as get access to the other imported functions.
+# I use "ipython --pylab -i threewaybm_energies.py".
 
-import sys,os,os.path
-
-multihome = None
-if 'MULTISTRANDHOME' in os.environ:
-    if not os.path.isfile( os.path.join( os.environ['MULTISTRANDHOME'], 'setup.py') ):
-        warnings.warn( ImportWarning("Could not find the file 'setup.py' in your MULTISTRANDHOME [{0}]; this environment variable is possibly out of date or not referring to the new Multistrand distribution."))
-        multihome=None
-    else:
-        if os.environ['MULTISTRANDHOME'] not in sys.path:
-            multihome= os.environ['MULTISTRANDHOME']     
-
-if multihome != None:
-    sys.path.append(multihome)
+if False:  # only needed if you're having trouble with your Multistrand installation
+    import multistrand_setup
 
 try:
     from multistrand.objects import *
@@ -40,15 +29,16 @@ except ImportError:
 
 
 o = Options()
-o.dangles = 1                # 0 is "None", 1 is "Some", 2 is "All"
+o.dangles = 1                # 0 is "None", 1 is "Some", 2 is "All".  You can use the string names only when passing as arguments to Options().
 o.temperature = 25           # values between 0 and 100 are assumed to be Celsius; between 273.15 and 373.0 are assumed to be Kelvin.
 o.join_concentration = 1e-9  # the volume is scaled such that a single strand is at 1 nM concentration.  
 initialize_energy_model(o)   # only necessary if you want to use energy() without running a simulation first.
 
-Loop_Energy = 0    # argument value to energy() function call, below, requesting no dG_assoc or dG_volume terms to be added.  So only loop energies remain.
-Volume_Energy = 1  # argument value to energy() function call, below, requesting dG_volume but not dG_assoc terms to be added.  No clear interpretation for this.
-Complex_Energy = 2 # argument value to energy() function call, below, requesting dG_assoc but not dG_volume terms to be added.  This is the NUPACK complex microstate energy.
-Tube_Energy = 3    # argument value to energy() function call, below, requesting both dG_assoc and dG_volume terms to be added.  Summed over complexes, this is the system state energy.
+# More meaningful names for argument values to the energy() function call, below.
+Loop_Energy = 0    # requesting no dG_assoc or dG_volume terms to be added.  So only loop energies remain.
+Volume_Energy = 1  # requesting dG_volume but not dG_assoc terms to be added.  No clear interpretation for this.
+Complex_Energy = 2 # requesting dG_assoc but not dG_volume terms to be added.  This is the NUPACK complex microstate energy, sans symmetry terms.
+Tube_Energy = 3    # requesting both dG_assoc and dG_volume terms to be added.  Summed over complexes, this is the system state energy.
 
 # Sequences are from Zhang & Winfree, JACS 2009.
 toe = Domain(name='toehold',sequence='TCTCCATGTC')
@@ -148,15 +138,15 @@ steps = [-15] + steps + [25,26]
 if __name__ == '__main__':
     import numpy as np
     import matplotlib
-    import matplotlib.pylab as pyp
+    import matplotlib.pylab as plt
 
-    pyp.figure(1)
-    pyp.plot(steps,energies,'go',steps,energies,'-')
-    pyp.title("Energy landscape for canonical three-way branch migration pathway\n (10 nt toehold, %d nM, %6.2fK)" % (o.join_concentration * 1e9, o.temperature) )
-    pyp.xlabel("Steps of branch migration (negative during toehold binding)",fontsize='larger')
-    pyp.ylabel("Microstate Energy (kcal/mol)",fontsize='larger')
-    pyp.yticks(fontsize='larger',va='bottom')
-    pyp.xticks(fontsize='larger')
-    pyp.show()
+    plt.figure(1)
+    plt.plot(steps,energies,'go',steps,energies,'-')
+    plt.title("Energy landscape for canonical three-way branch migration pathway\n (10 nt toehold, %d nM, %6.2fK)" % (o.join_concentration * 1e9, o.temperature) )
+    plt.xlabel("Steps of branch migration (negative during toehold binding)",fontsize='larger')
+    plt.ylabel("Microstate Energy (kcal/mol)",fontsize='larger')
+    plt.yticks(fontsize='larger',va='bottom')
+    plt.xticks(fontsize='larger')
+    plt.show()
 
 

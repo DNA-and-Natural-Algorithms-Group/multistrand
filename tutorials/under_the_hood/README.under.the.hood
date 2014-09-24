@@ -1,0 +1,61 @@
+README.under.the.hood
+
+This directory contains a number of commented, runnable Multistrand scripts that
+illustrate how to use a variety of simulation modes.  These examples are for
+people who want to understand the full power and generality of the Multistrand
+simulation environment.  (And even so, they leave much out.)
+
+Although you can just run the python code and see it work, and you can look
+at the code and read the comments about how it works, the BEST way to learn
+from these examples is to try them out line-by-line in the python interpreter,
+taking the time to examine the objects being created -- using 'print' and 
+'help' and playing around to see what's there.
+
+It is suggested to examine and run the tutorial scripts in the following order.
+
+hairpin_energies.py              --- see how to make a complex and calculate its energy.
+			      	     plot a simple energy landscape for hairpin folding.
+hairpin_trajectories.py          --- see how to set up a simulation.
+			      	     and how to recover the states visited.
+hairpin_transitions.py           --- see how to define macrostates, so that the simulation
+			      	     doesn't return every elementary step, but just
+			    	     returns when a macrostate is entered or exited.
+			    	     tabulate transition frequencies between macrostates.
+  			             examine the consequences of using loose macrostates.
+hairpin_first_passage_time.py 	 --- don't look at trajectories, just tabulate 
+			      	     how long they took, and compute statistics.
+				     see the effects of kinetic traps in folding.
+				     use the random number seed to reproduce trajectories of interest.
+
+threewaybm_energies.py           --- see how to define complexes with multiple strands.
+			      	     consider the energy of a test tube.
+				     plot test tube energy for a hypothetical pathway for
+		   		     toehold-mediated three-way strand displacement.
+threewaybm_trajectories.py       --- run simulations in which strands might dissociate.
+			             look at how to extract information from the trajectories.
+threewaybm_transitions.py        --- transition mode for multistranded systems.
+			      	     again, compare exact versus loose macrostates.
+threewaybm_first_passage_time.py --- compare two sequence designs based on (a) their duration
+				     statistics, and (b) their frequencies of reaching either
+				     "success" or "failure" states.  
+
+hybridization_first_step_mode.py --- preferred method for deducing bimolecular rate constants.
+				     details on more efficient simulation that skips "equilibration" between interactions.
+				     deduce first-order and second-order rate constants from
+				     probability of success and time to completion.
+				     with error bars!
+
+hybridization_comparison.py      --- look at two strands interacting in a tiny box.
+			      	     compare sequences that are unstructured vs have hairpins in various locations.
+				     compute association and dissociation rate constants.
+				     compare using first passage time, transition mode, and first step mode.
+			             see how the time to reach a full duplex scales with concentration.
+
+threewaybm_first_step_mode.py    --- automate the running of a month's worth of simulations,
+				     thus examining the dependence of toehold-mediated
+				     strand displacement rate constants on toehold length.
+
+
+
+Contributions: The scripts were developed by Joseph Schaeffer, Niranjan Srinivas, Xander Rudelis, 
+Joseph Berleant, Chris Thachuk, and Erik Winfree
