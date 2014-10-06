@@ -418,10 +418,13 @@ def compare_hybridization(seq, concentrations, T=25, material="DNA"):
 
 if __name__ == '__main__':
 
-    # dissociation simulations are slow -- let's consider short strands here!
+    # dissociation and transision simulations are slow -- let's consider short strands here!
     compare_hybridization(seq='TCGAT', concentrations=[1e-2,1e-3,1e-4,1e-5,1e-6,1e-7]) # takes about 10 minutes
-    #compare_hybridization(seq='CGTTTCG', concentrations=[1e-2,1e-3,1e-4,1e-5,1e-6,1e-7]) # super-slow, expect 1 day
 
-    # compare_hybridization(seq='TCGATTTTGTA', concentrations=[1e-3,1e-4,1e-5])  # these three are super super super slow
+    ### The following is super-slow for some modes, but it will run.  Expect 1 day or more.  
+    # compare_hybridization(seq='CGTTTCG', concentrations=[1e-1,1e-2,1e-3,1e-4,1e-5]) 
+
+    ### These three are super super super slow, and did not finish all modes for me:
+    # compare_hybridization(seq='TCGATTTTGTA', concentrations=[1e-3,1e-4,1e-5])  
     # compare_hybridization(seq='TCGATTTTTCGA', concentrations=[1e-3,1e-4,1e-5])
     # compare_hybridization(seq='ACTGGCGCGTATTATCTACTG', concentrations=[1e-3,1e-4,1e-5])

@@ -165,6 +165,7 @@ s=SimSystem(o1)
 s.start()
 s=SimSystem(o2)
 s.start()
+# same energy model in both simulations, so no need to update the energy model in between.
 
 print
 print "--- Analysis of simulations with exact transition states ---"

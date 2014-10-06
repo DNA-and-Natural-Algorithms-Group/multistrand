@@ -114,6 +114,7 @@ s1 = SimSystem(o1)
 s1.start()
 s2 = SimSystem(o2)
 s2.start()
+# see below about the energy model
 
 # Show what happened
 print
@@ -134,11 +135,29 @@ if __name__ == '__main__':
     print "And can you discern why Design 1 almost never completes displacement in the given time?"
 
 # Some notes for the intrepid explorer: 
-# The Options object and the SimSystem object are intimately tied, and after s.start() you can't just change energy model parameter or rate parameters.
+
+# The Options object and the SimSystem object are intimately tied, and after s.start() you can't just change energy model parameters or rate parameters.
 # If you do, you need to tell Multistrand to update the energy model call, initialize_energy_model(o), and then make the SimSystem and start it.
+# In the example, if these two simulations had used a different join_concentration, a different temperature, a different material (RNA vs DNA), 
+# a different dangles option, a different parameter set (NUPACK vs Vienna), a different rate method (Kawasaki or Metropolis), or a different set of rate 
+# scaling paramters (e.g. Calibrated, Unitary, etc), then we would need to use initialize_energy_model() in between.
+# This is because all simulations share the same energy & kinetics model (which we just call the "energy model" for short)
+# and it it not automatically re-adjusted after it has been created.  Note that "same energy model" means "the same sequence and secondary structure will get
+# the same numerical value for the energy, and the same move will get the same rate" -- so, even though the underlying model may be the same, a change in, 
+# e.g. concentration will imply a "different energy model" as we are using the term here.
 #
+# system.SimSystem(), system.calculate_energy(), system.calculate_rate() will all call initialize_energy_model() if none has been created yet,
+# or else use the existing one even if the passed Options object specified different temperature or other parameters.  
+# The onus is on the user to make sure this is all correct, if your code ever changes energy / kinetics parameters.  
+# Basically, the only case where you *don't* need to update the energy model is if you change simulation mode, simulation time, start states, stop conditions,
+# or number of simulations.
+#
+# This is a common source of mistakes, so why not always do it automatically?  The reason is so that Multistrand can efficiently exploit multicore processors
+# and run with multiple threads, as shown in the threewaybm_first_step_mode.py example.  All threads share the energy model, and therefore we must not
+# change the energy model when a new simulation starts but existing simulations are already running.  
+
 # Also, once s.start() has run, you cannot run ('start') this SimSystem again.  You must make a new Options object and a new SimSystem object.
-# But if, in doing so, you changed energy/kinetics model parameters, you must also initialize_energy_model(o).
+# But if, in doing so, you changed energy/kinetics model parameters, you must also initialize_energy_model(o), as we've said.
 
 # Note that if num_simulations > 1, then all the recorded states get collected together into the full_trajectory.  
 # To tell where one trajectory stops and the next simulation starts, you can look at the time stamps.

@@ -22,7 +22,8 @@ except ImportError:
 
 
 o = Options(temperature=25,dangles="Some")    # prepares for simulation.
-initialize_energy_model(o)                    # only necessary if you want to use energy() without running a simulation first.
+initialize_energy_model(o)                    # necessary if you want to use energy() without running a simulation first. 
+# see more about the energy model usage and initialization in threewaybm_trajectories.py
 
 # More meaningful names for argument values to the energy() function call, below.
 Loop_Energy = 0    # requesting no dG_assoc or dG_volume terms to be added.  So only loop energies remain.

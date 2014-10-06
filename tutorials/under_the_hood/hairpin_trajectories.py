@@ -1,6 +1,5 @@
 # hairpin_trajectories.py
 #
-# insert text here describing what this example shows, where it comes from, what to look for in the output and in the code.
 # This is a follow-up on hairpin_energies.py.
 # Here, rather than manually examining secondary structures of interest, we let a simulation run explore the full secondary structure 
 # energy landscape according to a Metropolis-biased random walk.
@@ -59,9 +58,13 @@ o = Options(temperature=25, dangles='Some', start_state = [c],
 
 print "k_uni = %g /s, k_bi = %g /M/s" % (o.unimolecular_scaling, o.bimolecular_scaling)  # you can also set them to other values if you want
 
-# This actually runs the simulation.
+# This actually runs the simulation.  
 s = SimSystem(o)
 s.start()
+# Important caveat:  SimSystem will initialize the energy model according to information in Options 'o' 
+# if the energy model has not yet been initialized.
+# But if prior calls have already initialized the energy model -- even if it's at another temperature or join_concentration -- then
+# it will not be automatically re-initialized.  You would have to do this manually.
 
 print_trajectory(o)        
 # Note that the simulation proceeds until the time limit has been EXCEEDED.

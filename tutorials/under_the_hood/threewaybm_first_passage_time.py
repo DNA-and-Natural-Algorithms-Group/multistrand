@@ -223,6 +223,7 @@ if __name__ == '__main__':
     print "Running Design B"
     s=SimSystem(o2)
     s.start()
+    # no need to update the energy model in between runs, because conditions are the same.
 
     result_list1 = o1.interface.results # look at a few things by hand, just to check
     times_complete1 = np.array([i.time for i in result_list1 if i.tag == 'complete'])

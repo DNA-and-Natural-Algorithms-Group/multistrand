@@ -159,8 +159,10 @@ print "--- Running Simulations ---"
 o1,o2 = setup_options_hairpin()
 s=SimSystem(o1)
 s.start()
-s=SimSystem(o2)
+s=SimSystem(o2)  
 s.start()
+# the second simulation is at the same join_concentration and temperature as the previous simulation,
+# so there's no need to re-initialize the energy model.
 
 # Try looking at o1.interface.transition_lists[0] to see each transition from the first simulation.
 

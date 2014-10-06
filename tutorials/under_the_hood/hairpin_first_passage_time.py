@@ -184,6 +184,9 @@ def run_sims():
     s.start()
     s=SimSystem(o4)
     s.start()
+    # all these simulations are at the same join_concentration and temperature,
+    # so there's no need to re-initialize the energy model before each one.
+
 
     all_results = [o.interface.results for o in [o1, o2, o3, o4]]
     all_seqs    = [o.start_state[0].sequence for o in [o1, o2, o3, o4]]
