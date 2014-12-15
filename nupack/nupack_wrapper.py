@@ -39,6 +39,39 @@ def get_nupack_exec_path(exec_name):
     return os.environ['NUPACKHOME'] + '/bin/' + exec_name;
   else:
     return exec_name;
+
+def setup_args(**kargs):
+  args = [get_nupack_exec_path(kargs['exec_name']),
+          '-material', kargs['material'],   '-sodium', kargs['sodium'],
+          '-magnesium', kargs['magnesium'], '-dangles', kargs['dangles'], '-T', kargs['T']]
+  if kargs['multi']: args += ['-multi']
+  if kargs['pseudo']: args += ['-pseudo']
+  return args
+
+def setup_cmd_input(multi, sequences, ordering, structure = ''):
+  if not multi:
+    cmd_input = '+'.join(sequences) + '\n' + structure
+  else:
+    n_seqs = len(sequences)
+    if ordering == None:
+      seq_order = ' '.join([str(i) for i in range(1, n_seqs+1)])
+    else:
+      seq_order = ' '.join([str(i) for i in ordering])
+    cmd_input = str(n_seqs) + '\n' + ('\n'.join(sequences)) + '\n' + seq_order + '\n' + structure
+  return cmd_input
+
+
+def setup_nupack_input(**kargs):
+  """ Returns the list of tokens specifying the command to be run in the pipe, and
+  the command-line input to be given to Nupack. """
+  # Set up terms of command-line executable call
+  args = setup_args(**kargs)
+  
+  # Set up command-line input to Nupack
+  cmd_input = setup_cmd_input(kargs['multi'], kargs['sequences'], kargs['ordering'],
+                              kargs.get('structure', ''))
+  
+  return (args, cmd_input)
     
 def call_with_file(args, cmd_input, outsuffix):
   """ Performs a NUPACK call, returning the lines of the output in a temporary
@@ -86,24 +119,18 @@ def call_with_pipe(args, cmd_input):
   output_lines = output.split('\n')
   return (output_lines, error)
     
-def pfunc(sequences, material, dangles = 'some', T = 37, multi = True, pseudo = False, sodium = 1.0, magnesium = 0.0):
+def pfunc(sequences, ordering = None, material = 'rna',
+          dangles = 'some', T = 37, multi = True, pseudo = False,
+          sodium = 1.0, magnesium = 0.0):
   """Calls NUPACK's pfunc on a complex consisting of the unique strands in sequences, returns dG.
        sequences is a list of the strand sequences
        See NUPACK User Manual for information on other arguments. """
   
   ## Set up command-line arguments and input
-  args = [get_nupack_exec_path('pfunc'),
-          '-material', material,   '-sodium', sodium,
-          '-magnesium', magnesium, '-dangles', dangles, '-T', T]
-  if multi: args += ['-multi']
-  if pseudo: args += ['-pseudo']
-  
-  if not multi:
-    cmd_input = '+'.join(sequences)
-  else:
-    n_seqs = len(sequences)
-    seq_order = ' '.join([str(i) for i in range(1, n_seqs+1)])
-    cmd_input = str(n_seqs) + '\n' + ('\n'.join(sequences)) + '\n' + seq_order
+  args, cmd_input = \
+    setup_nupack_input(exec_name = 'pfunc', sequences = sequences, ordering = ordering,
+                       material = material, sodium = sodium, magnesium = magnesium,
+                       dangles = dangles, T = T, multi = multi, pseudo = pseudo)
   
   ## Perform call until it works (should we have a max # of tries before quitting?)
   output, error = call_with_pipe(args, cmd_input)
@@ -119,8 +146,8 @@ def pfunc(sequences, material, dangles = 'some', T = 37, multi = True, pseudo = 
   else: return float(output[-3]) + dGadjust(T,len(sequences))
   
   
-def pairs(sequences, material, dangles = 'some',
-          T = 37, multi = True, pseudo = False,
+def pairs(sequences, ordering = None, material = 'rna',
+          dangles = 'some', T = 37, multi = True, pseudo = False,
           sodium = 1.0, magnesium = 0.0, cutoff = 0.001):
   """Calls NUPACK's pairs executable on a complex consisting of the unique strands in sequences.
      Returns the probabilities of pairs of bases being bound, only including those pairs
@@ -130,20 +157,14 @@ def pairs(sequences, material, dangles = 'some',
   """
   
   ## Set up command-line arguments and input
-  args = [get_nupack_exec_path('pairs'),
-          '-material', material,   '-cutoff', cutoff,   '-sodium', sodium,
-          '-magnesium', magnesium, '-dangles', dangles, '-T', T]
-  if multi: args += ['-multi']
-  if pseudo: args += ['-pseudo']
-  
-  if not multi:
-    cmd_input = '+'.join(sequences)
-    suffix = '.ppairs'
-  else:
-    n_seqs = len(sequences)
-    seq_order = ' '.join([str(i) for i in range(1, n_seqs+1)])
-    cmd_input = str(n_seqs) + '\n' + ('\n'.join(sequences)) + '\n' + seq_order
+  args, cmd_input = \
+    setup_nupack_input(exec_name = 'pairs', sequences = sequences, ordering = ordering,
+                       material = material, sodium = sodium, magnesium = magnesium,
+                       dangles = dangles, T = T, multi = multi, pseudo = pseudo)
+  if multi:
     suffix = '.epairs'
+  else:
+    suffix = '.ppairs'
   
   ## Perform call
   output = call_with_file(args, cmd_input, suffix)
@@ -157,8 +178,8 @@ def pairs(sequences, material, dangles = 'some',
   return pair_probs
 
   
-def mfe(sequences, material, dangles = 'some',
-        T = 37, multi = True, pseudo = False,
+def mfe(sequences, ordering = None, material = 'rna',
+        dangles = 'some', T = 37, multi = True, pseudo = False,
         sodium = 1.0, magnesium = 0.0, degenerate = False):
   """Calls NUPACK's mfe executable on a complex consisting of the unique strands in sequences.
      Returns the minimum free energy structure, or multiple mfe structures if the degenerate
@@ -169,19 +190,11 @@ def mfe(sequences, material, dangles = 'some',
   """
   
   ## Set up command-line arguments and input
-  args = [get_nupack_exec_path('mfe'),
-          '-material', material,   '-sodium', sodium,
-          '-magnesium', magnesium, '-dangles', dangles, '-T', T]
-  if multi: args += ['-multi']
-  if pseudo: args += ['-pseudo']
+  args, cmd_input = \
+    setup_nupack_input(exec_name = 'mfe', sequences = sequences, ordering = ordering,
+                       material = material, sodium = sodium, magnesium = magnesium,
+                       dangles = dangles, T = T, multi = multi, pseudo = pseudo)
   if degenerate: args += ['-degenerate']
-  
-  if not multi:
-    cmd_input = '+'.join(sequences)
-  else:
-    n_seqs = len(sequences)
-    seq_order = ' '.join([str(i) for i in range(1, n_seqs+1)])
-    cmd_input = str(n_seqs) + '\n' + ('\n'.join(sequences)) + '\n' + seq_order
   
   ## Perform call
   output = call_with_file(args, cmd_input, '.mfe')
@@ -197,7 +210,9 @@ def mfe(sequences, material, dangles = 'some',
   return structs
   
   
-def energy(sequences, structure, material, dangles = 'some', T = 37, multi = True, pseudo = False, sodium = 1.0, magnesium = 0.0):
+def energy(sequences, structure, ordering = None, material = 'rna',
+           dangles = 'some', T = 37, multi = True, pseudo = False,
+           sodium = 1.0, magnesium = 0.0):
   """Calls NUPACK's energy executable. Returns the microstate dG.
        sequences is a list of the strand sequences
        structure is a string with the dot-paren structure notation
@@ -206,18 +221,11 @@ def energy(sequences, structure, material, dangles = 'some', T = 37, multi = Tru
   """
   
   ## Set up command-line arguments and input
-  args = [get_nupack_exec_path('energy'),
-          '-material', material,   '-sodium', sodium,
-          '-magnesium', magnesium, '-dangles', dangles, '-T', T]
-  if multi: args += ['-multi']
-  if pseudo: args += ['-pseudo']
-  
-  if not multi:
-    cmd_input = '+'.join(sequences) + '\n' + structure
-  else:
-    n_seqs = len(sequences)
-    seq_order = ' '.join([str(i) for i in range(1, n_seqs+1)])
-    cmd_input = str(n_seqs) + '\n' + ('\n'.join(sequences)) + '\n' + seq_order + '\n' + structure
+  args, cmd_input = \
+    setup_nupack_input(exec_name = 'energy', sequences = sequences, ordering = ordering,
+                       structure = structure, material = material,
+                       sodium = sodium, magnesium = magnesium,
+                       dangles = dangles, T = T, multi = multi, pseudo = pseudo)
                 
   ## Perform call
   output, error = call_with_pipe(args, cmd_input)
@@ -229,7 +237,9 @@ def energy(sequences, structure, material, dangles = 'some', T = 37, multi = Tru
   return float(output[-2])
 
 
-def prob(sequences, structure, material, dangles = 'some', T = 37, multi = True, pseudo = False, sodium = 1.0, magnesium = 0.0):
+def prob(sequences, structure, ordering = None, material = 'rna',
+         dangles = 'some', T = 37, multi = True, pseudo = False,
+         sodium = 1.0, magnesium = 0.0):
   """Calls NUPACK's prob executable. Returns the probability of the given structure.
        sequences is a list of the strand sequences
        structure is a string with the dot-paren structure notation
@@ -238,18 +248,11 @@ def prob(sequences, structure, material, dangles = 'some', T = 37, multi = True,
   """
   
   ## Set up command-line arguments and input
-  args = [get_nupack_exec_path('prob'),
-          '-material', material,   '-sodium', sodium,
-          '-magnesium', magnesium, '-dangles', dangles, '-T', T]
-  if multi: args += ['-multi']
-  if pseudo: args += ['-pseudo']
-  
-  if not multi:
-    cmd_input = '+'.join(sequences) + '\n' + structure
-  else:
-    n_seqs = len(sequences)
-    seq_order = ' '.join([str(i) for i in range(1, n_seqs+1)])
-    cmd_input = str(n_seqs) + '\n' + ('\n'.join(sequences)) + '\n' + seq_order + '\n' + structure
+  args, cmd_input = \
+    setup_nupack_input(exec_name = 'prob', sequences = sequences, ordering = ordering,
+                       structure = structure, material = material,
+                       sodium = sodium, magnesium = magnesium,
+                       dangles = dangles, T = T, multi = multi, pseudo = pseudo)
                 
   ## Perform call
   output, error = call_with_pipe(args, cmd_input)
@@ -261,7 +264,7 @@ def prob(sequences, structure, material, dangles = 'some', T = 37, multi = True,
   return float(output[-2])
 
 
-def defect(sequences, structure, material,
+def defect(sequences, structure, ordering = None, material = 'rna',
            dangles = 'some', T = 37, multi = True, pseudo = False,
            sodium = 1.0, magnesium = 0.0, mfe = False):
   """Calls NUPACK's defect executable. Returns the ensemble defect (default) or the mfe defect.
@@ -272,19 +275,12 @@ def defect(sequences, structure, material,
   """
   
   ## Set up command-line arguments and input
-  args = [get_nupack_exec_path('defect'),
-          '-material', material,   '-sodium', sodium,
-          '-magnesium', magnesium, '-dangles', dangles, '-T', T]
-  if multi: args += ['-multi']
-  if pseudo: args += ['-pseudo']
+  args, cmd_input = \
+    setup_nupack_input(exec_name = 'defect', sequences = sequences, ordering = ordering,
+                       structure = structure, material = material,
+                       sodium = sodium, magnesium = magnesium,
+                       dangles = dangles, T = T, multi = multi, pseudo = pseudo)
   if mfe: args += ['-mfe']
-  
-  if not multi:
-    cmd_input = '+'.join(sequences) + '\n' + structure
-  else:
-    n_seqs = len(sequences)
-    seq_order = ' '.join([str(i) for i in range(1, n_seqs+1)])
-    cmd_input = str(n_seqs) + '\n' + ('\n'.join(sequences)) + '\n' + seq_order + '\n' + structure
                 
   ## Perform call
   output, error = call_with_pipe(args, cmd_input)
@@ -298,7 +294,7 @@ def defect(sequences, structure, material,
   return float(output[-3])
 
 
-def sample(samples, sequences, material,
+def sample(sequences, samples, ordering = None, material = 'rna',
            dangles = 'some', T = 37, multi = True,
            pseudo = False, sodium = 1.0, magnesium = 0.0):
   """ Calls the NUPACK sample executable.
@@ -310,20 +306,11 @@ def sample(samples, sequences, material,
       to run the standard BSD tool 'sample'. """
       
   ## Set up command-line arguments and input
-  args = [get_nupack_exec_path('sample'),
-          '-material', material, '-sodium', sodium, '-magnesium', magnesium,
-          '-dangles', dangles, '-T', T, '-samples', samples]
-  if multi: args += ['-multi']
-  if pseudo: args += ['-pseudo']
-  
-  if not multi:
-    cmd_input = '+'.join(sequences);
-  else:
-    n_seqs = len(sequences)
-    seq_order = ' '.join([str(i) for i in range(1, n_seqs+1)])
-    cmd_input = str(n_seqs)          + '\n' + \
-                '\n'.join(sequences) + '\n' + \
-                seq_order
+  args, cmd_input = \
+    setup_nupack_input(exec_name = 'sample', sequences = sequences, ordering = ordering,
+                       material = material, sodium = sodium, magnesium = magnesium,
+                       dangles = dangles, T = T, multi = multi, pseudo = pseudo)
+  args += ['-samples', samples]
 
   # Call executable
   output = call_with_file(args, cmd_input, '.sample')
