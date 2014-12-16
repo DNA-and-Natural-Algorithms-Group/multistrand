@@ -10,6 +10,7 @@
 # In general, the following arguments are required:
 #   sequences  - a list of DNA/RNA sequences
 #   structure  - a dot-paren structure (required by energy, prob, and defect)
+#   energy_gap - the max allowed energy gap from the minimum free energy (required by subopt)
 #   samples    - an integer specifying how many samples to draw (required by sample)
 #
 # The following optional arguments may also be included in all function calls:

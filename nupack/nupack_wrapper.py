@@ -5,6 +5,8 @@
 #  pfunc
 #  pairs
 #  mfe
+#  subopt
+#  count
 #  energy
 #  prob
 #  defect
@@ -12,11 +14,9 @@
 #
 # The following functions may be wrapped in a future release:
 #  complexes
-#  count
 #  concentrations
 #  design
 #  distributions
-#  subopt
 
 
 
@@ -41,6 +41,7 @@ def get_nupack_exec_path(exec_name):
     return exec_name;
 
 def setup_args(**kargs):
+  """ Returns the list of tokens specifying the command to be run in the pipe. """
   args = [get_nupack_exec_path(kargs['exec_name']),
           '-material', kargs['material'],   '-sodium', kargs['sodium'],
           '-magnesium', kargs['magnesium'], '-dangles', kargs['dangles'], '-T', kargs['T']]
@@ -49,6 +50,7 @@ def setup_args(**kargs):
   return args
 
 def setup_cmd_input(multi, sequences, ordering, structure = ''):
+  """ Returns the command-line input string to be given to Nupack. """
   if not multi:
     cmd_input = '+'.join(sequences) + '\n' + structure
   else:
@@ -58,12 +60,14 @@ def setup_cmd_input(multi, sequences, ordering, structure = ''):
     else:
       seq_order = ' '.join([str(i) for i in ordering])
     cmd_input = str(n_seqs) + '\n' + ('\n'.join(sequences)) + '\n' + seq_order + '\n' + structure
-  return cmd_input
+  return cmd_input.strip()
 
 
 def setup_nupack_input(**kargs):
   """ Returns the list of tokens specifying the command to be run in the pipe, and
-  the command-line input to be given to Nupack. """
+  the command-line input to be given to Nupack.
+  Note that individual functions below may modify args or cmd_input depending on their
+  specific usage specification. """
   # Set up terms of command-line executable call
   args = setup_args(**kargs)
   
@@ -181,7 +185,7 @@ def pairs(sequences, ordering = None, material = 'rna',
 def mfe(sequences, ordering = None, material = 'rna',
         dangles = 'some', T = 37, multi = True, pseudo = False,
         sodium = 1.0, magnesium = 0.0, degenerate = False):
-  """Calls NUPACK's mfe executable on a complex consisting of the unique strands in sequences.
+  """Calls NUPACK's mfe executable on a complex consisting of the strands in sequences.
      Returns the minimum free energy structure, or multiple mfe structures if the degenerate
      option is specified
        sequences is a list of the strand sequences
@@ -210,6 +214,92 @@ def mfe(sequences, ordering = None, material = 'rna',
   return structs
   
   
+def subopt(sequences, energy_gap, ordering = None, material = 'rna',
+           dangles = 'some', T = 37, multi = True, pseudo = False,
+           sodium = 1.0, magnesium = 0.0, degenerate = False):
+  """Calls NUPACK's subopt executable on a complex consisting of the strands in the given order.
+     Returns the structures within the given free energy gap of the minimum free energy.
+       sequences is a list of the strand sequences
+       energy_gap is the maximum energy gap from the mfe of any returned structure.
+       See NUPACK User Manual for information on other arguments.
+  """
+  
+  ## Set up command-line arguments and input
+  args, cmd_input = \
+    setup_nupack_input(exec_name = 'subopt', sequences = sequences, ordering = ordering,
+                       material = material, sodium = sodium, magnesium = magnesium,
+                       dangles = dangles, T = T, multi = multi, pseudo = pseudo)
+  cmd_input += '\n' + str(energy_gap)
+  
+  ## Perform call
+  output = call_with_file(args, cmd_input, '.subopt')
+
+  ## Parse and return output
+  structs = []
+  for i, l in enumerate(output):
+    if l[0] == '.' or l[0] == '(':
+      s = l.strip()
+      e = output[i-1].strip()
+      structs.append((s,e))
+  
+  return structs
+
+
+def count(sequences, ordering = None, material = 'rna',
+          dangles = 'some', T = 37, multi = True, pseudo = False,
+          sodium = 1.0, magnesium = 0.0):
+  """Calls NUPACK's count executable on a complex consisting of the strands in the given order.
+     Returns the number of secondary structures, overcounting rotationally symmetric structures.
+       sequences is a list of the strand sequences
+       See NUPACK User Manual for information on other arguments. """
+  
+  ## Set up command-line arguments and input
+  args, cmd_input = \
+    setup_nupack_input(exec_name = 'count', sequences = sequences, ordering = ordering,
+                       material = material, sodium = sodium, magnesium = magnesium,
+                       dangles = dangles, T = T, multi = multi, pseudo = pseudo)
+  
+  ## Perform call
+  output, error = call_with_pipe(args, cmd_input)
+
+  ## Parse and return output
+  if output[-3] != "% Total number of secondary structures:" :
+      raise NameError('NUPACK output parsing problem')
+
+  return float(output[-2]) # the number of structures can be very large
+
+
+def pairs(sequences, ordering = None, material = 'rna',
+          dangles = 'some', T = 37, multi = True, pseudo = False,
+          sodium = 1.0, magnesium = 0.0, cutoff = 0.001):
+  """Calls NUPACK's pairs executable on a complex consisting of the unique strands in sequences.
+     Returns the probabilities of pairs of bases being bound, only including those pairs
+     with probability greater than cutoff.
+       sequences is a list of the strand sequences
+       See NUPACK User Manual for information on other arguments.
+  """
+  
+  ## Set up command-line arguments and input
+  args, cmd_input = \
+    setup_nupack_input(exec_name = 'pairs', sequences = sequences, ordering = ordering,
+                       material = material, sodium = sodium, magnesium = magnesium,
+                       dangles = dangles, T = T, multi = multi, pseudo = pseudo)
+  if multi:
+    suffix = '.epairs'
+  else:
+    suffix = '.ppairs'
+  
+  ## Perform call
+  output = call_with_file(args, cmd_input, suffix)
+
+  ## Parse and return output
+  pair_probs = []
+  for l in filter(lambda x: x[0].isdigit(), output):
+    if len(l.split()) > 1:
+      pair_probs.append(tuple(l.split()))
+  
+  return pair_probs
+  
 def energy(sequences, structure, ordering = None, material = 'rna',
            dangles = 'some', T = 37, multi = True, pseudo = False,
            sodium = 1.0, magnesium = 0.0):
@@ -235,7 +325,7 @@ def energy(sequences, structure, ordering = None, material = 'rna',
      raise ValueError('NUPACK output parsing problem')
 
   return float(output[-2])
-
+  
 
 def prob(sequences, structure, ordering = None, material = 'rna',
          dangles = 'some', T = 37, multi = True, pseudo = False,
@@ -292,7 +382,7 @@ def defect(sequences, structure, ordering = None, material = 'rna',
 
   # We don't return the normalized ensemble defect, because that is easily calculable on your own
   return float(output[-3])
-
+  
 
 def sample(sequences, samples, ordering = None, material = 'rna',
            dangles = 'some', T = 37, multi = True,
