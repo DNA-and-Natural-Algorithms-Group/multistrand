@@ -62,6 +62,11 @@ pip install sphinx
 pip install rst2pdf
 # Above, that's pip, not brew:  brew installs a different sphinx.
 
+# The still-under-development MultistrandMovies package requires graphviz and pygraphviz to draw secondary structures.  
+# The following are optional unless you want to try multistrand.pygraphviztesting and the not-yet-released MultistrandMovies.
+brew install graphviz
+pip install pygraphviz
+
 # Multistrand can exploit this more efficient memory allocator, if it's present.  Again optional, but recommended for speed.
 brew install gperftools
 

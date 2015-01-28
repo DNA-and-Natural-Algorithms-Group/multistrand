@@ -64,7 +64,8 @@
 # error bars.
 #
 # Usage:
-# python -i hybridization_first_step_mode.py
+#     python -i hybridization_first_step_mode.py
+# Takes about 5 min.
 
 
 # Import things you need
@@ -318,7 +319,7 @@ if __name__ == '__main__':
     data=first_step_simulation("ACTGGCGCGTATTATCTCAGT", 10000, concentration=50e-9, T=25, material="DNA") 
     # We can do a lot of simulations in the above case, because the vast majority are very very fast.
     # (In fact, most Boltzmann-sampled structures are hairpins, so no first base pair reactions are possible.)
-    # Note that k_collision_forward is very different from k_collision_reverse, because the sample markedly different initial structures.
+    # Note that k_collision_forward is very different from k_collision_reverse, because they sample markedly different initial structures.
     print "Simulating DNA strand with 7-bp dual 5-nt tailed hairpin, at 25 C."
     data=first_step_simulation("CTAACTGGCGCGTATTCGCGCCTTCAC", 1000, concentration=50e-9, T=25, material="DNA") 
 

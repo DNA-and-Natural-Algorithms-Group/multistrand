@@ -26,6 +26,8 @@ except ImportError:
     print("Could not import Multistrand.")
     raise
 
+import numpy as np
+
 #############
 
 # for StopCondition and Macrostate definitions:

@@ -46,7 +46,7 @@
 # error bars, so that the amount of compute time required for a given level of accuracy
 # is fairly compared.  We don't do that here.)
 #
-# A siginficant issue when using methods 2 and 3 is that, a priori, you won't know what 
+# A significant issue when using methods 2 and 3 is that, a priori, you won't know what 
 # the critical concentration is, below which k_eff is constant.  (This value is usually 
 # what you want.)  On the other hand, it is desirable to do first passage time and 
 # transition mode simulations at a high concentration, so as not to waste time doing 
@@ -58,6 +58,8 @@
 #
 # Try it like this, e.g.:
 #   python -i hybridization_comparison.py
+# The default 5-mer hybridization trials take about 10 minutes to complete.  
+# Other options can be uncommented at the bottom of the file.
 
 import numpy as np
 import matplotlib

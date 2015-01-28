@@ -2,9 +2,9 @@
 #
 # This example walks you through how to create a single-stranded complex (i.e. a strand sequence and structure), and how to find its energy. 
 #
-# Invoke as "python threewaybm_energies.py" to see a plot.
-# Invoke as "python -i threewaybm_energies.py" to see a plot and then drop into the python interpreter to investigate further.
-# Invoke as "ipython --pylab -i threewaybm_energies.py" to see a plot and then drop into the ipython interpreter to investigate further.
+# Invoke as "python hairpin_energies.py" to see a plot.
+# Invoke as "python -i hairpin_energies.py" to see a plot and then drop into the python interpreter to investigate further.
+# Invoke as "ipython --pylab -i hairpin_energies.py" to see a plot and then drop into the ipython interpreter to investigate further.
 
 if False:  # only needed if you're having trouble with your Multistrand installation
     import multistrand_setup

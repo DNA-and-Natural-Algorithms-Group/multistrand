@@ -382,10 +382,10 @@ energy( start_state, options=None, energy_type=0)\n\
 Computes the energy of the passed state [a list of complexes or resting states], using\
 temperature, etc, settings from the options object passed.\n\n\
 Parameters\n\
-energy_type = 0 [default]: no volume terms included\n\
-energy_type = 1: include dG_volume\n\
-energy_type = 2: include dG_assoc [NUPACK equivalent]\n\
-energy_type = 3: include dG_volume + dG_assoc\n\
+energy_type = 0 ('Loop energy') [default]: no volume or association terms included. So only loop energies remain.\n\
+energy_type = 1 ('Volume energy'): include dG_volume.  No clear interpretation for this.\n\
+energy_type = 2 ('Complex energy'): include dG_assoc.  This is the NUPACK complex microstate energy, sans symmetry terms.\n\
+energy_type = 3 ('Tube energy'): include dG_volume + dG_assoc.  Summed over complexes, this is the system state energy.\n\
 \n\
 options = None [default]: Use the already initialized energy model.\n\
 options = ...: If not none, should be a multistrand.options.Options object, which will be used for initializing the energy model ONLY if there is not one already present.\n")},
