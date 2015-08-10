@@ -125,9 +125,6 @@ Multistrand: Multistrand-internal
 .PHONY: dircheck Multistrand-internal 
 # utilities
 
-.PHONY: docs
-# documentation
-
 # .PHONE: These rules MUST run their commands.  
 #
 # Note that Multistrand-internal is a phony rule used to build the
@@ -192,9 +189,6 @@ package-debug:
 	$(PYTHON_DEBUG_COMMAND) setup.py build -b ./ -t obj/package_debug/ --build-lib ./ --debug --use-debug-defs
 	@echo Package is now [hopefully] built, you can import it via "import multistrand" if the current directory is in your sys.path. You can install the package via 'make install' to have it installed in your Python site packages - you may need to 'sudo make install' if it complains about permissions..
 
-#documentation
-docs:
-	@cd doc/ && $(MAKE) clean; $(MAKE) html
 
 #install
 install:

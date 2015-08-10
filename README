@@ -89,18 +89,6 @@ Remember you can use "help(multistrand.objects.Domain)" and similar commands to 
 
 
 ###
-### Documentation
-###
-
-You can auto-generate the documentation from the package via "make docs" from the root of this distribution. Note that you MUST have built the package already, or it cannot import and get the relevant docstrings.
-
-This uses the sphinx package (which is also used to make the Python documentation) to create a set of html documents based on the docstrings found in the multistrand package. This may or may not be helpful, but if you see areas that need more documentation, feel free to write in with suggestions.
-
-Once the documentation is built, it will be in doc/build/html/index.html
-
-WARNING: Much of the Input File Format section is out of date. For better information, see the test/examples and various subdirectories: those are the files used for generating the data found in the Ph.D. thesis, so they are reasonably complete as to how things should work.
-
-###
 ### Troubleshooting
 ###
 
