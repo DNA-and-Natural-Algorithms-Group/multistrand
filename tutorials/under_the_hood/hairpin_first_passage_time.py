@@ -1,3 +1,12 @@
+####################################################################
+#                                                                  #
+#  Copyright (c) 2010-2015 California Institute of Technology.     #
+#  Distributed under the MIT License.                              #
+#  (See accompanying file LICENSE or copy at                       #
+#  http://opensource.org/licenses/MIT)                             #
+#                                                                  #
+####################################################################
+
 # hairpin_first_passage_time.py
 # 
 # Here we ask Multistrand to simulate the folding of an open strand into a hairpin, and stop when it's done.

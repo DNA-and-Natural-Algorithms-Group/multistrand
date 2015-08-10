@@ -1,3 +1,33 @@
+################################################################################
+#                                                                              #
+#                                                                              #
+# This README provides detailed instructions for installing and using          #
+# the Multistrand distribution on a recent version of OS X.  Similiar          #
+# steps can be taken to install the software on a Linux based system.          #
+#                                                                              #
+#============================================================================= #
+# Copyright (c) 2010-2015 California Institute of Technology.                  #
+# Distributed under the MIT License.                                           #
+# (See accompanying file LICENSE or copy at                                    #
+#  http://opensource.org/licenses/MIT)                                         #
+#==============================================================================#
+#                                                                              #
+#  The authors welcome any bug reports and other comments on the software. :)  #
+#                                                                              #
+################################################################################
+
+################################################################################
+#                                                                              #
+#                                                                              #
+#  Maintainer / Primary Author / Primary Contact:                              #
+#    Joseph Schaeffer (schaeffer@dna.caltech.edu)                              #
+#                                                                              #
+#  Contributing Authors:                                                       #
+#    Chris Berlind (cberlind@dna.caltech.edu)                                  #
+#    Joshua Loving (jloving@hawaii.edu)                                        #
+#    Erik Winfree (winfree@caltech.edu)                                        #
+#                                                                              #
+################################################################################
 
 # There are many ways to successfully install Multistrand from source files.  If you know what you're doing, do it!
 # If you're not comfortable with source installs, use our pre-packaged setup on terminal.com to run Multistrand in the cloud,

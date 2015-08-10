@@ -1,3 +1,12 @@
+####################################################################
+#                                                                  #
+#  Copyright (c) 2010-2015 California Institute of Technology.     #
+#  Distributed under the MIT License.                              #
+#  (See accompanying file LICENSE or copy at                       #
+#  http://opensource.org/licenses/MIT)                             #
+#                                                                  #
+####################################################################
+
 # multistrand_setup.py
 #
 # This is really unnecessary on most Multistrand installations -- you can just import the multistrand components and be done with it.

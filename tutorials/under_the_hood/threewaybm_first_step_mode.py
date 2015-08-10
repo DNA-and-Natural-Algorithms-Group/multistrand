@@ -1,3 +1,12 @@
+####################################################################
+#                                                                  #
+#  Copyright (c) 2010-2015 California Institute of Technology.     #
+#  Distributed under the MIT License.                              #
+#  (See accompanying file LICENSE or copy at                       #
+#  http://opensource.org/licenses/MIT)                             #
+#                                                                  #
+####################################################################
+
 # threewaybm_first_step_mode.py
 #
 # adapted from three_way_sims_example.py by Niranjan Srinivas and Joseph Schaeffer.

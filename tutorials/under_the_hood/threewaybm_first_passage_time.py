@@ -1,3 +1,12 @@
+####################################################################
+#                                                                  #
+#  Copyright (c) 2010-2015 California Institute of Technology.     #
+#  Distributed under the MIT License.                              #
+#  (See accompanying file LICENSE or copy at                       #
+#  http://opensource.org/licenses/MIT)                             #
+#                                                                  #
+####################################################################
+
 # threewaybm_first_passage_time.py
 # 
 # First Passage Time can be used to get statistics on how long it takes to reach a certain state, or one of a set of defined states.  

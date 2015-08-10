@@ -1,8 +1,16 @@
 /*
-   Copyright (c) 2007-2008 Caltech. All rights reserved.
-   Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
+  =======================================================================
+  Copyright (c) 2010-2015 California Institute of Technology.
+  Distributed under the MIT License.
+  (See accompanying file LICENSE or copy at
+  http://opensource.org/licenses/MIT)
+  =======================================================================
+
+  Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
 */
- 
+
+
+
  /* StrandComplex class header. The Complex object contains information about a collection of strands, and has the loop structures contained within it. */
 #ifndef __SCOMPLEX_H__
 #define __SCOMPLEX_H__

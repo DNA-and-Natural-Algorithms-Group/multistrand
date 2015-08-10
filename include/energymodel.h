@@ -1,7 +1,15 @@
 /*
-   Copyright (c) 2007-2008 Caltech. All rights reserved.
-   Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
+  =======================================================================
+  Copyright (c) 2010-2015 California Institute of Technology.
+  Distributed under the MIT License.
+  (See accompanying file LICENSE or copy at
+  http://opensource.org/licenses/MIT)
+  =======================================================================
+
+  Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
 */
+
+
 
 /* Energy Model class header */
 #ifndef __ENERGYMODEL_H__
