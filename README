@@ -50,6 +50,8 @@ You can now do a 'make install' or 'sudo make install' to install Multistrand in
 
 If you're having trouble, see the troubleshooting section.
 
+Step-by-step installation instructions for recent versions of OSX (Mavericks and later) are given in 'README.OSX'.
+
 ###
 ### Using the Multistrand package
 ###
