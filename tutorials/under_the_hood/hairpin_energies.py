@@ -42,7 +42,7 @@ Tube_Energy = 3    # requesting both dG_assoc and dG_volume terms to be added.  
 
 # Sequence is from Schaeffer's PhD thesis, chapter 7, figure 7.1
 
-# Just for illustration, create a hairping strand with just the outermost 4 base pairs of the stem formed:
+# Just for illustration, create a hairpin strand with just the outermost 4 base pairs of the stem formed:
 c = Complex( strands=[Strand(name="hairpin", sequence="GTTCGGGCAAAAGCCCGAAC")], structure= '((((' + 12*'.' + '))))' )
 energy( [c], o, Complex_Energy)  # should be -1.1449...
 # Note that energy() takes a *list* of complexes, and returns a tuple of energies.  Don't give it just a complex as input, else all hell may break loose.
