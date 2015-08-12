@@ -180,8 +180,6 @@ def pairs(sequences, ordering = None, material = 'rna',
       i,j,p = l.split()
       pair_probs.append(tuple( (int(i),int(j),float(p)) ))
 
-  print "yes I am running the new code"
-  
   return pair_probs
 
   
@@ -272,37 +270,6 @@ def count(sequences, ordering = None, material = 'rna',
   return float(output[-2]) # the number of structures can be very large
 
 
-def pairs(sequences, ordering = None, material = 'rna',
-          dangles = 'some', T = 37, multi = True, pseudo = False,
-          sodium = 1.0, magnesium = 0.0, cutoff = 0.001):
-  """Calls NUPACK's pairs executable on a complex consisting of the unique strands in sequences.
-     Returns the probabilities of pairs of bases being bound, only including those pairs
-     with probability greater than cutoff.
-       sequences is a list of the strand sequences
-       See NUPACK User Manual for information on other arguments.
-  """
-  
-  ## Set up command-line arguments and input
-  args, cmd_input = \
-    setup_nupack_input(exec_name = 'pairs', sequences = sequences, ordering = ordering,
-                       material = material, sodium = sodium, magnesium = magnesium,
-                       dangles = dangles, T = T, multi = multi, pseudo = pseudo)
-  if multi:
-    suffix = '.epairs'
-  else:
-    suffix = '.ppairs'
-  
-  ## Perform call
-  output = call_with_file(args, cmd_input, suffix)
-
-  ## Parse and return output
-  pair_probs = []
-  for l in filter(lambda x: x[0].isdigit(), output):
-    if len(l.split()) > 1:
-      pair_probs.append(tuple(l.split()))
-  
-  return pair_probs
-  
 def energy(sequences, structure, ordering = None, material = 'rna',
            dangles = 'some', T = 37, multi = True, pseudo = False,
            sodium = 1.0, magnesium = 0.0):
