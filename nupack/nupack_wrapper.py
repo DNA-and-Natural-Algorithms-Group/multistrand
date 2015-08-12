@@ -34,7 +34,7 @@ def dGadjust(T,N):
 
 def get_nupack_exec_path(exec_name):
   """ If the NUPACKHOME environment variable is set, use that as the directory
-  of the Nupack executables. Otherwise, have Python search the PATH directly. """
+  of the NUPACK executables. Otherwise, have Python search the PATH directly. """
   if 'NUPACKHOME' in os.environ:
     return os.environ['NUPACKHOME'] + '/bin/' + exec_name;
   else:
@@ -50,7 +50,7 @@ def setup_args(**kargs):
   return args
 
 def setup_cmd_input(multi, sequences, ordering, structure = ''):
-  """ Returns the command-line input string to be given to Nupack. """
+  """ Returns the command-line input string to be given to NUPACK. """
   if not multi:
     cmd_input = '+'.join(sequences) + '\n' + structure
   else:
@@ -65,13 +65,13 @@ def setup_cmd_input(multi, sequences, ordering, structure = ''):
 
 def setup_nupack_input(**kargs):
   """ Returns the list of tokens specifying the command to be run in the pipe, and
-  the command-line input to be given to Nupack.
+  the command-line input to be given to NUPACK.
   Note that individual functions below may modify args or cmd_input depending on their
   specific usage specification. """
   # Set up terms of command-line executable call
   args = setup_args(**kargs)
   
-  # Set up command-line input to Nupack
+  # Set up command-line input to NUPACK
   cmd_input = setup_cmd_input(kargs['multi'], kargs['sequences'], kargs['ordering'],
                               kargs.get('structure', ''))
   
@@ -177,7 +177,10 @@ def pairs(sequences, ordering = None, material = 'rna',
   pair_probs = []
   for l in filter(lambda x: x[0].isdigit(), output):
     if len(l.split()) > 1:
-      pair_probs.append(tuple(l.split()))
+      i,j,p = l.split()
+      pair_probs.append(tuple( (int(i),int(j),float(p)) ))
+
+  print "yes I am running the new code"
   
   return pair_probs
 
@@ -412,3 +415,5 @@ def sample(sequences, samples, ordering = None, material = 'rna',
   # Parse and return output
   sampled = [l.strip() for l in output[14:]]
   return sampled
+
+print "Python interface to NUPACK 3.0 (Pierce lab, Caltech, www.nupack.org) loaded."

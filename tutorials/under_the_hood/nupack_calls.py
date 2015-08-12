@@ -36,6 +36,10 @@
 #   degenerate - (for use with mfe) degenerate structures are all returned (default: False)
 #   mfe        - (for use with defect) returns mfe defect rather than ensemble defect (default: False)
 
+from nupack import *
+
+# If you run this, e.g via "python -i nupack_calls.py", nothing will be printed, although it will be calculated.
+# So, to try this, copy and paste, line by line.
 
 ## Sequences used throughout this file:
 rna_seq = ['GGGCUGUUUUUCUCGCUGACUUUCAGCCCCAAACAAAAAAUGUCAGCA'];
