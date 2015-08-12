@@ -64,7 +64,8 @@ threewaybm_first_step_mode.py    --- automate the running of a month's worth of 
 				     thus examining the dependence of toehold-mediated
 				     strand displacement rate constants on toehold length.
 
-
+nupack_calls.py                  --- explore how to call various NUPACK functions using
+                                     the NUPACK python wrapper distributed with Multistrand.
 
 Contributions: The scripts were developed by Joseph Schaeffer, Niranjan Srinivas, Xander Rudelis, 
 Joseph Berleant, Chris Thachuk, and Erik Winfree
