@@ -129,7 +129,7 @@ if __name__ == '__main__':
     print "Can you tell the difference between design 1 and design 2?"
     print "On most runs, Design 2 finishes within the allotted time."
     print "That is, the incumbent strand gets displaced."
-    print "You can see that a "+" turns into a " ", indicating that separate complexes are present."
+    print "You can see that a \"+\" turns into a \" \", indicating that separate complexes are present."
     print "Or did the incoming strand get rejected, the toehold spontaneously dissociating?"
     print "Can you tell?"
     print "And can you discern why Design 1 almost never completes displacement in the given time?"
