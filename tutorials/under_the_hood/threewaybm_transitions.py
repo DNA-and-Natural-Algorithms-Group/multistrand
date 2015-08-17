@@ -9,7 +9,7 @@
 
 # threewaybm_transitions.py
 # 
-# This example is similar to hairpin_transistion.py, except that multistranded complexes are handles.
+# This example is similar to hairpin_transistion.py, except that multistranded complexes are handled.
 # Mainly, we think about what the exact and loose macrostate differences are -- what do they tell us?
 #
 # Try it like this, e.g.:
