@@ -78,7 +78,7 @@ print energy(dna_seqs, dna_struct, material = 'dna')
 print defect(dna_seqs, dna_struct, material = 'dna')
 # Output: 8.297
 
-# Find the mfe defect of this DNA structure.
+# Find the MFE defect of this DNA structure.
 print defect(dna_seqs, dna_struct, material = 'dna', mfe = True)
 # Output: 2.0
 
