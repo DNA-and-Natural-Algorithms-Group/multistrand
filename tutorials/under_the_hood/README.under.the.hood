@@ -55,6 +55,7 @@ threewaybm_first_step_mode.py    --- automate the running of a month's worth of 
 				     thus examining the dependence of toehold-mediated
 				     strand displacement rate constants on toehold length.
 
+nupack_calls.py                  --- examples of how to call NUPACK directly to get thermodynamic information.
 
 
 Contributions: The scripts were developed by Joseph Schaeffer, Niranjan Srinivas, Xander Rudelis, 
