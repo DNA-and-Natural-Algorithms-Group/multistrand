@@ -64,7 +64,7 @@
 import numpy as np
 import matplotlib
 import matplotlib.pylab as plt
-import time
+import time, sys
 
 if False:  # only needed if you're having trouble with your Multistrand installation
     import multistrand_setup
@@ -421,14 +421,27 @@ def compare_hybridization(seq, concentrations, T=25, material="DNA"):
 
 if __name__ == '__main__':
 
-    # dissociation and transision simulations are slow -- let's consider short strands here!
-    compare_hybridization(seq='TCGAT', concentrations=[1e-2,1e-3,1e-4,1e-5,1e-6,1e-7]) # takes about 10 minutes
+    if len(sys.argv) == 5:
+        mat = sys.argv[1]
+        seq = sys.argv[2]
+        temp = float(sys.argv[3])
+        conc = float(sys.argv[4])
 
-    ### The following is super-slow for some modes, but it will run.  Expect 1 day or more.  
-    # compare_hybridization(seq='CGTTTCG', concentrations=[1e-1,1e-2,1e-3,1e-4,1e-5]) 
+        if not (mat in ['DNA','RNA'] and set(seq) <= set('ACTG') and 0 < temp < 100 and conc > 0):
+            print "Arguments should be 'DNA' or 'RNA', sequence (ACGT or ACGU), temperature (Celcius), and concentration (Molar)."
+            sys.exit()
+        
+        compare_hybridization(seq=seq, concentrations=[conc], material = mat, T = temp) 
 
-    ### These three are super super super slow, and did not finish all modes for me:
-    # compare_hybridization(seq='TCGATTTTGTA', concentrations=[1e-3,1e-4,1e-5])  
-    # compare_hybridization(seq='TCGATTTTTCGA', concentrations=[1e-3,1e-4,1e-5])
-    # compare_hybridization(seq='GCGATGCGCTGATTCA', concentrations=[1e-3,1e-4,1e-5])  # has strong hairpins... faster dissociation?
-    # compare_hybridization(seq='ACTGGCGCGTATTATCTACTG', concentrations=[1e-3,1e-4,1e-5])
+    elif len(sys.argv) == 1:
+        # dissociation and transision simulations are slow -- let's consider short strands here!
+        compare_hybridization(seq='TCGAT', concentrations=[1e-2,1e-3,1e-4,1e-5,1e-6,1e-7]) # takes about 10 minutes
+
+        ### The following is super-slow for some modes, but it will run.  Expect 1 day or more.  
+        # compare_hybridization(seq='CGTTTCG', concentrations=[1e-1,1e-2,1e-3,1e-4,1e-5]) 
+
+        ### These three are super super super slow, and did not finish all modes for me:
+        # compare_hybridization(seq='TCGATTTTGTA', concentrations=[1e-3,1e-4,1e-5])  
+        # compare_hybridization(seq='TCGATTTTTCGA', concentrations=[1e-3,1e-4,1e-5])
+        # compare_hybridization(seq='GCGATGCGCTGATTCA', concentrations=[1e-3,1e-4,1e-5])  # has strong hairpins... faster dissociation?
+        # compare_hybridization(seq='ACTGGCGCGTATTATCTACTG', concentrations=[1e-3,1e-4,1e-5])

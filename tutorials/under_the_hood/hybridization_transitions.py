@@ -46,9 +46,9 @@
 #      dG = -52.87 - (-8.45 + -8.33) = -36.10  kcal/mol
 #      kr = kf exp(-36.10 / 0.5924) = 4.55 x 10^14 days
 #   python -i hybridization_first_step_mode.py DNA CATTGTAACTGGCGATGCTACCTGTATTTTTACAGGTAGCATCGCCCCATTAACTC 25 1e-3 1000
-#      kf = k1 = 37.7 x 10^6 /M/s     k_eff =  8.7 x 10^6 /M/s      1/(k_eff * c ) =  115 usec
+#      kf = k1 = 54.2 x 10^6 /M/s     k_eff =  8.6 x 10^6 /M/s      1/(k_eff * c ) =  116 usec
 #      dG = -86.42 - (-25.08 + -24.72) = -36.6  kcal/mol
-#      kr = kf exp(-36.6 / 0.5924) =  2.1 x 10^14 days
+#      kr = kf exp(-36.6 / 0.5924) =  1.4 x 10^14 days
 #
 
 
