@@ -336,23 +336,24 @@ if __name__ == '__main__':
     else:
         print
         print "Simulating unstructured DNA strand, at 25 C."
-        data=first_step_simulation("ACTGGCGCGTATTATCTACTG", 1000, concentration=50e-9, T=25, material="DNA") 
+#        data=first_step_simulation("ACTGGCGCGTATTATCTACTG", 1000, concentration=50e-9, T=25, material="DNA") 
         print "Simulating DNA strand with 4-bp blunt-end hairpin, at 25 C."
-        data=first_step_simulation("ACTGGCGCGTATTATCTCAGT", 10000, concentration=50e-9, T=25, material="DNA") 
+#        data=first_step_simulation("ACTGGCGCGTATTATCTCAGT", 10000, concentration=50e-9, T=25, material="DNA") 
         # We can do a lot of simulations in the above case, because the vast majority are very very fast.
         # (In fact, most Boltzmann-sampled structures are hairpins, so no first base pair reactions are possible.)
         # Note that k_collision_forward is very different from k_collision_reverse, because they sample markedly different initial structures.
         print "Simulating DNA strand with 7-bp dual 5-nt tailed hairpin, at 25 C."
-        data=first_step_simulation("CTAACTGGCGCGTATTCGCGCCTTCAC", 1000, concentration=50e-9, T=25, material="DNA") 
+#        data=first_step_simulation("CTAACTGGCGCGTATTCGCGCCTTCAC", 1000, concentration=50e-9, T=25, material="DNA") 
 
-        print "Simulating unstructured RNA strand hybridization from Gao et al 2006, at 47 C and 1 uM."
-        data0=first_step_simulation("GTTGTCAAGATGCTACCGTTCAGAG", trials, concentration=1e-6, T=47, material="RNA")
-        print "Simulating tailed 3-bp hairpin RNA strand hybridization from Gao et al 2006, at 47 C and 1 uM."
-        data3=first_step_simulation("AGATCAGTGCGTCTGTACTAGCAGT", trials, concentration=1e-6, T=47, material="RNA")
-        print "Simulating tailed 4-bp hairpin RNA strand hybridization from Gao et al 2006, at 47 C and 1 uM."
-        data4=first_step_simulation("AGATCAGTGCGTCTGTACTAGCACA", trials, concentration=1e-6, T=47, material="RNA")
+        # previously code did RNA, at 47 C.  Where did that come from?  Paper describes DNA, 20 C.
+        print "Simulating unstructured DNA strand hybridization from Gao et al 2006, at 20 C and 1 uM."
+        data0=first_step_simulation("GTTGTCAAGATGCTACCGTTCAGAG", trials, concentration=1e-6, T=20, material="DNA")
+        print "Simulating tailed 3-bp hairpin DNA strand hybridization from Gao et al 2006, at 20 C and 1 uM."
+        data3=first_step_simulation("AGATCAGTGCGTCTGTACTAGCAGT", trials, concentration=1e-6, T=20, material="DNA")
+        print "Simulating tailed 4-bp hairpin DNA strand hybridization from Gao et al 2006, at 20 C and 1 uM."
+        data4=first_step_simulation("AGATCAGTGCGTCTGTACTAGCACA", trials, concentration=1e-6, T=20, material="DNA")
 
-        print "Gao et al report 12.0, 7.2, and 2.0 x 10^5 /M/s respectively for their 0-, 3-, and 4-bp hairpin RNA strands."
+        print "Gao et al report 12.0, 7.2, and 2.0 x 10^5 /M/s respectively for their 0-, 3-, and 4-bp hairpin DNA strands."
         print "Multistrand observed %g, %g, and %g x 10^6 /M/s respectively, which is in qualitative agreement for the relative trends." % \
             (data0[6]/1e6, data3[6]/1e6, data4[6]/1e6)
         print
@@ -367,6 +368,7 @@ if __name__ == '__main__':
     # Reference for coarse-grained molecular dynamics study of the same:
     #    "DNA hairpins primarily promote duplex melting rather than inhibiting hybridization"
     #    John S. Schreck, Thomas E. Ouldridge, Flavio Romano, Petr Sulc, Liam Shaw, Ard A. Louis, Jonathan P. K. Doye
+    #    Nucleic Acids Research, 2015, Vol. 43, No. 13 6181-6190
     #    arXiv:1408.4401 [cond-mat.soft]  (2014)
     #    http://arxiv.org/abs/1408.4401
 

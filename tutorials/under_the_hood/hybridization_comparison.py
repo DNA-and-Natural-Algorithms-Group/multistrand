@@ -1,5 +1,7 @@
 # hybridization_comparison.py
 # 
+##### TO DO: incorporate error calculations from hybridization_first_step_mode.py, and develop for the other cases.
+#
 # Again using hybridization of two short strands as an example, here we show that 
 # multiple ways of extracting rate constants from Multistrand simulations give the 
 # same result, at least if the system is simple enough that the model 
@@ -104,7 +106,7 @@ def concentration_string(concentration):
 
 def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
 
-   print "Running first step mode simulations for %s (with Boltzmann sampling)..." % (strand_seq)
+   print "Running %d first step mode simulations for %s (with Boltzmann sampling)..." % (trials, strand_seq)
 
    # Using domain representation makes it easier to write secondary structures.
    onedomain = Domain(name="itall",sequence=strand_seq)
@@ -161,7 +163,7 @@ def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
 
 def first_passage_dissociation(strand_seq, trials, T=25, material="DNA"):
 
-   print "Running first passage time simulations for dissociation of %s..." % (strand_seq)
+   print "Running %d first passage time simulations for dissociation of %s..." % (trials, strand_seq)
 
    # Using domain representation makes it easier to write secondary structures.
    onedomain = Domain(name="itall",sequence=strand_seq)
@@ -190,7 +192,7 @@ def first_passage_dissociation(strand_seq, trials, T=25, material="DNA"):
    times = np.array([i.time for i in dataset])
    timeouts = [i for i in dataset if not i.tag == 'SUCCESS']
    if len(timeouts)>0 :
-        print "some dissociation trajectories did not finish..."
+        print "Warning: %d of %d dissociation trajectories did not finishin allotted %g seconds..." % (len(timeouts),len(times),10.0)
         for i in timeouts :
             assert (i.type_name=='Time')
             assert (i.tag == None )
@@ -202,7 +204,7 @@ def first_passage_dissociation(strand_seq, trials, T=25, material="DNA"):
 
 def first_passage_association(strand_seq, trials, concentration, T=25, material="DNA"):
 
-   print "Running first passage time simulations for association of %s at %s..." % (strand_seq, concentration_string(concentration))
+   print "Running %d first passage time simulations for association of %s at %s..." % (trials, strand_seq, concentration_string(concentration))
 
    # Using domain representation makes it easier to write secondary structures.
    onedomain = Domain(name="itall",sequence=strand_seq)
@@ -307,7 +309,7 @@ def print_transition_dict( transition_dict, options = None ):
 
 def transition_mode_simulation(strand_seq, duration, concentration, T=25, material="DNA"):
 
-   print "Running transition mode simulations of %s at %s..." % (strand_seq, concentration_string(concentration))
+   print "Running %g seconds of transition mode simulations of %s at %s..." % (duration, strand_seq, concentration_string(concentration))
 
    # Using domain representation makes it easier to write secondary structures.
    onedomain = Domain(name="itall",sequence=strand_seq)
@@ -443,5 +445,6 @@ if __name__ == '__main__':
         ### These three are super super super slow, and did not finish all modes for me:
         # compare_hybridization(seq='TCGATTTTGTA', concentrations=[1e-3,1e-4,1e-5])  
         # compare_hybridization(seq='TCGATTTTTCGA', concentrations=[1e-3,1e-4,1e-5])
-        # compare_hybridization(seq='GCGATGCGCTGATTCA', concentrations=[1e-3,1e-4,1e-5])  # has strong hairpins... faster dissociation?
+        # compare_hybridization(seq='GCGATGCGCTGATTCA', concentrations=[1e-3,1e-4,1e-5])  # has strong hairpins... faster dissociation? not by enough!
         # compare_hybridization(seq='ACTGGCGCGTATTATCTACTG', concentrations=[1e-3,1e-4,1e-5])
+

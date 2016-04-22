@@ -12,16 +12,25 @@
 # hairpin stem length in determining whether/when secondary structure accelerates 
 # dissociation or inhibits association.
 # 
-#
 # Usage:
+#     python -i hybridization_scatterplot generate random <len> <num seqs> <data file name>
+#     python -i hybridization_scatterplot generate iso-random <len> <num seqs> <data file name>
+#     python -i hybridization_scatterplot generate structured <len> <max toe> <max stem> <num seqs> <data file name>
+#     python -i hybridization_scatterplot generate iso-structured <len> <max toe> <max stem> <num seqs> <data file name>
+#     python -i hybridization_scatterplot generate fixed-stem <len> <max toe> <stem size> <num seqs> <data file name>
+#     python -i hybridization_scatterplot generate iso-fixed-stem <len> <max toe> <stem size> <num seqs> <data file name>
+#     python -i hybridization_scatterplot plot <data file names>
+#
+# Usage examples:
 #     python -i hybridization_scatterplot.py generate random 15 1000 r15-1000
-#     python -i hybridization_scatterplot.py generate random 25 1000 r25-1000
+#     python -i hybridization_scatterplot.py generate iso-random 25 1000 ir25-1000
 #     python -i hybridization_scatterplot.py generate structured 15 5 5 100 s15-100
-#     python -i hybridization_scatterplot.py generate structured 25 8 8 100 s25-100
+#     python -i hybridization_scatterplot.py generate iso-structured 15 5 5 300 is15-300
+#     python -i hybridization_scatterplot.py generate iso-structured 25 8 8 100 is25-100
 #     python -i hybridization_scatterplot.py generate fixed-stem 15 5 4 100 f15-100
-#     python -i hybridization_scatterplot.py generate fixed-stem 25 5 8 100 f25-100
+#     python -i hybridization_scatterplot.py generate iso-fixed-stem 25 8 5 100 if25-100
 #     python -i hybridization_scatterplot.py plot r15-1000 s15-100 f15-100
-#     open scatterdata/r15-1000+s30-10+s21-100.pdf
+#     open scatterdata/r15-1000+s15-100+f15-100.pdf
 #
 
 # Reference for experimental rates:
@@ -33,6 +42,7 @@
 # Reference for coarse-grained molecular dynamics study of the same:
 #    "DNA hairpins primarily promote duplex melting rather than inhibiting hybridization"
 #    John S. Schreck, Thomas E. Ouldridge, Flavio Romano, Petr Sulc, Liam Shaw, Ard A. Louis, Jonathan P. K. Doye
+#    Nucleic Acids Research, 2015, Vol. 43, No. 13 6181-6190
 #    arXiv:1408.4401 [cond-mat.soft]  (2014)
 #    http://arxiv.org/abs/1408.4401
 
@@ -212,21 +222,15 @@ def first_step_simulation(strand_seq, num_traj, T=25, rate_method_k_or_m="Metrop
 
     # Run the simulations
 
-    print "Running first step mode simulations for %s (with Boltzmann sampling)..." % (strand_seq)
+    print "Running %d first step mode simulations for %s (with Boltzmann sampling)..." % (num_traj,strand_seq)
     o = create_setup(strand_seq, num_traj, T, rate_method_k_or_m, material)
     initialize_energy_model(o)  # Prior simulations could have been for different temperature, material, etc.
                                 # But Multistrand "optimizes" by sharing the energy model parameters from sim to sim.
                                 # So if in the same python session you have changed parameters, you must re-initialize.
     s = SimSystem(o)
     s.start()
-    dataset = o.interface.results
-
-    print
-    print "Inferred rate constants with analytical error bars:"
-    N_forward, N_reverse, kcoll, forward_kcoll, reverse_kcoll, k1, k2, k1prime, k2prime, keff, zcrit = compute_rate_constants(dataset,concentration)
-
-    return [N_forward, N_reverse, k1, k1prime, k2, k2prime, keff, zcrit, o]   
-
+    return o
+    
 
 def WC(seq):
     """Computes the Watson-Crick complement for a DNA sequence."""
@@ -261,6 +265,7 @@ def toeholds(seq, T=25, material="dna"):
     except ValueError:
         toe5len = n
         toe3len = n
+    # print "    %s = %s , toes %d and %d" % (seq, struct, toe5len, toe3len)
     return (toe5len, toe3len)
     
 def binding_dG(seq, T=25, material='dna'):
@@ -281,23 +286,61 @@ def reverse_rate(seq, kf, T=25, material='dna'):
     kr   = kf*np.exp( dG/RT )
     return kr
 
+# this just looks at struct of sense strand.  it would be better to look at both, even if they have different structures. TO DO.
+def toebinding(seq, T=25, material='dna'):
+    n = len(seq)
+    (toe5len, toe3len) = toeholds(seq, T=T, material=material)   
+    if toe5len < n:
+        toe5seq = seq[:toe5len] if toe5len > 0 else ''
+        toe3seq = seq[-toe3len:] if toe3len > 0 else ''
+        base = seq[toe5len]
+        fake_seq1 = toe5seq + base + 'GGGGTTTTCCCC' + WC(base) + toe3seq
+        fake_struct1 = '.'*toe5len + '(((((....)))))' + '.'*toe3len
+        fake_seq2 = WC(fake_seq1)
+        fake_struct2 = '.'*toe3len + '(((((....)))))' + '.'*toe5len
+        fake_struct_toe5 = '('*toe5len + '(((((....)))))' + '.'*toe3len + '+' + '.'*toe3len + '(((((....)))))' + ')'*toe5len
+        fake_struct_toe3 = '.'*toe5len + '(((((....)))))' + '('*toe3len + '+' + ')'*toe3len + '(((((....)))))' + '.'*toe5len
+        fake_struct_toes = '('*toe5len + '(((((....)))))' + '('*toe3len + '+' + ')'*toe3len + '(((((....)))))' + ')'*toe5len
+        # print "Sequence %s:  %s %s and %s %s" % (seq,fake_seq1,fake_struct1,fake_seq2,fake_struct2)
+        dG1 = nupack.energy([fake_seq1],fake_struct1,T=T,material=material)
+        dG2 = nupack.energy([fake_seq2],fake_struct2,T=T,material=material)
+        if toe5len > 0:
+            dG_toe5 = nupack.energy([fake_seq1,fake_seq2],fake_struct_toe5,T=T,material=material) - dG1 - dG2
+        else:
+            dG_toe5 = 0
+        if toe3len > 0:
+            dG_toe3 = nupack.energy([fake_seq1,fake_seq2],fake_struct_toe3,T=T,material=material) - dG1 - dG2
+        else:
+            dG_toe3 = 0
+        if toe5len > 0 and toe3len > 0:
+            dG_toes = nupack.energy([fake_seq1,fake_seq2],fake_struct_toes,T=T,material=material) - dG1 - dG2
+        else:
+            dG_toes = 0
+        return max(-dG_toe5,-dG_toe3,-dG_toes)
+    else:
+        # print "Sequence %s: no structure!" % seq
+        return -duplex_dG(seq, T=T, material=material)
+
 if __name__ == '__main__':
 
     if len(sys.argv) < 2:
         print """Usage:
               python -i hybridization_scatterplot generate random <len> <num seqs> <data file name>
+              python -i hybridization_scatterplot generate iso-random <len> <num seqs> <data file name>
               python -i hybridization_scatterplot generate structured <len> <max toe> <max stem> <num seqs> <data file name>
+              python -i hybridization_scatterplot generate iso-structured <len> <max toe> <max stem> <num seqs> <data file name>
               python -i hybridization_scatterplot generate fixed-stem <len> <max toe> <stem size> <num seqs> <data file name>
+              python -i hybridization_scatterplot generate iso-fixed-stem <len> <max toe> <stem size> <num seqs> <data file name>
               python -i hybridization_scatterplot plot <data file names>
               """
         sys.exit()
 
     if sys.argv[1] == 'generate':
-        if sys.argv[2] == 'random' and len(sys.argv) == 6:
+        if sys.argv[2] in ['random','iso-random'] and len(sys.argv) == 6:
             L = int(sys.argv[3])
             N = int(sys.argv[4])
             filename = sys.argv[5]
-        elif (sys.argv[2] == 'structured' or sys.argv[2] == 'fixed-stem') and len(sys.argv) == 8:
+        elif sys.argv[2] in ['structured','iso-structured','fixed-stem','iso-fixed-stem'] and len(sys.argv) == 8:
             L = int(sys.argv[3])
             toemax = int(sys.argv[4])
             stemmax = int(sys.argv[5])
@@ -305,8 +348,13 @@ if __name__ == '__main__':
             filename = sys.argv[7]
         else:
             print """Usage:
-              python -i hybridization_scatterplot generate [random <len> | structured <len> <max toe> <max stem>] <num seqs> <data file postfix>
-              python -i hybridization_scatterplot plot <data file postfixes>
+              python -i hybridization_scatterplot generate random <len> <num seqs> <data file name>
+              python -i hybridization_scatterplot generate iso-random <len> <num seqs> <data file name>
+              python -i hybridization_scatterplot generate structured <len> <max toe> <max stem> <num seqs> <data file name>
+              python -i hybridization_scatterplot generate iso-structured <len> <max toe> <max stem> <num seqs> <data file name>
+              python -i hybridization_scatterplot generate fixed-stem <len> <max toe> <stem size> <num seqs> <data file name>
+              python -i hybridization_scatterplot generate iso-fixed-stem <len> <max toe> <stem size> <num seqs> <data file name>
+              python -i hybridization_scatterplot plot <data file names>
               """
             sys.exit()
         if not set(filename) <= set('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-'): # don't allow crazy symbols
@@ -322,35 +370,43 @@ if __name__ == '__main__':
             filenames.append(fn)
 
     print
-    if sys.argv[1] == 'generate' and (sys.argv[2] == 'random' or sys.argv[2] == 'structured' or sys.argv[2] == 'fixed-stem'):    
+    if sys.argv[1] == 'generate' and (sys.argv[2] in ['random','iso-random','structured','iso-structured','fixed-stem','iso-fixed-stem']):   
         
-        # first choose the sequences
-        if sys.argv[2] == 'random':
-            # generate completely random sequences but select them to have similar duplex energies
+        if 'iso' in sys.argv[2]:
+            Ngenerate = 100*N  # we'll generate many sequences and choose the ones with the closest-to-average duplex energy
             print "Generating %d sequences each of length %d, with similar duplex energies..." % (N, L)
-            candidates = [ randomseq(L,'ACTG') for i in range(100*N) ]   # we'll choose the closest among these...
+        else:
+            Ngenerate = N
+
+        # first choose the sequences
+        if 'random' in sys.argv[2]:
+            candidates = [ randomseq(L,'ACTG') for i in range(Ngenerate) ]  
+        elif 'structured' in sys.argv[2] or 'fixed-stem' in sys.argv[2]:    
+            # generate sequences according to domain-level specifications with a range of hairpin stem and toehold lengths
+            # (L,am,bm,cm) = (30,6,8,6)   # up to size 6+2*8+6 = 28 nt in the toeholds and stems.
+            # (L,am,bm,cm) = (21,5,6,3)    # up to size 5+2*6+3 = 20 nt in the toeholds and stems.
+            (am,bm,cm) = (toemax,stemmax,toemax)
+            candidates = []
+            for i in range(Ngenerate):
+                d = 0
+                while d <= 0:
+                    a = random.randint(1,am) if sys.argv[2] == 'structured' else random.randint(min(2,am),am)
+                    b = random.randint(1,bm) if sys.argv[2] == 'structured' else bm
+                    c = random.randint(1,cm) if sys.argv[2] == 'structured' else random.randint(min(2,cm),cm)
+                    d = L-a-2*b-c
+                stem = randomseq(b)
+                #seq  = randomseq(a,'ATC')+stem+randomseq(d,'T')+WC(stem)+randomseq(c,'ATC')   # tends to have different duplex_dG, which confounds analysis
+                seq  = randomseq(a,'ATCG')+stem+randomseq(d,'ACTG')+WC(stem)+randomseq(c,'ATCG')
+                candidates.append(seq)
+
+        if 'iso' in sys.argv[2]:  
             candidates = list(set(candidates))  # get rid of duplicates
             dGs = [ duplex_dG(seq) for seq in candidates ]
             mean_dG = np.mean(dGs)
             dist_dG = [ abs(dG-mean_dG) for dG in dGs ]
             ranked_candidates = sorted( zip(candidates, dist_dG), key = lambda z: z[1])
             candidates = [ s for (s,d) in ranked_candidates[0:N] ]
-        elif (sys.argv[2] == 'structured' or sys.argv[2] == 'fixed-stem'):    
-            # generate sequences according to domain-level specifications with a range of hairpin stem and toehold lengths
-            # (L,am,bm,cm) = (30,6,8,6)   # up to size 6+2*8+6 = 28 nt in the toeholds and stems.
-            # (L,am,bm,cm) = (21,5,6,3)    # up to size 5+2*6+3 = 20 nt in the toeholds and stems.
-            (am,bm,cm) = (toemax,stemmax,toemax)
-            candidates = []
-            for i in range(N):
-                d = 0
-                while d <= 0:
-                    a = random.randint(0,am) if sys.argv[2] == 'structured' else random.randint(min(2,am),am)
-                    b = random.randint(0,bm) if sys.argv[2] == 'structured' else bm
-                    c = random.randint(0,cm) if sys.argv[2] == 'structured' else random.randint(min(2,cm),cm)
-                    d = L-a-2*b-c
-                stem = randomseq(b)
-                seq  = randomseq(a,'ATC')+stem+randomseq(d,'T')+WC(stem)+randomseq(c,'ATC')
-                candidates.append(seq)
+
 
         # then evaluate the sequences...
         results=[]
@@ -360,19 +416,49 @@ if __name__ == '__main__':
             print "%d: Simulating %s DNA strand at 25 C:  %s with toeholds %d and %d, stem %d, ss dG = %g and %g, ds dG = %g " % \
                     ( i,sys.argv[2],seq,toeholds(seq)[0],toeholds(seq)[1],stemsize(seq),strand_dG(seq),strand_dG(WC(seq)),duplex_dG(seq) )
 
-            N_forward=0
+            # Accumulate statistics from all the runs, until enough succesful simulations are collected.
+            N_forward_total=0
+            N_reverse_total=0
+            total_time_forward=0.0
+            total_time_reverse=0.0
+            k1_net = 0.0
+            k1prime_net = 0.0
             trials=30
-            while N_forward < 25:   # this is a bit wasteful, but "only" by a factor of about 1.5.  Aims for 20% error bars on k1.
-                data = first_step_simulation(seq, trials, concentration=50e-9, T=25, material="DNA") 
-                N_forward=data[0]
-                trials*=3
+            while N_forward_total < 25:   # this is a bit wasteful, but "only" by a factor of about 1.5.  Aims for 20% error bars on k1.
+                print
+                o = first_step_simulation(seq, trials, concentration=50e-9, T=25, material="DNA") 
+                print "Inferred rate constants with analytical error bars (this batch only):"
+                N_forward, N_reverse, kcoll, forward_kcoll, reverse_kcoll, k1, k2, k1prime, k2prime, keff, zcrit = compute_rate_constants(o.interface.results,50e-9)
 
-            (N_forward, N_reverse, k1, k1prime, k2, k2prime) = data[0:6]   # omit the concentration-dependent k_eff, z_crit and the copy of the options object.
-            results.append([seq]+data[0:6])
+                # update cumulative averages
+                total_time_forward += float(N_forward)/k2 if N_forward > 0 else 0
+                total_time_reverse += float(N_reverse)/k2prime if N_reverse > 0 else 0
+                if N_forward_total > 0:
+                    k1_net = (N_forward_total * k1_net + N_forward * k1) / (N_forward_total + N_forward) if N_forward > 0 else k1_net
+                else:
+                    k1_net = (N_forward * k1) / N_forward if N_forward > 0 else k1_net
+                if N_reverse_total > 0:
+                    k1prime_net = (N_reverse_total * k1prime_net + N_reverse * k1prime) / (N_reverse_total + N_reverse) if N_reverse > 0 else k1prime_net
+                else:
+                    k1prime_net = (N_reverse * k1prime) / N_reverse if N_reverse > 0 else k1prime_net
+                N_forward_total += N_forward
+                N_reverse_total += N_reverse
+
+                if trials < 500000:  # memory problems running huge numbers of trials.  maybe we need to do better:  compress dataset incrementally...?
+                    trials*=2
+
+            # use cumulative averages to determine overall statistics
+            k2_net = N_forward_total / total_time_forward
+            k2prime_net = N_reverse_total / total_time_reverse
+            print " %s ==> N_forward = %d, N_reverse = %d, k1 = %g, k1_prime = %g, k2 = %g, k2prime = %g" %  \
+                (seq, N_forward_total, N_reverse_total, k1_net, k1prime_net, k2_net, k2prime_net)
+
+            results.append([seq, N_forward_total, N_reverse_total, k1_net, k1prime_net, k2_net, k2prime_net])
 
         # now save the results for later...
         with open("scatterdata/" + filename + ".pkl", "wb") as f:
             pickle.dump(results, f)
+        pdfname = filename
 
     elif sys.argv[1] == 'plot': 
 
@@ -382,13 +468,15 @@ if __name__ == '__main__':
             with open("scatterdata/" + fn + ".pkl", "rb") as f:
                 these_results = pickle.load(f)
             results += these_results
-        # some old data files contain only (seq,kf); newer ones contains (seq, Nf, Nr, k1, k1p, k2, k2p); but here we only need kf == k1
-        results = [ ( (data[0],data[3]) if len(data)==7 else (data[0],data[1]) ) for data in results ]  
         pdfname = "+".join(filenames)
             
     else:
         print "Didn't understand args."
         sys.exit()
+
+    # some old data files contain only (seq,kf); newer ones contains (seq, Nf, Nr, k1, k1p, k2, k2p); but here we only need kf == k1
+    results = [ ( (data[0],data[3]) if len(data)==7 else (data[0],data[1]) ) for data in results ]  
+
 
     import matplotlib.pyplot as plt
     from matplotlib.backends.backend_pdf import PdfPages
@@ -397,8 +485,10 @@ if __name__ == '__main__':
     print
     print "Calculating stats on database of simulated strands..."
     toe_adj     = 2
-    toes        = [ min(max(max(toeholds(seq)), sum(toeholds(seq))-toe_adj),17) for (seq,kf) in results ]
-    stems       = [ stemsize(seq) for (seq,kf) in results ]
+    toes        = [ min(max(max(toeholds(seq)), sum(toeholds(seq))-toe_adj),17) for (seq,kf) in results ]  # effective length of toeholds
+    stems       = [ stemsize(seq) for (seq,kf) in results ]                                                # length of duplex stem
+    toe_dGs     = [ toebinding(seq) for (seq,kf) in results ]                               # (positive number, 1 or 2) for best energy of binding by 1 or 2 toeholds
+    stem_dGs    = [ max( -strand_dG(seq), -strand_dG(WC(seq)) ) for (seq,kf) in results ]   # positive number, whichever is stronger
     binding_dGs = [ binding_dG(seq) for (seq,kf) in results ]
     duplex_dGs  = [ duplex_dG(seq) for (seq,kf) in results ]
     strand_dGs  = [ strand_dG(seq) + strand_dG(WC(seq)) for (seq,kf) in results ]   
@@ -407,24 +497,34 @@ if __name__ == '__main__':
     log_kfs     = [ np.log10(kf) for (seq,kf) in results]  # forward rates
     log_krs     = [ np.log10(kr) for kr in krs]            # reverse rates
 
+    extremes = ''
+    i = np.argmax(kfs)
+    extremes += "\nFastest association: %s at %g /M/s" % (results[i][0],kfs[i])
+    i = np.argmin(kfs)
+    extremes += "\nSlowest association: %s at %g /M/s" % (results[i][0],kfs[i])
+    i = np.argmax(krs)
+    extremes += "\nFastest dissociation: %s at %g /s" % (results[i][0],krs[i])
+    i = np.argmin(krs)
+    extremes += "\nSlowest dissociation: %s at %g /s" % (results[i][0],krs[i])
+
     with PdfPages("scatterdata/"+pdfname+".pdf") as pdf:
         print "Drawing plots, saving to 'scatterdata/" + pdfname + ".pdf'..." 
 
         # Two subplots, the axes array is 1-d
         plt.figure(1)
-        plt.subplots_adjust( hspace=0.5 )
+        plt.subplots_adjust( hspace=1.0)
         plt.subplot(211)
         n, bins, patches = plt.hist(log_kfs, 20, normed=1, facecolor='green', alpha=0.75)
         plt.title("Association and dissociation rate distributions")
-        plt.ylabel("frequency of association rates",fontsize='larger')
+        plt.ylabel("frequency of\nassociation rates",fontsize='large')
         plt.yticks(fontsize='larger',va='bottom')
-        plt.xlabel("Log10 rate constant kf (/M/s)",fontsize='larger')
+        plt.xlabel("Log10 rate constant kf (/M/s)" + extremes,fontsize='large')
         plt.xticks(fontsize='larger')
         plt.subplot(212)
         n, bins, patches = plt.hist(log_krs, 20, normed=1, facecolor='green', alpha=0.75)
-        plt.ylabel("frequency of dissociation rates",fontsize='larger')
+        plt.ylabel("frequency of\ndissociation rates",fontsize='large')
         plt.yticks(fontsize='larger',va='bottom')
-        plt.xlabel("Log10 rate constant kr (/s)",fontsize='larger')
+        plt.xlabel("Log10 rate constant kr (/s)",fontsize='large')
         plt.xticks(fontsize='larger')
         pdf.savefig()
         plt.close()
@@ -498,9 +598,11 @@ if __name__ == '__main__':
 
         toes        = np.array(toes)
         stems       = np.array(stems)
+        toe_dGs     = np.array(toe_dGs)       # max of the MFE difference for toehold binding configurations (i.e. positive number)
+        stem_dGs    = np.array(stem_dGs)      # max of the two (negated) ss pfuncs (i.e. positive number)
         binding_dGs = np.array(binding_dGs)
         duplex_dGs  = np.array(duplex_dGs)
-        strand_dGs  = np.array(strand_dGs)
+        strand_dGs  = np.array(strand_dGs)    # sum of both ss pfuncs  (negative number)
         kfs         = np.array(kfs)
         krs         = np.array(krs)
         log_kfs     = np.array(log_kfs)
@@ -540,17 +642,34 @@ if __name__ == '__main__':
         pdf.savefig()
         plt.close()
 
+        # Do the rates depend upon toehold strengths?
+        plt.figure(1)
+        plt.subplot(211)
+        plt.scatter(toe_dGs, log_kfs, s=[10*s for s in stems], color=toecolors, alpha=0.5)
+        plt.title("Association and dissociation rates (double-toeholds are blue)")
+        plt.ylabel("Log10 rate constant kf (/M/s) \n",fontsize='larger')
+        plt.yticks(fontsize='larger',va='bottom')
+        plt.subplot(212)
+        plt.scatter(toe_dGs, log_krs, s=[10*s for s in stems], color=toecolors, alpha=0.5)
+        plt.ylabel("Log10 rate constant kr (/s)",fontsize='larger')
+        plt.yticks(fontsize='larger',va='bottom')
+        plt.xlabel("toehold binding strength (kcal/mol)",fontsize='larger')
+        plt.xticks(fontsize='larger')
+        pdf.savefig()
+        plt.close()
+
+
         r1 = np.array( [ (random.random()-0.5) / 2.0 for i in range(len(toes)) ] )  # jitter to avoid super-positioning
         r2 = np.array( [ (random.random()-0.5) / 2.0 for i in range(len(toes)) ] )  # jitter to avoid super-positioning
 
-        # Not quite a contour plot, but can we illustrate kf as a function 
+        # Not quite a contour plot, but can we illustrate kf as a function of toehold length and stem length
         plt.figure(1)
         plt.subplot(111)
         plt.scatter(toes+r1, stems+r2, s=50, c = log_kfs, alpha=0.5)
         # plt.gray()
         cb=plt.colorbar()
         cb.set_label('log10 of kf')
-        plt.title("Association rates plotted in toehold-length vs stem-length space\n")
+        plt.title("Association rates in toehold-length vs stem-length space\n")
         plt.ylabel("stem length",fontsize='larger')
         plt.yticks(fontsize='larger',va='bottom')
         plt.xlabel("effective toehold length",fontsize='larger')
@@ -564,10 +683,107 @@ if __name__ == '__main__':
         # plt.gray()
         cb=plt.colorbar()
         cb.set_label('log10 of kr')
-        plt.title("Disassociation rates plotted in toehold-length vs stem-length space\n")
+        plt.title("Disassociation rates in toehold-length vs stem-length space\n")
         plt.ylabel("stem length",fontsize='larger')
         plt.yticks(fontsize='larger',va='bottom')
         plt.xlabel("effective toehold length",fontsize='larger')
         plt.xticks(fontsize='larger')
         pdf.savefig()
         plt.close()
+
+
+        # Not quite a contour plot, but can we illustrate kf as a function of toehold strength and stem strength
+        plt.figure(1)
+        plt.subplot(111)
+        plt.scatter(toe_dGs, stem_dGs, s=50, c = log_kfs, alpha=0.5)
+        # plt.gray()
+        cb=plt.colorbar()
+        cb.set_label('log10 of kf')
+        plt.title("Association rates in toehold-strength vs stem-strength space\n")
+        plt.ylabel("stem strength",fontsize='larger')
+        plt.yticks(fontsize='larger',va='bottom')
+        plt.xlabel("toehold strength",fontsize='larger')
+        plt.xticks(fontsize='larger')
+        pdf.savefig()
+        plt.close()
+
+        plt.figure(1)
+        plt.subplot(111)
+        plt.scatter(toe_dGs, stem_dGs, s=50, c = log_krs, alpha=0.5)
+        # plt.gray()
+        cb=plt.colorbar()
+        cb.set_label('log10 of kr')
+        plt.title("Disassociation rates in toehold-strength vs stem-strength space\n")
+        plt.ylabel("stem strength",fontsize='larger')
+        plt.yticks(fontsize='larger',va='bottom')
+        plt.xlabel("toehold strength",fontsize='larger')
+        plt.xticks(fontsize='larger')
+        pdf.savefig()
+        plt.close()
+
+        number_distinct_lengths = len(set([len(seq) for (seq,kf) in results]))
+        print "duplex dG standard deviation = %g" % np.std(duplex_dGs)
+        if number_distinct_lengths == 1 and np.std(duplex_dGs) < .2:
+            log_fastest_assoc = np.max(log_kfs)
+            log_slowest_dissoc = np.min(log_krs)
+            dissoc_speed_ups = log_krs - log_slowest_dissoc
+            assoc_slow_downs = log_fastest_assoc - log_kfs
+            updown_range = round(max(max(dissoc_speed_ups),max(assoc_slow_downs)))
+
+            # Does secondary structure primarily speed up dissociation rather than slow down association?
+            plt.figure(1)
+            plt.subplot(111)
+            plt.scatter(dissoc_speed_ups, assoc_slow_downs, s=20, alpha=0.5)
+            plt.plot([0, updown_range],[0,updown_range],'r--')
+            plt.title("Secondary structure slows down association \n or speeds up dissociation?")
+            plt.ylabel("Log10 slow-down of kf (relative to fastest)",fontsize='larger')
+            plt.yticks(fontsize='larger',va='bottom')
+            plt.xlabel("Log10 speed-up of kr (relative to slowest)",fontsize='larger')
+            plt.xticks(fontsize='larger')
+            pdf.savefig()
+            plt.close()
+
+            # Does secondary structure primarily speed up dissociation rather than slow down association?
+            plt.figure(1)
+            plt.subplot(111)
+            plt.scatter(dissoc_speed_ups, assoc_slow_downs, s=20, c = stem_dGs, alpha=0.5)
+            plt.plot([0, updown_range],[0,updown_range],'r--')
+            cb=plt.colorbar()
+            cb.set_label('stem strength (kcal/mol)')
+            plt.title("Secondary structure slows down association \n or speeds up dissociation?")
+            plt.ylabel("Log10 slow-down of kf (relative to fastest)",fontsize='larger')
+            plt.yticks(fontsize='larger',va='bottom')
+            plt.xlabel("Log10 speed-up of kr (relative to slowest)",fontsize='larger')
+            plt.xticks(fontsize='larger')
+            pdf.savefig()
+            plt.close()
+
+            # Does secondary structure primarily speed up dissociation rather than slow down association?
+            plt.figure(1)
+            plt.subplot(111)
+            plt.scatter(dissoc_speed_ups, assoc_slow_downs, s=20, c = toe_dGs, alpha=0.5)
+            plt.plot([0, updown_range],[0,updown_range],'r--')
+            cb=plt.colorbar()
+            cb.set_label('toehold strength (kcal/mol)')
+            plt.title("Secondary structure slows down association \n or speeds up dissociation?")
+            plt.ylabel("Log10 slow-down of kf (relative to fastest)",fontsize='larger')
+            plt.yticks(fontsize='larger',va='bottom')
+            plt.xlabel("Log10 speed-up of kr (relative to slowest)",fontsize='larger')
+            plt.xticks(fontsize='larger')
+            pdf.savefig()
+            plt.close()
+
+            # Does secondary structure primarily speed up dissociation rather than slow down association?
+            plt.figure(1)
+            plt.subplot(111)
+            plt.scatter(dissoc_speed_ups, assoc_slow_downs, s=20, c = stem_dGs - toe_dGs, alpha=0.5)
+            plt.plot([0, updown_range],[0,updown_range],'r--')
+            cb=plt.colorbar()
+            cb.set_label('stem strength - toehold strength (kcal/mol)')
+            plt.title("Secondary structure slows down association \n or speeds up dissociation?")
+            plt.ylabel("Log10 slow-down of kf (relative to fastest)",fontsize='larger')
+            plt.yticks(fontsize='larger',va='bottom')
+            plt.xlabel("Log10 speed-up of kr (relative to slowest)",fontsize='larger')
+            plt.xticks(fontsize='larger')
+            pdf.savefig()
+            plt.close()

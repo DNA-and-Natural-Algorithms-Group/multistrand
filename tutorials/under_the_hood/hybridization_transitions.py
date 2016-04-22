@@ -40,15 +40,15 @@
 #   python -i hybridization_first_step_mode.py DNA TCTACTTCTACTATAC 25 1e-3 1000
 #      kf = k1 = 77.7 x 10^6 /M/s     k_eff =  23.6 x 10^6 /M/s      1/(k_eff * c ) =  42.4 usec
 #      dG = -18.76 - (-0.22 + -0.10) = -18.44  kcal/mol
-#      kr = kf exp(-18.44 / 0.5924) = 8.43 days
+#      kr = kf exp(-18.44 / 0.5924) ==> 8.43 days
 #   python -i hybridization_first_step_mode.py DNA ACTCCACATTGTCTTTATATTGTGACAATGAAGCGT 25 1e-3 1000
 #      kf = k1 = 7.4 x 10^6 /M/s     k_eff = 7.1 x 10^6 /M/s      1/(k_eff * c ) = 141 usec
 #      dG = -52.87 - (-8.45 + -8.33) = -36.10  kcal/mol
-#      kr = kf exp(-36.10 / 0.5924) = 4.55 x 10^14 days
+#      kr = kf exp(-36.10 / 0.5924) ==> 4.55 x 10^14 days
 #   python -i hybridization_first_step_mode.py DNA CATTGTAACTGGCGATGCTACCTGTATTTTTACAGGTAGCATCGCCCCATTAACTC 25 1e-3 1000
 #      kf = k1 = 54.2 x 10^6 /M/s     k_eff =  8.6 x 10^6 /M/s      1/(k_eff * c ) =  116 usec
 #      dG = -86.42 - (-25.08 + -24.72) = -36.6  kcal/mol
-#      kr = kf exp(-36.6 / 0.5924) =  1.4 x 10^14 days
+#      kr = kf exp(-36.6 / 0.5924) ==>  1.4 x 10^14 days
 #
 
 
