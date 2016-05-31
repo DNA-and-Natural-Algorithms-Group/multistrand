@@ -767,6 +767,10 @@ void StrandOrdering::replaceOpenLoop( Loop *oldLoop, Loop *newLoop )
   assert(0); // no loop matched, that's bad. 
 }
 
+
+// FD: This returns a list of bases that are unpaired and exposed?
+// FD: The iteration seems to be over the `loops' of the structure, it is unclear if a single NN
+// FD: counts as a loop (thesis seems to suggest so).
 exterior_bases *StrandOrdering::getExteriorBases( void )
 {
   orderinglist *traverse = NULL;

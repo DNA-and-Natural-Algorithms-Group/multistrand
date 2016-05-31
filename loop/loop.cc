@@ -8,7 +8,7 @@
 #include "loop.h"
 
 EnergyModel *Loop::energyModel_Primary = NULL;
-extern int baseLookup(char base);
+//extern int baseLookup(char base);	// FD unused
 
 inline double Loop::getEnergy( void ) 
 {
@@ -279,7 +279,7 @@ double Loop::generateDeleteMoveRate( Loop *start, Loop *end )
   double new_energy,old_energy;
   
   
-  if( start->identity == 'S' && end->identity == 'S' )
+  if( start->identity == 'S' && end->identity == 'S' )		// FD: these 'S' codes mean something. Probably Stack loop.
     {
       StackLoop *start_ = (StackLoop *)start, *end_ = (StackLoop *)end;
       Loop *start_extra, *end_extra;
@@ -3230,6 +3230,8 @@ double StackLoop::doChoice( Move *move, Loop **returnLoop )
   // currently no moves in stackloop, in the future will include deletion moves
 }
 
+
+//
 char *StackLoop::getLocation( Move *move, int index )
 {
   if( move->getType() & MOVE_CREATE ) // then something's wrong!
@@ -5629,18 +5631,6 @@ void OpenLoop::generateMoves( void )
   for( loop3 = 0; loop3 <= numAdjacent-2; loop3++ ) // The last 2 entries are not needed as neither have higher numbered non-adjacent sections.
     for( loop4 = loop3+2; loop4 <= numAdjacent; loop4++ )
       {
-        /*	int temp1,temp2;
-            if( loop3 == 0 )
-            {
-            temp1 = 0; 
-            temp2 = sidelen[loop3]-1;
-            }
-            else
-            {
-            temp1 = 1;
-            temp2 = sidelen[loop3];
-            }*/
-        //	for( loop = temp1; loop <= temp2 ; loop++ ) // this may need to start at 0 (in some cases), check for indexing problems. 
         for( loop = 1; loop <= sidelen[loop3]; loop++ ) // new version with all sequences in openloop starting at 1.
           for( loop2 = 1; loop2 <= sidelen[loop4]; loop2++ )
             {

@@ -95,10 +95,6 @@ complex_item::complex_item( char *struc, class identlist *strands, class complex
     {
       *strchr(structure,'_') = '+';
     }
-  // while( strchr( structure, '+' ) != NULL )
-  //{
-  //  *strchr(structure,'+') = '.';
-  //}
   strand_ids = strands;
   next = old;
   type = STOPTYPE_STRUCTURE;
@@ -117,10 +113,6 @@ complex_item::complex_item( char *struc, class identlist *strands, class complex
 	{
 	  *strchr(structure,'_') = '+';
 	}
-      //      while( strchr( structure, '+' ) != NULL )
-      //{
-      //  *strchr(structure,'+') = '.';
-      //}
     }
   strand_ids = strands;
   next = old;
@@ -139,10 +131,6 @@ complex_item::complex_item( char *struc, class identlist *strands, class complex
 	{
 	  *strchr(structure,'_') = '+';
 	}
-      //      while( strchr( structure, '+' ) != NULL )
-      //{
-      //  *strchr(structure,'+') = '.';
-      //}
     }
   strand_ids = strands;
   next = old;

@@ -253,6 +253,10 @@ void SimulationSystem::SimulationLoop_Standard( void )
 		// /after/ the max sim time is hit is actually the (more)
 		// unstable state it transitioned to! 
 
+		// FD: Mathematically, this is also the right move, because
+		// the system is in the previous state when the time-bound passed.
+		// See also the memoryless property of Markov chains.
+
 		complexList->doBasicChoice( rchoice, stime );
 		rate = complexList->getTotalFlux();
 

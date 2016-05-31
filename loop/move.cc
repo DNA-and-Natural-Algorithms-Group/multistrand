@@ -15,6 +15,8 @@ Move::Move( void )
   affected[0] = affected[1] = NULL;
 }
 
+//FD: this needs to be commented. Not clear what these vars mean.
+
 Move::Move( int mtype, double mrate, Loop *affected_1, int index1, int index2)
 {
   type = mtype;

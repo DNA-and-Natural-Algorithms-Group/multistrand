@@ -8,6 +8,9 @@
 #ifndef __MOVE_H__
 #define __MOVE_H__
 
+
+// FD: THESE NEED EXPLAINATION
+
 #define MOVE_INVALID 0
 #define MOVE_CREATE  1
 #define MOVE_DELETE  2
@@ -55,8 +58,6 @@ class MoveContainer
   MoveContainer( void );
   virtual ~MoveContainer( void );
   virtual void addMove( Move *newmove ) = 0;
-  // virtual void deleteMove( Move *oldmove ) = 0;
-  // virtual void deleteMove( MoveContainer *oldcontainer ) = 0;
   double getRate( void );
   virtual void resetDeleteMoves( void ) = 0;
   virtual Move *getChoice( double *rnd ) = 0;

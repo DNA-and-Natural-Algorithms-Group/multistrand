@@ -191,7 +191,7 @@ class OpenLoop : public Loop
   void printMove( Loop *comefrom , char *structure_p, char *seq_p );
   char *getLocation( Move *move, int index );
   char *verifyLoop( char *incoming_sequence, int incoming_pairtype, Loop *from );
-  //  void addAdjacent( Loop *loopToAdd );
+
 
 
   // OpenLoop::getFreeBases returns the base composition information for the
