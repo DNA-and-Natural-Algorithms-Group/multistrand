@@ -429,10 +429,6 @@ OpenLoop *StrandOrdering::checkIDList( class identlist * stoplist, int id_count 
 int StrandOrdering::checkIDBound( char *id )
 {
   orderinglist *traverse = first;
-  //class identlist *id_traverse = stoplist;
-  //class OpenLoop *thingtoreturn;
-  //int num_matched = 0;
-  //if( id_count != count ) return NULL;
   
   int loop;
   int flag;
