@@ -727,9 +727,15 @@ double StrandComplex::getEnergy( void )
 
 void StrandComplex::moveDisplay( void )
 {
-  beginLoop->firstGen( NULL );
+
+	printf("Generating all moves in the complex.  \n");
+
+	beginLoop->firstGen( NULL );
+
+	printf("Trying to display all the moves.  \n");
+
   // FIXME: The following line prolly needs a valid second parameter.
-  //  beginLoop->moveDisplay( NULL, structure, sequence );
+  // beginLoop->moveDisplay( NULL, structure, sequence );
 }
 
 Move *StrandComplex::getChoice( double *rand_choice )

@@ -37,7 +37,7 @@ class StrandComplex
   void cleanup( void );
 
 
-  // information retreival functions
+  // information retrieval functions
   double getTotalFlux( void ); // returns total flux for all moves within the complex
   int getStrandCount( void ); // # of strands in the complex.
   double getEnergy( void ); // returns the energy of the complex
@@ -63,7 +63,6 @@ class StrandComplex
  private:
   StrandOrdering *ordering;
   Loop *beginLoop;
-  //MoveTree *kineticMoves;
   double totalFlux; // Total flux contained within this complex.
 
 };

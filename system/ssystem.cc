@@ -135,11 +135,6 @@ void SimulationSystem::InfoInitial( void )
 //  rate = complexList->getTotalFlux();
 //  printf("The totalFlux is %f \n", rate);
 
-
-  complexList->printComplexList(0);
-
-  complexList->printComplexList(1);
-
   complexList->printComplexList(2);
 
 
