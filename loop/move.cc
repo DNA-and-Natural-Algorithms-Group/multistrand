@@ -15,7 +15,7 @@ Move::Move( void )
   affected[0] = affected[1] = NULL;
 }
 
-//FD: this needs to be commented. Not clear what these vars mean, or what types of moves they are
+//FD: this needs to be commented. Not clear what these vars mean, or what types of moves they are. Not clear if there is a correspondance between mtype and the input treatment.
 
 Move::Move( int mtype, double mrate, Loop *affected_1, int index1, int index2)
 {
@@ -127,20 +127,20 @@ Loop *Move::doChoice( void )
   else return NULL;
 }
 
-/* MoveTree info */ 
-MoveTree::~MoveTree( void )
-{
-  /* destruction of a move tree node does imply destruction of all subnodes */
-  if( left != NULL )
-    delete left;
-  if( right != NULL )
-    delete right;
-}
+///* MoveTree info */
+//MoveTree::~MoveTree( void )
+//{
+//  /* destruction of a move tree node does imply destruction of all subnodes */
+//  if( left != NULL )
+//    delete left;
+//  if( right != NULL )
+//    delete right;
+//}
 
 
 /* MoveList */ 
 
-MoveList::MoveList( int initial_size )
+MoveList::MoveList( int initial_size )		// FD: Why use generic data structure when you can roll your own???
 {
   totalrate = 0.0;
   moves_size = initial_size;
@@ -218,6 +218,14 @@ void MoveList::resetDeleteMoves( void )
     }
   del_moves_index = 0;
 }
+
+void MoveList::printMoves( void)
+{
+
+	printf("Trying to print moves list");
+
+}
+
 
 void MoveList::addMove( Move *newmove )
 {

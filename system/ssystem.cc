@@ -129,12 +129,18 @@ void SimulationSystem::InfoInitial( void )
   printf("Initializing list now \n");
   complexList->initializeList();
 
-  double rate =  complexList->getJoinFlux();
-  printf("The joinFlux is %f \n", rate);
+//  double rate =  complexList->getJoinFlux();
+//  printf("The joinFlux is %f \n", rate);
 
-  rate = complexList->getTotalFlux();
-  printf("The totalFlux is %f \n", rate);
+//  rate = complexList->getTotalFlux();
+//  printf("The totalFlux is %f \n", rate);
 
+
+  complexList->printComplexList(0);
+
+  complexList->printComplexList(1);
+
+  complexList->printComplexList(2);
 
 
 }

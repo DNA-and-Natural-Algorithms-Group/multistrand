@@ -29,7 +29,7 @@ StrandComplex::StrandComplex( char *seq, char *struc )
   //  exteriorBases.A = exteriorBases.T = exteriorBases.C = exteriorBases.G = 0;
 
   beginLoop = NULL;
-  kineticMoves = NULL;
+  //kineticMoves = NULL;
   ordering = new StrandOrdering( tempseq, tempstruct, tempcseq);
   delete[] tempseq;
   delete[] tempstruct;
@@ -55,7 +55,7 @@ StrandComplex::StrandComplex( char *seq, char *struc, class identlist *id_list )
   //  exteriorBases.A = exteriorBases.T = exteriorBases.C = exteriorBases.G = 0;
 
   beginLoop = NULL;
-  kineticMoves = NULL;
+  //kineticMoves = NULL;
   ordering = new StrandOrdering( tempseq, tempstruct, tempcseq, id_list);
   delete[] tempseq;
   delete[] tempstruct;
@@ -69,7 +69,7 @@ StrandComplex::StrandComplex( StrandOrdering *newOrdering )
 {
   ordering = newOrdering;
   beginLoop = ordering->getLoop();
-  kineticMoves = NULL;
+  //kineticMoves = NULL;
   totalFlux = 0.0;
 }
 

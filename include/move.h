@@ -67,16 +67,16 @@ class MoveContainer
 
 };
 
-// not using this storage method yet... refer to the list...
-class MoveTree : public Move
-{
- public:
-  ~MoveTree( void );
-
- private:
-  Move *left, *right; // also an uplink?
-  double totalrate;
-};
+//// not using this storage method yet... refer to the list...
+//class MoveTree : public Move
+//{
+// public:
+//  ~MoveTree( void );
+//
+// private:
+//  Move *left, *right; // also an uplink?
+//  double totalrate;
+//};
 
 class MoveList : public MoveContainer
 {
@@ -87,7 +87,7 @@ class MoveList : public MoveContainer
   Move *getChoice( double *rnd );
   Move *getMove( Move *iterator );
   void resetDeleteMoves( void );
-  //  friend class Move;
+  void printMoves(void );
  private:
   Move **moves;
   Move **del_moves;

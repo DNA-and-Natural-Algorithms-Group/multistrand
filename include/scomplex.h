@@ -63,7 +63,7 @@ class StrandComplex
  private:
   StrandOrdering *ordering;
   Loop *beginLoop;
-  MoveTree *kineticMoves;
+  //MoveTree *kineticMoves;
   double totalFlux; // Total flux contained within this complex.
 
 };
