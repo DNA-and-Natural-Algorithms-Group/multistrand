@@ -45,7 +45,7 @@ class SComplexList
 };
 
 
-class SComplexListEntry
+class SComplexListEntry		// FD: Why use generic datastructures when you can make your own???
 {
  public:
   SComplexListEntry( StrandComplex *newComplex, int newid );

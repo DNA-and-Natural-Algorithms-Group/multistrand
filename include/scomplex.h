@@ -20,7 +20,6 @@ struct exterior_bases
 #include "strandordering.h"
 #include "optionlists.h"
 
-//#include "movetree.h"
 
 
 
@@ -62,12 +61,7 @@ class StrandComplex
   static StrandComplex *performComplexJoin( StrandComplex **complexes, char *types, int *index);
 
  private:
-  // Strand **strandtable;
-  //  char *charsequence, *sequence, *structure; // character representation of the strand sequence and structure, structure is in dot-paren notation for output reference.
-  // the above are being removed due to the new StrandOrdering object.
-  //  char *tempseq, *tempstruct;
   StrandOrdering *ordering;
-  //  struct exterior_bases exteriorBases;
   Loop *beginLoop;
   MoveTree *kineticMoves;
   double totalFlux; // Total flux contained within this complex.

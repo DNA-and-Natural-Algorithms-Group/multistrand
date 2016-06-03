@@ -29,9 +29,12 @@ class SimulationSystem
   ~SimulationSystem( void ); 
 
   void StartSimulation( void );
+  void InfoInitial ( void );
 
   PyObject *calculateEnergy( PyObject *start_state, int typeflag );
   int getErrorFlag( void );
+
+  int InitializeSystem( PyObject *alternate_start = NULL);
 
  private:
   void StartSimulation_Standard( void );
@@ -44,7 +47,7 @@ class SimulationSystem
   void SimulationLoop_Trajectory( long ointerval, double otime );
   void SimulationLoop_Transition( void );
 
-  int InitializeSystem( PyObject *alternate_start = NULL);
+
 
   void InitializeRNG( void );
   void generateNextRandom( void );

@@ -21,6 +21,8 @@ SimulationSystem::SimulationSystem( int argc, char **argv )
   // entire function is FAIL. Needs replacing.
 }
 
+
+
 SimulationSystem::SimulationSystem( PyObject *system_o )
 {
   bool hflag = false;
@@ -113,6 +115,31 @@ SimulationSystem::~SimulationSystem( void )
   startState = NULL;
 }
 
+
+void SimulationSystem::InfoInitial( void )
+{
+  bool hflag = false;
+
+  printf("Starting information dump about the initial state.	\n");
+  printf("Initializing system now \n");
+
+  if( InitializeSystem() != 0)
+	return;
+
+  printf("Initializing list now \n");
+  complexList->initializeList();
+
+  double rate =  complexList->getJoinFlux();
+  printf("The joinFlux is %f \n", rate);
+
+  rate = complexList->getTotalFlux();
+  printf("The totalFlux is %f \n", rate);
+
+
+
+}
+
+
 void SimulationSystem::StartSimulation( void )
 {
   bool hflag = false;
@@ -124,7 +151,7 @@ void SimulationSystem::StartSimulation( void )
     }
   ProfilerStart("ssystem_run_profile.prof");
 #endif
-  //printf("Simulation Mode: %d\n",simulation_mode);
+  printf("Simulation Mode TEST: %d\n",simulation_mode);
   if( simulation_mode & SIMULATION_MODE_FLAG_FIRST_BIMOLECULAR )
     {
       StartSimulation_FirstStep();
@@ -214,6 +241,7 @@ void SimulationSystem::SimulationLoop_Standard( void )
   double rchoice,rate,stime,ctime;
   // Could really use some commenting on these local vars.
   rchoice = rate = stime = ctime = 0.0;
+
 
   double maxsimtime;
   maxsimtime = -1.0;
@@ -608,7 +636,7 @@ void SimulationSystem::SimulationLoop_FirstStep( void )
   double otime_interval;
   double frate = 0.0;
 
-  getLongAttr(system_options, output_interval,&ointerval);
+  getLongAttr(system_options, output_interval,&ointerval);		// FD: here the parameters set, and the PyObject is accessed
   getDoubleAttr(system_options, output_time,&otime);
   getLongAttr(system_options, use_stop_conditions,&stopoptions);
   getLongAttr(system_options, stop_count,&stopcount);
@@ -633,28 +661,10 @@ void SimulationSystem::SimulationLoop_FirstStep( void )
 
   rchoice = rate * drand48();
 
-  // if( ointerval >= 0 || otime_interval >= 0.0 )
-  //   complexList->printComplexList( 0 );
-
   complexList->doJoinChoice( rchoice );
 
   // store the forward rate used for the initial step so we can record it.
   frate = rate * dnaEnergyModel->getJoinRate_NoVolumeTerm() / dnaEnergyModel->getJoinRate() ; 
-
-  // rate is the total flux across all join moves - this is exactly equal to total_move_count *
-  // dnaEnergyModel->getJoinRate()
-
-  // This join rate is the dG_volume * bimolecular scaling constant
-  // used for forward transitions.  What we actually need is the
-  // bimolecular scaling constant * total move count. (dG volume is
-  // the volume dependent term that is not actually related to the
-  // 'collision' rate, but rather the volume we are simulating.
-
-  // if( ointerval >= 0 || otime_interval > 0.0 )
-  //   {
-  //     complexList->printComplexList( 0 );
-  //     printf("Current State: Choice: %6.4f, Time: %6.6e\n",rchoice, ctime);
-  //   }
 
   // Begin normal steps.
   rate = complexList->getTotalFlux();
@@ -663,35 +673,10 @@ void SimulationSystem::SimulationLoop_FirstStep( void )
     rchoice = rate * drand48();
     stime += (log( 1. / (1.0 - drand48()) ) / rate ); 
     
-    // 1.0 - drand as drand returns in the [0.0, 1.0) range, 
-    //  we need a (0.0,1.0] range for this to be the correct
-    // distribution - log 1/U => U in (0.0,1.0] => 1/U => (+Inf,0.0] => 
-    //    natural log:   (log(+Inf), 1.0]
-
-    // if( !sMode && otime > 0.0 )
-    //   {
-    //     if( stime - ctime > otime )
-    //       {
-    //         ctime += otime;
-    //         printf("Current State: Choice: %6.4f, Time: %6.6e\n",rchoice, ctime);
-    //         complexList->printComplexList( 0 );
-    //       }
-
-    //   }
 
     complexList->doBasicChoice( rchoice, stime );
     rate = complexList->getTotalFlux();
-    
-    // if( !sMode && ointerval >= 0 )
-    //   {
-    //     if( testBoolAttr(system_options, output_state) )
-    //       {
-    //         complexList->printComplexList( 0 );
-    //         printf("Current State: Choice: %6.4f, Time: %6.6e\n",rchoice, stime);
-    //       }
-    //     pingAttr( system_options, increment_output_state );
-        
-    //   }
+
     if( stopcount > 0 && stopoptions)
       {
         checkresult = false;

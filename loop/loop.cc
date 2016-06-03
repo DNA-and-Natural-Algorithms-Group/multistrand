@@ -8,7 +8,7 @@
 #include "loop.h"
 
 EnergyModel *Loop::energyModel_Primary = NULL;
-//extern int baseLookup(char base);	// FD unused
+//extern int baseLookup(char base);
 
 inline double Loop::getEnergy( void ) 
 {
@@ -5631,6 +5631,7 @@ void OpenLoop::generateMoves( void )
   for( loop3 = 0; loop3 <= numAdjacent-2; loop3++ ) // The last 2 entries are not needed as neither have higher numbered non-adjacent sections.
     for( loop4 = loop3+2; loop4 <= numAdjacent; loop4++ )
       {
+
         for( loop = 1; loop <= sidelen[loop3]; loop++ ) // new version with all sequences in openloop starting at 1.
           for( loop2 = 1; loop2 <= sidelen[loop4]; loop2++ )
             {

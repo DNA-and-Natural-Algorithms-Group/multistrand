@@ -26,6 +26,8 @@ SOURCES = $(SOURCES_LOOP) $(SOURCES_ENERGYMODEL) $(SOURCES_STATE) $(SOURCES_SYST
 # separate the objects to make it a bit easier on ourselves when compiling targets
 #  for the python library package.
 
+#echo "Hello, this is Makefile"
+
 VPATH=loop state system energymodel include interface
 
 MAIN_OBJECT = testingmain.o
@@ -89,7 +91,8 @@ CFLAGS_RELEASE = -O3
 CFLAGS_DEBUG   = -g -Wconversion -DDEBUG_MACROS -DDEBUG
 #CFLAGS_INTERFACE  = -DPYTHON_THREADS 
 
-CFLAGS := $(CFLAGS_RELEASE)
+#CFLAGS := $(CFLAGS_RELEASE)
+CFLAGS := $(CFLAGS_DEBUG)
 INCLUDEPATHS = $(MULTISTRAND_INCLUDES) $(PYTHON_INCLUDES)
 
 LIBRARIES= $(LIBRARYPATHS) -lpython2.7

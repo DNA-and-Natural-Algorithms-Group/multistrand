@@ -1,7 +1,7 @@
 #ifndef __PYTHON_OPTIONS_H__
 #define __PYTHON_OPTIONS_H__
 
-#include <Python.h>
+#include <python2.7/Python.h>
 
 // Macros for Python/C interface
 

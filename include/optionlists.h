@@ -12,7 +12,7 @@
 #define STOPTYPE_LOOSE_STRUCTURE               3
 #define STOPTYPE_PERCENT_OR_COUNT_STRUCTURE    4
 
-#include <Python.h>
+#include <python2.7/Python.h>
 // for PyObject *
 
 // The bodies for these functions are defined in options.cc, but the

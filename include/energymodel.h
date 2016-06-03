@@ -8,7 +8,8 @@
 #define __ENERGYMODEL_H__
 
 #include <stdio.h>
-#include <Python.h>
+#include <python2.7/Python.h>
+
 
 #define NUM_BASEPAIRS_VIENNA 8
     // Vienna: 0 is invalid, then CG, GC, GU, UG, AU, UA, and Special are 1-7
