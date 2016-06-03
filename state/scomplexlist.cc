@@ -20,7 +20,7 @@ typedef std::vector<int>::iterator intvec_it;
 
 */
 
-SComplexListEntry::SComplexListEntry( StrandComplex *newComplex, int newid )
+SComplex::SComplex( StrandComplex *newComplex, int newid )
 {
   thisComplex = newComplex;
   energy = 0.0;
@@ -32,7 +32,7 @@ SComplexListEntry::SComplexListEntry( StrandComplex *newComplex, int newid )
 }
 
 
-SComplexListEntry::~SComplexListEntry( void )
+SComplex::~SComplex( void )
 {
   delete thisComplex;
   if( next != NULL )
@@ -46,13 +46,7 @@ SComplexListEntry::~SComplexListEntry( void )
 
 */
 
-void SComplexListEntry::initializeComplex( void )
-{
-  thisComplex->generateLoops();
-  thisComplex->moveDisplay();
-}
-
-void SComplexListEntry::fillData( EnergyModel *em )
+void SComplex::fillData( EnergyModel *em )
 {
   energy = thisComplex->getEnergy() + (em->getVolumeEnergy()+em->getAssocEnergy()) * (thisComplex->getStrandCount() - 1);
   rate = thisComplex->getTotalFlux();
@@ -63,7 +57,7 @@ void SComplexListEntry::fillData( EnergyModel *em )
   SComplexListEntry::printComplex
 */
 
-void SComplexListEntry::printComplex( int printtype, EnergyModel *em )
+void SComplex::printComplex( int printtype, EnergyModel *em )
 {
   printf("Complex %02d: %s\n", id, thisComplex->getStrandNames() );
   printf("          : %s\n",thisComplex->getSequence());
@@ -79,7 +73,9 @@ void SComplexListEntry::printComplex( int printtype, EnergyModel *em )
 
 }
 
-void SComplexListEntry::dumpComplexEntryToPython( int *our_id, char **names, char **sequence, char **structure, double *our_energy)
+
+
+void SComplex::dumpComplexEntryToPython( int *our_id, char **names, char **sequence, char **structure, double *our_energy)
 {
   *our_id = id;
   *names = thisComplex->getStrandNames();
@@ -113,7 +109,7 @@ SComplexList::SComplexList( EnergyModel *energyModel )
 
 SComplexList::~SComplexList( void )
 {
-  SComplexListEntry* traverse;
+  SComplex* traverse;
   traverse = first;
   while( traverse != NULL )
     {
@@ -129,13 +125,13 @@ SComplexList::~SComplexList( void )
    SComplexList::addComplex( StrandComplex *newComplex );
 */
 
-SComplexListEntry *SComplexList::addComplex( StrandComplex *newComplex )
+SComplex *SComplexList::addComplex( StrandComplex *newComplex )
 {
   if( first == NULL )
-    first = new SComplexListEntry( newComplex, idcounter );
+    first = new SComplex( newComplex, idcounter );
   else
     {
-      SComplexListEntry *temp = new SComplexListEntry( newComplex, idcounter );
+      SComplex *temp = new SComplex( newComplex, idcounter );
       temp->next = first;
       first = temp;
     }
@@ -151,10 +147,10 @@ SComplexListEntry *SComplexList::addComplex( StrandComplex *newComplex )
 
 void SComplexList::initializeList( void )
 {
-  SComplexListEntry *temp = first;
+  SComplex *temp = first;
   while( temp != NULL )
     {
-      temp->initializeComplex();
+      temp->thisComplex->generateLoops();
       temp->fillData( dnaEnergyModel );
       temp = temp->next;
     }
@@ -167,7 +163,7 @@ void SComplexList::initializeList( void )
 double SComplexList::getTotalFlux( void )
 {
   double total = 0.0;
-  SComplexListEntry *temp = first;
+  SComplex *temp = first;
   while( temp!= NULL )
     {
       total += temp->rate;
@@ -192,7 +188,7 @@ double SComplexList::getTotalFlux( void )
 
 double SComplexList::getJoinFlux( void )
 {
-  SComplexListEntry *temp = first;
+  SComplex *temp = first;
   struct exterior_bases *ext_bases = NULL, total_bases;
 
   int total_move_count = 0;
@@ -247,7 +243,7 @@ double SComplexList::getJoinFlux( void )
 
 double *SComplexList::getEnergy( int volume_flag )
 {
-  SComplexListEntry *temp = first;
+  SComplex *temp = first;
   double *energies = new double[numentries];
   int index = 0;
   while( temp != NULL )
@@ -271,7 +267,7 @@ double *SComplexList::getEnergy( int volume_flag )
 
 void SComplexList::printComplexList( int printoptions )
 {
-  SComplexListEntry *temp = first;
+  SComplex *temp = first;
 
   while( temp != NULL )
     {
@@ -280,7 +276,7 @@ void SComplexList::printComplexList( int printoptions )
     }
 }
 
-SComplexListEntry *SComplexList::dumpComplexListToPython( void )
+SComplex *SComplexList::dumpComplexListToPython( void )
 {
   return first;
 }
@@ -295,11 +291,11 @@ int SComplexList::getCount( void )
   SComplexListEntry *SComplexList::doBasicChoice( double choice, double newtime )
 */
 
-SComplexListEntry *SComplexList::doBasicChoice( double choice, double newtime )
+SComplex *SComplexList::doBasicChoice( double choice, double newtime )
 {
   double rchoice = choice, moverate;
   int type;
-  SComplexListEntry *temp,*temp2 = first;
+  SComplex *temp,*temp2 = first;
   StrandComplex *pickedComplex= NULL,*newComplex = NULL;
   Move *tempmove;
   char *struc;
@@ -372,7 +368,7 @@ SComplexListEntry *SComplexList::doBasicChoice( double choice, double newtime )
 
 void SComplexList::doJoinChoice( double choice )
 {
-  SComplexListEntry *temp = first, *temp2 =  NULL;
+  SComplex *temp = first, *temp2 =  NULL;
   struct exterior_bases *ext_bases = NULL,*ext_bases_temp=NULL, total_bases;
   StrandComplex *deleted;
   StrandComplex *picked[2] = {NULL,NULL};
@@ -581,7 +577,7 @@ bool SComplexList::checkStopComplexList( class complex_item *stoplist )
 bool SComplexList::checkStopComplexList_Bound( class complex_item *stoplist )
 {
   class identlist *id_traverse = stoplist->strand_ids;
-  class SComplexListEntry *entry_traverse = first;
+  class SComplex *entry_traverse = first;
   int k_flag;
   if( stoplist->next != NULL ) 
     {
@@ -612,7 +608,7 @@ bool SComplexList::checkStopComplexList_Bound( class complex_item *stoplist )
 
 bool SComplexList::checkStopComplexList_Structure_Disassoc( class complex_item *stoplist )
 {
-  class SComplexListEntry *entry_traverse = first;
+  class SComplex *entry_traverse = first;
   class complex_item *traverse = stoplist;
   int id_count=0,max_complexes=0; 
   bool successflag = false;
@@ -765,6 +761,7 @@ bool SComplexList::checkLooseStructure( char *our_struc, char *stop_struc, int c
   return true;
 }
 
+// FD: Is this checking some basic properties for the complexes?
 
 bool SComplexList::checkCountStructure( char *our_struc, char *stop_struc, int count )
 {

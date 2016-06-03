@@ -731,11 +731,14 @@ void StrandComplex::moveDisplay( void )
 	printf("Generating all moves in the complex.  \n");
 
 	beginLoop->firstGen( NULL );
+	//beginLoop->printMove(beginLoop, )
 
 	printf("Trying to display all the moves.  \n");
 
-  // FIXME: The following line prolly needs a valid second parameter.
-  // beginLoop->moveDisplay( NULL, structure, sequence );
+
+
+//	FIXME: The following line prolly needs a valid second parameter.
+//    beginLoop->moveDisplay( NULL, structure, sequence );
 }
 
 Move *StrandComplex::getChoice( double *rand_choice )

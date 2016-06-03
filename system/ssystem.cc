@@ -731,7 +731,7 @@ void SimulationSystem::dumpCurrentStateToPython( void )
   int id;
   char *names, *sequence, *structure;
   double energy;
-  SComplexListEntry *temp;
+  SComplex *temp;
   temp = complexList->dumpComplexListToPython();
   while( temp != NULL )
 	{
@@ -803,7 +803,7 @@ void SimulationSystem::sendTrajectory_CurrentStateToPython( double current_time 
   int id;
   char *names, *sequence, *structure;
   double energy;
-  SComplexListEntry *temp;
+  SComplex *temp;
   temp = complexList->dumpComplexListToPython();
   while( temp != NULL )
 	{

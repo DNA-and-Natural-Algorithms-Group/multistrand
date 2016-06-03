@@ -10,7 +10,7 @@
 #include "energymodel.h"
 #include "optionlists.h" 
 
-class SComplexListEntry;
+class SComplex;
 
 
 class SComplexList
@@ -18,15 +18,15 @@ class SComplexList
  public:
   SComplexList( EnergyModel *energyModel );
   ~SComplexList( void );
-  SComplexListEntry *addComplex( StrandComplex *newComplex );
+  SComplex *addComplex( StrandComplex *newComplex );
   void initializeList( void );
   double getTotalFlux( void );
   double getJoinFlux( void );
   int getCount( void );
   double *getEnergy( int volume_flag );
   void printComplexList( int printoptions );
-  SComplexListEntry *dumpComplexListToPython( void );
-  SComplexListEntry *doBasicChoice( double choice, double newtime );
+  SComplex *dumpComplexListToPython( void );
+  SComplex *doBasicChoice( double choice, double newtime );
   void doJoinChoice( double choice );
   bool checkStopComplexList( class complex_item *stoplist );
 
@@ -38,19 +38,22 @@ class SComplexList
   bool checkCountStructure( char *our_struc, char *stop_struc, int count );
   int numentries;
   int idcounter;
-  SComplexListEntry *first;
+  SComplex *first;
   EnergyModel *dnaEnergyModel;
   double joinRate;
   
 };
 
 
-class SComplexListEntry		// FD: Why use generic datastructures when you can make your own???
+// FD: Why use generic datastructures when you can make your own???
+// FD: A SComplexList contains SComplexes that make up a linked list.
+// FD: The SComplex contains the actual StrandComplex. Way to go.
+
+class SComplex
 {
  public:
-  SComplexListEntry( StrandComplex *newComplex, int newid );
-  ~SComplexListEntry( void );
-  void initializeComplex( void );
+  SComplex( StrandComplex *newComplex, int newid );
+  ~SComplex( void );
   void fillData( EnergyModel *em );
   void printComplex( int printtype, EnergyModel *em );
   void dumpComplexEntryToPython( int *our_id, char **names, char **sequence, char **structure, double *our_energy);
@@ -59,7 +62,7 @@ class SComplexListEntry		// FD: Why use generic datastructures when you can make
   double energy;
   energyS ee_energy;
   double rate;
-  SComplexListEntry *next;
+  SComplex *next;
 };
 
 
