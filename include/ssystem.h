@@ -63,7 +63,8 @@ class SimulationSystem
   StrandComplex *startState; 
   SComplexList *complexList;
 
-  PyObject *system_options;
+  //PyObject *system_options;
+  SimOptions *system_options;
 
   long current_seed;
   bool initial_trajectory;

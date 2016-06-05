@@ -17,7 +17,6 @@ typedef std::vector<int>::iterator intvec_it;
 
   SComplexListEntry Constructor/Destructor
 
-
 */
 
 SComplex::SComplex( StrandComplex *newComplex, int newid )
