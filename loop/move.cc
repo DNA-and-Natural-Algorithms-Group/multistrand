@@ -4,6 +4,7 @@
 */
  
 #include <stdio.h>
+#include <cstdio>
 #include <assert.h>
 #include <string>
 #include "move.h"
@@ -131,14 +132,11 @@ Loop *Move::doChoice( void )
 
 string Move::toString(void){
 
-	string output = "Move of type ";
-//	output += type;
-//	output += "  and rate ";
-//	output += rate;
+	string output = "Move of type " + string(type);
 
 	return output;
 
-//	return ("Move of type %i", mType);
+
 
 }
 

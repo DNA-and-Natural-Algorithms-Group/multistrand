@@ -35,7 +35,7 @@ SimulationSystem::SimulationSystem( PyObject *system_o )
   ProfilerStart("ssystem_init_profile.prof");
 #endif
 
-  system_options = system_o;
+  system_options = (m_options) system_o;
   // We no longer need the below line; we are guaranteed that options
   // will have a good reference for the lifetime of our object, as the
   // controlling wrapper in multistrand_module.cc grabs the reference.
@@ -129,14 +129,7 @@ void SimulationSystem::InfoInitial( void )
   printf("Initializing list now \n");
   complexList->initializeList();
 
-//  double rate =  complexList->getJoinFlux();
-//  printf("The joinFlux is %f \n", rate);
-
-//  rate = complexList->getTotalFlux();
-//  printf("The totalFlux is %f \n", rate);
-
   complexList->printComplexList(2);
-
 
 }
 

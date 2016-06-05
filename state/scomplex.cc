@@ -14,20 +14,19 @@
 extern int baseLookup(char base);
 
 StrandComplex::StrandComplex(char *seq, char *struc) {
-	//  tempseq = seq;
-	//tempstruct = struct;
+
 	char *tempseq = (char *) new char[strlen(seq) + 1];
 	char *tempstruct = (char *) new char[strlen(struc) + 1];
 	char * tempcseq = (char *) new char[strlen(seq) + 1];
 	strcpy(tempseq, seq);
 	strcpy(tempcseq, seq);
 	strcpy(tempstruct, struc);
-	for (int loop = 0; loop < strlen(tempcseq); loop++)
+
+	for (int loop = 0; loop < strlen(tempcseq); loop++){
 		tempcseq[loop] = baseLookup(tempcseq[loop]);
-	//  exteriorBases.A = exteriorBases.T = exteriorBases.C = exteriorBases.G = 0;
+	}
 
 	beginLoop = NULL;
-	//kineticMoves = NULL;
 	ordering = new StrandOrdering(tempseq, tempstruct, tempcseq);
 	delete[] tempseq;
 	delete[] tempstruct;
@@ -38,20 +37,18 @@ StrandComplex::StrandComplex(char *seq, char *struc) {
 }
 
 StrandComplex::StrandComplex(char *seq, char *struc, class identlist *id_list) {
-	//  tempseq = seq;
-	//tempstruct = struct;
+
 	char *tempseq = (char *) new char[strlen(seq) + 1];
 	char *tempstruct = (char *) new char[strlen(struc) + 1];
 	char * tempcseq = (char *) new char[strlen(seq) + 1];
 	strcpy(tempseq, seq);
 	strcpy(tempcseq, seq);
 	strcpy(tempstruct, struc);
-	for (int loop = 0; loop < strlen(tempcseq); loop++)
+	for (int loop = 0; loop < strlen(tempcseq); loop++){
 		tempcseq[loop] = baseLookup(tempcseq[loop]);
-	//  exteriorBases.A = exteriorBases.T = exteriorBases.C = exteriorBases.G = 0;
+	}
 
 	beginLoop = NULL;
-	//kineticMoves = NULL;
 	ordering = new StrandOrdering(tempseq, tempstruct, tempcseq, id_list);
 	delete[] tempseq;
 	delete[] tempstruct;

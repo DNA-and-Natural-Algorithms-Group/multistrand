@@ -75,11 +75,13 @@ void SComplex::printComplex( int printtype, EnergyModel *em )
 
 void SComplex::dumpComplexEntryToPython( int *our_id, char **names, char **sequence, char **structure, double *our_energy)
 {
+
   *our_id = id;
   *names = thisComplex->getStrandNames();
   *sequence = thisComplex->getSequence();
   *structure = thisComplex->getStructure();
   *our_energy = energy;
+
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -97,11 +99,13 @@ void SComplex::dumpComplexEntryToPython( int *our_id, char **names, char **seque
 
 SComplexList::SComplexList( EnergyModel *energyModel )
 {
+
   numentries = 0;
   first = NULL;
   dnaEnergyModel = energyModel;
   joinRate = 0.0;
   idcounter = 0;
+
 }
 
 
