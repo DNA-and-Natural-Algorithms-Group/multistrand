@@ -132,7 +132,7 @@ Loop *Move::doChoice( void )
 
 string Move::toString(void){
 
-	string output = "Move of type " + string(type);
+	string output = "Move of type "; // + string(type);
 
 	return output;
 

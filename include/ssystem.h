@@ -12,6 +12,7 @@
 #include "loop.h"
 #include "scomplex.h"
 #include "scomplexlist.h"
+#include "simoptions.h"
 #include <vector>
 
 typedef std::vector<bool> boolvector;

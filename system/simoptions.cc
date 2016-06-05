@@ -5,7 +5,7 @@
  *      Author: hazel
  */
 
-#include "simOptions.h"
+#include "simoptions.h"
 #include "options.h"
 
 SimOptions::SimOptions(void){
