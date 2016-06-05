@@ -33,10 +33,14 @@ PySimOptions::PySimOptions(PyObject input){
 
 long PySimOptions::getSimulationMode(void) {
 
-		return getLongAttr(system_options, simulation_mode, &simulation_mode );
+		long output; // = getLongAttr(system_options, simulation_mode, &simulation_mode );
 
-};
+		output = 0.0;
+
+		return output;
+
+}
 
 
 
-#endif /* SYSTEM_SIMOPTIONS_H_ */
+//#endif /* SYSTEM_SIMOPTIONS_H_ */
