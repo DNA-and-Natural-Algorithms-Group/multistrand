@@ -16,7 +16,7 @@ public:
 
 	// Virtual methods
 	virtual ~SimOptions(void);
-	virtual void getSimulationMode(void) = 0;
+	virtual long getSimulationMode(void) = 0;
 	virtual void functionTwo(void) = 0;
 
 };
@@ -25,10 +25,10 @@ public:
 
 class PySimOptions: public SimOptions {
 public:
-	void PySimOptions(void);
+	//constructors
+	PySimOptions(PyObject);
 
-	//void ~PySimOptions(void);
-	void getSimulationMode(void);
+	long getSimulationMode(void);
 	void functionTwo(void);
 
 protected:

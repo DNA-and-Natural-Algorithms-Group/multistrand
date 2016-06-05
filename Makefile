@@ -12,12 +12,12 @@
 # 
 
 vpath %.h include
-INCLUDES = energymodel.h loop.h move.h optionlists.h python_options.h scomplex.h scomplexlist.h ssystem.h strandordering.h m_options.h
+INCLUDES = energymodel.h loop.h move.h optionlists.h python_options.h scomplex.h scomplexlist.h ssystem.h strandordering.h simoptions.h
 
 SOURCES_LOOP = loop.cc move.cc
 SOURCES_ENERGYMODEL = energymodel.cc nupackenergymodel.cc viennaenergymodel.cc
 SOURCES_STATE = scomplex.cc scomplexlist.cc strandordering.cc
-SOURCES_SYSTEM = ssystem.cc m_options.cc
+SOURCES_SYSTEM = ssystem.cc simoptions.cc
 SOURCES_OPTIONS = optionlists.cc python_options.cc
 SOURCES_TESTING = testingmain.cc
 
