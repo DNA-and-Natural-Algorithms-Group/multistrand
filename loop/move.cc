@@ -5,6 +5,7 @@
  
 #include <stdio.h>
 #include <assert.h>
+#include <string>
 #include "move.h"
 #include "loop.h"
 
@@ -127,6 +128,21 @@ Loop *Move::doChoice( void )
   else return NULL;
 }
 
+
+string Move::toString(void){
+
+	string output = "Move of type ";
+//	output += type;
+//	output += "  and rate ";
+//	output += rate;
+
+	return output;
+
+//	return ("Move of type %i", mType);
+
+}
+
+
 ///* MoveTree info */
 //MoveTree::~MoveTree( void )
 //{
@@ -219,12 +235,6 @@ void MoveList::resetDeleteMoves( void )
   del_moves_index = 0;
 }
 
-void MoveList::printMoves( void)
-{
-
-	printf("Trying to print moves list");
-
-}
 
 
 void MoveList::addMove( Move *newmove )

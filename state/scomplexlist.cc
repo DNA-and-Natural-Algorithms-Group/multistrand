@@ -41,16 +41,14 @@ SComplex::~SComplex( void )
 
 /*
 
-  SComplexListEntry - InitializeComplex and FillData 
-
+  SComplexListEntry - setEnergyAndRate
 
 */
 
-void SComplex::fillData( EnergyModel *em )
+void SComplex::setEnergyAndRate( EnergyModel *em )
 {
   energy = thisComplex->getEnergy() + (em->getVolumeEnergy()+em->getAssocEnergy()) * (thisComplex->getStrandCount() - 1);
   rate = thisComplex->getTotalFlux();
-  // thisComplex->fillVisData( &visiblebases )
 }
 
 /*
@@ -151,7 +149,7 @@ void SComplexList::initializeList( void )
   while( temp != NULL )
     {
       temp->thisComplex->generateLoops();
-      temp->fillData( dnaEnergyModel );
+      temp->setEnergyAndRate( dnaEnergyModel );
       temp = temp->next;
     }
 }
@@ -336,12 +334,12 @@ SComplex *SComplexList::doBasicChoice( double choice, double newtime )
   if( newComplex != NULL )
     {
       temp = addComplex(newComplex);
-      temp->fillData( dnaEnergyModel );
-	  temp2->fillData( dnaEnergyModel );
+      temp->setEnergyAndRate( dnaEnergyModel );
+	  temp2->setEnergyAndRate( dnaEnergyModel );
 	  return NULL;
     }
 
-  temp2->fillData( dnaEnergyModel );
+  temp2->setEnergyAndRate( dnaEnergyModel );
   return temp2;
 
   /*  struc = pickedComplex->getStructure();
@@ -530,7 +528,7 @@ void SComplexList::doJoinChoice( double choice )
   for( temp = first; temp != NULL; temp = temp->next )
     {
       if( temp->thisComplex == picked[0] )
-        temp->fillData( dnaEnergyModel );
+        temp->setEnergyAndRate( dnaEnergyModel );
       if( temp->next != NULL )
         if( temp->next->thisComplex == deleted )
           {

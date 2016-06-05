@@ -12,12 +12,12 @@
 # 
 
 vpath %.h include
-INCLUDES = energymodel.h loop.h move.h optionlists.h python_options.h scomplex.h scomplexlist.h ssystem.h strandordering.h
+INCLUDES = energymodel.h loop.h move.h optionlists.h python_options.h scomplex.h scomplexlist.h ssystem.h strandordering.h m_options.h
 
 SOURCES_LOOP = loop.cc move.cc
 SOURCES_ENERGYMODEL = energymodel.cc nupackenergymodel.cc viennaenergymodel.cc
 SOURCES_STATE = scomplex.cc scomplexlist.cc strandordering.cc
-SOURCES_SYSTEM = ssystem.cc
+SOURCES_SYSTEM = ssystem.cc m_options.cc
 SOURCES_OPTIONS = optionlists.cc python_options.cc
 SOURCES_TESTING = testingmain.cc
 
@@ -87,12 +87,13 @@ $(warning Could not find a debugging python executable in your PATH. Compiling t
 endif
 
 # flag blocks for C compilation
-CFLAGS_RELEASE = -O3
-CFLAGS_DEBUG   = -g -Wconversion -DDEBUG_MACROS -DDEBUG
+CFLAGS_RELEASE = -O3 
+CFLAGS_DEBUG = -g -Wconversion -DDEBUG_MACROS -DDEBUG 
 #CFLAGS_INTERFACE  = -DPYTHON_THREADS 
 
 #CFLAGS := $(CFLAGS_RELEASE)
-CFLAGS := $(CFLAGS_DEBUG)
+CFLAGS := $(CFLAGS_DEBUG) 
+
 INCLUDEPATHS = $(MULTISTRAND_INCLUDES) $(PYTHON_INCLUDES)
 
 LIBRARIES= $(LIBRARYPATHS) -lpython2.7
@@ -102,9 +103,8 @@ LIBRARIES= $(LIBRARYPATHS) -lpython2.7
 #LIB_INTERFACE = -shared $(BOOSTLIB)
 
 CC = g++
-COMPILE = $(CC) $(CFLAGS) $(INCLUDEPATHS)
+COMPILE = $(CC) $(CFLAGS) $(INCLUDEPATHS) 
 LINK = $(CC) $(CFLAGS) $(LIBRARIES)
-
 
 
 all: package
@@ -200,6 +200,8 @@ install:
 	$(PYTHON_COMMAND) setup.py install
 
 
+
+
 # targets for setting up debugging flags.
 
 debug: CFLAGS := $(CFLAGS_DEBUG) 
@@ -211,13 +213,16 @@ dircheck:
 
 Multistrand-internal: dircheck Multistrand
 
+
+
+
 # How to build the object files.
 $(OBJPATH)/%.o: %.cc $(INCLUDES)
 	$(COMPILE) $< -c -o $@
 
 Multistrand: $(MAIN_OBJECT) $(OBJECTS)
 	rm -f Multistrand
-	$(LINK) $(CFLAGS) $(LIBRARIES) $(filter-out dircheck,$^) -o Multistrand
+	$(LINK) $(CFLAGS) $(LIBRARIES) $(filter-out dircheck,$^) -o  Multistrand 
 
 # Indirectly more also depend on loop.h via headers: scomplex.h
 # ssystem.h strandordering.h should generate these directly via a
