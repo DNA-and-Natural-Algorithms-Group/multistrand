@@ -29,7 +29,7 @@ class PSimOptions: public SimOptions {
 public:
 	//constructors
 	PSimOptions(void);
-	PSimOptions(PyObject);
+	PSimOptions(PyObject*);
 
 	long getSimulationMode(void);
 	void functionTwo(void);
