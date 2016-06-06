@@ -91,6 +91,23 @@ static PyObject *SimSystemObject_start(SimSystemObject *self, PyObject *args)
   return Py_None;
 }
 
+static PyObject *SimSystemObject_initialInfo(SimSystemObject *self, PyObject *args)
+{
+  if( !PyArg_ParseTuple(args, ":initialInfo") )
+    return NULL;
+
+  if( self->ob_system == NULL )
+    {
+      PyErr_SetString( PyExc_AttributeError,
+                       "The associated SimulationSystem [C++] object no longer exists, cannot query the system.");
+      return NULL;
+    }
+  self->ob_system->InitialInfo();
+
+  Py_INCREF(Py_None);
+  return Py_None;
+}
+
 static int SimSystemObject_traverse( SimSystemObject *self, visitproc visit, void *arg )
 {
   Py_VISIT(self->options);
@@ -129,6 +146,11 @@ Start the simulation; only returns when the simulation has been completed. \n\
 Information is only returned from the simulation via the Options object it \n\
 was created with.\n";
 
+const char docstring_SimSystem_initialInfo[] = "\
+SimSystem.initialInfo( self )\n\
+\n\
+Query information about the initial state. \n";
+
 const char docstring_SimSystem_init[] = "\
 :meth:`multistrand.system.SimSystem.__init__( self, *args )`\n\
 \n\
@@ -145,6 +167,8 @@ static PyMethodDef SimSystemObject_methods[] = {
    PyDoc_STR( docstring_SimSystem_init)},
   {"start", (PyCFunction) SimSystemObject_start, METH_VARARGS,
    PyDoc_STR( docstring_SimSystem_start)},
+   {"initialInfo", (PyCFunction) SimSystemObject_initialInfo, METH_VARARGS,
+    PyDoc_STR( docstring_SimSystem_initialInfo)},
   { NULL, NULL }  /* Sentinel */
                   /* Note that the dealloc, etc methods are not
                      defined here, they're in the type object's
