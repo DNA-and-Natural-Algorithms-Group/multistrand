@@ -18,6 +18,7 @@ sources = ["interface/multistrand_module.cc",
            "state/scomplex.cc",
            "state/scomplexlist.cc",
            "system/ssystem.cc",
+           "system/simoptions.cc",
            "state/strandordering.cc",
            "energymodel/viennaenergymodel.cc"
            ]

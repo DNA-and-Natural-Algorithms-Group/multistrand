@@ -27,6 +27,7 @@ SimOptions::~SimOptions(void){
 
 PSimOptions::PSimOptions(void){
 
+
 	python_settings = NULL;
 	simulation_mode = NULL;
 	// empty constructor
@@ -34,9 +35,9 @@ PSimOptions::PSimOptions(void){
 }
 
 
-PSimOptions::PSimOptions(PyObject input){
+PSimOptions::PSimOptions(PyObject *input){
 
-	python_settings = *input;
+	python_settings = input;
 	simulation_mode = NULL;
 
 }
@@ -47,7 +48,7 @@ long PSimOptions::getSimulationMode(void) {
 
 	if(simulation_mode==NULL){
 
-	  getLongAttr(python_settings, simulation_mode, &simulation_mode);
+	  //getLongAttr(python_settings, simulation_mode, &simulation_mode);
 
 
 	}

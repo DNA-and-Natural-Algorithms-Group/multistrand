@@ -31,7 +31,7 @@ SOURCES = $(SOURCES_LOOP) $(SOURCES_ENERGYMODEL) $(SOURCES_STATE) $(SOURCES_SYST
 VPATH=loop state system energymodel include interface
 
 MAIN_OBJECT = testingmain.o
-OBJECTS = loop.o scomplex.o energymodel.o viennaenergymodel.o nupackenergymodel.o move.o ssystem.o scomplexlist.o strandordering.o python_options.o optionlists.o
+OBJECTS = loop.o scomplex.o energymodel.o viennaenergymodel.o nupackenergymodel.o move.o ssystem.o simoptions.o scomplexlist.o strandordering.o python_options.o optionlists.o 
 
 
 OBJPATH=obj
