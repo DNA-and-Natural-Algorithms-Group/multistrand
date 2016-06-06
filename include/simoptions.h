@@ -8,6 +8,8 @@
 #ifndef SYSTEM_SIMOPTIONS_H_
 #define SYSTEM_SIMOPTIONS_H_
 
+#include <python2.7/Python.h>
+
 class SimOptions {
 public:
 
@@ -23,16 +25,18 @@ public:
 
 
 
-class PySimOptions: public SimOptions {
+class PSimOptions: public SimOptions {
 public:
 	//constructors
-	PySimOptions(PyObject);
+	PSimOptions(void);
+	PSimOptions(PyObject);
 
 	long getSimulationMode(void);
 	void functionTwo(void);
 
 protected:
-	PyObject python_settings;
+	PyObject *python_settings;
+	long simulation_mode;
 };
 
 #endif /* SYSTEM_SIMOPTIONS_H_ */

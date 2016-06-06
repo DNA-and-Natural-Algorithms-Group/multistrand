@@ -65,7 +65,7 @@ class SimulationSystem
   SComplexList *complexList;
 
   PyObject *system_options;
-  SimOptions *system_options_wrapper;
+  PSimOptions system_options_wrapper;
 
   long current_seed;
   bool initial_trajectory;

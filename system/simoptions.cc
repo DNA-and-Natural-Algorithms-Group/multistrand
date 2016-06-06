@@ -5,8 +5,9 @@
  *      Author: hazel
  */
 
-#include "simoptions.h"
 #include "options.h"
+#include "simoptions.h"
+
 
 SimOptions::SimOptions(void){
 
@@ -23,23 +24,46 @@ SimOptions::~SimOptions(void){
 
 
 
-PySimOptions::PySimOptions(PyObject input){
 
-	python_settings = input;
+PSimOptions::PSimOptions(void){
+
+	python_settings = NULL;
+	simulation_mode = NULL;
+	// empty constructor
+
+}
+
+
+PSimOptions::PSimOptions(PyObject input){
+
+	python_settings = *input;
+	simulation_mode = NULL;
 
 }
 
 
 
-long PySimOptions::getSimulationMode(void) {
+long PSimOptions::getSimulationMode(void) {
 
-		long output; // = getLongAttr(system_options, simulation_mode, &simulation_mode );
+	if(simulation_mode==NULL){
 
-		output = 0.0;
+	  //getLongAttr(python_settings, simulation_mode, &simulation_mode);
+	  //getLongAttr(python_settings, simulation_mode, &simulation_mode );
 
-		return output;
+
+	}
+
+	return simulation_mode;
 
 }
+
+
+void PSimOptions::functionTwo(void) {
+
+
+
+}
+
 
 
 
