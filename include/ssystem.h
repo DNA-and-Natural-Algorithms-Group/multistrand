@@ -12,6 +12,7 @@
 #include "loop.h"
 #include "scomplex.h"
 #include "scomplexlist.h"
+#include "simoptions.h"
 #include <vector>
 
 typedef std::vector<bool> boolvector;
@@ -63,6 +64,7 @@ class SimulationSystem
   SComplexList *complexList;
 
   PyObject *system_options;
+  SimOptions *sim_options;
 
   long current_seed;
   bool initial_trajectory;

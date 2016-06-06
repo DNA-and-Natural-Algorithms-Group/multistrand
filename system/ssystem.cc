@@ -34,6 +34,8 @@ SimulationSystem::SimulationSystem( PyObject *system_o )
 #endif
 
   system_options = system_o;
+  sim_options = new PSimOptions(system_o);
+
   // We no longer need the below line; we are guaranteed that options
   // will have a good reference for the lifetime of our object, as the
   // controlling wrapper in multistrand_module.cc grabs the reference.
