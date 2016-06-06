@@ -48,7 +48,7 @@ long PSimOptions::getSimulationMode(void) {
 
 	if(simulation_mode==NULL){
 
-	  //getLongAttr(python_settings, simulation_mode, &simulation_mode);
+	  getLongAttr(python_settings, simulation_mode, &simulation_mode);
 
 
 	}

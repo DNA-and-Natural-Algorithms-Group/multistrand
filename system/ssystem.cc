@@ -38,15 +38,15 @@ SimulationSystem::SimulationSystem( PyObject *system_o )
 #endif
 
   system_options = system_o;
-  //system_options_wrapper = PSimOptions(system_o);
+  system_options_wrapper = new PSimOptions(system_o);
   // We no longer need the below line; we are guaranteed that options
   // will have a good reference for the lifetime of our object, as the
   // controlling wrapper in multistrand_module.cc grabs the reference.
 
   //Py_INCREF( system_options );
 
-  getLongAttr(system_options, simulation_mode, &simulation_mode );
-  //simulation_mode = system_options_wrapper.getSimulationMode();
+  //getLongAttr(system_options, simulation_mode, &simulation_mode );
+  simulation_mode = system_options_wrapper->getSimulationMode();
 
   getLongAttr(system_options, num_simulations, &simulation_count_remaining);
   if( Loop::GetEnergyModel() == NULL)
