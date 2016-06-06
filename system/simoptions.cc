@@ -25,12 +25,8 @@ SimOptions::~SimOptions(void){
 
 
 
-PSimOptions::PSimOptions(void){
-
-
-	python_settings = NULL;
-	simulation_mode = NULL;
-	// empty constructor
+PSimOptions::PSimOptions(void) : PSimOptions(NULL){
+	// Delegated constructor
 
 }
 
@@ -39,6 +35,7 @@ PSimOptions::PSimOptions(PyObject *input){
 
 	python_settings = input;
 	simulation_mode = NULL;
+	simulation_count = NULL;
 
 }
 
@@ -58,9 +55,17 @@ long PSimOptions::getSimulationMode(void) {
 }
 
 
-void PSimOptions::functionTwo(void) {
+long PSimOptions::getSimulationCount(void) {
 
 
+	if(simulation_count==NULL){
+
+		getLongAttr(python_settings, num_simulations, &simulation_count);
+
+
+	}
+
+	return simulation_count;
 
 }
 

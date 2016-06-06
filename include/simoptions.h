@@ -21,7 +21,7 @@ public:
 	// Virtual methods
 	virtual ~SimOptions(void);
 	virtual long getSimulationMode(void) = 0;
-	virtual void functionTwo(void) = 0;
+	virtual long getSimulationCount(void) = 0;
 
 };
 
@@ -34,11 +34,12 @@ public:
 	PSimOptions(PyObject *system_options);
 
 	long getSimulationMode(void);
-	void functionTwo(void);
+	long getSimulationCount(void);
 
 protected:
 	PyObject *python_settings;
 	long simulation_mode;
+	long simulation_count;
 };
 
 #endif
