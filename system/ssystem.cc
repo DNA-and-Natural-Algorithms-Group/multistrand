@@ -113,6 +113,24 @@ SimulationSystem::~SimulationSystem( void )
   startState = NULL;
 }
 
+// FD: a simple peak into the initial state
+void SimulationSystem::InitialInfo(void) {
+	bool hflag = false;
+
+	printf("Starting information dump about the initial state.	\n");
+	printf("Initializing system now \n");
+
+	if (InitializeSystem() != 0)
+		return;
+
+	printf("Initializing list now \n");
+	complexList->initializeList();
+
+	complexList->printComplexList(2);
+
+}
+
+
 void SimulationSystem::StartSimulation( void )
 {
   bool hflag = false;

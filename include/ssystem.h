@@ -29,6 +29,8 @@ class SimulationSystem
   ~SimulationSystem( void ); 
 
   void StartSimulation( void );
+  void InitialInfo( void );
+
 
   PyObject *calculateEnergy( PyObject *start_state, int typeflag );
   int getErrorFlag( void );

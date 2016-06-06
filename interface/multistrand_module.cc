@@ -7,8 +7,8 @@
 
 */
 
-#include "Python.h"
-#include "structmember.h"
+#include "python2.7/Python.h"
+#include "python2.7/structmember.h"
 
 #include "ssystem.h"
 /* need C++ for ssystem.h... */
