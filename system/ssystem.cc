@@ -45,11 +45,11 @@ SimulationSystem::SimulationSystem( PyObject *system_o )
 
   //Py_INCREF( system_options );
 
-  //getLongAttr(system_options, simulation_mode, &simulation_mode );
-  simulation_mode = system_options_wrapper->getSimulationMode();
+  getLongAttr(system_options, simulation_mode, &simulation_mode );
+  //simulation_mode = system_options_wrapper->getSimulationMode();
 
-//  getLongAttr(system_options, num_simulations, &simulation_count_remaining);
-  simulation_count_remaining = system_options_wrapper->getSimulationCount();
+  getLongAttr(system_options, num_simulations, &simulation_count_remaining);
+  //simulation_count_remaining = system_options_wrapper->getSimulationCount();
 
 
   if( Loop::GetEnergyModel() == NULL)
