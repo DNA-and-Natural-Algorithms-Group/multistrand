@@ -11,6 +11,7 @@
 #define __SIMOPTIONS_H_
 
 #include <python2.7/Python.h>
+#include "ssystem.h"
 
 class SimOptions {
 public:
@@ -22,7 +23,18 @@ public:
 	virtual ~SimOptions(void);
 	virtual long getSimulationMode(void) = 0;
 	virtual long getSimulationCount(void) = 0;
+	virtual long getOInterval(void) = 0;
+	virtual double getOTime(void) = 0;
+	virtual void incrementTrajectoryCount(void) = 0;
 
+	// PyObject compliance
+
+	// actual option values
+protected:
+	long simulation_mode;
+	long simulation_count;
+	long o_interval;
+	long o_time;
 };
 
 
@@ -33,14 +45,19 @@ public:
 	PSimOptions(void);
 	PSimOptions(PyObject *system_options);
 
+	// Implemented virtual methods
 	long getSimulationMode(void);
 	long getSimulationCount(void);
+	long getOInterval(void);
+	double getOTime(void);
+	void incrementTrajectoryCount(void);
+
+	// PyObject compliance
 
 protected:
 	bool debug;
 	PyObject *python_settings;
-	long simulation_mode;
-	long simulation_count;
+
 };
 
 #endif

@@ -11,6 +11,7 @@
 #include "python2.7/structmember.h"
 
 #include "ssystem.h"
+#include "simoptions.h"
 /* need C++ for ssystem.h... */
 #include "options.h"
 #include <string.h>

@@ -12,12 +12,12 @@
 # 
 
 vpath %.h include
-INCLUDES = energymodel.h loop.h move.h optionlists.h python_options.h scomplex.h scomplexlist.h ssystem.h strandordering.h simoptions.h
+INCLUDES = energymodel.h loop.h move.h optionlists.h python_options.h scomplex.h scomplexlist.h simoptions.h ssystem.h strandordering.h 
 
 SOURCES_LOOP = loop.cc move.cc
 SOURCES_ENERGYMODEL = energymodel.cc nupackenergymodel.cc viennaenergymodel.cc
 SOURCES_STATE = scomplex.cc scomplexlist.cc strandordering.cc
-SOURCES_SYSTEM = ssystem.cc simoptions.cc
+SOURCES_SYSTEM =  simoptions.cc ssystem.cc 
 SOURCES_OPTIONS = optionlists.cc python_options.cc
 SOURCES_TESTING = testingmain.cc
 
@@ -29,7 +29,7 @@ SOURCES = $(SOURCES_LOOP) $(SOURCES_ENERGYMODEL) $(SOURCES_STATE) $(SOURCES_SYST
 VPATH=loop state system energymodel include interface
 
 MAIN_OBJECT = testingmain.o
-OBJECTS = loop.o scomplex.o energymodel.o viennaenergymodel.o nupackenergymodel.o move.o ssystem.o simoptions.o scomplexlist.o strandordering.o python_options.o optionlists.o 
+OBJECTS = loop.o scomplex.o energymodel.o viennaenergymodel.o nupackenergymodel.o move.o   simoptions.o ssystem.o scomplexlist.o strandordering.o python_options.o optionlists.o 
 
 
 OBJPATH=obj
@@ -211,7 +211,7 @@ dircheck:
 Multistrand-internal: dircheck Multistrand
 
 # How to build the object files.
-$(OBJPATH)/%.o: %.cc $(INCLUDES)
+$(OBJPATH)/%.o: %.cc $(INCLUDES) 
 	$(COMPILE) $< -c -o $@
 
 Multistrand: $(MAIN_OBJECT) $(OBJECTS)

@@ -5,6 +5,8 @@
 
 #include "options.h"
 #include "ssystem.h"
+#include "simoptions.h"
+
 
 #include <string.h>
 #include <time.h>
@@ -189,7 +191,9 @@ void SimulationSystem::StartSimulation_Standard( void )
       SimulationLoop_Standard();
 
       simulation_count_remaining--;
-      pingAttr( system_options, increment_trajectory_count );
+      pingAttr(system_options, increment_trajectory_count);
+      //sim_options->incrementTrajectoryCount();	// legacy PyObject call
+
 
       generateNextRandom();
     }
@@ -207,6 +211,8 @@ void SimulationSystem::StartSimulation_Transition( void )
 
       simulation_count_remaining--;
       pingAttr( system_options, increment_trajectory_count );
+      //sim_options->incrementTrajectoryCount(); 	// legacy PyObject call
+
       generateNextRandom();
     }
 }
@@ -218,7 +224,11 @@ void SimulationSystem::StartSimulation_Trajectory( void )
   double otime;
 
   getLongAttr(system_options, output_interval,&ointerval);
+//  ointerval = sim_options->getOInterval();
+
   getDoubleAttr(system_options, output_time,&otime);
+  //  otime = sim_options->getOTime();
+
 
   InitializeRNG();  
   while( simulation_count_remaining > 0)
