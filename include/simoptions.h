@@ -37,6 +37,7 @@ public:
 	long getSimulationCount(void);
 
 protected:
+	bool debug;
 	PyObject *python_settings;
 	long simulation_mode;
 	long simulation_count;

@@ -42,16 +42,21 @@ SimulationSystem::SimulationSystem( PyObject *system_o )
 
   //Py_INCREF( system_options );
 
-  getLongAttr(system_options, simulation_mode, &simulation_mode );
-  getLongAttr(system_options, num_simulations, &simulation_count_remaining);
+  //getLongAttr(system_options, simulation_mode, &simulation_mode );
+  //getLongAttr(system_options, num_simulations, &simulation_count_remaining);
+
+  simulation_mode = sim_options->getSimulationMode();
+  simulation_count_remaining = sim_options->getSimulationCount();
+
   if( Loop::GetEnergyModel() == NULL)
     {
       dnaEnergyModel = NULL;
 
-      if(  testLongAttr(system_options, parameter_type,=,0) )
+      if(  testLongAttr(system_options, parameter_type,=,0) ){
         dnaEnergyModel = new ViennaEnergyModel( system_options );
-      else
+      } else {
         dnaEnergyModel = new NupackEnergyModel( system_options );
+      }
       Loop::SetEnergyModel( dnaEnergyModel );
     }
   else
@@ -86,6 +91,7 @@ SimulationSystem::SimulationSystem( void )
     }
 
   system_options = NULL;
+  sim_options = NULL;
   startState = NULL;
   complexList = NULL; 
 }
@@ -112,6 +118,7 @@ SimulationSystem::~SimulationSystem( void )
   //  Py_DECREF( system_options );
 
   system_options = NULL;
+  sim_options = NULL;
   startState = NULL;
 }
 

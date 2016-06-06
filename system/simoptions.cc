@@ -36,6 +36,7 @@ PSimOptions::PSimOptions(PyObject *input){
 	python_settings = input;
 	simulation_mode = NULL;
 	simulation_count = NULL;
+	debug = true;					// this is the main switch for simOptions debug, for now.
 
 }
 
@@ -47,8 +48,15 @@ long PSimOptions::getSimulationMode(void) {
 
 	  getLongAttr(python_settings, simulation_mode, &simulation_mode);
 
+	if(debug){
+
+		printf("The simulation mode is %li \n", simulation_mode);
 
 	}
+
+	}
+
+
 
 	return simulation_mode;
 
@@ -62,6 +70,11 @@ long PSimOptions::getSimulationCount(void) {
 
 		getLongAttr(python_settings, num_simulations, &simulation_count);
 
+	if(debug){
+
+		printf("The simulation count is %li \n", simulation_count);
+
+	}
 
 	}
 
