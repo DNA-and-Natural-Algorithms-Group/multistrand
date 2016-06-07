@@ -2,7 +2,7 @@
  * simOptions.cc
  *
  *  Created on: Jun 5, 2016
- *      Author: hazel
+ *      Author: Frits Dannenberg
  */
 
 #include "options.h"
@@ -36,6 +36,7 @@ PSimOptions::PSimOptions(PyObject *input) {
 	o_time = NULL;
 	stop_options = NULL;
 	stop_count = NULL;
+	max_sim_time = NULL;
 
 	debug = true;	// this is the main switch for simOptions debug, for now.
 
@@ -148,13 +149,13 @@ long PSimOptions::getStopCount(void) {
 
 		if (debug) {
 
-			printf("The stop count is %li \n", stop_options);
+			printf("The stop count is %li \n", stop_count);
 
 		}
 
 	}
 
-	return stop_options;
+	return stop_count;
 
 }
 
@@ -173,16 +174,7 @@ double PSimOptions::getMaxSimTime(void) {
 
 	}
 
-	return stop_options;
+	return max_sim_time;
 
 }
 
-
-
-
-
-//
-////	getLongAttr(system_options, use_stop_conditions, &stopoptions);
-//	stopoptions = sim_options->getStopOptions();
-
-//#endif /* SYSTEM_SIMOPTIONS_H_ */

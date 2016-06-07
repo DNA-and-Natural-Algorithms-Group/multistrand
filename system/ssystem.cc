@@ -195,14 +195,14 @@ void SimulationSystem::StartSimulation_Trajectory(void) {
 	long ointerval;
 	double otime;
 
-	//getLongAttr(system_options, output_interval,&ointerval);
+	getLongAttr(system_options, output_interval,&ointerval);
 	//printf("O-interval is %lu , %ld \n",ointerval);
 	//printf("SimOptions Ointerval is %lu, %ld", sim_options->getOInterval());
-	ointerval = sim_options->getOInterval();
+	//ointerval = sim_options->getOInterval();
 
 
-//  getDoubleAttr(system_options, output_time,&otime);
-	otime = sim_options->getOTime();
+	getDoubleAttr(system_options, output_time,&otime);
+	//otime = sim_options->getOTime();
 
 	InitializeRNG();
 	while (simulation_count_remaining > 0) {
@@ -228,10 +228,10 @@ void SimulationSystem::SimulationLoop_Standard(void) {
 	long stopcount = 0, stopoptions = 0;
 	class stopcomplexes *traverse = NULL, *first = NULL;
 
-//	getLongAttr(system_options, use_stop_conditions, &stopoptions);
+	//getLongAttr(system_options, use_stop_conditions, &stopoptions);
 	stopoptions = sim_options->getStopOptions();
 
-//	getLongAttr(system_options, stop_count, &stopcount);
+	//getLongAttr(system_options, stop_count, &stopcount);
 	stopcount = sim_options->getStopCount();
 
 
@@ -326,6 +326,7 @@ void SimulationSystem::SimulationLoop_Trajectory(long output_count_interval,
 	//  SComplexListEntry *affectedComplex = NULL;
 
 	getDoubleAttr(system_options, simulation_time, &maxsimtime);
+//	maxsimtime = sim_options->getMaxSimTime();
 
 	complexList->initializeList();
 	rate = complexList->getTotalFlux();

@@ -35,10 +35,10 @@ protected:
 	long simulation_mode;
 	long simulation_count;
 	long o_interval;
-	long o_time;
+	double o_time;
 	long stop_options;
 	long stop_count;
-	long max_sim_time;
+	double max_sim_time;
 };
 
 
