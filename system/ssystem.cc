@@ -201,8 +201,8 @@ void SimulationSystem::StartSimulation_Trajectory(void) {
 	ointerval = sim_options->getOInterval();
 
 
-  getDoubleAttr(system_options, output_time,&otime);
-//	otime = sim_options->getOTime();
+//  getDoubleAttr(system_options, output_time,&otime);
+	otime = sim_options->getOTime();
 
 	InitializeRNG();
 	while (simulation_count_remaining > 0) {
@@ -228,11 +228,15 @@ void SimulationSystem::SimulationLoop_Standard(void) {
 	long stopcount = 0, stopoptions = 0;
 	class stopcomplexes *traverse = NULL, *first = NULL;
 
-	getLongAttr(system_options, use_stop_conditions, &stopoptions);
-//	stopoptions = sim_options->getStopOptions();
+//	getLongAttr(system_options, use_stop_conditions, &stopoptions);
+	stopoptions = sim_options->getStopOptions();
 
-	getLongAttr(system_options, stop_count, &stopcount);
-	getDoubleAttr(system_options, simulation_time, &maxsimtime);
+//	getLongAttr(system_options, stop_count, &stopcount);
+	stopcount = sim_options->getStopCount();
+
+
+	//getDoubleAttr(system_options, simulation_time, &maxsimtime);
+	maxsimtime = sim_options->getMaxSimTime();
 
 	complexList->initializeList();
 

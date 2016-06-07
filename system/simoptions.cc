@@ -35,6 +35,7 @@ PSimOptions::PSimOptions(PyObject *input) {
 	o_interval = NULL;
 	o_time = NULL;
 	stop_options = NULL;
+	stop_count = NULL;
 
 	debug = true;	// this is the main switch for simOptions debug, for now.
 
@@ -108,7 +109,7 @@ double PSimOptions::getOTime(void) {
 
 	}
 
-	return simulation_count;
+	return o_time;
 
 }
 
@@ -122,7 +123,7 @@ void PSimOptions::incrementTrajectoryCount(void) {
 
 long PSimOptions::getStopOptions(void) {
 
-	if (o_interval == NULL) {
+	if (stop_options == NULL) {
 
 		getLongAttr(python_settings, use_stop_conditions, &stop_options);
 
@@ -137,6 +138,48 @@ long PSimOptions::getStopOptions(void) {
 	return stop_options;
 
 }
+
+long PSimOptions::getStopCount(void) {
+
+	if (stop_count == NULL) {
+
+
+		getLongAttr(python_settings, stop_count, &stop_count);
+
+		if (debug) {
+
+			printf("The stop count is %li \n", stop_options);
+
+		}
+
+	}
+
+	return stop_options;
+
+}
+
+
+double PSimOptions::getMaxSimTime(void) {
+
+	if (max_sim_time == NULL) {
+
+		getDoubleAttr(python_settings, simulation_time, &max_sim_time);
+
+		if (debug) {
+
+			printf("The max sim time is %d \n", max_sim_time);
+
+		}
+
+	}
+
+	return stop_options;
+
+}
+
+
+
+
 
 //
 ////	getLongAttr(system_options, use_stop_conditions, &stopoptions);
