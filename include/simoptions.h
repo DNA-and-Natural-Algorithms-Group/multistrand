@@ -26,7 +26,7 @@ public:
 	virtual long getOInterval(void) = 0;
 	virtual double getOTime(void) = 0;
 	virtual void incrementTrajectoryCount(void) = 0;
-
+	virtual long getStopOptions(void) = 0;
 	// PyObject compliance
 
 	// actual option values
@@ -35,6 +35,7 @@ protected:
 	long simulation_count;
 	long o_interval;
 	long o_time;
+	long stop_options;
 };
 
 
@@ -51,6 +52,7 @@ public:
 	long getOInterval(void);
 	double getOTime(void);
 	void incrementTrajectoryCount(void);
+	long getStopOptions(void);
 
 	// PyObject compliance
 
@@ -61,3 +63,5 @@ protected:
 };
 
 #endif
+
+

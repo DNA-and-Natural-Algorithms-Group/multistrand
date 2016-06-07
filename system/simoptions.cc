@@ -113,9 +113,35 @@ double PSimOptions::getOTime(void) {
 void PSimOptions::incrementTrajectoryCount(void) {
 
 	if (python_settings != NULL) {
-		//pingAttr(python_settings, increment_trajectory_count);
+		pingAttr(python_settings, increment_trajectory_count);
 	}
 
 }
+
+
+long PSimOptions::getStopOptions(void) {
+
+	if (o_interval == NULL) {
+
+		getLongAttr(python_settings, use_stop_conditions, &stop_options);
+
+		if (debug) {
+
+			printf("The stop option is %li \n", stop_options);
+
+		}
+
+	}
+
+	return stop_options;
+
+}
+
+//
+////	getLongAttr(system_options, use_stop_conditions, &stopoptions);
+//	stopoptions = sim_options->getStopOptions();
+
+
+
 
 //#endif /* SYSTEM_SIMOPTIONS_H_ */
