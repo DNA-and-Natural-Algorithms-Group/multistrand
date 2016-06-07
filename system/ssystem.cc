@@ -195,8 +195,11 @@ void SimulationSystem::StartSimulation_Trajectory(void) {
 	long ointerval;
 	double otime;
 
-  getLongAttr(system_options, output_interval,&ointerval);
-//	ointerval = sim_options->getOInterval();
+	//getLongAttr(system_options, output_interval,&ointerval);
+	//printf("O-interval is %lu , %ld \n",ointerval);
+	//printf("SimOptions Ointerval is %lu, %ld", sim_options->getOInterval());
+	ointerval = sim_options->getOInterval();
+
 
   getDoubleAttr(system_options, output_time,&otime);
 //	otime = sim_options->getOTime();

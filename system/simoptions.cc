@@ -32,6 +32,10 @@ PSimOptions::PSimOptions(PyObject *input) {
 	python_settings = input;
 	simulation_mode = NULL;
 	simulation_count = NULL;
+	o_interval = NULL;
+	o_time = NULL;
+	stop_options = NULL;
+
 	debug = true;	// this is the main switch for simOptions debug, for now.
 
 }
@@ -76,7 +80,7 @@ long PSimOptions::getOInterval(void) {
 
 	if (o_interval == NULL) {
 
-		getLongAttr(python_settings, output_interval,&o_interval);
+		getLongAttr(python_settings, output_interval, &o_interval);
 
 		if (debug) {
 
@@ -86,16 +90,15 @@ long PSimOptions::getOInterval(void) {
 
 	}
 
-	return simulation_count;
+	return o_interval;
 
 }
-
 
 double PSimOptions::getOTime(void) {
 
 	if (o_time == NULL) {
 
-		getDoubleAttr(python_settings, output_time,&o_time);
+		getDoubleAttr(python_settings, output_time, &o_time);
 
 		if (debug) {
 
@@ -109,7 +112,6 @@ double PSimOptions::getOTime(void) {
 
 }
 
-
 void PSimOptions::incrementTrajectoryCount(void) {
 
 	if (python_settings != NULL) {
@@ -117,7 +119,6 @@ void PSimOptions::incrementTrajectoryCount(void) {
 	}
 
 }
-
 
 long PSimOptions::getStopOptions(void) {
 
@@ -140,8 +141,5 @@ long PSimOptions::getStopOptions(void) {
 //
 ////	getLongAttr(system_options, use_stop_conditions, &stopoptions);
 //	stopoptions = sim_options->getStopOptions();
-
-
-
 
 //#endif /* SYSTEM_SIMOPTIONS_H_ */
