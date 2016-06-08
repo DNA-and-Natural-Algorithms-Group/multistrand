@@ -24,29 +24,20 @@ public:
 
 	// Structs
 	struct complex_input {
+
 		std::string sequence;
 		std::string structure;
-		identlist *list;
-		complex_input(char* string1, char* string2, identlist* list1) {
+		std::string list;
 
-			printf("Making new struct \n");
-			printf(string1);
-			printf(string2);
+		complex_input(char* string1, char* string2, char* list1) {
 
 			std::string other1(string1);
 			std::string other2(string2);
+			std::string other3(list1);
 
 			sequence = other1;
 			structure = other2;
-
-
-			list = list1;
-
-			std::cout << sequence;
-			std::cout << structure;
-
-
-			printf("Done making new struct \n");
+			list = other3;
 
 		}
 	};
@@ -62,10 +53,8 @@ public:
 	virtual long getStopCount(void) = 0;
 	virtual double getMaxSimTime(void) = 0;
 	virtual void sendTransitionInfo(PyObject*) = 0; // PyObject compliance
-	virtual std::vector<complex_input>* getComplexes(PyObject* , long) = 0;
-	virtual int getComplexes2(PyObject* , long, StrandComplex*, SComplexList*, EnergyModel*) = 0;
-
-
+	virtual void storeStrandComplex(char*, char*, char*) = 0; 	// backwards way of refactoring
+	virtual PyObject* getPythonSettings(void) = 0;
 
 	// actual option values
 protected:
@@ -77,7 +66,6 @@ protected:
 	long stop_count;
 	double max_sim_time;
 	std::vector<complex_input>* myComplexes;
-	long seed;
 };
 
 class PSimOptions: public SimOptions {
@@ -96,8 +84,8 @@ public:
 	long getStopCount(void);
 	double getMaxSimTime(void);
 	void sendTransitionInfo(PyObject *transitions);
-	std::vector<complex_input>* getComplexes(PyObject* alternate_start, long current_seed);
-	int getComplexes2(PyObject* alternate_start, long current_seed, StrandComplex* startState, SComplexList* complexList, EnergyModel* dnaEnergyModel);
+	void storeStrandComplex(char* input1, char* input2, char* input3 );
+	PyObject* getPythonSettings(void);
 
 protected:
 	bool debug;

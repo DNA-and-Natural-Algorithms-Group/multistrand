@@ -42,8 +42,7 @@ StrandComplex::StrandComplex( char *seq, char *struc )
 
 StrandComplex::StrandComplex( char *seq, char *struc, class identlist *id_list )
 {
-  //  tempseq = seq;
-  //tempstruct = struct;
+
   char *tempseq = (char *) new char[strlen(seq)+1];
   char *tempstruct = (char *) new char[strlen(struc)+1];
   char * tempcseq = (char *) new char[strlen(seq)+1];

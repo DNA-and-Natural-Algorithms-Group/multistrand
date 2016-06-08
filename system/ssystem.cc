@@ -818,98 +818,7 @@ void SimulationSystem::sendTrajectory_CurrentStateToPython(
 }
 
 
-///////////////////////////////////////////////////
-// This has now been ref count checked, etc etc. //
-///////////////////////////////////////////////////
 
-
-
-
-//int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
-//	class StrandComplex *tempcomplex;
-//	char *sequence, *structure;
-//	class identlist *id;
-//	int start_count;
-//
-//	printf("Now you see me.");
-//
-//	std::vector<SimOptions::complex_input>* myComplexes = sim_options->getComplexes(alternate_start, current_seed);
-//
-//
-//	PyObject *py_start_state = NULL, *py_complex = NULL;
-//	PyObject *py_seq = NULL, *py_struc = NULL;
-//	PyObject *py_err = NULL;
-//
-//
-//
-//	// FD: Somehow, the program is scared their complex list will be pre-populated.
-//	startState = NULL;
-//	if (complexList != NULL)
-//		delete complexList;
-//
-//	complexList = new SComplexList(dnaEnergyModel);
-//
-//	start_count = myComplexes->size();
-//
-//	printf("the myComplexes are of size %i \n", start_count);
-//	printf("I am still here \n");
-//
-//	for (SimOptions::complex_input myInput : *myComplexes){
-//
-//		std::cout << "Trying to copy \n";
-//		std::cout << "sequence copy is " << myInput.sequence << " \n";
-//		std::cout << "structure copy is " << myInput.structure << " \n";
-//
-//		strcpy(sequence,myInput.sequence.c_str());	 // copying string from the new data file
-//		strcpy(structure,myInput.structure.c_str());
-////		std::cout << "sequence copy is " << input.sequence << " \n";
-////		std::cout << "structure copy is " << input.structure << " \n";
-//
-//		id = myInput.list;
-//
-//		printf("I am mid-loop \n");
-//		printf("sequence is " );
-//		printf(sequence);
-//		printf(" \n");
-//
-//		printf("structure is " );
-//		printf(structure);
-//		printf(" \n");
-//
-//		std::cout <<  "id is " << (id->toString());
-//
-//		tempcomplex = new StrandComplex(sequence, structure, id);
-//
-//		printf("I am mid-loop 2 \n");
-//
-//		startState = tempcomplex;
-//
-//		printf("I am mid-loop 3 \n");
-//
-//		complexList->addComplex(tempcomplex);
-//
-//		printf("I am mid-loop 4 \n");
-//
-//
-//	}
-//
-//
-//	printf("Now you don't \n");
-//
-//	return 0;
-//}
-
-
-///////////////////////////////////////////////////
-// This has now been ref count checked, etc etc. //
-///////////////////////////////////////////////////
-
-//int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
-//
-//
-//	return sim_options->getComplexes2(alternate_start, current_seed, startState, complexList, dnaEnergyModel);
-//
-//}
 
 ///////////////////////////////////////////////////
 // This has now been ref count checked, etc etc. //
@@ -974,14 +883,17 @@ int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
 
 		id = getID_list(system_options, index, alternate_start);
 
+		// store as much info from the PyObject as possible.
 		tempcomplex = new StrandComplex(sequence, structure, id);
+		sim_options->storeStrandComplex(tempcomplex->getSequence(), tempcomplex->getStructure(), tempcomplex->getStrandNames());
+		startState = tempcomplex;
+		complexList->addComplex(tempcomplex);
+		tempcomplex = NULL;
+
 		// StrandComplex does make its own copy of the seq/structure, so we can now decref.
 
 		Py_DECREF(py_seq);
 		Py_DECREF(py_struc);
-		startState = tempcomplex;
-		complexList->addComplex(tempcomplex);
-		tempcomplex = NULL;
 	}
 	Py_DECREF(py_start_state);
 
