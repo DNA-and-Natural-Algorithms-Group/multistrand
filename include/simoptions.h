@@ -52,6 +52,8 @@ public:
 	virtual long getStopOptions(void) = 0;
 	virtual long getStopCount(void) = 0;
 	virtual double getMaxSimTime(void) = 0;
+
+
 	virtual void sendTransitionInfo(PyObject*) = 0; // PyObject compliance
 	virtual void storeStrandComplex(char*, char*, char*) = 0; 	// backwards way of refactoring
 	virtual PyObject* getPythonSettings(void) = 0;
