@@ -37,12 +37,22 @@ SimulationSystem::SimulationSystem(PyObject *system_o) {
 	system_options = system_o;
 	sim_options = new PSimOptions(system_o);
 
+	// We no longer need the below line; we are guaranteed that options
+	// will have a good reference for the lifetime of our object, as the
+	// controlling wrapper in multistrand_module.cc grabs the reference.
+
+	//Py_INCREF( system_options );
+
 	simulation_mode = sim_options->getSimulationMode();
 	simulation_count_remaining = sim_options->getSimulationCount();
 
-	// FD: only allow nupack for now.
-	dnaEnergyModel = new NupackEnergyModel(system_options);
-	Loop::SetEnergyModel(dnaEnergyModel);
+	if (Loop::GetEnergyModel() == NULL) {
+		dnaEnergyModel = NULL;
+		dnaEnergyModel = new NupackEnergyModel(system_options);
+		Loop::SetEnergyModel(dnaEnergyModel);
+	} else {
+		dnaEnergyModel = Loop::GetEnergyModel();
+	}
 
 	startState = NULL;
 	complexList = NULL;
@@ -146,7 +156,6 @@ void SimulationSystem::StartSimulation(void) {
 void SimulationSystem::finalizeRun(void) {
 
 	simulation_count_remaining--;
-	//pingAttr(system_options, increment_trajectory_count);
 	sim_options->incrementTrajectoryCount();	// legacy PyObject call
 
 	generateNextRandom();
@@ -176,16 +185,9 @@ void SimulationSystem::StartSimulation_Transition(void) {
 }
 
 void SimulationSystem::StartSimulation_Trajectory(void) {
-	long ointerval;
-	double otime;
 
-	getLongAttr(system_options, output_interval, &ointerval);
-	//printf("O-interval is %lu , %ld \n",ointerval);
-	//printf("SimOptions Ointerval is %lu, %ld", sim_options->getOInterval());
-	//ointerval = sim_options->getOInterval();
-
-	getDoubleAttr(system_options, output_time, &otime);
-	//otime = sim_options->getOTime();
+	long ointerval = sim_options->getOInterval();
+	double otime = sim_options->getOTime();
 
 	InitializeRNG();
 	while (simulation_count_remaining > 0) {
@@ -200,25 +202,18 @@ void SimulationSystem::StartSimulation_Trajectory(void) {
 
 void SimulationSystem::SimulationLoop_Standard(void) {
 	double rchoice, rate, stime, ctime;
+
 	// Could really use some commenting on these local vars.
 	rchoice = rate = stime = ctime = 0.0;
 
-	double maxsimtime;
-	maxsimtime = -1.0;
 
 	int curcount = 0;
 	bool checkresult = false;
-	long stopcount = 0, stopoptions = 0;
 	class stopcomplexes *traverse = NULL, *first = NULL;
 
-	//getLongAttr(system_options, use_stop_conditions, &stopoptions);
-	stopoptions = sim_options->getStopOptions();
-
-	//getLongAttr(system_options, stop_count, &stopcount);
-	stopcount = sim_options->getStopCount();
-
-	//getDoubleAttr(system_options, simulation_time, &maxsimtime);
-	maxsimtime = sim_options->getMaxSimTime();
+	double maxsimtime = sim_options->getMaxSimTime();
+	long stopcount = sim_options->getStopCount();
+	long stopoptions = sim_options->getStopOptions();
 
 	complexList->initializeList();
 
@@ -294,24 +289,18 @@ void SimulationSystem::SimulationLoop_Standard(void) {
 
 void SimulationSystem::SimulationLoop_Trajectory(long output_count_interval,
 		double output_time_interval) {
-	double rchoice, rate, current_simulation_time, last_trajectory_time,
-			maxsimtime;
-	// Could really use some commenting on these local vars.
+
+	double rchoice, rate, current_simulation_time, last_trajectory_time;
 	rchoice = rate = 0.0;
-	maxsimtime = -1.0;
+
+	double maxsimtime = sim_options->getMaxSimTime();
+	long stopcount= sim_options->getStopCount();
+	long stopoptions = sim_options->getStopOptions();
 
 	bool checkresult = false;
 	long current_state_count = 0;
-	long stopcount = 0, stopoptions = 0;
 	class stopcomplexes *traverse = NULL, *first = NULL;
 
-	// The tag of the stop state reached.
-	//char *tag = NULL;
-
-	//  SComplexListEntry *affectedComplex = NULL;
-
-//	getDoubleAttr(system_options, simulation_time, &maxsimtime);
-	maxsimtime = sim_options->getMaxSimTime();
 
 	complexList->initializeList();
 	rate = complexList->getTotalFlux();
@@ -322,10 +311,6 @@ void SimulationSystem::SimulationLoop_Trajectory(long output_count_interval,
 	// The last time we gave the output state.
 	last_trajectory_time = 0.0;
 
-	//getLongAttr(system_options, use_stop_conditions, &stopoptions);
-	stopoptions = sim_options->getStopOptions();
-	//getLongAttr(system_options, stop_count, &stopcount);
-	stopcount = sim_options->getStopCount();
 
 	if (stopoptions) {
 		if (stopcount <= 0) {
@@ -404,21 +389,14 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 	bool checkresult = false;
 	bool stop_flag = false;
 	bool state_changed = false;
-	long stopcount = 0, stopoptions = 0, sMode = 0;
-	long ointerval = -1;
+	long stopcount = 0;
 	class stopcomplexes *traverse = NULL, *first = NULL;
 
-	//getLongAttr(system_options, simulation_mode, &sMode);
-	sMode = sim_options->getSimulationMode();
-	//getLongAttr(system_options, output_interval, &ointerval);
-	ointerval = sim_options->getOInterval();
-	//getLongAttr(system_options, use_stop_conditions, &stopoptions);
-	stopoptions = sim_options->getStopOptions();
-	//getLongAttr(system_options, stop_count, &stopcount);
+	long sMode = sim_options->getSimulationMode();
+	long ointerval = sim_options->getOInterval();
+	long stopoptions = sim_options->getStopOptions();
 	stopcount = sim_options->getStopCount();
-	//getDoubleAttr(system_options, simulation_time, &maxsimtime);
 	maxsimtime = sim_options->getMaxSimTime();
-	//getDoubleAttr(system_options, output_time, &otime);
 	otime = sim_options->getOTime();
 
 	if (stopcount <= 0 || !stopoptions) {
@@ -574,9 +552,9 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 
 	double maxsimtime = sim_options->getMaxSimTime();
 	long stopcount = sim_options->getStopCount();
-	long stopoptions  = sim_options->getStopOptions();
+	long stopoptions = sim_options->getStopOptions();
 	class stopcomplexes *traverse = NULL, *first = NULL;
-	long ointerval  = sim_options->getOInterval();
+	long ointerval = sim_options->getOInterval();
 	long trajMode;
 	double otime = sim_options->getOTime();
 	double otime_interval = sim_options->getOInterval();
@@ -799,9 +777,6 @@ void SimulationSystem::sendTrajectory_CurrentStateToPython(
 	pushTrajectoryInfo(system_options, current_time);
 }
 
-
-
-
 ///////////////////////////////////////////////////
 // This has now been ref count checked, etc etc. //
 ///////////////////////////////////////////////////
@@ -868,7 +843,8 @@ int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
 		// store as much info from the PyObject as possible.
 
 		tempcomplex = new StrandComplex(sequence, structure, id);
-		sim_options->storeStrandComplex(tempcomplex->getSequence(), tempcomplex->getStructure(), tempcomplex->getStrandNames());
+		sim_options->storeStrandComplex(tempcomplex->getSequence(),
+				tempcomplex->getStructure(), tempcomplex->getStrandNames());
 		startState = tempcomplex;
 		complexList->addComplex(tempcomplex);
 		tempcomplex = NULL;

@@ -21,6 +21,7 @@ typedef std::vector<bool>::iterator boolvector_iterator;
 class SimulationSystem
 {
  public: 
+  SimulationSystem( SimOptions *options );
   SimulationSystem( PyObject *system_options );
   SimulationSystem( void  );
 
