@@ -11,6 +11,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <vector>
+#include <iostream>
 
 #ifdef PROFILING
 #include "google/profiler.h"
@@ -824,147 +825,173 @@ void SimulationSystem::sendTrajectory_CurrentStateToPython(
 
 
 
-int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
-	class StrandComplex *tempcomplex;
-	char *sequence, *structure;
-	class identlist *id;
-	int start_count;
-
-	printf("Now you see me.");
-
-	std::vector<SimOptions::complex_input> myComplexes = sim_options->getComplexes(alternate_start, current_seed);
-
-
-	PyObject *py_start_state = NULL, *py_complex = NULL;
-	PyObject *py_seq = NULL, *py_struc = NULL;
-	PyObject *py_err = NULL;
-
-
-
-	// FD: Somehow, the program is scared their complex list will be pre-populated.
-	startState = NULL;
-	if (complexList != NULL)
-		delete complexList;
-
-
-	complexList = new SComplexList(dnaEnergyModel);
-
-	start_count = myComplexes.size();
-
-
-	printf("I am still here \n");
-
-	for (int index = 0; index < start_count; index++) {
-
-		sequence = myComplexes.at(index).sequence;
-		structure = myComplexes.at(index).structure;
-		id = myComplexes.at(index).list;
-
-		printf("I am mid-loop \n");
-
-		tempcomplex = new StrandComplex(sequence, structure, id);
-
-		printf("I am mid-loop 2 \n");
-
-		startState = tempcomplex;
-
-		printf("I am mid-loop 3 \n");
-
-		complexList->addComplex(tempcomplex);
-
-		printf("I am mid-loop 4 \n");
-
-
-	}
-
-
-	printf("Now you don't \n");
-
-	return 0;
-}
-
-
-/////////////////////////////////////////////////////
-//// This has now been ref count checked, etc etc. //
-/////////////////////////////////////////////////////
-//
 //int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
 //	class StrandComplex *tempcomplex;
 //	char *sequence, *structure;
 //	class identlist *id;
 //	int start_count;
+//
+//	printf("Now you see me.");
+//
+//	std::vector<SimOptions::complex_input>* myComplexes = sim_options->getComplexes(alternate_start, current_seed);
+//
+//
 //	PyObject *py_start_state = NULL, *py_complex = NULL;
 //	PyObject *py_seq = NULL, *py_struc = NULL;
 //	PyObject *py_err = NULL;
 //
+//
+//
+//	// FD: Somehow, the program is scared their complex list will be pre-populated.
 //	startState = NULL;
 //	if (complexList != NULL)
 //		delete complexList;
 //
 //	complexList = new SComplexList(dnaEnergyModel);
 //
-//	if (alternate_start != NULL)
-//		py_start_state = alternate_start;
-//	else
-//		py_start_state = getListAttr(system_options, start_state);
-//	// new reference
+//	start_count = myComplexes->size();
 //
-//	start_count = PyList_GET_SIZE(py_start_state);
-//	// doesn't need reference counting for this size call.
-//	// the getlistattr call we decref later.
+//	printf("the myComplexes are of size %i \n", start_count);
+//	printf("I am still here \n");
 //
-//	for (int index = 0; index < start_count; index++) {
-//		// #ifndef DEBUG_MACROS
-//		py_complex = PyList_GET_ITEM(py_start_state, index);
-//		// Borrowed reference, we do NOT decref it at end of loop.
+//	for (SimOptions::complex_input myInput : *myComplexes){
 //
-//		// #else
-//		//       py_complex = PyList_GetItem(py_start_state, index);
-//		// #endif
+//		std::cout << "Trying to copy \n";
+//		std::cout << "sequence copy is " << myInput.sequence << " \n";
+//		std::cout << "structure copy is " << myInput.structure << " \n";
 //
-//#ifdef DEBUG_MACROS
-//		printPyError_withLineNumber();
-//#endif
+//		strcpy(sequence,myInput.sequence.c_str());	 // copying string from the new data file
+//		strcpy(structure,myInput.structure.c_str());
+////		std::cout << "sequence copy is " << input.sequence << " \n";
+////		std::cout << "structure copy is " << input.structure << " \n";
 //
-//		sequence = getStringAttr(py_complex, sequence, py_seq);
-//		// new reference
+//		id = myInput.list;
 //
-//		structure = getStringAttr(py_complex, structure, py_struc);
-//		// new reference
-//		// Need to check if an error occurred, specifically, it could be an IOError due to sample failing. If so, we need to get the heck out of dodge right now.
-//		py_err = PyErr_Occurred();
-//		// py_err is a borrowed reference
-//		if (py_err != NULL) { // then an error occurred while getting the structure. Test for IOError (sample failure):
-//			if (PyErr_ExceptionMatches(PyExc_IOError))
-//				fprintf(stderr,
-//						"MULTISTRAND: Starting Structure could not be retrieved for index %d in your options object's start_state. This is likely due to Boltzmann sampling failing: please check that the program 'sample' exists and points correctly to the NUPACK sample binary. Or try 'print o.start_state[%d].structure' where 'o' is your options object and refer to that error message (if any).\n",
-//						index, index);
-//			else
-//				fprintf(stderr,
-//						"MULTISTRAND: An unidentified exception occurred while trying to initialize the system.\n");
-//			return -1;
-//		}
+//		printf("I am mid-loop \n");
+//		printf("sequence is " );
+//		printf(sequence);
+//		printf(" \n");
 //
-//		id = getID_list(system_options, index, alternate_start);
+//		printf("structure is " );
+//		printf(structure);
+//		printf(" \n");
+//
+//		std::cout <<  "id is " << (id->toString());
 //
 //		tempcomplex = new StrandComplex(sequence, structure, id);
-//		// StrandComplex does make its own copy of the seq/structure, so we can now decref.
 //
-//		Py_DECREF(py_seq);
-//		Py_DECREF(py_struc);
+//		printf("I am mid-loop 2 \n");
+//
 //		startState = tempcomplex;
-//		complexList->addComplex(tempcomplex);
-//		tempcomplex = NULL;
-//	}
-//	Py_DECREF(py_start_state);
 //
-//	// Update the current seed and store the starting structures
-//	//   note: only if we actually have a system_options, e.g. no alternate start
-//	if (alternate_start == NULL && system_options != NULL)
-//		setLongAttr(system_options, interface_current_seed, current_seed);
+//		printf("I am mid-loop 3 \n");
+//
+//		complexList->addComplex(tempcomplex);
+//
+//		printf("I am mid-loop 4 \n");
+//
+//
+//	}
+//
+//
+//	printf("Now you don't \n");
 //
 //	return 0;
 //}
+
+
+///////////////////////////////////////////////////
+// This has now been ref count checked, etc etc. //
+///////////////////////////////////////////////////
+
+//int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
+//
+//
+//	return sim_options->getComplexes2(alternate_start, current_seed, startState, complexList, dnaEnergyModel);
+//
+//}
+
+///////////////////////////////////////////////////
+// This has now been ref count checked, etc etc. //
+///////////////////////////////////////////////////
+
+int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
+	class StrandComplex *tempcomplex;
+	char *sequence, *structure;
+	class identlist *id;
+	int start_count;
+	PyObject *py_start_state = NULL, *py_complex = NULL;
+	PyObject *py_seq = NULL, *py_struc = NULL;
+	PyObject *py_err = NULL;
+
+	startState = NULL;
+	if (complexList != NULL)
+		delete complexList;
+
+	complexList = new SComplexList(dnaEnergyModel);
+
+	if (alternate_start != NULL)
+		py_start_state = alternate_start;
+	else
+		py_start_state = getListAttr(system_options, start_state);
+	// new reference
+
+	start_count = PyList_GET_SIZE(py_start_state);
+	// doesn't need reference counting for this size call.
+	// the getlistattr call we decref later.
+
+	for (int index = 0; index < start_count; index++) {
+		// #ifndef DEBUG_MACROS
+		py_complex = PyList_GET_ITEM(py_start_state, index);
+		// Borrowed reference, we do NOT decref it at end of loop.
+
+		// #else
+		//       py_complex = PyList_GetItem(py_start_state, index);
+		// #endif
+
+#ifdef DEBUG_MACROS
+		printPyError_withLineNumber();
+#endif
+
+		sequence = getStringAttr(py_complex, sequence, py_seq);
+		// new reference
+
+		structure = getStringAttr(py_complex, structure, py_struc);
+		// new reference
+		// Need to check if an error occurred, specifically, it could be an IOError due to sample failing. If so, we need to get the heck out of dodge right now.
+		py_err = PyErr_Occurred();
+		// py_err is a borrowed reference
+		if (py_err != NULL) { // then an error occurred while getting the structure. Test for IOError (sample failure):
+			if (PyErr_ExceptionMatches(PyExc_IOError))
+				fprintf(stderr,
+						"MULTISTRAND: Starting Structure could not be retrieved for index %d in your options object's start_state. This is likely due to Boltzmann sampling failing: please check that the program 'sample' exists and points correctly to the NUPACK sample binary. Or try 'print o.start_state[%d].structure' where 'o' is your options object and refer to that error message (if any).\n",
+						index, index);
+			else
+				fprintf(stderr,
+						"MULTISTRAND: An unidentified exception occurred while trying to initialize the system.\n");
+			return -1;
+		}
+
+		id = getID_list(system_options, index, alternate_start);
+
+		tempcomplex = new StrandComplex(sequence, structure, id);
+		// StrandComplex does make its own copy of the seq/structure, so we can now decref.
+
+		Py_DECREF(py_seq);
+		Py_DECREF(py_struc);
+		startState = tempcomplex;
+		complexList->addComplex(tempcomplex);
+		tempcomplex = NULL;
+	}
+	Py_DECREF(py_start_state);
+
+	// Update the current seed and store the starting structures
+	//   note: only if we actually have a system_options, e.g. no alternate start
+	if (alternate_start == NULL && system_options != NULL)
+		setLongAttr(system_options, interface_current_seed, current_seed);
+
+	return 0;
+}
 
 void SimulationSystem::InitializeRNG(void) {
 	bool use_fixed_random_seed = false;

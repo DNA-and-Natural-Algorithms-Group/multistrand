@@ -4,7 +4,7 @@
    Edits by: Chris Berlind    (cberlind@dna.caltech.edu)
 */
  
-#include <string.h>
+#include <string>
 #include "optionlists.h"
 
 /*
@@ -57,6 +57,12 @@ identlist::identlist( long newuid, char *newid, class identlist *old )
 
   uid = newuid;
   next = old;
+}
+
+std::string identlist::toString(){
+
+	return std::string(id);
+
 }
 
 /*

@@ -13,6 +13,7 @@
 #define STOPTYPE_PERCENT_OR_COUNT_STRUCTURE    4
 
 #include <python2.7/Python.h>
+#include <string>
 // for PyObject *
 
 // The bodies for these functions are defined in options.cc, but the
@@ -40,6 +41,7 @@ class identlist {
   class identlist *next;
   identlist( long newuid, char *newid, class identlist *old = NULL);
   void  make_unique( strandlist *strands);
+  std::string toString(void);
   ~identlist( void );
 };
 
