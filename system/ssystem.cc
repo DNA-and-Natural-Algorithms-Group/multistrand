@@ -37,30 +37,12 @@ SimulationSystem::SimulationSystem(PyObject *system_o) {
 	system_options = system_o;
 	sim_options = new PSimOptions(system_o);
 
-	// We no longer need the below line; we are guaranteed that options
-	// will have a good reference for the lifetime of our object, as the
-	// controlling wrapper in multistrand_module.cc grabs the reference.
-
-	//Py_INCREF( system_options );
-
-	//getLongAttr(system_options, simulation_mode, &simulation_mode );
-	//getLongAttr(system_options, num_simulations, &simulation_count_remaining);
-
 	simulation_mode = sim_options->getSimulationMode();
 	simulation_count_remaining = sim_options->getSimulationCount();
 
-	if (Loop::GetEnergyModel() == NULL) {
-		dnaEnergyModel = NULL;
-
-		if (testLongAttr(system_options, parameter_type, =, 0)) {
-			dnaEnergyModel = new ViennaEnergyModel(system_options);
-		} else {
-			dnaEnergyModel = new NupackEnergyModel(system_options);
-		}
-		Loop::SetEnergyModel(dnaEnergyModel);
-	} else {
-		dnaEnergyModel = Loop::GetEnergyModel();
-	}
+	// FD: only allow nupack for now.
+	dnaEnergyModel = new NupackEnergyModel(system_options);
+	Loop::SetEnergyModel(dnaEnergyModel);
 
 	startState = NULL;
 	complexList = NULL;
@@ -884,6 +866,7 @@ int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
 		id = getID_list(system_options, index, alternate_start);
 
 		// store as much info from the PyObject as possible.
+
 		tempcomplex = new StrandComplex(sequence, structure, id);
 		sim_options->storeStrandComplex(tempcomplex->getSequence(), tempcomplex->getStructure(), tempcomplex->getStrandNames());
 		startState = tempcomplex;

@@ -535,13 +535,9 @@ NupackEnergyModel::NupackEnergyModel( PyObject *energy_options ) : log_loop_pena
   getBoolAttr(energy_options, gt_enable ,&gtenable);
   getLongAttr(energy_options, rate_method,&kinetic_rate_method);
 
-  //  if( logml == -1 ) logml = 0;
-  // JS: Should now be correct via new python options object.
-
   waterdensity = setWaterDensity( temperature - TEMPERATURE_ZERO_CELSIUS_IN_KELVIN);
 
 
-  //  printf("Loop Pen: %lf %lf\n",log_loop_penalty_37, log_loop_penalty );
 
   for( loop = 0; loop < NUM_BASES; loop++ )
     pairs[loop] = pairs_mfold[loop];
@@ -1021,15 +1017,10 @@ NupackEnergyModel::NupackEnergyModel( PyObject *energy_options ) : log_loop_pena
   if(!((temperature < CELSIUS37_IN_KELVIN - .00001) || (temperature > CELSIUS37_IN_KELVIN + .00001) ))
     {
       current_temp = CELSIUS37_IN_KELVIN;
-      //bimolecular_penalty = bimolecular_penalty - kBoltzmann * current_temp * log( waterdensity);
       setupRates( energy_options );
       return;
     }
 
-  // NO LONGER NEEDED:
-  //    temperature = temperature + 273.15; // converted to kelvin.
-  // Temerature is always stored in Kelvin and is converted to Celsius in the one spot where it needs that.
-  // temperature conversions, in the order in which they show up in the class.
 
   for( loop = 0; loop < NUM_BASEPAIRS_NUPACK; loop++ )
     for( loop2 = 0; loop2 < NUM_BASEPAIRS_NUPACK; loop2++ )
