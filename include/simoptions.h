@@ -26,9 +26,17 @@ public:
 		char *structure;
 		identlist *list;
 		complex_input(char *string1, char *string2, identlist *list1) {
+
+			printf("Making new struct \n");
+//			printf(string1);
+//			printf(string2);
+
 			sequence = string1;
 			structure = string2;
 			list = list1;
+
+			printf("Done making new struct \n");
+
 		}
 	};
 

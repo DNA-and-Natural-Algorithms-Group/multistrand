@@ -39,7 +39,7 @@ PSimOptions::PSimOptions(PyObject *input) {
 	stop_options = NULL;
 	stop_count = NULL;
 	max_sim_time = NULL;
-	std::vector<complex_input> myComplexes;
+	myComplexes = NULL;
 	seed = NULL;
 
 	debug = true;	// this is the main switch for simOptions debug, for now.
@@ -193,9 +193,11 @@ void PSimOptions::sendTransitionInfo(PyObject *transition_tuple) {
 std::vector<SimOptions::complex_input> PSimOptions::getComplexes(PyObject *alternate_start,
 		long current_seed) {
 
+	printf("Now you see me. 2 \n");
+
 	if (myComplexes == NULL) {
 
-		SimOptions::complex_input *tempcomplex;
+		SimOptions::complex_input *tempcomplex = NULL;
 		char *sequence, *structure;
 		class identlist *id;
 		int start_count;
@@ -203,22 +205,30 @@ std::vector<SimOptions::complex_input> PSimOptions::getComplexes(PyObject *alter
 		PyObject *py_seq = NULL, *py_struc = NULL;
 		PyObject *py_err = NULL;
 
+
+
 		std::vector<SimOptions::complex_input>newVector;
-		*myComplexes = newVector;
+		myComplexes = &newVector;
 
 		if (alternate_start != NULL)
 			py_start_state = alternate_start;
 		else
 			py_start_state = getListAttr(python_settings, start_state);
 
+
 		start_count = PyList_GET_SIZE(py_start_state);
 		// doesn't need reference counting for this size call.
 		// the getlistattr call we decref later.
 
+
+
 		for (int index = 0; index < start_count; index++) {
+
+
 			// #ifndef DEBUG_MACROS
 			py_complex = PyList_GET_ITEM(py_start_state, index);
 			// Borrowed reference, we do NOT decref it at end of loop.
+
 
 #ifdef DEBUG_MACROS
 			printPyError_withLineNumber();
@@ -227,11 +237,17 @@ std::vector<SimOptions::complex_input> PSimOptions::getComplexes(PyObject *alter
 			sequence = getStringAttr(py_complex, sequence, py_seq);
 			// new reference
 
+
+
+
 			structure = getStringAttr(py_complex, structure, py_struc);
 			// new reference
 			// Need to check if an error occurred, specifically, it could be an IOError due to sample failing. If so, we need to get the heck out of dodge right now.
 			py_err = PyErr_Occurred();
 			// py_err is a borrowed reference
+
+
+
 			if (py_err != NULL) { // then an error occurred while getting the structure. Test for IOError (sample failure):
 				if (PyErr_ExceptionMatches(PyExc_IOError))
 					fprintf(stderr,
@@ -243,13 +259,19 @@ std::vector<SimOptions::complex_input> PSimOptions::getComplexes(PyObject *alter
 				return *myComplexes;
 			}
 
+
 			id = getID_list(python_settings, index, alternate_start);
 
-			*tempcomplex = SimOptions::complex_input(sequence, structure, id);
+
+			SimOptions::complex_input myTempComplex = SimOptions::complex_input(sequence, structure, id);
+
+
+
 			// StrandComplex does make its own copy of the seq/structure, so we can now decref.
-			myComplexes->push_back(*tempcomplex);
+			myComplexes->push_back(myTempComplex);
 			Py_DECREF(py_seq);
 			Py_DECREF(py_struc);
+
 		}
 		Py_DECREF(py_start_state);
 
@@ -259,6 +281,9 @@ std::vector<SimOptions::complex_input> PSimOptions::getComplexes(PyObject *alter
 			seed = current_seed;
 		setLongAttr(python_settings, interface_current_seed, current_seed);
 	}
+
+	printf("Now you see me. 5 \n");
+
 
 	return *myComplexes;
 }
