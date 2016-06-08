@@ -10,6 +10,7 @@
 #include <string.h>
 #include <time.h>
 #include <stdlib.h>
+#include <vector>
 
 #ifdef PROFILING
 #include "google/profiler.h"
@@ -195,13 +196,12 @@ void SimulationSystem::StartSimulation_Trajectory(void) {
 	long ointerval;
 	double otime;
 
-	getLongAttr(system_options, output_interval,&ointerval);
+	getLongAttr(system_options, output_interval, &ointerval);
 	//printf("O-interval is %lu , %ld \n",ointerval);
 	//printf("SimOptions Ointerval is %lu, %ld", sim_options->getOInterval());
 	//ointerval = sim_options->getOInterval();
 
-
-	getDoubleAttr(system_options, output_time,&otime);
+	getDoubleAttr(system_options, output_time, &otime);
 	//otime = sim_options->getOTime();
 
 	InitializeRNG();
@@ -234,7 +234,6 @@ void SimulationSystem::SimulationLoop_Standard(void) {
 	//getLongAttr(system_options, stop_count, &stopcount);
 	stopcount = sim_options->getStopCount();
 
-
 	//getDoubleAttr(system_options, simulation_time, &maxsimtime);
 	maxsimtime = sim_options->getMaxSimTime();
 
@@ -262,6 +261,9 @@ void SimulationSystem::SimulationLoop_Standard(void) {
 			// higher. So in our most likely case for what state we'll see
 			// /after/ the max sim time is hit is actually the (more)
 			// unstable state it transitioned to!
+
+			// FD: Mathemathically it is also the correct thing to do,
+			// FD: when we remember the memoryless property of the Markov chain
 
 			complexList->doBasicChoice(rchoice, stime);
 			rate = complexList->getTotalFlux();
@@ -325,8 +327,8 @@ void SimulationSystem::SimulationLoop_Trajectory(long output_count_interval,
 
 	//  SComplexListEntry *affectedComplex = NULL;
 
-	getDoubleAttr(system_options, simulation_time, &maxsimtime);
-//	maxsimtime = sim_options->getMaxSimTime();
+//	getDoubleAttr(system_options, simulation_time, &maxsimtime);
+	maxsimtime = sim_options->getMaxSimTime();
 
 	complexList->initializeList();
 	rate = complexList->getTotalFlux();
@@ -337,8 +339,10 @@ void SimulationSystem::SimulationLoop_Trajectory(long output_count_interval,
 	// The last time we gave the output state.
 	last_trajectory_time = 0.0;
 
-	getLongAttr(system_options, use_stop_conditions, &stopoptions);
-	getLongAttr(system_options, stop_count, &stopcount);
+	//getLongAttr(system_options, use_stop_conditions, &stopoptions);
+	stopoptions = sim_options->getStopOptions();
+	//getLongAttr(system_options, stop_count, &stopcount);
+	stopcount = sim_options->getStopCount();
 
 	if (stopoptions) {
 		if (stopcount <= 0) {
@@ -421,12 +425,18 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 	long ointerval = -1;
 	class stopcomplexes *traverse = NULL, *first = NULL;
 
-	getLongAttr(system_options, simulation_mode, &sMode);
-	getLongAttr(system_options, output_interval, &ointerval);
-	getLongAttr(system_options, use_stop_conditions, &stopoptions);
-	getLongAttr(system_options, stop_count, &stopcount);
-	getDoubleAttr(system_options, simulation_time, &maxsimtime);
-	getDoubleAttr(system_options, output_time, &otime);
+	//getLongAttr(system_options, simulation_mode, &sMode);
+	sMode = sim_options->getSimulationMode();
+	//getLongAttr(system_options, output_interval, &ointerval);
+	ointerval = sim_options->getOInterval();
+	//getLongAttr(system_options, use_stop_conditions, &stopoptions);
+	stopoptions = sim_options->getStopOptions();
+	//getLongAttr(system_options, stop_count, &stopcount);
+	stopcount = sim_options->getStopCount();
+	//getDoubleAttr(system_options, simulation_time, &maxsimtime);
+	maxsimtime = sim_options->getMaxSimTime();
+	//getDoubleAttr(system_options, output_time, &otime);
+	otime = sim_options->getOTime();
 
 	if (stopcount <= 0 || !stopoptions) {
 		// this simulation mode MUST have some stop conditions set.
@@ -568,9 +578,10 @@ void SimulationSystem::StartSimulation_FirstStep(void) {
 			return;
 
 		SimulationLoop_FirstStep();
-		generateNextRandom();
-		pingAttr(system_options, increment_trajectory_count);
-		simulation_count_remaining--;
+		//generateNextRandom();
+		//pingAttr(system_options, increment_trajectory_count);
+		//simulation_count_remaining--;
+		finalizeRun();
 	}
 }
 
@@ -578,22 +589,22 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 	double rchoice, rate, stime = 0.0, ctime = 0.0;
 	bool checkresult = false;
 
-	double maxsimtime;
-	long stopcount;
-	long stopoptions;
+	double maxsimtime = sim_options->getMaxSimTime();
+	long stopcount = sim_options->getStopCount();
+	long stopoptions  = sim_options->getStopOptions();
 	class stopcomplexes *traverse = NULL, *first = NULL;
-	long ointerval;
+	long ointerval  = sim_options->getOInterval();
 	long trajMode;
-	double otime;
-	double otime_interval;
+	double otime = sim_options->getOTime();
+	double otime_interval = sim_options->getOInterval();
 	double frate = 0.0;
 
-	getLongAttr(system_options, output_interval, &ointerval);
-	getDoubleAttr(system_options, output_time, &otime);
-	getLongAttr(system_options, use_stop_conditions, &stopoptions);
-	getLongAttr(system_options, stop_count, &stopcount);
-	getDoubleAttr(system_options, simulation_time, &maxsimtime);
-	getDoubleAttr(system_options, output_time, &otime_interval);
+	//getLongAttr(system_options, output_interval, &ointerval);
+	//getDoubleAttr(system_options, output_time, &otime);
+	//getLongAttr(system_options, use_stop_conditions, &stopoptions);
+	//getLongAttr(system_options, stop_count, &stopcount);
+	//getDoubleAttr(system_options, simulation_time, &maxsimtime);
+	//getDoubleAttr(system_options, output_time, &otime_interval);
 
 	complexList->initializeList();
 
@@ -775,7 +786,9 @@ void SimulationSystem::sendTransitionStateVectorToPython(
 	Py_DECREF(mylist);
 	// we now have no references to mylist directly owned [though transition tuple has one via BuildValue]
 
-	pushTransitionInfo(system_options, transition_tuple);
+//	pushTransitionInfo(system_options, transition_tuple);
+	sim_options->sendTransitionInfo(transition_tuple);
+
 	// transition_tuple has been decreffed by this macro, so we no longer own any references to it
 
 }
@@ -802,6 +815,52 @@ void SimulationSystem::sendTrajectory_CurrentStateToPython(
 	}
 	pushTrajectoryInfo(system_options, current_time);
 }
+
+
+///////////////////////////////////////////////////
+// This has now been ref count checked, etc etc. //
+///////////////////////////////////////////////////
+
+
+
+
+//int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
+//	class StrandComplex *tempcomplex;
+//	char *sequence, *structure;
+//	class identlist *id;
+//	int start_count;
+//
+//	std::vector<SimOptions::complex_input> myComplexes = sim_options->getComplexes(alternate_start, current_seed);
+//
+//	PyObject *py_start_state = NULL, *py_complex = NULL;
+//	PyObject *py_seq = NULL, *py_struc = NULL;
+//	PyObject *py_err = NULL;
+//
+//	// FD: Somehow, the program is scared their complex list will be pre-populated.
+//	startState = NULL;
+//	if (complexList != NULL)
+//		delete complexList;
+//
+//	complexList = new SComplexList(dnaEnergyModel);
+//
+//	start_count = myComplexes.size();
+//
+//	for (int index = 0; index < start_count; index++) {
+//
+//		sequence = myComplexes.at(index).sequence;
+//		structure = myComplexes.at(index).structure;
+//		id = myComplexes.at(index).list;
+//
+//		tempcomplex = new StrandComplex(sequence, structure, id);
+//
+//		startState = tempcomplex;
+//		complexList->addComplex(tempcomplex);
+//
+//	}
+//
+//	return 0;
+//}
+
 
 ///////////////////////////////////////////////////
 // This has now been ref count checked, etc etc. //

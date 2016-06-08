@@ -12,12 +12,25 @@
 
 #include <python2.7/Python.h>
 #include "ssystem.h"
+#include <vector>
 
 class SimOptions {
 public:
 
 	// Constructors
 	SimOptions(void);
+
+	// Structs
+	struct complex_input {
+		char *sequence;
+		char *structure;
+		identlist *list;
+		complex_input(char *string1, char *string2, identlist *list1) {
+			sequence = string1;
+			structure = string2;
+			list = list1;
+		}
+	};
 
 	// Virtual methods
 	virtual ~SimOptions(void);
@@ -29,6 +42,10 @@ public:
 	virtual long getStopOptions(void) = 0;
 	virtual long getStopCount(void) = 0;
 	virtual double getMaxSimTime(void) = 0;
+	virtual void sendTransitionInfo(PyObject*) = 0; // PyObject compliance
+	virtual std::vector<complex_input> getComplexes(PyObject *, long) = 0;
+
+
 
 	// actual option values
 protected:
@@ -39,9 +56,9 @@ protected:
 	long stop_options;
 	long stop_count;
 	double max_sim_time;
+	std::vector<complex_input> *myComplexes;
+	long seed;
 };
-
-
 
 class PSimOptions: public SimOptions {
 public:
@@ -58,7 +75,9 @@ public:
 	long getStopOptions(void);
 	long getStopCount(void);
 	double getMaxSimTime(void);
-
+	void sendTransitionInfo(PyObject *transitions);
+	std::vector<complex_input> getComplexes(PyObject *alternate_start,
+			long current_seed);
 
 protected:
 	bool debug;
@@ -67,5 +86,4 @@ protected:
 };
 
 #endif
-
 
