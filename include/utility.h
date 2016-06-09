@@ -47,14 +47,14 @@ struct complex_input {
 };
 
 
-//void copyToCharArray222(char* myArray, string& myString){
+void copyToCharArray222(char* myArray, string& myString){
+
+//	char* newArray = (char *) new char[myString.length() + 1];
+//	strcpy(newArray, myString.c_str());
 //
-////	char* newArray = (char *) new char[myString.length() + 1];
-////	strcpy(newArray, myString.c_str());
-////
-////	myArray = newArray;
-//
-//};
+//	myArray = newArray;
+
+};
 
 }
 
