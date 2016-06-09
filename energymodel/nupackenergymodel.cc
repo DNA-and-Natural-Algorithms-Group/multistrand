@@ -530,7 +530,6 @@ NupackEnergyModel::NupackEnergyModel( PyObject *energy_options ) : log_loop_pena
   current_temp =  temperature;
 
   getLongAttr(energy_options, dangles,&dangles);
-  //  getLongAttr(energy_options, parameter_type,&ptype);
   getLongAttr(energy_options, log_ml,&logml);
   getBoolAttr(energy_options, gt_enable ,&gtenable);
   getLongAttr(energy_options, rate_method,&kinetic_rate_method);

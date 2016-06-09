@@ -13,50 +13,16 @@
 #include <python2.7/Python.h>
 #include "ssystem.h"
 #include "utility.h"
+
+
 #include <vector>
 #include <string>
 #include <iostream>
+
 using namespace std;
+using namespace utility;
 
 
-
-//void copyToCharArray(char* myArray, string myString){
-//
-//	char* newArray = (char *) new char[myString.length() + 1];
-//	strcpy(newArray, myString.c_str());
-//
-//	myArray = newArray;
-//
-//}
-
-
-
-// Structs
-struct complex_input {
-
-	std::string sequence;
-	std::string structure;
-	identlist* list;
-
-	complex_input() {
-		sequence = "default";
-		structure = "default";
-		list = NULL;
-	}
-
-	complex_input(char* string1, char* string2, identlist* list1) {
-
-		char *tempseq = (char *) new char[strlen(string1) + 1];
-		char *tempstruct = (char *) new char[strlen(string2) + 1];
-		strcpy(tempseq, string1);
-		strcpy(tempstruct, string2);
-
-		sequence = string(tempseq);
-		structure = string(tempstruct);
-		list = list1;
-
-	}
-};
 
 
 class SimOptions {
@@ -79,7 +45,7 @@ public:
 	//virtual void storeStrandComplex(char*, char*, identlist*) = 0; // backwards way of refactoring
 	virtual PyObject* getPythonSettings(void) = 0;
 	virtual void getComplexes(
-			std::vector<complex_input>&, PyObject*, long) = 0;
+			vector<complex_input>&, PyObject*, long) = 0;
 
 	// actual option values
 protected:
@@ -90,7 +56,7 @@ protected:
 	long stop_options;
 	long stop_count;
 	double max_sim_time;
-	std::vector<complex_input>* myComplexes;
+	vector<complex_input>* myComplexes;
 	long seed;
 };
 
@@ -113,7 +79,7 @@ public:
 	//void storeStrandComplex(char* input1, char* input2, identlist* input3);
 	PyObject* getPythonSettings(void);
 	void getComplexes(
-			std::vector<complex_input>& myComplexes, PyObject *alternate_start,
+			vector<complex_input>& myComplexes, PyObject *alternate_start,
 			long current_seed);
 
 protected:

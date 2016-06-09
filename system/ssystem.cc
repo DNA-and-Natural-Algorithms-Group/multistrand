@@ -685,10 +685,6 @@ int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
 	std::vector<complex_input> myComplexes(0);
 	sim_options->getComplexes(myComplexes, alternate_start, current_seed);
 
-	PyObject *py_start_state = NULL, *py_complex = NULL;
-	PyObject *py_seq = NULL, *py_struc = NULL;
-	PyObject *py_err = NULL;
-
 	// FD: Somehow, the program is scared their complex list will be pre-populated.
 	startState = NULL;
 	if (complexList != NULL)
@@ -718,7 +714,6 @@ int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
 		complexList->addComplex(tempcomplex);
 
 	}
-
 
 	return 0;
 }
@@ -776,8 +771,6 @@ PyObject *SimulationSystem::calculateEnergy(PyObject *start_state,
 
 	return retval;
 }
-
-
 
 // FD: Keeping this around for reference just a bit longer
 /////////////////////////////////////////////////////
