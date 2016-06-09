@@ -18,11 +18,6 @@
 #include "google/heap-profiler.h"
 #endif
 
-SimulationSystem::SimulationSystem(int argc, char **argv) {
-	return;
-	// entire function is FAIL. Needs replacing.
-}
-
 SimulationSystem::SimulationSystem(PyObject *system_o) {
 	bool hflag = false;
 #ifdef PROFILING
@@ -40,8 +35,6 @@ SimulationSystem::SimulationSystem(PyObject *system_o) {
 	// We no longer need the below line; we are guaranteed that options
 	// will have a good reference for the lifetime of our object, as the
 	// controlling wrapper in multistrand_module.cc grabs the reference.
-
-	//Py_INCREF( system_options );
 
 	simulation_mode = sim_options->getSimulationMode();
 	simulation_count_remaining = sim_options->getSimulationCount();
@@ -95,12 +88,8 @@ SimulationSystem::~SimulationSystem(void) {
 
 	// the remaining members are not our responsibility, we null them out
 	// just in case something thread-unsafe happens.
+
 	dnaEnergyModel = NULL;
-
-	// now handled in multistrand_module.cc:
-	//  if( system_options != NULL )
-	//  Py_DECREF( system_options );
-
 	system_options = NULL;
 	sim_options = NULL;
 	startState = NULL;
@@ -118,7 +107,6 @@ void SimulationSystem::InitialInfo(void) {
 
 	printf("Initializing list now \n");
 	complexList->initializeList();
-
 	complexList->printComplexList(2);
 
 }
@@ -180,7 +168,6 @@ void SimulationSystem::StartSimulation_Transition(void) {
 
 		SimulationLoop_Transition();
 		finalizeRun();
-
 	}
 }
 
@@ -205,7 +192,6 @@ void SimulationSystem::SimulationLoop_Standard(void) {
 
 	// Could really use some commenting on these local vars.
 	rchoice = rate = stime = ctime = 0.0;
-
 
 	int curcount = 0;
 	bool checkresult = false;
@@ -294,13 +280,12 @@ void SimulationSystem::SimulationLoop_Trajectory(long output_count_interval,
 	rchoice = rate = 0.0;
 
 	double maxsimtime = sim_options->getMaxSimTime();
-	long stopcount= sim_options->getStopCount();
+	long stopcount = sim_options->getStopCount();
 	long stopoptions = sim_options->getStopOptions();
 
 	bool checkresult = false;
 	long current_state_count = 0;
 	class stopcomplexes *traverse = NULL, *first = NULL;
-
 
 	complexList->initializeList();
 	rate = complexList->getTotalFlux();
@@ -310,7 +295,6 @@ void SimulationSystem::SimulationLoop_Trajectory(long output_count_interval,
 
 	// The last time we gave the output state.
 	last_trajectory_time = 0.0;
-
 
 	if (stopoptions) {
 		if (stopcount <= 0) {
@@ -493,42 +477,6 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 				maxsimtime, NULL);
 	}
 
-	// 	if( stopcount > 0 )
-	// 	  {
-	// 		curcount = 1;
-	// 		checkresult = 0;
-	// 		first = getStopComplexList( system_options, 0 );
-	// 		checkresult = complexList->checkStopComplexList( first->citem );
-	// 		traverse = first;
-	// 		while( curcount < stopcount && checkresult == 0 )
-	// 		  {
-	// 			traverse = traverse->next;
-	// 			checkresult = complexList->checkStopComplexList( traverse->citem );
-	// 			curcount++;
-	// 		  }
-	// 		if( checkresult == 0 )
-	// 		  {
-	// 			delete first;
-	// 		  }
-	// 	  }
-	// 	if( checkresult > 0 )
-	// 	  {
-	// 		;// printTrajLine(system_options, traverse->tag, stime );
-	// 	  }
-	// 	else
-	// 	  ;
-	// 	//          printTrajLine(system_options,"NOSTATE", stime );
-	// } while( /*rate > 0.01 && */ stime < maxsimtime && !(checkresult > 0 && stopindex == curcount-1));
-	// if( checkresult > 0 )
-	// 	delete first;
-	// // if( ointerval < 0 || testLongAttr(system_options, output_state ,=, 0 ))
-	// //   complexList->printComplexList( 0 );
-
-	// if( stime == NAN )
-	// 	printStatusLine(system_options, current_seed, STOPRESULT_NAN, 0.0, NULL);
-	// else
-	// 	printStatusLine(system_options, current_seed, STOPRESULT_TIME, stime, NULL );
-
 }
 
 void SimulationSystem::StartSimulation_FirstStep(void) {
@@ -539,9 +487,6 @@ void SimulationSystem::StartSimulation_FirstStep(void) {
 			return;
 
 		SimulationLoop_FirstStep();
-		//generateNextRandom();
-		//pingAttr(system_options, increment_trajectory_count);
-		//simulation_count_remaining--;
 		finalizeRun();
 	}
 }
@@ -550,22 +495,16 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 	double rchoice, rate, stime = 0.0, ctime = 0.0;
 	bool checkresult = false;
 
+	class stopcomplexes *traverse = NULL, *first = NULL;
+	long trajMode;
+	double frate = 0.0;
+
 	double maxsimtime = sim_options->getMaxSimTime();
 	long stopcount = sim_options->getStopCount();
 	long stopoptions = sim_options->getStopOptions();
-	class stopcomplexes *traverse = NULL, *first = NULL;
 	long ointerval = sim_options->getOInterval();
-	long trajMode;
 	double otime = sim_options->getOTime();
 	double otime_interval = sim_options->getOInterval();
-	double frate = 0.0;
-
-	//getLongAttr(system_options, output_interval, &ointerval);
-	//getDoubleAttr(system_options, output_time, &otime);
-	//getLongAttr(system_options, use_stop_conditions, &stopoptions);
-	//getLongAttr(system_options, stop_count, &stopcount);
-	//getDoubleAttr(system_options, simulation_time, &maxsimtime);
-	//getDoubleAttr(system_options, output_time, &otime_interval);
 
 	complexList->initializeList();
 
@@ -603,12 +542,6 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 	// the volume dependent term that is not actually related to the
 	// 'collision' rate, but rather the volume we are simulating.
 
-	// if( ointerval >= 0 || otime_interval > 0.0 )
-	//   {
-	//     complexList->printComplexList( 0 );
-	//     printf("Current State: Choice: %6.4f, Time: %6.6e\n",rchoice, ctime);
-	//   }
-
 	// Begin normal steps.
 	rate = complexList->getTotalFlux();
 	do {
@@ -616,35 +549,9 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 		rchoice = rate * drand48();
 		stime += (log(1. / (1.0 - drand48())) / rate);
 
-		// 1.0 - drand as drand returns in the [0.0, 1.0) range,
-		//  we need a (0.0,1.0] range for this to be the correct
-		// distribution - log 1/U => U in (0.0,1.0] => 1/U => (+Inf,0.0] =>
-		//    natural log:   (log(+Inf), 1.0]
-
-		// if( !sMode && otime > 0.0 )
-		//   {
-		//     if( stime - ctime > otime )
-		//       {
-		//         ctime += otime;
-		//         printf("Current State: Choice: %6.4f, Time: %6.6e\n",rchoice, ctime);
-		//         complexList->printComplexList( 0 );
-		//       }
-
-		//   }
-
 		complexList->doBasicChoice(rchoice, stime);
 		rate = complexList->getTotalFlux();
 
-		// if( !sMode && ointerval >= 0 )
-		//   {
-		//     if( testBoolAttr(system_options, output_state) )
-		//       {
-		//         complexList->printComplexList( 0 );
-		//         printf("Current State: Choice: %6.4f, Time: %6.6e\n",rchoice, stime);
-		//       }
-		//     pingAttr( system_options, increment_output_state );
-
-		//   }
 		if (stopcount > 0 && stopoptions) {
 			checkresult = false;
 			first = getStopComplexList(system_options, 0);
@@ -660,12 +567,6 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 		}
 	} while (stime < maxsimtime && !checkresult);
 
-	// if( !sMode && otime > 0.0 )
-	//   {
-	//     complexList->printComplexList(0);
-	//     printf("Final state reached: Time: %6.6e\n",stime);
-	//   }
-
 	if (checkresult) {
 		dumpCurrentStateToPython();
 		if (strcmp(traverse->tag, "REVERSE") == 0)
@@ -680,8 +581,6 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 		printStatusLine_First_Bimolecular(system_options, current_seed,
 				STOPRESULT_FTIME, stime, frate, NULL);
 	}
-	// if( ! sMode )
-	//   printf("Trajectory Completed\n");
 
 }
 
@@ -777,89 +676,49 @@ void SimulationSystem::sendTrajectory_CurrentStateToPython(
 	pushTrajectoryInfo(system_options, current_time);
 }
 
-///////////////////////////////////////////////////
-// This has now been ref count checked, etc etc. //
-///////////////////////////////////////////////////
-
 int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
 	class StrandComplex *tempcomplex;
-	char *sequence, *structure;
+	char sequence, structure;
 	class identlist *id;
 	int start_count;
+
+	std::vector<complex_input> myComplexes(0);
+	sim_options->getComplexes(myComplexes, alternate_start, current_seed);
+
 	PyObject *py_start_state = NULL, *py_complex = NULL;
 	PyObject *py_seq = NULL, *py_struc = NULL;
 	PyObject *py_err = NULL;
 
+	// FD: Somehow, the program is scared their complex list will be pre-populated.
 	startState = NULL;
 	if (complexList != NULL)
 		delete complexList;
 
 	complexList = new SComplexList(dnaEnergyModel);
 
-	if (alternate_start != NULL)
-		py_start_state = alternate_start;
-	else
-		py_start_state = getListAttr(system_options, start_state);
-	// new reference
+	start_count = myComplexes.size();
 
-	start_count = PyList_GET_SIZE(py_start_state);
-	// doesn't need reference counting for this size call.
-	// the getlistattr call we decref later.
+	for (int i = 0; i < myComplexes.size(); i++) {
 
-	for (int index = 0; index < start_count; index++) {
-		// #ifndef DEBUG_MACROS
-		py_complex = PyList_GET_ITEM(py_start_state, index);
-		// Borrowed reference, we do NOT decref it at end of loop.
+		string& toCopy = myComplexes.at(i).sequence;
+		char* tempSequence = (char *) new char[toCopy.length() + 1];
+		;
+		strcpy(tempSequence, toCopy.c_str());
 
-		// #else
-		//       py_complex = PyList_GetItem(py_start_state, index);
-		// #endif
+		toCopy = myComplexes.at(i).structure;
+		char* tempStructure = (char *) new char[toCopy.length() + 1];
+		;
+		strcpy(tempStructure, toCopy.c_str());
 
-#ifdef DEBUG_MACROS
-		printPyError_withLineNumber();
-#endif
+		id = myComplexes.at(i).list;
 
-		sequence = getStringAttr(py_complex, sequence, py_seq);
-		// new reference
+		tempcomplex = new StrandComplex(tempSequence, tempStructure, id);
 
-		structure = getStringAttr(py_complex, structure, py_struc);
-		// new reference
-		// Need to check if an error occurred, specifically, it could be an IOError due to sample failing. If so, we need to get the heck out of dodge right now.
-		py_err = PyErr_Occurred();
-		// py_err is a borrowed reference
-		if (py_err != NULL) { // then an error occurred while getting the structure. Test for IOError (sample failure):
-			if (PyErr_ExceptionMatches(PyExc_IOError))
-				fprintf(stderr,
-						"MULTISTRAND: Starting Structure could not be retrieved for index %d in your options object's start_state. This is likely due to Boltzmann sampling failing: please check that the program 'sample' exists and points correctly to the NUPACK sample binary. Or try 'print o.start_state[%d].structure' where 'o' is your options object and refer to that error message (if any).\n",
-						index, index);
-			else
-				fprintf(stderr,
-						"MULTISTRAND: An unidentified exception occurred while trying to initialize the system.\n");
-			return -1;
-		}
-
-		id = getID_list(system_options, index, alternate_start);
-
-		// store as much info from the PyObject as possible.
-
-		tempcomplex = new StrandComplex(sequence, structure, id);
-		sim_options->storeStrandComplex(tempcomplex->getSequence(),
-				tempcomplex->getStructure(), tempcomplex->getStrandNames());
 		startState = tempcomplex;
 		complexList->addComplex(tempcomplex);
-		tempcomplex = NULL;
 
-		// StrandComplex does make its own copy of the seq/structure, so we can now decref.
-
-		Py_DECREF(py_seq);
-		Py_DECREF(py_struc);
 	}
-	Py_DECREF(py_start_state);
 
-	// Update the current seed and store the starting structures
-	//   note: only if we actually have a system_options, e.g. no alternate start
-	if (alternate_start == NULL && system_options != NULL)
-		setLongAttr(system_options, interface_current_seed, current_seed);
 
 	return 0;
 }
@@ -917,3 +776,93 @@ PyObject *SimulationSystem::calculateEnergy(PyObject *start_state,
 
 	return retval;
 }
+
+
+
+// FD: Keeping this around for reference just a bit longer
+/////////////////////////////////////////////////////
+//// This has now been ref count checked, etc etc. //
+/////////////////////////////////////////////////////
+//
+//int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
+//	class StrandComplex *tempcomplex;
+//	char *sequence, *structure;
+//	class identlist *id;
+//	int start_count;
+//	PyObject *py_start_state = NULL, *py_complex = NULL;
+//	PyObject *py_seq = NULL, *py_struc = NULL;
+//	PyObject *py_err = NULL;
+//
+//	startState = NULL;
+//	if (complexList != NULL)
+//		delete complexList;
+//
+//	complexList = new SComplexList(dnaEnergyModel);
+//
+//	if (alternate_start != NULL)
+//		py_start_state = alternate_start;
+//	else
+//		py_start_state = getListAttr(system_options, start_state);
+//	// new reference
+//
+//	start_count = PyList_GET_SIZE(py_start_state);
+//	// doesn't need reference counting for this size call.
+//	// the getlistattr call we decref later.
+//
+//	for (int index = 0; index < start_count; index++) {
+//		// #ifndef DEBUG_MACROS
+//		py_complex = PyList_GET_ITEM(py_start_state, index);
+//		// Borrowed reference, we do NOT decref it at end of loop.
+//
+//		// #else
+//		//       py_complex = PyList_GetItem(py_start_state, index);
+//		// #endif
+//
+//#ifdef DEBUG_MACROS
+//		printPyError_withLineNumber();
+//#endif
+//
+//		sequence = getStringAttr(py_complex, sequence, py_seq);
+//		// new reference
+//
+//		structure = getStringAttr(py_complex, structure, py_struc);
+//		// new reference
+//		// Need to check if an error occurred, specifically, it could be an IOError due to sample failing. If so, we need to get the heck out of dodge right now.
+//		py_err = PyErr_Occurred();
+//		// py_err is a borrowed reference
+//		if (py_err != NULL) { // then an error occurred while getting the structure. Test for IOError (sample failure):
+//			if (PyErr_ExceptionMatches(PyExc_IOError))
+//				fprintf(stderr,
+//						"MULTISTRAND: Starting Structure could not be retrieved for index %d in your options object's start_state. This is likely due to Boltzmann sampling failing: please check that the program 'sample' exists and points correctly to the NUPACK sample binary. Or try 'print o.start_state[%d].structure' where 'o' is your options object and refer to that error message (if any).\n",
+//						index, index);
+//			else
+//				fprintf(stderr,
+//						"MULTISTRAND: An unidentified exception occurred while trying to initialize the system.\n");
+//			return -1;
+//		}
+//
+//		id = getID_list(system_options, index, alternate_start);
+//
+//		// store as much info from the PyObject as possible.
+//		tempcomplex = new StrandComplex(sequence, structure, id);
+//		sim_options->storeStrandComplex(tempcomplex->getSequence(),
+//				tempcomplex->getStructure(), tempcomplex->getStrandNames());
+//		startState = tempcomplex;
+//		complexList->addComplex(tempcomplex);
+//		tempcomplex = NULL;
+//
+//		// StrandComplex does make its own copy of the seq/structure, so we can now decref.
+//
+//		Py_DECREF(py_seq);
+//		Py_DECREF(py_struc);
+//	}
+//	Py_DECREF(py_start_state);
+//
+//	// Update the current seed and store the starting structures
+//	//   note: only if we actually have a system_options, e.g. no alternate start
+//	if (alternate_start == NULL && system_options != NULL)
+//		setLongAttr(system_options, interface_current_seed, current_seed);
+//
+//	return 0;
+//}
+

@@ -21,12 +21,9 @@ typedef std::vector<bool>::iterator boolvector_iterator;
 class SimulationSystem
 {
  public: 
-  SimulationSystem( SimOptions *options );
   SimulationSystem( PyObject *system_options );
   SimulationSystem( void  );
 
-  // the following constructor is probably defunct now.
-  SimulationSystem( int argc, char **argv );
 
   ~SimulationSystem( void ); 
 
