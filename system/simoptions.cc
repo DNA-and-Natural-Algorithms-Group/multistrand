@@ -5,7 +5,7 @@
  *      Author: Frits Dannenberg
  */
 
-#include "options.h"
+#include "options.h"	 // python options helper
 #include "ssystem.h"
 #include "simoptions.h"
 #include "scomplex.h"
@@ -15,8 +15,6 @@
 #include <stdlib.h>
 #include <vector>
 #include <iostream>
-
-
 
 SimOptions::SimOptions(void) {
 
@@ -286,5 +284,13 @@ void PSimOptions::getComplexes(std::vector<complex_input>& myComplexes,
 	}
 
 	return;
+}
+
+void PSimOptions::stopResultError(long seed) {
+
+	printStatusLine(python_settings, seed, STOPRESULT_ERROR, 0.0, NULL);
+
+	return;
+
 }
 

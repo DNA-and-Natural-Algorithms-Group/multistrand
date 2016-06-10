@@ -45,6 +45,8 @@ public:
 	virtual PyObject* getPythonSettings(void) = 0;
 	virtual void getComplexes(
 			vector<complex_input>&, PyObject*, long) = 0;
+	virtual void stopResultError(long) = 0;
+
 
 	// actual option values
 protected:
@@ -80,6 +82,7 @@ public:
 	void getComplexes(
 			vector<complex_input>& myComplexes, PyObject *alternate_start,
 			long current_seed);
+	void stopResultError(long);
 
 protected:
 	bool debug;

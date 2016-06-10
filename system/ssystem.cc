@@ -234,8 +234,8 @@ void SimulationSystem::SimulationLoop_Standard(void) {
 
 			if (stopoptions) {
 				if (stopcount <= 0) {
-					printStatusLine(system_options, current_seed,
-							STOPRESULT_ERROR, 0.0, NULL);
+					sim_options->stopResultError(current_seed);
+					//printStatusLine(system_options, current_seed, STOPRESULT_ERROR, 0.0, NULL);
 					return;
 				}
 				checkresult = false;
@@ -696,8 +696,9 @@ int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
 
 	for (int i = 0; i < myComplexes.size(); i++) {
 
-		char* tempSequence = copyToCharArray(myComplexes.at(i).sequence);
-		char* tempStructure = copyToCharArray(myComplexes.at(i).structure);
+
+		char* tempSequence = copyToCharArray( myComplexes.at(i).sequence);
+		char* tempStructure = copyToCharArray( myComplexes.at(i).structure);
 
 		id = myComplexes.at(i).list;
 
