@@ -8,7 +8,8 @@
 #
 #
 
-sources = ["interface/multistrand_module.cc",
+sources = ["system/utility.cc",
+           "interface/multistrand_module.cc",
            "interface/optionlists.cc",
            "interface/options.cc",
            "loop/move.cc",

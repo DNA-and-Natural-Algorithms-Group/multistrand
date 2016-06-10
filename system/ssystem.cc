@@ -696,15 +696,8 @@ int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
 
 	for (int i = 0; i < myComplexes.size(); i++) {
 
-		string& toCopy = myComplexes.at(i).sequence;
-		char* tempSequence = (char *) new char[toCopy.length() + 1];
-		;
-		strcpy(tempSequence, toCopy.c_str());
-
-		toCopy = myComplexes.at(i).structure;
-		char* tempStructure = (char *) new char[toCopy.length() + 1];
-		;
-		strcpy(tempStructure, toCopy.c_str());
+		char* tempSequence = copyToCharArray(myComplexes.at(i).sequence);
+		char* tempStructure = copyToCharArray(myComplexes.at(i).structure);
 
 		id = myComplexes.at(i).list;
 

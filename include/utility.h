@@ -5,19 +5,18 @@
  *      Author: Frits Dannenberg
  */
 
-#ifndef INCLUDE_UTILITY_H_
-#define INCLUDE_UTILITY_H_
+#ifndef INCLUDE_UTILITY_CC_
+#define INCLUDE_UTILITY_CC_
 
 #include <vector>
 #include <string>
 #include <iostream>
+#include "optionlists.h"
 
 using namespace std;
 
-
 // no implementation file for utilities.
-namespace utility{
-
+namespace utility {
 
 // Structs
 struct complex_input {
@@ -46,17 +45,10 @@ struct complex_input {
 	}
 };
 
+char* copyToCharArray(string& ) ;
 
-void copyToCharArray222(char* myArray, string& myString){
 
-//	char* newArray = (char *) new char[myString.length() + 1];
-//	strcpy(newArray, myString.c_str());
-//
-//	myArray = newArray;
-
-};
 
 }
 
-
-#endif /* INCLUDE_UTILITY_H_ */
+#endif /* INCLUDE_UTILITY_CC_ */

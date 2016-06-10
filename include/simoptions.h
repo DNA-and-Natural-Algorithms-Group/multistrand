@@ -12,12 +12,11 @@
 
 #include <python2.7/Python.h>
 #include "ssystem.h"
-#include "utility.h"
-
-
 #include <vector>
 #include <string>
 #include <iostream>
+
+#include "utility.h"
 
 using namespace std;
 using namespace utility;
