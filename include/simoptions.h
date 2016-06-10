@@ -50,6 +50,9 @@ public:
 	virtual void stopResultNormal(long, double, char*) = 0;
 	virtual void stopResultTime(long, double) = 0;
 
+	virtual void stopResultBimolecular(string, long, double, double, char*) = 0;
+
+
 	// actual option values
 protected:
 	long simulation_mode;
@@ -88,6 +91,7 @@ public:
 	void stopResultNan(long);
 	void stopResultNormal(long, double, char*);
 	void stopResultTime(long, double);
+	void stopResultBimolecular(string, long, double, double, char*);
 
 protected:
 	bool debug;

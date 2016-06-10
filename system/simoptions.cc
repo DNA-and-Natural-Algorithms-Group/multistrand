@@ -314,8 +314,25 @@ void PSimOptions::stopResultTime(long seed, double time) {
 
 }
 
+void PSimOptions::stopResultBimolecular(string type, long seed, double stopTime,
+		double rate, char* message) {
 
+	if (type.compare("Reverse")) {
 
+		printStatusLine_First_Bimolecular(python_settings, seed,
+				STOPRESULT_REVERSE, stopTime, rate, message);
 
+	} else if (type.compare("Forward")) {
 
+		printStatusLine_First_Bimolecular(python_settings, seed,
+				STOPRESULT_FORWARD, stopTime, rate, message);
+
+	} else if (type.compare("FTime")) {
+
+		printStatusLine_First_Bimolecular(python_settings, seed,
+				STOPRESULT_FTIME, stopTime, rate, NULL);
+
+	}
+
+}
 

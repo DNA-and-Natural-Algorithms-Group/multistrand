@@ -259,20 +259,14 @@ void SimulationSystem::SimulationLoop_Standard(void) {
 
 	if (stime == NAN)
 		sim_options->stopResultNan(current_seed);
-		//printStatusLine(system_options, current_seed, STOPRESULT_NAN, 0.0,
-		//		NULL);
 	else if (checkresult) {
 		dumpCurrentStateToPython();
 		sim_options->stopResultNormal(current_seed, stime, traverse->tag);
-//		printStatusLine(system_options, current_seed, STOPRESULT_NORMAL, stime,
-//				traverse->tag);
 		delete first;
 	} else // stime >= maxsimtime
 	{
 		dumpCurrentStateToPython();
 		sim_options->stopResultTime(current_seed, maxsimtime);
-//		printStatusLine(system_options, current_seed, STOPRESULT_TIME,
-//				maxsimtime, NULL);
 	}
 }
 
@@ -301,8 +295,7 @@ void SimulationSystem::SimulationLoop_Trajectory(long output_count_interval,
 
 	if (stopoptions) {
 		if (stopcount <= 0) {
-			printStatusLine(system_options, current_seed, STOPRESULT_ERROR, 0.0,
-					NULL);
+			sim_options->stopResultError(current_seed);
 			return;
 		}
 		first = getStopComplexList(system_options, 0);
@@ -352,14 +345,11 @@ void SimulationSystem::SimulationLoop_Trajectory(long output_count_interval,
 	} while (current_simulation_time < maxsimtime && !checkresult);
 
 	if (current_simulation_time == NAN)
-		printStatusLine(system_options, current_seed, STOPRESULT_NAN, 0.0,
-				NULL);
+		sim_options->stopResultNan(current_seed);
 	else if (checkresult) {
-		printStatusLine(system_options, current_seed, STOPRESULT_NORMAL,
-				current_simulation_time, traverse->tag);
+		sim_options->stopResultNormal(current_seed, current_simulation_time, traverse->tag );
 	} else
-		printStatusLine(system_options, current_seed, STOPRESULT_TIME,
-				current_simulation_time, NULL);
+		sim_options->stopResultTime(current_seed, current_simulation_time);
 
 	if (first != NULL)
 		delete first;
@@ -469,15 +459,13 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 	} while (stime < maxsimtime && !stop_flag);
 
 	if (stime == NAN)
-		printStatusLine(system_options, current_seed, STOPRESULT_NAN, 0.0,
-				NULL);
+		sim_options->stopResultNan(current_seed);
 	else if (stop_flag) {
 		dumpCurrentStateToPython();
 	} else // stime >= maxsimtime
 	{
 		dumpCurrentStateToPython();
-		printStatusLine(system_options, current_seed, STOPRESULT_TIME,
-				maxsimtime, NULL);
+		sim_options->stopResultTime(current_seed,maxsimtime);
 	}
 
 }
@@ -573,16 +561,19 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 	if (checkresult) {
 		dumpCurrentStateToPython();
 		if (strcmp(traverse->tag, "REVERSE") == 0)
-			printStatusLine_First_Bimolecular(system_options, current_seed,
-					STOPRESULT_REVERSE, stime, frate, traverse->tag);
+			sim_options->stopResultBimolecular("Reverse",current_seed, stime, frate, traverse->tag);
+//			printStatusLine_First_Bimolecular(system_options, current_seed,
+//					STOPRESULT_REVERSE, stime, frate, traverse->tag);
 		else
-			printStatusLine_First_Bimolecular(system_options, current_seed,
-					STOPRESULT_FORWARD, stime, frate, traverse->tag);
+			sim_options->stopResultBimolecular("Forward",current_seed, stime, frate, traverse->tag);
+//			printStatusLine_First_Bimolecular(system_options, current_seed,
+//					STOPRESULT_FORWARD, stime, frate, traverse->tag);
 		delete first;
 	} else {
 		dumpCurrentStateToPython();
-		printStatusLine_First_Bimolecular(system_options, current_seed,
-				STOPRESULT_FTIME, stime, frate, NULL);
+		sim_options->stopResultBimolecular("FTime", current_seed, stime, frate, NULL);
+//		printStatusLine_First_Bimolecular(system_options, current_seed,
+//				STOPRESULT_FTIME, stime, frate, NULL);
 	}
 
 }
