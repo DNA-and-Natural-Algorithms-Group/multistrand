@@ -46,7 +46,9 @@ public:
 	virtual void getComplexes(
 			vector<complex_input>&, PyObject*, long) = 0;
 	virtual void stopResultError(long) = 0;
-
+	virtual void stopResultNan(long) = 0;
+	virtual void stopResultNormal(long, double, char*) = 0;
+	virtual void stopResultTime(long, double) = 0;
 
 	// actual option values
 protected:
@@ -83,6 +85,9 @@ public:
 			vector<complex_input>& myComplexes, PyObject *alternate_start,
 			long current_seed);
 	void stopResultError(long);
+	void stopResultNan(long);
+	void stopResultNormal(long, double, char*);
+	void stopResultTime(long, double);
 
 protected:
 	bool debug;

@@ -289,8 +289,33 @@ void PSimOptions::getComplexes(std::vector<complex_input>& myComplexes,
 void PSimOptions::stopResultError(long seed) {
 
 	printStatusLine(python_settings, seed, STOPRESULT_ERROR, 0.0, NULL);
-
 	return;
 
 }
+
+void PSimOptions::stopResultNan(long seed) {
+
+	printStatusLine(python_settings, seed, STOPRESULT_NAN, 0.0, NULL);
+	return;
+
+}
+
+void PSimOptions::stopResultNormal(long seed, double time, char* message) {
+
+	printStatusLine(python_settings, seed, STOPRESULT_NORMAL, time, message);
+	return;
+
+}
+
+void PSimOptions::stopResultTime(long seed, double time) {
+
+	printStatusLine(python_settings, seed, STOPRESULT_TIME, time, NULL);
+	return;
+
+}
+
+
+
+
+
 

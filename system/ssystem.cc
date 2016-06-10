@@ -258,18 +258,21 @@ void SimulationSystem::SimulationLoop_Standard(void) {
 	} while (stime < maxsimtime && !checkresult);
 
 	if (stime == NAN)
-		printStatusLine(system_options, current_seed, STOPRESULT_NAN, 0.0,
-				NULL);
+		sim_options->stopResultNan(current_seed);
+		//printStatusLine(system_options, current_seed, STOPRESULT_NAN, 0.0,
+		//		NULL);
 	else if (checkresult) {
 		dumpCurrentStateToPython();
-		printStatusLine(system_options, current_seed, STOPRESULT_NORMAL, stime,
-				traverse->tag);
+		sim_options->stopResultNormal(current_seed, stime, traverse->tag);
+//		printStatusLine(system_options, current_seed, STOPRESULT_NORMAL, stime,
+//				traverse->tag);
 		delete first;
 	} else // stime >= maxsimtime
 	{
 		dumpCurrentStateToPython();
-		printStatusLine(system_options, current_seed, STOPRESULT_TIME,
-				maxsimtime, NULL);
+		sim_options->stopResultTime(current_seed, maxsimtime);
+//		printStatusLine(system_options, current_seed, STOPRESULT_TIME,
+//				maxsimtime, NULL);
 	}
 }
 
