@@ -25,7 +25,7 @@ struct complex_input {
 	std::string structure;
 	identlist* list;
 
-	complex_input() {
+	complex_input() { // empty constuctor
 		sequence = "default";
 		structure = "default";
 		list = NULL;
@@ -45,9 +45,9 @@ struct complex_input {
 	}
 };
 
-char* copyToCharArray(string& ) ;
+char* copyToCharArray(string&);
 
-
+string copyToString(char*);
 
 }
 

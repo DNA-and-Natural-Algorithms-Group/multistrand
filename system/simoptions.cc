@@ -10,11 +10,14 @@
 #include "simoptions.h"
 #include "scomplex.h"
 
-#include <string.h>
 #include <time.h>
-#include <stdlib.h>
 #include <vector>
 #include <iostream>
+#include <string>
+#include <sstream>
+#include <cstring>
+
+using namespace std;
 
 SimOptions::SimOptions(void) {
 
@@ -46,9 +49,38 @@ PSimOptions::PSimOptions(PyObject *input) {
 	max_sim_time = NULL;
 	seed = NULL;
 
-	myComplexes = NULL;
+	debug = false;	// this is the main switch for simOptions debug, for now.
 
-	debug = true;	// this is the main switch for simOptions debug, for now.
+}
+
+string SimOptions::toString() {
+
+	std::stringstream ss;
+
+	ss << "simulation_mode = " << simulation_mode << " \n";
+	ss << "simulation_count = " << simulation_count << " \n";
+	ss << "o_interval = " << o_interval << " \n";
+	ss << "o_time = " << o_time << " \n";
+	ss << "stop_options = " << stop_options << " \n";
+	ss << "stop_count = " << stop_count << " \n";
+	ss << "max_sim_time = " << max_sim_time << " \n";
+	ss << "seed = " << seed << " \n";
+
+	ss << "myComplexes = { ";
+
+	for (int i = 0; i < myComplexes->size(); i++) {
+
+		ss << "{ " << myComplexes->at(i).sequence << ", "
+				<< myComplexes->at(i).structure << ",";
+		//ss << myComplexes->at(i).list->toString() << " }";
+
+	}
+
+	ss << "} \n";
+
+	string output = ss.str();
+
+	return output;
 
 }
 
@@ -202,14 +234,16 @@ PyObject* PSimOptions::getPythonSettings() {
 
 }
 
-void PSimOptions::getComplexes(std::vector<complex_input>& myComplexes,
-		PyObject *alternate_start, long current_seed) {
+void PSimOptions::generateComplexes(PyObject *alternate_start,
+		long current_seed) {
+
+	myComplexes = new vector<complex_input>(0); // wipe the pointer to the previous object;
 
 	PyObject *py_start_state = NULL, *py_complex = NULL;
 	PyObject *py_seq = NULL, *py_struc = NULL;
 	PyObject *py_err = NULL;
 
-	if (myComplexes.size() == 0) {
+	if (myComplexes->size() == 0) {
 
 		complex_input *tempcomplex = NULL;
 		char *sequence, *structure;
@@ -266,7 +300,7 @@ void PSimOptions::getComplexes(std::vector<complex_input>& myComplexes,
 					id);
 
 			// StrandComplex does make its own copy of the seq/structure, so we can now decref.
-			myComplexes.push_back(myTempComplex);
+			myComplexes->push_back(myTempComplex);
 
 			Py_DECREF(py_seq);
 			Py_DECREF(py_struc);

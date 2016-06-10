@@ -41,17 +41,20 @@ public:
 	virtual long getStopCount(void) = 0;
 	virtual double getMaxSimTime(void) = 0;
 	virtual void sendTransitionInfo(PyObject*) = 0; // PyObject compliance
-	//virtual void storeStrandComplex(char*, char*, identlist*) = 0; // backwards way of refactoring
 	virtual PyObject* getPythonSettings(void) = 0;
-	virtual void getComplexes(
-			vector<complex_input>&, PyObject*, long) = 0;
+	virtual void generateComplexes( PyObject*, long) = 0;
+
+	// Exit signalling
 	virtual void stopResultError(long) = 0;
 	virtual void stopResultNan(long) = 0;
 	virtual void stopResultNormal(long, double, char*) = 0;
 	virtual void stopResultTime(long, double) = 0;
-
 	virtual void stopResultBimolecular(string, long, double, double, char*) = 0;
 
+	// IO Methods
+	string toString(void);
+
+	vector<complex_input>* myComplexes;
 
 	// actual option values
 protected:
@@ -62,7 +65,6 @@ protected:
 	long stop_options;
 	long stop_count;
 	double max_sim_time;
-	vector<complex_input>* myComplexes;
 	long seed;
 };
 
@@ -84,14 +86,15 @@ public:
 	void sendTransitionInfo(PyObject *transitions);
 	//void storeStrandComplex(char* input1, char* input2, identlist* input3);
 	PyObject* getPythonSettings(void);
-	void getComplexes(
-			vector<complex_input>& myComplexes, PyObject *alternate_start,
+	void generateComplexes(
+			 PyObject *alternate_start,
 			long current_seed);
 	void stopResultError(long);
 	void stopResultNan(long);
 	void stopResultNormal(long, double, char*);
 	void stopResultTime(long, double);
 	void stopResultBimolecular(string, long, double, double, char*);
+
 
 protected:
 	bool debug;

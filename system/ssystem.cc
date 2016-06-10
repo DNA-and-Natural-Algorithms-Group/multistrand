@@ -131,6 +131,9 @@ void SimulationSystem::StartSimulation(void) {
 	} else
 		StartSimulation_Standard();
 
+	// end info about the used sim_options object
+	cout << sim_options->toString();
+
 #ifdef PROFILING
 	ProfilerStop();
 	if (hflag)
@@ -347,7 +350,8 @@ void SimulationSystem::SimulationLoop_Trajectory(long output_count_interval,
 	if (current_simulation_time == NAN)
 		sim_options->stopResultNan(current_seed);
 	else if (checkresult) {
-		sim_options->stopResultNormal(current_seed, current_simulation_time, traverse->tag );
+		sim_options->stopResultNormal(current_seed, current_simulation_time,
+				traverse->tag);
 	} else
 		sim_options->stopResultTime(current_seed, current_simulation_time);
 
@@ -465,7 +469,7 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 	} else // stime >= maxsimtime
 	{
 		dumpCurrentStateToPython();
-		sim_options->stopResultTime(current_seed,maxsimtime);
+		sim_options->stopResultTime(current_seed, maxsimtime);
 	}
 
 }
@@ -561,17 +565,20 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 	if (checkresult) {
 		dumpCurrentStateToPython();
 		if (strcmp(traverse->tag, "REVERSE") == 0)
-			sim_options->stopResultBimolecular("Reverse",current_seed, stime, frate, traverse->tag);
+			sim_options->stopResultBimolecular("Reverse", current_seed, stime,
+					frate, traverse->tag);
 //			printStatusLine_First_Bimolecular(system_options, current_seed,
 //					STOPRESULT_REVERSE, stime, frate, traverse->tag);
 		else
-			sim_options->stopResultBimolecular("Forward",current_seed, stime, frate, traverse->tag);
+			sim_options->stopResultBimolecular("Forward", current_seed, stime,
+					frate, traverse->tag);
 //			printStatusLine_First_Bimolecular(system_options, current_seed,
 //					STOPRESULT_FORWARD, stime, frate, traverse->tag);
 		delete first;
 	} else {
 		dumpCurrentStateToPython();
-		sim_options->stopResultBimolecular("FTime", current_seed, stime, frate, NULL);
+		sim_options->stopResultBimolecular("FTime", current_seed, stime, frate,
+				NULL);
 //		printStatusLine_First_Bimolecular(system_options, current_seed,
 //				STOPRESULT_FTIME, stime, frate, NULL);
 	}
@@ -672,12 +679,9 @@ void SimulationSystem::sendTrajectory_CurrentStateToPython(
 
 int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
 	class StrandComplex *tempcomplex;
-	char sequence, structure;
 	class identlist *id;
-	int start_count;
 
-	std::vector<complex_input> myComplexes(0);
-	sim_options->getComplexes(myComplexes, alternate_start, current_seed);
+	sim_options->generateComplexes(alternate_start, current_seed);
 
 	// FD: Somehow, the program is scared their complex list will be pre-populated.
 	startState = NULL;
@@ -686,15 +690,14 @@ int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
 
 	complexList = new SComplexList(dnaEnergyModel);
 
-	start_count = myComplexes.size();
+	for (int i = 0; i < sim_options->myComplexes->size(); i++) {
 
-	for (int i = 0; i < myComplexes.size(); i++) {
+		char* tempSequence = copyToCharArray(
+				sim_options->myComplexes->at(i).sequence);
+		char* tempStructure = copyToCharArray(
+				sim_options->myComplexes->at(i).structure);
 
-
-		char* tempSequence = copyToCharArray( myComplexes.at(i).sequence);
-		char* tempStructure = copyToCharArray( myComplexes.at(i).structure);
-
-		id = myComplexes.at(i).list;
+		id = sim_options->myComplexes->at(i).list;
 
 		tempcomplex = new StrandComplex(tempSequence, tempStructure, id);
 
@@ -759,91 +762,4 @@ PyObject *SimulationSystem::calculateEnergy(PyObject *start_state,
 
 	return retval;
 }
-
-// FD: Keeping this around for reference just a bit longer
-/////////////////////////////////////////////////////
-//// This has now been ref count checked, etc etc. //
-/////////////////////////////////////////////////////
-//
-//int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
-//	class StrandComplex *tempcomplex;
-//	char *sequence, *structure;
-//	class identlist *id;
-//	int start_count;
-//	PyObject *py_start_state = NULL, *py_complex = NULL;
-//	PyObject *py_seq = NULL, *py_struc = NULL;
-//	PyObject *py_err = NULL;
-//
-//	startState = NULL;
-//	if (complexList != NULL)
-//		delete complexList;
-//
-//	complexList = new SComplexList(dnaEnergyModel);
-//
-//	if (alternate_start != NULL)
-//		py_start_state = alternate_start;
-//	else
-//		py_start_state = getListAttr(system_options, start_state);
-//	// new reference
-//
-//	start_count = PyList_GET_SIZE(py_start_state);
-//	// doesn't need reference counting for this size call.
-//	// the getlistattr call we decref later.
-//
-//	for (int index = 0; index < start_count; index++) {
-//		// #ifndef DEBUG_MACROS
-//		py_complex = PyList_GET_ITEM(py_start_state, index);
-//		// Borrowed reference, we do NOT decref it at end of loop.
-//
-//		// #else
-//		//       py_complex = PyList_GetItem(py_start_state, index);
-//		// #endif
-//
-//#ifdef DEBUG_MACROS
-//		printPyError_withLineNumber();
-//#endif
-//
-//		sequence = getStringAttr(py_complex, sequence, py_seq);
-//		// new reference
-//
-//		structure = getStringAttr(py_complex, structure, py_struc);
-//		// new reference
-//		// Need to check if an error occurred, specifically, it could be an IOError due to sample failing. If so, we need to get the heck out of dodge right now.
-//		py_err = PyErr_Occurred();
-//		// py_err is a borrowed reference
-//		if (py_err != NULL) { // then an error occurred while getting the structure. Test for IOError (sample failure):
-//			if (PyErr_ExceptionMatches(PyExc_IOError))
-//				fprintf(stderr,
-//						"MULTISTRAND: Starting Structure could not be retrieved for index %d in your options object's start_state. This is likely due to Boltzmann sampling failing: please check that the program 'sample' exists and points correctly to the NUPACK sample binary. Or try 'print o.start_state[%d].structure' where 'o' is your options object and refer to that error message (if any).\n",
-//						index, index);
-//			else
-//				fprintf(stderr,
-//						"MULTISTRAND: An unidentified exception occurred while trying to initialize the system.\n");
-//			return -1;
-//		}
-//
-//		id = getID_list(system_options, index, alternate_start);
-//
-//		// store as much info from the PyObject as possible.
-//		tempcomplex = new StrandComplex(sequence, structure, id);
-//		sim_options->storeStrandComplex(tempcomplex->getSequence(),
-//				tempcomplex->getStructure(), tempcomplex->getStrandNames());
-//		startState = tempcomplex;
-//		complexList->addComplex(tempcomplex);
-//		tempcomplex = NULL;
-//
-//		// StrandComplex does make its own copy of the seq/structure, so we can now decref.
-//
-//		Py_DECREF(py_seq);
-//		Py_DECREF(py_struc);
-//	}
-//	Py_DECREF(py_start_state);
-//
-//	// Update the current seed and store the starting structures
-//	//   note: only if we actually have a system_options, e.g. no alternate start
-//	if (alternate_start == NULL && system_options != NULL)
-//		setLongAttr(system_options, interface_current_seed, current_seed);
-//
-//	return 0;
-//}
 
