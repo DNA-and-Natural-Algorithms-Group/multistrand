@@ -18,7 +18,8 @@
 
 #include "utility.h"
 
-using namespace std;
+using std::vector;
+using std::string;
 using namespace utility;
 
 

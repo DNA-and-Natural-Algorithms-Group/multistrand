@@ -17,7 +17,9 @@
 #include <sstream>
 #include <cstring>
 
-using namespace std;
+using std::vector;
+using std::string;
+
 
 SimOptions::SimOptions(void) {
 
@@ -71,7 +73,7 @@ string SimOptions::toString() {
 	for (int i = 0; i < myComplexes->size(); i++) {
 
 		ss << "{ " << myComplexes->at(i).sequence << ", "
-				<< myComplexes->at(i).structure << ",";
+				<< myComplexes->at(i).structure ; // <<  ",";
 		//ss << myComplexes->at(i).list->toString() << " }";
 
 	}

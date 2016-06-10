@@ -22,9 +22,6 @@ char* utility::copyToCharArray(string& myString) {
 
 string utility::copyToString(char* myCharArray){
 
-//	char* newArray = new char[myCharArray-> + 1];
-////	strcpy(newArray, myString.c_str());
-
 	return string(myCharArray);
 
 }

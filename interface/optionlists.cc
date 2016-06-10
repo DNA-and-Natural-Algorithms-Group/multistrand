@@ -7,6 +7,7 @@
 #include <string>
 #include "optionlists.h"
 #include "utility.h"
+#include <python2.7/Python.h>
 using namespace std;
 
 /*
@@ -64,6 +65,7 @@ identlist::identlist(long newuid, char *newid, class identlist *old) {
 std::string identlist::toString() {
 
 	if (id != NULL) {
+//		const char* s = PyString_AsString(id);
 		return utility::copyToString(id);
 	} else {
 		return string("");
