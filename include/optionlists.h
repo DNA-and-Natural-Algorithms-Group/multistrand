@@ -21,50 +21,50 @@
 // seperated to not cause huge recompiles.
 
 
-class strandlist {
+class strandList {
  public:
   char *id;
   char *seq;
-  class strandlist *next;
+  class strandList *next;
   char *lookup( char *item_id );
   char *name_lookup( char *item_id);
-  strandlist( char *newid, char *newseq, class strandlist *old = NULL );
-  ~strandlist( void );
+  strandList( char *newid, char *newseq, class strandList *old = NULL );
+  ~strandList( void );
 };
 
 
-class identlist {
+class identList {
  public:
   long uid;
   char *id;
   PyObject *pyo_id;  // needed for correct ref counting dealloc.
-  class identlist *next;
-  identlist( long newuid, char *newid, class identlist *old = NULL);
-  void  make_unique( strandlist *strands);
+  class identList *next;
+  identList( long newuid, char *newid, class identList *old = NULL);
+  void  make_unique( strandList *strands);
   std::string toString(void);
-  ~identlist( void );
+  ~identList( void );
 };
 
-class complex_item {
+class complexItem {
  public:
   char *structure;
   int type;
   int count; // for use with percentage or count stop types
-  class identlist *strand_ids;
-  class complex_item *next;
-  complex_item( char *struc, class identlist *strands, class complex_item *old = NULL );
-  complex_item( char *struc, class identlist *strands, class complex_item *old, int newtype );
-  complex_item( char *struc, class identlist *strands, class complex_item *old, int newtype, int newcount );
-  ~complex_item( void );
+  class identList *strand_ids;
+  class complexItem *next;
+  complexItem( char *struc, class identList *strands, class complexItem *old = NULL );
+  complexItem( char *struc, class identList *strands, class complexItem *old, int newtype );
+  complexItem( char *struc, class identList *strands, class complexItem *old, int newtype, int newcount );
+  ~complexItem( void );
 };
 
-class stopcomplexes {
+class stopComplexes {
  public:
   char *tag;
-  class complex_item *citem;
-  class stopcomplexes *next;
-  stopcomplexes( char *newtag, class complex_item *newitem, class stopcomplexes *old = NULL);
-  ~stopcomplexes( void );
+  class complexItem *citem;
+  class stopComplexes *next;
+  stopComplexes( char *newtag, class complexItem *newitem, class stopComplexes *old = NULL);
+  ~stopComplexes( void );
 };
 
 #endif

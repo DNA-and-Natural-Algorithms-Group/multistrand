@@ -29,7 +29,7 @@ class StrandComplex
  public:
   // Constructors. Still not sure on exactly how I want to do these. For now, they take a character sequence and structure.
   StrandComplex( char *seq, char *struc );
-  StrandComplex( char *seq, char *struc, class identlist *id_list );
+  StrandComplex( char *seq, char *struc, class identList *id_list );
 
   StrandComplex( StrandOrdering *newOrdering );
 
@@ -47,7 +47,7 @@ class StrandComplex
   char *getStructure( void );// returns dot-paren notation structure for seq.
   char *getStrandNames( void ); // returns ordered list of strand names
   struct exterior_bases *getExteriorBases( void );
-  int checkIDList( class identlist *stoplist, int id_count );
+  int checkIDList( class identList *stoplist, int id_count );
   int checkIDBound( char *id );
   
   // published functions to affect the complex, these being a choice being made on the move set inside the complex, usually.

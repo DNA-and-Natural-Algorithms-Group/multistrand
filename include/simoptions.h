@@ -43,6 +43,7 @@ public:
 	virtual void sendTransitionInfo(PyObject*) = 0; // PyObject compliance
 	virtual PyObject* getPythonSettings(void) = 0;
 	virtual void generateComplexes( PyObject*, long) = 0;
+	virtual stopComplexes* getStopComplexList(int) = 0;
 
 	// Exit signalling
 	virtual void stopResultError(long) = 0;
@@ -54,6 +55,8 @@ public:
 	// Pushing info back to Python
 	virtual void pushTrajectory(long, int, char*, char*, char*, double) = 0;
 	virtual void pushTrajectoryInf (double)=0;
+
+	// Non-virtual
 
 	// IO Methods
 	string toString(void);
@@ -70,6 +73,7 @@ protected:
 	long stop_count;
 	double max_sim_time;
 	long seed;
+	stopComplexes* myStopComplexes;
 };
 
 class PSimOptions: public SimOptions {
@@ -92,11 +96,17 @@ public:
 	void generateComplexes(
 			 PyObject *alternate_start,
 			long current_seed);
+	virtual stopComplexes* getStopComplexList(int);
+
+
+	// Error signaling
 	void stopResultError(long);
 	void stopResultNan(long);
 	void stopResultNormal(long, double, char*);
 	void stopResultTime(long, double);
 	void stopResultBimolecular(string, long, double, double, char*);
+
+	// Push back to Python
 	void pushTrajectory(long, int, char*, char*, char*, double);
 	void pushTrajectoryInf (double);
 

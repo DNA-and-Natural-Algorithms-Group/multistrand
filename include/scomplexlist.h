@@ -28,12 +28,12 @@ class SComplexList
   SComplexListEntry *getFirst( void );
   SComplexListEntry *doBasicChoice( double choice, double newtime );
   void doJoinChoice( double choice );
-  bool checkStopComplexList( class complex_item *stoplist );
+  bool checkStopComplexList( class complexItem *stoplist );
 
 
  private:
-  bool checkStopComplexList_Bound( class complex_item *stoplist );
-  bool checkStopComplexList_Structure_Disassoc( class complex_item *stoplist );
+  bool checkStopComplexList_Bound( class complexItem *stoplist );
+  bool checkStopComplexList_Structure_Disassoc( class complexItem *stoplist );
   bool checkLooseStructure( char *our_struc, char *stop_struc, int count );
   bool checkCountStructure( char *our_struc, char *stop_struc, int count );
   int numentries;

@@ -561,7 +561,7 @@ void SComplexList::doJoinChoice( double choice )
   bool SComplexList::checkStopComplexList( class complex_item *stoplist )
 
 */
-bool SComplexList::checkStopComplexList( class complex_item *stoplist )
+bool SComplexList::checkStopComplexList( class complexItem *stoplist )
 {
   //if( stoplist->type == STOPTYPE_STRUCTURE || stoplist->type == STOPTYPE_DISASSOC )
   if( stoplist->type == STOPTYPE_BOUND )
@@ -576,9 +576,9 @@ bool SComplexList::checkStopComplexList( class complex_item *stoplist )
 
 */
 
-bool SComplexList::checkStopComplexList_Bound( class complex_item *stoplist )
+bool SComplexList::checkStopComplexList_Bound( class complexItem *stoplist )
 {
-  class identlist *id_traverse = stoplist->strand_ids;
+  class identList *id_traverse = stoplist->strand_ids;
   class SComplexListEntry *entry_traverse = first;
   int k_flag;
   if( stoplist->next != NULL ) 
@@ -608,13 +608,13 @@ bool SComplexList::checkStopComplexList_Bound( class complex_item *stoplist )
   return true;
 }
 
-bool SComplexList::checkStopComplexList_Structure_Disassoc( class complex_item *stoplist )
+bool SComplexList::checkStopComplexList_Structure_Disassoc( class complexItem *stoplist )
 {
   class SComplexListEntry *entry_traverse = first;
-  class complex_item *traverse = stoplist;
+  class complexItem *traverse = stoplist;
   int id_count=0,max_complexes=0; 
   bool successflag = false;
-  class identlist *id_traverse = stoplist->strand_ids;
+  class identList *id_traverse = stoplist->strand_ids;
 
 
   //  if( traverse->type == STOPTYPE_BOUND )

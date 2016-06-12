@@ -23,7 +23,7 @@ struct complex_input {
 
 	std::string sequence;
 	std::string structure;
-	identlist* list;
+	identList* list;
 
 	complex_input() { // empty constuctor
 		sequence = "default";
@@ -31,7 +31,7 @@ struct complex_input {
 		list = NULL;
 	}
 
-	complex_input(char* string1, char* string2, identlist* list1) {
+	complex_input(char* string1, char* string2, identList* list1) {
 
 		char *tempseq = (char *) new char[strlen(string1) + 1];
 		char *tempstruct = (char *) new char[strlen(string2) + 1];

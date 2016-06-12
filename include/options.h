@@ -419,9 +419,9 @@ static inline PyObject *_m_d_newObject( const char *mod, const char *name )
 ******************************************************/
 
 // Functions
-class identlist *makeID_list(PyObject *strand_list);
-class stopcomplexes *getStopComplexList(PyObject *options, int index);
-class identlist *getID_list(PyObject *options, int index, PyObject *alternate_start = NULL);
+class identList *makeID_list(PyObject *strand_list);
+class stopComplexes *getStopComplexList(PyObject *options, int index);
+class identList *getID_list(PyObject *options, int index, PyObject *alternate_start = NULL);
 
 
 

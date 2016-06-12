@@ -32,7 +32,7 @@ StrandComplex::StrandComplex(char *seq, char *struc) {
 
 }
 
-StrandComplex::StrandComplex(char *seq, char *struc, class identlist *id_list) {
+StrandComplex::StrandComplex(char *seq, char *struc, class identList *id_list) {
 
 	char *tempseq = (char *) new char[strlen(seq) + 1];
 	char *tempstruct = (char *) new char[strlen(struc) + 1];
@@ -90,7 +90,7 @@ void StrandComplex::cleanup(void) {
 
  */
 
-int StrandComplex::checkIDList(class identlist *stoplist, int id_count) {
+int StrandComplex::checkIDList(class identList *stoplist, int id_count) {
 	OpenLoop *temp;
 	temp = ordering->checkIDList(stoplist, id_count);
 	if (temp == NULL)

@@ -30,7 +30,7 @@ class StrandOrdering
   StrandOrdering( void );
   StrandOrdering( char *in_seq, char *in_struc, char *in_cseq );
   StrandOrdering( orderinglist *beginning, orderinglist *ending, int numitems);
-  StrandOrdering( char *in_seq, char *in_structure, char *in_cseq, class identlist *strandids );
+  StrandOrdering( char *in_seq, char *in_structure, char *in_cseq, class identList *strandids );
   ~StrandOrdering( void );
   void cleanup( void );
   static StrandOrdering * joinOrdering( StrandOrdering *first, StrandOrdering *second);
@@ -39,7 +39,7 @@ class StrandOrdering
   void addBasepair( char *first_bp, char *second_bp );
   void breakBasepair( char *first_bp, char *second_bp );
 
-  OpenLoop *checkIDList( class identlist *stoplist, int count );
+  OpenLoop *checkIDList( class identList *stoplist, int count );
   int checkIDBound ( char *id );
 
   // following three functions are used by SComplex::generateLoops

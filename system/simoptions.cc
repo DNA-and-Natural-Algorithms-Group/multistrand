@@ -248,7 +248,7 @@ void PSimOptions::generateComplexes(PyObject *alternate_start,
 
 		complex_input *tempcomplex = NULL;
 		char *sequence, *structure;
-		class identlist *id;
+		class identList *id;
 		int start_count;
 		PyObject *py_start_state = NULL, *py_complex = NULL;
 		PyObject *py_seq = NULL, *py_struc = NULL;
@@ -319,6 +319,14 @@ void PSimOptions::generateComplexes(PyObject *alternate_start,
 	}
 
 	return;
+}
+
+
+stopComplexes* PSimOptions::getStopComplexList(int){
+
+	myStopComplexes;
+
+
 }
 
 void PSimOptions::stopResultError(long seed) {

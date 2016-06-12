@@ -15,14 +15,14 @@ using namespace std;
 
  */
 
-strandlist::strandlist( char *newid, char *newseq, class strandlist *old )
+strandList::strandList( char *newid, char *newseq, class strandList *old )
 {
 	id = newid;
 	seq = newseq;
 	next = old;
 }
 
-char *strandlist::lookup(char *item_id) {
+char *strandList::lookup(char *item_id) {
 	if (strcmp(item_id, id) == 0)
 		return seq;
 	else if (next != NULL)
@@ -38,7 +38,7 @@ char *strandlist::lookup(char *item_id) {
 
  */
 
-strandlist::~strandlist(void) {
+strandList::~strandList(void) {
 	if (id != NULL)
 		delete id;
 	if (seq != NULL)
@@ -54,7 +54,7 @@ strandlist::~strandlist(void) {
  This is a very basic linked list constructor.
  */
 
-identlist::identlist(long newuid, char *newid, class identlist *old) {
+identList::identList(long newuid, char *newid, class identList *old) {
 	id = new char[strlen(newid) + 1];
 	strcpy(id, newid);
 
@@ -62,7 +62,7 @@ identlist::identlist(long newuid, char *newid, class identlist *old) {
 	next = old;
 }
 
-std::string identlist::toString() {
+std::string identList::toString() {
 
 	if (id != NULL) {
 //		const char* s = PyString_AsString(id);
@@ -81,7 +81,7 @@ std::string identlist::toString() {
 
  */
 
-identlist::~identlist(void) {
+identList::~identList(void) {
 	if (id != NULL)
 		delete[] id;
 	if (next != NULL)
@@ -95,8 +95,8 @@ identlist::~identlist(void) {
  This is another very basic linked list constructor.
  */
 
-complex_item::complex_item(char *struc, class identlist *strands,
-		class complex_item *old) {
+complexItem::complexItem(char *struc, class identList *strands,
+		class complexItem *old) {
 	structure = new char[strlen(struc) + 1];
 	strcpy(structure, struc);
 
@@ -113,8 +113,8 @@ complex_item::complex_item(char *struc, class identlist *strands,
 	count = 0;
 }
 
-complex_item::complex_item(char *struc, class identlist *strands,
-		class complex_item *old, int newtype) {
+complexItem::complexItem(char *struc, class identList *strands,
+		class complexItem *old, int newtype) {
 	structure = new char[strlen(struc) + 1];
 	strcpy(structure, struc);
 
@@ -133,8 +133,8 @@ complex_item::complex_item(char *struc, class identlist *strands,
 	count = 0;
 }
 
-complex_item::complex_item(char *struc, class identlist *strands,
-		class complex_item *old, int newtype, int newcount) {
+complexItem::complexItem(char *struc, class identList *strands,
+		class complexItem *old, int newtype, int newcount) {
 	structure = new char[strlen(struc) + 1];
 	strcpy(structure, struc);
 
@@ -160,7 +160,7 @@ complex_item::complex_item(char *struc, class identlist *strands,
 
  */
 
-complex_item::~complex_item(void) {
+complexItem::~complexItem(void) {
 	if (structure != NULL)
 		delete[] structure;
 	if (strand_ids != NULL)
@@ -176,8 +176,8 @@ complex_item::~complex_item(void) {
  This is yet another very basic linked list constructor.
  */
 
-stopcomplexes::stopcomplexes(char *newtag, class complex_item *newitem,
-		class stopcomplexes *old) {
+stopComplexes::stopComplexes(char *newtag, class complexItem *newitem,
+		class stopComplexes *old) {
 	tag = new char[strlen(newtag) + 1];
 	strcpy(tag, newtag);
 
@@ -192,7 +192,7 @@ stopcomplexes::stopcomplexes(char *newtag, class complex_item *newitem,
 
  */
 
-stopcomplexes::~stopcomplexes(void) {
+stopComplexes::~stopComplexes(void) {
 	if (tag != NULL)
 		delete[] tag;
 	if (citem != NULL)

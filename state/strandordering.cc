@@ -186,12 +186,12 @@ StrandOrdering::StrandOrdering( char *in_seq, char *in_structure, char *in_cseq 
 }
 
 
-StrandOrdering::StrandOrdering( char *in_seq, char *in_structure, char *in_cseq, class identlist *strandids )
+StrandOrdering::StrandOrdering( char *in_seq, char *in_structure, char *in_cseq, class identList *strandids )
 {
   first = last = NULL;
   total_exterior_bases.A = total_exterior_bases.T = total_exterior_bases.C = total_exterior_bases.G = -1;
   seq = struc = strandnames = NULL;
-  class identlist *traverse = strandids;
+  class identList *traverse = strandids;
 
   // count the number of strands, verify balanced parentheses and connectedness.
   int total_counter=0, strand_counter=0,strand_size=0,sflag = 0; 
@@ -379,10 +379,10 @@ void StrandOrdering::reorder( OpenLoop *index )
 */
 
 
-OpenLoop *StrandOrdering::checkIDList( class identlist * stoplist, int id_count )
+OpenLoop *StrandOrdering::checkIDList( class identList * stoplist, int id_count )
 {
   orderinglist *traverse = first;
-  class identlist *id_traverse = stoplist;
+  class identList *id_traverse = stoplist;
   class OpenLoop *thingtoreturn;
   int num_matched = 0;
   if( id_count != count ) return NULL;
