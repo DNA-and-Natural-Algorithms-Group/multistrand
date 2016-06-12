@@ -25,7 +25,7 @@ class SComplexList
   int getCount( void );
   double *getEnergy( int volume_flag );
   void printComplexList( int printoptions );
-  SComplexListEntry *dumpComplexListToPython( void );
+  SComplexListEntry *getFirst( void );
   SComplexListEntry *doBasicChoice( double choice, double newtime );
   void doJoinChoice( double choice );
   bool checkStopComplexList( class complex_item *stoplist );

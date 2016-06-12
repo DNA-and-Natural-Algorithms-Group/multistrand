@@ -278,7 +278,7 @@ void SComplexList::printComplexList( int printoptions )
     }
 }
 
-SComplexListEntry *SComplexList::dumpComplexListToPython( void )
+SComplexListEntry *SComplexList::getFirst( void )
 {
   return first;
 }
