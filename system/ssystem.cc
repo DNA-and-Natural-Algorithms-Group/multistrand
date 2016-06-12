@@ -567,20 +567,14 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 		if (strcmp(traverse->tag, "REVERSE") == 0)
 			sim_options->stopResultBimolecular("Reverse", current_seed, stime,
 					frate, traverse->tag);
-//			printStatusLine_First_Bimolecular(system_options, current_seed,
-//					STOPRESULT_REVERSE, stime, frate, traverse->tag);
 		else
 			sim_options->stopResultBimolecular("Forward", current_seed, stime,
 					frate, traverse->tag);
-//			printStatusLine_First_Bimolecular(system_options, current_seed,
-//					STOPRESULT_FORWARD, stime, frate, traverse->tag);
 		delete first;
 	} else {
 		dumpCurrentStateToPython();
 		sim_options->stopResultBimolecular("FTime", current_seed, stime, frate,
-				NULL);
-//		printStatusLine_First_Bimolecular(system_options, current_seed,
-//				STOPRESULT_FTIME, stime, frate, NULL);
+		NULL);
 	}
 
 }
@@ -590,7 +584,7 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 // 													  //
 // Helper function to send current state to python side. //
 ///////////////////////////////////////////////////////////
-
+// FD: keeping this around for now
 void SimulationSystem::dumpCurrentStateToPython(void) {
 	int id;
 	char *names, *sequence, *structure;
@@ -598,10 +592,10 @@ void SimulationSystem::dumpCurrentStateToPython(void) {
 	SComplexListEntry *temp;
 	temp = complexList->dumpComplexListToPython();
 	while (temp != NULL) {
-		temp->dumpComplexEntryToPython(&id, &names, &sequence, &structure,
+		temp->createOutputInfo(&id, &names, &sequence, &structure,
 				&energy);
-		printComplexStateLine(system_options, current_seed, id, names, sequence,
-				structure, energy);
+		printComplexStateLine(sim_options->getPythonSettings(), current_seed,
+				id, names, sequence, structure, energy);
 		temp = temp->next;
 	}
 }
@@ -647,7 +641,6 @@ void SimulationSystem::sendTransitionStateVectorToPython(
 	Py_DECREF(mylist);
 	// we now have no references to mylist directly owned [though transition tuple has one via BuildValue]
 
-//	pushTransitionInfo(system_options, transition_tuple);
 	sim_options->sendTransitionInfo(transition_tuple);
 
 	// transition_tuple has been decreffed by this macro, so we no longer own any references to it
@@ -668,15 +661,15 @@ void SimulationSystem::sendTrajectory_CurrentStateToPython(
 	SComplexListEntry *temp;
 	temp = complexList->dumpComplexListToPython();
 	while (temp != NULL) {
-		temp->dumpComplexEntryToPython(&id, &names, &sequence, &structure,
+		temp->createOutputInfo(&id, &names, &sequence, &structure,
 				&energy);
-		pushTrajectoryComplex(system_options, current_seed, id, names, sequence,
-				structure, energy);
+		sim_options->pushTrajectory(current_seed, id, names, sequence, structure, energy);
 		temp = temp->next;
 	}
-	pushTrajectoryInfo(system_options, current_time);
+	sim_options->pushTrajectoryInf(current_time);
 }
 
+// FD: OK to feed in alternate_start = NULL
 int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
 	class StrandComplex *tempcomplex;
 	class identlist *id;

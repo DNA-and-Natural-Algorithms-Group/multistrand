@@ -24,7 +24,6 @@ using namespace utility;
 
 
 
-
 class SimOptions {
 public:
 
@@ -51,6 +50,10 @@ public:
 	virtual void stopResultNormal(long, double, char*) = 0;
 	virtual void stopResultTime(long, double) = 0;
 	virtual void stopResultBimolecular(string, long, double, double, char*) = 0;
+
+	// Pushing info back to Python
+	virtual void pushTrajectory(long, int, char*, char*, char*, double) = 0;
+	virtual void pushTrajectoryInf (double)=0;
 
 	// IO Methods
 	string toString(void);
@@ -85,7 +88,6 @@ public:
 	long getStopCount(void);
 	double getMaxSimTime(void);
 	void sendTransitionInfo(PyObject *transitions);
-	//void storeStrandComplex(char* input1, char* input2, identlist* input3);
 	PyObject* getPythonSettings(void);
 	void generateComplexes(
 			 PyObject *alternate_start,
@@ -95,6 +97,8 @@ public:
 	void stopResultNormal(long, double, char*);
 	void stopResultTime(long, double);
 	void stopResultBimolecular(string, long, double, double, char*);
+	void pushTrajectory(long, int, char*, char*, char*, double);
+	void pushTrajectoryInf (double);
 
 
 protected:

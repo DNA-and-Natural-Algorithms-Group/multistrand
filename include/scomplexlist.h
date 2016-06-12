@@ -53,7 +53,7 @@ class SComplexListEntry
   void initializeComplex( void );
   void fillData( EnergyModel *em );
   void printComplex( int printtype, EnergyModel *em );
-  void dumpComplexEntryToPython( int *our_id, char **names, char **sequence, char **structure, double *our_energy);
+  void createOutputInfo( int *our_id, char **names, char **sequence, char **structure, double *our_energy);
   int id;
   StrandComplex *thisComplex;
   double energy;

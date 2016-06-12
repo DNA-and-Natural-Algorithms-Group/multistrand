@@ -20,7 +20,6 @@
 using std::vector;
 using std::string;
 
-
 SimOptions::SimOptions(void) {
 
 // empty constructor
@@ -73,7 +72,7 @@ string SimOptions::toString() {
 	for (int i = 0; i < myComplexes->size(); i++) {
 
 		ss << "{ " << myComplexes->at(i).sequence << ", "
-				<< myComplexes->at(i).structure ; // <<  ",";
+				<< myComplexes->at(i).structure; // <<  ",";
 		//ss << myComplexes->at(i).list->toString() << " }";
 
 	}
@@ -371,4 +370,20 @@ void PSimOptions::stopResultBimolecular(string type, long seed, double stopTime,
 	}
 
 }
+
+void PSimOptions::pushTrajectory(long seed, int id, char* sequence, char* structure, char* names, double energy){
+
+	pushTrajectoryComplex(python_settings, seed, id, names, sequence,
+			structure, energy);
+
+
+}
+
+void PSimOptions::pushTrajectoryInf(double time){
+
+	pushTrajectoryInfo(python_settings, time);
+
+
+}
+
 
