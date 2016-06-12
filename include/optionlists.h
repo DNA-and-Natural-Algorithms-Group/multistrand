@@ -14,6 +14,8 @@
 
 #include <python2.7/Python.h>
 #include <string>
+using std::string;
+
 // for PyObject *
 
 // The bodies for these functions are defined in options.cc, but the
@@ -33,38 +35,53 @@ class strandList {
 };
 
 
+//FD: Again, a self-rolled linked list.
 class identList {
  public:
+	// Constructors
+  identList( long newuid, char *newid, class identList *old = NULL);
+  ~identList( void );
+
+  // Functions
+  void  make_unique( strandList *strands);
+  std::string toString(void);
+
+  // public variables.
   long uid;
   char *id;
   PyObject *pyo_id;  // needed for correct ref counting dealloc.
   class identList *next;
-  identList( long newuid, char *newid, class identList *old = NULL);
-  void  make_unique( strandList *strands);
-  std::string toString(void);
-  ~identList( void );
 };
 
 class complexItem {
  public:
+	// Constructors
+  complexItem( char *struc, class identList *strands, class complexItem *old = NULL );
+  complexItem( char *struc, class identList *strands, class complexItem *old, int newtype );
+  complexItem( char *struc, class identList *strands, class complexItem *old, int newtype, int newcount );
+  ~complexItem( void );
+
+  // functions
+  string toString();
+
+
+  // public variables
   char *structure;
   int type;
   int count; // for use with percentage or count stop types
   class identList *strand_ids;
   class complexItem *next;
-  complexItem( char *struc, class identList *strands, class complexItem *old = NULL );
-  complexItem( char *struc, class identList *strands, class complexItem *old, int newtype );
-  complexItem( char *struc, class identList *strands, class complexItem *old, int newtype, int newcount );
-  ~complexItem( void );
 };
 
 class stopComplexes {
  public:
-  char *tag;
-  class complexItem *citem;
-  class stopComplexes *next;
   stopComplexes( char *newtag, class complexItem *newitem, class stopComplexes *old = NULL);
   ~stopComplexes( void );
+
+  char *tag;
+
+  class stopComplexes *next;
+  class complexItem *citem;
 };
 
 #endif

@@ -238,7 +238,6 @@ void SimulationSystem::SimulationLoop_Standard(void) {
 			if (stopoptions) {
 				if (stopcount <= 0) {
 					sim_options->stopResultError(current_seed);
-					//printStatusLine(system_options, current_seed, STOPRESULT_ERROR, 0.0, NULL);
 					return;
 				}
 				checkresult = false;
@@ -301,7 +300,7 @@ void SimulationSystem::SimulationLoop_Trajectory(long output_count_interval,
 			sim_options->stopResultError(current_seed);
 			return;
 		}
-		first = getStopComplexList(system_options, 0);
+		first = sim_options->getStopComplexes(0);
 	}
 
 	do {
@@ -382,8 +381,7 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 
 	if (stopcount <= 0 || !stopoptions) {
 		// this simulation mode MUST have some stop conditions set.
-		printStatusLine(system_options, current_seed, STOPRESULT_ERROR, 0.0,
-				NULL);
+		sim_options->stopResultError(current_seed);
 		return;
 	}
 
@@ -397,7 +395,7 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 
 	complexList->initializeList();
 
-	first = getStopComplexList(system_options, 0);
+	first = sim_options->getStopComplexes(0);
 	traverse = first;
 	checkresult = false;
 	for (int idx = 0; idx < stopcount; idx++) {
@@ -432,7 +430,7 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 
 			// check if our transition state membership vector has changed
 			checkresult = false;
-			first = getStopComplexList(system_options, 0);
+			first = sim_options->getStopComplexes(0);
 			traverse = first;
 			for (int idx = 0; idx < stopcount; idx++) {
 				checkresult = complexList->checkStopComplexList(
@@ -440,9 +438,9 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 				if (checkresult && stop_entries[idx] == true) {
 					// multiple stop states could suddenly be true, we add
 					// a status line entry for the first one found.
-					if (!stop_flag)
-						printStatusLine(system_options, current_seed,
-								STOPRESULT_NORMAL, stime, traverse->tag);
+					if (!stop_flag){
+						sim_options->stopResultNormal(current_seed, stime, traverse->tag);
+					}
 
 					stop_flag = true;
 				}
@@ -704,11 +702,12 @@ int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
 void SimulationSystem::InitializeRNG(void) {
 	bool use_fixed_random_seed = false;
 	FILE *fp = NULL;
+
 	getBoolAttr(system_options, initial_seed_flag, &use_fixed_random_seed);
 
-	if (use_fixed_random_seed)
+	if (sim_options->useFixedRandomSeed()) {
 		getLongAttr(system_options, initial_seed, &current_seed);
-	else {
+	} else {
 		if ((fp = fopen("/dev/urandom", "r")) != NULL) { // if urandom exists, use it to provide a seed
 			long deviceseed;
 			fread(&deviceseed, sizeof(long), 1, fp);

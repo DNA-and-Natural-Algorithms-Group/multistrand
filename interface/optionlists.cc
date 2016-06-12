@@ -8,15 +8,16 @@
 #include "optionlists.h"
 #include "utility.h"
 #include <python2.7/Python.h>
-using namespace std;
+
+using std::string;
+//using namespace utility;
 
 /*
  strandlist::strandlist( char *newid, char *newseq, class strandlist *old = NULL )
 
  */
 
-strandList::strandList( char *newid, char *newseq, class strandList *old )
-{
+strandList::strandList(char *newid, char *newseq, class strandList *old) {
 	id = newid;
 	seq = newseq;
 	next = old;
@@ -65,7 +66,6 @@ identList::identList(long newuid, char *newid, class identList *old) {
 std::string identList::toString() {
 
 	if (id != NULL) {
-//		const char* s = PyString_AsString(id);
 		return utility::copyToString(id);
 	} else {
 		return string("");
@@ -92,7 +92,7 @@ identList::~identList(void) {
 /*
  complex_item::complex_item( char *struc, class identlist *strands, class complex_item *old)
 
- This is another very basic linked list constructor.
+ FD: This is another very basic linked list constructor.
  */
 
 complexItem::complexItem(char *struc, class identList *strands,
@@ -185,8 +185,26 @@ stopComplexes::stopComplexes(char *newtag, class complexItem *newitem,
 	next = old;
 }
 
+string complexItem::toString() {
+
+	string output = "";
+	 // FD: This keeps giving formatting errors.
+//	if(structure != NULL){
+//	printf("The structure is");
+//	printf(structure);
+//	printf("\n");
+//	output += utility::copyToString(structure);
+////	output += ", ";
+////	output += strand_ids->toString();
+//	}
+
+	return output;
+
+}
+
 /*
- stopcomplexes::~stopcomplexes( void )
+
+ stopcomplexes::~stopcomplexes(void)
 
  This is a basic linked list destructor. The "tag" member was strdup'd in the parser, and is deleted here via free.
 

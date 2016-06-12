@@ -20,8 +20,11 @@ char* utility::copyToCharArray(string& myString) {
 }
 
 
-string utility::copyToString(char* myCharArray){
+string utility::copyToString(char* inputCharArray){
 
-	return string(myCharArray);
+	char* newArray = (char *) new char[strlen(inputCharArray) + 1];
+	strcpy(newArray, inputCharArray);
+
+	return string(newArray);
 
 }

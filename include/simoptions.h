@@ -36,11 +36,9 @@ public:
 	virtual long getSimulationCount(void) = 0;
 	virtual long getOInterval(void) = 0;
 	virtual double getOTime(void) = 0;
-	virtual void incrementTrajectoryCount(void) = 0;	// PyObject compliance
 	virtual long getStopOptions(void) = 0;
 	virtual long getStopCount(void) = 0;
 	virtual double getMaxSimTime(void) = 0;
-	virtual void sendTransitionInfo(PyObject*) = 0; // PyObject compliance
 	virtual PyObject* getPythonSettings(void) = 0;
 	virtual void generateComplexes( PyObject*, long) = 0;
 	virtual stopComplexes* getStopComplexes(int) = 0;
@@ -53,17 +51,20 @@ public:
 	virtual void stopResultBimolecular(string, long, double, double, char*) = 0;
 
 	// Pushing info back to Python
+	virtual void incrementTrajectoryCount(void) = 0;
+	virtual void sendTransitionInfo(PyObject*) = 0;
 	virtual void pushTrajectory(long, int, char*, char*, char*, double) = 0;
 	virtual void pushTrajectoryInf (double)=0;
 
 	// Non-virtual
+	bool useFixedRandomSeed();
 
 	// IO Methods
 	string toString(void);
 
+	// actual option values
 	vector<complex_input>* myComplexes;
 
-	// actual option values
 protected:
 	long simulation_mode;
 	long simulation_count;
@@ -74,6 +75,7 @@ protected:
 	double max_sim_time;
 	long seed;
 	stopComplexes* myStopComplexes;
+	bool fixedRandomSeed;
 };
 
 class PSimOptions: public SimOptions {
@@ -96,7 +98,7 @@ public:
 	void generateComplexes(
 			 PyObject *alternate_start,
 			long current_seed);
-	virtual stopComplexes* getStopComplexes(int);
+	stopComplexes* getStopComplexes(int);
 
 
 	// Error signaling

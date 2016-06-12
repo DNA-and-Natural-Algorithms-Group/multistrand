@@ -50,6 +50,11 @@ PSimOptions::PSimOptions(PyObject *input) {
 	max_sim_time = NULL;
 	seed = NULL;
 	myStopComplexes = NULL;
+	fixedRandomSeed = false;
+
+	// initializers calling python object -- these can use a super object getter.
+	// Not clear at the moment if calling all settings is possible without crashing.
+	getBoolAttr(python_settings, initial_seed_flag, &fixedRandomSeed);
 
 	debug = false;	// this is the main switch for simOptions debug, for now.
 
@@ -73,8 +78,26 @@ string SimOptions::toString() {
 	for (int i = 0; i < myComplexes->size(); i++) {
 
 		ss << "{ " << myComplexes->at(i).sequence << ", "
-				<< myComplexes->at(i).structure; // <<  ",";
+				<< myComplexes->at(i).structure << " }";
+		// something wrong with tostring of python IDs
 		//ss << myComplexes->at(i).list->toString() << " }";
+
+	}
+
+	ss << "} \n";
+
+	ss << " myStopComplexes = { ";
+
+	// linked list iterator
+	stopComplexes* myStopComplex = myStopComplexes; // copying pointer so we can iterate.
+
+	while (myStopComplex != NULL) {
+
+		ss << "{ " << myStopComplex->citem->toString() << " } ";
+		myStopComplex = myStopComplex->next;
+		// something wrong with tostring of python IDs
+		//	ss << "{ " << myStopComplexes->at(i).sequence << ", "
+		//			<< myStopComplexes->at(i).structure  <<  " }";
 
 	}
 
@@ -83,6 +106,12 @@ string SimOptions::toString() {
 	string output = ss.str();
 
 	return output;
+
+}
+
+bool SimOptions::useFixedRandomSeed() {
+
+	return fixedRandomSeed;
 
 }
 
