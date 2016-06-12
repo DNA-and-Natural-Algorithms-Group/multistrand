@@ -1,7 +1,7 @@
 /*
  * m_options.h
  *
- *  Created on: Jun 5, 2016
+ *  Created on: Jun 12, 2016
  *      Author: Frits Dannenberg
  */
 
@@ -12,22 +12,22 @@
 
 #include <python2.7/Python.h>
 #include "ssystem.h"
+#include "simoptions.h"
 #include <vector>
 #include <string>
 #include <iostream>
 
 #include "utility.h"
-
-using std::vector;
-using std::string;
-using namespace utility;
+//
+//using std::vector;
+//using std::string;
+//using namespace utility;
 
 class EnergyOptions {
 public:
-
 	// Constructors
 	EnergyOptions(void);
-	virtual ~EnergyOptions(void);
+	~EnergyOptions(void);
 
 	// non-virtual getters
 //	long getSimulationMode(void);
@@ -39,7 +39,7 @@ public:
 protected:
 
 	double temperature = NULL;
-	long dangles  = NULL;
+	long dangles = NULL;
 	long logml = NULL;
 	bool gtenable = NULL;
 	long kinetic_rate_method = NULL;

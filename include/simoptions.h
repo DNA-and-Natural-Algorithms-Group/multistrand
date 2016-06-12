@@ -16,13 +16,14 @@
 #include <string>
 #include <iostream>
 
+#include "energyoptions.h"
 #include "utility.h"
 
 using std::vector;
 using std::string;
 using namespace utility;
 
-
+class EnergyOptions; // forward declare
 
 class SimOptions {
 public:
@@ -40,7 +41,7 @@ public:
 	virtual long getStopCount(void) = 0;
 	virtual double getMaxSimTime(void) = 0;
 	virtual PyObject* getPythonSettings(void) = 0;
-	virtual void generateComplexes( PyObject*, long) = 0;
+	virtual void generateComplexes(PyObject*, long) = 0;
 	virtual stopComplexes* getStopComplexes(int) = 0;
 
 	// Exit signalling
@@ -54,7 +55,7 @@ public:
 	virtual void incrementTrajectoryCount(void) = 0;
 	virtual void sendTransitionInfo(PyObject*) = 0;
 	virtual void pushTrajectory(long, int, char*, char*, char*, double) = 0;
-	virtual void pushTrajectoryInf (double)=0;
+	virtual void pushTrajectoryInf(double)=0;
 
 	// Non-virtual
 	bool useFixedRandomSeed();
@@ -77,6 +78,8 @@ protected:
 	long seed;
 	stopComplexes* myStopComplexes;
 	bool fixedRandomSeed;
+
+	EnergyOptions* myEnergyOptions;
 };
 
 class PSimOptions: public SimOptions {
@@ -96,11 +99,8 @@ public:
 	double getMaxSimTime(void);
 	void sendTransitionInfo(PyObject *transitions);
 	PyObject* getPythonSettings(void);
-	void generateComplexes(
-			 PyObject *alternate_start,
-			long current_seed);
+	void generateComplexes(PyObject *alternate_start, long current_seed);
 	stopComplexes* getStopComplexes(int);
-
 
 	// Error signaling
 	void stopResultError(long);
@@ -111,8 +111,7 @@ public:
 
 	// Push back to Python
 	void pushTrajectory(long, int, char*, char*, char*, double);
-	void pushTrajectoryInf (double);
-
+	void pushTrajectoryInf(double);
 
 protected:
 	bool debug;

@@ -7,7 +7,6 @@
 
 #include "options.h"	 // python options helper
 #include "energyoptions.h"
-#include "energyoptions.h"
 
 #include <vector>
 #include <iostream>
@@ -18,8 +17,11 @@ using std::string;
 
 EnergyOptions::EnergyOptions(void) {
 
-// empty constructor
-
+	temperature = NULL;
+	dangles = NULL;
+	logml = NULL;
+	gtenable = NULL;
+	kinetic_rate_method = NULL;
 }
 
 EnergyOptions::~EnergyOptions(void) {
@@ -31,21 +33,14 @@ EnergyOptions::~EnergyOptions(void) {
 PEnergyOptions::PEnergyOptions(void) :
 		PEnergyOptions(NULL) {
 
-// passed-on constructor
-
 }
 
-PEnergyOptions::PEnergyOptions(PyObject* input) {
+PEnergyOptions::PEnergyOptions(PyObject* input) :
+		EnergyOptions() {
 
-// empty constructor
+	// extended constructor, inherits from regular energyOptions
 
 	python_settings = input;
-
-	temperature = NULL;
-	dangles  = NULL;
-	logml = NULL;
-	gtenable = NULL;
-	kinetic_rate_method = NULL;
 
 	getDoubleAttr(python_settings, temperature, &temperature);
 	getLongAttr(python_settings, dangles, &dangles);

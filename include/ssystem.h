@@ -13,6 +13,7 @@
 #include "scomplex.h"
 #include "scomplexlist.h"
 #include "simoptions.h"
+#include "energyoptions.h"
 #include <vector>
 
 typedef std::vector<bool> boolvector;
