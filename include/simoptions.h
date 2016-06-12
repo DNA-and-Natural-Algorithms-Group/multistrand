@@ -58,6 +58,7 @@ public:
 
 	// Non-virtual
 	bool useFixedRandomSeed();
+	long getInitialSeed();
 
 	// IO Methods
 	string toString(void);

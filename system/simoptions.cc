@@ -8,6 +8,7 @@
 #include "options.h"	 // python options helper
 #include "ssystem.h"
 #include "simoptions.h"
+#include "energyoptions.h"
 #include "scomplex.h"
 
 #include <time.h>
@@ -24,6 +25,17 @@ SimOptions::SimOptions(void) {
 
 // empty constructor
 
+	simulation_mode = NULL;
+	simulation_count = NULL;
+	o_interval = NULL;
+	o_time = NULL;
+	stop_options = NULL;
+	stop_count = NULL;
+	max_sim_time = NULL;
+	seed = NULL;
+	myStopComplexes = NULL;
+	fixedRandomSeed = false;
+
 }
 
 SimOptions::~SimOptions(void) {
@@ -38,23 +50,23 @@ PSimOptions::PSimOptions(void) :
 
 }
 
-PSimOptions::PSimOptions(PyObject *input) {
+PSimOptions::PSimOptions(PyObject* input) :
+		SimOptions() {
+	// Inherited constructor.
 
 	python_settings = input;
-	simulation_mode = NULL;
-	simulation_count = NULL;
-	o_interval = NULL;
-	o_time = NULL;
-	stop_options = NULL;
-	stop_count = NULL;
-	max_sim_time = NULL;
-	seed = NULL;
-	myStopComplexes = NULL;
-	fixedRandomSeed = false;
+
+	//energyOptions = EnergyOptions(input);
 
 	// initializers calling python object -- these can use a super object getter.
 	// Not clear at the moment if calling all settings is possible without crashing.
 	getBoolAttr(python_settings, initial_seed_flag, &fixedRandomSeed);
+
+	if (fixedRandomSeed) {
+
+		getLongAttr(python_settings, initial_seed, &seed);
+
+	}
 
 	debug = false;	// this is the main switch for simOptions debug, for now.
 
@@ -112,6 +124,12 @@ string SimOptions::toString() {
 bool SimOptions::useFixedRandomSeed() {
 
 	return fixedRandomSeed;
+
+}
+
+long SimOptions::getInitialSeed() {
+
+	return seed;
 
 }
 
@@ -404,6 +422,10 @@ void PSimOptions::stopResultBimolecular(string type, long seed, double stopTime,
 
 		printStatusLine_First_Bimolecular(python_settings, seed,
 				STOPRESULT_FTIME, stopTime, rate, NULL);
+
+	} else if (type.compare("NoMoves")) {
+		printStatusLine_First_Bimolecular(python_settings, seed,
+				STOPRESULT_NOMOVES, stopTime, rate, NULL);
 
 	}
 

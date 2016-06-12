@@ -438,8 +438,9 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 				if (checkresult && stop_entries[idx] == true) {
 					// multiple stop states could suddenly be true, we add
 					// a status line entry for the first one found.
-					if (!stop_flag){
-						sim_options->stopResultNormal(current_seed, stime, traverse->tag);
+					if (!stop_flag) {
+						sim_options->stopResultNormal(current_seed, stime,
+								traverse->tag);
 					}
 
 					stop_flag = true;
@@ -510,8 +511,8 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 	// deserved.
 
 	if (rate == 0.0) { // no initial moves
-		printStatusLine_First_Bimolecular(system_options, current_seed,
-				STOPRESULT_NOMOVES, 0.0, 0.0, NULL);
+		sim_options->stopResultBimolecular("NoMoves", current_seed, 0.0, 0.0,
+		NULL);
 		return;
 	}
 
@@ -547,7 +548,7 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 
 		if (stopcount > 0 && stopoptions) {
 			checkresult = false;
-			first = getStopComplexList(system_options, 0);
+			first = sim_options->getStopComplexes(0);
 			traverse = first;
 			checkresult = complexList->checkStopComplexList(traverse->citem);
 			while (traverse->next != NULL && !checkresult) {
@@ -700,13 +701,11 @@ int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
 }
 
 void SimulationSystem::InitializeRNG(void) {
-	bool use_fixed_random_seed = false;
+
 	FILE *fp = NULL;
 
-	getBoolAttr(system_options, initial_seed_flag, &use_fixed_random_seed);
-
 	if (sim_options->useFixedRandomSeed()) {
-		getLongAttr(system_options, initial_seed, &current_seed);
+		current_seed = sim_options->getInitialSeed();
 	} else {
 		if ((fp = fopen("/dev/urandom", "r")) != NULL) { // if urandom exists, use it to provide a seed
 			long deviceseed;
