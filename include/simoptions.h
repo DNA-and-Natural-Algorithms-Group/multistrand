@@ -43,7 +43,7 @@ public:
 	virtual void sendTransitionInfo(PyObject*) = 0; // PyObject compliance
 	virtual PyObject* getPythonSettings(void) = 0;
 	virtual void generateComplexes( PyObject*, long) = 0;
-	virtual stopComplexes* getStopComplexList(int) = 0;
+	virtual stopComplexes* getStopComplexes(int) = 0;
 
 	// Exit signalling
 	virtual void stopResultError(long) = 0;
@@ -96,7 +96,7 @@ public:
 	void generateComplexes(
 			 PyObject *alternate_start,
 			long current_seed);
-	virtual stopComplexes* getStopComplexList(int);
+	virtual stopComplexes* getStopComplexes(int);
 
 
 	// Error signaling

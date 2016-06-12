@@ -198,7 +198,7 @@ void SimulationSystem::SimulationLoop_Standard(void) {
 
 	int curcount = 0;
 	bool checkresult = false;
-	class stopcomplexes *traverse = NULL, *first = NULL;
+	class stopComplexes *traverse = NULL, *first = NULL;
 
 	double maxsimtime = sim_options->getMaxSimTime();
 	long stopcount = sim_options->getStopCount();
@@ -242,7 +242,7 @@ void SimulationSystem::SimulationLoop_Standard(void) {
 					return;
 				}
 				checkresult = false;
-				first = getStopComplexList(system_options, 0);
+				first = sim_options->getStopComplexes(0);
 				checkresult = complexList->checkStopComplexList(first->citem);
 				traverse = first;
 				while (traverse->next != NULL && !checkresult) {
@@ -285,7 +285,7 @@ void SimulationSystem::SimulationLoop_Trajectory(long output_count_interval,
 
 	bool checkresult = false;
 	long current_state_count = 0;
-	class stopcomplexes *traverse = NULL, *first = NULL;
+	class stopComplexes *traverse = NULL, *first = NULL;
 
 	complexList->initializeList();
 	rate = complexList->getTotalFlux();
@@ -371,7 +371,7 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 	bool stop_flag = false;
 	bool state_changed = false;
 	long stopcount = 0;
-	class stopcomplexes *traverse = NULL, *first = NULL;
+	class stopComplexes *traverse = NULL, *first = NULL;
 
 	long sMode = sim_options->getSimulationMode();
 	long ointerval = sim_options->getOInterval();
@@ -490,7 +490,7 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 	double rchoice, rate, stime = 0.0, ctime = 0.0;
 	bool checkresult = false;
 
-	class stopcomplexes *traverse = NULL, *first = NULL;
+	class stopComplexes *traverse = NULL, *first = NULL;
 	long trajMode;
 	double frate = 0.0;
 
@@ -592,8 +592,7 @@ void SimulationSystem::dumpCurrentStateToPython(void) {
 	SComplexListEntry *temp;
 	temp = complexList->getFirst();
 	while (temp != NULL) {
-		temp->createOutputInfo(&id, &names, &sequence, &structure,
-				&energy);
+		temp->createOutputInfo(&id, &names, &sequence, &structure, &energy);
 		printComplexStateLine(sim_options->getPythonSettings(), current_seed,
 				id, names, sequence, structure, energy);
 		temp = temp->next;
@@ -661,9 +660,9 @@ void SimulationSystem::sendTrajectory_CurrentStateToPython(
 	SComplexListEntry *temp;
 	temp = complexList->getFirst();
 	while (temp != NULL) {
-		temp->createOutputInfo(&id, &names, &sequence, &structure,
-				&energy);
-		sim_options->pushTrajectory(current_seed, id, names, sequence, structure, energy);
+		temp->createOutputInfo(&id, &names, &sequence, &structure, &energy);
+		sim_options->pushTrajectory(current_seed, id, names, sequence,
+				structure, energy);
 		temp = temp->next;
 	}
 	sim_options->pushTrajectoryInf(current_time);
@@ -672,7 +671,7 @@ void SimulationSystem::sendTrajectory_CurrentStateToPython(
 // FD: OK to feed in alternate_start = NULL
 int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
 	class StrandComplex *tempcomplex;
-	class identlist *id;
+	class identList *id;
 
 	sim_options->generateComplexes(alternate_start, current_seed);
 

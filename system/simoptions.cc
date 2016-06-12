@@ -49,6 +49,7 @@ PSimOptions::PSimOptions(PyObject *input) {
 	stop_count = NULL;
 	max_sim_time = NULL;
 	seed = NULL;
+	myStopComplexes = NULL;
 
 	debug = false;	// this is the main switch for simOptions debug, for now.
 
@@ -321,11 +322,11 @@ void PSimOptions::generateComplexes(PyObject *alternate_start,
 	return;
 }
 
+stopComplexes* PSimOptions::getStopComplexes(int) {
 
-stopComplexes* PSimOptions::getStopComplexList(int){
+	myStopComplexes = getStopComplexList(python_settings, 0);
 
-	myStopComplexes;
-
+	return myStopComplexes;
 
 }
 
@@ -379,19 +380,17 @@ void PSimOptions::stopResultBimolecular(string type, long seed, double stopTime,
 
 }
 
-void PSimOptions::pushTrajectory(long seed, int id, char* sequence, char* structure, char* names, double energy){
+void PSimOptions::pushTrajectory(long seed, int id, char* sequence,
+		char* structure, char* names, double energy) {
 
-	pushTrajectoryComplex(python_settings, seed, id, names, sequence,
-			structure, energy);
-
+	pushTrajectoryComplex(python_settings, seed, id, names, sequence, structure,
+			energy);
 
 }
 
-void PSimOptions::pushTrajectoryInf(double time){
+void PSimOptions::pushTrajectoryInf(double time) {
 
 	pushTrajectoryInfo(python_settings, time);
 
-
 }
-
 
