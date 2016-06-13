@@ -7,9 +7,11 @@
 #ifndef __ENERGYMODEL_H__
 #define __ENERGYMODEL_H__
 
-//#include <simoptions.h>
 #include <stdio.h>
 #include <Python.h>
+//#include <simoptions.h>
+
+class SimOptions;
 
 #define NUM_BASEPAIRS_VIENNA 8
 // Vienna: 0 is invalid, then CG, GC, GU, UG, AU, UA, and Special are 1-7
@@ -110,7 +112,7 @@ public:
 
 protected:
 	long dangles;
-	//SimOptions* simOptions;
+
 
 };
 
@@ -265,7 +267,8 @@ public:
 	NupackEnergyModel(PyObject* options);
 //  NupackEnergyModel( SimOptions* options );
 	~NupackEnergyModel(void);
-	void processOptions(PyObject* options);
+	//void processOptions(PyObject* options);
+	void processOptions(SimOptions* options);
 
 	double returnRate(double start_energy, double end_energy,
 			int enth_entr_toggle);
@@ -291,6 +294,7 @@ public:
 	//  void eOpenloopEnergy( int size, int *pairtypes, int *sidelen, char **sequences, energyS *energy   );
 
 private:
+	SimOptions* simOptions;
 
 	// All energy units are integers, in units of .01 kcal/mol, as used by ViennaRNA
 

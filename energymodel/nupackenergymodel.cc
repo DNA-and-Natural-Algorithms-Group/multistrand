@@ -10,7 +10,7 @@
 #include <assert.h>
 
 #include "energymodel.h"
-//#include "simoptions.h"
+#include "simoptions.h"
 #include "options.h"
 
 #undef DEBUG
@@ -511,8 +511,9 @@ NupackEnergyModel::NupackEnergyModel(PyObject* energy_options) :
 				310.15) // Check references for this loop penalty term.
 {
 
-	//simOptions = new PSimOptions(energy_options);
-	processOptions(energy_options);
+	simOptions = new PSimOptions(energy_options);
+	//processOptions(energy_options);
+	processOptions(simOptions);
 
 }
 
@@ -530,14 +531,15 @@ NupackEnergyModel::NupackEnergyModel(PyObject* energy_options) :
 //		log_loop_penalty_37(107.856), kinetic_rate_method(
 //				RATE_METHOD_KAWASAKI), bimolecular_penalty(1.96), kBoltzmann(
 //				.00198717), current_temp(310.15) // Check references for this loop penalty term.
-void NupackEnergyModel::processOptions(PyObject* energy_options) {
+//void NupackEnergyModel::processOptions(PyObject* energy_options) {
+void NupackEnergyModel::processOptions(SimOptions* options) {
 // This is the tough part, performing all read/input duties.
 	char in_buffer[2048];
 	int loop, loop2, loop3, loop4, loop5, loop6;
 	double temperature;
 	FILE *fp = NULL, *fp2 = NULL; // fp is dG energy file, fp2 is dH.
 
-//	PyObject* energy_options = simOptions->getPythonSettings();
+	PyObject* energy_options = simOptions->getPythonSettings();
 
 	getDoubleAttr(energy_options, temperature, &temperature);
 	current_temp = temperature;
