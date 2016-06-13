@@ -35,12 +35,12 @@ extern int lookuphelper[26]; // = {1,0,2,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,4,4,0,0
 
 // helper function to convert to numerical base format.
 extern int baseLookup(char base); //
-/*{
- char temp = toupper(base);
- if( temp < 'A' || temp > 'Z' )
- return base;
- return lookuphelper[temp-'A'];
- }*/
+		/*{
+		 char temp = toupper(base);
+		 if( temp < 'A' || temp > 'Z' )
+		 return base;
+		 return lookuphelper[temp-'A'];
+		 }*/
 
 NupackEnergyModel::~NupackEnergyModel(void) {
 	// TODO: is anything allocated now? Don't think so, all arrays are static still.
@@ -513,7 +513,7 @@ NupackEnergyModel::NupackEnergyModel(PyObject* energy_options) :
 
 	simOptions = new PSimOptions(energy_options);
 	//processOptions(energy_options);
-	processOptions(simOptions);
+	processOptions();
 
 }
 
@@ -523,7 +523,7 @@ NupackEnergyModel::NupackEnergyModel(SimOptions* options) :
 				310.15) // Check references for this loop penalty term.
 {
 	simOptions = options;
-	processOptions(simOptions);
+	processOptions();
 
 }
 
@@ -532,7 +532,7 @@ NupackEnergyModel::NupackEnergyModel(SimOptions* options) :
 //				RATE_METHOD_KAWASAKI), bimolecular_penalty(1.96), kBoltzmann(
 //				.00198717), current_temp(310.15) // Check references for this loop penalty term.
 //void NupackEnergyModel::processOptions(PyObject* energy_options) {
-void NupackEnergyModel::processOptions(SimOptions* options) {
+void NupackEnergyModel::processOptions() {
 // This is the tough part, performing all read/input duties.
 	char in_buffer[2048];
 	int loop, loop2, loop3, loop4, loop5, loop6;
@@ -540,14 +540,22 @@ void NupackEnergyModel::processOptions(SimOptions* options) {
 	FILE *fp = NULL, *fp2 = NULL; // fp is dG energy file, fp2 is dH.
 
 	PyObject* energy_options = simOptions->getPythonSettings();
+	EnergyOptions* myEnergyOptions = simOptions->getEnergyOptions();
 
-	getDoubleAttr(energy_options, temperature, &temperature);
-	current_temp = temperature;
+	// why use global variables when you can call an object?
+	current_temp = myEnergyOptions->getTemperature();
 
-	getLongAttr(energy_options, dangles, &dangles);
-	getLongAttr(energy_options, log_ml, &logml);
-	getBoolAttr(energy_options, gt_enable, &gtenable);
-	getLongAttr(energy_options, rate_method, &kinetic_rate_method);
+	temperature = myEnergyOptions->getTemperature();
+	dangles = myEnergyOptions->getDangles();
+	logml = myEnergyOptions->getLogml();
+	gtenable = myEnergyOptions->getGtenable();
+	kinetic_rate_method = myEnergyOptions->getKineticRateMethod();
+
+//	getDoubleAttr(energy_options, temperature, &temperature);
+//	getLongAttr(energy_options, dangles, &dangles);
+//	getLongAttr(energy_options, log_ml, &logml);
+//	getBoolAttr(energy_options, gt_enable, &gtenable);
+//	getLongAttr(energy_options, rate_method, &kinetic_rate_method);
 
 	waterdensity = setWaterDensity(
 			temperature - TEMPERATURE_ZERO_CELSIUS_IN_KELVIN);
@@ -560,7 +568,8 @@ void NupackEnergyModel::processOptions(SimOptions* options) {
 		for (loop2 = 0; loop2 < NUM_BASES; loop2++)
 			pairtypes[loop][loop2] = pairtypes_mfold[loop][loop2];
 
-	if (testLongAttr(energy_options, substrate_type, =, SUBSTRATE_INVALID)) {
+//	if (testLongAttr(energy_options, substrate_type, =, SUBSTRATE_INVALID)) {
+	if (myEnergyOptions->compareSubstrateType(SUBSTRATE_INVALID)) {
 		PyObject *tmpStr = NULL;
 
 		char *tmp = (char *) getStringAttr(energy_options, parameter_file,

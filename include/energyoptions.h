@@ -30,11 +30,14 @@ public:
 	~EnergyOptions(void);
 
 	// non-virtual getters
-//	long getSimulationMode(void);
-	// IO Methods
-//	string toString(void);
+	double getTemperature(void);
+	long getDangles(void);
+	long getLogml(void);
+	bool getGtenable(void);
+	long getKineticRateMethod(void);
 
-	// actual option values
+	// virtual
+	virtual bool compareSubstrateType(long) =0;
 
 protected:
 
@@ -44,17 +47,23 @@ protected:
 	bool gtenable = NULL;
 	long kinetic_rate_method = NULL;
 
+	// not sure if these are long
+	long substrate_type = NULL;
+
 };
 
 class PEnergyOptions: public EnergyOptions {
 public:
 	//constructors
-	PEnergyOptions(void);
+	//PEnergyOptions(void);
 	PEnergyOptions(PyObject*);
+
+	// implemented virtual
+	bool compareSubstrateType(long);
+
 
 protected:
 	PyObject* python_settings;
-
 
 };
 

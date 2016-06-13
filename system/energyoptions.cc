@@ -22,6 +22,8 @@ EnergyOptions::EnergyOptions(void) {
 	logml = NULL;
 	gtenable = NULL;
 	kinetic_rate_method = NULL;
+	substrate_type = NULL;
+
 }
 
 EnergyOptions::~EnergyOptions(void) {
@@ -29,9 +31,34 @@ EnergyOptions::~EnergyOptions(void) {
 // empty deconstructor
 
 }
+// easy getters
 
-PEnergyOptions::PEnergyOptions(void) :
-		PEnergyOptions(NULL) {
+double EnergyOptions::getTemperature(void) {
+
+	return temperature;
+
+}
+
+long EnergyOptions::getDangles(void) {
+
+	return dangles;
+
+}
+
+long EnergyOptions::getLogml(void) {
+
+	return logml;
+
+}
+bool EnergyOptions::getGtenable(void) {
+
+	return gtenable;
+
+}
+
+long EnergyOptions::getKineticRateMethod(void) {
+
+	return kinetic_rate_method;
 
 }
 
@@ -47,6 +74,12 @@ PEnergyOptions::PEnergyOptions(PyObject* input) :
 	getLongAttr(python_settings, log_ml, &logml);
 	getBoolAttr(python_settings, gt_enable, &gtenable);
 	getLongAttr(python_settings, rate_method, &kinetic_rate_method);
+
+}
+
+bool PEnergyOptions::compareSubstrateType(long type) {
+
+	return testLongAttr(python_settings, substrate_type, =, type);
 
 }
 

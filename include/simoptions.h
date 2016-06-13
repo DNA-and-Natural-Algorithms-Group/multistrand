@@ -23,7 +23,8 @@ using std::vector;
 using std::string;
 using namespace utility;
 
-class EnergyOptions; // forward declare
+class EnergyOptions;
+// forward declare
 
 class SimOptions {
 public:
@@ -61,8 +62,6 @@ public:
 	virtual void sendTransitionInfo(PyObject*) = 0;
 	virtual void pushTrajectory(long, int, char*, char*, char*, double) = 0;
 	virtual void pushTrajectoryInf(double)=0;
-
-
 
 	// IO Methods
 	string toString(void);
