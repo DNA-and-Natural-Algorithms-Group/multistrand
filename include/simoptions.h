@@ -32,6 +32,11 @@ public:
 	SimOptions(void);
 	virtual ~SimOptions(void);
 
+	// Non-virtual
+	bool useFixedRandomSeed();
+	long getInitialSeed();
+	EnergyOptions* getEnergyOptions();
+
 	// Virtual methods
 	virtual long getSimulationMode(void) = 0;
 	virtual long getSimulationCount(void) = 0;
@@ -57,9 +62,7 @@ public:
 	virtual void pushTrajectory(long, int, char*, char*, char*, double) = 0;
 	virtual void pushTrajectoryInf(double)=0;
 
-	// Non-virtual
-	bool useFixedRandomSeed();
-	long getInitialSeed();
+
 
 	// IO Methods
 	string toString(void);

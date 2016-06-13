@@ -135,6 +135,12 @@ long SimOptions::getInitialSeed() {
 
 }
 
+EnergyOptions* SimOptions::getEnergyOptions() {
+
+	return myEnergyOptions;
+
+}
+
 long PSimOptions::getSimulationMode(void) {
 
 	if (simulation_mode == NULL) {

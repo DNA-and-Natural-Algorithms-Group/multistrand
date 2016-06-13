@@ -30,7 +30,7 @@ SimulationSystem::SimulationSystem(PyObject *system_o) {
 	ProfilerStart("ssystem_init_profile.prof");
 #endif
 
-	system_options = system_o;
+	//system_options = system_o;
 	sim_options = new PSimOptions(system_o);
 
 	// We no longer need the below line; we are guaranteed that options
@@ -42,7 +42,7 @@ SimulationSystem::SimulationSystem(PyObject *system_o) {
 
 	if (Loop::GetEnergyModel() == NULL) {
 		dnaEnergyModel = NULL;
-		dnaEnergyModel = new NupackEnergyModel(system_options);
+		dnaEnergyModel = new NupackEnergyModel(sim_options->getPythonSettings());
 		Loop::SetEnergyModel(dnaEnergyModel);
 	} else {
 		dnaEnergyModel = Loop::GetEnergyModel();
@@ -70,7 +70,7 @@ SimulationSystem::SimulationSystem(void) {
 		dnaEnergyModel = Loop::GetEnergyModel();
 	}
 
-	system_options = NULL;
+	//system_options = NULL;
 	sim_options = NULL;
 	startState = NULL;
 	complexList = NULL;
@@ -91,7 +91,7 @@ SimulationSystem::~SimulationSystem(void) {
 	// just in case something thread-unsafe happens.
 
 	dnaEnergyModel = NULL;
-	system_options = NULL;
+	//system_options = NULL;
 	sim_options = NULL;
 	startState = NULL;
 }

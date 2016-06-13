@@ -236,7 +236,7 @@ static PyObject *System_initialize_energymodel( PyObject *self,PyObject *args )
 
   if( !PyArg_ParseTuple(args, "|O:initialize_energy_model( [options])", &options_object) )
     return NULL;
-  
+
   EnergyModel *temp = Loop::GetEnergyModel();
 
   if( temp != NULL )
@@ -278,7 +278,7 @@ static PyObject *System_calculate_energy( PyObject *self,PyObject *args )
   if( options_object != NULL )
     Py_INCREF( options_object );
   Py_INCREF( start_state_object );
-  
+
   if( options_object != NULL )
     temp = new SimulationSystem( options_object );
   else
@@ -320,7 +320,7 @@ static PyObject *System_calculate_rate( PyObject *self,PyObject *args, PyObject 
 
   if( options_object != NULL )
     Py_INCREF( options_object );
-  
+
   if(options_object == NULL )
 	{
 	  em = Loop::GetEnergyModel();
@@ -381,13 +381,13 @@ static PyObject *System_run_system( PyObject *self,PyObject *args )
   if( !PyArg_ParseTuple(args, "O|Oi:run_system( options )", &options_object) )
     return NULL;
   Py_INCREF( options_object );
-  
+
   temp = new SimulationSystem( options_object );
   temp->StartSimulation();
 
   delete temp;
   temp = NULL;
-  
+
 #ifdef PROFILING
   HeapProfilerDump("run_system");
   HeapProfilerStop();
