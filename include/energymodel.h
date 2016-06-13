@@ -265,7 +265,7 @@ class NupackEnergyModel: public EnergyModel {
 public:
 	NupackEnergyModel(void);
 	NupackEnergyModel(PyObject* options);
-//  NupackEnergyModel( SimOptions* options );
+	NupackEnergyModel( SimOptions* options );
 	~NupackEnergyModel(void);
 	//void processOptions(PyObject* options);
 	void processOptions(SimOptions* options);

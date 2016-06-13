@@ -517,15 +517,15 @@ NupackEnergyModel::NupackEnergyModel(PyObject* energy_options) :
 
 }
 
-//NupackEnergyModel::NupackEnergyModel(SimOptions* options) :
-//		log_loop_penalty_37(107.856), kinetic_rate_method(
-//		RATE_METHOD_KAWASAKI), bimolecular_penalty(1.96), kBoltzmann(.00198717), current_temp(
-//				310.15) // Check references for this loop penalty term.
-//{
-//	//simOptions = options;
-//	initialize();
-//
-//}
+NupackEnergyModel::NupackEnergyModel(SimOptions* options) :
+		log_loop_penalty_37(107.856), kinetic_rate_method(
+		RATE_METHOD_KAWASAKI), bimolecular_penalty(1.96), kBoltzmann(.00198717), current_temp(
+				310.15) // Check references for this loop penalty term.
+{
+	simOptions = options;
+	processOptions(simOptions);
+
+}
 
 //NupackEnergyModel::NupackEnergyModel(SimOptions* options) :
 //		log_loop_penalty_37(107.856), kinetic_rate_method(
