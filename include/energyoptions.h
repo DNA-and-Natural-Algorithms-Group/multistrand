@@ -35,6 +35,10 @@ public:
 	long getLogml(void);
 	bool getGtenable(void);
 	long getKineticRateMethod(void);
+	double getJoinConcentration(void);
+
+	double getBiScale(void);
+	double getUniScale(void);
 
 	// virtual
 	virtual bool compareSubstrateType(long) =0;
@@ -46,11 +50,16 @@ protected:
 	long logml = NULL;
 	bool gtenable = NULL;
 	long kinetic_rate_method = NULL;
+	double joinConcentration = NULL;
+
+	double biScale = NULL;
+	double uniScale = NULL;
 
 	// not sure if these are long
 	long substrate_type = NULL;
 
 };
+
 
 class PEnergyOptions: public EnergyOptions {
 public:
@@ -60,7 +69,6 @@ public:
 
 	// implemented virtual
 	bool compareSubstrateType(long);
-
 
 protected:
 	PyObject* python_settings;

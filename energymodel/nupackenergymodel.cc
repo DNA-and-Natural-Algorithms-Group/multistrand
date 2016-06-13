@@ -35,12 +35,12 @@ extern int lookuphelper[26]; // = {1,0,2,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,4,4,0,0
 
 // helper function to convert to numerical base format.
 extern int baseLookup(char base); //
-		/*{
-		 char temp = toupper(base);
-		 if( temp < 'A' || temp > 'Z' )
-		 return base;
-		 return lookuphelper[temp-'A'];
-		 }*/
+/*{
+ char temp = toupper(base);
+ if( temp < 'A' || temp > 'Z' )
+ return base;
+ return lookuphelper[temp-'A'];
+ }*/
 
 NupackEnergyModel::~NupackEnergyModel(void) {
 	// TODO: is anything allocated now? Don't think so, all arrays are static still.
@@ -589,7 +589,8 @@ void NupackEnergyModel::processOptions() {
 					"ERROR: Invalid substrate chosen, and no parameter file given. Try the #Energymodel option!\n");
 			exit(1);
 		}
-	} else if (testLongAttr(energy_options, substrate_type, =, SUBSTRATE_DNA)) {
+		//} else if (testLongAttr(energy_options, substrate_type, =, SUBSTRATE_DNA)) {
+	} else if (myEnergyOptions->compareSubstrateType(SUBSTRATE_DNA)) {
 		char *nupackhome;
 		char fullpath[512];
 		char fullpath_dH[512];
@@ -629,7 +630,8 @@ void NupackEnergyModel::processOptions() {
 			}
 
 		}
-	} else if (testLongAttr(energy_options, substrate_type, =, SUBSTRATE_RNA)) {
+		//} else if (testLongAttr(energy_options, substrate_type, =, SUBSTRATE_RNA)) {
+	} else if (myEnergyOptions->compareSubstrateType(SUBSTRATE_RNA)) {
 		char *nupackhome;
 		char fullpath[512];
 		char fullpath_dH[512];
@@ -966,7 +968,8 @@ void NupackEnergyModel::processOptions() {
 	if (!((temperature < CELSIUS37_IN_KELVIN - .00001)
 			|| (temperature > CELSIUS37_IN_KELVIN + .00001))) {
 		current_temp = CELSIUS37_IN_KELVIN;
-		setupRates(energy_options);
+		//setupRates(energy_options);
+		setupRates();
 		return;
 	}
 
@@ -1078,7 +1081,8 @@ void NupackEnergyModel::processOptions() {
 
 	_RT = kBoltzmann * temperature;
 	current_temp = temperature;
-	setupRates(energy_options);
+	//setupRates(energy_options);
+	setupRates();
 }
 
 /* ------------------------------------------------------------------------
@@ -1815,7 +1819,8 @@ char *NupackEnergyModel::internal_read_array_data(FILE *fp, char *buffer,
 	return cur_bufspot;
 }
 
-void NupackEnergyModel::setupRates(PyObject *energy_options) {
+void NupackEnergyModel::setupRates() {
+//void NupackEnergyModel::setupRates(PyObject *energy_options) {
 // input concentration is in molar (M) units
 // future versions of the parser will convert to these units.
 //
@@ -1842,12 +1847,18 @@ void NupackEnergyModel::setupRates(PyObject *energy_options) {
 //          = exp( -log( W / C))
 //          = C / W
 
+	EnergyOptions* eOptions = simOptions->getEnergyOptions();
+
 	double joinconc, joinrate_volume;
-	getDoubleAttr(energy_options, join_concentration, &joinconc);
+//	getDoubleAttr(energy_options, join_concentration, &joinconc);
+	joinconc = eOptions->getJoinConcentration();
 // the concentration is now in M units, rather than the previous mM. The input parser converts to these.
 
-	getDoubleAttr(energy_options, bimolecular_scaling, &biscale);
-	getDoubleAttr(energy_options, unimolecular_scaling, &uniscale);
+	biscale = eOptions->getBiScale();
+	uniscale = eOptions->getUniScale();
+
+//	getDoubleAttr(energy_options, bimolecular_scaling, &biscale);
+//	getDoubleAttr(energy_options, unimolecular_scaling, &uniscale);
 // Two components to the join rate, the dG_assoc from mass action, and the dG_volume term which is related to the concentration. We compute each individually, following my derivation for the volume term, and the method used in Nupack for the dG_assoc term.
 
 // Please note, waterdensity is actually the Mols H2O / L, not the actual density of water (g/mol).

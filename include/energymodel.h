@@ -267,7 +267,6 @@ public:
 	NupackEnergyModel(PyObject* options);
 	NupackEnergyModel( SimOptions* options );
 	~NupackEnergyModel(void);
-	//void processOptions(PyObject* options);
 	void processOptions();
 
 	double returnRate(double start_energy, double end_energy,
@@ -412,7 +411,9 @@ private:
 	long logml;
 
 	// data loading functions:
-	void setupRates(PyObject *opt);
+	//void setupRates(PyObject *opt);
+	void setupRates();
+
 
 	void internal_set_stack_energies(FILE *fp, char *buffer);
 	void internal_set_stack_enthalpies(FILE *fp, char *buffer);

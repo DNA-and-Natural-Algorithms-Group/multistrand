@@ -62,6 +62,24 @@ long EnergyOptions::getKineticRateMethod(void) {
 
 }
 
+double EnergyOptions::getJoinConcentration(void) {
+
+	return joinConcentration;
+
+}
+
+double EnergyOptions::getBiScale(void) {
+
+	return biScale;
+
+}
+
+double EnergyOptions::getUniScale(void) {
+
+	return uniScale;
+
+}
+
 PEnergyOptions::PEnergyOptions(PyObject* input) :
 		EnergyOptions() {
 
@@ -74,6 +92,12 @@ PEnergyOptions::PEnergyOptions(PyObject* input) :
 	getLongAttr(python_settings, log_ml, &logml);
 	getBoolAttr(python_settings, gt_enable, &gtenable);
 	getLongAttr(python_settings, rate_method, &kinetic_rate_method);
+
+	getDoubleAttr(python_settings, bimolecular_scaling, &biScale);
+	getDoubleAttr(python_settings, unimolecular_scaling, &uniScale);
+
+	// not sure if these are for both models or not;
+	getDoubleAttr(python_settings, join_concentration, &joinConcentration);
 
 }
 
