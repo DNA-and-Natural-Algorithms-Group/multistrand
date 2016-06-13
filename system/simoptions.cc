@@ -119,6 +119,8 @@ string SimOptions::toString() {
 
 	string output = ss.str();
 
+	output += myEnergyOptions->toString();
+
 	return output;
 
 }

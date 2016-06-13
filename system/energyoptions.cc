@@ -11,6 +11,7 @@
 #include <vector>
 #include <iostream>
 #include <string>
+#include <sstream>
 
 using std::vector;
 using std::string;
@@ -80,6 +81,29 @@ double EnergyOptions::getUniScale(void) {
 
 }
 
+string EnergyOptions::toString(void) {
+
+	// not sure if these are long
+	long substrate_type = NULL;
+
+	std::stringstream ss;
+
+	ss << "temperature = " << temperature << " \n";
+	ss << "dangles = " << dangles << " \n";
+	ss << "logml = " << logml << " \n";
+	ss << "gtenable = " << gtenable << " \n";
+	ss << "kinetic_rate_method = " << kinetic_rate_method << " \n";
+	ss << "joinConcentration = " << joinConcentration << " \n";
+	ss << "biScale = " << biScale << " \n";
+	ss << "uniScale = " << uniScale << " \n";
+	ss << " substrate_type = " << substrate_type << " \n";
+
+	string output = ss.str();
+
+	return output;
+
+}
+
 PEnergyOptions::PEnergyOptions(PyObject* input) :
 		EnergyOptions() {
 
@@ -107,9 +131,9 @@ bool PEnergyOptions::compareSubstrateType(long type) {
 
 }
 
-void PEnergyOptions::getParameterFile(char* input) {
+void PEnergyOptions::getParameterFile(char* input, PyObject* tempString) {
 
-	input = (char *) getStringAttr(python_settings, parameter_file, NULL);
+	input = (char *) getStringAttr(python_settings, parameter_file, tempString);
 
 }
 

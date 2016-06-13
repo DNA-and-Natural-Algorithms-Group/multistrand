@@ -40,9 +40,11 @@ public:
 	double getBiScale(void);
 	double getUniScale(void);
 
+	string toString(void);
+
 	// virtual
 	virtual bool compareSubstrateType(long) =0;
-	virtual void getParameterFile(char*) = 0;
+	virtual void getParameterFile(char*, PyObject*) = 0;
 
 protected:
 
@@ -70,7 +72,7 @@ public:
 
 	// implemented virtual
 	bool compareSubstrateType(long);
-	void getParameterFile(char*);
+	void getParameterFile(char*, PyObject*);
 
 protected:
 	PyObject* python_settings;
