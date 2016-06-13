@@ -107,3 +107,9 @@ bool PEnergyOptions::compareSubstrateType(long type) {
 
 }
 
+void PEnergyOptions::getParameterFile(char* input) {
+
+	input = (char *) getStringAttr(python_settings, parameter_file, NULL);
+
+}
+

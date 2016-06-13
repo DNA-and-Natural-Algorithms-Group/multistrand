@@ -42,6 +42,7 @@ public:
 
 	// virtual
 	virtual bool compareSubstrateType(long) =0;
+	virtual void getParameterFile(char*) = 0;
 
 protected:
 
@@ -69,6 +70,7 @@ public:
 
 	// implemented virtual
 	bool compareSubstrateType(long);
+	void getParameterFile(char*);
 
 protected:
 	PyObject* python_settings;

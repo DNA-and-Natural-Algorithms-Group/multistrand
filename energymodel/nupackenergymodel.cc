@@ -539,7 +539,7 @@ void NupackEnergyModel::processOptions() {
 	double temperature;
 	FILE *fp = NULL, *fp2 = NULL; // fp is dG energy file, fp2 is dH.
 
-	PyObject* energy_options = simOptions->getPythonSettings();
+	//PyObject* energy_options = simOptions->getPythonSettings();
 	EnergyOptions* myEnergyOptions = simOptions->getEnergyOptions();
 
 	// why use global variables when you can call an object?
@@ -570,10 +570,14 @@ void NupackEnergyModel::processOptions() {
 
 //	if (testLongAttr(energy_options, substrate_type, =, SUBSTRATE_INVALID)) {
 	if (myEnergyOptions->compareSubstrateType(SUBSTRATE_INVALID)) {
-		PyObject *tmpStr = NULL;
+//		PyObject *tmpStr = NULL;
+//		char *tmp = (char *) getStringAttr(energy_options, parameter_file,
+//				tmpStr);
 
-		char *tmp = (char *) getStringAttr(energy_options, parameter_file,
-				tmpStr);
+		char* tmp = NULL;
+		myEnergyOptions->getParameterFile(tmp);
+
+
 		if (tmp != NULL) {
 			fp = fopen(tmp, "rt");
 			if (fp == NULL) {
@@ -582,7 +586,7 @@ void NupackEnergyModel::processOptions() {
 						tmp);
 				exit(1);
 			}
-			Py_DECREF(tmpStr);
+			//Py_DECREF(tmpStr);
 			tmp = NULL;
 		} else {
 			fprintf(stderr,

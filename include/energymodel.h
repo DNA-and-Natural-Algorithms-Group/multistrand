@@ -113,7 +113,6 @@ public:
 protected:
 	long dangles;
 
-
 };
 
 class ViennaEnergyModel: public EnergyModel {
@@ -265,7 +264,7 @@ class NupackEnergyModel: public EnergyModel {
 public:
 	NupackEnergyModel(void);
 	NupackEnergyModel(PyObject* options);
-	NupackEnergyModel( SimOptions* options );
+	NupackEnergyModel(SimOptions* options);
 	~NupackEnergyModel(void);
 	void processOptions();
 
@@ -413,7 +412,6 @@ private:
 	// data loading functions:
 	//void setupRates(PyObject *opt);
 	void setupRates();
-
 
 	void internal_set_stack_energies(FILE *fp, char *buffer);
 	void internal_set_stack_enthalpies(FILE *fp, char *buffer);
