@@ -27,11 +27,11 @@ EnergyOptions::EnergyOptions(void) {
 
 }
 
-EnergyOptions::~EnergyOptions(void) {
-
-// empty deconstructor
-
-}
+//EnergyOptions::~EnergyOptions(void) {
+//
+//// empty deconstructor
+//
+//}
 // easy getters
 
 double EnergyOptions::getTemperature(void) {
@@ -125,6 +125,12 @@ PEnergyOptions::PEnergyOptions(PyObject* input) :
 
 }
 
+PEnergyOptions::~PEnergyOptions(void) {
+
+	// deconstructor.  -- not implemented TODO
+
+}
+
 bool PEnergyOptions::compareSubstrateType(long type) {
 
 	return testLongAttr(python_settings, substrate_type, =, type);
@@ -134,6 +140,47 @@ bool PEnergyOptions::compareSubstrateType(long type) {
 void PEnergyOptions::getParameterFile(char* input, PyObject* tempString) {
 
 	input = (char *) getStringAttr(python_settings, parameter_file, tempString);
+	printf("The parameter file contains:");
+	printf(input);
 
+}
+
+// CENERGYOPTIONS
+
+CEnergyOptions::CEnergyOptions() :
+		EnergyOptions() {
+
+	// extended constructor, inherits from regular energyOptions
+
+	// some basic default values;
+	temperature = 310.15;
+	dangles = 1;
+	logml = 0;
+	gtenable = 0;
+	kinetic_rate_method = 2;
+
+	biScale = 1.38e+06;
+	uniScale = 1.5e+08;
+
+	joinConcentration = 1e-06;
+
+}
+
+CEnergyOptions::~CEnergyOptions(void) {
+
+	// deconstructor.  -- not implemented TODO
+
+}
+
+bool CEnergyOptions::compareSubstrateType(long type) {
+
+	return (SUBSTRATE_DNA == type); // only test TRUE for when substrate is DNA.
+
+}
+
+// functionality to specify an energy file in a custom place for non-DNA/RNA substrates. unused atm.
+void CEnergyOptions::getParameterFile(char* input, PyObject* tempString) {
+
+	input = "";
 }
 

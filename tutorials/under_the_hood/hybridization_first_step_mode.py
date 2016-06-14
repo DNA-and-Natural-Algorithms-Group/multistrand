@@ -310,7 +310,7 @@ def first_step_simulation(strand_seq, num_traj, T=25, rate_method_k_or_m="Metrop
 
 
 if __name__ == '__main__':
-    trials=1000 
+    trials=100
     # Note that the "analytic" formulas for error bars agree well for N=1000, but are likely to disagree for N=100.
 
     if len(sys.argv) == 6:

@@ -80,13 +80,13 @@ def setup_options_threewaybm(toehold_seq = "GTGGGT", bm_design = "ACCGCACGTCACTC
 
     # join_concentration is not defined, because in this simulation we stop before there's any chance for association steps
     o_exact = Options(simulation_mode="Transition",parameter_type="Nupack", dangles="Some",
-                substrate_type="DNA", num_simulations = 10, simulation_time=.01, temperature=310.15,
+                substrate_type="DNA", num_simulations = 5, simulation_time=.01, temperature=310.15,
                 start_state=[start_complex], rate_scaling='Calibrated', verbosity=0)
 
     o_exact.stop_conditions = [start_sc, six_sc_exact, twelve_sc_exact, eighteen_sc_exact, completed_sc, rejected_sc]
     
     o_loose = Options(simulation_mode="Transition",parameter_type="Nupack", dangles="Some",
-                substrate_type="DNA", num_simulations = 10, simulation_time=.01, temperature=310.15,
+                substrate_type="DNA", num_simulations = 5, simulation_time=.01, temperature=310.15,
                 start_state=[start_complex], rate_scaling='Calibrated', verbosity=0)
 
     o_loose.stop_conditions = [start_sc, six_sc_loose, twelve_sc_loose, eighteen_sc_loose, completed_sc, rejected_sc]
