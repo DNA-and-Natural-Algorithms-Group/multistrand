@@ -534,11 +534,13 @@ void CSimOptions::generateComplexes(PyObject *alternate_start,
 			"GTTAGACTCGGAGGTGGTAGCAATGGATCAG+CTGATCCATTGCTACCACCTCCGAGTCTAACCATATC+GATATGGTTAGACTCGGAGGTGGTAGCAATG";
 	char* myStructure =
 			".........................((((((+))))))(((((((((((((((((((((((((((((((+)))))))))))))))))))))))))))))))";
-	identList* myIdentity1 = identList(1337, "myID", NULL);
-	identList* myIdentity2 = identList(1337, "myID", myIdentity1);
-	identList* myIdentity3 = identList(1337, "myID", myIdentity2);
+	identList* myIdentity1 = new identList(1337, "myID-1", NULL);
+	identList* myIdentity2 = new identList(1338, "myID-2", myIdentity1);
+	identList* myIdentity3 = new 	identList(1339, "myID-3", myIdentity2);
 
-	complex_input myInput = complex_input(mySeq, myStructure, myIdentity1);
+	complex_input myInput = complex_input(mySeq, myStructure, NULL);
+
+	myComplexes->push_back(myInput);
 
 	return;
 }
