@@ -16,23 +16,6 @@
 using std::vector;
 using std::string;
 
-//EnergyOptions::EnergyOptions(void) {
-//
-//	temperature = NULL;
-//	dangles = NULL;
-//	logml = NULL;
-//	gtenable = NULL;
-//	kinetic_rate_method = NULL;
-//	substrate_type = NULL;
-//
-//}
-
-//EnergyOptions::~EnergyOptions(void) {
-//
-//// empty deconstructor
-//
-//}
-// easy getters
 
 double EnergyOptions::getTemperature(void) {
 
@@ -125,11 +108,6 @@ PEnergyOptions::PEnergyOptions(PyObject* input) :
 
 }
 
-//PEnergyOptions::~PEnergyOptions() {
-//
-//// empty deconstructor
-//
-//}
 
 
 bool PEnergyOptions::compareSubstrateType(long type) {
@@ -167,11 +145,6 @@ CEnergyOptions::CEnergyOptions() :
 
 }
 
-//CEnergyOptions::~CEnergyOptions(void) {
-//
-//	// deconstructor.  -- not implemented TODO
-//
-//}
 
 bool CEnergyOptions::compareSubstrateType(long type) {
 
