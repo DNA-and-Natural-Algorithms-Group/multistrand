@@ -67,9 +67,8 @@ protected:
 class PEnergyOptions: public EnergyOptions {
 public:
 	//constructors
-	//PEnergyOptions(void);
 	PEnergyOptions(PyObject*);
-//	~PEnergyOptions();
+
 
 	// implemented virtual
 	bool compareSubstrateType(long);
@@ -85,7 +84,7 @@ class CEnergyOptions: public EnergyOptions {
 public:
 	// constructors
 	CEnergyOptions();
-//	~CEnergyOptions();
+
 
 	// implemented virtual
 	bool compareSubstrateType(long);

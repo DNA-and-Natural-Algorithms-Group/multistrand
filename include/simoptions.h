@@ -37,15 +37,18 @@ public:
 	bool useFixedRandomSeed();
 	long getInitialSeed();
 	EnergyOptions* getEnergyOptions();
+	long getSimulationMode();
+	long getSimulationCount();
+	long getOInterval(void);
+	double getOTime(void);
+	long getStopOptions(void);
+	long getStopCount(void);
+	double getMaxSimTime(void);
 
 	// Virtual methods
-	virtual long getSimulationMode(void) = 0;
-	virtual long getSimulationCount(void) = 0;
-	virtual long getOInterval(void) = 0;
-	virtual double getOTime(void) = 0;
-	virtual long getStopOptions(void) = 0;
-	virtual long getStopCount(void) = 0;
-	virtual double getMaxSimTime(void) = 0;
+
+
+
 	virtual PyObject* getPythonSettings(void) = 0;
 	virtual void generateComplexes(PyObject*, long) = 0;
 	virtual stopComplexes* getStopComplexes(int) = 0;
@@ -91,13 +94,13 @@ public:
 	PSimOptions(PyObject *system_options);
 
 	// Implemented virtual methods
-	long getSimulationMode(void);
-	long getSimulationCount(void);
-	long getOInterval(void);
-	double getOTime(void);
-	long getStopOptions(void);
-	long getStopCount(void);
-	double getMaxSimTime(void);
+	//long getSimulationMode(void);
+	//long getSimulationCount(void);
+	//long getOInterval(void);
+	//double getOTime(void);
+//	long getStopOptions(void);
+//	long getStopCount(void);
+//	double getMaxSimTime(void);
 	PyObject* getPythonSettings(void);
 	void generateComplexes(PyObject *alternate_start, long current_seed);
 	stopComplexes* getStopComplexes(int);
