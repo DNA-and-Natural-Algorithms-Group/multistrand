@@ -67,6 +67,7 @@ protected:
 class PEnergyOptions: public EnergyOptions {
 public:
 	//constructors
+	//PEnergyOptions(void);
 	PEnergyOptions(PyObject*);
 //	~PEnergyOptions();
 
