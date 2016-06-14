@@ -26,8 +26,8 @@
 class EnergyOptions {
 public:
 	// Constructors
-	EnergyOptions(void);
-	~EnergyOptions(void);
+//	EnergyOptions(void);
+//	virtual ~EnergyOptions(void) =0;
 
 	// non-virtual getters
 	double getTemperature(void);
@@ -67,8 +67,8 @@ protected:
 class PEnergyOptions: public EnergyOptions {
 public:
 	//constructors
-	//PEnergyOptions(void);
 	PEnergyOptions(PyObject*);
+//	~PEnergyOptions();
 
 	// implemented virtual
 	bool compareSubstrateType(long);
@@ -78,5 +78,23 @@ protected:
 	PyObject* python_settings;
 
 };
+
+
+class CEnergyOptions: public EnergyOptions {
+public:
+	// constructors
+	CEnergyOptions();
+//	~CEnergyOptions();
+
+	// implemented virtual
+	bool compareSubstrateType(long);
+	void getParameterFile(char*, PyObject*);
+
+protected:
+	// empty
+
+};
+
+
 
 #endif

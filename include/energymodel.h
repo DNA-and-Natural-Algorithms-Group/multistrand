@@ -9,7 +9,6 @@
 
 #include <stdio.h>
 #include <Python.h>
-//#include <simoptions.h>
 
 class SimOptions;
 
