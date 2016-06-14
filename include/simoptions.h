@@ -47,8 +47,6 @@ public:
 
 	// Virtual methods
 
-
-
 	virtual PyObject* getPythonSettings(void) = 0;
 	virtual void generateComplexes(PyObject*, long) = 0;
 	virtual stopComplexes* getStopComplexes(int) = 0;
@@ -121,6 +119,28 @@ public:
 protected:
 	bool debug;
 	PyObject *python_settings;
+
+};
+
+class CSimOptions: public SimOptions {
+public:
+	//constructors
+	CSimOptions(void);
+
+	PyObject* getPythonSettings(void);
+	void generateComplexes(PyObject *alternate_start, long current_seed);
+	stopComplexes* getStopComplexes(int);
+
+	// Error signaling
+	void stopResultError(long);
+	void stopResultNan(long);
+	void stopResultNormal(long, double, char*);
+	void stopResultTime(long, double);
+	void stopResultBimolecular(string, long, double, double, char*);
+
+protected:
+	bool debug;
+	PyObject *python_settings = NULL;
 
 };
 

@@ -79,7 +79,6 @@ PSimOptions::PSimOptions(PyObject* input) :
 	getLongAttr(python_settings, use_stop_conditions, &stop_options);
 	getDoubleAttr(python_settings, simulation_time, &max_sim_time);
 
-
 	debug = false;	// this is the main switch for simOptions debug, for now.
 
 }
@@ -190,7 +189,6 @@ long SimOptions::getStopCount(void) {
 }
 
 double SimOptions::getMaxSimTime(void) {
-
 
 	return max_sim_time;
 
@@ -491,6 +489,95 @@ void PSimOptions::stopResultBimolecular(string type, long seed, double stopTime,
 				STOPRESULT_NOMOVES, stopTime, rate, NULL);
 
 	}
+
+}
+
+///// CSIMOPTIONS
+
+CSimOptions::CSimOptions(void) {
+
+	// initializers calling python object -- these can use a super object getter.
+	// Not clear at the moment if calling all settings is possible without crashing.
+	fixedRandomSeed = true;
+
+	seed = 7777;
+
+	myEnergyOptions = new CEnergyOptions();
+
+	simulation_mode = 16;
+	simulation_count = 1000;
+	o_time = 0;
+	o_interval = 0;
+	stop_count = 1;
+	stop_options = 1;
+	max_sim_time = 0.1;
+
+	debug = false;	// this is the main switch for simOptions debug, for now.
+
+}
+
+PyObject* CSimOptions::getPythonSettings() {
+
+	cout << "getPythonSettings, cannot proceed \n";
+	abort();
+	return NULL;
+
+}
+
+void CSimOptions::generateComplexes(PyObject *alternate_start,
+		long current_seed) {
+
+	myComplexes = new vector<complex_input>(0); // wipe the pointer to the previous object;
+
+	// setting default value
+	char* mySeq =
+			"GTTAGACTCGGAGGTGGTAGCAATGGATCAG+CTGATCCATTGCTACCACCTCCGAGTCTAACCATATC+GATATGGTTAGACTCGGAGGTGGTAGCAATG";
+	char* myStructure =
+			".........................((((((+))))))(((((((((((((((((((((((((((((((+)))))))))))))))))))))))))))))))";
+	identList* myIdentity1 = identList(1337, "myID", NULL);
+	identList* myIdentity2 = identList(1337, "myID", myIdentity1);
+	identList* myIdentity3 = identList(1337, "myID", myIdentity2);
+
+	complex_input myInput = complex_input(mySeq, myStructure, myIdentity1);
+
+	return;
+}
+
+stopComplexes* CSimOptions::getStopComplexes(int) {
+
+	cout << "getStopComplexes, cannot proceed \n";
+	abort();
+	return NULL;
+}
+
+void CSimOptions::stopResultError(long seed) {
+
+	cout << "stopResultError, cannot send to python \n";
+
+}
+
+void CSimOptions::stopResultNan(long seed) {
+
+	cout << "stopResultNan, cannot send to python \n";
+
+}
+
+void CSimOptions::stopResultNormal(long seed, double time, char* message) {
+
+	cout << "stopResultNormal, cannot send to python \n";
+
+}
+
+void CSimOptions::stopResultTime(long seed, double time) {
+
+	cout << "stopResultTime, cannot send to python \n";
+
+}
+
+void CSimOptions::stopResultBimolecular(string type, long seed, double stopTime,
+		double rate, char* message) {
+
+	cout << "stopResultBimolecular, cannot send to python \n";
 
 }
 
