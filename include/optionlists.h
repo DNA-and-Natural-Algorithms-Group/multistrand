@@ -79,6 +79,8 @@ class stopComplexes {
   ~stopComplexes( void );
 
   char *tag;
+  string toString(void);
+
 
   class stopComplexes *next;
   class complexItem *citem;

@@ -977,7 +977,7 @@ if __name__ == '__main__':
 
         # compare to expectation from formula k_r = k_f * exp(dG/RT)
         print "Compare to expectation:"
-        print "  Forward hitting time %g corresponds to kf = %g" % (times[0], 
+        print "  Forward hitting time %g corresponds to kf = %g" % (times[0], times[1])
 
     else:
         print "  The final macrostate on the forward path has no observed transition pathways back to the initial state."

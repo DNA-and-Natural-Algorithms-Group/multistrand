@@ -77,7 +77,7 @@ void SComplexListEntry::printComplex( int printtype, EnergyModel *em )
 
 }
 
-void SComplexListEntry::createOutputInfo( int *our_id, char **names, char **sequence, char **structure, double *our_energy)
+void SComplexListEntry::dumpComplexEntryToPython( int *our_id, char **names, char **sequence, char **structure, double *our_energy)
 {
   *our_id = id;
   *names = thisComplex->getStrandNames();

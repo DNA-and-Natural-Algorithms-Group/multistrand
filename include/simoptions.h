@@ -58,12 +58,12 @@ public:
 	virtual void stopResultBimolecular(string, long, double, double, char*) = 0;
 
 	// Pushing info back to Python
-	virtual void incrementTrajectoryCount(void) = 0;
-	virtual void sendTransitionInfo(PyObject*) = 0;
-	virtual void pushTrajectory(long, int, char*, char*, char*, double) = 0;
-	virtual void pushTrajectoryInf(double)=0;
+//	virtual void incrementTrajectoryCount(void) = 0;
+//	virtual void sendTransitionInfo(PyObject*) = 0;
+//	virtual void pushTrajectory(long, int, char*, char*, char*, double) = 0;
+//	virtual void pushTrajectoryInf(double)=0;
 
-	// IO Methods
+// IO Methods
 	string toString(void);
 
 	// actual option values
@@ -95,11 +95,9 @@ public:
 	long getSimulationCount(void);
 	long getOInterval(void);
 	double getOTime(void);
-	void incrementTrajectoryCount(void);		// PyObject compliance
 	long getStopOptions(void);
 	long getStopCount(void);
 	double getMaxSimTime(void);
-	void sendTransitionInfo(PyObject *transitions);
 	PyObject* getPythonSettings(void);
 	void generateComplexes(PyObject *alternate_start, long current_seed);
 	stopComplexes* getStopComplexes(int);
@@ -112,8 +110,10 @@ public:
 	void stopResultBimolecular(string, long, double, double, char*);
 
 	// Push back to Python
-	void pushTrajectory(long, int, char*, char*, char*, double);
-	void pushTrajectoryInf(double);
+//	void incrementTrajectoryCount(void);		// PyObject compliance
+//	void sendTransitionInfo(PyObject *transitions);
+//	void pushTrajectory(long, int, char*, char*, char*, double);
+//	void pushTrajectoryInf(double);
 
 protected:
 	bool debug;

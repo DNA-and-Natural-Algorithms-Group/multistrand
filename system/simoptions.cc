@@ -105,15 +105,15 @@ string SimOptions::toString() {
 	// linked list iterator
 	stopComplexes* myStopComplex = myStopComplexes; // copying pointer so we can iterate.
 
-	while (myStopComplex != NULL) {
-
-		ss << "{ " << myStopComplex->citem->toString() << " } ";
-		myStopComplex = myStopComplex->next;
-		// something wrong with tostring of python IDs
-		//	ss << "{ " << myStopComplexes->at(i).sequence << ", "
-		//			<< myStopComplexes->at(i).structure  <<  " }";
-
-	}
+//	while (myStopComplex != NULL) {
+//
+////		ss << "{ " << myStopComplex->toString() << " } ";
+//		myStopComplex = myStopComplex->next;
+//		// something wrong with tostring of python IDs
+//		//	ss << "{ " << myStopComplexes->at(i).sequence << ", "
+//		//			<< myStopComplexes->at(i).structure  <<  " }";
+//
+//	}
 
 	ss << "} \n";
 
@@ -215,13 +215,13 @@ double PSimOptions::getOTime(void) {
 
 }
 
-void PSimOptions::incrementTrajectoryCount(void) {
-
-	if (python_settings != NULL) {
-		pingAttr(python_settings, increment_trajectory_count);
-	}
-
-}
+//void PSimOptions::incrementTrajectoryCount(void) {
+//
+//	if (python_settings != NULL) {
+//		pingAttr(python_settings, increment_trajectory_count);
+//	}
+//
+//}
 
 long PSimOptions::getStopOptions(void) {
 
@@ -277,15 +277,15 @@ double PSimOptions::getMaxSimTime(void) {
 
 }
 
-void PSimOptions::sendTransitionInfo(PyObject *transition_tuple) {
-
-	if (python_settings != NULL) {
-
-		pushTransitionInfo(python_settings, transition_tuple);
-
-	}
-
-}
+//void PSimOptions::sendTransitionInfo(PyObject *transition_tuple) {
+//
+//	if (python_settings != NULL) {
+//
+//		pushTransitionInfo(python_settings, transition_tuple);
+//
+//	}
+//
+//}
 
 PyObject* PSimOptions::getPythonSettings() {
 
@@ -441,17 +441,17 @@ void PSimOptions::stopResultBimolecular(string type, long seed, double stopTime,
 
 }
 
-void PSimOptions::pushTrajectory(long seed, int id, char* sequence,
-		char* structure, char* names, double energy) {
-
-	pushTrajectoryComplex(python_settings, seed, id, names, sequence, structure,
-			energy);
-
-}
-
-void PSimOptions::pushTrajectoryInf(double time) {
-
-	pushTrajectoryInfo(python_settings, time);
-
-}
+//void PSimOptions::pushTrajectory(long seed, int id, char* sequence,
+//		char* structure, char* names, double energy) {
+//
+//	pushTrajectoryComplex(python_settings, seed, id, names, sequence, structure,
+//			energy);
+//
+//}
+//
+//void PSimOptions::pushTrajectoryInf(double time) {
+//
+//	pushTrajectoryInfo(python_settings, time);
+//
+//}
 

@@ -30,7 +30,7 @@ SimulationSystem::SimulationSystem(PyObject *system_o) {
 	ProfilerStart("ssystem_init_profile.prof");
 #endif
 
-	//system_options = system_o;
+	system_options = system_o;
 	sim_options = new PSimOptions(system_o);
 
 	// We no longer need the below line; we are guaranteed that options
@@ -42,7 +42,8 @@ SimulationSystem::SimulationSystem(PyObject *system_o) {
 
 	if (Loop::GetEnergyModel() == NULL) {
 		dnaEnergyModel = NULL;
-		dnaEnergyModel = new NupackEnergyModel(sim_options->getPythonSettings());
+		dnaEnergyModel = new NupackEnergyModel(
+				sim_options->getPythonSettings());
 		Loop::SetEnergyModel(dnaEnergyModel);
 	} else {
 		dnaEnergyModel = Loop::GetEnergyModel();
@@ -70,7 +71,7 @@ SimulationSystem::SimulationSystem(void) {
 		dnaEnergyModel = Loop::GetEnergyModel();
 	}
 
-	//system_options = NULL;
+	system_options = NULL;
 	sim_options = NULL;
 	startState = NULL;
 	complexList = NULL;
@@ -148,7 +149,8 @@ void SimulationSystem::StartSimulation(void) {
 void SimulationSystem::finalizeRun(void) {
 
 	simulation_count_remaining--;
-	sim_options->incrementTrajectoryCount();	// legacy PyObject call
+	pingAttr( system_options, increment_trajectory_count );
+
 
 	generateNextRandom();
 }
@@ -160,7 +162,11 @@ void SimulationSystem::StartSimulation_Standard(void) {
 			return;
 
 		SimulationLoop_Standard();
-		finalizeRun();
+		simulation_count_remaining--;
+		pingAttr( system_options, increment_trajectory_count );
+
+
+		generateNextRandom();
 	}
 }
 
@@ -171,7 +177,11 @@ void SimulationSystem::StartSimulation_Transition(void) {
 			return;
 
 		SimulationLoop_Transition();
-		finalizeRun();
+		simulation_count_remaining--;
+		pingAttr( system_options, increment_trajectory_count );
+
+
+		generateNextRandom();
 	}
 }
 
@@ -186,7 +196,12 @@ void SimulationSystem::StartSimulation_Trajectory(void) {
 			return;
 
 		SimulationLoop_Trajectory(ointerval, otime);
-		finalizeRun();
+
+		simulation_count_remaining--;
+		pingAttr( system_options, increment_trajectory_count );
+
+
+		generateNextRandom();
 
 	}
 }
@@ -592,7 +607,7 @@ void SimulationSystem::dumpCurrentStateToPython(void) {
 	SComplexListEntry *temp;
 	temp = complexList->getFirst();
 	while (temp != NULL) {
-		temp->createOutputInfo(&id, &names, &sequence, &structure, &energy);
+		temp->dumpComplexEntryToPython(&id, &names, &sequence, &structure, &energy);
 		printComplexStateLine(sim_options->getPythonSettings(), current_seed,
 				id, names, sequence, structure, energy);
 		temp = temp->next;
@@ -640,7 +655,8 @@ void SimulationSystem::sendTransitionStateVectorToPython(
 	Py_DECREF(mylist);
 	// we now have no references to mylist directly owned [though transition tuple has one via BuildValue]
 
-	sim_options->sendTransitionInfo(transition_tuple);
+	pushTransitionInfo(system_options, transition_tuple);
+	//sim_options->sendTransitionInfo(transition_tuple);
 
 	// transition_tuple has been decreffed by this macro, so we no longer own any references to it
 
@@ -660,12 +676,15 @@ void SimulationSystem::sendTrajectory_CurrentStateToPython(
 	SComplexListEntry *temp;
 	temp = complexList->getFirst();
 	while (temp != NULL) {
-		temp->createOutputInfo(&id, &names, &sequence, &structure, &energy);
-		sim_options->pushTrajectory(current_seed, id, names, sequence,
+		temp->dumpComplexEntryToPython(&id, &names, &sequence, &structure, &energy);
+		pushTrajectoryComplex(system_options, current_seed, id, names, sequence,
 				structure, energy);
+		//sim_options->pushTrajectory(current_seed, id, names, sequence,
+		//		structure, energy);
 		temp = temp->next;
 	}
-	sim_options->pushTrajectoryInf(current_time);
+	pushTrajectoryInfo(system_options, current_time);
+	//sim_options->pushTrajectoryInf(current_time);
 }
 
 // FD: OK to feed in alternate_start = NULL

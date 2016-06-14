@@ -71,8 +71,8 @@ find_executable = $(strip $(firstword $(foreach file,$(1),$(call path_search,$(f
 ## If there's a better 'default' set of names for the debug version,
 ## we can add it to the list checked.
 ##
-PYTHON_NAMES       := python python2.6
-PYTHON_DEBUG_NAMES := python2.6-dbg python-dbg
+PYTHON_NAMES       := python python2.7
+PYTHON_DEBUG_NAMES := python-debug
 PYTHON_COMMAND = $(call find_executable,$(PYTHON_NAMES))
 PYTHON_DEBUG_COMMAND = $(call find_executable,$(PYTHON_DEBUG_NAMES) $(PYTHON_NAMES))
 

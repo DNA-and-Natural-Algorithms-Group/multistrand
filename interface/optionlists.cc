@@ -185,10 +185,18 @@ stopComplexes::stopComplexes(char *newtag, class complexItem *newitem,
 	next = old;
 }
 
+string stopComplexes::toString() {
+
+	string output = "";
+
+	return output;
+
+}
+
 string complexItem::toString() {
 
 	string output = "";
-	 // FD: This keeps giving formatting errors.
+	// FD: This keeps giving formatting errors.
 //	if(structure != NULL){
 //	printf("The structure is");
 //	printf(structure);

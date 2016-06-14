@@ -1,3 +1,12 @@
+####################################################################
+#                                                                  #
+#  Copyright (c) 2010-2015 California Institute of Technology.     #
+#  Distributed under the MIT License.                              #
+#  (See accompanying file LICENSE or copy at                       #
+#  http://opensource.org/licenses/MIT)                             #
+#                                                                  #
+####################################################################
+
 # threewaybm_trajectories.py
 #
 # This example illustrates how to examine trajectories in multistranded simulations, 
@@ -7,6 +16,10 @@
 #
 # Try it like this, e.g.:
 #   python -i hairpin_trajectories.py
+
+import os
+os.environ["NUPACKHOME"] = "/home/hazel/workspace/nupack3.0.5"
+
 
 if False:  # only needed if you're having trouble with your Multistrand installation
     import multistrand_setup
@@ -156,14 +169,14 @@ if __name__ == '__main__':
 # and run with multiple threads, as shown in the threewaybm_first_step_mode.py example.  All threads share the energy model, and therefore we must not
 # change the energy model when a new simulation starts but existing simulations are already running.  
 
-# Also, once s.start() has run, you cannot run ('start') this SimSystem again.  You must make a new Options object and a new SimSystem object.
+# Also, once s.start() has run, you cannot run ('start') for this SimSystem again.  You must make a new Options object and a new SimSystem object.
 # But if, in doing so, you changed energy/kinetics model parameters, you must also initialize_energy_model(o), as we've said.
 
 # Note that if num_simulations > 1, then all the recorded states get collected together into the full_trajectory.  
 # To tell where one trajectory stops and the next simulation starts, you can look at the time stamps.
 
 # A good exercise to the reader, as a test of understanding: 
-# you should be able to extract sequences & structures from trajectory, make Complex of them, evaluate energy, start new simulation, etc.
+# you should be able to extract sequences & structures from trajectory, make a Complex of them, evaluate energy, start new simulation, etc.
 
 # Trajectory like this were used in Schaeffer's MS thesis.
 # Note that in the thesis, we displayed them in 5'->3' counterclockwise. Oops. 
