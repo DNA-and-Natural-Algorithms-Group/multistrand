@@ -160,11 +160,11 @@ void SimulationSystem::InitialInfo(void) {
 
 
 
-//	cout << "Moving to a new state";
-//
-//	double nextStepRate = 0.1;
-//	Move* selectedMove = startState->getChoice(&nextStepRate);
-//	startState->doChoice(selectedMove);
+	cout << "Moving to a new state";
+
+	double nextStepRate = 0.1;
+	Move* selectedMove = startState->getChoice(&nextStepRate);
+	startState->doChoice(selectedMove);
 
 	cout << "Printing complex list";
 	complexList->printComplexList(2);
