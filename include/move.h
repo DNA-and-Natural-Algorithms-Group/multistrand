@@ -16,6 +16,9 @@
 #define MOVE_2      16
 #define MOVE_3      32
 
+#include <string>
+using std::string;
+
 class Loop;
 
 class Move
@@ -33,6 +36,7 @@ class Move
   int getType( void );
   Loop *getAffected( int index );
   Loop *doChoice( void );
+  string toString(void );
   friend class Loop;
   friend class HairpinLoop;
   friend class StackLoop;

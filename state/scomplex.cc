@@ -668,7 +668,8 @@ double StrandComplex::getEnergy(void) {
 void StrandComplex::moveDisplay(void) {
 	beginLoop->firstGen( NULL);
 	// FIXME: The following line prolly needs a valid second parameter.
-	//  beginLoop->moveDisplay( NULL, structure, sequence );
+	// FD: this is broken.
+	//beginLoop->moveDisplay( NULL, this->getStructure(), this->getSequence());
 }
 
 Move *StrandComplex::getChoice(double *rand_choice) {

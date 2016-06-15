@@ -49,6 +49,7 @@ char* copyToCharArray(string&);
 
 string copyToString(char*);
 
+string moveType(int );
 }
 
 #endif /* INCLUDE_UTILITY_CC_ */

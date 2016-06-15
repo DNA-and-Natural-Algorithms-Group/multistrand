@@ -8,7 +8,8 @@
 
 #include "utility.h"
 #include <string>
-#include <cstring>
+#include <sstream>
+#include "move.h"
 
 char* utility::copyToCharArray(string& myString) {
 
@@ -19,12 +20,57 @@ char* utility::copyToCharArray(string& myString) {
 
 }
 
-
-string utility::copyToString(char* inputCharArray){
+string utility::copyToString(char* inputCharArray) {
 
 	char* newArray = (char *) new char[strlen(inputCharArray) + 1];
 	strcpy(newArray, inputCharArray);
 
 	return string(newArray);
+
+}
+
+string utility::moveType(int type) {
+
+	std::stringstream ss;
+
+	if (type & MOVE_INVALID) {
+
+		ss << "Move-invalid, ";
+
+	}
+
+	if (type & MOVE_CREATE) {
+
+		ss << "Move-create, ";
+
+	}
+
+	if (type & MOVE_SHIFT) {
+
+		ss << "Move-invalid, ";
+
+	}
+
+	if (type & MOVE_1) {
+
+		ss << "Move-1, ";
+
+	}
+
+	if (type & MOVE_2) {
+
+		ss << "Move-2, ";
+
+	}
+
+	if (type & MOVE_3) {
+
+		ss << "Move-3, ";
+
+	}
+
+	string output = ss.str();
+
+	return output;
 
 }

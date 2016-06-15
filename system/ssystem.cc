@@ -130,6 +130,14 @@ void SimulationSystem::InitialInfo(void) {
 	complexList->initializeList();
 	complexList->printComplexList(2);
 
+	double myDouble = 0.1;
+	Move* myMove = startState->getChoice(&myDouble);
+	cout << "I selected a move: " << myMove->toString() << " \n ";
+
+	//startState->moveDisplay();
+
+	cout << "called moveDisplay()" << " \n";
+
 }
 
 void SimulationSystem::StartSimulation(void) {
