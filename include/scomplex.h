@@ -9,6 +9,8 @@
 
 
 #include "loop.h"
+#include <string>
+
 
 // structure containing information about bases exterior to the complex, IE bases that could pair with other complexes. First incarnation of such.a structure, prolly will change as I work out multiple-complex issues.
 struct exterior_bases
@@ -58,6 +60,8 @@ class StrandComplex
   Move *getChoice( double *rand_choice ); // get a move chosen stochasticly from all possible moves within the complex. We'll then call perform choice on that move to generate the new setup.
   StrandComplex *doChoice( Move *move );
   int generateLoops( void );
+
+  string toString(void );
 
   static StrandComplex *performComplexJoin( StrandComplex **complexes, char *types, int *index);
 

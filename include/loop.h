@@ -8,6 +8,7 @@
 #ifndef __LOOP_H__
 #define __LOOP_H__
 
+#include <string>
 #include "energymodel.h"
 #include "move.h"
 
@@ -43,10 +44,12 @@ class Loop
   static Loop *performDeleteMove( Move *move );
   static void performComplexSplit( Move *move, Loop **firstOpen, Loop **secondOpen );
   
+  string toString(void);
+
 
  protected:
   static EnergyModel *energyModel_Primary;
-  Loop **adjacentLoops;
+  Loop** adjacentLoops;
   int numAdjacent;
   int curAdjacent;
   double energy;

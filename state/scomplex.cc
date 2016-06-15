@@ -632,21 +632,47 @@ int StrandComplex::generateLoops(void) {
 		delete[] charsequence;
 }
 
+void printMyLoops(string input, Loop* myLoop) {
+
+	if (myLoop != NULL) {
+
+		input += myLoop->toString();
+
+	}
+
+	for (int i = 0; i < myLoop->getCurAdjacent(); i++) {
+
+//		printMyLoops
+
+	}
+
+}
+
+string StrandComplex::toString() {
+
+	string output = "";
+
+	printMyLoops(output, beginLoop);
+
+	return output;
+
+}
+
 double StrandComplex::getTotalFlux(void) {
 	return totalFlux = beginLoop->returnFlux(NULL);
 }
 
 char *StrandComplex::getSequence(void) {
-	// ZIFNAB - use the ordering to return a valid character sequence representation for this complex.
+// ZIFNAB - use the ordering to return a valid character sequence representation for this complex.
 	return ordering->getSequence();
 }
 
 char *StrandComplex::getStructure(void) {
-	//char *structure;
-	//  structure = new char[strlen(tempseq)];
-	//for( int loop = 0; loop < strlen(structure); loop++)
-	//  structure[loop] = '.';
-	//beginLoop->printMove(NULL,structure,getSequence());
+//char *structure;
+//  structure = new char[strlen(tempseq)];
+//for( int loop = 0; loop < strlen(structure); loop++)
+//  structure[loop] = '.';
+//beginLoop->printMove(NULL,structure,getSequence());
 	return ordering->getStructure();
 }
 
@@ -659,17 +685,17 @@ struct exterior_bases *StrandComplex::getExteriorBases(void) {
 }
 
 double StrandComplex::getEnergy(void) {
-	// beginLoop->firstGen( NULL );
-	//  return (double) beginLoop->returnEnergies( NULL ) / 100.0;
+// beginLoop->firstGen( NULL );
+//  return (double) beginLoop->returnEnergies( NULL ) / 100.0;
 	return beginLoop->returnEnergies( NULL);
-	// + Loop::energyModel_Primary->getJoinEnergy();
+// + Loop::energyModel_Primary->getJoinEnergy();
 }
 
 void StrandComplex::moveDisplay(void) {
 	beginLoop->firstGen( NULL);
-	// FIXME: The following line prolly needs a valid second parameter.
-	// FD: this is broken.
-	//beginLoop->moveDisplay( NULL, this->getStructure(), this->getSequence());
+// FIXME: The following line prolly needs a valid second parameter.
+// FD: this is broken.
+//beginLoop->moveDisplay( NULL, this->getStructure(), this->getSequence());
 }
 
 Move *StrandComplex::getChoice(double *rand_choice) {

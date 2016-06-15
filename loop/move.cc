@@ -14,7 +14,6 @@
 
 using std::string;
 
-
 Move::Move(void) {
 	type = 0;
 	rate = 0.0;
@@ -127,8 +126,17 @@ string Move::toString(void) {
 	std::stringstream ss;
 
 	ss << "moveType: " << type << " \n";
-	ss << utility::moveType(type);
-	ss << "Index: " << index[0] << ", " << index[1] << ", " << index[2] << ", " << index[3] << " \n";
+	ss << utility::moveType(type) << "\n";
+	ss << "Index: " << index[0] << ", " << index[1] << ", " << index[2] << ", "
+			<< index[3] << " \n";
+	ss << "rate: " << rate << " \n";
+	ss << "Affected loops: \n";
+	if (affected[0] != NULL) {
+		ss << affected[0]->toString() << "\n";
+	}
+	if (affected[1] != NULL) {
+		ss << affected[1]->toString() << "\n";
+	}
 
 	string output = ss.str();
 

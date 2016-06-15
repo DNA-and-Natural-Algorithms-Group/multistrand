@@ -18,16 +18,9 @@
 #include <iostream>
 
 #include "utility.h"
-//
-//using std::vector;
-//using std::string;
-//using namespace utility;
 
 class EnergyOptions {
 public:
-	// Constructors
-//	EnergyOptions(void);
-//	virtual ~EnergyOptions(void) =0;
 
 // non-virtual getters
 	double getTemperature(void);
@@ -60,6 +53,30 @@ protected:
 
 	// not sure if these are long
 	long substrate_type; // = NULL;
+
+	// Hard coded Arhussian constants
+	double AStack = 6.10;
+	double ALoop = 16.58;
+	double AEnd = 31.49;
+	double AStackLoop = 10.83;
+	double AStackEnd = 15.34;
+	double ALoopEnd = 8.55;
+	double AStackStack = 4.91;
+
+	double EStack = 0.75;
+	double ELoop = 5.84;
+	double EEnd = 12.38;
+	double EStackLoop = 3.83;
+	double EStackEnd = -0.43;
+	double ELoopEnd = 3.80;
+	double EStackStack = 6.57;
+
+	double dS_A = 1.02;
+	double dS_C = 4.41;
+	double dS_T = 0.55;
+	double dS_G = -5.99;
+
+	double alpha = 0.045;
 
 };
 
