@@ -259,7 +259,7 @@ string Loop::toString(void) {
 
 	std::stringstream ss;
 
-	ss << "L-ID= " << identity << ", dG =" << energy  <<  " t_rate = " << totalRate;
+	ss << "Loop-" << identity << ", dG =" << energy  <<  " t_rate = " << totalRate;
 
 	return ss.str();
 
