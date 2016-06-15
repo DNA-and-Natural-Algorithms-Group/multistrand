@@ -3,6 +3,8 @@
    Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
 */
  
+// TEST
+
 #include <stdio.h>
 #include <assert.h>
 #include "move.h"

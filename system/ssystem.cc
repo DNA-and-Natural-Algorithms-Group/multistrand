@@ -20,6 +20,25 @@
 #endif
 
 SimulationSystem::SimulationSystem(PyObject *system_o) {
+
+	system_options = system_o;
+	sim_options = new PSimOptions(system_o);
+
+	construct();
+
+}
+
+SimulationSystem::SimulationSystem(SimOptions* options) {
+
+	system_options = NULL;
+	sim_options = options;
+
+	construct();
+
+}
+
+void SimulationSystem::construct(void) {
+
 	bool hflag = false;
 #ifdef PROFILING
 	if (!IsHeapProfilerRunning())
@@ -30,12 +49,12 @@ SimulationSystem::SimulationSystem(PyObject *system_o) {
 	ProfilerStart("ssystem_init_profile.prof");
 #endif
 
-	system_options = system_o;
-	sim_options = new PSimOptions(system_o);
+//	system_options = system_o;
+//	sim_options = new PSimOptions(system_o);
 
-	// We no longer need the below line; we are guaranteed that options
-	// will have a good reference for the lifetime of our object, as the
-	// controlling wrapper in multistrand_module.cc grabs the reference.
+// We no longer need the below line; we are guaranteed that options
+// will have a good reference for the lifetime of our object, as the
+// controlling wrapper in multistrand_module.cc grabs the reference.
 
 	simulation_mode = sim_options->getSimulationMode();
 	simulation_count_remaining = sim_options->getSimulationCount();
@@ -149,8 +168,7 @@ void SimulationSystem::StartSimulation(void) {
 void SimulationSystem::finalizeRun(void) {
 
 	simulation_count_remaining--;
-	pingAttr( system_options, increment_trajectory_count );
-
+	pingAttr(system_options, increment_trajectory_count);
 
 	generateNextRandom();
 }
@@ -163,8 +181,7 @@ void SimulationSystem::StartSimulation_Standard(void) {
 
 		SimulationLoop_Standard();
 		simulation_count_remaining--;
-		pingAttr( system_options, increment_trajectory_count );
-
+		pingAttr(system_options, increment_trajectory_count);
 
 		generateNextRandom();
 	}
@@ -178,8 +195,7 @@ void SimulationSystem::StartSimulation_Transition(void) {
 
 		SimulationLoop_Transition();
 		simulation_count_remaining--;
-		pingAttr( system_options, increment_trajectory_count );
-
+		pingAttr(system_options, increment_trajectory_count);
 
 		generateNextRandom();
 	}
@@ -198,8 +214,7 @@ void SimulationSystem::StartSimulation_Trajectory(void) {
 		SimulationLoop_Trajectory(ointerval, otime);
 
 		simulation_count_remaining--;
-		pingAttr( system_options, increment_trajectory_count );
-
+		pingAttr(system_options, increment_trajectory_count);
 
 		generateNextRandom();
 
@@ -607,7 +622,8 @@ void SimulationSystem::dumpCurrentStateToPython(void) {
 	SComplexListEntry *temp;
 	temp = complexList->getFirst();
 	while (temp != NULL) {
-		temp->dumpComplexEntryToPython(&id, &names, &sequence, &structure, &energy);
+		temp->dumpComplexEntryToPython(&id, &names, &sequence, &structure,
+				&energy);
 		printComplexStateLine(sim_options->getPythonSettings(), current_seed,
 				id, names, sequence, structure, energy);
 		temp = temp->next;
@@ -676,7 +692,8 @@ void SimulationSystem::sendTrajectory_CurrentStateToPython(
 	SComplexListEntry *temp;
 	temp = complexList->getFirst();
 	while (temp != NULL) {
-		temp->dumpComplexEntryToPython(&id, &names, &sequence, &structure, &energy);
+		temp->dumpComplexEntryToPython(&id, &names, &sequence, &structure,
+				&energy);
 		pushTrajectoryComplex(system_options, current_seed, id, names, sequence,
 				structure, energy);
 		//sim_options->pushTrajectory(current_seed, id, names, sequence,

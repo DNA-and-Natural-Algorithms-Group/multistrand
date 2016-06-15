@@ -493,7 +493,6 @@ void PSimOptions::stopResultBimolecular(string type, long seed, double stopTime,
 }
 
 ///// CSIMOPTIONS
-
 CSimOptions::CSimOptions(void) {
 
 	// initializers calling python object -- these can use a super object getter.
@@ -536,7 +535,7 @@ void CSimOptions::generateComplexes(PyObject *alternate_start,
 			".........................((((((+))))))(((((((((((((((((((((((((((((((+)))))))))))))))))))))))))))))))";
 	identList* myIdentity1 = new identList(1337, "myID-1", NULL);
 	identList* myIdentity2 = new identList(1338, "myID-2", myIdentity1);
-	identList* myIdentity3 = new 	identList(1339, "myID-3", myIdentity2);
+	identList* myIdentity3 = new identList(1339, "myID-3", myIdentity2);
 
 	complex_input myInput = complex_input(mySeq, myStructure, NULL);
 

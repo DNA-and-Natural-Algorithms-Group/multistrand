@@ -31,7 +31,7 @@ public:
 
 	// Constructors
 	SimOptions(void);
-	virtual ~SimOptions(void);
+	virtual ~SimOptions(void) =0;
 
 	// Non-virtual
 	bool useFixedRandomSeed();
@@ -125,7 +125,7 @@ protected:
 class CSimOptions: public SimOptions {
 public:
 	//constructors
-	CSimOptions(void);
+	CSimOptions();
 
 	PyObject* getPythonSettings(void);
 	void generateComplexes(PyObject *alternate_start, long current_seed);

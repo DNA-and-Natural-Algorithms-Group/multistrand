@@ -215,4 +215,5 @@ class OpenLoop : public Loop
   int *sidelen;
   char **seqs;
 };
+
 #endif

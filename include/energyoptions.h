@@ -29,7 +29,7 @@ public:
 //	EnergyOptions(void);
 //	virtual ~EnergyOptions(void) =0;
 
-	// non-virtual getters
+// non-virtual getters
 	double getTemperature(void);
 	long getDangles(void);
 	long getLogml(void);
@@ -48,27 +48,25 @@ public:
 
 protected:
 
-	double temperature = NULL;
-	long dangles = NULL;
-	long logml = NULL;
-	bool gtenable = NULL;
-	long kinetic_rate_method = NULL;
-	double joinConcentration = NULL;
+	double temperature; // = 0NULL;
+	long dangles; // = NULL;
+	long logml; // = NULL;
+	bool gtenable; // = NULL;
+	long kinetic_rate_method; // = NULL;
+	double joinConcentration; // = NULL;
 
-	double biScale = NULL;
-	double uniScale = NULL;
+	double biScale; // = NULL;
+	double uniScale; // = NULL;
 
 	// not sure if these are long
-	long substrate_type = NULL;
+	long substrate_type; // = NULL;
 
 };
-
 
 class PEnergyOptions: public EnergyOptions {
 public:
 	//constructors
 	PEnergyOptions(PyObject*);
-
 
 	// implemented virtual
 	bool compareSubstrateType(long);
@@ -79,12 +77,10 @@ protected:
 
 };
 
-
 class CEnergyOptions: public EnergyOptions {
 public:
 	// constructors
 	CEnergyOptions();
-
 
 	// implemented virtual
 	bool compareSubstrateType(long);
@@ -95,6 +91,4 @@ protected:
 
 };
 
-
-
-#endif
+#endif /* __ENERGYOPTIONS_H_ */

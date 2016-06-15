@@ -8,7 +8,7 @@
 #define __ENERGYMODEL_H__
 
 #include <stdio.h>
-#include <Python.h>
+#include <python2.7/Python.h>
 
 class SimOptions;
 
@@ -456,4 +456,4 @@ private:
 	double setWaterDensity(double temp);
 };
 
-#endif
+#endif /* __ENERGYMODEL_H__ */
