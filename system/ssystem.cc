@@ -116,6 +116,14 @@ SimulationSystem::~SimulationSystem(void) {
 	startState = NULL;
 }
 
+void SimulationSystem::printTransition(double input) {
+
+	cout << "Using rate =" << input;
+	Move* myMove = startState->getChoice(&input);
+	cout << ", we selected move: \n " << myMove->toString() << " \n ";
+
+}
+
 // FD: a simple peak into the initial state
 void SimulationSystem::InitialInfo(void) {
 	bool hflag = false;
@@ -130,12 +138,15 @@ void SimulationSystem::InitialInfo(void) {
 	complexList->initializeList();
 	complexList->printComplexList(2);
 
-	cout << "Printing starting structure ";
+	//cout << "Printing starting structure ";
 	//startState->
 
-	double myDouble = 0.1;
-	Move* myMove = startState->getChoice(&myDouble);
-	cout << "I selected a move: \n " << myMove->toString() << " \n ";
+	printTransition(0.1);
+	printTransition(1);
+	printTransition(10);
+	printTransition(100);
+	printTransition(1000);
+
 
 	//startState->moveDisplay();
 

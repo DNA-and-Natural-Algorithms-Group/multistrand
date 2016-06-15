@@ -31,7 +31,8 @@ public:
 	~SimulationSystem(void);
 
 	void StartSimulation(void);
-	void InitialInfo(void);
+	void InitialInfo(void);	// printing function
+	void printTransition(void); // printing function
 
 	PyObject *calculateEnergy(PyObject *start_state, int typeflag);
 	int getErrorFlag(void);
