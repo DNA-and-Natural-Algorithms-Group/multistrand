@@ -648,6 +648,12 @@ void printMyLoops(string input, Loop* myLoop) {
 
 }
 
+void StrandComplex::printAllMoves(void){
+
+
+
+}
+
 string StrandComplex::toString() {
 
 	string output = "";

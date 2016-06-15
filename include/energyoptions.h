@@ -54,7 +54,9 @@ protected:
 	// not sure if these are long
 	long substrate_type; // = NULL;
 
-	// Hard coded Arhussian constants
+	// Hard coded Arrhenius constants
+	bool useArrhenius = false;
+
 	double AStack = 6.10;
 	double ALoop = 16.58;
 	double AEnd = 31.49;

@@ -49,7 +49,7 @@ class Move
   int type;
   double rate;
   int index[4];
-  Loop *affected[2];
+  Loop* affected[2];
 };
 
 
@@ -59,8 +59,6 @@ class MoveContainer
   MoveContainer( void );
   virtual ~MoveContainer( void );
   virtual void addMove( Move *newmove ) = 0;
-  // virtual void deleteMove( Move *oldmove ) = 0;
-  // virtual void deleteMove( MoveContainer *oldcontainer ) = 0;
   double getRate( void );
   virtual void resetDeleteMoves( void ) = 0;
   virtual Move *getChoice( double *rnd ) = 0;

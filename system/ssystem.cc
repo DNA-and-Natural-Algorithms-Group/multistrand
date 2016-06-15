@@ -118,7 +118,7 @@ SimulationSystem::~SimulationSystem(void) {
 
 void SimulationSystem::printTransition(double input) {
 
-	cout << "Using rate =" << input;
+	cout << "Using RNG =" << input;
 	Move* myMove = startState->getChoice(&input);
 	cout << ", we selected move: \n " << myMove->toString() << " \n ";
 
@@ -146,11 +146,35 @@ void SimulationSystem::InitialInfo(void) {
 	printTransition(10);
 	printTransition(100);
 	printTransition(1000);
+	printTransition(10000);
+	printTransition(100000);
+	printTransition(1000000);
+	printTransition(10000000);
+	printTransition(10000000);
+	printTransition(20000000);
+	printTransition(30000000);
+	printTransition(40000000);
+	printTransition(50000000);
+	printTransition(60000000);
+	printTransition(70000000);
 
 
-	//startState->moveDisplay();
 
-	cout << "finished moveDisplay()" << " \n";
+	cout << "Moving to a new state";
+
+	double nextStepRate = 0.1;
+	Move* selectedMove = startState->getChoice(&nextStepRate);
+	startState->doChoice(selectedMove);
+
+	cout << "Printing complex list";
+	complexList->printComplexList(2);
+
+
+	startState->printAllMoves();
+
+
+
+	cout << "Exiting InitialInfo()" << " \n";
 
 }
 

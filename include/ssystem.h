@@ -32,7 +32,7 @@ public:
 
 	void StartSimulation(void);
 	void InitialInfo(void);	// printing function
-	void printTransition(void); // printing function
+	void printTransition(double); // printing function
 
 	PyObject *calculateEnergy(PyObject *start_state, int typeflag);
 	int getErrorFlag(void);
