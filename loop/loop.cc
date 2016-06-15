@@ -7,9 +7,12 @@
 #include <assert.h>
 #include "loop.h"
 #include <sstream>
+
 #include <string>
+#include <iostream>
 
 using std::string;
+using std::cout;
 
 EnergyModel *Loop::energyModel_Primary = NULL;
 extern int baseLookup(char base);
@@ -256,9 +259,40 @@ string Loop::toString(void) {
 
 	std::stringstream ss;
 
-	ss << "Loop object, ID= " << identity;
+	ss << "Loop-ID= " << identity << ", energy =" << energy;
 
 	return ss.str();
+
+}
+
+void Loop::printAllMoves(Loop* from) {
+
+	cout << "This is loop: \n " << toString();
+	cout << "Now printing all moves \n ";
+	moves->printAllMoves();
+
+	for (int i = 0; i < numAdjacent; i++) {
+
+		if (adjacentLoops[i] != from) {
+
+			adjacentLoops[i]->printAllMoves(this);
+
+		}
+
+	}
+
+	//		*randomchoice -= totalRate;
+//		if (adjacentLoops[0] != from) {
+//			stor = adjacentLoops[0]->getChoice(randomchoice, this);
+//			if (stor != NULL)
+//				return stor;
+//		}
+//		if (adjacentLoops[1] != from) {
+//			stor = adjacentLoops[1]->getChoice(randomchoice, this);
+//			if (stor != NULL)
+//				return stor;
+//		}
+//	}
 
 }
 

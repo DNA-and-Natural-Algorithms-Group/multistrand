@@ -35,19 +35,25 @@ string utility::moveType(int type) {
 
 	if (type & MOVE_INVALID) {
 
-		ss << "Move-invalid, ";
+		ss << "invalid, ";
 
 	}
 
 	if (type & MOVE_CREATE) {
 
-		ss << "Move-create, ";
+		ss << "create, ";
+
+	}
+
+	if (type & MOVE_DELETE) {
+
+		ss << "delete, ";
 
 	}
 
 	if (type & MOVE_SHIFT) {
 
-		ss << "Move-invalid, ";
+		ss << "shift, ";
 
 	}
 

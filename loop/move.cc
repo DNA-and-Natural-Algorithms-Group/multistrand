@@ -8,6 +8,7 @@
 #include <assert.h>
 #include <string>
 #include <sstream>
+#include <iomanip>
 #include "move.h"
 #include "loop.h"
 #include "utility.h"
@@ -125,11 +126,11 @@ string Move::toString(void) {
 
 	std::stringstream ss;
 
-	ss << "moveType: " << type << " \n";
+	ss << "moveType: " << type << " -- ";
 	ss << utility::moveType(type) << "\n";
 	ss << "Index: " << index[0] << ", " << index[1] << ", " << index[2] << ", "
 			<< index[3] << " \n";
-	ss << "rate: " << rate << " \n";
+	ss << "rate: " << std::setprecision(10) << rate << " \n";
 	ss << "Affected loops: \n";
 	if (affected[0] != NULL) {
 		ss << affected[0]->toString() << "\n";
@@ -219,6 +220,26 @@ void MoveList::resetDeleteMoves(void) {
 		del_moves_size = 2;
 	}
 	del_moves_index = 0;
+}
+
+void MoveList::printAllMoves(void) {
+
+	for (int i = 0; i < moves_index; i++) {
+
+		cout << "Move-" << i << "\n";
+		cout << moves[i]->toString();
+
+	}
+
+	for (int i = 0; i < del_moves_index; i++) {
+
+		cout << "Move-" << i << "\n";
+		cout << del_moves[i]->toString();
+
+	}
+
+
+
 }
 
 void MoveList::addMove(Move *newmove) {
@@ -316,3 +337,4 @@ MoveContainer::~MoveContainer(void) {
 double MoveContainer::getRate(void) {
 	return totalrate;
 }
+

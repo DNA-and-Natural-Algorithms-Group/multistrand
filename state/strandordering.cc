@@ -878,6 +878,7 @@ void StrandOrdering::breakBasepair( char *first_bp, char *second_bp )
         }
     }
   //  printf("%c, %c\n",*id[0],*id[1]);
+  // FD: These now point to the characters in thisStruct that will change from ( and ) to . and .
   assert( (*id[0] == '(' && *id[1] == ')' ) );
   // || (*id[0] == '(' && *id[1] == '(' ) || (*id[0] == ')' && *id[1] == ')' ) );
   *id[0] = '.';

@@ -63,6 +63,9 @@ class MoveContainer
   virtual void resetDeleteMoves( void ) = 0;
   virtual Move *getChoice( double *rnd ) = 0;
   virtual Move *getMove( Move *iterator ) = 0;  
+
+  virtual void printAllMoves(void) = 0;
+
  protected:
   double totalrate;
 
@@ -88,6 +91,9 @@ class MoveList : public MoveContainer
   Move *getChoice( double *rnd );
   Move *getMove( Move *iterator );
   void resetDeleteMoves( void );
+
+  void printAllMoves(void);
+
   //  friend class Move;
  private:
   Move **moves;

@@ -141,35 +141,36 @@ void SimulationSystem::InitialInfo(void) {
 	//cout << "Printing starting structure ";
 	//startState->
 
-	printTransition(0.1);
-	printTransition(1);
-	printTransition(10);
-	printTransition(100);
-	printTransition(1000);
-	printTransition(10000);
-	printTransition(100000);
-	printTransition(1000000);
-	printTransition(10000000);
-	printTransition(10000000);
-	printTransition(20000000);
-	printTransition(30000000);
-	printTransition(40000000);
-	printTransition(50000000);
-	printTransition(60000000);
-	printTransition(70000000);
+//	printTransition(0.1);
+//	printTransition(1);
+//	printTransition(10);
+//	printTransition(100);
+//	printTransition(1000);
+//	printTransition(10000);
+//	printTransition(100000);
+//	printTransition(1000000);
+//	printTransition(10000000);
+//	printTransition(10000000);
+//	printTransition(20000000);
+//	printTransition(30000000);
+//	printTransition(40000000);
+//	printTransition(50000000);
+//	printTransition(60000000);
+//	printTransition(70000000);
 
 
 
-	cout << "Moving to a new state";
-
-	double nextStepRate = 0.1;
-	Move* selectedMove = startState->getChoice(&nextStepRate);
-	startState->doChoice(selectedMove);
+//	cout << "Moving to a new state";
+//
+//	double nextStepRate = 0.1;
+//	Move* selectedMove = startState->getChoice(&nextStepRate);
+//	startState->doChoice(selectedMove);
 
 	cout << "Printing complex list";
 	complexList->printComplexList(2);
 
 
+	cout << "Printing all moves \n";
 	startState->printAllMoves();
 
 

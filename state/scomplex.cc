@@ -181,10 +181,10 @@ StrandComplex *StrandComplex::doChoice(Move *move) {
 
 		return (new StrandComplex(newOrdering)); // newComplex
 	} else {
-		if (move->getType() & MOVE_CREATE)
+		if (move->getType() & MOVE_CREATE)	 // FD: test if we have a create-basepair move
 			ordering->addBasepair(move->getAffected(0)->getLocation(move, 0),
 					move->getAffected(0)->getLocation(move, 1));
-		else if (move->getType() & MOVE_DELETE)
+		else if (move->getType() & MOVE_DELETE) // FD: test if we have a delete-basepair move
 			ordering->breakBasepair(move->getAffected(0)->getLocation(move, 0),
 					move->getAffected(1)->getLocation(move, 1));
 
@@ -632,6 +632,14 @@ int StrandComplex::generateLoops(void) {
 		delete[] charsequence;
 }
 
+
+
+void StrandComplex::printAllMoves(void) {
+
+	beginLoop->printAllMoves(NULL);
+
+}
+
 void printMyLoops(string input, Loop* myLoop) {
 
 	if (myLoop != NULL) {
@@ -640,17 +648,10 @@ void printMyLoops(string input, Loop* myLoop) {
 
 	}
 
-	for (int i = 0; i < myLoop->getCurAdjacent(); i++) {
-
+//	for (int i = 0; i < myLoop->getCurAdjacent(); i++) {
+//
 //		printMyLoops
-
-	}
-
-}
-
-void StrandComplex::printAllMoves(void){
-
-
+//	}
 
 }
 
