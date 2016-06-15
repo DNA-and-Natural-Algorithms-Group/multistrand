@@ -131,13 +131,14 @@ string Move::toString(void) {
 	ss << "Index: " << index[0] << ", " << index[1] << ", " << index[2] << ", "
 			<< index[3] << " \n";
 	ss << "rate: " << std::setprecision(10) << rate << " \n";
-	ss << "Affected loops: \n";
+	ss << "AFFECTED: ";
 	if (affected[0] != NULL) {
-		ss << affected[0]->toString() << "\n";
+		ss << affected[0]->toString() << " ";
 	}
 	if (affected[1] != NULL) {
-		ss << affected[1]->toString() << "\n";
+		ss << affected[1]->toString() << " ";
 	}
+	ss << " \n"
 
 	string output = ss.str();
 
