@@ -1,3 +1,12 @@
+####################################################################
+#                                                                  #
+#  Copyright (c) 2010-2015 California Institute of Technology.     #
+#  Distributed under the MIT License.                              #
+#  (See accompanying file LICENSE or copy at                       #
+#  http://opensource.org/licenses/MIT)                             #
+#                                                                  #
+####################################################################
+
 # hybridization_first_step_mode.py
 #
 # Perform simulations that directly examine interactions between complexes,
@@ -63,15 +72,17 @@
 # More details are explained in the code, as well as methods for computing
 # error bars.
 #
-# Usage for running default cases (takes about 5 min):
+# Usage:
 #     python -i hybridization_first_step_mode.py
-# Usage for running user-specified cases:
-#     python -i hybridization_first_step_mode.py <material> <sequence> <temperature> <concentration> <trials>
-#     python -i hybridization_first_step_mode.py DNA ACTCCACATTGTCTTTATATTGTGACAATGAAGCGT 25 1e-3 1000
+# Takes about 5 min.
+
 
 # Import things you need
-import random, sys
+import random
 import numpy as np
+import os
+os.environ["NUPACKHOME"] = "/home/hazel/workspace/nupack3.0.5"
+
 
 if False:  # only needed if you're having trouble with your Multistrand installation
     import multistrand_setup
@@ -310,54 +321,32 @@ def first_step_simulation(strand_seq, num_traj, T=25, rate_method_k_or_m="Metrop
 
 
 if __name__ == '__main__':
-    trials=100
+    trials=1000 
     # Note that the "analytic" formulas for error bars agree well for N=1000, but are likely to disagree for N=100.
 
-    if len(sys.argv) == 6:
-        mat    = sys.argv[1]
-        seq    = sys.argv[2]
-        T      = float(sys.argv[3])
-        c      = float(sys.argv[4])
-        trials = int(sys.argv[5])
-        if not mat in ['DNA','RNA']:
-            print "Argument '%s' should be 'DNA' or 'RNA'." % mat
-            sys.exit()
-        if not (T>0 and T<100) or (T>273.15 and T<373.15):
-            print "Argument '%s' should be a valid temperature." % sys.argv[3] 
-            sys.exit()
-        print
-        print "Simulating %s sequence '%s' at T=%g and c=%g M for %d trials." % (mat,seq,T,c,trials)
-        #data=first_step_simulation("ACTCCACATTGTCTTTATATTGTGACAATGAAGCG", 1000, concentration=1e-3, T=25, material="DNA") 
-        data=first_step_simulation(seq, trials, concentration=c, T=T, material=mat) 
+    print
+#     print "Simulating unstructured DNA strand, at 25 C."
+#     data=first_step_simulation("ACTGGCGCGTATTATCTACTG", 1000, concentration=50e-9, T=25, material="DNA") 
+#     print "Simulating DNA strand with 4-bp blunt-end hairpin, at 25 C."
+#     data=first_step_simulation("ACTGGCGCGTATTATCTCAGT", 10000, concentration=50e-9, T=25, material="DNA") 
+#     # We can do a lot of simulations in the above case, because the vast majority are very very fast.
+#     # (In fact, most Boltzmann-sampled structures are hairpins, so no first base pair reactions are possible.)
+#     # Note that k_collision_forward is very different from k_collision_reverse, because they sample markedly different initial structures.
+#     print "Simulating DNA strand with 7-bp dual 5-nt tailed hairpin, at 25 C."
+#     data=first_step_simulation("CTAACTGGCGCGTATTCGCGCCTTCAC", 1000, concentration=50e-9, T=25, material="DNA") 
 
-    elif not len(sys.argv) == 1:
-        print "Arguments: none for running default cases, else 'RNA/DNA sequence temperature molar-concentration number-of-trials' "
+    print "Simulating unstructured DNA strand hybridization from Gao et al 2006, at 20 C and 1 uM."
+    data0=first_step_simulation("GTTGTCAAGATGCTACCGTTCAGAG", trials, concentration=1e-6, T=20, material="DNA")
+    print "Simulating tailed 3-bp hairpin DNA strand hybridization from Gao et al 2006, at 20 C and 1 uM."
+    data3=first_step_simulation("AGATCAGTGCGTCTGTACTAGCAGT", trials, concentration=1e-6, T=20, material="DNA")
+    print "Simulating tailed 4-bp hairpin DNA strand hybridization from Gao et al 2006, at 20 C and 1 uM."
+    data4=first_step_simulation("AGATCAGTGCGTCTGTACTAGCACA", trials, concentration=1e-6, T=20, material="DNA")
 
-    else:
-        print
-        print "Simulating unstructured DNA strand, at 25 C."
-#        data=first_step_simulation("ACTGGCGCGTATTATCTACTG", 1000, concentration=50e-9, T=25, material="DNA") 
-        print "Simulating DNA strand with 4-bp blunt-end hairpin, at 25 C."
-#        data=first_step_simulation("ACTGGCGCGTATTATCTCAGT", 10000, concentration=50e-9, T=25, material="DNA") 
-        # We can do a lot of simulations in the above case, because the vast majority are very very fast.
-        # (In fact, most Boltzmann-sampled structures are hairpins, so no first base pair reactions are possible.)
-        # Note that k_collision_forward is very different from k_collision_reverse, because they sample markedly different initial structures.
-        print "Simulating DNA strand with 7-bp dual 5-nt tailed hairpin, at 25 C."
-#        data=first_step_simulation("CTAACTGGCGCGTATTCGCGCCTTCAC", 1000, concentration=50e-9, T=25, material="DNA") 
-
-        # previously code did RNA, at 47 C.  Where did that come from?  Paper describes DNA, 20 C.
-        print "Simulating unstructured DNA strand hybridization from Gao et al 2006, at 20 C and 1 uM."
-        data0=first_step_simulation("GTTGTCAAGATGCTACCGTTCAGAG", trials, concentration=1e-6, T=20, material="DNA")
-        print "Simulating tailed 3-bp hairpin DNA strand hybridization from Gao et al 2006, at 20 C and 1 uM."
-        data3=first_step_simulation("AGATCAGTGCGTCTGTACTAGCAGT", trials, concentration=1e-6, T=20, material="DNA")
-        print "Simulating tailed 4-bp hairpin DNA strand hybridization from Gao et al 2006, at 20 C and 1 uM."
-        data4=first_step_simulation("AGATCAGTGCGTCTGTACTAGCACA", trials, concentration=1e-6, T=20, material="DNA")
-
-        print "Gao et al report 12.0, 7.2, and 2.0 x 10^5 /M/s respectively for their 0-, 3-, and 4-bp hairpin DNA strands."
-        print "Multistrand observed %g, %g, and %g x 10^6 /M/s respectively, which is in qualitative agreement for the relative trends." % \
-            (data0[6]/1e6, data3[6]/1e6, data4[6]/1e6)
-        print
-        # Also note that for these concentrations, k_eff and k1 agree pretty darn well, for these molecules.
+    print "Gao et al report 12.0, 7.2, and 2.0 x 10^5 /M/s respectively for their 0-, 3-, and 4-bp hairpin DNA strands."
+    print "Multistrand observed %g, %g, and %g x 10^6 /M/s respectively, which is in qualitative agreement for the relative trends." % \
+        (data0[6]/1e6, data3[6]/1e6, data4[6]/1e6)
+    print
+    # Also note that for these concentrations, k_eff and k1 agree pretty darn well, for these molecules.
 
     # Reference for experimental rates:
     #    "Secondary structure effects on DNA hybridization kinetics: a solution versus surface comparison"
@@ -368,7 +357,5 @@ if __name__ == '__main__':
     # Reference for coarse-grained molecular dynamics study of the same:
     #    "DNA hairpins primarily promote duplex melting rather than inhibiting hybridization"
     #    John S. Schreck, Thomas E. Ouldridge, Flavio Romano, Petr Sulc, Liam Shaw, Ard A. Louis, Jonathan P. K. Doye
-    #    Nucleic Acids Research, 2015, Vol. 43, No. 13 6181-6190
     #    arXiv:1408.4401 [cond-mat.soft]  (2014)
     #    http://arxiv.org/abs/1408.4401
-

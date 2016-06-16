@@ -160,7 +160,7 @@ void SimulationSystem::InitialInfo(void) {
 
 	cout << "Moving to a new state";
 
-	double nextStepRate = 4000000;
+	double nextStepRate = 715942327.61 - 22519432 - 373574;
 	Move* selectedMove = startState->getChoice(&nextStepRate);
 
 	cout << "Applying move " << selectedMove->toString();
