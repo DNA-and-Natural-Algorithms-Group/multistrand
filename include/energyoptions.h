@@ -55,7 +55,7 @@ protected:
 	long substrate_type; // = NULL;
 
 	// Hard coded Arrhenius constants (for now)
-	bool useArrhenius = false;
+	bool useArrhenius = true;
 
 	double AStack = 6.10;
 	double ALoop = 16.58;

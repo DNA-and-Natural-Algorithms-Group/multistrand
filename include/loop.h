@@ -12,8 +12,6 @@
 #include "energymodel.h"
 #include "move.h"
 
-
-
 class Loop {
 public:
 	inline double getEnergy(void);
@@ -51,6 +49,7 @@ public:
 	string toString(void);
 	string toStringShort(void);
 	void printAllMoves(Loop*);
+	void generateAndSaveDeleteMove(Loop*);
 
 protected:
 	static EnergyModel *energyModel_Primary;
@@ -104,7 +103,7 @@ public:
 
 	HairpinLoop(void);
 	HairpinLoop(int type, int size, char *hairpin_sequence, Loop *previous =
-			NULL);
+	NULL);
 	friend double Loop::generateDeleteMoveRate(Loop *start, Loop *end);
 	friend Loop * Loop::performDeleteMove(Move *move);
 	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen,

@@ -193,13 +193,23 @@ ArrMove::ArrMove(int mtype, double mrate, Loop *affected_1, int index1,
 
 }
 
-ArrMove::ArrMove(int mtype, double mrate, Loop *affected_1, int *indexarray) {
-	type = mtype;
-	rate = mrate;
-	affected[0] = affected_1;
-	affected[1] = NULL;
-	for (int loop = 0; loop < 4; loop++)
-		index[loop] = indexarray[loop];
+ArrMove::ArrMove(int mtype, double mrate, Loop *affected_1, int *indexarray) :
+		Move(mtype, mrate, affected_1, indexarray) {
+
+}
+
+string ArrMove::toString(void) {
+
+	string output = this->Move::toString();	 // super toString
+
+	string addedOutput = "Arrhenius type L/R= ";
+
+	addedOutput += utility::ArrTypeMap[arrLeft];
+	addedOutput += utility::ArrTypeMap[arrRight];
+
+	output += addedOutput;
+
+	return output;
 
 }
 

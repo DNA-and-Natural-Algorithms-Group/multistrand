@@ -260,11 +260,10 @@ string Loop::toString(void) {
 
 	std::stringstream ss;
 
-
-	ss << "Loop-" << identity << ", typeID =" << typeid(this).name()  << ", dG =" << energy  <<  ", t_rate = " << totalRate;
-	ss << ", energyFlag =" << energyFlag << ", add_index =" << add_index  << ", numAdjacent=" << numAdjacent;
-
-
+	ss << "Loop-" << identity << ", typeID =" << typeid(this).name() << ", dG ="
+			<< energy << ", t_rate = " << totalRate;
+	ss << ", energyFlag =" << energyFlag << ", add_index =" << add_index
+			<< ", numAdjacent=" << numAdjacent;
 
 	return ss.str();
 
@@ -274,15 +273,11 @@ string Loop::toStringShort(void) {
 
 	std::stringstream ss;
 
-	ss << "Loop-" << identity ;
+	ss << "Loop-" << identity;
 
 	return ss.str();
 
 }
-
-
-
-
 
 void Loop::printAllMoves(Loop* from) {
 
@@ -299,19 +294,6 @@ void Loop::printAllMoves(Loop* from) {
 		}
 
 	}
-
-	//		*randomchoice -= totalRate;
-//		if (adjacentLoops[0] != from) {
-//			stor = adjacentLoops[0]->getChoice(randomchoice, this);
-//			if (stor != NULL)
-//				return stor;
-//		}
-//		if (adjacentLoops[1] != from) {
-//			stor = adjacentLoops[1]->getChoice(randomchoice, this);
-//			if (stor != NULL)
-//				return stor;
-//		}
-//	}
 
 }
 
@@ -3004,22 +2986,35 @@ void StackLoop::generateMoves(void) {
 	generateDeleteMoves();
 }
 
+void Loop::generateAndSaveDeleteMove(Loop* input) {
+
+	double temprate = Loop::generateDeleteMoveRate(this, input);
+	if (temprate >= 0.0) {
+		moves->addMove(
+				new Move( MOVE_DELETE | MOVE_1, temprate, this, input, 0));
+	}
+
+}
+
 void StackLoop::generateDeleteMoves(void) {
-	double temprate;
+//	double temprate;
 	if (moves != NULL)
 		delete moves;
 	moves = new MoveList(0); // always have 2 delete moves, no shift moves and no creation moves.
 
-	temprate = Loop::generateDeleteMoveRate(this, adjacentLoops[0]);
-	if (temprate >= 0.0)
-		moves->addMove(
-				new Move( MOVE_DELETE | MOVE_1, temprate, this,
-						adjacentLoops[0], 0));
-	temprate = Loop::generateDeleteMoveRate(this, adjacentLoops[1]);
-	if (temprate >= 0.0)
-		moves->addMove(
-				new Move( MOVE_DELETE | MOVE_1, temprate, this,
-						adjacentLoops[1], 1));
+	generateAndSaveDeleteMove(adjacentLoops[0]);
+	generateAndSaveDeleteMove(adjacentLoops[1]);
+
+//	temprate = Loop::generateDeleteMoveRate(this, adjacentLoops[0]);
+//	if (temprate >= 0.0)
+//		moves->addMove(
+//				new Move( MOVE_DELETE | MOVE_1, temprate, this,
+//						adjacentLoops[0], 0));
+//	temprate = Loop::generateDeleteMoveRate(this, adjacentLoops[1]);
+//	if (temprate >= 0.0)
+//		moves->addMove(
+//				new Move( MOVE_DELETE | MOVE_1, temprate, this,
+//						adjacentLoops[1], 1));
 
 	totalRate = moves->getRate();
 }
@@ -3357,11 +3352,13 @@ void HairpinLoop::generateMoves(void) {
 void HairpinLoop::generateDeleteMoves(void) {
 	double temprate;
 
-	temprate = Loop::generateDeleteMoveRate(this, adjacentLoops[0]);
-	if (temprate >= 0.0)
-		moves->addMove(
-				new Move( MOVE_DELETE | MOVE_1, temprate, this,
-						adjacentLoops[0], 0));
+	generateAndSaveDeleteMove(adjacentLoops[0]);
+
+//	temprate = Loop::generateDeleteMoveRate(this, adjacentLoops[0]);
+//	if (temprate >= 0.0)
+//		moves->addMove(
+//				new Move( MOVE_DELETE | MOVE_1, temprate, this,
+//						adjacentLoops[0], 0));
 
 	totalRate = moves->getRate();
 }
@@ -3670,18 +3667,20 @@ void BulgeLoop::generateDeleteMoves(void) {
 	double temprate;
 
 	assert(moves != NULL);
-	temprate = Loop::generateDeleteMoveRate(this, adjacentLoops[0]);
-	//  printf("Temprate: %lf\n",temprate);
-	if (temprate >= 0.0)
-		moves->addMove(
-				new Move( MOVE_DELETE | MOVE_1, temprate, this,
-						adjacentLoops[0], 0));
-	temprate = Loop::generateDeleteMoveRate(this, adjacentLoops[1]);
-	//  printf("Temprate: %lf\n",temprate);
-	if (temprate >= 0.0)
-		moves->addMove(
-				new Move( MOVE_DELETE | MOVE_1, temprate, this,
-						adjacentLoops[1], 1));
+
+	generateAndSaveDeleteMove(adjacentLoops[0]);
+	generateAndSaveDeleteMove(adjacentLoops[1]);
+
+//	temprate = Loop::generateDeleteMoveRate(this, adjacentLoops[0]);
+//	if (temprate >= 0.0)
+//		moves->addMove(
+//				new Move( MOVE_DELETE | MOVE_1, temprate, this,
+//						adjacentLoops[0], 0));
+//	temprate = Loop::generateDeleteMoveRate(this, adjacentLoops[1]);
+//	if (temprate >= 0.0)
+//		moves->addMove(
+//				new Move( MOVE_DELETE | MOVE_1, temprate, this,
+//						adjacentLoops[1], 1));
 
 	totalRate = moves->getRate();
 }
@@ -4171,19 +4170,23 @@ void InteriorLoop::generateMoves(void) {
 }
 
 void InteriorLoop::generateDeleteMoves(void) {
-	double temprate;
+//	double temprate;
 
 	assert(moves != NULL);
-	temprate = Loop::generateDeleteMoveRate(this, adjacentLoops[0]);
-	if (temprate >= 0.0)
-		moves->addMove(
-				new Move( MOVE_DELETE | MOVE_1, temprate, this,
-						adjacentLoops[0], 0));
-	temprate = Loop::generateDeleteMoveRate(this, adjacentLoops[1]);
-	if (temprate >= 0.0)
-		moves->addMove(
-				new Move( MOVE_DELETE | MOVE_1, temprate, this,
-						adjacentLoops[1], 1));
+
+	generateAndSaveDeleteMove(adjacentLoops[0]);
+	generateAndSaveDeleteMove(adjacentLoops[1]);
+
+//	temprate = Loop::generateDeleteMoveRate(this, adjacentLoops[0]);
+//	if (temprate >= 0.0)
+//		moves->addMove(
+//				new Move( MOVE_DELETE | MOVE_1, temprate, this,
+//						adjacentLoops[0], 0));
+//	temprate = Loop::generateDeleteMoveRate(this, adjacentLoops[1]);
+//	if (temprate >= 0.0)
+//		moves->addMove(
+//				new Move( MOVE_DELETE | MOVE_1, temprate, this,
+//						adjacentLoops[1], 1));
 
 	totalRate = moves->getRate();
 
@@ -4848,12 +4851,16 @@ void MultiLoop::generateDeleteMoves(void) {
 	assert(moves != NULL);
 
 	for (int loop = 0; loop < numAdjacent; loop++) {
-		temprate = Loop::generateDeleteMoveRate(this, adjacentLoops[loop]);
-		if (temprate >= 0.0)
-			moves->addMove(
-					new Move( MOVE_DELETE | MOVE_1, temprate, this,
-							adjacentLoops[loop], loop));
+
+		generateAndSaveDeleteMove(adjacentLoops[loop]);
+
 	}
+
+//		temprate = Loop::generateDeleteMoveRate(this, adjacentLoops[loop]);
+//		if (temprate >= 0.0)
+//			moves->addMove(
+//					new Move( MOVE_DELETE | MOVE_1, temprate, this,
+//							adjacentLoops[loop], loop));
 
 	totalRate = moves->getRate();
 }
@@ -5494,11 +5501,14 @@ void OpenLoop::generateDeleteMoves(void) {
 	assert(moves != NULL);
 
 	for (int loop = 0; loop < numAdjacent; loop++) {
-		temprate = Loop::generateDeleteMoveRate(this, adjacentLoops[loop]);
-		if (temprate >= 0.0)
-			moves->addMove(
-					new Move( MOVE_DELETE | MOVE_1, temprate, this,
-							adjacentLoops[loop], loop));
+
+		generateAndSaveDeleteMove(adjacentLoops[loop]);
+
+//		temprate = Loop::generateDeleteMoveRate(this, adjacentLoops[loop]);
+//		if (temprate >= 0.0)
+//			moves->addMove(
+//					new Move( MOVE_DELETE | MOVE_1, temprate, this,
+//							adjacentLoops[loop], loop));
 	}
 
 	totalRate = moves->getRate();

@@ -79,8 +79,8 @@ public:
 
 	string toString();
 protected:
-	ArrType leftEnv = UNDEFINED;
-	ArrType rightEnv = UNDEFINED;
+	ArrType arrLeft= UNDEFINED; 	// local environment, the Arr rate calc depends on this.
+	ArrType arrRight = UNDEFINED;
 
 };
 
