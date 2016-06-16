@@ -323,7 +323,6 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		new_energy = energyModel_Primary->InteriorEnergy(start_->seqs[s_index],
 				end_->seqs[e_index], 1, 1);
 
-		//start_->pairtype[s_index], end_->pairtype[e_index], 1, 1 , mismatches );
 		old_energy = start->getEnergy() + end->getEnergy();
 		temprate = energyModel_Primary->returnRate(old_energy, new_energy, 0);
 		return temprate / 2.0;

@@ -61,12 +61,24 @@ void SimulationSystem::construct(void) {
 
 	if (Loop::GetEnergyModel() == NULL) {
 		dnaEnergyModel = NULL;
-		dnaEnergyModel = new NupackEnergyModel(
-				sim_options->getPythonSettings());
+
+		if (testLongAttr(system_options, parameter_type, =, 0))
+			dnaEnergyModel = new ViennaEnergyModel(system_options);
+		else
+			dnaEnergyModel = new NupackEnergyModel(system_options);
 		Loop::SetEnergyModel(dnaEnergyModel);
 	} else {
 		dnaEnergyModel = Loop::GetEnergyModel();
 	}
+
+//	if (Loop::GetEnergyModel() == NULL) {
+//		dnaEnergyModel = NULL;
+//		dnaEnergyModel = new NupackEnergyModel(
+//				sim_options->getPythonSettings());
+//		Loop::SetEnergyModel(dnaEnergyModel);
+//	} else {
+//		dnaEnergyModel = Loop::GetEnergyModel();
+//	}
 
 	startState = NULL;
 	complexList = NULL;
@@ -166,8 +178,6 @@ void SimulationSystem::InitialInfo(void) {
 	cout << "Applying move " << selectedMove->toString();
 
 	startState->doChoice(selectedMove);
-
-
 
 	cout << "Printing complex list";
 	complexList->printComplexList(2);
