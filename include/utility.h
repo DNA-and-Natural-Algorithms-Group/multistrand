@@ -49,7 +49,11 @@ char* copyToCharArray(string&);
 
 string copyToString(char*);
 
-string moveType(int );
+string moveType(int);
+
+const static string ArrTypeMap[] = { "Undefined", "End", "Loop", "Stack",
+		"Stack-Stack", "Loop-End", "Stack-End", "Stack-Loop" };
+
 }
 
 #endif /* INCLUDE_UTILITY_CC_ */

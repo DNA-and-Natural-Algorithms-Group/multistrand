@@ -12,6 +12,8 @@
 #include "energymodel.h"
 #include "move.h"
 
+
+
 class Loop {
 public:
 	inline double getEnergy(void);

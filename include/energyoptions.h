@@ -54,7 +54,7 @@ protected:
 	// not sure if these are long
 	long substrate_type; // = NULL;
 
-	// Hard coded Arrhenius constants
+	// Hard coded Arrhenius constants (for now)
 	bool useArrhenius = false;
 
 	double AStack = 6.10;

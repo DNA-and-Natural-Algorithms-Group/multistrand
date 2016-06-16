@@ -80,3 +80,5 @@ string utility::moveType(int type) {
 	return output;
 
 }
+
+
