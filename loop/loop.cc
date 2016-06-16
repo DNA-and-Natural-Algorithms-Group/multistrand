@@ -3005,17 +3005,6 @@ void StackLoop::generateDeleteMoves(void) {
 	generateAndSaveDeleteMove(adjacentLoops[0]);
 	generateAndSaveDeleteMove(adjacentLoops[1]);
 
-//	temprate = Loop::generateDeleteMoveRate(this, adjacentLoops[0]);
-//	if (temprate >= 0.0)
-//		moves->addMove(
-//				new Move( MOVE_DELETE | MOVE_1, temprate, this,
-//						adjacentLoops[0], 0));
-//	temprate = Loop::generateDeleteMoveRate(this, adjacentLoops[1]);
-//	if (temprate >= 0.0)
-//		moves->addMove(
-//				new Move( MOVE_DELETE | MOVE_1, temprate, this,
-//						adjacentLoops[1], 1));
-
 	totalRate = moves->getRate();
 }
 
@@ -3354,12 +3343,6 @@ void HairpinLoop::generateDeleteMoves(void) {
 
 	generateAndSaveDeleteMove(adjacentLoops[0]);
 
-//	temprate = Loop::generateDeleteMoveRate(this, adjacentLoops[0]);
-//	if (temprate >= 0.0)
-//		moves->addMove(
-//				new Move( MOVE_DELETE | MOVE_1, temprate, this,
-//						adjacentLoops[0], 0));
-
 	totalRate = moves->getRate();
 }
 
@@ -3670,17 +3653,6 @@ void BulgeLoop::generateDeleteMoves(void) {
 
 	generateAndSaveDeleteMove(adjacentLoops[0]);
 	generateAndSaveDeleteMove(adjacentLoops[1]);
-
-//	temprate = Loop::generateDeleteMoveRate(this, adjacentLoops[0]);
-//	if (temprate >= 0.0)
-//		moves->addMove(
-//				new Move( MOVE_DELETE | MOVE_1, temprate, this,
-//						adjacentLoops[0], 0));
-//	temprate = Loop::generateDeleteMoveRate(this, adjacentLoops[1]);
-//	if (temprate >= 0.0)
-//		moves->addMove(
-//				new Move( MOVE_DELETE | MOVE_1, temprate, this,
-//						adjacentLoops[1], 1));
 
 	totalRate = moves->getRate();
 }
@@ -4176,17 +4148,6 @@ void InteriorLoop::generateDeleteMoves(void) {
 
 	generateAndSaveDeleteMove(adjacentLoops[0]);
 	generateAndSaveDeleteMove(adjacentLoops[1]);
-
-//	temprate = Loop::generateDeleteMoveRate(this, adjacentLoops[0]);
-//	if (temprate >= 0.0)
-//		moves->addMove(
-//				new Move( MOVE_DELETE | MOVE_1, temprate, this,
-//						adjacentLoops[0], 0));
-//	temprate = Loop::generateDeleteMoveRate(this, adjacentLoops[1]);
-//	if (temprate >= 0.0)
-//		moves->addMove(
-//				new Move( MOVE_DELETE | MOVE_1, temprate, this,
-//						adjacentLoops[1], 1));
 
 	totalRate = moves->getRate();
 
@@ -4855,12 +4816,6 @@ void MultiLoop::generateDeleteMoves(void) {
 		generateAndSaveDeleteMove(adjacentLoops[loop]);
 
 	}
-
-//		temprate = Loop::generateDeleteMoveRate(this, adjacentLoops[loop]);
-//		if (temprate >= 0.0)
-//			moves->addMove(
-//					new Move( MOVE_DELETE | MOVE_1, temprate, this,
-//							adjacentLoops[loop], loop));
 
 	totalRate = moves->getRate();
 }
