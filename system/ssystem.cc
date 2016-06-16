@@ -59,26 +59,26 @@ void SimulationSystem::construct(void) {
 	simulation_mode = sim_options->getSimulationMode();
 	simulation_count_remaining = sim_options->getSimulationCount();
 
-	if (Loop::GetEnergyModel() == NULL) {
-		dnaEnergyModel = NULL;
-
-		if (testLongAttr(system_options, parameter_type, =, 0))
-			dnaEnergyModel = new ViennaEnergyModel(system_options);
-		else
-			dnaEnergyModel = new NupackEnergyModel(system_options);
-		Loop::SetEnergyModel(dnaEnergyModel);
-	} else {
-		dnaEnergyModel = Loop::GetEnergyModel();
-	}
-
 //	if (Loop::GetEnergyModel() == NULL) {
 //		dnaEnergyModel = NULL;
-//		dnaEnergyModel = new NupackEnergyModel(
-//				sim_options->getPythonSettings());
+//
+//		if (testLongAttr(system_options, parameter_type, =, 0))
+//			dnaEnergyModel = new ViennaEnergyModel(system_options);
+//		else
+//			dnaEnergyModel = new NupackEnergyModel(system_options);
 //		Loop::SetEnergyModel(dnaEnergyModel);
 //	} else {
 //		dnaEnergyModel = Loop::GetEnergyModel();
 //	}
+
+	if (Loop::GetEnergyModel() == NULL) {
+		dnaEnergyModel = NULL;
+		dnaEnergyModel = new NupackEnergyModel(
+				sim_options->getPythonSettings());
+		Loop::SetEnergyModel(dnaEnergyModel);
+	} else {
+		dnaEnergyModel = Loop::GetEnergyModel();
+	}
 
 	startState = NULL;
 	complexList = NULL;
