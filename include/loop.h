@@ -47,6 +47,7 @@ public:
 			Loop **secondOpen);
 
 	string toString(void);
+	string toStringShort(void);
 	void printAllMoves(Loop*);
 
 protected:

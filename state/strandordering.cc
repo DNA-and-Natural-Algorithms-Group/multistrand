@@ -841,7 +841,7 @@ void StrandOrdering::addBasepair( char *first_bp, char *second_bp )
   return;
 }
 
-
+//
 void StrandOrdering::breakBasepair( char *first_bp, char *second_bp )
 {
   char *id[2] = {NULL,NULL};

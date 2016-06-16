@@ -133,12 +133,12 @@ string Move::toString(void) {
 	ss << "rate: " << std::setprecision(10) << rate << " \n";
 	ss << "AFFECTED: ";
 	if (affected[0] != NULL) {
-		ss << affected[0]->toString() << " ";
+		ss << affected[0]->toStringShort() << " ";
 	}
 	if (affected[1] != NULL) {
-		ss << affected[1]->toString() << " ";
+		ss << affected[1]->toStringShort() << " ";
 	}
-	ss << " \n"
+	ss << " \n";
 
 	string output = ss.str();
 

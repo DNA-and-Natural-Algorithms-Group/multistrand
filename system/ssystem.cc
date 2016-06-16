@@ -158,22 +158,22 @@ void SimulationSystem::InitialInfo(void) {
 //	printTransition(60000000);
 //	printTransition(70000000);
 
-
-
 	cout << "Moving to a new state";
 
-	double nextStepRate = 0.1;
+	double nextStepRate = 4000000;
 	Move* selectedMove = startState->getChoice(&nextStepRate);
+
+	cout << "Applying move " << selectedMove->toString();
+
 	startState->doChoice(selectedMove);
+
+
 
 	cout << "Printing complex list";
 	complexList->printComplexList(2);
 
-
 	cout << "Printing all moves \n";
 	startState->printAllMoves();
-
-
 
 	cout << "Exiting InitialInfo()" << " \n";
 

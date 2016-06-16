@@ -7,6 +7,7 @@
 #include <assert.h>
 #include "loop.h"
 #include <sstream>
+#include <typeinfo>
 
 #include <string>
 #include <iostream>
@@ -259,16 +260,34 @@ string Loop::toString(void) {
 
 	std::stringstream ss;
 
-	ss << "Loop-" << identity << ", dG =" << energy  <<  " t_rate = " << totalRate;
+
+	ss << "Loop-" << identity << ", typeID =" << typeid(this).name()  << ", dG =" << energy  <<  ", t_rate = " << totalRate;
+	ss << ", energyFlag =" << energyFlag << ", add_index =" << add_index  << ", numAdjacent=" << numAdjacent;
+
+
 
 	return ss.str();
 
 }
 
+string Loop::toStringShort(void) {
+
+	std::stringstream ss;
+
+	ss << "Loop-" << identity ;
+
+	return ss.str();
+
+}
+
+
+
+
+
 void Loop::printAllMoves(Loop* from) {
 
-	cout << "This is loop: \n " << toString();
-	cout << "Now printing all moves \n ";
+	cout << "Printing moves for loop: \n " << toString() << "\n";
+
 	moves->printAllMoves();
 
 	for (int i = 0; i < numAdjacent; i++) {
