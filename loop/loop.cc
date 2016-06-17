@@ -12,6 +12,9 @@
 #include <string>
 #include <iostream>
 
+#include "utility.h"
+
+
 using std::string;
 using std::cout;
 
@@ -4685,7 +4688,8 @@ void MultiLoop::generateMoves(void) {
 					temprate = energyModel_Primary->returnRate(getEnergy(),
 							(energies[0] + energies[1]), 0);
 
-
+					utility::printDouble(temprate);
+					utility::printDouble(energies[0] + energies[1]);
 
 					moves->addMove(
 							new Move( MOVE_CREATE | MOVE_1, temprate, this,
