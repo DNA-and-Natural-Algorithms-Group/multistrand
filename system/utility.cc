@@ -81,4 +81,9 @@ string utility::moveType(int type) {
 
 }
 
+void utility::printDouble(double input) {
+
+	cout << "Printing DOUBLE:" << input << " \n";
+
+}
 

@@ -17,6 +17,12 @@ using std::vector;
 using std::string;
 
 
+void EnergyOptions::initializeArrheniusConstants(void){
+
+	// unused, for now.
+
+}
+
 double EnergyOptions::getTemperature(void) {
 
 	return temperature;

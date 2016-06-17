@@ -22,6 +22,13 @@
 class EnergyOptions {
 public:
 
+	//EnergyOptions(void); 	//superclass constructor
+
+	// construct methods
+	void initializeArrheniusConstants();
+
+
+
 // non-virtual getters
 	double getTemperature(void);
 	long getDangles(void);
@@ -54,7 +61,7 @@ protected:
 	// not sure if these are long
 	long substrate_type; // = NULL;
 
-	// Hard coded Arrhenius constants (for now)
+	// Hard coding some default Arrhenius constants (for now)
 	bool useArrhenius = false;
 
 	double AStack = 6.10;
@@ -79,6 +86,8 @@ protected:
 	double dS_G = -5.99;
 
 	double alpha = 0.045;
+
+	// initialization of the
 
 };
 

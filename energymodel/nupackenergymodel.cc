@@ -50,7 +50,6 @@ NupackEnergyModel::~NupackEnergyModel(void) {
 double NupackEnergyModel::returnRate(double start_energy, double end_energy,
 		int enth_entr_toggle) {
 	double dE = end_energy - start_energy;
-	//  double dE = ((double) ( end_energy - start_energy )) / 100.;
 	if (enth_entr_toggle == 3) // O/O delete, needs bi scale and full dE.
 		//    return biscale * exp( -(dE) / _RT );
 		return biscale * exp(-(dE - dG_assoc) / _RT);

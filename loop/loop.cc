@@ -94,6 +94,7 @@ inline double Loop::getTotalRate(void) {
 	return totalRate;
 }
 
+//Loop::Loop(void) {
 Loop::Loop(void) {
 	numAdjacent = 0;
 	curAdjacent = 0;
@@ -104,6 +105,8 @@ Loop::Loop(void) {
 
 	adjacentLoops = NULL;
 	moves = NULL;
+	identity = NULL;
+
 }
 
 Loop::~Loop(void) {
@@ -3036,17 +3039,17 @@ void StackLoop::printMove(Loop *comefrom, char *structure_p, char *seq_p) {
 	// for now, Stack loops also don't have deletion moves.
 }
 
-void StackLoop::moveDisplay(Loop *comefrom, char *structure_p, char *seq_p) {
-	int loop;
-
-	for (loop = 0; loop < curAdjacent; loop++) {
-		if (adjacentLoops[loop] != comefrom && adjacentLoops[loop] != NULL)
-			// shouldn't happen, being careful.
-			adjacentLoops[loop]->moveDisplay(this, structure_p, seq_p);
-		assert(adjacentLoops[loop] != NULL);
-	}
-	// for now, Stack loops also don't have deletion moves.
-}
+//void StackLoop::moveDisplay(Loop *comefrom, char *structure_p, char *seq_p) {
+//	int loop;
+//
+//	for (loop = 0; loop < curAdjacent; loop++) {
+//		if (adjacentLoops[loop] != comefrom && adjacentLoops[loop] != NULL)
+//			// shouldn't happen, being careful.
+//			adjacentLoops[loop]->moveDisplay(this, structure_p, seq_p);
+//		assert(adjacentLoops[loop] != NULL);
+//	}
+//	// for now, Stack loops also don't have deletion moves.
+//}
 
 Move *StackLoop::getChoice(double *randomchoice, Loop *from) {
 	Move *stor;
@@ -3136,7 +3139,7 @@ StackLoop::StackLoop(int type1, int type2, char *seq1, char *seq2, Loop *left,
 	seqs[1] = seq2;
 }
 
-/* 
+/*
  HairpinLoop Functions
  */
 
@@ -3299,6 +3302,7 @@ void HairpinLoop::generateMoves(void) {
 								&hairpin_seq[1], hairpinsize - 2);
 						temprate = energyModel_Primary->returnRate(getEnergy(),
 								(energies[0] + energies[1]), 0);
+
 						moves->addMove(
 								new Move( MOVE_CREATE | MOVE_1, temprate, this,
 										loop, loop2));
@@ -3377,52 +3381,52 @@ void HairpinLoop::printMove(Loop *comefrom, char *structure_p, char *seq_p) {
 	}
 }
 
-void HairpinLoop::moveDisplay(Loop *comefrom, char * structure_p, char *seq_p) {
-	int loop;
-	Move *temp = NULL;
-	for (loop = 0; loop < curAdjacent; loop++) {
-		if (adjacentLoops[loop] != comefrom && adjacentLoops[loop] != NULL)
-			// shouldn't happen, being careful.
-			adjacentLoops[loop]->moveDisplay(this, structure_p, seq_p);
-		assert(adjacentLoops[loop] != NULL);
-	}
-
-	do {
-		temp = moves->getMove(temp);
-		if (temp == NULL)
-			continue;
-		if (temp->type & MOVE_CREATE) {
-			/* Turns out the following section isn't needed as the indices are always correct with no special cases.
-			 switch( temp->type & (MOVE_1 | MOVE_2 | MOVE_3))
-			 {
-			 case MOVE_1:
-
-
-			 break;
-			 case MOVE_2:
-
-
-			 break;
-			 case MOVE_3:
-
-			 break;
-			 default:
-			 fprintf(stderr, "Error in HairpinLoop::displayMoves");
-			 break;
-			 }*/
-
-			structure_p[temp->index[0] + (hairpin_seq - seq_p)] = '(';
-			structure_p[temp->index[1] + (hairpin_seq - seq_p)] = ')';
-
-			printf("%s\n", structure_p);
-
-			structure_p[temp->index[0] + (hairpin_seq - seq_p)] = '.';
-			structure_p[temp->index[1] + (hairpin_seq - seq_p)] = '.';
-		}
-
-	} while (temp != NULL);
-
-}
+//void HairpinLoop::moveDisplay(Loop *comefrom, char * structure_p, char *seq_p) {
+//	int loop;
+//	Move *temp = NULL;
+//	for (loop = 0; loop < curAdjacent; loop++) {
+//		if (adjacentLoops[loop] != comefrom && adjacentLoops[loop] != NULL)
+//			// shouldn't happen, being careful.
+//			adjacentLoops[loop]->moveDisplay(this, structure_p, seq_p);
+//		assert(adjacentLoops[loop] != NULL);
+//	}
+//
+//	do {
+//		temp = moves->getMove(temp);
+//		if (temp == NULL)
+//			continue;
+//		if (temp->type & MOVE_CREATE) {
+//			/* Turns out the following section isn't needed as the indices are always correct with no special cases.
+//			 switch( temp->type & (MOVE_1 | MOVE_2 | MOVE_3))
+//			 {
+//			 case MOVE_1:
+//
+//
+//			 break;
+//			 case MOVE_2:
+//
+//
+//			 break;
+//			 case MOVE_3:
+//
+//			 break;
+//			 default:
+//			 fprintf(stderr, "Error in HairpinLoop::displayMoves");
+//			 break;
+//			 }*/
+//
+//			structure_p[temp->index[0] + (hairpin_seq - seq_p)] = '(';
+//			structure_p[temp->index[1] + (hairpin_seq - seq_p)] = ')';
+//
+//			printf("%s\n", structure_p);
+//
+//			structure_p[temp->index[0] + (hairpin_seq - seq_p)] = '.';
+//			structure_p[temp->index[1] + (hairpin_seq - seq_p)] = '.';
+//		}
+//
+//	} while (temp != NULL);
+//
+//}
 
 char *HairpinLoop::getLocation(Move *move, int index) {
 	if (move->getType() & MOVE_CREATE) {
@@ -3451,7 +3455,7 @@ char *HairpinLoop::verifyLoop(char *incoming_sequence, int incoming_pairtype,
 	return NULL;
 }
 
-/* 
+/*
  BulgeLoop Functions
  */
 
@@ -3710,31 +3714,31 @@ void BulgeLoop::printMove(Loop *comefrom, char *structure_p, char *seq_p) {
 	}
 }
 
-void BulgeLoop::moveDisplay(Loop *comefrom, char * structure_p, char *seq_p) {
-	int loop;
-	Move *temp;
-	int bside = (bulgesize[0] == 0) ? 1 : 0;
-	for (loop = 0; loop < curAdjacent; loop++) {
-		if (adjacentLoops[loop] != comefrom && adjacentLoops[loop] != NULL)
-			// shouldn't happen, being careful.
-			adjacentLoops[loop]->moveDisplay(this, structure_p, seq_p);
-		assert(adjacentLoops[loop] != NULL);
-	}
-	do {
-		temp = moves->getMove(temp);
-		if (temp == NULL)
-			continue;
-		if (temp->type & MOVE_CREATE) {
-			structure_p[temp->index[0] + (bulge_seq[bside] - seq_p)] = '(';
-			structure_p[temp->index[1] + (bulge_seq[bside] - seq_p)] = ')';
-
-			printf("%s\n", structure_p);
-
-			structure_p[temp->index[0] + (bulge_seq[bside] - seq_p)] = '.';
-			structure_p[temp->index[1] + (bulge_seq[bside] - seq_p)] = '.';
-		}
-	} while (temp != NULL);
-}
+//void BulgeLoop::moveDisplay(Loop *comefrom, char * structure_p, char *seq_p) {
+//	int loop;
+//	Move *temp;
+//	int bside = (bulgesize[0] == 0) ? 1 : 0;
+//	for (loop = 0; loop < curAdjacent; loop++) {
+//		if (adjacentLoops[loop] != comefrom && adjacentLoops[loop] != NULL)
+//			// shouldn't happen, being careful.
+//			adjacentLoops[loop]->moveDisplay(this, structure_p, seq_p);
+//		assert(adjacentLoops[loop] != NULL);
+//	}
+//	do {
+//		temp = moves->getMove(temp);
+//		if (temp == NULL)
+//			continue;
+//		if (temp->type & MOVE_CREATE) {
+//			structure_p[temp->index[0] + (bulge_seq[bside] - seq_p)] = '(';
+//			structure_p[temp->index[1] + (bulge_seq[bside] - seq_p)] = ')';
+//
+//			printf("%s\n", structure_p);
+//
+//			structure_p[temp->index[0] + (bulge_seq[bside] - seq_p)] = '.';
+//			structure_p[temp->index[1] + (bulge_seq[bside] - seq_p)] = '.';
+//		}
+//	} while (temp != NULL);
+//}
 
 char *BulgeLoop::getLocation(Move *move, int index) {
 	int bside = (bulgesize[0] == 0) ? 1 : 0;
@@ -4240,56 +4244,56 @@ char *InteriorLoop::verifyLoop(char *incoming_sequence, int incoming_pairtype,
 	return NULL;
 }
 
-void InteriorLoop::moveDisplay(Loop *comefrom, char * structure_p,
-		char *seq_p) {
-	int loop;
-	Move *temp;
-	for (loop = 0; loop < curAdjacent; loop++) {
-		if (adjacentLoops[loop] != comefrom && adjacentLoops[loop] != NULL)
-			// shouldn't happen, being careful.
-			adjacentLoops[loop]->moveDisplay(this, structure_p, seq_p);
-		assert(adjacentLoops[loop] != NULL);
-	}
-	do {
-		temp = moves->getMove(temp);
-		if (temp == NULL)
-			continue;
-		if (temp->type & MOVE_CREATE) {
-			switch (temp->type & (MOVE_1 | MOVE_2 | MOVE_3)) {
-			case MOVE_1:
-				structure_p[temp->index[0] + (int_seq[0] - seq_p)] = '(';
-				structure_p[temp->index[1] + (int_seq[0] - seq_p)] = ')';
-
-				printf("%s\n", structure_p);
-
-				structure_p[temp->index[0] + (int_seq[0] - seq_p)] = '.';
-				structure_p[temp->index[1] + (int_seq[0] - seq_p)] = '.';
-				break;
-			case MOVE_2:
-				structure_p[temp->index[0] + (int_seq[1] - seq_p)] = '(';
-				structure_p[temp->index[1] + (int_seq[1] - seq_p)] = ')';
-
-				printf("%s\n", structure_p);
-
-				structure_p[temp->index[0] + (int_seq[1] - seq_p)] = '.';
-				structure_p[temp->index[1] + (int_seq[1] - seq_p)] = '.';
-				break;
-			case MOVE_3:
-				structure_p[temp->index[0] + (int_seq[0] - seq_p)] = '(';
-				structure_p[temp->index[1] + (int_seq[1] - seq_p)] = ')';
-
-				printf("%s\n", structure_p);
-
-				structure_p[temp->index[0] + (int_seq[0] - seq_p)] = '.';
-				structure_p[temp->index[1] + (int_seq[1] - seq_p)] = '.';
-				break;
-			default:
-				fprintf(stderr, "Error in InteriorLoop::displayMoves");
-				break;
-			}
-		}
-	} while (temp != NULL);
-}
+//void InteriorLoop::moveDisplay(Loop *comefrom, char * structure_p,
+//		char *seq_p) {
+//	int loop;
+//	Move *temp;
+//	for (loop = 0; loop < curAdjacent; loop++) {
+//		if (adjacentLoops[loop] != comefrom && adjacentLoops[loop] != NULL)
+//			// shouldn't happen, being careful.
+//			adjacentLoops[loop]->moveDisplay(this, structure_p, seq_p);
+//		assert(adjacentLoops[loop] != NULL);
+//	}
+//	do {
+//		temp = moves->getMove(temp);
+//		if (temp == NULL)
+//			continue;
+//		if (temp->type & MOVE_CREATE) {
+//			switch (temp->type & (MOVE_1 | MOVE_2 | MOVE_3)) {
+//			case MOVE_1:
+//				structure_p[temp->index[0] + (int_seq[0] - seq_p)] = '(';
+//				structure_p[temp->index[1] + (int_seq[0] - seq_p)] = ')';
+//
+//				printf("%s\n", structure_p);
+//
+//				structure_p[temp->index[0] + (int_seq[0] - seq_p)] = '.';
+//				structure_p[temp->index[1] + (int_seq[0] - seq_p)] = '.';
+//				break;
+//			case MOVE_2:
+//				structure_p[temp->index[0] + (int_seq[1] - seq_p)] = '(';
+//				structure_p[temp->index[1] + (int_seq[1] - seq_p)] = ')';
+//
+//				printf("%s\n", structure_p);
+//
+//				structure_p[temp->index[0] + (int_seq[1] - seq_p)] = '.';
+//				structure_p[temp->index[1] + (int_seq[1] - seq_p)] = '.';
+//				break;
+//			case MOVE_3:
+//				structure_p[temp->index[0] + (int_seq[0] - seq_p)] = '(';
+//				structure_p[temp->index[1] + (int_seq[1] - seq_p)] = ')';
+//
+//				printf("%s\n", structure_p);
+//
+//				structure_p[temp->index[0] + (int_seq[0] - seq_p)] = '.';
+//				structure_p[temp->index[1] + (int_seq[1] - seq_p)] = '.';
+//				break;
+//			default:
+//				fprintf(stderr, "Error in InteriorLoop::displayMoves");
+//				break;
+//			}
+//		}
+//	} while (temp != NULL);
+//}
 
 void InteriorLoop::printMove(Loop *comefrom, char *structure_p, char *seq_p) {
 	int loop;
@@ -4680,6 +4684,9 @@ void MultiLoop::generateMoves(void) {
 
 					temprate = energyModel_Primary->returnRate(getEnergy(),
 							(energies[0] + energies[1]), 0);
+
+
+
 					moves->addMove(
 							new Move( MOVE_CREATE | MOVE_1, temprate, this,
 									loop, loop2, loop3));
@@ -4882,16 +4889,16 @@ void MultiLoop::printMove(Loop *comefrom, char *structure_p, char *seq_p) {
 	}
 }
 
-void MultiLoop::moveDisplay(Loop *comefrom, char * structure_p, char *seq_p) {
-	int loop;
-	Move *temp;
-	for (loop = 0; loop < curAdjacent; loop++) {
-		if (adjacentLoops[loop] != comefrom && adjacentLoops[loop] != NULL)
-			// shouldn't happen, being careful.
-			adjacentLoops[loop]->moveDisplay(this, structure_p, seq_p);
-		assert(adjacentLoops[loop] != NULL);
-	}
-}
+//void MultiLoop::moveDisplay(Loop *comefrom, char * structure_p, char *seq_p) {
+//	int loop;
+//	Move *temp;
+//	for (loop = 0; loop < curAdjacent; loop++) {
+//		if (adjacentLoops[loop] != comefrom && adjacentLoops[loop] != NULL)
+//			// shouldn't happen, being careful.
+//			adjacentLoops[loop]->moveDisplay(this, structure_p, seq_p);
+//		assert(adjacentLoops[loop] != NULL);
+//	}
+//}
 
 char *MultiLoop::getLocation(Move *move, int index) {
 	if (move->getType() & MOVE_CREATE) {
@@ -5532,54 +5539,54 @@ void OpenLoop::printMove(Loop *comefrom, char *structure_p, char *seq_p) {
 	}
 }
 
-void OpenLoop::moveDisplay(Loop *comefrom, char * structure_p, char *seq_p) {
-	int loop;
-	Move *temp;
-	for (loop = 0; loop < curAdjacent; loop++) {
-		if (adjacentLoops[loop] != comefrom && adjacentLoops[loop] != NULL)
-			// shouldn't happen, being careful.
-			adjacentLoops[loop]->moveDisplay(this, structure_p, seq_p);
-		assert(adjacentLoops[loop] != NULL);
-	}
-	do {
-		temp = moves->getMove(temp);
-		if (temp == NULL)
-			continue;
-		if (temp->type & MOVE_CREATE) {
-			switch (temp->type & (MOVE_1 | MOVE_2)) {
-			case MOVE_1:
-				structure_p[temp->index[0] + (seqs[temp->index[3]] - seq_p)] =
-						'(';
-				structure_p[temp->index[1] + (seqs[temp->index[3]] - seq_p)] =
-						')';
-
-				printf("%s\n", structure_p);
-
-				structure_p[temp->index[0] + (seqs[temp->index[3]] - seq_p)] =
-						'.';
-				structure_p[temp->index[1] + (seqs[temp->index[3]] - seq_p)] =
-						'.';
-				break;
-			case MOVE_2:
-				structure_p[temp->index[0] + (seqs[temp->index[3]] - seq_p)] =
-						'(';
-				structure_p[temp->index[1] + (seqs[temp->index[3] + 1] - seq_p)] =
-						')';
-
-				printf("%s\n", structure_p);
-
-				structure_p[temp->index[0] + (seqs[temp->index[3]] - seq_p)] =
-						'.';
-				structure_p[temp->index[1] + (seqs[temp->index[3] + 1] - seq_p)] =
-						'.';
-				break;
-			default:
-				fprintf(stderr, "Error in OpenLoop::displayMoves");
-				break;
-			}
-		}
-	} while (temp != NULL);
-}
+//void OpenLoop::moveDisplay(Loop *comefrom, char * structure_p, char *seq_p) {
+//	int loop;
+//	Move *temp;
+//	for (loop = 0; loop < curAdjacent; loop++) {
+//		if (adjacentLoops[loop] != comefrom && adjacentLoops[loop] != NULL)
+//			// shouldn't happen, being careful.
+//			adjacentLoops[loop]->moveDisplay(this, structure_p, seq_p);
+//		assert(adjacentLoops[loop] != NULL);
+//	}
+//	do {
+//		temp = moves->getMove(temp);
+//		if (temp == NULL)
+//			continue;
+//		if (temp->type & MOVE_CREATE) {
+//			switch (temp->type & (MOVE_1 | MOVE_2)) {
+//			case MOVE_1:
+//				structure_p[temp->index[0] + (seqs[temp->index[3]] - seq_p)] =
+//						'(';
+//				structure_p[temp->index[1] + (seqs[temp->index[3]] - seq_p)] =
+//						')';
+//
+//				printf("%s\n", structure_p);
+//
+//				structure_p[temp->index[0] + (seqs[temp->index[3]] - seq_p)] =
+//						'.';
+//				structure_p[temp->index[1] + (seqs[temp->index[3]] - seq_p)] =
+//						'.';
+//				break;
+//			case MOVE_2:
+//				structure_p[temp->index[0] + (seqs[temp->index[3]] - seq_p)] =
+//						'(';
+//				structure_p[temp->index[1] + (seqs[temp->index[3] + 1] - seq_p)] =
+//						')';
+//
+//				printf("%s\n", structure_p);
+//
+//				structure_p[temp->index[0] + (seqs[temp->index[3]] - seq_p)] =
+//						'.';
+//				structure_p[temp->index[1] + (seqs[temp->index[3] + 1] - seq_p)] =
+//						'.';
+//				break;
+//			default:
+//				fprintf(stderr, "Error in OpenLoop::displayMoves");
+//				break;
+//			}
+//		}
+//	} while (temp != NULL);
+//}
 
 char *OpenLoop::getLocation(Move *move, int index) {
 	if (move->getType() & MOVE_CREATE) {

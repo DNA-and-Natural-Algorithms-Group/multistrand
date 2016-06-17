@@ -48,7 +48,6 @@ ViennaEnergyModel::~ViennaEnergyModel( void )
 double ViennaEnergyModel::returnRate( double start_energy, double end_energy, int enth_entr_toggle)
 {
   double dE = ( end_energy - start_energy );
-  //  double dE = ((double) ( end_energy - start_energy )) / 100.;
   if( kinetic_rate_method == 2 )
     return exp( -0.5 * dE / _RT );
 }

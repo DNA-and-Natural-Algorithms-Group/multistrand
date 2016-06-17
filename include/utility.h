@@ -54,6 +54,7 @@ string moveType(int);
 const static string ArrTypeMap[] = { "Undefined", "End", "Loop", "Stack",
 		"Stack-Stack", "Loop-End", "Stack-End", "Stack-Loop" };
 
+void printDouble(double);
 }
 
 #endif /* INCLUDE_UTILITY_CC_ */
