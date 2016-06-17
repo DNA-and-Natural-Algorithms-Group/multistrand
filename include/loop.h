@@ -51,6 +51,8 @@ public:
 	string toString(void);
 	string toStringShort(void);
 	void printAllMoves(Loop*);
+	void generateAndSaveDeleteMove(Loop*, int);
+
 
 protected:
 	static EnergyModel *energyModel_Primary;

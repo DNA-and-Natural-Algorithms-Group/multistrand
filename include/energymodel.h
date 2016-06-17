@@ -75,7 +75,6 @@ public:
 
 	virtual double returnRate(double start_energy, double end_energy,
 			int enth_entr_toggle) = 0;
-	//  virtual double returnRate( energyS &start_energy, energyS &end_energy );
 	virtual double getJoinRate(void) = 0;
 	virtual double getJoinRate_NoVolumeTerm(void) = 0;
 	//  virtual double getJoinEnergy( void ) = 0;
