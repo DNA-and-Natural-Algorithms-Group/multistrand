@@ -79,8 +79,8 @@ public:
 
 	string toString();
 protected:
-	ArrType leftEnv = UNDEFINED;
-	ArrType rightEnv = UNDEFINED;
+	ArrType ArrLeft = UNDEFINED;
+	ArrType ArrRight = UNDEFINED;
 
 };
 

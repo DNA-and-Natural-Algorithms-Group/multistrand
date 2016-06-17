@@ -203,6 +203,22 @@ ArrMove::ArrMove(int mtype, double mrate, Loop *affected_1, int *indexarray) {
 
 }
 
+string ArrMove::toString(void) {
+
+	string output = this->Move::toString();	 // super toString
+
+	string addedOutput = "Arrhenius type L/R= ";
+
+	addedOutput += utility::ArrTypeMap[arrLeft];
+	addedOutput += utility::ArrTypeMap[arrRight];
+
+	output += addedOutput;
+
+	return output;
+
+}
+
+
 /* MoveTree info */
 MoveTree::~MoveTree(void) {
 	/* destruction of a move tree node does imply destruction of all subnodes */
