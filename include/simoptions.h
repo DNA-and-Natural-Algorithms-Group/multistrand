@@ -63,7 +63,6 @@ public:
 
 	// actual option values
 	vector<complex_input>* myComplexes;
-
 	EnergyOptions* myEnergyOptions;
 
 protected:

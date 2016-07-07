@@ -109,6 +109,7 @@ public:
 
 protected:
 	long dangles;
+	SimOptions* simOptions;
 
 };
 
@@ -139,7 +140,6 @@ public:
 	void eStackEnergy(int type1, int type2, energyS *energy);
 
 private:
-	SimOptions* simOptions;
 
 	// All energy units are integers, in units of .01 kcal/mol, as used by ViennaRNA
 

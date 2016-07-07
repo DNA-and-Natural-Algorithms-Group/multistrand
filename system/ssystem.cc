@@ -6,7 +6,6 @@
 #include "options.h"
 #include "ssystem.h"
 #include "simoptions.h"
-#include "energyoptions.h"
 
 #include <string.h>
 #include <time.h>

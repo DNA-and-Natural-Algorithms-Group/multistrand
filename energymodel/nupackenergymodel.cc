@@ -9,7 +9,6 @@
 #include <ctype.h>
 #include <assert.h>
 
-#include "energymodel.h"
 #include "simoptions.h"
 #include "options.h"
 
@@ -20,27 +19,14 @@
 #define CELSIUS37_IN_KELVIN 310.15
 #define TEMPERATURE_ZERO_CELSIUS_IN_KELVIN 273.15
 
-extern int pairs[5]; // = {0,0,0,0,0};
-extern int pairtypes[5][5]; // = {
-//  {0,0,0,0,0},
-//  {0,0,0,0,0},
-//  {0,0,0,0,0},
-//  {0,0,0,0,0},
-//  {0,0,0,0,0}
-//};
-extern int basepair_sw[8]; // = {0,0,0,0,0,0,0,0};
+extern int pairs[5];
+extern int pairtypes[5][5];
+extern int basepair_sw[8];
 
-extern int lookuphelper[26]; // = {1,0,2,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,4,4,0,0,0,0,0};
-//                      A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z
+extern int lookuphelper[26];
 
 // helper function to convert to numerical base format.
-extern int baseLookup(char base); //
-		/*{
-		 char temp = toupper(base);
-		 if( temp < 'A' || temp > 'Z' )
-		 return base;
-		 return lookuphelper[temp-'A'];
-		 }*/
+extern int baseLookup(char base);
 
 NupackEnergyModel::~NupackEnergyModel(void) {
 	// TODO: is anything allocated now? Don't think so, all arrays are static still.
@@ -65,7 +51,6 @@ double NupackEnergyModel::returnRate(double start_energy, double end_energy,
 }
 
 double NupackEnergyModel::getJoinRate(void) {
-	//  printf("%lf\n",joinrate);
 	return joinrate; // replace with the passed in rate
 					 // joinrate includes biscale (via setupRates();)
 }
@@ -262,15 +247,10 @@ double NupackEnergyModel::BulgeEnergy(int i, int j, int p, int q,
 double NupackEnergyModel::InteriorEnergy(char *seq1, char *seq2, int size1,
 		int size2) {
 	double energy, ninio;
-	//  for( int loop = 0; loop < 4 ; loop++ )
-	//  mismatch[loop] = baseLookup(mismatch[loop]);
+
 	int type1 = pairtypes[seq1[0]][seq2[size2 + 1]] - 1;
 	int type2 = pairtypes[seq1[size1 + 1]][seq2[0]] - 1;
 
-	// mismatch0 = seq1[1]
-	// mismatch1 = seq2[size2]
-	// mismatch2 = seq1[size1]
-	// mismatch3 = seq2[1]
 
 	// special case time. 1x1, 2x1 and 2x2's all get special cases.
 	if (size1 == 1 && size2 == 1)
