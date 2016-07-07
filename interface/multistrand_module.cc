@@ -248,7 +248,8 @@ static PyObject *System_initialize_energymodel( PyObject *self,PyObject *args )
     {
       temp = NULL;
       if(  testLongAttr(options_object, parameter_type,=,0) )
-        temp = new ViennaEnergyModel( options_object );
+    	 throw std::invalid_argument("Attempting to load ViennaRNA parameters (depreciated)");
+        //temp = new ViennaEnergyModel( options_object );
       else
         temp = new NupackEnergyModel( options_object );
       Loop::SetEnergyModel( temp );
@@ -336,7 +337,8 @@ static PyObject *System_calculate_rate( PyObject *self,PyObject *args, PyObject 
   else if(options_object != NULL )
 	{
       if(  testLongAttr(options_object, parameter_type,=,0) )
-        em = new ViennaEnergyModel( options_object );
+     	 throw std::invalid_argument("Attempting to load ViennaRNA parameters (depreciated)");
+//        em = new ViennaEnergyModel( options_object );
       else
         em = new NupackEnergyModel( options_object );
 

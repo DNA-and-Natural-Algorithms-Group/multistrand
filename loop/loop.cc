@@ -5288,11 +5288,10 @@ void OpenLoop::generateMoves(void) {
 	ptypes = new int[numAdjacent + 1];
 	sidelengths = new int[numAdjacent + 2];
 	sequences = new char *[numAdjacent + 2];
-
 	// Case #1: Single Side only Creation Moves
 	for (loop3 = 0; loop3 <= numAdjacent; loop3++) { // CHECK: is numAdjacent really correct? it could be numAdjacent+1
 
-		char* mySequence = seqs[loop3];	// pointer to the sequence of the strand we are working with.
+		char* mySequence = seqs[loop3]; // this is the sequence of the strand that we use
 
 		for (loop = 1; loop <= sidelen[loop3] - 4; loop++) {
 
@@ -5302,8 +5301,7 @@ void OpenLoop::generateMoves(void) {
 
 				if (pairType != 0) { // FD: the NUPACK model puts terms here to be non-zero.    in NUPACK, G-T stacking is a thing. Hairpin loops are size 3 or more.
 
-					energies[0] = energyModel_Primary->HairpinEnergy(
-							&seqs[loop3][loop], loop2 - loop - 1);
+					energies[0] = energyModel_Primary->HairpinEnergy(&mySequence[loop], loop2 - loop - 1);
 
 					for (temploop = 0, tempindex = 0;
 							temploop <= numAdjacent + 1;
@@ -5433,8 +5431,11 @@ void OpenLoop::generateMoves(void) {
 								{
 							if (tempindex == loop3) {
 								ptypes[temploop] = pairType;
-
-								-loop;
+								//			if( loop3 == 0)
+								//  sidelengths[temploop] = sidelen[tempindex] - loop-1;
+								//else
+								sidelengths[temploop] = sidelen[tempindex]
+										- loop;
 								sequences[temploop] = &seqs[tempindex][loop];
 								temploop++;
 							}
