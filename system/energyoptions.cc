@@ -57,6 +57,13 @@ double EnergyOptions::getJoinConcentration(void) {
 
 }
 
+
+bool EnergyOptions::usingArrhenius(void){
+
+	return useArrhenius;
+
+}
+
 double EnergyOptions::getBiScale(void) {
 
 	return biScale;

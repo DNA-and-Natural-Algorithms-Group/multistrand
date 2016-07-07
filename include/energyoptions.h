@@ -22,12 +22,9 @@
 class EnergyOptions {
 public:
 
-	//EnergyOptions(void); 	//superclass constructor
 
 	// construct methods
 	void initializeArrheniusConstants();
-
-
 
 // non-virtual getters
 	double getTemperature(void);
@@ -36,6 +33,7 @@ public:
 	bool getGtenable(void);
 	long getKineticRateMethod(void);
 	double getJoinConcentration(void);
+	bool usingArrhenius(void);
 
 	double getBiScale(void);
 	double getUniScale(void);
@@ -86,8 +84,6 @@ protected:
 	double dS_G = -5.99;
 
 	double alpha = 0.045;
-
-	// initialization of the
 
 };
 

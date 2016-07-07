@@ -35,12 +35,12 @@ extern int lookuphelper[26]; // = {1,0,2,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,4,4,0,0
 
 // helper function to convert to numerical base format.
 extern int baseLookup(char base); //
-/*{
- char temp = toupper(base);
- if( temp < 'A' || temp > 'Z' )
- return base;
- return lookuphelper[temp-'A'];
- }*/
+		/*{
+		 char temp = toupper(base);
+		 if( temp < 'A' || temp > 'Z' )
+		 return base;
+		 return lookuphelper[temp-'A'];
+		 }*/
 
 NupackEnergyModel::~NupackEnergyModel(void) {
 	// TODO: is anything allocated now? Don't think so, all arrays are static still.
@@ -369,6 +369,12 @@ double NupackEnergyModel::HairpinEnergy(char *seq, int size) {
 		energy +=
 				hairpin_mismatch_37_dG[(pairtypes[seq[0]][seq[size + 1]] - 1)][seq[1]][seq[size]];
 
+	if (simOptions->myEnergyOptions->usingArrhenius()) {
+
+		energy += this->ArrheniusLoopEnergy(seq, size);
+
+	}
+
 	return energy;
 }
 
@@ -538,7 +544,7 @@ void NupackEnergyModel::processOptions() {
 	double temperature;
 	FILE *fp = NULL, *fp2 = NULL; // fp is dG energy file, fp2 is dH.
 
-	//PyObject* energy_options = simOptions->getPythonSettings();
+
 	EnergyOptions* myEnergyOptions = simOptions->getEnergyOptions();
 
 	// why use global variables when you can call an object?
@@ -549,12 +555,6 @@ void NupackEnergyModel::processOptions() {
 	logml = myEnergyOptions->getLogml();
 	gtenable = myEnergyOptions->getGtenable();
 	kinetic_rate_method = myEnergyOptions->getKineticRateMethod();
-
-//	getDoubleAttr(energy_options, temperature, &temperature);
-//	getLongAttr(energy_options, dangles, &dangles);
-//	getLongAttr(energy_options, log_ml, &logml);
-//	getBoolAttr(energy_options, gt_enable, &gtenable);
-//	getLongAttr(energy_options, rate_method, &kinetic_rate_method);
 
 	waterdensity = setWaterDensity(
 			temperature - TEMPERATURE_ZERO_CELSIUS_IN_KELVIN);
@@ -575,7 +575,6 @@ void NupackEnergyModel::processOptions() {
 
 		char* tmp = NULL;
 		myEnergyOptions->getParameterFile(tmp, tmpStr);
-
 
 		if (tmp != NULL) {
 			fp = fopen(tmp, "rt");

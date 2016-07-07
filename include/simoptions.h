@@ -58,17 +58,13 @@ public:
 	virtual void stopResultTime(long, double) = 0;
 	virtual void stopResultBimolecular(string, long, double, double, char*) = 0;
 
-	// Pushing info back to Python
-//	virtual void incrementTrajectoryCount(void) = 0;
-//	virtual void sendTransitionInfo(PyObject*) = 0;
-//	virtual void pushTrajectory(long, int, char*, char*, char*, double) = 0;
-//	virtual void pushTrajectoryInf(double)=0;
-
 // IO Methods
 	string toString(void);
 
 	// actual option values
 	vector<complex_input>* myComplexes;
+
+	EnergyOptions* myEnergyOptions;
 
 protected:
 	long simulation_mode;
@@ -82,7 +78,6 @@ protected:
 	stopComplexes* myStopComplexes;
 	bool fixedRandomSeed;
 
-	EnergyOptions* myEnergyOptions;
 };
 
 class PSimOptions: public SimOptions {
@@ -91,14 +86,6 @@ public:
 	PSimOptions(void);
 	PSimOptions(PyObject *system_options);
 
-	// Implemented virtual methods
-	//long getSimulationMode(void);
-	//long getSimulationCount(void);
-	//long getOInterval(void);
-	//double getOTime(void);
-//	long getStopOptions(void);
-//	long getStopCount(void);
-//	double getMaxSimTime(void);
 	PyObject* getPythonSettings(void);
 	void generateComplexes(PyObject *alternate_start, long current_seed);
 	stopComplexes* getStopComplexes(int);
@@ -109,12 +96,6 @@ public:
 	void stopResultNormal(long, double, char*);
 	void stopResultTime(long, double);
 	void stopResultBimolecular(string, long, double, double, char*);
-
-	// Push back to Python
-//	void incrementTrajectoryCount(void);		// PyObject compliance
-//	void sendTransitionInfo(PyObject *transitions);
-//	void pushTrajectory(long, int, char*, char*, char*, double);
-//	void pushTrajectoryInf(double);
 
 protected:
 	bool debug;

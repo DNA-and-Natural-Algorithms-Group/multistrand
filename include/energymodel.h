@@ -71,6 +71,12 @@ class EnergyModel {
 public:
 	EnergyModel(void);
 	EnergyModel(PyObject *options);
+
+	// Implemented methods
+	double ArrheniusLoopEnergy(char* seq, int size);
+
+	// Virtual methods
+
 	virtual ~EnergyModel(void);
 
 	virtual double returnRate(double start_energy, double end_energy,
@@ -105,8 +111,6 @@ protected:
 	long dangles;
 
 };
-
-
 
 class NupackEnergyModel: public EnergyModel {
 public:
@@ -150,7 +154,6 @@ private:
 	int hairpin_mismatch_37_dH[NUM_BASEPAIRS_NUPACK][NUM_BASES][NUM_BASES];
 
 	double hairpin_triloop_37_dG[1024];
-	//[NUM_BASES-1][NUM_BASES-1][NUM_BASES-1][NUM_BASES-1][NUM_BASES-1];
 	int hairpin_triloop_37_dH[1024];
 	// This needs about 1024 doubles to store the entire matrix.
 	// lookups on this are then 4 shifts, 5adds, 5 dec 1s, but better than a strstr.
@@ -277,8 +280,6 @@ private:
 
 	double setWaterDensity(double temp);
 };
-
-
 
 //class ViennaEnergyModel: public EnergyModel {
 //public:
@@ -424,6 +425,5 @@ private:
 //	void internal_set_dangle_5_enthalpies(FILE *fp, char *buffer);
 //	void internal_set_dangle_3_enthalpies(FILE *fp, char *buffer);
 //};
-
 
 #endif /* __ENERGYMODEL_H__ */
