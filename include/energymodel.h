@@ -77,7 +77,6 @@ public:
 			int enth_entr_toggle) = 0;
 	virtual double getJoinRate(void) = 0;
 	virtual double getJoinRate_NoVolumeTerm(void) = 0;
-	//  virtual double getJoinEnergy( void ) = 0;
 	virtual double getVolumeEnergy(void) =0;
 	virtual double getAssocEnergy(void) =0;
 	virtual double StackEnergy(int i, int j, int p, int q) = 0;
@@ -100,163 +99,14 @@ public:
 	virtual double MultiloopEnergy(int size, int *sidelen,
 			char **sequences) = 0;
 	virtual double OpenloopEnergy(int size, int *sidelen, char **sequences) = 0;
-
 	virtual void eStackEnergy(int type1, int type2, energyS *energy) = 0;
-	//  virtual void eBulgeEnergy( int type1, int type2, int bulgesize, energyS *energy );
-	// virtual void eInteriorEnergy( int type1, int type2, int size1, int size2, char mismatch[4], energyS *energy );
-	//virtual void eHairpinEnergy( int type1, int size, char *special , energyS *energy);
-	//virtual void eMultiloopEnergy( int size, int *pairtypes, int *sidelen, char **sequences, energyS *energy   );
-	//virtual void eOpenloopEnergy( int size, int *pairtypes, int *sidelen, char **sequences, energyS *energy   );
 
 protected:
 	long dangles;
 
 };
 
-class ViennaEnergyModel: public EnergyModel {
-public:
-	ViennaEnergyModel(void);
-	ViennaEnergyModel(PyObject *options);
-	~ViennaEnergyModel(void);
 
-	double returnRate(double start_energy, double end_energy,
-			int enth_entr_toggle);
-	double returnRate(energyS &start_energy, energyS &end_energy);
-	double getJoinRate(void);
-	double getJoinRate_NoVolumeTerm(void);
-
-	double getVolumeEnergy(void);
-	double getAssocEnergy(void);
-
-	//double getJoinEnergy( void );
-
-	double StackEnergy(int i, int j, int p, int q);
-	double BulgeEnergy(int i, int j, int p, int q, int bulgesize);
-	double InteriorEnergy(char *seq1, char *seq2, int size1, int size2);
-	double HairpinEnergy(char *seq, int size);
-	double MultiloopEnergy(int size, int *sidelen, char **sequences);
-	double OpenloopEnergy(int size, int *sidelen, char **sequences);
-
-	void eStackEnergy(int type1, int type2, energyS *energy);
-	void eBulgeEnergy(int type1, int type2, int bulgesize, energyS *energy);
-	void eInteriorEnergy(int type1, int type2, int size1, int size2,
-			char mismatch[4], energyS *energy);
-	void eHairpinEnergy(int type1, int size, char *special, energyS *energy);
-	void eMultiloopEnergy(int size, int *pairtypes, int *sidelen,
-			char **sequences, energyS *energy);
-	void eOpenloopEnergy(int size, int *pairtypes, int *sidelen,
-			char **sequences, energyS *energy);
-
-private:
-
-	// All energy units are integers, in units of .01 kcal/mol, as used by ViennaRNA
-
-	// Stacking Info
-	int stack_37_dG[NUM_BASEPAIRS_VIENNA][NUM_BASEPAIRS_VIENNA]; // Delta G's for stacks, matrix form, at 37 degrees C.
-	int stack_37_dH[NUM_BASEPAIRS_VIENNA][NUM_BASEPAIRS_VIENNA]; // Delta H's for stacks, matrix form, for use comparing to dG at 37 deg C.
-
-	// Hairpin Info, note no enthalpies
-	int hairpin_37_dG[31];
-	int hairpin_mismatch_37_dG[NUM_BASEPAIRS_VIENNA][NUM_BASES][NUM_BASES];
-
-	int hairpin_triloop_37_dG[1024];
-	int hairpin_triloop_37_dH;
-	// This needs about 1024 ints to store the entire matrix.
-	// lookups on this are then 4 shifts, 5adds, 5 dec 1s, but better than a strstr.
-
-	int hairpin_tetraloop_37_dG[4096];
-	int hairpin_tetraloop_37_dH;
-
-	// NOTES: the DNA dataset (dna.par) has 110 tetraloops, but their code seems to only load the first 80 of them. We load all of them, so there may be slight energy differences in exactly those 30.
-	// Also, their dataset only uses a single dH, rather than one for each tri/tetraloop.
-
-	// Bulge Info
-	int bulge_37_dG[31];
-
-	// Internal Loop Info
-	int internal_37_dG[31];
-	int internal_mismatch_37_dG[NUM_BASEPAIRS_VIENNA][NUM_BASES][NUM_BASES];
-
-	int maximum_NINIO;
-	int ninio_correction_37[5]; // Why? Must look into this.
-								// It appears only [2] is used. Perhaps change
-								// this to a single parameter.
-
-	/* special internal loop lookup tables */
-	int internal_1_1_37_dG[NUM_BASEPAIRS_VIENNA][NUM_BASEPAIRS_VIENNA][NUM_BASES][NUM_BASES];
-	int internal_1_1_37_dH[NUM_BASEPAIRS_VIENNA][NUM_BASEPAIRS_VIENNA][NUM_BASES][NUM_BASES];
-
-	int internal_2_1_37_dG[NUM_BASEPAIRS_VIENNA][NUM_BASEPAIRS_VIENNA][NUM_BASES][NUM_BASES][NUM_BASES];
-	int internal_2_1_37_dH[NUM_BASEPAIRS_VIENNA][NUM_BASEPAIRS_VIENNA][NUM_BASES][NUM_BASES][NUM_BASES];
-
-	int internal_2_2_37_dG[NUM_BASEPAIRS_VIENNA][NUM_BASEPAIRS_VIENNA][NUM_BASES][NUM_BASES][NUM_BASES][NUM_BASES];
-	int internal_2_2_37_dH[NUM_BASEPAIRS_VIENNA][NUM_BASEPAIRS_VIENNA][NUM_BASES][NUM_BASES][NUM_BASES][NUM_BASES];
-
-	// Multiloop Info
-	int multiloop_mismatch_37_dG[NUM_BASEPAIRS_VIENNA][NUM_BASES][NUM_BASES]; // this data is in the files, but Vienna doesn't use it. Loading it for posterity.
-
-	int multiloop_base;
-	int multiloop_closing;
-	int multiloop_internal;
-
-	// should this really not be tied to one of the others?
-	// it actually appears to be the scaling term for internal, hairpin and (the outdated) multiloop mismatches.
-
-	int mismatch_37_dH[NUM_BASEPAIRS_VIENNA][NUM_BASES][NUM_BASES];
-
-	// Dangle Info for multiloops and open loops
-	int dangle_3_37_dG[NUM_BASEPAIRS_VIENNA][NUM_BASES];
-	int dangle_5_37_dG[NUM_BASEPAIRS_VIENNA][NUM_BASES];
-	int dangle_3_37_dH[NUM_BASEPAIRS_VIENNA][NUM_BASES];
-	int dangle_5_37_dH[NUM_BASEPAIRS_VIENNA][NUM_BASES];
-
-	// Terminal AU penalty for multiloops and open loops (included in mismatch penalties elsewhere
-	// Appears to be pure dH.
-	int terminal_AU;
-
-	// Logarithmic loop penalty. Doesn't seem to change for DNA/RNA?
-	double log_loop_penalty_37;
-
-	// parameter type, used for the internal data loading.
-	int ptype;
-
-	// biomolecular penalty
-	int bimolecular_penalty;
-
-	// Kinetic rate toggle. 0 = kawasaki, 1 = metropolis, 2 = entropy/enthalpy, defaults to 2.
-	long kinetic_rate_method;
-	double _RT;
-	double joinrate;
-
-	// internal data loading functions:
-	void internal_set_stack_energies(FILE *fp, char *buffer);
-	void internal_set_stack_enthalpies(FILE *fp, char *buffer);
-	void internal_set_hairpin_energies(FILE *fp, char *buffer);
-	void internal_set_hairpin_mismatch_energies(FILE *fp, char *buffer);
-	void internal_set_hairpin_tetraloop_parameters(FILE *fp, char *buffer);
-	void internal_set_hairpin_triloop_parameters(FILE *fp, char *buffer);
-	void internal_set_bulge_energies(FILE *fp, char *buffer);
-	void internal_set_interior_loop_energies(FILE *fp, char *buffer);
-	void internal_set_interior_loop_mismatch_energies(FILE *fp, char *buffer);
-	void internal_set_interior_1_1_energies(FILE *fp, char *buffer);
-	void internal_set_interior_1_1_enthalpies(FILE *fp, char *buffer);
-	void internal_set_interior_2_1_energies(FILE *fp, char *buffer);
-	void internal_set_interior_2_1_enthalpies(FILE *fp, char *buffer);
-	void internal_set_interior_2_2_energies(FILE *fp, char *buffer);
-	void internal_set_interior_2_2_enthalpies(FILE *fp, char *buffer);
-	void internal_set_multiloop_parameters(FILE *fp, char *buffer);
-	void internal_set_at_penalty(FILE *fp, char *buffer);
-	void internal_set_ninio_parameters(FILE *fp, char *buffer);
-	void internal_set_multiloop_mismatch_energies(FILE *fp, char *buffer);
-	void internal_set_bimolecular_penalty(FILE *fp, char *buffer);
-	void internal_set_mismatch_enthalpies(FILE *fp, char *buffer);
-	char *internal_read_array_data(FILE *fp, char *buffer, char* start_loc,
-			int *read_loc, int size);
-	void internal_set_dangle_5_energies(FILE *fp, char *buffer);
-	void internal_set_dangle_3_energies(FILE *fp, char *buffer);
-	void internal_set_dangle_5_enthalpies(FILE *fp, char *buffer);
-	void internal_set_dangle_3_enthalpies(FILE *fp, char *buffer);
-};
 
 class NupackEnergyModel: public EnergyModel {
 public:
@@ -283,11 +133,6 @@ public:
 	double OpenloopEnergy(int size, int *sidelen, char **sequences);
 
 	void eStackEnergy(int type1, int type2, energyS *energy);
-	//void eBulgeEnergy( int type1, int type2, int bulgesize, energyS *energy );
-	//void eInteriorEnergy( int type1, int type2, int size1, int size2, char mismatch[4], energyS *energy );
-	//void eHairpinEnergy( int type1, int size, char *special , energyS *energy);
-	//void eMultiloopEnergy( int size, int *pairtypes, int *sidelen, char **sequences, energyS *energy   );
-	//  void eOpenloopEnergy( int size, int *pairtypes, int *sidelen, char **sequences, energyS *energy   );
 
 private:
 	SimOptions* simOptions;
@@ -313,26 +158,14 @@ private:
 	double hairpin_tetraloop_37_dG[4096];
 	int hairpin_tetraloop_37_dH[4096];
 
-	/* char hairpin_tetraloops[(7*120) + 1]; // 120 tetraloops */
-	/* double hairpin_tetraloop_37_dG[120]; // why 80 here? Check Vienna Code/Datasets. */
-	/* // Ok, changed them to 120 each, as the DNA dataset has at least 110 tetraloops listed... very odd that it was tossing out the last 30.  */
-	/* //  int hairpin_tetraloop_37_dH;  */
-	/* int hairpin_tetraloop_37_dH[120];  */
-
-	/* char hairpin_triloops[(6*40) + 1]; */
-	/* double hairpin_triloop_37_dG[40]; */
-	/* int hairpin_triloop_37_dH[40]; */
-
 	// Bulge Info
 	double bulge_37_dG[31];
 	int bulge_37_dH[31];
 
 	// Internal Loop Info
 	double internal_37_dG[31];
-	//  int internal_mismatch_37_dG[NUM_BASEPAIRS_NUPACK][NUM_BASES][NUM_BASES];
 	double internal_mismatch_37_dG[NUM_BASES][NUM_BASES][NUM_BASEPAIRS_NUPACK];
 	int internal_37_dH[31];
-	//  int internal_mismatch_37_dH[NUM_BASEPAIRS_NUPACK][NUM_BASES][NUM_BASES];
 	int internal_mismatch_37_dH[NUM_BASES][NUM_BASES][NUM_BASEPAIRS_NUPACK];
 
 	double maximum_NINIO;
@@ -351,8 +184,6 @@ private:
 	int internal_2_2_37_dH[NUM_BASEPAIRS_NUPACK][NUM_BASEPAIRS_NUPACK][NUM_BASES][NUM_BASES][NUM_BASES][NUM_BASES];
 
 	// Multiloop Info
-	//  int multiloop_mismatch_37_dG[NUM_BASEPAIRS_NUPACK][NUM_BASES][NUM_BASES]; // this data is in the files, but Vienna doesn't use it. Loading it for posterity.
-
 	double multiloop_base;
 	double multiloop_closing;
 	double multiloop_internal;
@@ -363,8 +194,6 @@ private:
 
 	// should this really not be tied to one of the others?
 	// it actually appears to be the scaling term for internal, hairpin and (the outdated) multiloop mismatches.
-
-	//int mismatch_37_dH[NUM_BASEPAIRS_NUPACK][NUM_BASES][NUM_BASES];
 
 	// Dangle Info for multiloops and open loops
 	double dangle_3_37_dG[NUM_BASEPAIRS_NUPACK][NUM_BASES];
@@ -381,10 +210,6 @@ private:
 	double log_loop_penalty_37;
 	double log_loop_penalty;
 
-	// parameter type, used for the internal data loading.
-	//  int ptype;
-	// JS: no longer needed as of rebuilt options object.
-
 	// biomolecular penalty
 	double bimolecular_penalty;
 	int bimolecular_penalty_dH;
@@ -395,7 +220,6 @@ private:
 	double current_temp;
 	double _RT;
 	double joinrate;
-	//  double joinenergy;
 	double dG_volume;
 	double dG_assoc;
 
@@ -408,7 +232,6 @@ private:
 	long logml;
 
 	// data loading functions:
-	//void setupRates(PyObject *opt);
 	void setupRates();
 
 	void internal_set_stack_energies(FILE *fp, char *buffer);
@@ -454,5 +277,153 @@ private:
 
 	double setWaterDensity(double temp);
 };
+
+
+
+//class ViennaEnergyModel: public EnergyModel {
+//public:
+//	ViennaEnergyModel(void);
+//	ViennaEnergyModel(PyObject *options);
+//	~ViennaEnergyModel(void);
+//
+//	double returnRate(double start_energy, double end_energy,
+//			int enth_entr_toggle);
+//	double returnRate(energyS &start_energy, energyS &end_energy);
+//	double getJoinRate(void);
+//	double getJoinRate_NoVolumeTerm(void);
+//
+//	double getVolumeEnergy(void);
+//	double getAssocEnergy(void);
+//
+//	//double getJoinEnergy( void );
+//
+//	double StackEnergy(int i, int j, int p, int q);
+//	double BulgeEnergy(int i, int j, int p, int q, int bulgesize);
+//	double InteriorEnergy(char *seq1, char *seq2, int size1, int size2);
+//	double HairpinEnergy(char *seq, int size);
+//	double MultiloopEnergy(int size, int *sidelen, char **sequences);
+//	double OpenloopEnergy(int size, int *sidelen, char **sequences);
+//
+//	void eStackEnergy(int type1, int type2, energyS *energy);
+//	void eBulgeEnergy(int type1, int type2, int bulgesize, energyS *energy);
+//	void eInteriorEnergy(int type1, int type2, int size1, int size2,
+//			char mismatch[4], energyS *energy);
+//	void eHairpinEnergy(int type1, int size, char *special, energyS *energy);
+//	void eMultiloopEnergy(int size, int *pairtypes, int *sidelen,
+//			char **sequences, energyS *energy);
+//	void eOpenloopEnergy(int size, int *pairtypes, int *sidelen,
+//			char **sequences, energyS *energy);
+//
+//private:
+//
+//	// All energy units are integers, in units of .01 kcal/mol, as used by ViennaRNA
+//
+//	// Stacking Info
+//	int stack_37_dG[NUM_BASEPAIRS_VIENNA][NUM_BASEPAIRS_VIENNA]; // Delta G's for stacks, matrix form, at 37 degrees C.
+//	int stack_37_dH[NUM_BASEPAIRS_VIENNA][NUM_BASEPAIRS_VIENNA]; // Delta H's for stacks, matrix form, for use comparing to dG at 37 deg C.
+//
+//	// Hairpin Info, note no enthalpies
+//	int hairpin_37_dG[31];
+//	int hairpin_mismatch_37_dG[NUM_BASEPAIRS_VIENNA][NUM_BASES][NUM_BASES];
+//
+//	int hairpin_triloop_37_dG[1024];
+//	int hairpin_triloop_37_dH;
+//	// This needs about 1024 ints to store the entire matrix.
+//	// lookups on this are then 4 shifts, 5adds, 5 dec 1s, but better than a strstr.
+//
+//	int hairpin_tetraloop_37_dG[4096];
+//	int hairpin_tetraloop_37_dH;
+//
+//	// NOTES: the DNA dataset (dna.par) has 110 tetraloops, but their code seems to only load the first 80 of them. We load all of them, so there may be slight energy differences in exactly those 30.
+//	// Also, their dataset only uses a single dH, rather than one for each tri/tetraloop.
+//
+//	// Bulge Info
+//	int bulge_37_dG[31];
+//
+//	// Internal Loop Info
+//	int internal_37_dG[31];
+//	int internal_mismatch_37_dG[NUM_BASEPAIRS_VIENNA][NUM_BASES][NUM_BASES];
+//
+//	int maximum_NINIO;
+//	int ninio_correction_37[5]; // Why? Must look into this.
+//								// It appears only [2] is used. Perhaps change
+//								// this to a single parameter.
+//
+//	/* special internal loop lookup tables */
+//	int internal_1_1_37_dG[NUM_BASEPAIRS_VIENNA][NUM_BASEPAIRS_VIENNA][NUM_BASES][NUM_BASES];
+//	int internal_1_1_37_dH[NUM_BASEPAIRS_VIENNA][NUM_BASEPAIRS_VIENNA][NUM_BASES][NUM_BASES];
+//
+//	int internal_2_1_37_dG[NUM_BASEPAIRS_VIENNA][NUM_BASEPAIRS_VIENNA][NUM_BASES][NUM_BASES][NUM_BASES];
+//	int internal_2_1_37_dH[NUM_BASEPAIRS_VIENNA][NUM_BASEPAIRS_VIENNA][NUM_BASES][NUM_BASES][NUM_BASES];
+//
+//	int internal_2_2_37_dG[NUM_BASEPAIRS_VIENNA][NUM_BASEPAIRS_VIENNA][NUM_BASES][NUM_BASES][NUM_BASES][NUM_BASES];
+//	int internal_2_2_37_dH[NUM_BASEPAIRS_VIENNA][NUM_BASEPAIRS_VIENNA][NUM_BASES][NUM_BASES][NUM_BASES][NUM_BASES];
+//
+//	// Multiloop Info
+//	int multiloop_mismatch_37_dG[NUM_BASEPAIRS_VIENNA][NUM_BASES][NUM_BASES]; // this data is in the files, but Vienna doesn't use it. Loading it for posterity.
+//
+//	int multiloop_base;
+//	int multiloop_closing;
+//	int multiloop_internal;
+//
+//	// should this really not be tied to one of the others?
+//	// it actually appears to be the scaling term for internal, hairpin and (the outdated) multiloop mismatches.
+//
+//	int mismatch_37_dH[NUM_BASEPAIRS_VIENNA][NUM_BASES][NUM_BASES];
+//
+//	// Dangle Info for multiloops and open loops
+//	int dangle_3_37_dG[NUM_BASEPAIRS_VIENNA][NUM_BASES];
+//	int dangle_5_37_dG[NUM_BASEPAIRS_VIENNA][NUM_BASES];
+//	int dangle_3_37_dH[NUM_BASEPAIRS_VIENNA][NUM_BASES];
+//	int dangle_5_37_dH[NUM_BASEPAIRS_VIENNA][NUM_BASES];
+//
+//	// Terminal AU penalty for multiloops and open loops (included in mismatch penalties elsewhere
+//	// Appears to be pure dH.
+//	int terminal_AU;
+//
+//	// Logarithmic loop penalty. Doesn't seem to change for DNA/RNA?
+//	double log_loop_penalty_37;
+//
+//	// parameter type, used for the internal data loading.
+//	int ptype;
+//
+//	// biomolecular penalty
+//	int bimolecular_penalty;
+//
+//	// Kinetic rate toggle. 0 = kawasaki, 1 = metropolis, 2 = entropy/enthalpy, defaults to 2.
+//	long kinetic_rate_method;
+//	double _RT;
+//	double joinrate;
+//
+//	// internal data loading functions:
+//	void internal_set_stack_energies(FILE *fp, char *buffer);
+//	void internal_set_stack_enthalpies(FILE *fp, char *buffer);
+//	void internal_set_hairpin_energies(FILE *fp, char *buffer);
+//	void internal_set_hairpin_mismatch_energies(FILE *fp, char *buffer);
+//	void internal_set_hairpin_tetraloop_parameters(FILE *fp, char *buffer);
+//	void internal_set_hairpin_triloop_parameters(FILE *fp, char *buffer);
+//	void internal_set_bulge_energies(FILE *fp, char *buffer);
+//	void internal_set_interior_loop_energies(FILE *fp, char *buffer);
+//	void internal_set_interior_loop_mismatch_energies(FILE *fp, char *buffer);
+//	void internal_set_interior_1_1_energies(FILE *fp, char *buffer);
+//	void internal_set_interior_1_1_enthalpies(FILE *fp, char *buffer);
+//	void internal_set_interior_2_1_energies(FILE *fp, char *buffer);
+//	void internal_set_interior_2_1_enthalpies(FILE *fp, char *buffer);
+//	void internal_set_interior_2_2_energies(FILE *fp, char *buffer);
+//	void internal_set_interior_2_2_enthalpies(FILE *fp, char *buffer);
+//	void internal_set_multiloop_parameters(FILE *fp, char *buffer);
+//	void internal_set_at_penalty(FILE *fp, char *buffer);
+//	void internal_set_ninio_parameters(FILE *fp, char *buffer);
+//	void internal_set_multiloop_mismatch_energies(FILE *fp, char *buffer);
+//	void internal_set_bimolecular_penalty(FILE *fp, char *buffer);
+//	void internal_set_mismatch_enthalpies(FILE *fp, char *buffer);
+//	char *internal_read_array_data(FILE *fp, char *buffer, char* start_loc,
+//			int *read_loc, int size);
+//	void internal_set_dangle_5_energies(FILE *fp, char *buffer);
+//	void internal_set_dangle_3_energies(FILE *fp, char *buffer);
+//	void internal_set_dangle_5_enthalpies(FILE *fp, char *buffer);
+//	void internal_set_dangle_3_enthalpies(FILE *fp, char *buffer);
+//};
+
 
 #endif /* __ENERGYMODEL_H__ */

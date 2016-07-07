@@ -14,7 +14,6 @@
 
 #include "utility.h"
 
-
 using std::string;
 using std::cout;
 
@@ -5261,17 +5260,15 @@ double OpenLoop::doChoice(Move *move, Loop **returnLoop) {
 }
 
 void OpenLoop::generateMoves(void) {
+
 	int loop, loop2, loop3, loop4, temploop, tempindex, loops[4];
-	int pt;
+	int pairType;
 	double temprate;
 	double energies[2];
 
 	if (moves != NULL)
 		delete moves;
-	//int smovesize = 0;
-	//  for( loop = 0; loop <= numAdjacent; loop++ )
-	//    smovesize += sidelen[loop];
-	moves = new MoveList(1);  //16*smovesize);
+	moves = new MoveList(1);
 	//  Several options here:
 	//     #1: creation move within a side this results in a hairpin and a open loop with 1 greater magnitude.
 	//     #2a: creation move between sides resulting in a stack and open loop
@@ -5283,6 +5280,7 @@ void OpenLoop::generateMoves(void) {
 	// these three pointers are needed to set up the open loop's energy calls.
 	// i'd like to optimize so they don't need to be created/deleted very often
 	// but i'm  not sure of a good way of handling that yet.
+
 	int *ptypes = NULL;
 	int *sidelengths = NULL;
 	char **sequences = NULL;
@@ -5290,12 +5288,20 @@ void OpenLoop::generateMoves(void) {
 	ptypes = new int[numAdjacent + 1];
 	sidelengths = new int[numAdjacent + 2];
 	sequences = new char *[numAdjacent + 2];
+
 	// Case #1: Single Side only Creation Moves
-	for (loop3 = 0; loop3 <= numAdjacent; loop3++) // CHECK: is numAdjacent really correct? it could be numAdjacent+1
-		for (loop = 1; loop <= sidelen[loop3] - 4; loop++)
+	for (loop3 = 0; loop3 <= numAdjacent; loop3++) { // CHECK: is numAdjacent really correct? it could be numAdjacent+1
+
+		char* mySequence = seqs[loop3];	// pointer to the sequence of the strand we are working with.
+
+		for (loop = 1; loop <= sidelen[loop3] - 4; loop++) {
+
 			for (loop2 = loop + 4; loop2 <= sidelen[loop3]; loop2++) { // each possibility is a hairpin and open loop, see above.
-				if (pt = pairtypes[seqs[loop3][loop]][seqs[loop3][loop2]]
-						!= 0) {
+
+				pairType = pairtypes[mySequence[loop]][mySequence[loop2]];
+
+				if (pairType != 0) { // FD: the NUPACK model puts terms here to be non-zero.    in NUPACK, G-T stacking is a thing. Hairpin loops are size 3 or more.
+
 					energies[0] = energyModel_Primary->HairpinEnergy(
 							&seqs[loop3][loop], loop2 - loop - 1);
 
@@ -5303,7 +5309,7 @@ void OpenLoop::generateMoves(void) {
 							temploop <= numAdjacent + 1;
 							temploop++, tempindex++) {
 						if (temploop == loop3) {
-							ptypes[temploop] = pt;
+							ptypes[temploop] = pairType;
 							sidelengths[temploop] = loop - 1;
 							sequences[temploop] = seqs[temploop];
 							if (temploop != numAdjacent)
@@ -5324,18 +5330,30 @@ void OpenLoop::generateMoves(void) {
 
 					temprate = energyModel_Primary->returnRate(getEnergy(),
 							(energies[0] + energies[1]), 0);
+
+					// if the new Arrhenius model is used, modify the existing rate based on the local context.
+					// to start, we need to learn what the local context is, AFTER the nucleotide is put in place.
+
+//					utility::printDouble(temprate);
+//					utility::printDouble(energies[0]);
+//					utility::printDouble(energies[1]);
+
 					Move *tmove = new Move( MOVE_CREATE | MOVE_1, temprate,
 							this, loop, loop2, loop3);
 					moves->addMove(tmove);
 				}
 			}
+		}
+	}
 
 	// Case #2a-c: adjacent loop creation moves
 	for (loop3 = 0; loop3 <= numAdjacent - 1; loop3++) // CHECK: is numAdjacent really correct? it could be numAdjacent+1
 		for (loop = 1; loop <= sidelen[loop3]; loop++)
 			for (loop2 = 1; loop2 <= sidelen[loop3 + 1]; loop2++) { // each possibility is a hairpin and open loop, see above.
-				if (pt = pairtypes[seqs[loop3][loop]][seqs[loop3 + 1][loop2]]
-						!= 0) {
+
+				pairType = pairtypes[seqs[loop3][loop]][seqs[loop3 + 1][loop2]];
+
+				if (pairType != 0) {
 
 					// three cases for which type of move:
 					// #2a: stack
@@ -5369,7 +5387,7 @@ void OpenLoop::generateMoves(void) {
 
 					for (temploop = 0; temploop <= numAdjacent; temploop++) {
 						if (temploop == loop3) {
-							ptypes[temploop] = pt;
+							ptypes[temploop] = pairType;
 							sidelengths[temploop] = loop - 1;
 							sequences[temploop] = seqs[temploop];
 						} else {
@@ -5402,34 +5420,21 @@ void OpenLoop::generateMoves(void) {
 	// Loop over all sides. Within this loop, cover all sides that are labelled higher that the first, and are non adjacent. For each pair of bases in these two sides, check whether they can pair. For each pair, compute energies and add move to list.
 	for (loop3 = 0; loop3 <= numAdjacent - 2; loop3++) // The last 2 entries are not needed as neither have higher numbered non-adjacent sections.
 		for (loop4 = loop3 + 2; loop4 <= numAdjacent; loop4++) {
-			/*	int temp1,temp2;
-			 if( loop3 == 0 )
-			 {
-			 temp1 = 0;
-			 temp2 = sidelen[loop3]-1;
-			 }
-			 else
-			 {
-			 temp1 = 1;
-			 temp2 = sidelen[loop3];
-			 }*/
-			//	for( loop = temp1; loop <= temp2 ; loop++ ) // this may need to start at 0 (in some cases), check for indexing problems.
+
 			for (loop = 1; loop <= sidelen[loop3]; loop++) // new version with all sequences in openloop starting at 1.
 				for (loop2 = 1; loop2 <= sidelen[loop4]; loop2++) {
-					if (pt = pairtypes[seqs[loop3][loop]][seqs[loop4][loop2]]
-							!= 0) { // result is a multiloop and open loop.
-									// Multiloop
+
+					pairType = pairtypes[seqs[loop3][loop]][seqs[loop4][loop2]];
+
+					if (pairType != 0) { // result is a multiloop and open loop.
 
 						for (temploop = 0, tempindex = 0;
 								temploop < (loop4 - loop3 + 1); tempindex++) // note that loop4 - loop3 is the number of pairings that got included in the multiloop. The extra closing pair makes the +1.
 								{
 							if (tempindex == loop3) {
-								ptypes[temploop] = pt;
-								//			if( loop3 == 0)
-								//  sidelengths[temploop] = sidelen[tempindex] - loop-1;
-								//else
-								sidelengths[temploop] = sidelen[tempindex]
-										- loop;
+								ptypes[temploop] = pairType;
+
+								-loop;
 								sequences[temploop] = &seqs[tempindex][loop];
 								temploop++;
 							}
@@ -5455,7 +5460,7 @@ void OpenLoop::generateMoves(void) {
 								temploop <= numAdjacent - (loop4 - loop3 - 1);
 								tempindex++) {
 							if (tempindex == loop3) {
-								ptypes[temploop] = pt;
+								ptypes[temploop] = pairType;
 								sidelengths[temploop] = loop - 1;
 								sequences[temploop] = seqs[tempindex];
 								temploop++;

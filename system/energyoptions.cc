@@ -16,8 +16,7 @@
 using std::vector;
 using std::string;
 
-
-void EnergyOptions::initializeArrheniusConstants(void){
+void EnergyOptions::initializeArrheniusConstants(void) {
 
 	// unused, for now.
 
@@ -114,8 +113,6 @@ PEnergyOptions::PEnergyOptions(PyObject* input) :
 
 }
 
-
-
 bool PEnergyOptions::compareSubstrateType(long type) {
 
 	return testLongAttr(python_settings, substrate_type, =, type);
@@ -127,8 +124,6 @@ void PEnergyOptions::getParameterFile(char* input, PyObject* tempString) {
 	input = (char *) getStringAttr(python_settings, parameter_file, tempString);
 
 }
-
-
 
 // CENERGYOPTIONS
 
@@ -151,7 +146,6 @@ CEnergyOptions::CEnergyOptions() :
 
 }
 
-
 bool CEnergyOptions::compareSubstrateType(long type) {
 
 	return (SUBSTRATE_DNA == type); // only test TRUE for when substrate is DNA.
@@ -163,5 +157,4 @@ void CEnergyOptions::getParameterFile(char* input, PyObject* tempString) {
 
 	input = "";
 }
-
 
