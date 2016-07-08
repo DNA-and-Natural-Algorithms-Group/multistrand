@@ -30,6 +30,10 @@ double EnergyModel::applyPrefactors(Loop* left, Loop* right){
 
 	double output = 0.0;
 
+
+
+
+
 	return output;
 
 }

@@ -17,7 +17,8 @@
 using std::string;
 using std::cout;
 
-EnergyModel *Loop::energyModel = NULL;
+EnergyModel* Loop::energyModel = NULL;
+
 extern int baseLookup(char base);
 
 inline double Loop::getEnergy(void) {

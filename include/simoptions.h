@@ -24,7 +24,7 @@ using std::string;
 using namespace utility;
 
 class EnergyOptions;
-// forward declare
+
 
 class SimOptions {
 public:

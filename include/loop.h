@@ -12,7 +12,16 @@
 #include "energymodel.h"
 #include "move.h"
 
-
+//// Using an enum to state the loop types
+//enum LoopType {
+//	undefined,
+//	openLoop,
+//	interiorLoop,
+//	bulgeLoop,
+//	stackLoop,
+//	hairpinLoop,
+//	multiLoop
+//};
 
 class Loop {
 public:
@@ -50,7 +59,6 @@ public:
 	string toStringShort(void);
 	void printAllMoves(Loop*);
 	void generateAndSaveDeleteMove(Loop*, int);
-
 
 protected:
 	static EnergyModel *energyModel;
@@ -103,7 +111,7 @@ public:
 
 	HairpinLoop(void);
 	HairpinLoop(int type, int size, char *hairpin_sequence, Loop *previous =
-			NULL);
+	NULL);
 	friend double Loop::generateDeleteMoveRate(Loop *start, Loop *end);
 	friend Loop * Loop::performDeleteMove(Move *move);
 	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen,
