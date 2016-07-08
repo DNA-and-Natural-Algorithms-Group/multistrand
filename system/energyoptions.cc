@@ -16,9 +16,12 @@
 using std::vector;
 using std::string;
 
+
+
 void EnergyOptions::initializeArrheniusConstants(void) {
 
 	// unused, for now.
+	// this is used for import/export of the constants.
 
 }
 

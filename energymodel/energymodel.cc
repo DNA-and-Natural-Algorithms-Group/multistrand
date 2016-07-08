@@ -26,15 +26,13 @@ bool EnergyModel::useArrhenius(void) {
 
 }
 
-
-
 double expRate(double A, double E, double temperature) {
 
 	return A * exp(E / (gasConstant * temperature));
 
 }
 
-void setArrheniusRate(double ratesArray[MOVETYPE_SIZE][MOVETYPE_SIZE], EnergyOptions* options, double temperature, int left, int right) {
+void setArrheniusRate(double ratesArray[], EnergyOptions* options, double temperature, int left, int right) {
 
 	double ALeft = options->AValues[left];
 	double ELeft = options->EValues[left];
@@ -45,7 +43,7 @@ void setArrheniusRate(double ratesArray[MOVETYPE_SIZE][MOVETYPE_SIZE], EnergyOpt
 	double kLeft = expRate(ALeft, ELeft, temperature);
 	double kRight = expRate(ARight, ERight, temperature);
 
-	ratesArray[left][right] = kLeft * kRight;
+	ratesArray[left * MOVETYPE_SIZE + right] = kLeft * kRight;
 
 }
 
@@ -55,9 +53,7 @@ void EnergyModel::computeArrheniusRates(double temperature) {
 
 		for (int j = 0; j < MOVETYPE_SIZE; j++) {
 
-			arrheniusRates[i][j] = NULL;
-
-			//cout << "Setting left " << i << " and right " << j;
+			arrheniusRates[i * MOVETYPE_SIZE + j] = NULL;
 
 			setArrheniusRate(arrheniusRates, simOptions->energyOptions, temperature, i, j);
 
@@ -67,20 +63,13 @@ void EnergyModel::computeArrheniusRates(double temperature) {
 
 }
 
-
-
-double EnergyModel::applyPrefactors(Loop* left, Loop* right){
+double EnergyModel::applyPrefactors(Loop* left, Loop* right) {
 
 	double output = 0.0;
-
-
-
-
 
 	return output;
 
 }
-
 
 double EnergyModel::ArrheniusLoopEnergy(char* seq, int size) {
 
@@ -111,12 +100,10 @@ double EnergyModel::ArrheniusLoopEnergy(char* seq, int size) {
 }
 
 int pairs[5] = { 0, 0, 0, 0, 0 };
-int pairtypes[5][5] = { { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 },
-		{ 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 } };
+int pairtypes[5][5] = { { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 } };
 int basepair_sw[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
-int lookuphelper[26] = { 1, 0, 2, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-		0, 4, 4, 0, 0, 0, 0, 0 };		// A C G T    1 2 3 4
+int lookuphelper[26] = { 1, 0, 2, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0 };		// A C G T    1 2 3 4
 //                      A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z
 
 // // helper function to convert to numerical base format.

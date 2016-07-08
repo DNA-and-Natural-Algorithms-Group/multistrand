@@ -87,3 +87,44 @@ void utility::printDouble(double input) {
 
 }
 
+void utility::printDoubleArray(double input[], int length) {
+
+	cout << "Double array: ";
+
+	for (int i = 0; i < length; i++) {
+
+		cout << input[i] << ",";
+
+	}
+
+}
+
+void utility::printDoubleMatrix(double input[], int length, int depth) {
+
+	cout << "Double array: ";
+
+	for (int j = 0; j < depth; j++) {
+
+		for (int i = 0; i < length; i++) {
+
+			cout << input[i] << ",";
+
+		}
+
+		cout << " \n";
+		cout.flush();
+
+	}
+
+}
+
+//void utility::printDoubleMatrix(double input[99][99], int width, int depth) {
+//
+//	for (int i = 0; i < depth; i++) {
+//
+//		printDoubleArray(input[i], width);
+//
+//	}
+//
+//}
+

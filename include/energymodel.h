@@ -37,11 +37,9 @@ const int pairs_vienna[5] = { 0, 4, 3, 2, 1 };
 const int pairs_mfold[5] = { 0, 4, 3, 2, 1 };
 extern int pairs[5];
 
-const int pairtypes_vienna[5][5] = { { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 5 }, { 0,
-		0, 0, 1, 0 }, { 0, 0, 2, 0, 3 }, { 0, 6, 0, 4, 0 } };
+const int pairtypes_vienna[5][5] = { { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 5 }, { 0, 0, 0, 1, 0 }, { 0, 0, 2, 0, 3 }, { 0, 6, 0, 4, 0 } };
 
-const int pairtypes_mfold[5][5] = { { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 1 }, { 0,
-		0, 0, 2, 0 }, { 0, 0, 3, 0, 5 }, { 0, 4, 0, 6, 0 } };
+const int pairtypes_mfold[5][5] = { { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 1 }, { 0, 0, 0, 2, 0 }, { 0, 0, 3, 0, 5 }, { 0, 4, 0, 6, 0 } };
 
 extern int pairtypes[5][5];
 
@@ -55,31 +53,13 @@ int baseLookup(char base);
 #define INF 100000
 const double gasConstant = 0.0019872041;
 
-
-
 enum LoopType {
-	openLoop,
-	interiorLoop,
-	bulgeLoop,
-	stackLoop,
-	hairpinLoop,
-	multiLoop,
-	LOOPTYPE_SIZE
+	openLoop, interiorLoop, bulgeLoop, stackLoop, hairpinLoop, multiLoop, LOOPTYPE_SIZE
 };
 
 enum MoveType {
-	endMove,
-	loopMove,
-	stackMove,
-	stackStackMove,
-	loopEndMove,
-	stackEndMove,
-	stackLoopMove,
-	MOVETYPE_SIZE
+	endMove, loopMove, stackMove, stackStackMove, loopEndMove, stackEndMove, stackLoopMove, MOVETYPE_SIZE
 };
-
-
-
 
 class energyS {
 public:
@@ -102,8 +82,7 @@ public:
 
 	virtual ~EnergyModel(void);
 
-	virtual double returnRate(double start_energy, double end_energy,
-			int enth_entr_toggle) = 0;
+	virtual double returnRate(double start_energy, double end_energy, int enth_entr_toggle) = 0;
 	virtual double getJoinRate(void) = 0;
 	virtual double getJoinRate_NoVolumeTerm(void) = 0;
 	virtual double getVolumeEnergy(void) =0;
@@ -117,23 +96,21 @@ public:
 	//             3' j x q 5'
 	//  Where one of the x's is a sequence of length bulgesize and the other is size 0.
 
-	virtual double InteriorEnergy(char *seq1, char *seq2, int size1,
-			int size2) = 0;
+	virtual double InteriorEnergy(char *seq1, char *seq2, int size1, int size2) = 0;
 	// This is: 5' seq1 3'
 	//          3' seq2 5'
 
 	virtual double HairpinEnergy(char *seq, int size) = 0;
 	// just passing in the whole sequence
 
-	virtual double MultiloopEnergy(int size, int *sidelen,
-			char **sequences) = 0;
+	virtual double MultiloopEnergy(int size, int *sidelen, char **sequences) = 0;
 	virtual double OpenloopEnergy(int size, int *sidelen, char **sequences) = 0;
 	virtual void eStackEnergy(int type1, int type2, energyS *energy) = 0;
 
 protected:
 	long dangles;
 	SimOptions* simOptions;
-	double arrheniusRates[MOVETYPE_SIZE][MOVETYPE_SIZE];
+	double arrheniusRates[MOVETYPE_SIZE*MOVETYPE_SIZE];
 
 };
 
@@ -145,8 +122,7 @@ public:
 	~NupackEnergyModel(void);
 	void processOptions();
 
-	double returnRate(double start_energy, double end_energy,
-			int enth_entr_toggle);
+	double returnRate(double start_energy, double end_energy, int enth_entr_toggle);
 	double returnRate(energyS &start_energy, energyS &end_energy);
 	double getJoinRate(void);
 	double getJoinRate_NoVolumeTerm(void);
@@ -269,10 +245,8 @@ private:
 	void internal_set_hairpin_tetraloop_parameters(FILE *fp, char *buffer);
 	void internal_set_hairpin_triloop_parameters(FILE *fp, char *buffer);
 	void internal_set_hairpin_mismatch_enthalpies(FILE *fp, char *buffer);
-	void internal_set_hairpin_tetraloop_parameters_enthalpy(FILE *fp,
-			char *buffer);
-	void internal_set_hairpin_triloop_parameters_enthalpy(FILE *fp,
-			char *buffer);
+	void internal_set_hairpin_tetraloop_parameters_enthalpy(FILE *fp, char *buffer);
+	void internal_set_hairpin_triloop_parameters_enthalpy(FILE *fp, char *buffer);
 	void internal_set_bulge_energies(FILE *fp, char *buffer);
 	void internal_set_bulge_enthalpies(FILE *fp, char *buffer);
 	void internal_set_interior_loop_energies(FILE *fp, char *buffer);
@@ -293,10 +267,8 @@ private:
 	void internal_set_ninio_parameters_enthalpy(FILE *fp, char *buffer);
 	void internal_set_bimolecular_penalty(FILE *fp, char *buffer);
 	void internal_set_bimolecular_penalty_dH(FILE *fp, char *buffer);
-	char *internal_read_array_data(FILE *fp, char *buffer, char* start_loc,
-			int *read_loc, int size);
-	char *internal_read_array_data(FILE *fp, char *buffer, char* start_loc,
-			double *read_loc, int size);
+	char *internal_read_array_data(FILE *fp, char *buffer, char* start_loc, int *read_loc, int size);
+	char *internal_read_array_data(FILE *fp, char *buffer, char* start_loc, double *read_loc, int size);
 	void internal_set_dangle_5_energies(FILE *fp, char *buffer);
 	void internal_set_dangle_3_energies(FILE *fp, char *buffer);
 	void internal_set_dangle_5_enthalpies(FILE *fp, char *buffer);

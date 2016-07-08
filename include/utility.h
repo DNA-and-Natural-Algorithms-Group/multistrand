@@ -45,6 +45,9 @@ struct complex_input {
 	}
 };
 
+
+//helper functions
+
 char* copyToCharArray(string&);
 
 string copyToString(char*);
@@ -55,6 +58,14 @@ const static string ArrTypeMap[] = { "Undefined", "End", "Loop", "Stack",
 		"Stack-Stack", "Loop-End", "Stack-End", "Stack-Loop" };
 
 void printDouble(double);
+void printDoubleArray(double[], int);
+void printDoubleMatrix(double[], int, int);
+
+
 }
+
+
+
+
 
 #endif /* INCLUDE_UTILITY_CC_ */
