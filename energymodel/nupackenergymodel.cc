@@ -349,7 +349,7 @@ double NupackEnergyModel::HairpinEnergy(char *seq, int size) {
 		energy +=
 				hairpin_mismatch_37_dG[(pairtypes[seq[0]][seq[size + 1]] - 1)][seq[1]][seq[size]];
 
-	if (simOptions->myEnergyOptions->usingArrhenius()) {
+	if (simOptions->energyOptions->usingArrhenius()) {
 
 		energy += this->ArrheniusLoopEnergy(seq, size);
 

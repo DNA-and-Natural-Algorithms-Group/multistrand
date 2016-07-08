@@ -27,22 +27,22 @@ double EnergyModel::ArrheniusLoopEnergy(char* seq, int size) {
 		switch (seq[i]) {
 
 		case BASE_A:
-			output += (simOptions->myEnergyOptions->dS_A);
+			output += (simOptions->energyOptions->dS_A);
 			break;
 		case BASE_C:
-			output += (simOptions->myEnergyOptions->dS_C);
+			output += (simOptions->energyOptions->dS_C);
 			break;
 		case BASE_G:
-			output += (simOptions->myEnergyOptions->dS_G);
+			output += (simOptions->energyOptions->dS_G);
 			break;
 		case BASE_T:
-			output += (simOptions->myEnergyOptions->dS_T);
+			output += (simOptions->energyOptions->dS_T);
 			break;
 		}
 
 	}
 
-	return output;
+	return output * simOptions->energyOptions->getTemperature() / 1000.0;
 
 }
 

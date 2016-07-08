@@ -36,7 +36,7 @@ SimOptions::SimOptions(void) {
 	myStopComplexes = NULL;
 	fixedRandomSeed = false;
 
-	myEnergyOptions = NULL;
+	energyOptions = NULL;
 	myComplexes = NULL;
 
 }
@@ -69,7 +69,7 @@ PSimOptions::PSimOptions(PyObject* input) :
 
 	}
 
-	myEnergyOptions = new PEnergyOptions(python_settings);
+	energyOptions = new PEnergyOptions(python_settings);
 
 	getLongAttr(python_settings, simulation_mode, &simulation_mode);
 	getLongAttr(python_settings, num_simulations, &simulation_count);
@@ -128,7 +128,7 @@ string SimOptions::toString() {
 
 	string output = ss.str();
 
-	output += myEnergyOptions->toString();
+	output += energyOptions->toString();
 
 	return output;
 
@@ -148,7 +148,7 @@ long SimOptions::getInitialSeed() {
 
 EnergyOptions* SimOptions::getEnergyOptions() {
 
-	return myEnergyOptions;
+	return energyOptions;
 
 }
 
@@ -501,7 +501,7 @@ CSimOptions::CSimOptions(void) {
 
 	seed = 7777;
 
-	myEnergyOptions = new CEnergyOptions();
+	energyOptions = new CEnergyOptions();
 
 	simulation_mode = 16;
 	simulation_count = 1000;
