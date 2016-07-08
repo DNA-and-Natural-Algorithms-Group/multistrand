@@ -12,6 +12,7 @@
 //#include <simoptions.h>
 
 class SimOptions;
+class Loop;
 
 #define NUM_BASEPAIRS_VIENNA 8
 // Vienna: 0 is invalid, then CG, GC, GU, UG, AU, UA, and Special are 1-7
@@ -28,16 +29,14 @@ class SimOptions;
 
 #ifndef VIENNA
 #define VIENNA 0
-//#define ENERGYMODEL_VIENNA 0
 #endif
 #ifndef MFOLD
 #define MFOLD 1
-//#define ENERGYMODEL_NUPACK  1
 #endif
 
 const int pairs_vienna[5] = { 0, 4, 3, 2, 1 };
 const int pairs_mfold[5] = { 0, 4, 3, 2, 1 };
-extern int pairs[5]; // = {0,0,0,0,0} ; // move to inside class?
+extern int pairs[5];
 
 const int pairtypes_vienna[5][5] = { { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 5 }, { 0,
 		0, 0, 1, 0 }, { 0, 0, 2, 0, 3 }, { 0, 6, 0, 4, 0 } };
@@ -45,13 +44,7 @@ const int pairtypes_vienna[5][5] = { { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 5 }, { 0,
 const int pairtypes_mfold[5][5] = { { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 1 }, { 0,
 		0, 0, 2, 0 }, { 0, 0, 3, 0, 5 }, { 0, 4, 0, 6, 0 } };
 
-extern int pairtypes[5][5];/* = {
- {0,0,0,0,0},
- {0,0,0,0,0},
- {0,0,0,0,0},
- {0,0,0,0,0},
- {0,0,0,0,0}
- };*/
+extern int pairtypes[5][5];
 
 const int basepair_sw_vienna[8] = { 0, 2, 1, 4, 3, 6, 5, 7 };
 const int basepair_sw_mfold[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
@@ -74,7 +67,9 @@ public:
 	EnergyModel(PyObject *options);
 
 	// Implemented methods
+	bool useArrhenius(void);
 	double ArrheniusLoopEnergy(char* seq, int size);
+	double applyPrefactors(Loop* left, Loop* right);
 
 	// Virtual methods
 

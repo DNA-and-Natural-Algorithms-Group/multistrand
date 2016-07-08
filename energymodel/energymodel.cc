@@ -5,6 +5,7 @@
 
 #include "energymodel.h"
 #include "simoptions.h"
+#include "loop.h"
 
 EnergyModel::EnergyModel(PyObject *options) {
 	// nothing yet
@@ -17,6 +18,22 @@ EnergyModel::EnergyModel(void) {
 EnergyModel::~EnergyModel(void) {
 	// nothing
 }
+
+// Return state of the energyOption toggle
+bool EnergyModel::useArrhenius(void) {
+
+	return simOptions->energyOptions->usingArrhenius();
+
+}
+
+double EnergyModel::applyPrefactors(Loop* left, Loop* right){
+
+	double output = 0.0;
+
+	return output;
+
+}
+
 
 double EnergyModel::ArrheniusLoopEnergy(char* seq, int size) {
 

@@ -315,7 +315,7 @@ void Loop::generateAndSaveDeleteMove(Loop* input, int position) {
 
 double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
-	double temprate;
+	double tempRate;
 	double new_energy, old_energy;
 
 	if (start->identity == 'S' && end->identity == 'S') {
@@ -344,9 +344,15 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 				end_->seqs[e_index], 1, 1);
 
 		old_energy = start->getEnergy() + end->getEnergy();
-		temprate = energyModel->returnRate(old_energy, new_energy, 0);
+		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 
-		return temprate / 2.0;
+		if(energyModel->useArrhenius()){
+
+			tempRate = tempRate * energyModel->applyPrefactors(start_extra,end);
+
+		}
+
+		return tempRate / 2.0;
 	}
 
 	if ((start->identity == 'S' && end->identity == 'I')
@@ -387,8 +393,8 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		// start_->pairtype[s_index], end_->pairtype[e_index], end_->sizes[1-e_index]+1, end_->sizes[e_index]+1 , mismatches );
 
 		old_energy = start->getEnergy() + end->getEnergy();
-		temprate = energyModel->returnRate(old_energy, new_energy, 0);
-		return temprate / 2.0;
+		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
+		return tempRate / 2.0;
 	}
 
 	if ((start->identity == 'S' && end->identity == 'B')
@@ -429,8 +435,8 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		//start_->pairtype[s_index], end_->pairtype[e_index], end_->bulgesize[1-e_index]+1, end_->bulgesize[e_index]+1 , mismatches );
 
 		old_energy = start->getEnergy() + end->getEnergy();
-		temprate = energyModel->returnRate(old_energy, new_energy, 0);
-		return temprate / 2.0;
+		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
+		return tempRate / 2.0;
 	}
 
 	if ((start->identity == 'S' && end->identity == 'H')
@@ -459,8 +465,8 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		new_energy = energyModel->HairpinEnergy(start_->seqs[s_index],
 				end_->hairpinsize + 2);
 		old_energy = start->getEnergy() + end->getEnergy();
-		temprate = energyModel->returnRate(old_energy, new_energy, 0);
-		return temprate / 2.0;
+		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
+		return tempRate / 2.0;
 	}
 
 	if ((start->identity == 'S' && end->identity == 'M')
@@ -512,11 +518,11 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 				sidelens, seqs);
 
 		old_energy = start->getEnergy() + end->getEnergy();
-		temprate = energyModel->returnRate(old_energy, new_energy, 0);
+		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 		delete[] pairtypes;
 		delete[] sidelens;
 		delete[] seqs;
-		return temprate / 2.0;
+		return tempRate / 2.0;
 	}
 
 	if ((start->identity == 'S' && end->identity == 'O')
@@ -574,11 +580,11 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 				sidelens, seqs);
 
 		old_energy = start->getEnergy() + end->getEnergy();
-		temprate = energyModel->returnRate(old_energy, new_energy, 0);
+		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 		delete[] pairtypes;
 		delete[] sidelens;
 		delete[] seqs;
-		return temprate / 2.0;
+		return tempRate / 2.0;
 	}
 
 	if (start->identity == 'I' && end->identity == 'I') {
@@ -607,8 +613,8 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		//start_->pairtype[s_index], end_->pairtype[e_index], end_->sizes[1-e_index]+start_->sizes[s_index]+1, end_->sizes[e_index]+start_->sizes[1-s_index]+1 , mismatches );
 
 		old_energy = start->getEnergy() + end->getEnergy();
-		temprate = energyModel->returnRate(old_energy, new_energy, 0);
-		return temprate / 2.0;
+		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
+		return tempRate / 2.0;
 		//return -1.0;
 	}
 
@@ -651,8 +657,8 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		//start_->pairtype[s_index], end_->pairtype[e_index], end_->bulgesize[1-e_index]+1+start_->sizes[s_index], end_->bulgesize[e_index]+1+start_->sizes[1-s_index] , mismatches );
 
 		old_energy = start->getEnergy() + end->getEnergy();
-		temprate = energyModel->returnRate(old_energy, new_energy, 0);
-		return temprate / 2.0;
+		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
+		return tempRate / 2.0;
 	}
 
 	if ((start->identity == 'I' && end->identity == 'H')
@@ -682,8 +688,8 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 				start_->int_seq[s_index],
 				end_->hairpinsize + 2 + start_->sizes[0] + start_->sizes[1]);
 		old_energy = start->getEnergy() + end->getEnergy();
-		temprate = energyModel->returnRate(old_energy, new_energy, 0);
-		return temprate / 2.0;
+		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
+		return tempRate / 2.0;
 	}
 
 	if ((start->identity == 'I' && end->identity == 'M')
@@ -737,11 +743,11 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 				sidelens, seqs);
 
 		old_energy = start->getEnergy() + end->getEnergy();
-		temprate = energyModel->returnRate(old_energy, new_energy, 0);
+		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 		delete[] pairtypes;
 		delete[] sidelens;
 		delete[] seqs;
-		return temprate / 2.0;
+		return tempRate / 2.0;
 	}
 	if ((start->identity == 'I' && end->identity == 'O')
 			|| (start->identity == 'O' && end->identity == 'I')) {
@@ -797,11 +803,11 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 				sidelens, seqs);
 
 		old_energy = start->getEnergy() + end->getEnergy();
-		temprate = energyModel->returnRate(old_energy, new_energy, 0);
+		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 		delete[] pairtypes;
 		delete[] sidelens;
 		delete[] seqs;
-		return temprate / 2.0;
+		return tempRate / 2.0;
 	}
 
 	// start bulge
@@ -830,8 +836,8 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		// start_->pairtype[s_index], end_->pairtype[e_index], end_->bulgesize[1-e_index]+start_->bulgesize[s_index]+1, end_->bulgesize[e_index]+start_->bulgesize[1-s_index]+1 , mismatches );
 		old_energy = start->getEnergy() + end->getEnergy();
-		temprate = energyModel->returnRate(old_energy, new_energy, 0);
-		return temprate / 2.0;
+		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
+		return tempRate / 2.0;
 		//return -1.0;
 	}
 
@@ -863,8 +869,8 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 				end_->hairpinsize + 2 + start_->bulgesize[0]
 						+ start_->bulgesize[1]);
 		old_energy = start->getEnergy() + end->getEnergy();
-		temprate = energyModel->returnRate(old_energy, new_energy, 0);
-		return temprate / 2.0;
+		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
+		return tempRate / 2.0;
 	}
 
 	if ((start->identity == 'B' && end->identity == 'M')
@@ -918,11 +924,11 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 				sidelens, seqs);
 
 		old_energy = start->getEnergy() + end->getEnergy();
-		temprate = energyModel->returnRate(old_energy, new_energy, 0);
+		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 		delete[] pairtypes;
 		delete[] sidelens;
 		delete[] seqs;
-		return temprate / 2.0;
+		return tempRate / 2.0;
 	}
 
 	if ((start->identity == 'B' && end->identity == 'O')
@@ -979,11 +985,11 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 				sidelens, seqs);
 
 		old_energy = start->getEnergy() + end->getEnergy();
-		temprate = energyModel->returnRate(old_energy, new_energy, 0);
+		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 		delete[] pairtypes;
 		delete[] sidelens;
 		delete[] seqs;
-		return temprate / 2.0;
+		return tempRate / 2.0;
 	}
 
 	// end bulge
@@ -1057,9 +1063,9 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 						sizes[0], sizes[1]);
 				//end_->pairtype[positions[1]], end_->pairtype[positions[0]], sizes[0], sizes[1] , mismatches );
 				old_energy = start->getEnergy() + end->getEnergy();
-				temprate = energyModel->returnRate(old_energy,
+				tempRate = energyModel->returnRate(old_energy,
 						new_energy, 0);
-				return temprate / 2.0;
+				return tempRate / 2.0;
 				/*
 				 }
 				 else
@@ -1084,9 +1090,9 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 						end_->seqs[positions[1]][sizes[0] + 1],
 						end_->seqs[positions[0]][0], sizes[0]);
 				old_energy = start->getEnergy() + end->getEnergy();
-				temprate = energyModel->returnRate(old_energy,
+				tempRate = energyModel->returnRate(old_energy,
 						new_energy, 0);
-				return temprate / 2.0;
+				return tempRate / 2.0;
 
 			}
 		}
@@ -1131,12 +1137,12 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 					end_->numAdjacent - 1, sidelens, seqs);
 
 			old_energy = start->getEnergy() + end->getEnergy();
-			temprate = energyModel->returnRate(old_energy, new_energy,
+			tempRate = energyModel->returnRate(old_energy, new_energy,
 					0);
 			delete[] pairtypes;
 			delete[] sidelens;
 			delete[] seqs;
-			return temprate / 2.0;
+			return tempRate / 2.0;
 		}
 
 	}
@@ -1191,11 +1197,11 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 				sidelens, seqs);
 
 		old_energy = start->getEnergy() + end->getEnergy();
-		temprate = energyModel->returnRate(old_energy, new_energy, 0);
+		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 		delete[] pairtypes;
 		delete[] sidelens;
 		delete[] seqs;
-		return temprate / 2.0;
+		return tempRate / 2.0;
 	}
 
 	// end hairpin
@@ -1262,11 +1268,11 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 				start_->numAdjacent + end_->numAdjacent - 2, sidelens, seqs);
 
 		old_energy = start->getEnergy() + end->getEnergy();
-		temprate = energyModel->returnRate(old_energy, new_energy, 0);
+		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 		delete[] pairtypes;
 		delete[] sidelens;
 		delete[] seqs;
-		return temprate / 2.0;
+		return tempRate / 2.0;
 	}
 
 	if ((start->identity == 'M' && end->identity == 'O')
@@ -1348,11 +1354,11 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 				start_->numAdjacent + end_->numAdjacent - 2, sidelens, seqs);
 
 		old_energy = start->getEnergy() + end->getEnergy();
-		temprate = energyModel->returnRate(old_energy, new_energy, 0);
+		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 		delete[] pairtypes;
 		delete[] sidelens;
 		delete[] seqs;
-		return temprate / 2.0;
+		return tempRate / 2.0;
 	}
 
 	// end multiloop
