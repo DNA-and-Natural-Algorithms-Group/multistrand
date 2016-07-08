@@ -42,7 +42,7 @@ double EnergyModel::ArrheniusLoopEnergy(char* seq, int size) {
 
 	}
 
-	return output * simOptions->energyOptions->getTemperature() / 1000.0;
+	return -output * simOptions->energyOptions->getTemperature() / 1000.0;
 
 }
 

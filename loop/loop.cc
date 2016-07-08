@@ -17,7 +17,7 @@
 using std::string;
 using std::cout;
 
-EnergyModel *Loop::energyModel_Primary = NULL;
+EnergyModel *Loop::energyModel = NULL;
 extern int baseLookup(char base);
 
 inline double Loop::getEnergy(void) {
@@ -159,11 +159,11 @@ int Loop::replaceAdjacent(Loop *loopToReplace, Loop *loopToReplaceWith) {
 }
 
 void Loop::SetEnergyModel(EnergyModel *newEnergyModel) {
-	energyModel_Primary = newEnergyModel;
+	energyModel = newEnergyModel;
 }
 
 EnergyModel *Loop::GetEnergyModel(void) {
-	return energyModel_Primary;
+	return energyModel;
 }
 
 void Loop::performComplexSplit(Move *move, Loop **firstOpen,
@@ -314,14 +314,19 @@ void Loop::generateAndSaveDeleteMove(Loop* input, int position) {
 }
 
 double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
+
 	double temprate;
 	double new_energy, old_energy;
 
 	if (start->identity == 'S' && end->identity == 'S') {
-		StackLoop *start_ = (StackLoop *) start, *end_ = (StackLoop *) end;
+
+		StackLoop *start_ = (StackLoop *) start;
+		StackLoop *end_ = (StackLoop *) end;
 		Loop *start_extra, *end_extra;
-		int s_index = 0, e_index = 0;
-		for (int loop = 0; loop <= 1; loop++) {
+		int s_index = 0;
+		int e_index = 0;
+
+		for (int loop = 0; loop < 2; loop++) {
 			if (start_->adjacentLoops[loop] != end_) {
 				start_extra = start_->adjacentLoops[loop];
 				s_index = loop;
@@ -334,14 +339,13 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		// resulting will be an interior loop with sidelengths 1 and 1.
 		// we must get the mismatches correct for this to come out right
 		// as they are special cases in the energy model, for 1,1.
-		//      char mismatches[4] = { start_->seqs[s_index][1], start_->seqs[1-s_index][0], end_->seqs[1-e_index][0], end_->seqs[e_index][1]};
 
-		new_energy = energyModel_Primary->InteriorEnergy(start_->seqs[s_index],
+		new_energy = energyModel->InteriorEnergy(start_->seqs[s_index],
 				end_->seqs[e_index], 1, 1);
 
-		//start_->pairtype[s_index], end_->pairtype[e_index], 1, 1 , mismatches );
 		old_energy = start->getEnergy() + end->getEnergy();
-		temprate = energyModel_Primary->returnRate(old_energy, new_energy, 0);
+		temprate = energyModel->returnRate(old_energy, new_energy, 0);
+
 		return temprate / 2.0;
 	}
 
@@ -376,14 +380,14 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		//	fprintf(stderr, "ERROR: Misaligned loops in loop.cc generateDeleteMoveRate S/B, values: %d %d\n",s_index,e_index);
 
 		//      char mismatches[4] = { start_->seqs[s_index][1], start_->seqs[1-s_index][0], end_->int_seq[1-e_index][end_->sizes[1-e_index]], end_->int_seq[e_index][1]};
-		new_energy = energyModel_Primary->InteriorEnergy(start_->seqs[s_index],
+		new_energy = energyModel->InteriorEnergy(start_->seqs[s_index],
 				end_->int_seq[e_index], end_->sizes[1 - e_index] + 1,
 				end_->sizes[e_index] + 1);
 
 		// start_->pairtype[s_index], end_->pairtype[e_index], end_->sizes[1-e_index]+1, end_->sizes[e_index]+1 , mismatches );
 
 		old_energy = start->getEnergy() + end->getEnergy();
-		temprate = energyModel_Primary->returnRate(old_energy, new_energy, 0);
+		temprate = energyModel->returnRate(old_energy, new_energy, 0);
 		return temprate / 2.0;
 	}
 
@@ -419,13 +423,13 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		//      char mismatches[4] = { start_->seqs[s_index][1], start_->seqs[1-s_index][0], end_->bulge_seq[1-e_index][end_->bulgesize[1-e_index]], end_->bulge_seq[e_index][1]};
 
-		new_energy = energyModel_Primary->InteriorEnergy(start_->seqs[s_index],
+		new_energy = energyModel->InteriorEnergy(start_->seqs[s_index],
 				end_->bulge_seq[e_index], end_->bulgesize[1 - e_index] + 1,
 				end_->bulgesize[e_index] + 1);
 		//start_->pairtype[s_index], end_->pairtype[e_index], end_->bulgesize[1-e_index]+1, end_->bulgesize[e_index]+1 , mismatches );
 
 		old_energy = start->getEnergy() + end->getEnergy();
-		temprate = energyModel_Primary->returnRate(old_energy, new_energy, 0);
+		temprate = energyModel->returnRate(old_energy, new_energy, 0);
 		return temprate / 2.0;
 	}
 
@@ -452,10 +456,10 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		// resulting will be a hairpin loop equal to the previous plus an extra base on each side.
 
-		new_energy = energyModel_Primary->HairpinEnergy(start_->seqs[s_index],
+		new_energy = energyModel->HairpinEnergy(start_->seqs[s_index],
 				end_->hairpinsize + 2);
 		old_energy = start->getEnergy() + end->getEnergy();
-		temprate = energyModel_Primary->returnRate(old_energy, new_energy, 0);
+		temprate = energyModel->returnRate(old_energy, new_energy, 0);
 		return temprate / 2.0;
 	}
 
@@ -504,11 +508,11 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 			}
 		}
 
-		new_energy = energyModel_Primary->MultiloopEnergy(end_->numAdjacent,
+		new_energy = energyModel->MultiloopEnergy(end_->numAdjacent,
 				sidelens, seqs);
 
 		old_energy = start->getEnergy() + end->getEnergy();
-		temprate = energyModel_Primary->returnRate(old_energy, new_energy, 0);
+		temprate = energyModel->returnRate(old_energy, new_energy, 0);
 		delete[] pairtypes;
 		delete[] sidelens;
 		delete[] seqs;
@@ -566,11 +570,11 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 			}
 		}
 
-		new_energy = energyModel_Primary->OpenloopEnergy(end_->numAdjacent,
+		new_energy = energyModel->OpenloopEnergy(end_->numAdjacent,
 				sidelens, seqs);
 
 		old_energy = start->getEnergy() + end->getEnergy();
-		temprate = energyModel_Primary->returnRate(old_energy, new_energy, 0);
+		temprate = energyModel->returnRate(old_energy, new_energy, 0);
 		delete[] pairtypes;
 		delete[] sidelens;
 		delete[] seqs;
@@ -596,14 +600,14 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		//      char mismatches[4] = { start_->int_seq[s_index][1], start_->int_seq[1-s_index][start_->sizes[1-s_index]], end_->int_seq[1-e_index][end_->sizes[1-e_index]], end_->int_seq[e_index][1]};
 
-		new_energy = energyModel_Primary->InteriorEnergy(
+		new_energy = energyModel->InteriorEnergy(
 				start_->int_seq[s_index], end_->int_seq[e_index],
 				end_->sizes[1 - e_index] + start_->sizes[s_index] + 1,
 				end_->sizes[e_index] + start_->sizes[1 - s_index] + 1);
 		//start_->pairtype[s_index], end_->pairtype[e_index], end_->sizes[1-e_index]+start_->sizes[s_index]+1, end_->sizes[e_index]+start_->sizes[1-s_index]+1 , mismatches );
 
 		old_energy = start->getEnergy() + end->getEnergy();
-		temprate = energyModel_Primary->returnRate(old_energy, new_energy, 0);
+		temprate = energyModel->returnRate(old_energy, new_energy, 0);
 		return temprate / 2.0;
 		//return -1.0;
 	}
@@ -639,7 +643,7 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		//	fprintf(stderr, "ERROR: Misaligned loops in loop.cc generateDeleteMoveRate I/B, values: %d %d\n",s_index,e_index);
 
 		//char mismatches[4] = { start_->int_seq[s_index][1], start_->int_seq[1-s_index][start_->sizes[1-s_index]], end_->bulge_seq[1-e_index][end_->bulgesize[1-e_index]], end_->bulge_seq[e_index][1]};
-		new_energy = energyModel_Primary->InteriorEnergy(
+		new_energy = energyModel->InteriorEnergy(
 				start_->int_seq[s_index], end_->bulge_seq[e_index],
 				end_->bulgesize[1 - e_index] + 1 + start_->sizes[s_index],
 				end_->bulgesize[e_index] + 1 + start_->sizes[1 - s_index]);
@@ -647,7 +651,7 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		//start_->pairtype[s_index], end_->pairtype[e_index], end_->bulgesize[1-e_index]+1+start_->sizes[s_index], end_->bulgesize[e_index]+1+start_->sizes[1-s_index] , mismatches );
 
 		old_energy = start->getEnergy() + end->getEnergy();
-		temprate = energyModel_Primary->returnRate(old_energy, new_energy, 0);
+		temprate = energyModel->returnRate(old_energy, new_energy, 0);
 		return temprate / 2.0;
 	}
 
@@ -674,11 +678,11 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		// resulting will be a hairpin loop with previous size, plus interior loop's sizes (both) plus 2 (for the pairing that's now unpaired)
 
-		new_energy = energyModel_Primary->HairpinEnergy(
+		new_energy = energyModel->HairpinEnergy(
 				start_->int_seq[s_index],
 				end_->hairpinsize + 2 + start_->sizes[0] + start_->sizes[1]);
 		old_energy = start->getEnergy() + end->getEnergy();
-		temprate = energyModel_Primary->returnRate(old_energy, new_energy, 0);
+		temprate = energyModel->returnRate(old_energy, new_energy, 0);
 		return temprate / 2.0;
 	}
 
@@ -729,11 +733,11 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 			}
 		}
 
-		new_energy = energyModel_Primary->MultiloopEnergy(end_->numAdjacent,
+		new_energy = energyModel->MultiloopEnergy(end_->numAdjacent,
 				sidelens, seqs);
 
 		old_energy = start->getEnergy() + end->getEnergy();
-		temprate = energyModel_Primary->returnRate(old_energy, new_energy, 0);
+		temprate = energyModel->returnRate(old_energy, new_energy, 0);
 		delete[] pairtypes;
 		delete[] sidelens;
 		delete[] seqs;
@@ -789,11 +793,11 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 			}
 		}
 
-		new_energy = energyModel_Primary->OpenloopEnergy(end_->numAdjacent,
+		new_energy = energyModel->OpenloopEnergy(end_->numAdjacent,
 				sidelens, seqs);
 
 		old_energy = start->getEnergy() + end->getEnergy();
-		temprate = energyModel_Primary->returnRate(old_energy, new_energy, 0);
+		temprate = energyModel->returnRate(old_energy, new_energy, 0);
 		delete[] pairtypes;
 		delete[] sidelens;
 		delete[] seqs;
@@ -819,14 +823,14 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		}
 
 		//      char mismatches[4] = { start_->bulge_seq[s_index][1], start_->bulge_seq[1-s_index][start_->bulgesize[1-s_index]], end_->bulge_seq[1-e_index][end_->bulgesize[1-e_index]], end_->bulge_seq[e_index][1]};
-		new_energy = energyModel_Primary->InteriorEnergy(
+		new_energy = energyModel->InteriorEnergy(
 				start_->bulge_seq[s_index], end_->bulge_seq[e_index],
 				end_->bulgesize[1 - e_index] + start_->bulgesize[s_index] + 1,
 				end_->bulgesize[e_index] + start_->bulgesize[1 - s_index] + 1);
 
 		// start_->pairtype[s_index], end_->pairtype[e_index], end_->bulgesize[1-e_index]+start_->bulgesize[s_index]+1, end_->bulgesize[e_index]+start_->bulgesize[1-s_index]+1 , mismatches );
 		old_energy = start->getEnergy() + end->getEnergy();
-		temprate = energyModel_Primary->returnRate(old_energy, new_energy, 0);
+		temprate = energyModel->returnRate(old_energy, new_energy, 0);
 		return temprate / 2.0;
 		//return -1.0;
 	}
@@ -854,12 +858,12 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		// resulting will be a hairpin loop with previous size, plus interior loop's sizes (both) plus 2 (for the pairing that's now unpaired)
 
-		new_energy = energyModel_Primary->HairpinEnergy(
+		new_energy = energyModel->HairpinEnergy(
 				start_->bulge_seq[s_index],
 				end_->hairpinsize + 2 + start_->bulgesize[0]
 						+ start_->bulgesize[1]);
 		old_energy = start->getEnergy() + end->getEnergy();
-		temprate = energyModel_Primary->returnRate(old_energy, new_energy, 0);
+		temprate = energyModel->returnRate(old_energy, new_energy, 0);
 		return temprate / 2.0;
 	}
 
@@ -910,11 +914,11 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 			}
 		}
 
-		new_energy = energyModel_Primary->MultiloopEnergy(end_->numAdjacent,
+		new_energy = energyModel->MultiloopEnergy(end_->numAdjacent,
 				sidelens, seqs);
 
 		old_energy = start->getEnergy() + end->getEnergy();
-		temprate = energyModel_Primary->returnRate(old_energy, new_energy, 0);
+		temprate = energyModel->returnRate(old_energy, new_energy, 0);
 		delete[] pairtypes;
 		delete[] sidelens;
 		delete[] seqs;
@@ -971,11 +975,11 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 			}
 		}
 
-		new_energy = energyModel_Primary->OpenloopEnergy(end_->numAdjacent,
+		new_energy = energyModel->OpenloopEnergy(end_->numAdjacent,
 				sidelens, seqs);
 
 		old_energy = start->getEnergy() + end->getEnergy();
-		temprate = energyModel_Primary->returnRate(old_energy, new_energy, 0);
+		temprate = energyModel->returnRate(old_energy, new_energy, 0);
 		delete[] pairtypes;
 		delete[] sidelens;
 		delete[] seqs;
@@ -1048,12 +1052,12 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 				 end_->seqs[positions[0]][1]
 				 };*/
 
-				new_energy = energyModel_Primary->InteriorEnergy(
+				new_energy = energyModel->InteriorEnergy(
 						end_->seqs[positions[1]], end_->seqs[positions[0]],
 						sizes[0], sizes[1]);
 				//end_->pairtype[positions[1]], end_->pairtype[positions[0]], sizes[0], sizes[1] , mismatches );
 				old_energy = start->getEnergy() + end->getEnergy();
-				temprate = energyModel_Primary->returnRate(old_energy,
+				temprate = energyModel->returnRate(old_energy,
 						new_energy, 0);
 				return temprate / 2.0;
 				/*
@@ -1074,13 +1078,13 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 			} else  // bulge loop case
 			{
 				// positions 0 and 1 are the two remaining stacks in the bulge loop now, 0 being the one directly after the removed stack, and 1 being the one before. Thus, i is the 0'th base at position 1, j is the sizes[1]+1 base at position 0, p is the sizes[0]+1 base at position 1, and q is the 0th base at position 0.
-				new_energy = energyModel_Primary->BulgeEnergy(
+				new_energy = energyModel->BulgeEnergy(
 						end_->seqs[positions[1]][0],
 						end_->seqs[positions[0]][sizes[1] + 1],
 						end_->seqs[positions[1]][sizes[0] + 1],
 						end_->seqs[positions[0]][0], sizes[0]);
 				old_energy = start->getEnergy() + end->getEnergy();
-				temprate = energyModel_Primary->returnRate(old_energy,
+				temprate = energyModel->returnRate(old_energy,
 						new_energy, 0);
 				return temprate / 2.0;
 
@@ -1123,11 +1127,11 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 				}
 			}
 
-			new_energy = energyModel_Primary->MultiloopEnergy(
+			new_energy = energyModel->MultiloopEnergy(
 					end_->numAdjacent - 1, sidelens, seqs);
 
 			old_energy = start->getEnergy() + end->getEnergy();
-			temprate = energyModel_Primary->returnRate(old_energy, new_energy,
+			temprate = energyModel->returnRate(old_energy, new_energy,
 					0);
 			delete[] pairtypes;
 			delete[] sidelens;
@@ -1183,11 +1187,11 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 			}
 		}
 
-		new_energy = energyModel_Primary->OpenloopEnergy(end_->numAdjacent - 1,
+		new_energy = energyModel->OpenloopEnergy(end_->numAdjacent - 1,
 				sidelens, seqs);
 
 		old_energy = start->getEnergy() + end->getEnergy();
-		temprate = energyModel_Primary->returnRate(old_energy, new_energy, 0);
+		temprate = energyModel->returnRate(old_energy, new_energy, 0);
 		delete[] pairtypes;
 		delete[] sidelens;
 		delete[] seqs;
@@ -1254,11 +1258,11 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		}
 		assert(index == end_->numAdjacent + start_->numAdjacent - 2);
 
-		new_energy = energyModel_Primary->MultiloopEnergy(
+		new_energy = energyModel->MultiloopEnergy(
 				start_->numAdjacent + end_->numAdjacent - 2, sidelens, seqs);
 
 		old_energy = start->getEnergy() + end->getEnergy();
-		temprate = energyModel_Primary->returnRate(old_energy, new_energy, 0);
+		temprate = energyModel->returnRate(old_energy, new_energy, 0);
 		delete[] pairtypes;
 		delete[] sidelens;
 		delete[] seqs;
@@ -1340,11 +1344,11 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		}
 		assert(index == end_->numAdjacent + start_->numAdjacent - 2);
 
-		new_energy = energyModel_Primary->OpenloopEnergy(
+		new_energy = energyModel->OpenloopEnergy(
 				start_->numAdjacent + end_->numAdjacent - 2, sidelens, seqs);
 
 		old_energy = start->getEnergy() + end->getEnergy();
-		temprate = energyModel_Primary->returnRate(old_energy, new_energy, 0);
+		temprate = energyModel->returnRate(old_energy, new_energy, 0);
 		delete[] pairtypes;
 		delete[] sidelens;
 		delete[] seqs;
@@ -1417,7 +1421,7 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 				}
 			}
 			//initialize the new openloops, and connect them correctly, then initialize their moves, etc.
-			new_energies[flipflop] = energyModel_Primary->OpenloopEnergy(
+			new_energies[flipflop] = energyModel->OpenloopEnergy(
 					sizes[flipflop], sidelen, seqs);
 
 			delete[] sidelen;
@@ -1427,7 +1431,7 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		old_energy = start->getEnergy() + end->getEnergy();
 		new_energy = new_energies[0] + new_energies[1];
 		//printf("O/O delete rate calculate: old: %lf %lf, new: %lf %lf\n", start->getEnergy(), end->getEnergy(), new_energies[0], new_energies[1] );
-		return energyModel_Primary->returnRate(old_energy, new_energy, 3) / 2.0;
+		return energyModel->returnRate(old_energy, new_energy, 3) / 2.0;
 	}
 
 	// end openloop
@@ -2990,10 +2994,10 @@ Loop *Loop::performDeleteMove(Move *move) {
 /* StackLoop */
 
 void StackLoop::calculateEnergy(void) {
-	if (Loop::energyModel_Primary == NULL)
+	if (Loop::energyModel == NULL)
 		return; // we can't handle this error. I'm trying to work out a way around it, but generally if the loops try to get used before the energy model initializes, it's all over.
 
-	energy = Loop::energyModel_Primary->StackEnergy(seqs[0][0], seqs[1][1],
+	energy = Loop::energyModel->StackEnergy(seqs[0][0], seqs[1][1],
 			seqs[0][1], seqs[1][0]);
 	return;
 }
@@ -3169,10 +3173,10 @@ HairpinLoop::HairpinLoop(int type, int size, char *hairpin_sequence,
 }
 
 void HairpinLoop::calculateEnergy(void) {
-	if (energyModel_Primary == NULL)
+	if (energyModel == NULL)
 		return; // we can't handle this error. I'm trying to work out a way around it, but generally if the loops try to get used before the energy model initializes, it's all over.
 
-	energy = energyModel_Primary->HairpinEnergy(hairpin_seq, hairpinsize);
+	energy = energyModel->HairpinEnergy(hairpin_seq, hairpinsize);
 	return;
 }
 
@@ -3297,12 +3301,12 @@ void HairpinLoop::generateMoves(void) {
 
 					// new stack + hairpin
 					if (loop == 1 && loop2 == hairpinsize) {
-						energies[0] = energyModel_Primary->StackEnergy(
+						energies[0] = energyModel->StackEnergy(
 								hairpin_seq[0], hairpin_seq[hairpinsize + 1],
 								hairpin_seq[loop], hairpin_seq[loop2]);
-						energies[1] = energyModel_Primary->HairpinEnergy(
+						energies[1] = energyModel->HairpinEnergy(
 								&hairpin_seq[1], hairpinsize - 2);
-						temprate = energyModel_Primary->returnRate(getEnergy(),
+						temprate = energyModel->returnRate(getEnergy(),
 								(energies[0] + energies[1]), 0);
 
 						moves->addMove(
@@ -3312,17 +3316,17 @@ void HairpinLoop::generateMoves(void) {
 					// bulge + hairpin
 					else if (loop == 1 || loop2 == hairpinsize) {
 						// total bulge size is the difference between either loop and 1 (if that's the edge that has the bulge), or hairpinsize and loop2 (if that's the edge that moved). One must have moved with the other stationary to have a bulge, so the sum will always total whichever moved.
-						energies[0] = energyModel_Primary->BulgeEnergy(
+						energies[0] = energyModel->BulgeEnergy(
 								hairpin_seq[0], hairpin_seq[hairpinsize + 1],
 								hairpin_seq[loop], hairpin_seq[loop2],
 								(loop - 1) + (hairpinsize - loop2));
 
 						// loop2 - loop - 1 is the new hairpin size.
 
-						energies[1] = energyModel_Primary->HairpinEnergy(
+						energies[1] = energyModel->HairpinEnergy(
 								&hairpin_seq[loop], loop2 - loop - 1);
 
-						temprate = energyModel_Primary->returnRate(getEnergy(),
+						temprate = energyModel->returnRate(getEnergy(),
 								(energies[0] + energies[1]), 0);
 						moves->addMove(
 								new Move( MOVE_CREATE | MOVE_2, temprate, this,
@@ -3330,16 +3334,16 @@ void HairpinLoop::generateMoves(void) {
 					} else // interior loop + hairpin case.
 					{
 						//		  char mismatches[4] = { hairpin_seq[1], hairpin_seq[hairpinsize], hairpin_seq[loop-1], hairpin_seq[loop2+1]};
-						energies[0] = energyModel_Primary->InteriorEnergy(
+						energies[0] = energyModel->InteriorEnergy(
 								hairpin_seq, &hairpin_seq[loop2], loop - 1,
 								hairpinsize - loop2);
 
 						//pairtype, pt, loop - 1, hairpinsize - loop2, mismatches );
 
 						// loop2 - loop - 1 is the new hairpin size.
-						energies[1] = energyModel_Primary->HairpinEnergy(
+						energies[1] = energyModel->HairpinEnergy(
 								&hairpin_seq[loop], loop2 - loop - 1);
-						temprate = energyModel_Primary->returnRate(getEnergy(),
+						temprate = energyModel->returnRate(getEnergy(),
 								(energies[0] + energies[1]), 0);
 						moves->addMove(
 								new Move( MOVE_CREATE | MOVE_3, temprate, this,
@@ -3517,10 +3521,10 @@ Move *BulgeLoop::getChoice(double *randomchoice, Loop *from) {
 }
 
 void BulgeLoop::calculateEnergy(void) {
-	if (energyModel_Primary == NULL)
+	if (energyModel == NULL)
 		return; // we can't handle this error. I'm trying to work out a way around it, but generally if the loops try to get used before the energy model initializes, it's all over.
 
-	energy = energyModel_Primary->BulgeEnergy(bulge_seq[0][0],
+	energy = energyModel->BulgeEnergy(bulge_seq[0][0],
 			bulge_seq[1][bulgesize[1] + 1], bulge_seq[0][bulgesize[0] + 1],
 			bulge_seq[1][0], bulgesize[0] + bulgesize[1]);
 	return;
@@ -3649,14 +3653,14 @@ void BulgeLoop::generateMoves(void) {
 						sequences[2] = &bulge_seq[1][loop2];
 					}
 					// need to add sequence info -definate FIXME for dangles != 0
-					energies[0] = energyModel_Primary->MultiloopEnergy(3,
+					energies[0] = energyModel->MultiloopEnergy(3,
 							sidelen, sequences);
 
 					// loop2 - loop + 1 is the new hairpin size.
-					energies[1] = energyModel_Primary->HairpinEnergy(
+					energies[1] = energyModel->HairpinEnergy(
 							&bulge_seq[bside][loop], loop2 - loop - 1);
 
-					temprate = energyModel_Primary->returnRate(getEnergy(),
+					temprate = energyModel->returnRate(getEnergy(),
 							(energies[0] + energies[1]), 0);
 
 					moves->addMove(
@@ -3872,10 +3876,10 @@ void InteriorLoop::calculateEnergy(void) {
 	mismatches[2] = int_seq[0][sizes[0]];
 	mismatches[3] = int_seq[1][1];
 
-	if (energyModel_Primary == NULL)
+	if (energyModel == NULL)
 		return; // we can't handle this error. I'm trying to work out a way around it, but generally if the loops try to get used before the energy model initializes, it's all over.
 
-	energy = energyModel_Primary->InteriorEnergy(int_seq[0], int_seq[1],
+	energy = energyModel->InteriorEnergy(int_seq[0], int_seq[1],
 			sizes[0], sizes[1]);
 	return;
 }
@@ -4065,7 +4069,7 @@ void InteriorLoop::generateMoves(void) {
 	for (loop = 1; loop <= sizes[0] - 4; loop++)
 		for (loop2 = loop + 4; loop2 <= sizes[0]; loop2++) { // each possibility will always result in a new hairpin + multiloop.
 			if (pt = pairtypes[int_seq[0][loop]][int_seq[0][loop2]] != 0) {
-				energies[0] = energyModel_Primary->HairpinEnergy(
+				energies[0] = energyModel->HairpinEnergy(
 						&int_seq[0][loop], loop2 - loop - 1);
 
 				// Multiloop energy
@@ -4075,10 +4079,10 @@ void InteriorLoop::generateMoves(void) {
 				char *sequences[3] = { &int_seq[0][0], &int_seq[0][loop2],
 						&int_seq[1][0] };
 
-				energies[1] = energyModel_Primary->MultiloopEnergy(3, sidelen,
+				energies[1] = energyModel->MultiloopEnergy(3, sidelen,
 						sequences);
 
-				temprate = energyModel_Primary->returnRate(getEnergy(),
+				temprate = energyModel->returnRate(getEnergy(),
 						(energies[0] + energies[1]), 0);
 				moves->addMove(
 						new Move( MOVE_CREATE | MOVE_1, temprate, this, loop,
@@ -4090,7 +4094,7 @@ void InteriorLoop::generateMoves(void) {
 	for (loop = 1; loop <= sizes[1] - 4; loop++)
 		for (loop2 = loop + 4; loop2 <= sizes[1]; loop2++) { // each possibility will always result in a new hairpin + multiloop.
 			if (pt = pairtypes[int_seq[1][loop]][int_seq[1][loop2]] != 0) {
-				energies[0] = energyModel_Primary->HairpinEnergy(
+				energies[0] = energyModel->HairpinEnergy(
 						&int_seq[1][loop], loop2 - loop - 1);
 
 				// Multiloop energy - CHECK THIS
@@ -4100,10 +4104,10 @@ void InteriorLoop::generateMoves(void) {
 				char *sequences[3] = { &int_seq[0][0], &int_seq[1][0],
 						&int_seq[1][loop2] };
 
-				energies[1] = energyModel_Primary->MultiloopEnergy(3, sidelen,
+				energies[1] = energyModel->MultiloopEnergy(3, sidelen,
 						sequences);
 
-				temprate = energyModel_Primary->returnRate(getEnergy(),
+				temprate = energyModel->returnRate(getEnergy(),
 						(energies[0] + energies[1]), 0);
 				moves->addMove(
 						new Move( MOVE_CREATE | MOVE_2, temprate, this, loop,
@@ -4121,18 +4125,18 @@ void InteriorLoop::generateMoves(void) {
 				// Need to check conditions for each side in order to determine what the two new loops types would be.
 				// adjacent to first pair side:
 				if (loop == 1 && loop2 == sizes[1]) // stack
-					energies[0] = energyModel_Primary->StackEnergy(
+					energies[0] = energyModel->StackEnergy(
 							int_seq[0][0], int_seq[1][sizes[1] + 1],
 							int_seq[0][loop], int_seq[1][loop2]);
 				else if (loop == 1 || loop2 == sizes[1]) // bulge
-					energies[0] = energyModel_Primary->BulgeEnergy(
+					energies[0] = energyModel->BulgeEnergy(
 							int_seq[0][0], int_seq[1][sizes[1] + 1],
 							int_seq[0][loop], int_seq[1][loop2],
 							(loop - 1) + (sizes[1] - loop2));
 				else  // interior
 				{
 					//		char mismatches[4] = { int_seq[0][1], int_seq[1][sizes[1]], int_seq[0][loop-1], int_seq[1][loop2+1]};
-					energies[0] = energyModel_Primary->InteriorEnergy(
+					energies[0] = energyModel->InteriorEnergy(
 							int_seq[0], &int_seq[1][loop2], loop - 1,
 							sizes[1] - loop2);
 					//pairtype[0], pt, loop - 1, sizes[1] - loop2, mismatches );
@@ -4140,11 +4144,11 @@ void InteriorLoop::generateMoves(void) {
 
 				// other side
 				if (loop == sizes[0] && loop2 == 1) // stack
-					energies[1] = energyModel_Primary->StackEnergy(
+					energies[1] = energyModel->StackEnergy(
 							int_seq[0][loop], int_seq[1][loop2],
 							int_seq[0][sizes[0] + 1], int_seq[1][0]);
 				else if (loop == sizes[0] || loop2 == 1) // bulge
-					energies[1] = energyModel_Primary->BulgeEnergy(
+					energies[1] = energyModel->BulgeEnergy(
 							int_seq[0][loop], int_seq[1][loop2],
 							int_seq[0][sizes[0] + 1], int_seq[1][0],
 							(loop2 - 1) + (sizes[0] - loop));
@@ -4153,7 +4157,7 @@ void InteriorLoop::generateMoves(void) {
 					// old//		char mismatches[4] = {int_seq[1][1],int_seq[0][sizes[0]],int_seq[1][loop2-1],int_seq[0][loop+1]};
 					//char mismatches[4] = {int_seq[0][loop+1], int_seq[1][loop2-1], int_seq[0][sizes[0]],int_seq[1][1]};
 
-					energies[1] = energyModel_Primary->InteriorEnergy(
+					energies[1] = energyModel->InteriorEnergy(
 							&int_seq[0][loop], int_seq[1], sizes[0] - loop,
 							loop2 - 1);
 
@@ -4161,7 +4165,7 @@ void InteriorLoop::generateMoves(void) {
 				}
 				//	    printf("Move: (energies 0, 1, current energy): %d %d %d\n",energies[0], energies[1], getEnergy());
 
-				temprate = energyModel_Primary->returnRate(getEnergy(),
+				temprate = energyModel->returnRate(getEnergy(),
 						(energies[0] + energies[1]), 0);
 				moves->addMove(
 						new Move( MOVE_CREATE | MOVE_3, temprate, this, loop,
@@ -4363,10 +4367,10 @@ Move *MultiLoop::getChoice(double* randomchoice, Loop *from) {
 }
 
 void MultiLoop::calculateEnergy(void) {
-	if (energyModel_Primary == NULL)
+	if (energyModel == NULL)
 		return; // we can't handle this error. I'm trying to work out a way around it, but generally if the loops try to get used before the energy model initializes, it's all over.
 
-	energy = energyModel_Primary->MultiloopEnergy(numAdjacent, sidelen, seqs);
+	energy = energyModel->MultiloopEnergy(numAdjacent, sidelen, seqs);
 	return;
 }
 
@@ -4659,7 +4663,7 @@ void MultiLoop::generateMoves(void) {
 			for (loop2 = loop + 4; loop2 <= sidelen[loop3]; loop2++) { // each possibility is a hairpin and multiloop, see above.
 				if (pt = pairtypes[seqs[loop3][loop]][seqs[loop3][loop2]]
 						!= 0) {
-					energies[0] = energyModel_Primary->HairpinEnergy(
+					energies[0] = energyModel->HairpinEnergy(
 							&seqs[loop3][loop], loop2 - loop - 1);
 
 					for (temploop = 0, tempindex = 0;
@@ -4681,10 +4685,10 @@ void MultiLoop::generateMoves(void) {
 							sequences[temploop] = seqs[tempindex];
 						}
 					}
-					energies[1] = energyModel_Primary->MultiloopEnergy(
+					energies[1] = energyModel->MultiloopEnergy(
 							numAdjacent + 1, sidelengths, sequences);
 
-					temprate = energyModel_Primary->returnRate(getEnergy(),
+					temprate = energyModel->returnRate(getEnergy(),
 							(energies[0] + energies[1]), 0);
 
 					utility::printDouble(temprate);
@@ -4708,7 +4712,7 @@ void MultiLoop::generateMoves(void) {
 					// three cases for which type of move:
 					// #2a: stack
 					if (loop == sidelen[loop3] && loop2 == 1) {
-						energies[0] = energyModel_Primary->StackEnergy(
+						energies[0] = energyModel->StackEnergy(
 								seqs[loop3][loop], seqs[loop4][loop2],
 								seqs[loop3][sidelen[loop3] + 1],
 								seqs[loop4][0]);
@@ -4716,12 +4720,12 @@ void MultiLoop::generateMoves(void) {
 					// #2b: bulge
 					else if (loop == sidelen[loop3] || loop2 == 1) {
 						if (loop2 == 1)
-							energies[0] = energyModel_Primary->BulgeEnergy(
+							energies[0] = energyModel->BulgeEnergy(
 									seqs[loop3][loop], seqs[loop4][loop2],
 									seqs[loop3][sidelen[loop3] + 1],
 									seqs[loop4][0], sidelen[loop3] - loop);
 						else
-							energies[0] = energyModel_Primary->BulgeEnergy(
+							energies[0] = energyModel->BulgeEnergy(
 									seqs[loop3][loop], seqs[loop4][loop2],
 									seqs[loop3][sidelen[loop3] + 1],
 									seqs[loop4][0], loop2 - 1);
@@ -4729,7 +4733,7 @@ void MultiLoop::generateMoves(void) {
 					// #2c: interior
 					else {
 						//		  char mismatches[4] = { seqs[loop3][loop+1], seqs[loop4][loop2-1], seqs[loop3][sidelen[loop3]], seqs[loop4][1]};
-						energies[0] = energyModel_Primary->InteriorEnergy(
+						energies[0] = energyModel->InteriorEnergy(
 								&seqs[loop3][loop], seqs[loop4],
 								sidelen[loop3] - loop, loop2 - 1);
 						//pt, pairtype[loop4], sidelen[loop3]- loop, loop2-1, mismatches );
@@ -4753,10 +4757,10 @@ void MultiLoop::generateMoves(void) {
 							}
 						}
 					}
-					energies[1] = energyModel_Primary->MultiloopEnergy(
+					energies[1] = energyModel->MultiloopEnergy(
 							numAdjacent, sidelengths, sequences);
 
-					temprate = energyModel_Primary->returnRate(getEnergy(),
+					temprate = energyModel->returnRate(getEnergy(),
 							(energies[0] + energies[1]), 0);
 					moves->addMove(
 							new Move( MOVE_CREATE | MOVE_2, temprate, this,
@@ -4804,7 +4808,7 @@ void MultiLoop::generateMoves(void) {
 							}
 						}
 
-						energies[0] = energyModel_Primary->MultiloopEnergy(
+						energies[0] = energyModel->MultiloopEnergy(
 								loop4 - loop3 + 1, sidelengths, sequences);
 
 						// Multi loop
@@ -4831,10 +4835,10 @@ void MultiLoop::generateMoves(void) {
 							}
 
 						}
-						energies[1] = energyModel_Primary->MultiloopEnergy(
+						energies[1] = energyModel->MultiloopEnergy(
 								numAdjacent - (loop4 - loop3 - 1), sidelengths,
 								sequences);
-						temprate = energyModel_Primary->returnRate(getEnergy(),
+						temprate = energyModel->returnRate(getEnergy(),
 								(energies[0] + energies[1]), 0);
 						loops[0] = loop;
 						loops[1] = loop2;
@@ -4985,10 +4989,10 @@ OpenLoop::OpenLoop(int branches, int *pairtypes, int *sidelengths,
 }
 
 void OpenLoop::calculateEnergy(void) {
-	if (energyModel_Primary == NULL)
+	if (energyModel == NULL)
 		return; // we can't handle this error. I'm trying to work out a way around it, but generally if the loops try to get used before the energy model initializes, it's all over.
 
-	energy = energyModel_Primary->OpenloopEnergy(numAdjacent, sidelen, seqs);
+	energy = energyModel->OpenloopEnergy(numAdjacent, sidelen, seqs);
 	return;
 }
 
@@ -5301,7 +5305,7 @@ void OpenLoop::generateMoves(void) {
 
 				if (pairType != 0) { // FD: the NUPACK model puts terms here to be non-zero.    in NUPACK, G-T stacking is a thing. Hairpin loops are size 3 or more.
 
-					energies[0] = energyModel_Primary->HairpinEnergy(&mySequence[loop], loop2 - loop - 1);
+					energies[0] = energyModel->HairpinEnergy(&mySequence[loop], loop2 - loop - 1);
 
 					for (temploop = 0, tempindex = 0;
 							temploop <= numAdjacent + 1;
@@ -5323,10 +5327,10 @@ void OpenLoop::generateMoves(void) {
 							sequences[temploop] = seqs[tempindex];
 						}
 					}
-					energies[1] = energyModel_Primary->OpenloopEnergy(
+					energies[1] = energyModel->OpenloopEnergy(
 							numAdjacent + 1, sidelengths, sequences);
 
-					temprate = energyModel_Primary->returnRate(getEnergy(),
+					temprate = energyModel->returnRate(getEnergy(),
 							(energies[0] + energies[1]), 0);
 
 					// if the new Arrhenius model is used, modify the existing rate based on the local context.
@@ -5356,7 +5360,7 @@ void OpenLoop::generateMoves(void) {
 					// three cases for which type of move:
 					// #2a: stack
 					if (loop == sidelen[loop3] && loop2 == 1) {
-						energies[0] = energyModel_Primary->StackEnergy(
+						energies[0] = energyModel->StackEnergy(
 								seqs[loop3][loop], seqs[loop3 + 1][loop2],
 								seqs[loop3][sidelen[loop3] + 1],
 								seqs[loop3 + 1][0]);
@@ -5364,12 +5368,12 @@ void OpenLoop::generateMoves(void) {
 					// #2b: bulge
 					else if (loop == sidelen[loop3] || loop2 == 1) {
 						if (loop2 == 1)
-							energies[0] = energyModel_Primary->BulgeEnergy(
+							energies[0] = energyModel->BulgeEnergy(
 									seqs[loop3][loop], seqs[loop3 + 1][loop2],
 									seqs[loop3][sidelen[loop3] + 1],
 									seqs[loop3 + 1][0], sidelen[loop3] - loop);
 						else
-							energies[0] = energyModel_Primary->BulgeEnergy(
+							energies[0] = energyModel->BulgeEnergy(
 									seqs[loop3][loop], seqs[loop3 + 1][loop2],
 									seqs[loop3][sidelen[loop3] + 1],
 									seqs[loop3 + 1][0], loop2 - 1);
@@ -5377,7 +5381,7 @@ void OpenLoop::generateMoves(void) {
 					// #2c: interior
 					else {
 						//		  char mismatches[4] = { seqs[loop3][loop+1], seqs[loop3+1][loop2-1], seqs[loop3][sidelen[loop3]], seqs[loop3+1][1]};
-						energies[0] = energyModel_Primary->InteriorEnergy(
+						energies[0] = energyModel->InteriorEnergy(
 								&seqs[loop3][loop], seqs[loop3 + 1],
 								sidelen[loop3] - loop, loop2 - 1);
 						//pt, pairtype[loop3], sidelen[loop3]- loop, loop2-1, mismatches );
@@ -5401,10 +5405,10 @@ void OpenLoop::generateMoves(void) {
 							}
 						}
 					}
-					energies[1] = energyModel_Primary->OpenloopEnergy(
+					energies[1] = energyModel->OpenloopEnergy(
 							numAdjacent, sidelengths, sequences);
 
-					temprate = energyModel_Primary->returnRate(getEnergy(),
+					temprate = energyModel->returnRate(getEnergy(),
 							(energies[0] + energies[1]), 0);
 					moves->addMove(
 							new Move( MOVE_CREATE | MOVE_2, temprate, this,
@@ -5453,7 +5457,7 @@ void OpenLoop::generateMoves(void) {
 							}
 						}
 
-						energies[0] = energyModel_Primary->MultiloopEnergy(
+						energies[0] = energyModel->MultiloopEnergy(
 								loop4 - loop3 + 1, sidelengths, sequences);
 
 						// Open loop
@@ -5483,10 +5487,10 @@ void OpenLoop::generateMoves(void) {
 								temploop++;
 							}
 						}
-						energies[1] = energyModel_Primary->OpenloopEnergy(
+						energies[1] = energyModel->OpenloopEnergy(
 								numAdjacent - (loop4 - loop3 - 1), sidelengths,
 								sequences);
-						temprate = energyModel_Primary->returnRate(getEnergy(),
+						temprate = energyModel->returnRate(getEnergy(),
 								(energies[0] + energies[1]), 0);
 						loops[0] = loop;
 						loops[1] = loop2;

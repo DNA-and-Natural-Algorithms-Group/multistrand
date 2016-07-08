@@ -437,7 +437,7 @@ double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen,
 		pt =
 				pairtypes[sequences[loop][sidelen[loop] + 1]][sequences[loop + 1][0]]
 						- 1;
-		// TODO: slight efficiency gain if we wrap this into the dangles version seperately, rather than doing a double pass in the dangle case.
+		// TODO: slight efficiency gain if we wrap this into the dangles version separately, rather than doing a double pass in the dangle case.
 
 		if ((pt == 0) || (pt > 2)) // AT penalty applies
 			energy += terminal_AU;
@@ -497,7 +497,6 @@ NupackEnergyModel::NupackEnergyModel(PyObject* energy_options) :
 {
 
 	simOptions = new PSimOptions(energy_options);
-	//processOptions(energy_options);
 	processOptions();
 
 }

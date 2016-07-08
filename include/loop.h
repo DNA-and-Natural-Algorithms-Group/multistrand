@@ -37,7 +37,6 @@ public:
 	void cleanupAdjacent(void); // sets adjacentLoops up to be deleted.
 	double returnEnergies(Loop *comefrom); // returns the total energy of all loops underneath this one.
 	double returnFlux(Loop *comefrom); // returns the total rate of all loops underneath this one.
-//	virtual void moveDisplay(Loop *comefrom, char *structure_p, char *seq_p) = 0;
 	virtual void printMove(Loop *comefrom, char *structure_p, char *seq_p) = 0;
 	void firstGen(Loop *comefrom);
 	static void SetEnergyModel(EnergyModel *newEnergyModel);
@@ -54,7 +53,7 @@ public:
 
 
 protected:
-	static EnergyModel *energyModel_Primary;
+	static EnergyModel *energyModel;
 	Loop** adjacentLoops;
 	int numAdjacent;
 	int curAdjacent;
@@ -73,7 +72,6 @@ public:
 	void generateDeleteMoves(void);
 	Move *getChoice(double *randnum, Loop *from);
 	double doChoice(Move *move, Loop **returnLoop);
-//	void moveDisplay(Loop *comefrom, char *structure_p, char *seq_p);
 	void printMove(Loop *comefrom, char *structure_p, char *seq_p);
 	char *getLocation(Move *move, int index);
 	char *verifyLoop(char *incoming_sequence, int incoming_pairtype,
