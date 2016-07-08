@@ -26,6 +26,49 @@ bool EnergyModel::useArrhenius(void) {
 
 }
 
+
+
+double expRate(double A, double E, double temperature) {
+
+	return A * exp(E / (gasConstant * temperature));
+
+}
+
+void setArrheniusRate(double ratesArray[MOVETYPE_SIZE][MOVETYPE_SIZE], EnergyOptions* options, double temperature, int left, int right) {
+
+	double ALeft = options->AValues[left];
+	double ELeft = options->EValues[left];
+
+	double ARight = options->AValues[right];
+	double ERight = options->EValues[right];
+
+	double kLeft = expRate(ALeft, ELeft, temperature);
+	double kRight = expRate(ARight, ERight, temperature);
+
+	ratesArray[left][right] = kLeft * kRight;
+
+}
+
+void EnergyModel::computeArrheniusRates(double temperature) {
+
+	for (int i = 0; i < MOVETYPE_SIZE; i++) {
+
+		for (int j = 0; j < MOVETYPE_SIZE; j++) {
+
+			arrheniusRates[i][j] = NULL;
+
+			//cout << "Setting left " << i << " and right " << j;
+
+			setArrheniusRate(arrheniusRates, simOptions->energyOptions, temperature, i, j);
+
+		}
+
+	}
+
+}
+
+
+
 double EnergyModel::applyPrefactors(Loop* left, Loop* right){
 
 	double output = 0.0;

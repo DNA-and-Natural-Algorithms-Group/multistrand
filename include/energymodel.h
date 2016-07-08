@@ -53,6 +53,33 @@ extern int basepair_sw[8]; // = {0,0,0,0,0,0,0,0};
 int baseLookup(char base);
 
 #define INF 100000
+const double gasConstant = 0.0019872041;
+
+
+
+enum LoopType {
+	openLoop,
+	interiorLoop,
+	bulgeLoop,
+	stackLoop,
+	hairpinLoop,
+	multiLoop,
+	LOOPTYPE_SIZE
+};
+
+enum MoveType {
+	endMove,
+	loopMove,
+	stackMove,
+	stackStackMove,
+	loopEndMove,
+	stackEndMove,
+	stackLoopMove,
+	MOVETYPE_SIZE
+};
+
+
+
 
 class energyS {
 public:
@@ -68,6 +95,7 @@ public:
 	// Implemented methods
 	bool useArrhenius(void);
 	double ArrheniusLoopEnergy(char* seq, int size);
+	void computeArrheniusRates(double temperature);
 	double applyPrefactors(Loop* left, Loop* right);
 
 	// Virtual methods
@@ -105,6 +133,7 @@ public:
 protected:
 	long dangles;
 	SimOptions* simOptions;
+	double arrheniusRates[MOVETYPE_SIZE][MOVETYPE_SIZE];
 
 };
 
