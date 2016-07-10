@@ -76,7 +76,7 @@ public:
 	bool useArrhenius(void);
 	double ArrheniusLoopEnergy(char* seq, int size);
 	void computeArrheniusRates(double temperature);
-	double applyPrefactors(Loop* left, Loop* right);
+	double applyPrefactors(MoveType left, MoveType right);
 
 	// Virtual methods
 

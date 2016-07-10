@@ -331,13 +331,14 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		if (energyModel->useArrhenius()) {
 
-			// FD: the right loop will be a stack, but the left might not.
-			// FD: because a stack as only two neighbours, we only querry the left neighbour.
+			// FD: Two stack loops are created by three basepairs.
+			// FD: We query the local context of the middle pair;
+			// FD: This is simply two stack environments.
 
 			MoveType right = stackMove;
-			MoveType left = start_extra->declareMoveType(start);
+			MoveType left = stackMove;
 
-			tempRate = tempRate * energyModel->applyPrefactors(start_extra, end);
+			tempRate = tempRate * energyModel->applyPrefactors(left, right);
 
 		}
 
@@ -373,13 +374,24 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		//      if(s_index == e_index )
 		//	fprintf(stderr, "ERROR: Misaligned loops in loop.cc generateDeleteMoveRate S/B, values: %d %d\n",s_index,e_index);
 
-		//      char mismatches[4] = { start_->seqs[s_index][1], start_->seqs[1-s_index][0], end_->int_seq[1-e_index][end_->sizes[1-e_index]], end_->int_seq[e_index][1]};
 		new_energy = energyModel->InteriorEnergy(start_->seqs[s_index], end_->int_seq[e_index], end_->sizes[1 - e_index] + 1, end_->sizes[e_index] + 1);
-
-		// start_->pairtype[s_index], end_->pairtype[e_index], end_->sizes[1-e_index]+1, end_->sizes[e_index]+1 , mismatches );
-
 		old_energy = start->getEnergy() + end->getEnergy();
+
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
+
+		if (energyModel->useArrhenius()) {
+
+			// FD: A base-pair is present between a stacking loop and an interior loop.
+			// FD: We query the local context of the middle pair;
+			// FD: This is a stack and loop environment.
+
+			MoveType right = stackMove;
+			MoveType left = loopMove;
+
+			tempRate = tempRate * energyModel->applyPrefactors(left, right);
+
+		}
+
 		return tempRate / 2.0;
 	}
 
@@ -412,14 +424,24 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		//      if(s_index == e_index )
 		//	fprintf(stderr, "ERROR: Misaligned loops in loop.cc generateDeleteMoveRate S/B, values: %d %d\n",s_index,e_index);
 
-		//      char mismatches[4] = { start_->seqs[s_index][1], start_->seqs[1-s_index][0], end_->bulge_seq[1-e_index][end_->bulgesize[1-e_index]], end_->bulge_seq[e_index][1]};
-
 		new_energy = energyModel->InteriorEnergy(start_->seqs[s_index], end_->bulge_seq[e_index], end_->bulgesize[1 - e_index] + 1,
 				end_->bulgesize[e_index] + 1);
-		//start_->pairtype[s_index], end_->pairtype[e_index], end_->bulgesize[1-e_index]+1, end_->bulgesize[e_index]+1 , mismatches );
-
 		old_energy = start->getEnergy() + end->getEnergy();
+
+		if (energyModel->useArrhenius()) {
+
+			// FD: A base pair is present between a stacking loop and a bulge loop.
+			// FD: We query the local context of the middle pair;
+
+			MoveType right = stackMove;
+			MoveType left = stackLoopMove;
+
+			tempRate = tempRate * energyModel->applyPrefactors(left, right);
+
+		}
+
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
+
 		return tempRate / 2.0;
 	}
 
@@ -447,7 +469,21 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		new_energy = energyModel->HairpinEnergy(start_->seqs[s_index], end_->hairpinsize + 2);
 		old_energy = start->getEnergy() + end->getEnergy();
+
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
+
+		if (energyModel->useArrhenius()) {
+
+			// FD: A base pair is present between a stacking loop and a hairpin loop.
+			// FD: We query the local context of the middle pair;
+
+			MoveType right = stackMove;
+			MoveType left = loopMove;
+
+			tempRate = tempRate * energyModel->applyPrefactors(left, right);
+
+		}
+
 		return tempRate / 2.0;
 	}
 
@@ -473,7 +509,10 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 				e_index = loop;
 			}
 		}
+
 		// note e_index has different meaning now for multiloops.
+		// FD: e_index is the index of the attached loop for multiloop end_
+		// FD: s_index is the index of the attached loop for stackloop start_
 
 		int *pairtypes = new int[end_->numAdjacent];
 		int *sidelens = new int[end_->numAdjacent];
@@ -482,10 +521,11 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		for (int loop = 0; loop < end_->numAdjacent; loop++) {
 			if (loop != e_index) {
 				pairtypes[loop] = end_->pairtype[loop];
-				if ((loop != e_index - 1 && e_index != 0) || (loop != end_->numAdjacent - 1 && e_index == 0))
+				if ((loop != e_index - 1 && e_index != 0) || (loop != end_->numAdjacent - 1 && e_index == 0)) {
 					sidelens[loop] = end_->sidelen[loop];
-				else
+				} else {
 					sidelens[loop] = end_->sidelen[loop] + 1;
+				}
 				seqs[loop] = end_->seqs[loop];
 			} else {
 				pairtypes[loop] = start_->pairtype[s_index];
@@ -498,9 +538,41 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		old_energy = start->getEnergy() + end->getEnergy();
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
+
+		if (energyModel->useArrhenius()) {
+
+			// FD: A base pair is present between a stacking loop and a multi loop.
+			// FD: We query the local context of the middle pair;
+			// FD: this can be either a loop, stack+loop, or stack+stack situation.
+
+			MoveType move1 = stackMove;
+			MoveType move2 = stackMove; // initializing
+
+			int leftStrand = (e_index - 1) % end_->numAdjacent;
+			int rightStrand = (e_index + 1) % end_->numAdjacent;
+
+			if (sidelens[leftStrand] > 1 && sidelens[rightStrand] > 1) {	 // two single stranded strands
+
+				move2 = loopMove;
+
+			} else if (sidelens[leftStrand] > 1 || sidelens[leftStrand] > 0) {  // one single stranded strand
+
+				move2 = stackLoopMove;
+
+			} else { // two nucleotides on each side;
+
+				move2 = stackStackMove;
+
+			}
+
+			tempRate = tempRate * energyModel->applyPrefactors(move1, move2);
+
+		}
+
 		delete[] pairtypes;
 		delete[] sidelens;
 		delete[] seqs;
+
 		return tempRate / 2.0;
 	}
 
@@ -2851,10 +2923,10 @@ HairpinLoop::HairpinLoop(int type, int size, char *hairpin_sequence, Loop *previ
 	identity = 'H';
 }
 
-//FD: Placeholder function
+//FD: What movetype is the hairpin loop? Always unstacked.
 MoveType HairpinLoop::declareMoveType(Loop* attachedLoop) {
 
-	return stackMove;
+	return loopMove;
 
 }
 
@@ -3152,12 +3224,10 @@ BulgeLoop::BulgeLoop(int type1, int type2, int size1, int size2, char *bulge_seq
 	identity = 'B';
 }
 
-//FD: Placeholder function
+//FD: For Bulge loops, one strand is double stranded, the other is single stranded.
 MoveType BulgeLoop::declareMoveType(Loop* attachedLoop) {
 
-//	throw "BulgeLoop::declareMoveType not implemented";
-
-	return stackMove;
+	return stackLoopMove;
 
 }
 
@@ -3470,12 +3540,10 @@ InteriorLoop::InteriorLoop(int type1, int type2, int size1, int size2, char *int
 
 }
 
-//FD: Placeholder function
+//FD: For the interior loops, the two strands are unpaired; so this is an loopMove
 MoveType InteriorLoop::declareMoveType(Loop* attachedLoop) {
 
-//	throw "InteriorLoop::declareMoveType not implemented";
-
-	return stackMove;
+	return loopMove;
 
 }
 
@@ -3886,10 +3954,8 @@ MultiLoop::~MultiLoop(void) {
 	delete[] seqs;
 }
 
-//FD: Placeholder function
+//FD: A multiloop is merely an open loop, involving more than one strand.
 MoveType MultiLoop::declareMoveType(Loop* attachedLoop) {
-
-//	throw "MultiLoop::declareMoveType not implemented";
 
 	return stackMove;
 

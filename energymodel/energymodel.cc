@@ -63,11 +63,9 @@ void EnergyModel::computeArrheniusRates(double temperature) {
 
 }
 
-double EnergyModel::applyPrefactors(Loop* left, Loop* right) {
+double EnergyModel::applyPrefactors(MoveType left, MoveType right) {
 
-	double output = 0.0;
-
-	return output;
+	return arrheniusRates[left * MOVETYPE_SIZE + right];
 
 }
 
