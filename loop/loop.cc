@@ -45,6 +45,12 @@ int Loop::getCurAdjacent(void) {
 	return curAdjacent;
 }
 
+int Loop::getNumAdjacent(void) {
+
+	return numAdjacent;
+
+}
+
 void Loop::cleanupAdjacent(void) {
 	for (int loop = 0; loop < curAdjacent; loop++) {
 		adjacentLoops[loop] = NULL;
@@ -541,31 +547,9 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		if (energyModel->useArrhenius()) {
 
-			// FD: A base pair is present between a stacking loop and a multi loop.
-			// FD: We query the local context of the middle pair;
-			// FD: this can be either a loop, stack+loop, or stack+stack situation.
+			MoveType move = energyModel->prefactorsMultiAndOpen(e_index, end_, sidelens);
 
-			MoveType move1 = stackMove;
-			MoveType move2 = stackMove; // initializing
-
-			int leftStrand = (e_index - 1) % end_->numAdjacent;
-			int rightStrand = (e_index + 1) % end_->numAdjacent;
-
-			if (sidelens[leftStrand] > 1 && sidelens[rightStrand] > 1) {	 // two single stranded strands
-
-				move2 = loopMove;
-
-			} else if (sidelens[leftStrand] > 1 || sidelens[leftStrand] > 0) {  // one single stranded strand
-
-				move2 = stackLoopMove;
-
-			} else { // two nucleotides on each side;
-
-				move2 = stackStackMove;
-
-			}
-
-			tempRate = tempRate * energyModel->applyPrefactors(move1, move2);
+			tempRate = tempRate * energyModel->applyPrefactors(stackMove, move);
 
 		}
 
@@ -586,11 +570,6 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 			start_ = (StackLoop *) start;
 			end_ = (OpenLoop *) end;
 		}
-		/*      else
-		 {
-		 start_ = (StackLoop *) end;
-		 end_ = (OpenLoop *) start;
-		 }*/
 
 		for (int loop = 0; (loop < end_->numAdjacent) || (loop < 2); loop++) {
 			if (loop <= 1)
@@ -629,10 +608,21 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		old_energy = start->getEnergy() + end->getEnergy();
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
+
+		if (energyModel->useArrhenius()) {
+
+			MoveType move = energyModel->prefactorsMultiAndOpen(e_index, end_, sidelens);
+
+			tempRate = tempRate * energyModel->applyPrefactors(stackMove, move);
+
+		}
+
+		return tempRate / 2.0;
+
 		delete[] pairtypes;
 		delete[] sidelens;
 		delete[] seqs;
-		return tempRate / 2.0;
+
 	}
 
 	if (start->identity == 'I' && end->identity == 'I') {
@@ -656,8 +646,16 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		old_energy = start->getEnergy() + end->getEnergy();
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
+
+		// FD: interior loop and interior loop, this has to be loopMove and loopMove;
+		if (energyModel->useArrhenius()) {
+
+			tempRate = tempRate * energyModel->applyPrefactors(loopMove, loopMove);
+
+		}
+
 		return tempRate / 2.0;
-		//return -1.0;
+
 	}
 
 	if ((start->identity == 'I' && end->identity == 'B') || (start->identity == 'B' && end->identity == 'I')) {
@@ -694,6 +692,14 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		old_energy = start->getEnergy() + end->getEnergy();
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
+
+		// FD: interior loop and bulge loop, this has to be loopMove and stackLoopMove;
+		if (energyModel->useArrhenius()) {
+
+			tempRate = tempRate * energyModel->applyPrefactors(loopMove, stackLoopMove);
+
+		}
+
 		return tempRate / 2.0;
 	}
 
@@ -722,6 +728,14 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		new_energy = energyModel->HairpinEnergy(start_->int_seq[s_index], end_->hairpinsize + 2 + start_->sizes[0] + start_->sizes[1]);
 		old_energy = start->getEnergy() + end->getEnergy();
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
+
+		// FD: interior loop and hairpin loop, this has to be loopMove and loopMove;
+		if (energyModel->useArrhenius()) {
+
+			tempRate = tempRate * energyModel->applyPrefactors(loopMove, loopMove);
+
+		}
+
 		return tempRate / 2.0;
 	}
 
@@ -772,6 +786,16 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		old_energy = start->getEnergy() + end->getEnergy();
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
+
+		// FD: interior loop and multi loop, this has to be loopMove and something else;
+		if (energyModel->useArrhenius()) {
+
+			MoveType move = energyModel->prefactorsMultiAndOpen(e_index, end_, sidelens);
+
+			tempRate = tempRate * energyModel->applyPrefactors(loopMove, move);
+
+		}
+
 		delete[] pairtypes;
 		delete[] sidelens;
 		delete[] seqs;
@@ -828,6 +852,15 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		old_energy = start->getEnergy() + end->getEnergy();
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
+
+		// FD: interior loop and open loop, this has to be loopMove and something else;
+		if (energyModel->useArrhenius()) {
+
+			MoveType move = energyModel->prefactorsMultiAndOpen(e_index, end_, sidelens);
+			tempRate = tempRate * energyModel->applyPrefactors(loopMove, move);
+
+		}
+
 		delete[] pairtypes;
 		delete[] sidelens;
 		delete[] seqs;
@@ -852,15 +885,21 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 			}
 		}
 
-		//      char mismatches[4] = { start_->bulge_seq[s_index][1], start_->bulge_seq[1-s_index][start_->bulgesize[1-s_index]], end_->bulge_seq[1-e_index][end_->bulgesize[1-e_index]], end_->bulge_seq[e_index][1]};
 		new_energy = energyModel->InteriorEnergy(start_->bulge_seq[s_index], end_->bulge_seq[e_index],
 				end_->bulgesize[1 - e_index] + start_->bulgesize[s_index] + 1, end_->bulgesize[e_index] + start_->bulgesize[1 - s_index] + 1);
 
-		// start_->pairtype[s_index], end_->pairtype[e_index], end_->bulgesize[1-e_index]+start_->bulgesize[s_index]+1, end_->bulgesize[e_index]+start_->bulgesize[1-s_index]+1 , mismatches );
 		old_energy = start->getEnergy() + end->getEnergy();
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
+
+		// FD: bulge loop and bulge loop, this has to be loopMove and loopMove ;
+		if (energyModel->useArrhenius()) {
+
+			tempRate = tempRate * energyModel->applyPrefactors(loopMove, loopMove);
+
+		}
+
 		return tempRate / 2.0;
-		//return -1.0;
+
 	}
 
 	if ((start->identity == 'B' && end->identity == 'H') || (start->identity == 'H' && end->identity == 'B')) {
@@ -888,6 +927,14 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		new_energy = energyModel->HairpinEnergy(start_->bulge_seq[s_index], end_->hairpinsize + 2 + start_->bulgesize[0] + start_->bulgesize[1]);
 		old_energy = start->getEnergy() + end->getEnergy();
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
+
+		// FD: bulge loop and hairpin loop, this has to be loopMove and loopMove ;
+		if (energyModel->useArrhenius()) {
+
+			tempRate = tempRate * energyModel->applyPrefactors(loopMove, loopMove);
+
+		}
+
 		return tempRate / 2.0;
 	}
 

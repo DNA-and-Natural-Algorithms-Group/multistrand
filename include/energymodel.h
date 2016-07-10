@@ -77,6 +77,7 @@ public:
 	double ArrheniusLoopEnergy(char* seq, int size);
 	void computeArrheniusRates(double temperature);
 	double applyPrefactors(MoveType left, MoveType right);
+	MoveType prefactorsMultiAndOpen(int, Loop*, int[]);
 
 	// Virtual methods
 

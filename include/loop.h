@@ -12,7 +12,6 @@
 #include "energymodel.h"
 #include "move.h"
 
-
 class Loop {
 public:
 	inline double getEnergy(void);
@@ -30,6 +29,7 @@ public:
 	virtual MoveType declareMoveType(Loop* attachedLoop) =0;
 	Loop *getAdjacent(int index);
 	int getCurAdjacent(void);
+	int getNumAdjacent(void);
 	void addAdjacent(Loop *loopToAdd);
 	void initAdjacency(int index);
 	int replaceAdjacent(Loop *loopToReplace, Loop *loopToReplaceWith);
@@ -45,7 +45,6 @@ public:
 	static void performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);
 
 	// FD functions
-
 
 	string toString(void);
 	string toStringShort(void);
@@ -82,7 +81,6 @@ public:
 	StackLoop(int type1, int type2, char *seq1, char *seq2, Loop *left = NULL, Loop *right = NULL);
 	MoveType declareMoveType(Loop* attachedLoop);
 
-
 private:
 	int pairtype[2];
 	char *seqs[2];
@@ -108,7 +106,6 @@ public:
 	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);
 	MoveType declareMoveType(Loop* attachedLoop);
 
-
 private:
 	int pairtype;
 	int hairpinsize;
@@ -131,7 +128,6 @@ public:
 	friend double Loop::generateDeleteMoveRate(Loop *start, Loop *end);
 	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);
 	MoveType declareMoveType(Loop* attachedLoop);
-
 
 private:
 	int pairtype[2];
@@ -158,7 +154,6 @@ public:
 	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);
 	MoveType declareMoveType(Loop* attachedLoop);
 
-
 private:
 	int pairtype[2];
 	int sizes[2];
@@ -184,7 +179,6 @@ public:
 	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);
 	MoveType declareMoveType(Loop* attachedLoop);
 
-
 private:
 	int *pairtype;
 	int *sidelen;
@@ -201,7 +195,6 @@ public:
 	void printMove(Loop *comefrom, char *structure_p, char *seq_p);
 	char *getLocation(Move *move, int index);
 	char *verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop *from);
-
 
 	// OpenLoop::getFreeBases returns the base composition information for the
 	//   open loop. Return form is a pointer to an array of size 5, containing
@@ -220,8 +213,6 @@ public:
 	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);
 	static void performComplexJoin(OpenLoop **oldLoops, OpenLoop **newLoops, char *types, int *index);
 	MoveType declareMoveType(Loop* attachedLoop);
-
-
 
 private:
 	int *pairtype;

@@ -349,10 +349,6 @@ double NupackEnergyModel::MultiloopEnergy(int size, int *sidelen, char **sequenc
 	int pt, rt_pt;
 	int loopminus1 = size - 1;
 
-	// pairtypes[loop] = pairtypes[ ][ ]
-	// pairtypes[loop] is the last of sequence[loop-1] and first of sequence[loop]
-	// pairtypes[loop] = pairtypes[sequences[loop-1][sidelen[loop-1]+1]][sequences[loop][0]];
-	// pairtypes[sequences[loop-1][sidelen[loop-1]+1]][sequences[loop][0]];
 
 	for (int loop = 0; loop < size; loop++) {
 		totallength += sidelen[loop];

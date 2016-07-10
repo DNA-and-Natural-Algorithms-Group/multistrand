@@ -43,7 +43,11 @@ void setArrheniusRate(double ratesArray[], EnergyOptions* options, double temper
 	double kLeft = expRate(ALeft, ELeft, temperature);
 	double kRight = expRate(ARight, ERight, temperature);
 
-	ratesArray[left * MOVETYPE_SIZE + right] = kLeft * kRight;
+	// DEBUG! Set all rates to be 1.0 for debugging.
+
+//	ratesArray[left * MOVETYPE_SIZE + right] = kLeft * kRight;
+
+	ratesArray[left * MOVETYPE_SIZE + right] = 1.0;
 
 }
 
@@ -66,6 +70,31 @@ void EnergyModel::computeArrheniusRates(double temperature) {
 double EnergyModel::applyPrefactors(MoveType left, MoveType right) {
 
 	return arrheniusRates[left * MOVETYPE_SIZE + right];
+
+}
+
+MoveType EnergyModel::prefactorsMultiAndOpen(int index, Loop* myLoop, int sideLengths[]) {
+
+	// FD: A base pair is present between a stacking loop and a multi loop.
+	// FD: We query the local context of the middle pair;
+	// FD: this can be either a loop, stack+loop, or stack+stack situation.
+
+	int leftStrand = (index - 1) % myLoop->getNumAdjacent();
+	int rightStrand = (index + 1) % myLoop->getNumAdjacent();
+
+	if (sideLengths[leftStrand] > 1 && sideLengths[rightStrand] > 1) {	 // two single stranded strands
+
+		return loopMove;
+
+	} else if (sideLengths[leftStrand] > 1 || sideLengths[leftStrand] > 0) {  // one single stranded strand
+
+		return stackLoopMove;
+
+	} else { // two nucleotides on each side;
+
+		return stackStackMove;
+
+	}
 
 }
 
