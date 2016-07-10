@@ -79,6 +79,8 @@ MoveType EnergyModel::prefactorsMultiAndOpen(int index, Loop* myLoop, int sideLe
 	// FD: We query the local context of the middle pair;
 	// FD: this can be either a loop, stack+loop, or stack+stack situation.
 
+
+	// FD: if adjacent are not neighbored in this order, then we need to replace this code with the correct mapping.
 	int leftStrand = (index - 1) % myLoop->getNumAdjacent();
 	int rightStrand = (index + 1) % myLoop->getNumAdjacent();
 
