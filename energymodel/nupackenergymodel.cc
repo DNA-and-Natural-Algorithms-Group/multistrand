@@ -323,15 +323,17 @@ double NupackEnergyModel::HairpinEnergy(char *seq, int size) {
 		if ((seq[0] == BASE_T) || (seq[size + 1] == BASE_T))
 			energy += terminal_AU;
 	}
+
 	if (size == 4) {
 		lookup_index = ((seq[0] - 1) << 10) + ((seq[1] - 1) << 8) + ((seq[2] - 1) << 6) + ((seq[3] - 1) << 4) + ((seq[4] - 1) << 2) + (seq[5] - 1);
 
 		energy += hairpin_tetraloop_37_dG[lookup_index];
 	}
+
 	if (size >= 4)
 		energy += hairpin_mismatch_37_dG[(pairtypes[seq[0]][seq[size + 1]] - 1)][seq[1]][seq[size]];
 
-	if (simOptions->energyOptions->usingArrhenius()) {
+	if (simOptions->energyOptions->usingArrhenius() && size > 5) {
 
 		energy += this->ArrheniusLoopEnergy(seq, size);
 

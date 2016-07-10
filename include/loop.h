@@ -12,16 +12,6 @@
 #include "energymodel.h"
 #include "move.h"
 
-//// Using an enum to state the loop types
-//enum LoopType {
-//	undefined,
-//	openLoop,
-//	interiorLoop,
-//	bulgeLoop,
-//	stackLoop,
-//	hairpinLoop,
-//	multiLoop
-//};
 
 class Loop {
 public:
@@ -36,8 +26,8 @@ public:
 	virtual Move *getChoice(double *randomchoice, Loop *from) = 0;
 	virtual double doChoice(Move *move, Loop **returnLoop) = 0;
 	virtual char *getLocation(Move *move, int index) =0;
-	virtual char *verifyLoop(char *incoming_sequence, int incoming_pairtype,
-			Loop *from) =0;
+	virtual char *verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop *from) =0;
+	virtual MoveType declareMoveType(Loop* attachedLoop) =0;
 	Loop *getAdjacent(int index);
 	int getCurAdjacent(void);
 	void addAdjacent(Loop *loopToAdd);
@@ -52,8 +42,10 @@ public:
 	static EnergyModel *GetEnergyModel(void);
 	static double generateDeleteMoveRate(Loop *start, Loop *end);
 	static Loop *performDeleteMove(Move *move);
-	static void performComplexSplit(Move *move, Loop **firstOpen,
-			Loop **secondOpen);
+	static void performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);
+
+	// FD functions
+
 
 	string toString(void);
 	string toStringShort(void);
@@ -82,15 +74,15 @@ public:
 	double doChoice(Move *move, Loop **returnLoop);
 	void printMove(Loop *comefrom, char *structure_p, char *seq_p);
 	char *getLocation(Move *move, int index);
-	char *verifyLoop(char *incoming_sequence, int incoming_pairtype,
-			Loop *from);
+	char *verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop *from);
 	friend double Loop::generateDeleteMoveRate(Loop *start, Loop *end);
 	friend Loop * Loop::performDeleteMove(Move *move);
-	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen,
-			Loop **secondOpen);
+	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);
 	StackLoop(void);
-	StackLoop(int type1, int type2, char *seq1, char *seq2, Loop *left = NULL,
-			Loop *right = NULL);
+	StackLoop(int type1, int type2, char *seq1, char *seq2, Loop *left = NULL, Loop *right = NULL);
+	MoveType declareMoveType(Loop* attachedLoop);
+
+
 private:
 	int pairtype[2];
 	char *seqs[2];
@@ -106,16 +98,16 @@ public:
 //	void moveDisplay(Loop *comefrom, char *structure_p, char *seq_p);
 	void printMove(Loop *comefrom, char *structure_p, char *seq_p);
 	char *getLocation(Move *move, int index);
-	char *verifyLoop(char *incoming_sequence, int incoming_pairtype,
-			Loop *from);
+	char *verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop *from);
 
 	HairpinLoop(void);
 	HairpinLoop(int type, int size, char *hairpin_sequence, Loop *previous =
 	NULL);
 	friend double Loop::generateDeleteMoveRate(Loop *start, Loop *end);
 	friend Loop * Loop::performDeleteMove(Move *move);
-	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen,
-			Loop **secondOpen);
+	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);
+	MoveType declareMoveType(Loop* attachedLoop);
+
 
 private:
 	int pairtype;
@@ -133,15 +125,14 @@ public:
 //	void moveDisplay(Loop *comefrom, char *structure_p, char *seq_p);
 	void printMove(Loop *comefrom, char *structure_p, char *seq_p);
 	char *getLocation(Move *move, int index);
-	char *verifyLoop(char *incoming_sequence, int incoming_pairtype,
-			Loop *from);
+	char *verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop *from);
 	BulgeLoop(void);
-	BulgeLoop(int type1, int type2, int size1, int size2, char *bulge_sequence1,
-			char *bulge_sequence2, Loop *left = NULL, Loop *right = NULL);
+	BulgeLoop(int type1, int type2, int size1, int size2, char *bulge_sequence1, char *bulge_sequence2, Loop *left = NULL, Loop *right = NULL);
 	friend Loop * Loop::performDeleteMove(Move *move);
 	friend double Loop::generateDeleteMoveRate(Loop *start, Loop *end);
-	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen,
-			Loop **secondOpen);
+	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);
+	MoveType declareMoveType(Loop* attachedLoop);
+
 
 private:
 	int pairtype[2];
@@ -159,16 +150,15 @@ public:
 //	void moveDisplay(Loop *comefrom, char *structure_p, char *seq_p);
 	void printMove(Loop *comefrom, char *structure_p, char *seq_p);
 	char *getLocation(Move *move, int index);
-	char *verifyLoop(char *incoming_sequence, int incoming_pairtype,
-			Loop *from);
+	char *verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop *from);
 	InteriorLoop(void);
-	InteriorLoop(int type1, int type2, int size1, int size2, char *int_seq1,
-			char *int_seq2, Loop *left = NULL, Loop *right = NULL);
+	InteriorLoop(int type1, int type2, int size1, int size2, char *int_seq1, char *int_seq2, Loop *left = NULL, Loop *right = NULL);
 
 	friend Loop * Loop::performDeleteMove(Move *move);
 	friend double Loop::generateDeleteMoveRate(Loop *start, Loop *end);
-	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen,
-			Loop **secondOpen);
+	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);
+	MoveType declareMoveType(Loop* attachedLoop);
+
 
 private:
 	int pairtype[2];
@@ -183,19 +173,18 @@ public:
 	void generateDeleteMoves(void);
 	Move *getChoice(double *randnum, Loop *from);
 	double doChoice(Move *move, Loop **returnLoop);
-//	void moveDisplay(Loop *comefrom, char *structure_p, char *seq_p);
 	void printMove(Loop *comefrom, char *structure_p, char *seq_p);
 	char *getLocation(Move *move, int index);
-	char *verifyLoop(char *incoming_sequence, int incoming_pairtype,
-			Loop *from);
+	char *verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop *from);
 	MultiLoop(void);
 	MultiLoop(int branches, int *pairtypes, int *sidelengths, char **sequences);
 	~MultiLoop(void);
 
 	friend double Loop::generateDeleteMoveRate(Loop *start, Loop *end);
 	friend Loop * Loop::performDeleteMove(Move *move);
-	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen,
-			Loop **secondOpen);
+	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);
+	MoveType declareMoveType(Loop* attachedLoop);
+
 
 private:
 	int *pairtype;
@@ -210,12 +199,10 @@ public:
 	void generateDeleteMoves(void);
 	Move *getChoice(double *randomchoice, Loop *from);
 	double doChoice(Move *move, Loop **returnLoop);
-//	void moveDisplay(Loop *comefrom, char *structure_p, char *seq_p);
 	void printMove(Loop *comefrom, char *structure_p, char *seq_p);
 	char *getLocation(Move *move, int index);
-	char *verifyLoop(char *incoming_sequence, int incoming_pairtype,
-			Loop *from);
-	//  void addAdjacent( Loop *loopToAdd );
+	char *verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop *from);
+
 
 	// OpenLoop::getFreeBases returns the base composition information for the
 	//   open loop. Return form is a pointer to an array of size 5, containing
@@ -231,10 +218,12 @@ public:
 	~OpenLoop(void);
 	friend double Loop::generateDeleteMoveRate(Loop *start, Loop *end);
 	friend Loop * Loop::performDeleteMove(Move *move);
-	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen,
-			Loop **secondOpen);
-	static void performComplexJoin(OpenLoop **oldLoops, OpenLoop **newLoops,
-			char *types, int *index);
+	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);
+	static void performComplexJoin(OpenLoop **oldLoops, OpenLoop **newLoops, char *types, int *index);
+	MoveType declareMoveType(Loop* attachedLoop);
+
+
+
 private:
 	int *pairtype;
 	int *sidelen;

@@ -107,7 +107,7 @@ void utility::printDoubleMatrix(double input[], int length, int depth) {
 
 		for (int i = 0; i < length; i++) {
 
-			cout << input[i] << ",";
+			cout << input[j*depth + i] << ",";
 
 		}
 
@@ -118,13 +118,4 @@ void utility::printDoubleMatrix(double input[], int length, int depth) {
 
 }
 
-//void utility::printDoubleMatrix(double input[99][99], int width, int depth) {
-//
-//	for (int i = 0; i < depth; i++) {
-//
-//		printDoubleArray(input[i], width);
-//
-//	}
-//
-//}
 

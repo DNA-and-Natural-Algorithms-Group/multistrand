@@ -100,8 +100,7 @@ string SimOptions::toString() {
 
 	for (int i = 0; i < myComplexes->size(); i++) {
 
-		ss << "{ " << myComplexes->at(i).sequence << ", "
-				<< myComplexes->at(i).structure << " }";
+		ss << "{ " << myComplexes->at(i).sequence << ", " << myComplexes->at(i).structure << " }";
 		// something wrong with tostring of python IDs
 		//ss << myComplexes->at(i).list->toString() << " }";
 
@@ -113,16 +112,6 @@ string SimOptions::toString() {
 
 	// linked list iterator
 	stopComplexes* myStopComplex = myStopComplexes; // copying pointer so we can iterate.
-
-//	while (myStopComplex != NULL) {
-//
-////		ss << "{ " << myStopComplex->toString() << " } ";
-//		myStopComplex = myStopComplex->next;
-//		// something wrong with tostring of python IDs
-//		//	ss << "{ " << myStopComplexes->at(i).sequence << ", "
-//		//			<< myStopComplexes->at(i).structure  <<  " }";
-//
-//	}
 
 	ss << "} \n";
 
@@ -194,158 +183,13 @@ double SimOptions::getMaxSimTime(void) {
 
 }
 
-//long PSimOptions::getSimulationMode(void) {
-//
-//	if (simulation_mode == NULL) {
-//
-//		getLongAttr(python_settings, simulation_mode, &simulation_mode);
-//
-//		if (debug) {
-//
-//			printf("The simulation mode is %li \n", simulation_mode);
-//
-//		}
-//
-//	}
-//
-//	return simulation_mode;
-//
-//}
-
-//long PSimOptions::getSimulationCount(void) {
-//
-//	if (simulation_count == NULL) {
-//
-//		getLongAttr(python_settings, num_simulations, &simulation_count);
-//
-//		if (debug) {
-//
-//			printf("The simulation count is %li \n", simulation_count);
-//
-//		}
-//
-//	}
-//
-//	return simulation_count;
-//
-//}
-
-//long PSimOptions::getOInterval(void) {
-//
-//	if (o_interval == NULL) {
-//
-//		getLongAttr(python_settings, output_interval, &o_interval);
-//
-//		if (debug) {
-//
-//			printf("The o interval is %li \n", o_interval);
-//
-//		}
-//
-//	}
-//
-//	return o_interval;
-//
-//}
-
-//double PSimOptions::getOTime(void) {
-//
-//	if (o_time == NULL) {
-//
-//		getDoubleAttr(python_settings, output_time, &o_time);
-//
-//		if (debug) {
-//
-//			printf("The output time is %li \n", o_time);
-//
-//		}
-//
-//	}
-//
-//	return o_time;
-//
-//}
-
-//void PSimOptions::incrementTrajectoryCount(void) {
-//
-//	if (python_settings != NULL) {
-//		pingAttr(python_settings, increment_trajectory_count);
-//	}
-//
-//}
-
-//long PSimOptions::getStopOptions(void) {
-//
-//	if (stop_options == NULL) {
-//
-//		getLongAttr(python_settings, use_stop_conditions, &stop_options);
-//
-//		if (debug) {
-//
-//			printf("The stop option is %li \n", stop_options);
-//
-//		}
-//
-//	}
-//
-//	return stop_options;
-//
-//}
-//
-//long PSimOptions::getStopCount(void) {
-//
-//	if (stop_count == NULL) {
-//
-//		getLongAttr(python_settings, stop_count, &stop_count);
-//
-//		if (debug) {
-//
-//			printf("The stop count is %li \n", stop_count);
-//
-//		}
-//
-//	}
-//
-//	return stop_count;
-//
-//}
-
-//double PSimOptions::getMaxSimTime(void) {
-//
-//	if (max_sim_time == NULL) {
-//
-//		getDoubleAttr(python_settings, simulation_time, &max_sim_time);
-//
-//		if (debug) {
-//
-//			printf("The max sim time is %d \n", max_sim_time);
-//
-//		}
-//
-//	}
-//
-//	return max_sim_time;
-//
-//}
-
-//void PSimOptions::sendTransitionInfo(PyObject *transition_tuple) {
-//
-//	if (python_settings != NULL) {
-//
-//		pushTransitionInfo(python_settings, transition_tuple);
-//
-//	}
-//
-//}
-
 PyObject* PSimOptions::getPythonSettings() {
 
 	return python_settings;
 
 }
 
-void PSimOptions::generateComplexes(PyObject *alternate_start,
-		long current_seed) {
+void PSimOptions::generateComplexes(PyObject *alternate_start, long current_seed) {
 
 	myComplexes = new vector<complex_input>(0); // wipe the pointer to the previous object;
 
@@ -397,8 +241,7 @@ void PSimOptions::generateComplexes(PyObject *alternate_start,
 							"MULTISTRAND: Starting Structure could not be retrieved for index %d in your options object's start_state. This is likely due to Boltzmann sampling failing: please check that the program 'sample' exists and points correctly to the NUPACK sample binary. Or try 'print o.start_state[%d].structure' where 'o' is your options object and refer to that error message (if any).\n",
 							index, index);
 				} else {
-					fprintf(stderr,
-							"MULTISTRAND: An unidentified exception occurred while trying to initialize the system.\n");
+					fprintf(stderr, "MULTISTRAND: An unidentified exception occurred while trying to initialize the system.\n");
 
 				}
 				return;
@@ -406,8 +249,7 @@ void PSimOptions::generateComplexes(PyObject *alternate_start,
 
 			id = getID_list(python_settings, index, alternate_start);
 
-			complex_input myTempComplex = complex_input(sequence, structure,
-					id);
+			complex_input myTempComplex = complex_input(sequence, structure, id);
 
 			// StrandComplex does make its own copy of the seq/structure, so we can now decref.
 			myComplexes->push_back(myTempComplex);
@@ -466,27 +308,22 @@ void PSimOptions::stopResultTime(long seed, double time) {
 
 }
 
-void PSimOptions::stopResultBimolecular(string type, long seed, double stopTime,
-		double rate, char* message) {
+void PSimOptions::stopResultBimolecular(string type, long seed, double stopTime, double rate, char* message) {
 
 	if (type.compare("Reverse")) {
 
-		printStatusLine_First_Bimolecular(python_settings, seed,
-				STOPRESULT_REVERSE, stopTime, rate, message);
+		printStatusLine_First_Bimolecular(python_settings, seed, STOPRESULT_REVERSE, stopTime, rate, message);
 
 	} else if (type.compare("Forward")) {
 
-		printStatusLine_First_Bimolecular(python_settings, seed,
-				STOPRESULT_FORWARD, stopTime, rate, message);
+		printStatusLine_First_Bimolecular(python_settings, seed, STOPRESULT_FORWARD, stopTime, rate, message);
 
 	} else if (type.compare("FTime")) {
 
-		printStatusLine_First_Bimolecular(python_settings, seed,
-				STOPRESULT_FTIME, stopTime, rate, NULL);
+		printStatusLine_First_Bimolecular(python_settings, seed, STOPRESULT_FTIME, stopTime, rate, NULL);
 
 	} else if (type.compare("NoMoves")) {
-		printStatusLine_First_Bimolecular(python_settings, seed,
-				STOPRESULT_NOMOVES, stopTime, rate, NULL);
+		printStatusLine_First_Bimolecular(python_settings, seed, STOPRESULT_NOMOVES, stopTime, rate, NULL);
 
 	}
 
@@ -523,16 +360,13 @@ PyObject* CSimOptions::getPythonSettings() {
 
 }
 
-void CSimOptions::generateComplexes(PyObject *alternate_start,
-		long current_seed) {
+void CSimOptions::generateComplexes(PyObject *alternate_start, long current_seed) {
 
 	myComplexes = new vector<complex_input>(0); // wipe the pointer to the previous object;
 
 	// setting default value
-	char* mySeq =
-			"GTTAGACTCGGAGGTGGTAGCAATGGATCAG+CTGATCCATTGCTACCACCTCCGAGTCTAACCATATC+GATATGGTTAGACTCGGAGGTGGTAGCAATG";
-	char* myStructure =
-			".........................((((((+))))))(((((((((((((((((((((((((((((((+)))))))))))))))))))))))))))))))";
+	char* mySeq = "GTTAGACTCGGAGGTGGTAGCAATGGATCAG+CTGATCCATTGCTACCACCTCCGAGTCTAACCATATC+GATATGGTTAGACTCGGAGGTGGTAGCAATG";
+	char* myStructure = ".........................((((((+))))))(((((((((((((((((((((((((((((((+)))))))))))))))))))))))))))))))";
 	identList* myIdentity1 = new identList(1337, "myID-1", NULL);
 	identList* myIdentity2 = new identList(1338, "myID-2", myIdentity1);
 	identList* myIdentity3 = new identList(1339, "myID-3", myIdentity2);
@@ -575,8 +409,7 @@ void CSimOptions::stopResultTime(long seed, double time) {
 
 }
 
-void CSimOptions::stopResultBimolecular(string type, long seed, double stopTime,
-		double rate, char* message) {
+void CSimOptions::stopResultBimolecular(string type, long seed, double stopTime, double rate, char* message) {
 
 	cout << "stopResultBimolecular, cannot send to python \n";
 
