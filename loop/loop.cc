@@ -3180,6 +3180,14 @@ void HairpinLoop::generateMoves(void) {
 						energies[1] = energyModel->HairpinEnergy(&hairpin_seq[loop], loop2 - loop - 1);
 
 						tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
+
+						// new bulgeloop + hairpin: this is openMove and stackLoopMove
+						if (energyModel->useArrhenius()) {
+
+							tempRate = tempRate * energyModel->applyPrefactors(stackMove, stackLoopMove);
+
+						}
+
 						moves->addMove(new Move( MOVE_CREATE | MOVE_2, tempRate, this, loop, loop2));
 					} else // interior loop + hairpin case.
 					{
@@ -3191,6 +3199,14 @@ void HairpinLoop::generateMoves(void) {
 						// loop2 - loop - 1 is the new hairpin size.
 						energies[1] = energyModel->HairpinEnergy(&hairpin_seq[loop], loop2 - loop - 1);
 						tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
+
+						// interiorLoop + hairpin, so this is open + open
+						if (energyModel->useArrhenius()) {
+
+							tempRate = tempRate * energyModel->applyPrefactors(loopMove, loopMove);
+
+						}
+
 						moves->addMove(new Move( MOVE_CREATE | MOVE_3, tempRate, this, loop, loop2));
 					}
 				}
