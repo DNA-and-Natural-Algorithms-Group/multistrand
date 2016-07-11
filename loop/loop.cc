@@ -4518,6 +4518,8 @@ void MultiLoop::generateMoves(void) {
 
 		for (loop4 = loop3 + 2; (loop4 < numAdjacent) && (loop3 != 0 || loop4 < numAdjacent - 1); loop4++) {
 
+			// FD: Loop3, loop4 are the selected strands that will form a new base-pair.
+
 			for (loop = 1; loop <= sidelen[loop3]; loop++) {
 
 				for (loop2 = 1; loop2 <= sidelen[loop4]; loop2++) {
@@ -4552,6 +4554,8 @@ void MultiLoop::generateMoves(void) {
 						}
 
 						energies[0] = energyModel->MultiloopEnergy(loop4 - loop3 + 1, sideLengths, sequences);
+						MoveType leftMove = energyModel->prefactorMulti(sideLengths[loop3], sideLengths[loop4]);
+
 
 						// Multi loop
 						for (temploop = 0, tempindex = 0; temploop < numAdjacent - (loop4 - loop3 - 1); tempindex++) {
@@ -4580,8 +4584,13 @@ void MultiLoop::generateMoves(void) {
 						loops[2] = loop3;
 						loops[3] = loop4;
 
+						// multiLoop is splitting into two multiLoops. Which is something, and something else
+						if (energyModel->useArrhenius()) {
 
+							MoveType rightMove = energyModel->prefactorMulti(sideLengths[loop3], sideLengths[loop4]);
+							tempRate = tempRate * energyModel->applyPrefactors(leftMove, rightMove);
 
+						}
 
 						moves->addMove(new Move( MOVE_CREATE | MOVE_3, tempRate, this, loops));
 					}
