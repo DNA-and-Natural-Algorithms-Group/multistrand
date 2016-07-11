@@ -4351,7 +4351,7 @@ double MultiLoop::doChoice(Move *move, Loop **returnLoop) {
 void MultiLoop::generateMoves(void) {
 	int loop, loop2, loop3, loop4, temploop, tempindex, loops[4];
 	int pt;
-	double temprate;
+	double tempRate;
 	double energies[2];
 
 	if (moves != NULL)
@@ -4364,177 +4364,241 @@ void MultiLoop::generateMoves(void) {
 	//     #2b: creation move between sides resulting in a bulge and multi loop
 	//     #2c: creation move between sides resulting in a interior loop and multi loop
 	//     #3: creation move between sides resulting in two multiloops.
-	// #2a-#2c can only happen for adjacent sides, #3 only happens for non-adjacent sides (and is always the case for such). We separate these into cases #2 (#2a-#2c) and #3 (#2d).
+	// #2a-#2c can only happen for adjacent sides, #3 only happens for non-adjacent sides (and is always the case for such). We separate these into cases #2a-#2c and #3 .
 
 	// these pointers are needed to set up all of the multiloop energy calls.
 	int *ptypes = NULL;
-	int *sidelengths = NULL;
+	int *sideLengths = NULL;
 	char **sequences = NULL;
 
 	// the most storage we'll need is for case #1, which will have a multiloop of 1 greater magnitude.
 	ptypes = new int[numAdjacent + 1];
-	sidelengths = new int[numAdjacent + 1];
+	sideLengths = new int[numAdjacent + 1];
 	sequences = new char *[numAdjacent + 1];
 
 	// Case #1: Single Side only Creation Moves
-	for (loop3 = 0; loop3 < numAdjacent; loop3++)
-		for (loop = 1; loop <= sidelen[loop3] - 4; loop++)
+	for (loop3 = 0; loop3 < numAdjacent; loop3++) {
+		for (loop = 1; loop <= sidelen[loop3] - 4; loop++) {
 			for (loop2 = loop + 4; loop2 <= sidelen[loop3]; loop2++) { // each possibility is a hairpin and multiloop, see above.
-				if (pt = pairtypes[seqs[loop3][loop]][seqs[loop3][loop2]] != 0) {
+
+				//FD: loop3 is the strand that will split.
+				//FD: loop and loop2 are the nucleotide indices.
+				//FD: Loop2 - loop is at least 4, e.g. this is the hairpin length.
+				//FD: the length of the right-side remaining loop is sidelen[loop3]-loop2;
+
+				pt = pairtypes[seqs[loop3][loop]][seqs[loop3][loop2]];
+
+				if (pt != 0) {
+
 					energies[0] = energyModel->HairpinEnergy(&seqs[loop3][loop], loop2 - loop - 1);
 
 					for (temploop = 0, tempindex = 0; temploop < numAdjacent + 1; temploop++, tempindex++) {
 						if (temploop == loop3) {
 
 							ptypes[temploop] = pairtype[temploop];
-							sidelengths[temploop] = loop - 1;
+							sideLengths[temploop] = loop - 1;
 							sequences[temploop] = seqs[temploop];
 							ptypes[temploop + 1] = pt;
-							sidelengths[temploop + 1] = sidelen[temploop] - loop2;
+							sideLengths[temploop + 1] = sidelen[temploop] - loop2;
 							sequences[temploop + 1] = &seqs[temploop][loop2];
+
+							// FD: This places an additional side to the multiloop.
+							// FD: The left-side retains loop3 location, the right-side is now indexed at loop3+1.
+
 							temploop = temploop + 1;
+
 						} else {
+
 							ptypes[temploop] = pairtype[tempindex];
-							sidelengths[temploop] = sidelen[tempindex];
+							sideLengths[temploop] = sidelen[tempindex];
 							sequences[temploop] = seqs[tempindex];
+
 						}
 					}
-					energies[1] = energyModel->MultiloopEnergy(numAdjacent + 1, sidelengths, sequences);
+					energies[1] = energyModel->MultiloopEnergy(numAdjacent + 1, sideLengths, sequences);
 
-					temprate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
+					tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
 
-					utility::printDouble(temprate);
-					utility::printDouble(energies[0] + energies[1]);
+					// multiLoop is closing, so this an loopMove and something else
+					if (energyModel->useArrhenius()) {
 
-					moves->addMove(new Move( MOVE_CREATE | MOVE_1, temprate, this, loop, loop2, loop3));
+						MoveType rightMove = energyModel->prefactorMulti(sideLengths[loop3], sideLengths[loop3]);
+						tempRate = tempRate * energyModel->applyPrefactors(loopMove, rightMove);
+
+					}
+
+					moves->addMove(new Move( MOVE_CREATE | MOVE_1, tempRate, this, loop, loop2, loop3));
 				}
 			}
+		}
+	}
 
 	// Case #2a-c: adjacent loop creation moves
-	for (loop3 = 0; loop3 <= numAdjacent - 1; loop3++) // CHECK: is numAdjacent really correct? it could be numAdjacent+1
-		for (loop = 1; loop <= sidelen[loop3]; loop++)
+	for (loop3 = 0; loop3 <= numAdjacent - 1; loop3++) { // CHECK: is numAdjacent really correct? it could be numAdjacent+1
+		for (loop = 1; loop <= sidelen[loop3]; loop++) {
 			for (loop2 = 1; loop2 <= sidelen[(loop3 + 1) % numAdjacent]; loop2++) { // each possibility is a hairpin and open loop, see above.
 				loop4 = (loop3 + 1) % numAdjacent;
-				if (pt = pairtypes[seqs[loop3][loop]][seqs[loop4][loop2]] != 0) {
+
+				pt = pairtypes[seqs[loop3][loop]][seqs[loop4][loop2]];
+
+				if (pt != 0) {
+
+					MoveType leftMove = stackMove;
 
 					// three cases for which type of move:
 					// #2a: stack
 					if (loop == sidelen[loop3] && loop2 == 1) {
+
 						energies[0] = energyModel->StackEnergy(seqs[loop3][loop], seqs[loop4][loop2], seqs[loop3][sidelen[loop3] + 1], seqs[loop4][0]);
-					}
-					// #2b: bulge
-					else if (loop == sidelen[loop3] || loop2 == 1) {
-						if (loop2 == 1)
+
+					} else if (loop == sidelen[loop3] || loop2 == 1) { 			// #2b: bulge
+
+						if (loop2 == 1) {
 							energies[0] = energyModel->BulgeEnergy(seqs[loop3][loop], seqs[loop4][loop2], seqs[loop3][sidelen[loop3] + 1], seqs[loop4][0],
 									sidelen[loop3] - loop);
-						else
+						} else {
 							energies[0] = energyModel->BulgeEnergy(seqs[loop3][loop], seqs[loop4][loop2], seqs[loop3][sidelen[loop3] + 1], seqs[loop4][0],
 									loop2 - 1);
-					}
-					// #2c: interior
-					else {
-						//		  char mismatches[4] = { seqs[loop3][loop+1], seqs[loop4][loop2-1], seqs[loop3][sidelen[loop3]], seqs[loop4][1]};
+						}
+
+						leftMove = stackLoopMove;
+
+					} else {				 					// #2c: interior
+
 						energies[0] = energyModel->InteriorEnergy(&seqs[loop3][loop], seqs[loop4], sidelen[loop3] - loop, loop2 - 1);
-						//pt, pairtype[loop4], sidelen[loop3]- loop, loop2-1, mismatches );
+						leftMove = loopMove;
+
 					}
 
 					for (temploop = 0; temploop < numAdjacent; temploop++) {
 						if (temploop == loop3) {
+							//FD: This is computing the sideLengths for the remaining loops.
+
 							ptypes[temploop] = pairtype[temploop];
-							sidelengths[temploop] = loop - 1;
+							sideLengths[temploop] = loop - 1;
 							sequences[temploop] = seqs[temploop];
+
 						} else {
+
 							ptypes[temploop] = pairtype[temploop];
 							if (temploop == loop4) {
 								ptypes[temploop] = pt;
-								sidelengths[temploop] = sidelen[temploop] - loop2;
+								sideLengths[temploop] = sidelen[temploop] - loop2;
 								sequences[temploop] = &seqs[temploop][loop2];
 							} else {
-								sidelengths[temploop] = sidelen[temploop];
+								sideLengths[temploop] = sidelen[temploop];
 								sequences[temploop] = seqs[temploop];
 							}
 						}
 					}
-					energies[1] = energyModel->MultiloopEnergy(numAdjacent, sidelengths, sequences);
+					energies[1] = energyModel->MultiloopEnergy(numAdjacent, sideLengths, sequences);
+					tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
 
-					temprate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
-					moves->addMove(new Move( MOVE_CREATE | MOVE_2, temprate, this, loop, loop2, loop3));
+					// multiLoop is forming an stack/bulge/interior, which is something and something else
+					if (energyModel->useArrhenius()) {
+
+						MoveType rightMove = energyModel->prefactorMulti(sideLengths[loop3], sideLengths[loop4]);
+						tempRate = tempRate * energyModel->applyPrefactors(leftMove, rightMove);
+
+					}
+
+					moves->addMove(new Move( MOVE_CREATE | MOVE_2, tempRate, this, loop, loop2, loop3));
 				}
 			}
+		}
+	}
 
-	// FIXME 01/17/05 JS - This appears to be directly copied from the openloop section - the second half always refers to openloops, not multi as should be expected... Needs checking. RESOLVED 01/17/05 This is now updated to be exactly appropriate to the multiloop case.
+// FIXME 01/17/05 JS - This appears to be directly copied from the openloop section - the second half always refers to openloops, not multi as should be expected... Needs checking. RESOLVED 01/17/05 This is now updated to be exactly appropriate to the multiloop case.
 
-	// Case #3: non-adjacent loop creation moves (2d)
-	// Revamped so it actually works. Algorithm follows:
-	// This is all connections between non-adjacent sides. Thus we must exclude adjacent sides, and must try all possible combinations which match. This means we have to cover ~n^2 side combinations, where n is the total number of sides. Note that in this data structure, n is numAdjacent+1, and they are labelled 0,1,...,numAdjacent
-	// Loop over all sides. Within this loop, cover all sides that are labelled higher that the first, and are non adjacent. For each pair of bases in these two sides, check whether they can pair. For each pair, compute energies and add move to list.
-	for (loop3 = 0; loop3 < numAdjacent - 2; loop3++) // The last 2 entries are not needed as neither have higher numbered non-adjacent sections.
-		for (loop4 = loop3 + 2; (loop4 < numAdjacent) && (loop3 != 0 || loop4 < numAdjacent - 1); loop4++)
-			for (loop = 1; loop <= sidelen[loop3]; loop++)
+// Case #3: non-adjacent loop creation moves (2d)
+// Revamped so it actually works. Algorithm follows:
+// This is all connections between non-adjacent sides. Thus we must exclude adjacent sides, and must try all possible combinations which match. This means we have to cover ~n^2 side combinations, where n is the total number of sides. Note that in this data structure, n is numAdjacent+1, and they are labelled 0,1,...,numAdjacent
+// Loop over all sides. Within this loop, cover all sides that are labelled higher that the first, and are non adjacent. For each pair of bases in these two sides, check whether they can pair. For each pair, compute energies and add move to list.
+	for (loop3 = 0; loop3 < numAdjacent - 2; loop3++) { // The last 2 entries are not needed as neither have higher numbered non-adjacent sections.
+
+		for (loop4 = loop3 + 2; (loop4 < numAdjacent) && (loop3 != 0 || loop4 < numAdjacent - 1); loop4++) {
+
+			for (loop = 1; loop <= sidelen[loop3]; loop++) {
+
 				for (loop2 = 1; loop2 <= sidelen[loop4]; loop2++) {
-					if (pt = pairtypes[seqs[loop3][loop]][seqs[loop4][loop2]] != 0) { // result is a multiloop and multi loop.
-																					  // Multiloop
+
+					pt = pairtypes[seqs[loop3][loop]][seqs[loop4][loop2]];
+
+					if (pt != 0) { // result is a multiloop and multi loop.
+								   // Multiloop
 
 						for (temploop = 0, tempindex = 0; temploop < (loop4 - loop3 + 1); tempindex++) // note that loop4 - loop3 is the number of pairings that got included in the multiloop. The extra closing pair makes the +1.
 								{
 							if (tempindex == loop3) {
 								ptypes[temploop] = pt;
-								sidelengths[temploop] = sidelen[tempindex] - loop;
+								sideLengths[temploop] = sidelen[tempindex] - loop;
 								sequences[temploop] = &seqs[tempindex][loop];
 								temploop++;
 							}
+
 							if (tempindex > loop3 && tempindex < loop4) {
 								ptypes[temploop] = pairtype[tempindex];
-								sidelengths[temploop] = sidelen[tempindex];
+								sideLengths[temploop] = sidelen[tempindex];
 								sequences[temploop] = seqs[tempindex];
 								temploop++;
 							}
+
 							if (tempindex == loop4) {
 								ptypes[temploop] = pairtype[tempindex];
-								sidelengths[temploop] = loop2 - 1;
+								sideLengths[temploop] = loop2 - 1;
 								sequences[temploop] = seqs[tempindex];
 								temploop++;
 							}
 						}
 
-						energies[0] = energyModel->MultiloopEnergy(loop4 - loop3 + 1, sidelengths, sequences);
+						energies[0] = energyModel->MultiloopEnergy(loop4 - loop3 + 1, sideLengths, sequences);
 
 						// Multi loop
 						for (temploop = 0, tempindex = 0; temploop < numAdjacent - (loop4 - loop3 - 1); tempindex++) {
 							if (tempindex == loop3) {
 								ptypes[temploop] = pairtype[tempindex];
-								sidelengths[temploop] = loop - 1;
+								sideLengths[temploop] = loop - 1;
 								sequences[temploop] = seqs[tempindex];
 								temploop++;
 							} else if (tempindex == loop4) {
 								ptypes[temploop] = pt;
-								sidelengths[temploop] = sidelen[tempindex] - loop2;
+								sideLengths[temploop] = sidelen[tempindex] - loop2;
 								sequences[temploop] = &seqs[tempindex][loop2];
 								temploop++;
 							} else if (!((tempindex > loop3) && (tempindex < loop4))) {
 								ptypes[temploop] = pairtype[tempindex];
-								sidelengths[temploop] = sidelen[tempindex];
+								sideLengths[temploop] = sidelen[tempindex];
 								sequences[temploop] = seqs[tempindex];
 								temploop++;
 							}
 
 						}
-						energies[1] = energyModel->MultiloopEnergy(numAdjacent - (loop4 - loop3 - 1), sidelengths, sequences);
-						temprate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
+						energies[1] = energyModel->MultiloopEnergy(numAdjacent - (loop4 - loop3 - 1), sideLengths, sequences);
+						tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
 						loops[0] = loop;
 						loops[1] = loop2;
 						loops[2] = loop3;
 						loops[3] = loop4;
-						moves->addMove(new Move( MOVE_CREATE | MOVE_3, temprate, this, loops));
+
+
+
+
+						moves->addMove(new Move( MOVE_CREATE | MOVE_3, tempRate, this, loops));
 					}
 
 				}
 
+			}
+
+		}
+
+	}
+
 	totalRate = moves->getRate();
 	if (ptypes != NULL)
 		delete[] ptypes;
-	if (sidelengths != NULL)
-		delete[] sidelengths;
+	if (sideLengths != NULL)
+		delete[] sideLengths;
 	if (sequences != NULL)
 		delete[] sequences;
 
@@ -4636,7 +4700,7 @@ OpenLoop::OpenLoop(void) {
 	sidelen = NULL;
 	seqs = NULL;
 	identity = 'O';
-	//  add_index = 0;
+//  add_index = 0;
 }
 
 OpenLoop::~OpenLoop(void) {
@@ -4937,17 +5001,17 @@ void OpenLoop::generateMoves(void) {
 	if (moves != NULL)
 		delete moves;
 	moves = new MoveList(1);
-	//  Several options here:
-	//     #1: creation move within a side this results in a hairpin and a open loop with 1 greater magnitude.
-	//     #2a: creation move between sides resulting in a stack and open loop
-	//     #2b: creation move between sides resulting in a bulge and open loop
-	//     #2c: creation move between sides resulting in a interior loop and open loop
-	//     #2d: creation move between sides resulting in a multiloop and open loop. (ICK).
-	// #2a-#2c can only happen for adjacent sides, #2d only happens for non-adjacent sides (and is always the case for such). We separate these into cases #2 (#2a-#2c) and #3 (#2d).
+//  Several options here:
+//     #1: creation move within a side this results in a hairpin and a open loop with 1 greater magnitude.
+//     #2a: creation move between sides resulting in a stack and open loop
+//     #2b: creation move between sides resulting in a bulge and open loop
+//     #2c: creation move between sides resulting in a interior loop and open loop
+//     #2d: creation move between sides resulting in a multiloop and open loop. (ICK).
+// #2a-#2c can only happen for adjacent sides, #2d only happens for non-adjacent sides (and is always the case for such). We separate these into cases #2 (#2a-#2c) and #3 (#2d).
 
-	// these three pointers are needed to set up the open loop's energy calls.
-	// i'd like to optimize so they don't need to be created/deleted very often
-	// but i'm  not sure of a good way of handling that yet.
+// these three pointers are needed to set up the open loop's energy calls.
+// i'd like to optimize so they don't need to be created/deleted very often
+// but i'm  not sure of a good way of handling that yet.
 
 	int *ptypes = NULL;
 	int *sidelengths = NULL;
@@ -4956,7 +5020,7 @@ void OpenLoop::generateMoves(void) {
 	ptypes = new int[numAdjacent + 1];
 	sidelengths = new int[numAdjacent + 2];
 	sequences = new char *[numAdjacent + 2];
-	// Case #1: Single Side only Creation Moves
+// Case #1: Single Side only Creation Moves
 	for (loop3 = 0; loop3 <= numAdjacent; loop3++) { // CHECK: is numAdjacent really correct? it could be numAdjacent+1
 
 		char* mySequence = seqs[loop3]; // this is the sequence of the strand that we use
@@ -5006,7 +5070,7 @@ void OpenLoop::generateMoves(void) {
 		}
 	}
 
-	// Case #2a-c: adjacent loop creation moves
+// Case #2a-c: adjacent loop creation moves
 	for (loop3 = 0; loop3 <= numAdjacent - 1; loop3++) // CHECK: is numAdjacent really correct? it could be numAdjacent+1
 		for (loop = 1; loop <= sidelen[loop3]; loop++)
 			for (loop2 = 1; loop2 <= sidelen[loop3 + 1]; loop2++) { // each possibility is a hairpin and open loop, see above.
@@ -5060,10 +5124,10 @@ void OpenLoop::generateMoves(void) {
 				}
 			}
 
-	// Case #3: non-adjacent loop creation moves (2d)
-	// Revamped so it actually works. Algorithm follows:
-	// This is all connections between non-adjacent sides. Thus we must exclude adjacent sides, and must try all possible combinations which match. This means we have to cover ~n^2 side combinations, where n is the total number of sides. Note that in this data structure, n is numAdjacent+1, and they are labelled 0,1,...,numAdjacent
-	// Loop over all sides. Within this loop, cover all sides that are labelled higher that the first, and are non adjacent. For each pair of bases in these two sides, check whether they can pair. For each pair, compute energies and add move to list.
+// Case #3: non-adjacent loop creation moves (2d)
+// Revamped so it actually works. Algorithm follows:
+// This is all connections between non-adjacent sides. Thus we must exclude adjacent sides, and must try all possible combinations which match. This means we have to cover ~n^2 side combinations, where n is the total number of sides. Note that in this data structure, n is numAdjacent+1, and they are labelled 0,1,...,numAdjacent
+// Loop over all sides. Within this loop, cover all sides that are labelled higher that the first, and are non adjacent. For each pair of bases in these two sides, check whether they can pair. For each pair, compute energies and add move to list.
 	for (loop3 = 0; loop3 <= numAdjacent - 2; loop3++) // The last 2 entries are not needed as neither have higher numbered non-adjacent sections.
 		for (loop4 = loop3 + 2; loop4 <= numAdjacent; loop4++) {
 
@@ -5183,55 +5247,6 @@ void OpenLoop::printMove(Loop *comefrom, char *structure_p, char *seq_p) {
 	}
 }
 
-//void OpenLoop::moveDisplay(Loop *comefrom, char * structure_p, char *seq_p) {
-//	int loop;
-//	Move *temp;
-//	for (loop = 0; loop < curAdjacent; loop++) {
-//		if (adjacentLoops[loop] != comefrom && adjacentLoops[loop] != NULL)
-//			// shouldn't happen, being careful.
-//			adjacentLoops[loop]->moveDisplay(this, structure_p, seq_p);
-//		assert(adjacentLoops[loop] != NULL);
-//	}
-//	do {
-//		temp = moves->getMove(temp);
-//		if (temp == NULL)
-//			continue;
-//		if (temp->type & MOVE_CREATE) {
-//			switch (temp->type & (MOVE_1 | MOVE_2)) {
-//			case MOVE_1:
-//				structure_p[temp->index[0] + (seqs[temp->index[3]] - seq_p)] =
-//						'(';
-//				structure_p[temp->index[1] + (seqs[temp->index[3]] - seq_p)] =
-//						')';
-//
-//				printf("%s\n", structure_p);
-//
-//				structure_p[temp->index[0] + (seqs[temp->index[3]] - seq_p)] =
-//						'.';
-//				structure_p[temp->index[1] + (seqs[temp->index[3]] - seq_p)] =
-//						'.';
-//				break;
-//			case MOVE_2:
-//				structure_p[temp->index[0] + (seqs[temp->index[3]] - seq_p)] =
-//						'(';
-//				structure_p[temp->index[1] + (seqs[temp->index[3] + 1] - seq_p)] =
-//						')';
-//
-//				printf("%s\n", structure_p);
-//
-//				structure_p[temp->index[0] + (seqs[temp->index[3]] - seq_p)] =
-//						'.';
-//				structure_p[temp->index[1] + (seqs[temp->index[3] + 1] - seq_p)] =
-//						'.';
-//				break;
-//			default:
-//				fprintf(stderr, "Error in OpenLoop::displayMoves");
-//				break;
-//			}
-//		}
-//	} while (temp != NULL);
-//}
-
 char *OpenLoop::getLocation(Move *move, int index) {
 	if (move->getType() & MOVE_CREATE) {
 		if (move->getType() & MOVE_1)
@@ -5321,7 +5336,7 @@ void OpenLoop::performComplexJoin(OpenLoop **oldLoops, OpenLoop **newLoops, char
 		}
 	}
 
-	// seqnum and seqindex now have the appropriate locations within each openloop. Time to compute the new #'s of adjacent loops.
+// seqnum and seqindex now have the appropriate locations within each openloop. Time to compute the new #'s of adjacent loops.
 
 	sizes[0] = seqnum[0] + 1 + (oldLoops[1]->numAdjacent - seqnum[1]);
 	sizes[1] = seqnum[1] + 1 + (oldLoops[0]->numAdjacent - seqnum[0]);
@@ -5380,15 +5395,15 @@ void OpenLoop::performComplexJoin(OpenLoop **oldLoops, OpenLoop **newLoops, char
 		newLoops[toggle] = newLoop;
 	}
 
-	// must do these after, otherwise the links between the two loops don't exist
+// must do these after, otherwise the links between the two loops don't exist
 	newLoops[0]->replaceAdjacent( NULL, newLoops[1]);
 	newLoops[1]->replaceAdjacent( NULL, newLoops[0]);
 
 	newLoops[0]->generateMoves();
 	newLoops[1]->generateMoves();
 
-	// need to re-generate the moves for all adjacent loops.
-	// TODO: change this to only re-generate the deletion moves.
+// need to re-generate the moves for all adjacent loops.
+// TODO: change this to only re-generate the deletion moves.
 	for (toggle = 0; toggle <= 1; toggle++)
 		for (loop = 0; loop < sizes[toggle]; loop++)
 			if (loop != seqnum[toggle])
