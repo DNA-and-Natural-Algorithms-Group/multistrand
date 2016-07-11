@@ -1829,6 +1829,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 					e_index = loop;
 				}
 		}
+
 		// note e_index has different meaning now for openloops.
 
 		int *pairtypes = new int[end_->numAdjacent];
@@ -2517,31 +2518,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 				end_->cleanupAdjacent();
 				delete end_;
 				return newLoop;
-				/*		}
-				 else
-				 {
-				 newLoop = new InteriorLoop( end_->pairtype[positions[0]], end_->pairtype[positions[1]], sizes[1], sizes[0], end_->seqs[positions[0]], end_->seqs[positions[1]]);
 
-				 newLoop->addAdjacent( end_->adjacentLoops[positions[1]] );
-				 temp =  end_->adjacentLoops[positions[1]]->replaceAdjacent( end_, newLoop);
-				 assert( temp > 0);
-
-
-				 newLoop->addAdjacent( end_->adjacentLoops[positions[0]] );
-				 temp = end_->adjacentLoops[positions[0]]->replaceAdjacent( end_ , newLoop);
-				 assert( temp > 0);
-
-				 newLoop->generateMoves();
-
-				 // need to re-generate the moves for all adjacent loops.
-				 // TODO: change this to only re-generate the deletion moves.
-				 newLoop->adjacentLoops[0]->generateMoves();
-				 newLoop->adjacentLoops[1]->generateMoves();
-
-				 start_->cleanupAdjacent(); delete start_;
-				 end_->cleanupAdjacent(); delete end_;
-				 return newLoop;
-				 }*/
 			} else  // bulge loop case
 			{
 				newLoop = new BulgeLoop(end_->pairtype[positions[0]], end_->pairtype[positions[1]], sizes[1], sizes[0], end_->seqs[positions[0]],
@@ -3147,7 +3124,7 @@ void HairpinLoop::generateMoves(void) {
 	double energies[2];
 	int pt = 0;
 	int loop, loop2;
-	double temprate = 0;
+	double tempRate = 0;
 	// Creation moves
 	if (hairpinsize <= 4) {
 		// We cannot form any creation moves in the hairpin unless it has at least 5 bases.
@@ -3161,13 +3138,15 @@ void HairpinLoop::generateMoves(void) {
 	} else {
 		if (moves != NULL)
 			delete moves;
-		//      moves = new MoveList(hairpinsize);
 		moves = new MoveList(1);
 
 		// Indice 0 is the starting hairpin base. hairpinsize+1 is the ending hairpin base. Thus we want to start at hairpin indice 1, and go to hairpinsize - 3. (which could pair to indice hairpinsize)
 		for (loop = 1; loop <= hairpinsize - 4; loop++)
 			for (loop2 = loop + 4; loop2 <= hairpinsize; loop2++) {
-				if (pt = pairtypes[hairpin_seq[loop]][hairpin_seq[loop2]] != 0) { // the two could pair. Work out energies of the resulting pair of loops.
+
+				pt = pairtypes[hairpin_seq[loop]][hairpin_seq[loop2]];
+
+				if (pt != 0) { // the two could pair. Work out energies of the resulting pair of loops.
 
 					// Case handling time.
 					// possibilities: new stack + hairpin.
@@ -3176,11 +3155,19 @@ void HairpinLoop::generateMoves(void) {
 
 					// new stack + hairpin
 					if (loop == 1 && loop2 == hairpinsize) {
+
 						energies[0] = energyModel->StackEnergy(hairpin_seq[0], hairpin_seq[hairpinsize + 1], hairpin_seq[loop], hairpin_seq[loop2]);
 						energies[1] = energyModel->HairpinEnergy(&hairpin_seq[1], hairpinsize - 2);
-						temprate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
+						tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
 
-						moves->addMove(new Move( MOVE_CREATE | MOVE_1, temprate, this, loop, loop2));
+						// stack and hairpin, so this is openLoop and stack
+						if (energyModel->useArrhenius()) {
+
+							tempRate = tempRate * energyModel->applyPrefactors(loopMove, stackMove);
+
+						}
+
+						moves->addMove(new Move( MOVE_CREATE | MOVE_1, tempRate, this, loop, loop2));
 					}
 					// bulge + hairpin
 					else if (loop == 1 || loop2 == hairpinsize) {
@@ -3192,8 +3179,8 @@ void HairpinLoop::generateMoves(void) {
 
 						energies[1] = energyModel->HairpinEnergy(&hairpin_seq[loop], loop2 - loop - 1);
 
-						temprate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
-						moves->addMove(new Move( MOVE_CREATE | MOVE_2, temprate, this, loop, loop2));
+						tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
+						moves->addMove(new Move( MOVE_CREATE | MOVE_2, tempRate, this, loop, loop2));
 					} else // interior loop + hairpin case.
 					{
 						//		  char mismatches[4] = { hairpin_seq[1], hairpin_seq[hairpinsize], hairpin_seq[loop-1], hairpin_seq[loop2+1]};
@@ -3203,8 +3190,8 @@ void HairpinLoop::generateMoves(void) {
 
 						// loop2 - loop - 1 is the new hairpin size.
 						energies[1] = energyModel->HairpinEnergy(&hairpin_seq[loop], loop2 - loop - 1);
-						temprate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
-						moves->addMove(new Move( MOVE_CREATE | MOVE_3, temprate, this, loop, loop2));
+						tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
+						moves->addMove(new Move( MOVE_CREATE | MOVE_3, tempRate, this, loop, loop2));
 					}
 				}
 			}
@@ -3221,12 +3208,6 @@ void HairpinLoop::generateDeleteMoves(void) {
 	double temprate;
 
 	generateAndSaveDeleteMove(adjacentLoops[0], 0);
-
-//	temprate = Loop::generateDeleteMoveRate(this, adjacentLoops[0]);
-//	if (temprate >= 0.0)
-//		moves->addMove(
-//				new Move( MOVE_DELETE | MOVE_1, temprate, this,
-//						adjacentLoops[0], 0));
 
 	totalRate = moves->getRate();
 }
