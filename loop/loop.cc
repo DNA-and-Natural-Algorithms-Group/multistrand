@@ -3830,9 +3830,9 @@ double InteriorLoop::doChoice(Move *move, Loop **returnLoop) {
 
 void InteriorLoop::generateMoves(void) {
 	double energies[2];
-	int pt = 0;              //,pt2=0;
+	int pt = 0;
 	int loop, loop2;
-	double temprate = 0;
+	double tempRate = 0;
 
 	int nummoves = sizes[0] * sizes[1];
 	if (sizes[0] > 4)
@@ -3853,9 +3853,13 @@ void InteriorLoop::generateMoves(void) {
 	//                   the third is only creation moves that cross 0-1.
 
 	// Loop #1: Side 0 only Creation Moves
-	for (loop = 1; loop <= sizes[0] - 4; loop++)
+	for (loop = 1; loop <= sizes[0] - 4; loop++) {
+
 		for (loop2 = loop + 4; loop2 <= sizes[0]; loop2++) { // each possibility will always result in a new hairpin + multiloop.
-			if (pt = pairtypes[int_seq[0][loop]][int_seq[0][loop2]] != 0) {
+
+			pt = pairtypes[int_seq[0][loop]][int_seq[0][loop2]];
+
+			if (pt != 0) {
 				energies[0] = energyModel->HairpinEnergy(&int_seq[0][loop], loop2 - loop - 1);
 
 				// Multiloop energy
@@ -3866,15 +3870,26 @@ void InteriorLoop::generateMoves(void) {
 
 				energies[1] = energyModel->MultiloopEnergy(3, sidelen, sequences);
 
-				temprate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
-				moves->addMove(new Move( MOVE_CREATE | MOVE_1, temprate, this, loop, loop2));
+				tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
+
+				// hairpin and multiloop, so this is loopMove and something
+				if (energyModel->useArrhenius()) {
+
+					MoveType multiMove = energyModel->prefactorMulti(sidelen[0], sidelen[1]);
+					tempRate = tempRate * energyModel->applyPrefactors(loopMove, multiMove);
+
+				}
+
+				moves->addMove(new Move( MOVE_CREATE | MOVE_1, tempRate, this, loop, loop2));
 			}
 		}
+	}
 
 	// Loop #2: Side 1 only Creation Moves
 	for (loop = 1; loop <= sizes[1] - 4; loop++)
 		for (loop2 = loop + 4; loop2 <= sizes[1]; loop2++) { // each possibility will always result in a new hairpin + multiloop.
-			if (pt = pairtypes[int_seq[1][loop]][int_seq[1][loop2]] != 0) {
+			pt = pairtypes[int_seq[1][loop]][int_seq[1][loop2]];
+			if (pt != 0) {
 				energies[0] = energyModel->HairpinEnergy(&int_seq[1][loop], loop2 - loop - 1);
 
 				// Multiloop energy - CHECK THIS
@@ -3885,8 +3900,17 @@ void InteriorLoop::generateMoves(void) {
 
 				energies[1] = energyModel->MultiloopEnergy(3, sidelen, sequences);
 
-				temprate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
-				moves->addMove(new Move( MOVE_CREATE | MOVE_2, temprate, this, loop, loop2));
+				tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
+
+				// hairpin and multiloop, so this is loopMove and something
+				if (energyModel->useArrhenius()) {
+
+					MoveType multiMove = energyModel->prefactorMulti(sidelen[1], sidelen[2]);
+					tempRate = tempRate * energyModel->applyPrefactors(loopMove, multiMove);
+
+				}
+
+				moves->addMove(new Move( MOVE_CREATE | MOVE_2, tempRate, this, loop, loop2));
 			}
 		}
 
@@ -3894,42 +3918,48 @@ void InteriorLoop::generateMoves(void) {
 
 	for (loop = 1; loop <= sizes[0]; loop++)
 		for (loop2 = 1; loop2 <= sizes[1]; loop2++) {
-			//	pt2 = pairtypes[int_seq[1][loop2]][int_seq[0][loop]];
+
 			pt = pairtypes[int_seq[0][loop]][int_seq[1][loop2]];
 			if (pt != 0) {
 				// Need to check conditions for each side in order to determine what the two new loops types would be.
 				// adjacent to first pair side:
-				if (loop == 1 && loop2 == sizes[1]) // stack
+
+				MoveType leftMove = stackMove;
+				MoveType rightMove = stackMove;
+
+				if (loop == 1 && loop2 == sizes[1]) {			// stack
 					energies[0] = energyModel->StackEnergy(int_seq[0][0], int_seq[1][sizes[1] + 1], int_seq[0][loop], int_seq[1][loop2]);
-				else if (loop == 1 || loop2 == sizes[1]) // bulge
+				} else if (loop == 1 || loop2 == sizes[1]) {		// bulge
 					energies[0] = energyModel->BulgeEnergy(int_seq[0][0], int_seq[1][sizes[1] + 1], int_seq[0][loop], int_seq[1][loop2],
 							(loop - 1) + (sizes[1] - loop2));
-				else  // interior
-				{
-					//		char mismatches[4] = { int_seq[0][1], int_seq[1][sizes[1]], int_seq[0][loop-1], int_seq[1][loop2+1]};
+					leftMove = stackEndMove;
+				} else {  // interior
 					energies[0] = energyModel->InteriorEnergy(int_seq[0], &int_seq[1][loop2], loop - 1, sizes[1] - loop2);
-					//pairtype[0], pt, loop - 1, sizes[1] - loop2, mismatches );
+					leftMove = loopMove;
 				}
 
 				// other side
-				if (loop == sizes[0] && loop2 == 1) // stack
+				if (loop == sizes[0] && loop2 == 1) { // stack
 					energies[1] = energyModel->StackEnergy(int_seq[0][loop], int_seq[1][loop2], int_seq[0][sizes[0] + 1], int_seq[1][0]);
-				else if (loop == sizes[0] || loop2 == 1) // bulge
+				} else if (loop == sizes[0] || loop2 == 1) { // bulge
 					energies[1] = energyModel->BulgeEnergy(int_seq[0][loop], int_seq[1][loop2], int_seq[0][sizes[0] + 1], int_seq[1][0],
 							(loop2 - 1) + (sizes[0] - loop));
-				else // interior
-				{
-					// old//		char mismatches[4] = {int_seq[1][1],int_seq[0][sizes[0]],int_seq[1][loop2-1],int_seq[0][loop+1]};
-					//char mismatches[4] = {int_seq[0][loop+1], int_seq[1][loop2-1], int_seq[0][sizes[0]],int_seq[1][1]};
-
+					rightMove = stackEndMove;
+				} else { // interior
 					energies[1] = energyModel->InteriorEnergy(&int_seq[0][loop], int_seq[1], sizes[0] - loop, loop2 - 1);
-
-					//pt, pairtype[1], sizes[0] - loop, loop2 - 1, mismatches );
+					rightMove = loopMove;
 				}
-				//	    printf("Move: (energies 0, 1, current energy): %d %d %d\n",energies[0], energies[1], getEnergy());
 
-				temprate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
-				moves->addMove(new Move( MOVE_CREATE | MOVE_3, temprate, this, loop, loop2));
+				tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
+
+				// interior loop is closing, so this could be anything.
+				if (energyModel->useArrhenius()) {
+
+					tempRate = tempRate * energyModel->applyPrefactors(leftMove, rightMove);
+
+				}
+
+				moves->addMove(new Move( MOVE_CREATE | MOVE_3, tempRate, this, loop, loop2));
 			}
 		}
 
