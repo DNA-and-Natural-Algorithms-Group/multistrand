@@ -4556,7 +4556,6 @@ void MultiLoop::generateMoves(void) {
 						energies[0] = energyModel->MultiloopEnergy(loop4 - loop3 + 1, sideLengths, sequences);
 						MoveType leftMove = energyModel->prefactorMulti(sideLengths[loop3], sideLengths[loop4]);
 
-
 						// Multi loop
 						for (temploop = 0, tempindex = 0; temploop < numAdjacent - (loop4 - loop3 - 1); tempindex++) {
 							if (tempindex == loop3) {
@@ -4620,12 +4619,9 @@ void MultiLoop::generateDeleteMoves(void) {
 	assert(moves != NULL);
 
 	for (int loop = 0; loop < numAdjacent; loop++) {
+
 		generateAndSaveDeleteMove(adjacentLoops[loop], loop);
-//		temprate = Loop::generateDeleteMoveRate(this, adjacentLoops[loop]);
-//		if (temprate >= 0.0)
-//			moves->addMove(
-//					new Move( MOVE_DELETE | MOVE_1, temprate, this,
-//							adjacentLoops[loop], loop));
+
 	}
 
 	totalRate = moves->getRate();
@@ -4647,17 +4643,6 @@ void MultiLoop::printMove(Loop *comefrom, char *structure_p, char *seq_p) {
 		assert(adjacentLoops[loop] != NULL);
 	}
 }
-
-//void MultiLoop::moveDisplay(Loop *comefrom, char * structure_p, char *seq_p) {
-//	int loop;
-//	Move *temp;
-//	for (loop = 0; loop < curAdjacent; loop++) {
-//		if (adjacentLoops[loop] != comefrom && adjacentLoops[loop] != NULL)
-//			// shouldn't happen, being careful.
-//			adjacentLoops[loop]->moveDisplay(this, structure_p, seq_p);
-//		assert(adjacentLoops[loop] != NULL);
-//	}
-//}
 
 char *MultiLoop::getLocation(Move *move, int index) {
 	if (move->getType() & MOVE_CREATE) {
@@ -4709,7 +4694,7 @@ OpenLoop::OpenLoop(void) {
 	sidelen = NULL;
 	seqs = NULL;
 	identity = 'O';
-//  add_index = 0;
+
 }
 
 OpenLoop::~OpenLoop(void) {
@@ -4744,7 +4729,7 @@ MoveType OpenLoop::declareMoveType(Loop* attachedLoop) {
 
 void OpenLoop::calculateEnergy(void) {
 	if (energyModel == NULL)
-		return; // we can't handle this error. I'm trying to work out a way around it, but generally if the loops try to get used before the energy model initializes, it's all over.
+		return; // if the loops try to get used before the energy model initializes, it's all over.
 
 	energy = energyModel->OpenloopEnergy(numAdjacent, sidelen, seqs);
 	return;
@@ -4917,9 +4902,6 @@ double OpenLoop::doChoice(Move *move, Loop **returnLoop) {
 					{
 				if (tempindex == loop3) {
 					ptypes[temploop] = pt;
-					//		  if( loop3 == 0)
-					//  sidelengths[temploop] = sidelen[tempindex]-loop-1;
-					//else
 					sidelengths[temploop] = sidelen[tempindex] - loop;
 					sequences[temploop] = &seqs[tempindex][loop];
 					temploop++;
@@ -5004,7 +4986,7 @@ void OpenLoop::generateMoves(void) {
 
 	int loop, loop2, loop3, loop4, temploop, tempindex, loops[4];
 	int pairType;
-	double temprate;
+	double tempRate;
 	double energies[2];
 
 	if (moves != NULL)
@@ -5023,11 +5005,11 @@ void OpenLoop::generateMoves(void) {
 // but i'm  not sure of a good way of handling that yet.
 
 	int *ptypes = NULL;
-	int *sidelengths = NULL;
+	int *sideLengths = NULL;
 	char **sequences = NULL;
 
 	ptypes = new int[numAdjacent + 1];
-	sidelengths = new int[numAdjacent + 2];
+	sideLengths = new int[numAdjacent + 2];
 	sequences = new char *[numAdjacent + 2];
 // Case #1: Single Side only Creation Moves
 	for (loop3 = 0; loop3 <= numAdjacent; loop3++) { // CHECK: is numAdjacent really correct? it could be numAdjacent+1
@@ -5047,32 +5029,36 @@ void OpenLoop::generateMoves(void) {
 					for (temploop = 0, tempindex = 0; temploop <= numAdjacent + 1; temploop++, tempindex++) {
 						if (temploop == loop3) {
 							ptypes[temploop] = pairType;
-							sidelengths[temploop] = loop - 1;
+							sideLengths[temploop] = loop - 1;
 							sequences[temploop] = seqs[temploop];
 							if (temploop != numAdjacent)
 								ptypes[temploop + 1] = pairtype[temploop];
-							sidelengths[temploop + 1] = sidelen[temploop] - loop2;
+							sideLengths[temploop + 1] = sidelen[temploop] - loop2;
 							sequences[temploop + 1] = seqs[temploop] + loop2;
 							temploop = temploop + 1;
 						} else {
 							if (temploop != numAdjacent + 1)
 								ptypes[temploop] = pairtype[tempindex];
-							sidelengths[temploop] = sidelen[tempindex];
+							sideLengths[temploop] = sidelen[tempindex];
 							sequences[temploop] = seqs[tempindex];
 						}
 					}
-					energies[1] = energyModel->OpenloopEnergy(numAdjacent + 1, sidelengths, sequences);
+					energies[1] = energyModel->OpenloopEnergy(numAdjacent + 1, sideLengths, sequences);
 
-					temprate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
+					tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
 
 					// if the new Arrhenius model is used, modify the existing rate based on the local context.
 					// to start, we need to learn what the local context is, AFTER the nucleotide is put in place.
 
-//					utility::printDouble(temprate);
-//					utility::printDouble(energies[0]);
-//					utility::printDouble(energies[1]);
+					// multiLoop is splitting off an hairpin. Which is loopMove, and something else
+					if (energyModel->useArrhenius()) {
 
-					Move *tmove = new Move( MOVE_CREATE | MOVE_1, temprate, this, loop, loop2, loop3);
+						MoveType rightMove = energyModel->prefactorMulti(sideLengths[loop3], sideLengths[loop3 + 1]);
+						tempRate = tempRate * energyModel->applyPrefactors(loopMove, rightMove);
+
+					}
+
+					Move *tmove = new Move( MOVE_CREATE | MOVE_1, tempRate, this, loop, loop2, loop3);
 					moves->addMove(tmove);
 				}
 			}
@@ -5089,47 +5075,66 @@ void OpenLoop::generateMoves(void) {
 				if (pairType != 0) {
 
 					// three cases for which type of move:
-					// #2a: stack
-					if (loop == sidelen[loop3] && loop2 == 1) {
+					MoveType leftMove = stackMove;
+
+					if (loop == sidelen[loop3] && loop2 == 1) { 					// #2a: stack
+
 						energies[0] = energyModel->StackEnergy(seqs[loop3][loop], seqs[loop3 + 1][loop2], seqs[loop3][sidelen[loop3] + 1], seqs[loop3 + 1][0]);
-					}
-					// #2b: bulge
-					else if (loop == sidelen[loop3] || loop2 == 1) {
-						if (loop2 == 1)
+
+					} else if (loop == sidelen[loop3] || loop2 == 1) { 			// #2b: bulge
+
+						if (loop2 == 1) {
+
 							energies[0] = energyModel->BulgeEnergy(seqs[loop3][loop], seqs[loop3 + 1][loop2], seqs[loop3][sidelen[loop3] + 1],
 									seqs[loop3 + 1][0], sidelen[loop3] - loop);
-						else
+
+						} else {
+
 							energies[0] = energyModel->BulgeEnergy(seqs[loop3][loop], seqs[loop3 + 1][loop2], seqs[loop3][sidelen[loop3] + 1],
 									seqs[loop3 + 1][0], loop2 - 1);
-					}
-					// #2c: interior
-					else {
-						//		  char mismatches[4] = { seqs[loop3][loop+1], seqs[loop3+1][loop2-1], seqs[loop3][sidelen[loop3]], seqs[loop3+1][1]};
+
+						}
+
+						leftMove = stackLoopMove;
+
+					} else { 					// #2c: interior
+
 						energies[0] = energyModel->InteriorEnergy(&seqs[loop3][loop], seqs[loop3 + 1], sidelen[loop3] - loop, loop2 - 1);
-						//pt, pairtype[loop3], sidelen[loop3]- loop, loop2-1, mismatches );
+
+						leftMove = loopMove;
+
 					}
 
 					for (temploop = 0; temploop <= numAdjacent; temploop++) {
 						if (temploop == loop3) {
 							ptypes[temploop] = pairType;
-							sidelengths[temploop] = loop - 1;
+							sideLengths[temploop] = loop - 1;
 							sequences[temploop] = seqs[temploop];
 						} else {
 							if (temploop != numAdjacent)
 								ptypes[temploop] = pairtype[temploop];
 							if (temploop == loop3 + 1) {
-								sidelengths[temploop] = sidelen[temploop] - loop2;
+								sideLengths[temploop] = sidelen[temploop] - loop2;
 								sequences[temploop] = &seqs[temploop][loop2];
 							} else {
-								sidelengths[temploop] = sidelen[temploop];
+								sideLengths[temploop] = sidelen[temploop];
 								sequences[temploop] = seqs[temploop];
 							}
 						}
 					}
-					energies[1] = energyModel->OpenloopEnergy(numAdjacent, sidelengths, sequences);
+					energies[1] = energyModel->OpenloopEnergy(numAdjacent, sideLengths, sequences);
 
-					temprate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
-					moves->addMove(new Move( MOVE_CREATE | MOVE_2, temprate, this, loop, loop2, loop3));
+					tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
+
+					// multiLoop is splitting off an stack/bulge/interior. Which is something, and something else
+					if (energyModel->useArrhenius()) {
+
+						MoveType rightMove = energyModel->prefactorMulti(sideLengths[loop3], sideLengths[loop3 + 1]);
+						tempRate = tempRate * energyModel->applyPrefactors(loopMove, rightMove);
+
+					}
+
+					moves->addMove(new Move( MOVE_CREATE | MOVE_2, tempRate, this, loop, loop2, loop3));
 				}
 			}
 
@@ -5140,79 +5145,88 @@ void OpenLoop::generateMoves(void) {
 	for (loop3 = 0; loop3 <= numAdjacent - 2; loop3++) // The last 2 entries are not needed as neither have higher numbered non-adjacent sections.
 		for (loop4 = loop3 + 2; loop4 <= numAdjacent; loop4++) {
 
-			for (loop = 1; loop <= sidelen[loop3]; loop++) // new version with all sequences in openloop starting at 1.
+			for (loop = 1; loop <= sidelen[loop3]; loop++) { // new version with all sequences in openloop starting at 1.
+
 				for (loop2 = 1; loop2 <= sidelen[loop4]; loop2++) {
 
 					pairType = pairtypes[seqs[loop3][loop]][seqs[loop4][loop2]];
 
 					if (pairType != 0) { // result is a multiloop and open loop.
 
-						for (temploop = 0, tempindex = 0; temploop < (loop4 - loop3 + 1); tempindex++) // note that loop4 - loop3 is the number of pairings that got included in the multiloop. The extra closing pair makes the +1.
-								{
+						for (temploop = 0, tempindex = 0; temploop < (loop4 - loop3 + 1); tempindex++) { // note that loop4 - loop3 is the number of pairings that got included in the multiloop. The extra closing pair makes the +1.
+
 							if (tempindex == loop3) {
 								ptypes[temploop] = pairType;
-								//			if( loop3 == 0)
-								//  sidelengths[temploop] = sidelen[tempindex] - loop-1;
-								//else
-								sidelengths[temploop] = sidelen[tempindex] - loop;
+								sideLengths[temploop] = sidelen[tempindex] - loop;
 								sequences[temploop] = &seqs[tempindex][loop];
 								temploop++;
 							}
 							if (tempindex > loop3 && tempindex < loop4) {
 								ptypes[temploop] = pairtype[tempindex - 1];
-								sidelengths[temploop] = sidelen[tempindex];
+								sideLengths[temploop] = sidelen[tempindex];
 								sequences[temploop] = seqs[tempindex];
 								temploop++;
 							}
 							if (tempindex == loop4) {
 								ptypes[temploop] = pairtype[tempindex - 1];
-								sidelengths[temploop] = loop2 - 1;
+								sideLengths[temploop] = loop2 - 1;
 								sequences[temploop] = seqs[tempindex];
 								temploop++;
 							}
 						}
 
-						energies[0] = energyModel->MultiloopEnergy(loop4 - loop3 + 1, sidelengths, sequences);
+						energies[0] = energyModel->MultiloopEnergy(loop4 - loop3 + 1, sideLengths, sequences);
+						MoveType leftMove = energyModel->prefactorMulti(sideLengths[loop3], sideLengths[loop4]);
 
 						// Open loop
 						for (temploop = 0, tempindex = 0; temploop <= numAdjacent - (loop4 - loop3 - 1); tempindex++) {
 							if (tempindex == loop3) {
 								ptypes[temploop] = pairType;
-								sidelengths[temploop] = loop - 1;
+								sideLengths[temploop] = loop - 1;
 								sequences[temploop] = seqs[tempindex];
 								temploop++;
 							} else if (tempindex == loop4) {
 								if (temploop < numAdjacent - (loop4 - loop3 - 1))
 									ptypes[temploop] = pairtype[tempindex];
-								sidelengths[temploop] = sidelen[tempindex] - loop2;
+								sideLengths[temploop] = sidelen[tempindex] - loop2;
 								sequences[temploop] = &seqs[tempindex][loop2];
 								temploop++;
 							} else if (!((tempindex > loop3) && (tempindex < loop4))) {
 								if (temploop != numAdjacent - (loop4 - loop3 - 1))
 									ptypes[temploop] = pairtype[tempindex];
-								sidelengths[temploop] = sidelen[tempindex];
+								sideLengths[temploop] = sidelen[tempindex];
 								sequences[temploop] = seqs[tempindex];
 								temploop++;
 							}
 						}
-						energies[1] = energyModel->OpenloopEnergy(numAdjacent - (loop4 - loop3 - 1), sidelengths, sequences);
-						temprate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
+						energies[1] = energyModel->OpenloopEnergy(numAdjacent - (loop4 - loop3 - 1), sideLengths, sequences);
+						tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
+
+						// openLoop is splitting off . Which is something, and something else
+						if (energyModel->useArrhenius()) {
+
+							MoveType rightMove = energyModel->prefactorMulti(sideLengths[loop3], sideLengths[loop4]);
+							tempRate = tempRate * energyModel->applyPrefactors(leftMove, rightMove);
+
+						}
+
 						loops[0] = loop;
 						loops[1] = loop2;
 						loops[2] = loop3;
 						loops[3] = loop4;
-						moves->addMove(new Move( MOVE_CREATE | MOVE_3, temprate, this, loops));
+						moves->addMove(new Move( MOVE_CREATE | MOVE_3, tempRate, this, loops));
 					}
 
 				}
+			}
 		}
 
 	totalRate = moves->getRate();
 
 	if (ptypes != NULL)
 		delete[] ptypes;
-	if (sidelengths != NULL)
-		delete[] sidelengths;
+	if (sideLengths != NULL)
+		delete[] sideLengths;
 	if (sequences != NULL)
 		delete[] sequences;
 
@@ -5241,10 +5255,7 @@ void OpenLoop::printMove(Loop *comefrom, char *structure_p, char *seq_p) {
 	for (loop = 0; loop < numAdjacent; loop++) {
 		loop2 = (loop + 1) % (numAdjacent + 1);
 		item = (seqs[loop] < seqs[loop2]);
-		//if( loop != 0)
 		structure_p[seqs[loop] - seq_p + 1 + sidelen[loop]] = item ? '(' : ')';
-		// else
-		//structure_p[ seqs[loop] - seq_p + sidelen[loop]] = item?'(':')';
 		structure_p[seqs[loop2] - seq_p] = item ? ')' : '(';
 	}
 
