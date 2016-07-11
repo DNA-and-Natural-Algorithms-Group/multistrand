@@ -79,16 +79,24 @@ MoveType EnergyModel::prefactorsMultiAndOpen(int index, Loop* myLoop, int sideLe
 	// FD: We query the local context of the middle pair;
 	// FD: this can be either a loop, stack+loop, or stack+stack situation.
 
-
 	// FD: if adjacent are not neighbored in this order, then we need to replace this code with the correct mapping.
 	int leftStrand = (index - 1) % myLoop->getNumAdjacent();
 	int rightStrand = (index + 1) % myLoop->getNumAdjacent();
 
-	if (sideLengths[leftStrand] > 1 && sideLengths[rightStrand] > 1) {	 // two single stranded strands
+	return this->prefactorMulti(sideLengths[leftStrand], sideLengths[rightStrand]);
+
+}
+
+MoveType EnergyModel::prefactorMulti(int sideLength1, int sideLength2) {
+	// FD: A base pair is present between a stacking loop and a multi loop.
+	// FD: We query the local context of the middle pair;
+	// FD: this can be either a loop, stack+loop, or stack+stack situation.
+
+	if (sideLength1 > 0 && sideLength2 > 0) {	 // at least one unpaired base on each side.
 
 		return loopMove;
 
-	} else if (sideLengths[leftStrand] > 1 || sideLengths[leftStrand] > 0) {  // one single stranded strand
+	} else if (sideLength1 > 0 || sideLength2 > 0) {  // at least one unpaired base on at least one side
 
 		return stackLoopMove;
 

@@ -3241,53 +3241,6 @@ void HairpinLoop::printMove(Loop *comefrom, char *structure_p, char *seq_p) {
 	}
 }
 
-//void HairpinLoop::moveDisplay(Loop *comefrom, char * structure_p, char *seq_p) {
-//	int loop;
-//	Move *temp = NULL;
-//	for (loop = 0; loop < curAdjacent; loop++) {
-//		if (adjacentLoops[loop] != comefrom && adjacentLoops[loop] != NULL)
-//			// shouldn't happen, being careful.
-//			adjacentLoops[loop]->moveDisplay(this, structure_p, seq_p);
-//		assert(adjacentLoops[loop] != NULL);
-//	}
-//
-//	do {
-//		temp = moves->getMove(temp);
-//		if (temp == NULL)
-//			continue;
-//		if (temp->type & MOVE_CREATE) {
-//			/* Turns out the following section isn't needed as the indices are always correct with no special cases.
-//			 switch( temp->type & (MOVE_1 | MOVE_2 | MOVE_3))
-//			 {
-//			 case MOVE_1:
-//
-//
-//			 break;
-//			 case MOVE_2:
-//
-//
-//			 break;
-//			 case MOVE_3:
-//
-//			 break;
-//			 default:
-//			 fprintf(stderr, "Error in HairpinLoop::displayMoves");
-//			 break;
-//			 }*/
-//
-//			structure_p[temp->index[0] + (hairpin_seq - seq_p)] = '(';
-//			structure_p[temp->index[1] + (hairpin_seq - seq_p)] = ')';
-//
-//			printf("%s\n", structure_p);
-//
-//			structure_p[temp->index[0] + (hairpin_seq - seq_p)] = '.';
-//			structure_p[temp->index[1] + (hairpin_seq - seq_p)] = '.';
-//		}
-//
-//	} while (temp != NULL);
-//
-//}
-
 char *HairpinLoop::getLocation(Move *move, int index) {
 	if (move->getType() & MOVE_CREATE) {
 		if (index == 0)
@@ -3449,7 +3402,7 @@ double BulgeLoop::doChoice(Move *move, Loop **returnLoop) {
 void BulgeLoop::generateMoves(void) {
 	double energies[2];
 	int loop, loop2, pt;
-	double temprate;
+	double tempRate;
 	int bsize = bulgesize[0] + bulgesize[1];
 	int bside = (bulgesize[0] == 0) ? 1 : 0;
 	// Creation moves
@@ -3469,16 +3422,17 @@ void BulgeLoop::generateMoves(void) {
 		// Indice 0 is the starting bulge base. bulgesize+1 is the ending hairpin base. Thus we want to start at hairpin indice 1, and go to hairpinsize - 4. (which could pair to indice hairpinsize)
 		for (loop = 1; loop <= bsize - 4; loop++)
 			for (loop2 = loop + 4; loop2 <= bsize; loop2++) {
-				if (pt = pairtypes[bulge_seq[bside][loop]][bulge_seq[bside][loop2]] != 0) { // the two could pair. Work out energies of the resulting pair of loops.
+
+				pt = pairtypes[bulge_seq[bside][loop]][bulge_seq[bside][loop2]];
+
+				if (pt != 0) { // the two could pair. Work out energies of the resulting pair of loops.
 
 					// Case handling time.
 					// it will always be a multiloop and hairpin.
 
 					// Multiloop energy - CHECK THIS/FIXME
-					//  char mismatches[4] = { bulge_seq[bside][1], bulge_seq[bside][bsize], bulge_seq[bside][loop-1], bulge_seq[bside][loop2+1]};
 					int ptypes[3];
-					// = { pairtype[0], pairtype[1], pt };
-					int sidelen[3];         // = { 0, loop - 1, bsize - loop2 };
+					int sidelen[3];
 					char *sequences[3];
 
 					if (bside == 0) {
@@ -3493,6 +3447,7 @@ void BulgeLoop::generateMoves(void) {
 						ptypes[2] = pairtype[1];
 						sidelen[2] = 0;
 						sequences[2] = bulge_seq[1];
+
 					} else {
 						ptypes[0] = pairtype[0];
 						sidelen[0] = 0;
@@ -3505,6 +3460,7 @@ void BulgeLoop::generateMoves(void) {
 						ptypes[2] = pt;
 						sidelen[2] = bsize - loop2;
 						sequences[2] = &bulge_seq[1][loop2];
+
 					}
 					// need to add sequence info -definate FIXME for dangles != 0
 					energies[0] = energyModel->MultiloopEnergy(3, sidelen, sequences);
@@ -3512,9 +3468,24 @@ void BulgeLoop::generateMoves(void) {
 					// loop2 - loop + 1 is the new hairpin size.
 					energies[1] = energyModel->HairpinEnergy(&bulge_seq[bside][loop], loop2 - loop - 1);
 
-					temprate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
+					// hairpin and multiloop, so this is loopMove and something
+					if (energyModel->useArrhenius()) {
 
-					moves->addMove(new Move( MOVE_CREATE, temprate, this, loop, loop2));
+						MoveType multiMove = stackMove; // default init value;
+
+						if (bside == 0) {
+							multiMove = energyModel->prefactorMulti(sidelen[0], sidelen[1]);
+						} else {
+							multiMove = energyModel->prefactorMulti(sidelen[1], sidelen[2]);
+						}
+
+						tempRate = tempRate * energyModel->applyPrefactors(loopMove, multiMove);
+
+					}
+
+					tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
+
+					moves->addMove(new Move( MOVE_CREATE, tempRate, this, loop, loop2));
 				}
 			}
 	}

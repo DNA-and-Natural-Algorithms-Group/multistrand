@@ -78,6 +78,7 @@ public:
 	void computeArrheniusRates(double temperature);
 	double applyPrefactors(MoveType left, MoveType right);
 	MoveType prefactorsMultiAndOpen(int, Loop*, int[]);
+	MoveType prefactorMulti(int, int);
 
 	// Virtual methods
 
@@ -111,7 +112,7 @@ public:
 protected:
 	long dangles;
 	SimOptions* simOptions;
-	double arrheniusRates[MOVETYPE_SIZE*MOVETYPE_SIZE];
+	double arrheniusRates[MOVETYPE_SIZE * MOVETYPE_SIZE];
 
 };
 
