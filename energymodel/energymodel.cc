@@ -73,7 +73,7 @@ double EnergyModel::applyPrefactors(MoveType left, MoveType right) {
 
 }
 
-MoveType EnergyModel::prefactorsMultiAndOpen(int index, Loop* myLoop, int sideLengths[]) {
+MoveType EnergyModel::getPrefactorsMulti(int index, Loop* myLoop, int sideLengths[]) {
 
 	// FD: A base pair is present between a stacking loop and a multi loop.
 	// FD: We query the local context of the middle pair;
