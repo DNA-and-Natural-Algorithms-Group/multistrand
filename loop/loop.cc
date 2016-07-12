@@ -262,7 +262,7 @@ string Loop::toString(void) {
 	ss << "Loop-" << identity << ", typeID =" << typeid(this).name() << ", dG =" << energy << ", t_rate = " << totalRate;
 	ss << ", energyFlag =" << energyFlag << ", add_index =" << add_index << ", numAdjacent=" << numAdjacent;
 
-	ss << "\n ";
+	ss << "\n";
 
 	ss << this->typeInternalsToString();
 
@@ -4790,6 +4790,18 @@ string OpenLoop::typeInternalsToString(void) {
 
 	std::stringstream ss;
 
+//	ss << "printing " << numAdjacent + 1 << " sideloops \n";
+
+	for (int i = 0; i < numAdjacent + 1; i++) {
+
+		ss << "length" << i << " =  ";
+		ss << sidelen[i];
+		ss << ";   seq= ";
+		ss << utility::sequenceToString(seqs[i], sidelen[i]);
+		ss << " \n";
+
+	}
+
 	return ss.str();
 
 }
@@ -5079,11 +5091,11 @@ void OpenLoop::generateMoves(void) {
 	sideLengths = new int[numAdjacent + 2];
 	sequences = new char *[numAdjacent + 2];
 // Case #1: Single Side only Creation Moves
-	for (loop3 = 0; loop3 <= numAdjacent; loop3++) { // CHECK: is numAdjacent really correct? it could be numAdjacent+1
+	for (loop3 = 0; loop3 < numAdjacent + 1; loop3++) {
 
 		char* mySequence = seqs[loop3]; // this is the sequence of the strand that we use
 
-		for (loop = 1; loop <= sidelen[loop3] - 4; loop++) {
+		for (loop = 1; loop < sidelen[loop3] - 3; loop++) {
 
 			for (loop2 = loop + 4; loop2 <= sidelen[loop3]; loop2++) { // each possibility is a hairpin and open loop, see above.
 

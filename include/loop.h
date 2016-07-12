@@ -28,6 +28,7 @@ public:
 	virtual char *verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop *from) =0;
 	virtual MoveType declareMoveType(Loop* attachedLoop) =0;
 	virtual string typeInternalsToString(void) = 0;
+	virtual void printMove(Loop *comefrom, char *structure_p, char *seq_p) = 0;
 	Loop *getAdjacent(int index);
 	int getCurAdjacent(void);
 	int getNumAdjacent(void);
@@ -37,7 +38,6 @@ public:
 	void cleanupAdjacent(void); // sets adjacentLoops up to be deleted.
 	double returnEnergies(Loop *comefrom); // returns the total energy of all loops underneath this one.
 	double returnFlux(Loop *comefrom); // returns the total rate of all loops underneath this one.
-	virtual void printMove(Loop *comefrom, char *structure_p, char *seq_p) = 0;
 	void firstGen(Loop *comefrom);
 	static void SetEnergyModel(EnergyModel *newEnergyModel);
 	static EnergyModel *GetEnergyModel(void);
@@ -46,7 +46,6 @@ public:
 	static void performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);
 
 	// FD functions
-
 	string toString(void);
 	string toStringShort(void);
 	void printAllMoves(Loop*);

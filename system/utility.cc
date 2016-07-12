@@ -27,7 +27,7 @@ string utility::sequenceToString(char* sequence, int size) {
 
 	for (int i = 0; i < size; i++) {
 
-		baseTypeString[sequence[i] - 1];
+		ss << baseTypeString[sequence[i] - 1];
 
 	}
 
