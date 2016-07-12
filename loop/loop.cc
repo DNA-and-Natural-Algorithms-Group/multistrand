@@ -3061,7 +3061,7 @@ string HairpinLoop::typeInternalsToString(void) {
 
 	std::stringstream ss;
 
-	ss << "pairType =" << pairtype <<  " \n ";
+	ss << "pairType =" << pairtype << " \n ";
 	ss << "hairpin seq = " << utility::sequenceToString(hairpin_seq, hairpinsize);
 
 	return ss.str();
@@ -3345,6 +3345,9 @@ MoveType BulgeLoop::declareMoveType(Loop* attachedLoop) {
 string BulgeLoop::typeInternalsToString(void) {
 
 	std::stringstream ss;
+
+	ss << " bulgeSize0 " << utility::sequenceToString(bulge_seq[0], bulgesize[0]) << " \n";
+	ss << " bulgeSize1 " << utility::sequenceToString(bulge_seq[1], bulgesize[1]);
 
 	return ss.str();
 
