@@ -4798,6 +4798,7 @@ string OpenLoop::typeInternalsToString(void) {
 		ss << sidelen[i];
 		ss << ";   seq= ";
 		ss << utility::sequenceToString(seqs[i], sidelen[i]);
+		ss << ";   pairType= " << pairtype[i];
 		ss << " \n";
 
 	}
