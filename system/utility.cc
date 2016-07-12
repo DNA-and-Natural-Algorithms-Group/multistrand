@@ -10,6 +10,7 @@
 #include <string>
 #include <sstream>
 #include "move.h"
+#include <energymodel.h>
 
 char* utility::copyToCharArray(string& myString) {
 
@@ -17,6 +18,20 @@ char* utility::copyToCharArray(string& myString) {
 	strcpy(newArray, myString.c_str());
 
 	return newArray;
+
+}
+
+string utility::sequenceToString(char* sequence, int size) {
+
+	std::stringstream ss;
+
+	for (int i = 0; i < size; i++) {
+
+		baseTypeString[sequence[i] - 1];
+
+	}
+
+	return ss.str();
 
 }
 
@@ -107,7 +122,7 @@ void utility::printDoubleMatrix(double input[], int length, int depth) {
 
 		for (int i = 0; i < length; i++) {
 
-			cout << input[j*depth + i] << ",";
+			cout << input[j * depth + i] << ",";
 
 		}
 
@@ -117,5 +132,4 @@ void utility::printDoubleMatrix(double input[], int length, int depth) {
 	}
 
 }
-
 

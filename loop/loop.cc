@@ -3015,10 +3015,10 @@ string StackLoop::typeInternalsToString(void) {
 	ss << "pairtype[0]=  " << pairtype[0] << "      pairtype[1] = " << pairtype[1];
 	ss << "\n ";
 
-	ss << "    seqs[0][0]=  " << baseTypeString[seqs[0][0] -1];
-	ss << "    seqs[0][1]=  " << baseTypeString[seqs[0][1] -1];
-	ss << "    seqs[1][0]=  " << baseTypeString[seqs[1][0] -1];
-	ss << "    seqs[1][1]=  " << baseTypeString[seqs[1][1] -1];
+	ss << "    seqs[0][0]=  " << baseTypeString[seqs[0][0] - 1];
+	ss << "    seqs[0][1]=  " << baseTypeString[seqs[0][1] - 1];
+	ss << "    seqs[1][0]=  " << baseTypeString[seqs[1][0] - 1];
+	ss << "    seqs[1][1]=  " << baseTypeString[seqs[1][1] - 1];
 
 	return ss.str();
 
@@ -3060,6 +3060,9 @@ MoveType HairpinLoop::declareMoveType(Loop* attachedLoop) {
 string HairpinLoop::typeInternalsToString(void) {
 
 	std::stringstream ss;
+
+	ss << "pairType =" << pairtype <<  " \n ";
+	ss << "hairpin seq = " << utility::sequenceToString(hairpin_seq, hairpinsize);
 
 	return ss.str();
 

@@ -48,6 +48,8 @@ struct complex_input {
 
 //helper functions
 
+string sequenceToString(char*, int);
+
 char* copyToCharArray(string&);
 
 string copyToString(char*);
