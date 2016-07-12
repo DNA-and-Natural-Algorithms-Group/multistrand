@@ -27,6 +27,7 @@ public:
 	virtual char *getLocation(Move *move, int index) =0;
 	virtual char *verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop *from) =0;
 	virtual MoveType declareMoveType(Loop* attachedLoop) =0;
+	virtual string typeInternalsToString(void) = 0;
 	Loop *getAdjacent(int index);
 	int getCurAdjacent(void);
 	int getNumAdjacent(void);
@@ -80,6 +81,7 @@ public:
 	StackLoop(void);
 	StackLoop(int type1, int type2, char *seq1, char *seq2, Loop *left = NULL, Loop *right = NULL);
 	MoveType declareMoveType(Loop* attachedLoop);
+	string typeInternalsToString(void);
 
 private:
 	int pairtype[2];
@@ -105,6 +107,7 @@ public:
 	friend Loop * Loop::performDeleteMove(Move *move);
 	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);
 	MoveType declareMoveType(Loop* attachedLoop);
+	string typeInternalsToString(void);
 
 private:
 	int pairtype;
@@ -128,6 +131,7 @@ public:
 	friend double Loop::generateDeleteMoveRate(Loop *start, Loop *end);
 	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);
 	MoveType declareMoveType(Loop* attachedLoop);
+	string typeInternalsToString(void);
 
 private:
 	int pairtype[2];
@@ -153,6 +157,7 @@ public:
 	friend double Loop::generateDeleteMoveRate(Loop *start, Loop *end);
 	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);
 	MoveType declareMoveType(Loop* attachedLoop);
+	string typeInternalsToString(void);
 
 private:
 	int pairtype[2];
@@ -178,6 +183,7 @@ public:
 	friend Loop * Loop::performDeleteMove(Move *move);
 	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);
 	MoveType declareMoveType(Loop* attachedLoop);
+	string typeInternalsToString(void);
 
 private:
 	int *pairtype;
@@ -213,6 +219,7 @@ public:
 	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);
 	static void performComplexJoin(OpenLoop **oldLoops, OpenLoop **newLoops, char *types, int *index);
 	MoveType declareMoveType(Loop* attachedLoop);
+	string typeInternalsToString(void);
 
 private:
 	int *pairtype;

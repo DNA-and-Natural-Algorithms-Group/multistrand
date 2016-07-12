@@ -9,6 +9,8 @@
 
 #include <stdio.h>
 #include <python2.7/Python.h>
+#include <string>
+using std::string;
 
 class SimOptions;
 class Loop;
@@ -61,6 +63,14 @@ enum MoveType {
 	endMove, loopMove, stackMove, stackStackMove, loopEndMove, stackEndMove, stackLoopMove, MOVETYPE_SIZE
 };
 
+enum BaseType {
+
+	baseA, baseC, baseG, baseT, BASETYPE_SIZE
+
+};
+
+const string baseTypeString[BASETYPE_SIZE] = {"A", "C", "G", "T"};
+
 class energyS {
 public:
 	double dH; // enthalpy
@@ -78,6 +88,7 @@ public:
 	void computeArrheniusRates(double temperature);
 	double applyPrefactors(MoveType left, MoveType right);
 	MoveType getPrefactorsMulti(int, Loop*, int[]);
+	MoveType prefactorOpen(int, int);
 	MoveType prefactorMulti(int, int);
 
 	// Virtual methods

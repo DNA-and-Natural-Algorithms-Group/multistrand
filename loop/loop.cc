@@ -262,6 +262,10 @@ string Loop::toString(void) {
 	ss << "Loop-" << identity << ", typeID =" << typeid(this).name() << ", dG =" << energy << ", t_rate = " << totalRate;
 	ss << ", energyFlag =" << energyFlag << ", add_index =" << add_index << ", numAdjacent=" << numAdjacent;
 
+	ss << "\n ";
+
+	ss << this->typeInternalsToString();
+
 	return ss.str();
 
 }
@@ -611,7 +615,9 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		if (energyModel->useArrhenius()) {
 
-			MoveType move = energyModel->getPrefactorsMulti(e_index, end_, end_->sidelen);
+			// FD: The openloop
+
+			MoveType move = energyModel->prefactorOpen(end_->sidelen[e_index], end_->sidelen[e_index + 1]);
 
 			tempRate = tempRate * energyModel->applyPrefactors(stackMove, move);
 
@@ -3002,6 +3008,22 @@ MoveType StackLoop::declareMoveType(Loop* attachedLoop) {
 
 }
 
+string StackLoop::typeInternalsToString(void) {
+
+	std::stringstream ss;
+
+	ss << "pairtype[0]=  " << pairtype[0] << "      pairtype[1] = " << pairtype[1];
+	ss << "\n ";
+
+	ss << "    seqs[0][0]=  " << baseTypeString[seqs[0][0] -1];
+	ss << "    seqs[0][1]=  " << baseTypeString[seqs[0][1] -1];
+	ss << "    seqs[1][0]=  " << baseTypeString[seqs[1][0] -1];
+	ss << "    seqs[1][1]=  " << baseTypeString[seqs[1][1] -1];
+
+	return ss.str();
+
+}
+
 /*
  HairpinLoop Functions
  */
@@ -3032,6 +3054,14 @@ HairpinLoop::HairpinLoop(int type, int size, char *hairpin_sequence, Loop *previ
 MoveType HairpinLoop::declareMoveType(Loop* attachedLoop) {
 
 	return loopMove;
+
+}
+
+string HairpinLoop::typeInternalsToString(void) {
+
+	std::stringstream ss;
+
+	return ss.str();
 
 }
 
@@ -3125,7 +3155,7 @@ void HairpinLoop::generateMoves(void) {
 	int pt = 0;
 	int loop, loop2;
 	double tempRate = 0;
-	// Creation moves
+// Creation moves
 	if (hairpinsize <= 4) {
 		// We cannot form any creation moves in the hairpin unless it has at least 5 bases.
 		if (moves != NULL)
@@ -3214,9 +3244,9 @@ void HairpinLoop::generateMoves(void) {
 		totalRate = moves->getRate();
 	}
 
-	// Shift moves
+// Shift moves
 
-	// Delete moves
+// Delete moves
 	generateDeleteMoves();
 }
 
@@ -3306,6 +3336,14 @@ BulgeLoop::BulgeLoop(int type1, int type2, int size1, int size2, char *bulge_seq
 MoveType BulgeLoop::declareMoveType(Loop* attachedLoop) {
 
 	return stackLoopMove;
+
+}
+
+string BulgeLoop::typeInternalsToString(void) {
+
+	std::stringstream ss;
+
+	return ss.str();
 
 }
 
@@ -3405,7 +3443,7 @@ void BulgeLoop::generateMoves(void) {
 	double tempRate;
 	int bsize = bulgesize[0] + bulgesize[1];
 	int bside = (bulgesize[0] == 0) ? 1 : 0;
-	// Creation moves
+// Creation moves
 	if (bsize <= 3) {
 		if (moves != NULL)
 			delete moves;
@@ -3643,6 +3681,14 @@ MoveType InteriorLoop::declareMoveType(Loop* attachedLoop) {
 
 }
 
+string InteriorLoop::typeInternalsToString(void) {
+
+	std::stringstream ss;
+
+	return ss.str();
+
+}
+
 Move *InteriorLoop::getChoice(double *randomchoice, Loop *from) {
 	Move *stor;
 	assert(randomchoice != NULL);
@@ -3671,7 +3717,7 @@ void InteriorLoop::calculateEnergy(void) {
 	if (int_seq[0] == NULL || int_seq[1] == NULL)
 		return;
 
-	// CHECK THESE
+// CHECK THESE
 	mismatches[0] = int_seq[0][1];
 	mismatches[1] = int_seq[1][sizes[1]];
 	mismatches[2] = int_seq[0][sizes[0]];
@@ -3840,19 +3886,19 @@ void InteriorLoop::generateMoves(void) {
 	if (sizes[1] > 4)
 		nummoves += sizes[1] - 4;
 
-	// this number is wrong... sigh...
+// this number is wrong... sigh...
 	nummoves = (int) ((sizes[0] * sizes[1]) / 16 + 1);
 
-	// Creation moves
+// Creation moves
 	if (moves != NULL)
 		delete moves;
 	moves = new MoveList(nummoves);
 
-	// three loops here, the first is only side 0's possible creation moves
-	//                   the second is only side 1's possible creation moves
-	//                   the third is only creation moves that cross 0-1.
+// three loops here, the first is only side 0's possible creation moves
+//                   the second is only side 1's possible creation moves
+//                   the third is only creation moves that cross 0-1.
 
-	// Loop #1: Side 0 only Creation Moves
+// Loop #1: Side 0 only Creation Moves
 	for (loop = 1; loop <= sizes[0] - 4; loop++) {
 
 		for (loop2 = loop + 4; loop2 <= sizes[0]; loop2++) { // each possibility will always result in a new hairpin + multiloop.
@@ -3885,7 +3931,7 @@ void InteriorLoop::generateMoves(void) {
 		}
 	}
 
-	// Loop #2: Side 1 only Creation Moves
+// Loop #2: Side 1 only Creation Moves
 	for (loop = 1; loop <= sizes[1] - 4; loop++)
 		for (loop2 = loop + 4; loop2 <= sizes[1]; loop2++) { // each possibility will always result in a new hairpin + multiloop.
 			pt = pairtypes[int_seq[1][loop]][int_seq[1][loop2]];
@@ -3914,7 +3960,7 @@ void InteriorLoop::generateMoves(void) {
 			}
 		}
 
-	// Loop #3: Side 0 to Side 1 crossing moves ONLY
+// Loop #3: Side 0 to Side 1 crossing moves ONLY
 
 	for (loop = 1; loop <= sizes[0]; loop++)
 		for (loop2 = 1; loop2 <= sizes[1]; loop2++) {
@@ -3963,12 +4009,12 @@ void InteriorLoop::generateMoves(void) {
 			}
 		}
 
-	// totaling the rate
+// totaling the rate
 	totalRate = moves->getRate();
 
-	// Shift moves
+// Shift moves
 
-	// Delete moves
+// Delete moves
 	generateDeleteMoves();
 }
 
@@ -4084,6 +4130,14 @@ MultiLoop::~MultiLoop(void) {
 MoveType MultiLoop::declareMoveType(Loop* attachedLoop) {
 
 	return stackMove;
+
+}
+
+string MultiLoop::typeInternalsToString(void) {
+
+	std::stringstream ss;
+
+	return ss.str();
 
 }
 
@@ -4357,26 +4411,26 @@ void MultiLoop::generateMoves(void) {
 	if (moves != NULL)
 		delete moves;
 	moves = new MoveList(sidelen[0] + 1);
-	// This is almost identical to OpenLoop::generateMoves, which was written first.
-	//  Several options here:
-	//     #1: creation move within a side this results in a hairpin and a multi loop with 1 greater magnitude.
-	//     #2a: creation move between sides resulting in a stack and multi loop
-	//     #2b: creation move between sides resulting in a bulge and multi loop
-	//     #2c: creation move between sides resulting in a interior loop and multi loop
-	//     #3: creation move between sides resulting in two multiloops.
-	// #2a-#2c can only happen for adjacent sides, #3 only happens for non-adjacent sides (and is always the case for such). We separate these into cases #2a-#2c and #3 .
+// This is almost identical to OpenLoop::generateMoves, which was written first.
+//  Several options here:
+//     #1: creation move within a side this results in a hairpin and a multi loop with 1 greater magnitude.
+//     #2a: creation move between sides resulting in a stack and multi loop
+//     #2b: creation move between sides resulting in a bulge and multi loop
+//     #2c: creation move between sides resulting in a interior loop and multi loop
+//     #3: creation move between sides resulting in two multiloops.
+// #2a-#2c can only happen for adjacent sides, #3 only happens for non-adjacent sides (and is always the case for such). We separate these into cases #2a-#2c and #3 .
 
-	// these pointers are needed to set up all of the multiloop energy calls.
+// these pointers are needed to set up all of the multiloop energy calls.
 	int *ptypes = NULL;
 	int *sideLengths = NULL;
 	char **sequences = NULL;
 
-	// the most storage we'll need is for case #1, which will have a multiloop of 1 greater magnitude.
+// the most storage we'll need is for case #1, which will have a multiloop of 1 greater magnitude.
 	ptypes = new int[numAdjacent + 1];
 	sideLengths = new int[numAdjacent + 1];
 	sequences = new char *[numAdjacent + 1];
 
-	// Case #1: Single Side only Creation Moves
+// Case #1: Single Side only Creation Moves
 	for (loop3 = 0; loop3 < numAdjacent; loop3++) {
 		for (loop = 1; loop <= sidelen[loop3] - 4; loop++) {
 			for (loop2 = loop + 4; loop2 <= sidelen[loop3]; loop2++) { // each possibility is a hairpin and multiloop, see above.
@@ -4433,7 +4487,7 @@ void MultiLoop::generateMoves(void) {
 		}
 	}
 
-	// Case #2a-c: adjacent loop creation moves
+// Case #2a-c: adjacent loop creation moves
 	for (loop3 = 0; loop3 <= numAdjacent - 1; loop3++) { // CHECK: is numAdjacent really correct? it could be numAdjacent+1
 		for (loop = 1; loop <= sidelen[loop3]; loop++) {
 			for (loop2 = 1; loop2 <= sidelen[(loop3 + 1) % numAdjacent]; loop2++) { // each possibility is a hairpin and open loop, see above.
@@ -4722,8 +4776,15 @@ OpenLoop::OpenLoop(int branches, int *pairtypes, int *sidelengths, char **sequen
 MoveType OpenLoop::declareMoveType(Loop* attachedLoop) {
 
 //	throw "OpenLoop::declareMoveType not implemented";
-
 	return stackMove;
+
+}
+
+string OpenLoop::typeInternalsToString(void) {
+
+	std::stringstream ss;
+
+	return ss.str();
 
 }
 

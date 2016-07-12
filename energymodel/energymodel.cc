@@ -108,6 +108,31 @@ MoveType EnergyModel::prefactorMulti(int sideLength1, int sideLength2) {
 
 }
 
+
+
+MoveType EnergyModel::prefactorOpen(int sideLength1, int sideLength2) {
+	// FD: A base pair is present between a stacking loop and a multi loop.
+	// FD: We query the local context of the middle pair;
+	// FD: this can be either a loop, stack+loop, or stack+stack situation.
+
+	if (sideLength1 > 0 && sideLength2 > 0) {	 // at least one unpaired base on each side.
+
+		return loopMove;
+
+	} else if (sideLength1 > 0 || sideLength2 > 0) {  // at least one unpaired base on at least one side
+
+		return stackLoopMove;
+
+	} else { // two nucleotides on each side;
+
+		return stackStackMove;
+
+	}
+
+}
+
+
+
 double EnergyModel::ArrheniusLoopEnergy(char* seq, int size) {
 
 	double output = 0.0;
