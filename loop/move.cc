@@ -32,8 +32,7 @@ Move::Move(int mtype, double mrate, Loop *affected_1, int index1, int index2) {
 	index[3] = -1;
 }
 
-Move::Move(int mtype, double mrate, Loop *affected_1, int index1, int index2,
-		int index3) {
+Move::Move(int mtype, double mrate, Loop *affected_1, int index1, int index2, int index3) {
 	type = mtype;
 	rate = mrate;
 	affected[0] = affected_1;
@@ -44,8 +43,7 @@ Move::Move(int mtype, double mrate, Loop *affected_1, int index1, int index2,
 	index[3] = -1;
 }
 
-Move::Move(int mtype, double mrate, Loop *affected_1, Loop *affected_2,
-		int index1, int index2) {
+Move::Move(int mtype, double mrate, Loop *affected_1, Loop *affected_2, int index1, int index2) {
 	type = mtype;
 	rate = mrate;
 	affected[0] = affected_1;
@@ -56,8 +54,7 @@ Move::Move(int mtype, double mrate, Loop *affected_1, Loop *affected_2,
 	index[3] = -1;
 }
 
-Move::Move(int mtype, double mrate, Loop *affected_1, Loop *affected_2,
-		int index1) {
+Move::Move(int mtype, double mrate, Loop *affected_1, Loop *affected_2, int index1) {
 	type = mtype;
 	rate = mrate;
 	affected[0] = affected_1;
@@ -68,8 +65,7 @@ Move::Move(int mtype, double mrate, Loop *affected_1, Loop *affected_2,
 	index[3] = -1;
 }
 
-Move::Move(int mtype, double mrate, Loop *affected_1, int index1, int index2,
-		int index3, int index4) {
+Move::Move(int mtype, double mrate, Loop *affected_1, int index1, int index2, int index3, int index4) {
 	type = mtype;
 	rate = mrate;
 	affected[0] = affected_1;
@@ -126,19 +122,24 @@ string Move::toString(void) {
 
 	std::stringstream ss;
 
-	ss << "moveType: " << type << " -- ";
-	ss << utility::moveType(type) << "\n";
-	ss << "Index: " << index[0] << ", " << index[1] << ", " << index[2] << ", "
-			<< index[3] << " \n";
-	ss << "rate: " << std::setprecision(10) << rate << " \n";
-	ss << "AFFECTED: ";
-	if (affected[0] != NULL) {
-		ss << affected[0]->toStringShort() << " ";
+	// FD: only print the move if the rate is > 0
+
+	if (rate > 0) {
+
+		ss << "moveType: " << type << " -- ";
+		ss << utility::moveType(type) << "\n";
+		ss << "Index: " << index[0] << ", " << index[1] << ", " << index[2] << ", " << index[3] << " \n";
+		ss << "rate: " << std::setprecision(10) << rate << " \n";
+		ss << "AFFECTED: ";
+		if (affected[0] != NULL) {
+			ss << affected[0]->toStringShort() << " ";
+		}
+		if (affected[1] != NULL) {
+			ss << affected[1]->toStringShort() << " ";
+		}
+		ss << " \n";
+
 	}
-	if (affected[1] != NULL) {
-		ss << affected[1]->toStringShort() << " ";
-	}
-	ss << " \n";
 
 	string output = ss.str();
 
@@ -164,31 +165,26 @@ ArrMove::ArrMove(void) :
 
 }
 
-ArrMove::ArrMove(int mtype, double mrate, Loop* affected_1, int index1,
-		int index2) :
+ArrMove::ArrMove(int mtype, double mrate, Loop* affected_1, int index1, int index2) :
 		Move(mtype, mrate, affected_1, index1, index2) {
 
 }
 
-ArrMove::ArrMove(int mtype, double mrate, Loop* affected_1, int index1,
-		int index2, int index3) :
+ArrMove::ArrMove(int mtype, double mrate, Loop* affected_1, int index1, int index2, int index3) :
 		Move(mtype, mrate, affected_1, index1, index2, index3) {
 }
 
-ArrMove::ArrMove(int mtype, double mrate, Loop* affected_1, Loop* affected_2,
-		int index1, int index2) :
+ArrMove::ArrMove(int mtype, double mrate, Loop* affected_1, Loop* affected_2, int index1, int index2) :
 		Move(mtype, mrate, affected_1, affected_2, index1, index2) {
 
 }
 
-ArrMove::ArrMove(int mtype, double mrate, Loop *affected_1, Loop *affected_2,
-		int index1) :
+ArrMove::ArrMove(int mtype, double mrate, Loop *affected_1, Loop *affected_2, int index1) :
 		Move(mtype, mrate, affected_1, affected_2, index1) {
 
 }
 
-ArrMove::ArrMove(int mtype, double mrate, Loop *affected_1, int index1,
-		int index2, int index3, int index4) :
+ArrMove::ArrMove(int mtype, double mrate, Loop *affected_1, int index1, int index2, int index3, int index4) :
 		Move(mtype, mrate, affected_1, index1, index2, index3, index4) {
 
 }
@@ -217,7 +213,6 @@ string ArrMove::toString(void) {
 	return output;
 
 }
-
 
 /* MoveTree info */
 MoveTree::~MoveTree(void) {

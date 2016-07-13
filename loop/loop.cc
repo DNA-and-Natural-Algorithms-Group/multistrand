@@ -264,6 +264,13 @@ string Loop::toString(void) {
 
 	ss << "\n";
 
+	for (int i = 0; i < numAdjacent; i++) {
+
+		ss << "adjacent" << i << "=";
+		ss << "Loop-" << adjacentLoops[i]->identity;
+
+	}
+
 	ss << this->typeInternalsToString();
 
 	return ss.str();
@@ -615,7 +622,7 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		if (energyModel->useArrhenius()) {
 
-			// FD: The openloop
+			// FD: A stack and an open loop. e_index is the location of the stack in the
 
 			MoveType move = energyModel->prefactorOpen(end_->sidelen[e_index], end_->sidelen[e_index + 1]);
 
@@ -4796,7 +4803,7 @@ string OpenLoop::typeInternalsToString(void) {
 
 		ss << "length" << i << " =  ";
 		ss << sidelen[i];
-		ss << ";   seq= ";
+		ss << ";   seq=";
 		ss << utility::sequenceToString(seqs[i], sidelen[i]);
 		ss << ";   pairType= " << pairtype[i];
 		ss << " \n";

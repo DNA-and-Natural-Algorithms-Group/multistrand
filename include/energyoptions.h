@@ -62,8 +62,8 @@ public:
 	double ELoopEnd = 3.80;
 	double EStackStack = 6.57;
 
-	double AValues[MOVETYPE_SIZE] = { AStack, ALoop, AEnd, AStackLoop, AStackEnd, ALoopEnd, AStackStack };
-	double EValues[MOVETYPE_SIZE] = { EStack, ELoop, EEnd, EStackLoop, EStackEnd, ELoopEnd, EStackStack };
+	const double AValues[MOVETYPE_SIZE] = { AStack, ALoop, AEnd, AStackLoop, AStackEnd, ALoopEnd, AStackStack };
+	const double EValues[MOVETYPE_SIZE] = { EStack, ELoop, EEnd, EStackLoop, EStackEnd, ELoopEnd, EStackStack };
 
 	double dS_A = 1.02;
 	double dS_C = 4.41;

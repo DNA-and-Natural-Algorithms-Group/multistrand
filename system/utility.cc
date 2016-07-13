@@ -25,7 +25,7 @@ string utility::sequenceToString(char* sequence, int size) {
 
 	std::stringstream ss;
 
-	for (int i = 0; i < size; i++) {
+	for (int i = 0; i < size + 1; i++) {
 
 		ss << baseTypeString[sequence[i] - 1];
 
