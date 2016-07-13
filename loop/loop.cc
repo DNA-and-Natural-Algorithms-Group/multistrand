@@ -267,7 +267,7 @@ string Loop::toString(void) {
 	for (int i = 0; i < numAdjacent; i++) {
 
 		ss << "adjacent" << i << "=";
-		ss << "Loop-" << adjacentLoops[i]->identity;
+		ss << "Loop-" << adjacentLoops[i]->identity << "\n";
 
 	}
 
