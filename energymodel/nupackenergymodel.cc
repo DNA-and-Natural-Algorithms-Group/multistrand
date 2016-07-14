@@ -34,19 +34,28 @@ NupackEnergyModel::~NupackEnergyModel(void) {
 }
 
 double NupackEnergyModel::returnRate(double start_energy, double end_energy, int enth_entr_toggle) {
+
+	if (simOptions->energyOptions->primeRates) {
+		return 1.0;
+	}
+
 	double dE = end_energy - start_energy;
-	if (enth_entr_toggle == 3) // O/O delete, needs bi scale and full dE.
-		//    return biscale * exp( -(dE) / _RT );
+
+	if (enth_entr_toggle == 3) {
 		return biscale * exp(-(dE - dG_assoc) / _RT);
+	}
 	// dG_assoc, if it were included in (start_energy, end_energy), would need to be deleted here. However, it never gets added into any energies except for display purposes. So it gets used in the join move rate, but not here.
 	// OLD: dG_assoc is typically a negative number, and included as part of the complex before disassociation. Thus it must be subtracted from the dE (leading to a typically slower disassociation rate.).
-	if (kinetic_rate_method == RATE_METHOD_KAWASAKI)  // Kawasaki
+	if (kinetic_rate_method == RATE_METHOD_KAWASAKI) {  // Kawasaki
 		return uniscale * exp(-0.5 * dE / _RT);
-	else if (kinetic_rate_method == RATE_METHOD_METROPOLIS) // Metropolis
-		if (dE < 0)
+	} else if (kinetic_rate_method == RATE_METHOD_METROPOLIS) {
+		// Metropolis
+		if (dE < 0) {
 			return uniscale * 1;
-		else
+		} else {
 			return uniscale * exp(-dE / _RT);
+		}
+	}
 }
 
 double NupackEnergyModel::getJoinRate(void) {
@@ -348,7 +357,6 @@ double NupackEnergyModel::MultiloopEnergy(int size, int *sidelen, char **sequenc
 	double energy = 0.0, dangle3, dangle5;
 	int pt, rt_pt;
 	int loopminus1 = size - 1;
-
 
 	for (int loop = 0; loop < size; loop++) {
 		totallength += sidelen[loop];

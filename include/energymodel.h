@@ -69,7 +69,7 @@ enum BaseType {
 
 };
 
-const string baseTypeString[BASETYPE_SIZE] = {"A", "C", "G", "T"};
+const string baseTypeString[BASETYPE_SIZE] = { "A", "C", "G", "T" };
 
 class energyS {
 public:
@@ -87,6 +87,7 @@ public:
 	double ArrheniusLoopEnergy(char* seq, int size);
 	void computeArrheniusRates(double temperature);
 	double applyPrefactors(MoveType left, MoveType right);
+//	MoveType getPrefactorsMulti(int, Loop*, int[]);
 	MoveType getPrefactorsMulti(int, int, int[]);
 	MoveType prefactorOpen(int, int, int[]);
 	MoveType prefactorMulti(int, int);

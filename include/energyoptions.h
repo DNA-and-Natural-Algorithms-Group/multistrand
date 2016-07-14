@@ -22,7 +22,6 @@
 class EnergyOptions {
 public:
 
-
 	// construct methods
 	void initializeArrheniusConstants();
 
@@ -44,7 +43,6 @@ public:
 	virtual bool compareSubstrateType(long) =0;
 	virtual void getParameterFile(char*, PyObject*) = 0;
 
-
 	// unprotected Arrhenius variables because we trust the user.
 	double AStack = 6.10;
 	double ALoop = 16.58;
@@ -62,7 +60,9 @@ public:
 	double ELoopEnd = 3.80;
 	double EStackStack = 6.57;
 
-	const double AValues[MOVETYPE_SIZE] = { AStack, ALoop, AEnd, AStackLoop, AStackEnd, ALoopEnd, AStackStack };
+	const double AValues[MOVETYPE_SIZE] = { 2, 3, 5, 7, 11, 13, 17 };
+	const bool primeRates = true;
+//	const double AValues[MOVETYPE_SIZE] = { AStack, ALoop, AEnd, AStackLoop, AStackEnd, ALoopEnd, AStackStack };
 	const double EValues[MOVETYPE_SIZE] = { EStack, ELoop, EEnd, EStackLoop, EStackEnd, ELoopEnd, EStackStack };
 
 	double dS_A = 1.02;
@@ -71,8 +71,6 @@ public:
 	double dS_G = -5.99;
 
 	double alpha = 0.045;
-
-
 
 protected:
 
@@ -91,7 +89,6 @@ protected:
 
 	// Hard coding some default Arrhenius constants (for now)
 	const bool useArrhenius = true;
-
 
 };
 
