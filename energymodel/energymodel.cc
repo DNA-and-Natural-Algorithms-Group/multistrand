@@ -73,17 +73,16 @@ double EnergyModel::applyPrefactors(MoveType left, MoveType right) {
 
 }
 
-MoveType EnergyModel::getPrefactorsMulti(int index, Loop* myLoop, int sideLengths[]) {
+MoveType EnergyModel::getPrefactorsMulti(int index, int numAdjacent, int sideLengths[]) {
 
 	// FD: A base pair is present between a stacking loop and a multi loop.
 	// FD: We query the local context of the middle pair;
 	// FD: this can be either a loop, stack+loop, or stack+stack situation.
 
 	// FD: if adjacent are not neighbored in this order, then we need to replace this code with the correct mapping.
-	int leftStrand = (index - 1) % myLoop->getNumAdjacent();
-	int rightStrand = (index + 1) % myLoop->getNumAdjacent();
+	int rightStrand = (index + 1) % numAdjacent;
 
-	return this->prefactorMulti(sideLengths[leftStrand], sideLengths[rightStrand]);
+	return this->prefactorMulti(sideLengths[index], sideLengths[rightStrand]);
 
 }
 
@@ -107,31 +106,116 @@ MoveType EnergyModel::prefactorMulti(int sideLength1, int sideLength2) {
 	}
 
 }
+//
+//MoveType EnergyModel::getPrefactorsOpen(int index, Loop* myLoop, int sideLengths[]) {
+//
+//	// FD: A base pair is present between a stacking loop and a multi loop.
+//	// FD: We query the local context of the middle pair;
+//	// FD: this can be either a loop, stack+loop, or stack+stack situation.
+//
+//	// FD: if adjacent are not neighbored in this order, then we need to replace this code with the correct mapping.
+//	int rightStrand = (index + 1) % myLoop->getNumAdjacent();
+//
+//	return this->prefactorOpen(index, myLoop->getNumAdjacent(), sideLengths[index], sideLengths[rightStrand]);
+//
+//}
 
+MoveType prefactorEndBothOpen(int left, int right) {
 
-
-MoveType EnergyModel::prefactorOpen(int sideLength1, int sideLength2) {
-	// FD: A base pair is present between a stacking loop and a multi loop.
-	// FD: We query the local context of the middle pair;
-	// FD: this can be either a loop, stack+loop, or stack+stack situation.
-
-	if (sideLength1 > 0 && sideLength2 > 0) {	 // at least one unpaired base on each side.
+	if (left > 0 && right > 0) {
 
 		return loopMove;
 
-	} else if (sideLength1 > 0 || sideLength2 > 0) {  // at least one unpaired base on at least one side
+	} else if (left > 0 || right > 0) {
 
-		return stackLoopMove;
+		return loopEndMove;
 
-	} else { // two nucleotides on each side;
+	} else {
 
-		return stackStackMove;
+		return endMove;
 
 	}
 
 }
 
+MoveType prefactorEndSingleOpen(int openSide, int closedSide) {
 
+	if (openSide > 0 && closedSide > 0) {
+
+		return loopMove;
+
+	} else if (left > 0 || right > 0) {
+
+		return loopEndMove;
+
+	} else {
+
+		return endMove;
+
+	}
+
+}
+
+MoveType EnergyModel::prefactorOpen(int index, int numAdjacent, int sideLengths[]) {
+	// FD: A base pair is present between a stacking loop and a multi loop.
+	// FD: We query the local context of the middle pair;
+	// FD: this can be either a loop, stack+loop, or stack+stack situation.
+
+	assert(index < (numAdjacent + 1));
+
+	bool openOnLeft = (index == 0);
+	bool openOnRight = (index + 1 == numAdjacent);
+
+	// each strand can either be non-existing, or single stranded, or double stranded.
+
+	if (!openOnLeft && !openOnRight) { // this is the multi-loop case
+
+		return prefactorMulti(sideLengths[index], sideLengths[index + 1]);
+
+	} else if (openOnLeft && openOnLeft) { // this is the "end" case
+
+		return prefactorEndBothOpen(sideLengths[index], sideLengths[index + 1]);
+
+	} else {
+		// there is exactly one side exposed to the open
+		// this side is always single stranded, or non-existing.
+
+		if (openOnLeft) {
+
+			return prefactorEndSingleOpen(sideLengths[index], sideLengths[index + 1]);
+
+		} else {
+
+			return prefactorEndSingleOpen(sideLengths[index + 1], sideLengths[index]);
+
+		}
+
+	}
+
+}
+
+//		if (openOnLeft && sideLengths[index] == 0) {
+//
+//			if (sideLengths[1] == 0) {
+//
+//			return
+//
+//		}
+
+//
+//	if (sideLength1 > 0 && sideLength2 > 0) {	 // at least one unpaired base on each side.
+//
+//		return loopMove;
+//
+//	} else if (sideLength1 > 0 || sideLength2 > 0) {  // at least one unpaired base on at least one side
+//
+//		return stackLoopMove;
+//
+//	} else { // two nucleotides on each side;
+//
+//		return stackStackMove;
+//
+//	}
 
 double EnergyModel::ArrheniusLoopEnergy(char* seq, int size) {
 

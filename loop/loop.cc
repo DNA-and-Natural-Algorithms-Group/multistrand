@@ -260,7 +260,7 @@ string Loop::toString(void) {
 	std::stringstream ss;
 
 	ss << "Loop-" << identity << ", typeID =" << typeid(this).name() << ", dG =" << energy << ", t_rate = " << totalRate;
-	ss << ", energyFlag =" << energyFlag << ", add_index =" << add_index << ", numAdjacent=" << numAdjacent;
+	ss << ", energyFlag =" << energyFlag << ", add_index =" << add_index; // << ", numAdjacent=" << numAdjacent;
 
 	ss << "\n";
 
@@ -624,7 +624,9 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 			// FD: A stack and an open loop. e_index is the location of the stack in the
 
-			MoveType move = energyModel->prefactorOpen(end_->sidelen[e_index], end_->sidelen[e_index + 1]);
+//			MoveType move = energyModel->prefactorOpen(end_->sidelen[e_index], end_->sidelen[e_index + 1], e_index, e_index+1);
+
+			MoveType move = energyModel->prefactorOpen(e_index, end_ > numAdjacent, sidelens);
 
 			tempRate = tempRate * energyModel->applyPrefactors(stackMove, move);
 
