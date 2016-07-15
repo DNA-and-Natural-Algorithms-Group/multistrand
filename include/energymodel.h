@@ -14,6 +14,7 @@ using std::string;
 
 class SimOptions;
 class Loop;
+class EnergyOptions;
 
 #define NUM_BASEPAIRS_VIENNA 8
 // Vienna: 0 is invalid, then CG, GC, GU, UG, AU, UA, and Special are 1-7
@@ -85,6 +86,7 @@ public:
 	// Implemented methods
 	bool useArrhenius(void);
 	double ArrheniusLoopEnergy(char* seq, int size);
+	void setArrheniusRate(double ratesArray[], EnergyOptions* options, double temperature, int left, int right);
 	void computeArrheniusRates(double temperature);
 	double applyPrefactors(MoveType left, MoveType right);
 //	MoveType getPrefactorsMulti(int, Loop*, int[]);

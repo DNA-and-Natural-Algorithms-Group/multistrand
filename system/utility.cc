@@ -96,6 +96,20 @@ string utility::moveType(int type) {
 
 }
 
+void utility::printIntegers(int array[], int size) {
+
+	cout << "Integers:";
+
+	for (int i = 0; i < size; i++) {
+
+		cout << array[i];
+
+	}
+
+	cout << "\n";
+
+}
+
 void utility::printDouble(double input) {
 
 	cout << "Printing DOUBLE:" << input << " \n";

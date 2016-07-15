@@ -26,20 +26,15 @@ enum ArrType {
 	UNDEFINED, END, LOOP, STACK, STACKSTACK, LOOPEND, STACKEND, STACKLOOP
 };
 
-
 class Move {
 public:
 	Move(void);
 	Move(int mtype, double mrate, Loop *affected_1, int index1, int index2);
-	Move(int mtype, double mrate, Loop *affected_1, int index1, int index2,
-			int index3);
-	Move(int mtype, double mrate, Loop *affected_1, int index1, int index2,
-			int index3, int index4);
+	Move(int mtype, double mrate, Loop *affected_1, int index1, int index2, int index3);
+	Move(int mtype, double mrate, Loop *affected_1, int index1, int index2, int index3, int index4);
 	Move(int mtype, double mrate, Loop *affected_1, int *indexarray);
-	Move(int mtype, double mrate, Loop *affected_1, Loop *affected_2,
-			int index1, int index2);
-	Move(int mtype, double mrate, Loop *affected_1, Loop *affected_2,
-			int index1);
+	Move(int mtype, double mrate, Loop *affected_1, Loop *affected_2, int index1, int index2);
+	Move(int mtype, double mrate, Loop *affected_1, Loop *affected_2, int index1);
 	~Move(void);
 	double getRate(void);
 	int getType(void);
@@ -62,27 +57,20 @@ protected:
 
 };
 
-class ArrMove: public Move { 		// Implements the Arrhenius model
-public:
-	// all the constructors that moves has..
-	ArrMove(void);
-	ArrMove(int mtype, double mrate, Loop *affected_1, int index1, int index2);
-	ArrMove(int mtype, double mrate, Loop *affected_1, int index1, int index2,
-			int index3);
-	ArrMove(int mtype, double mrate, Loop *affected_1, int index1, int index2,
-			int index3, int index4);
-	ArrMove(int mtype, double mrate, Loop *affected_1, int *indexarray);
-	ArrMove(int mtype, double mrate, Loop *affected_1, Loop *affected_2,
-			int index1, int index2);
-	ArrMove(int mtype, double mrate, Loop *affected_1, Loop *affected_2,
-			int index1);
-
-	string toString();
-protected:
-	ArrType arrLeft = UNDEFINED;
-	ArrType arrRight = UNDEFINED;
-
-};
+//class ArrMove: public Move { 		// Implements the Arrhenius model
+//public:
+//	// all the constructors that moves has..
+//	ArrMove(void);
+//	ArrMove(int mtype, double mrate, Loop *affected_1, int index1, int index2);
+//	ArrMove(int mtype, double mrate, Loop *affected_1, int index1, int index2, int index3);
+//	ArrMove(int mtype, double mrate, Loop *affected_1, int index1, int index2, int index3, int index4);
+//	ArrMove(int mtype, double mrate, Loop *affected_1, int *indexarray);
+//	ArrMove(int mtype, double mrate, Loop *affected_1, Loop *affected_2, int index1, int index2);
+//	ArrMove(int mtype, double mrate, Loop *affected_1, Loop *affected_2, int index1);
+//
+//	string toString();
+//
+//};
 
 class MoveContainer {
 public:

@@ -5113,7 +5113,7 @@ void OpenLoop::generateMoves(void) {
 
 					energies[0] = energyModel->HairpinEnergy(&mySequence[loop], loop2 - loop - 1);
 
-					for (temploop = 0, tempindex = 0; temploop <= numAdjacent + 1; temploop++, tempindex++) {
+					for (temploop = 0, tempindex = 0; temploop < numAdjacent + 2; temploop++, tempindex++) {
 						if (temploop == loop3) {
 							ptypes[temploop] = pairType;
 							sideLengths[temploop] = loop - 1;
@@ -5131,7 +5131,6 @@ void OpenLoop::generateMoves(void) {
 						}
 					}
 					energies[1] = energyModel->OpenloopEnergy(numAdjacent + 1, sideLengths, sequences);
-
 					tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
 
 					// if the new Arrhenius model is used, modify the existing rate based on the local context.
@@ -5140,7 +5139,7 @@ void OpenLoop::generateMoves(void) {
 					// multiLoop is splitting off an hairpin. Which is loopMove, and something else
 					if (energyModel->useArrhenius()) {
 
-						MoveType rightMove = energyModel->prefactorMulti(sideLengths[loop3], sideLengths[loop3 + 1]);
+						MoveType rightMove = energyModel->prefactorOpen(loop3, numAdjacent + 2, sideLengths);
 						tempRate = tempRate * energyModel->applyPrefactors(loopMove, rightMove);
 
 					}

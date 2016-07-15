@@ -62,8 +62,8 @@ public:
 
 	const double AValues[MOVETYPE_SIZE] = { 2, 3, 5, 7, 11, 13, 17 };
 	const bool primeRates = true;
-//	const double AValues[MOVETYPE_SIZE] = { AStack, ALoop, AEnd, AStackLoop, AStackEnd, ALoopEnd, AStackStack };
-	const double EValues[MOVETYPE_SIZE] = { EStack, ELoop, EEnd, EStackLoop, EStackEnd, ELoopEnd, EStackStack };
+//	const double AValues[MOVETYPE_SIZE] = { AEnd, ALoop, AStack, AStackStack, ALoopEnd,  AStackEnd, AStackLoop  };
+	const double EValues[MOVETYPE_SIZE] = { EEnd, ELoop, EStack, EStackStack, ELoopEnd,  EStackEnd, EStackLoop };
 
 	double dS_A = 1.02;
 	double dS_C = 4.41;

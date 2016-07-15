@@ -160,59 +160,45 @@ string Move::toString(void) {
 
 // Have to relay all the constuctors
 
-ArrMove::ArrMove(void) :
-		Move() {
+//ArrMove::ArrMove(void) :
+//		Move() {
+//
+//}
+//
+//ArrMove::ArrMove(int mtype, double mrate, Loop* affected_1, int index1, int index2) :
+//		Move(mtype, mrate, affected_1, index1, index2) {
+//
+//}
+//
+//ArrMove::ArrMove(int mtype, double mrate, Loop* affected_1, int index1, int index2, int index3) :
+//		Move(mtype, mrate, affected_1, index1, index2, index3) {
+//}
+//
+//ArrMove::ArrMove(int mtype, double mrate, Loop* affected_1, Loop* affected_2, int index1, int index2) :
+//		Move(mtype, mrate, affected_1, affected_2, index1, index2) {
+//
+//}
+//
+//ArrMove::ArrMove(int mtype, double mrate, Loop *affected_1, Loop *affected_2, int index1) :
+//		Move(mtype, mrate, affected_1, affected_2, index1) {
+//
+//}
+//
+//ArrMove::ArrMove(int mtype, double mrate, Loop *affected_1, int index1, int index2, int index3, int index4) :
+//		Move(mtype, mrate, affected_1, index1, index2, index3, index4) {
+//
+//}
+//
+//ArrMove::ArrMove(int mtype, double mrate, Loop *affected_1, int *indexarray) {
+//	type = mtype;
+//	rate = mrate;
+//	affected[0] = affected_1;
+//	affected[1] = NULL;
+//	for (int loop = 0; loop < 4; loop++)
+//		index[loop] = indexarray[loop];
+//
+//}
 
-}
-
-ArrMove::ArrMove(int mtype, double mrate, Loop* affected_1, int index1, int index2) :
-		Move(mtype, mrate, affected_1, index1, index2) {
-
-}
-
-ArrMove::ArrMove(int mtype, double mrate, Loop* affected_1, int index1, int index2, int index3) :
-		Move(mtype, mrate, affected_1, index1, index2, index3) {
-}
-
-ArrMove::ArrMove(int mtype, double mrate, Loop* affected_1, Loop* affected_2, int index1, int index2) :
-		Move(mtype, mrate, affected_1, affected_2, index1, index2) {
-
-}
-
-ArrMove::ArrMove(int mtype, double mrate, Loop *affected_1, Loop *affected_2, int index1) :
-		Move(mtype, mrate, affected_1, affected_2, index1) {
-
-}
-
-ArrMove::ArrMove(int mtype, double mrate, Loop *affected_1, int index1, int index2, int index3, int index4) :
-		Move(mtype, mrate, affected_1, index1, index2, index3, index4) {
-
-}
-
-ArrMove::ArrMove(int mtype, double mrate, Loop *affected_1, int *indexarray) {
-	type = mtype;
-	rate = mrate;
-	affected[0] = affected_1;
-	affected[1] = NULL;
-	for (int loop = 0; loop < 4; loop++)
-		index[loop] = indexarray[loop];
-
-}
-
-string ArrMove::toString(void) {
-
-	string output = this->Move::toString();	 // super toString
-
-	string addedOutput = "Arrhenius type L/R= ";
-
-	addedOutput += utility::ArrTypeMap[arrLeft];
-	addedOutput += utility::ArrTypeMap[arrRight];
-
-	output += addedOutput;
-
-	return output;
-
-}
 
 /* MoveTree info */
 MoveTree::~MoveTree(void) {

@@ -59,6 +59,8 @@ string moveType(int);
 const static string ArrTypeMap[] = { "Undefined", "End", "Loop", "Stack",
 		"Stack-Stack", "Loop-End", "Stack-End", "Stack-Loop" };
 
+
+void printIntegers(int[], int);
 void printDouble(double);
 void printDoubleArray(double[], int);
 void printDoubleMatrix(double[], int, int);

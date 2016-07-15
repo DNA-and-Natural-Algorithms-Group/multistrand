@@ -32,7 +32,7 @@ double expRate(double A, double E, double temperature) {
 
 }
 
-void setArrheniusRate(double ratesArray[], EnergyOptions* options, double temperature, int left, int right) {
+void EnergyModel::setArrheniusRate(double ratesArray[], EnergyOptions* options, double temperature, int left, int right) {
 
 	double ALeft = options->AValues[left];
 	double ELeft = options->EValues[left];
@@ -43,11 +43,17 @@ void setArrheniusRate(double ratesArray[], EnergyOptions* options, double temper
 	double kLeft = expRate(ALeft, ELeft, temperature);
 	double kRight = expRate(ARight, ERight, temperature);
 
-	// DEBUG! Set all rates to be 1.0 for debugging.
+	if (simOptions->energyOptions->primeRates) {
 
-//	ratesArray[left * MOVETYPE_SIZE + right] = kLeft * kRight;
+		ratesArray[left * MOVETYPE_SIZE + right] = ALeft * ARight;
 
-	ratesArray[left * MOVETYPE_SIZE + right] = 1.0;
+	} else {
+
+		ratesArray[left * MOVETYPE_SIZE + right] = kLeft * kRight;
+
+	}
+
+//	ratesArray[left * MOVETYPE_SIZE + right] = 1.0;
 
 }
 
@@ -137,30 +143,30 @@ MoveType prefactorEndSingleOpen(int openSide, int closedSide) {
 
 	if (dangleOpen && dangleClosed) {
 
-		return stackLoopMove;
+		return loopMove;
 
 	} else if (!dangleOpen && !dangleClosed) {
 
-		return endMove;
+		return stackEndMove;
 
 	} else if (dangleOpen) {
 
-		return loopMove;
+		return stackLoopMove;
 
 	} else {
 
-		return stackEndMove;
+		return loopEndMove;
 
 	}
 
 }
 
 MoveType EnergyModel::prefactorOpen(int index, int numAdjacent, int sideLengths[]) {
-
 	assert(index < (numAdjacent + 1));
 
 	bool openOnLeft = (index == 0);
-	bool openOnRight = (index + 1 == numAdjacent);
+	bool openOnRight = (index + 1) == numAdjacent;
+
 
 // each strand can either be non-existing, or single stranded, or double stranded.
 
@@ -168,13 +174,14 @@ MoveType EnergyModel::prefactorOpen(int index, int numAdjacent, int sideLengths[
 
 		return prefactorMulti(sideLengths[index], sideLengths[index + 1]);
 
-	} else if (openOnLeft && openOnLeft) { // this is the "end" case
+	} else if (openOnLeft && openOnRight) { // this is the "end" case
 
 		return prefactorEndBothOpen(sideLengths[index], sideLengths[index + 1]);
 
 	} else {
 		// there is exactly one side exposed to the open
 		// this side is always single stranded, or non-existing.
+
 
 		if (openOnLeft) {
 
