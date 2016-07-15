@@ -3525,9 +3525,9 @@ void BulgeLoop::generateMoves(void) {
 						MoveType multiMove = stackMove; // default init value;
 
 						if (bside == 0) {
-							multiMove = energyModel->prefactorMulti(sidelen[0], sidelen[1]);
+							multiMove = energyModel->prefactorInternal(sidelen[0], sidelen[1]);
 						} else {
-							multiMove = energyModel->prefactorMulti(sidelen[1], sidelen[2]);
+							multiMove = energyModel->prefactorInternal(sidelen[1], sidelen[2]);
 						}
 
 						tempRate = tempRate * energyModel->applyPrefactors(loopMove, multiMove);
@@ -3934,7 +3934,7 @@ void InteriorLoop::generateMoves(void) {
 				// hairpin and multiloop, so this is loopMove and something
 				if (energyModel->useArrhenius()) {
 
-					MoveType multiMove = energyModel->prefactorMulti(sidelen[0], sidelen[1]);
+					MoveType multiMove = energyModel->prefactorInternal(sidelen[0], sidelen[1]);
 					tempRate = tempRate * energyModel->applyPrefactors(loopMove, multiMove);
 
 				}
@@ -3964,7 +3964,7 @@ void InteriorLoop::generateMoves(void) {
 				// hairpin and multiloop, so this is loopMove and something
 				if (energyModel->useArrhenius()) {
 
-					MoveType multiMove = energyModel->prefactorMulti(sidelen[1], sidelen[2]);
+					MoveType multiMove = energyModel->prefactorInternal(sidelen[1], sidelen[2]);
 					tempRate = tempRate * energyModel->applyPrefactors(loopMove, multiMove);
 
 				}
@@ -4489,7 +4489,7 @@ void MultiLoop::generateMoves(void) {
 					// multiLoop is closing, so this an loopMove and something else
 					if (energyModel->useArrhenius()) {
 
-						MoveType rightMove = energyModel->prefactorMulti(sideLengths[loop3], sideLengths[loop3]);
+						MoveType rightMove = energyModel->prefactorInternal(sideLengths[loop3], sideLengths[loop3]);
 						tempRate = tempRate * energyModel->applyPrefactors(loopMove, rightMove);
 
 					}
@@ -4564,7 +4564,7 @@ void MultiLoop::generateMoves(void) {
 					// multiLoop is forming an stack/bulge/interior, which is something and something else
 					if (energyModel->useArrhenius()) {
 
-						MoveType rightMove = energyModel->prefactorMulti(sideLengths[loop3], sideLengths[loop4]);
+						MoveType rightMove = energyModel->prefactorInternal(sideLengths[loop3], sideLengths[loop4]);
 						tempRate = tempRate * energyModel->applyPrefactors(leftMove, rightMove);
 
 					}
@@ -4621,7 +4621,7 @@ void MultiLoop::generateMoves(void) {
 						}
 
 						energies[0] = energyModel->MultiloopEnergy(loop4 - loop3 + 1, sideLengths, sequences);
-						MoveType leftMove = energyModel->prefactorMulti(sideLengths[loop3], sideLengths[loop4]);
+						MoveType leftMove = energyModel->prefactorInternal(sideLengths[loop3], sideLengths[loop4]);
 
 						// Multi loop
 						for (temploop = 0, tempindex = 0; temploop < numAdjacent - (loop4 - loop3 - 1); tempindex++) {
@@ -4653,7 +4653,7 @@ void MultiLoop::generateMoves(void) {
 						// multiLoop is splitting into two multiLoops. Which is something, and something else
 						if (energyModel->useArrhenius()) {
 
-							MoveType rightMove = energyModel->prefactorMulti(sideLengths[loop3], sideLengths[loop4]);
+							MoveType rightMove = energyModel->prefactorInternal(sideLengths[loop3], sideLengths[loop4]);
 							tempRate = tempRate * energyModel->applyPrefactors(leftMove, rightMove);
 
 						}
@@ -5212,10 +5212,10 @@ void OpenLoop::generateMoves(void) {
 
 					tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
 
-					// multiLoop is splitting off an stack/bulge/interior. Which is something, and something else
+					// openLoop is splitting off an stack/bulge/interior. Which is something, and something else
 					if (energyModel->useArrhenius()) {
 
-						MoveType rightMove = energyModel->prefactorMulti(sideLengths[loop3], sideLengths[loop3 + 1]);
+						MoveType rightMove = energyModel->prefactorInternal(sideLengths[loop3], sideLengths[loop3 + 1]);
 						tempRate = tempRate * energyModel->applyPrefactors(loopMove, rightMove);
 
 					}
@@ -5262,7 +5262,7 @@ void OpenLoop::generateMoves(void) {
 						}
 
 						energies[0] = energyModel->MultiloopEnergy(loop4 - loop3 + 1, sideLengths, sequences);
-						MoveType leftMove = energyModel->prefactorMulti(sideLengths[loop3], sideLengths[loop4]);
+						MoveType leftMove = energyModel->prefactorInternal(sideLengths[loop3], sideLengths[loop4]);
 
 						// Open loop
 						for (temploop = 0, tempindex = 0; temploop <= numAdjacent - (loop4 - loop3 - 1); tempindex++) {
@@ -5291,7 +5291,7 @@ void OpenLoop::generateMoves(void) {
 						// openLoop is splitting off . Which is something, and something else
 						if (energyModel->useArrhenius()) {
 
-							MoveType rightMove = energyModel->prefactorMulti(sideLengths[loop3], sideLengths[loop4]);
+							MoveType rightMove = energyModel->prefactorInternal(sideLengths[loop3], sideLengths[loop4]);
 							tempRate = tempRate * energyModel->applyPrefactors(leftMove, rightMove);
 
 						}

@@ -93,11 +93,11 @@ MoveType EnergyModel::getPrefactorsMulti(int index, int numAdjacent, int sideLen
 // FD: if adjacent are not neighbored in this order, then we need to replace this code with the correct mapping.
 	int rightStrand = (index + 1) % numAdjacent;
 
-	return this->prefactorMulti(sideLengths[index], sideLengths[rightStrand]);
+	return this->prefactorInternal(sideLengths[index], sideLengths[rightStrand]);
 
 }
 
-MoveType EnergyModel::prefactorMulti(int sideLength1, int sideLength2) {
+MoveType EnergyModel::prefactorInternal(int sideLength1, int sideLength2) {
 // FD: A base pair is present between a stacking loop and a multi loop.
 // FD: We query the local context of the middle pair;
 // FD: this can be either a loop, stack+loop, or stack+stack situation.
@@ -167,12 +167,11 @@ MoveType EnergyModel::prefactorOpen(int index, int numAdjacent, int sideLengths[
 	bool openOnLeft = (index == 0);
 	bool openOnRight = (index + 1) == numAdjacent;
 
-
 // each strand can either be non-existing, or single stranded, or double stranded.
 
 	if (!openOnLeft && !openOnRight) { // this is the multi-loop case
 
-		return prefactorMulti(sideLengths[index], sideLengths[index + 1]);
+		return prefactorInternal(sideLengths[index], sideLengths[index + 1]);
 
 	} else if (openOnLeft && openOnRight) { // this is the "end" case
 
@@ -181,7 +180,6 @@ MoveType EnergyModel::prefactorOpen(int index, int numAdjacent, int sideLengths[
 	} else {
 		// there is exactly one side exposed to the open
 		// this side is always single stranded, or non-existing.
-
 
 		if (openOnLeft) {
 

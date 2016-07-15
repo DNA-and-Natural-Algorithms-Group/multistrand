@@ -92,7 +92,7 @@ public:
 //	MoveType getPrefactorsMulti(int, Loop*, int[]);
 	MoveType getPrefactorsMulti(int, int, int[]);
 	MoveType prefactorOpen(int, int, int[]);
-	MoveType prefactorMulti(int, int);
+	MoveType prefactorInternal(int, int);
 
 	// Virtual methods
 
