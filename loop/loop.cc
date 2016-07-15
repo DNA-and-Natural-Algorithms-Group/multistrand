@@ -13,11 +13,15 @@
 #include <iostream>
 
 #include "utility.h"
+#include <simoptions.h>
+#include <energyoptions.h>
+
 
 using std::string;
 using std::cout;
 
 EnergyModel* Loop::energyModel = NULL;
+
 
 extern int baseLookup(char base);
 
@@ -291,7 +295,7 @@ void Loop::printAllMoves(Loop* from) {
 
 	cout << "Printing moves for loop: \n " << toString() << "\n";
 
-	moves->printAllMoves();
+	moves->printAllMoves(energyModel->simOptions->energyOptions);
 
 	for (int i = 0; i < numAdjacent; i++) {
 
@@ -5152,7 +5156,7 @@ void OpenLoop::generateMoves(void) {
 	}
 
 // Case #2a-c: adjacent loop creation moves
-	for (loop3 = 0; loop3 <= numAdjacent - 1; loop3++) // CHECK: is numAdjacent really correct? it could be numAdjacent+1
+	for (loop3 = 0; loop3 < numAdjacent; loop3++) // CHECK: is numAdjacent really correct? it could be numAdjacent+1
 		for (loop = 1; loop <= sidelen[loop3]; loop++)
 			for (loop2 = 1; loop2 <= sidelen[loop3 + 1]; loop2++) { // each possibility is a hairpin and open loop, see above.
 
@@ -5191,7 +5195,7 @@ void OpenLoop::generateMoves(void) {
 
 					}
 
-					for (temploop = 0; temploop <= numAdjacent; temploop++) {
+					for (temploop = 0; temploop < numAdjacent + 1; temploop++) {
 						if (temploop == loop3) {
 							ptypes[temploop] = pairType;
 							sideLengths[temploop] = loop - 1;
@@ -5212,11 +5216,17 @@ void OpenLoop::generateMoves(void) {
 
 					tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
 
-					// openLoop is splitting off an stack/bulge/interior. Which is something, and something else
+					// openLoop is splitting off an stack/bulge/interior, and another openloop.
+					// Which is something, and something else
 					if (energyModel->useArrhenius()) {
 
-						MoveType rightMove = energyModel->prefactorInternal(sideLengths[loop3], sideLengths[loop3 + 1]);
-						tempRate = tempRate * energyModel->applyPrefactors(loopMove, rightMove);
+//						cout << "OPENLOOP, LOOP3=" << loop3 << "\n";
+//						utility::printIntegers(sideLengths, numAdjacent + 1);
+
+						// the new stack/bulge/interior is the LeftMove (see above);
+						// the new Openloop
+						MoveType rightMove = energyModel->prefactorOpen(loop3, numAdjacent + 1, sideLengths);
+						tempRate = tempRate * energyModel->applyPrefactors(leftMove, rightMove);
 
 					}
 

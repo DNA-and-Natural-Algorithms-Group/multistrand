@@ -60,8 +60,7 @@ void SimulationSystem::construct(void) {
 
 	if (Loop::GetEnergyModel() == NULL) {
 		dnaEnergyModel = NULL;
-		dnaEnergyModel = new NupackEnergyModel(
-				sim_options->getPythonSettings());
+		dnaEnergyModel = new NupackEnergyModel(sim_options->getPythonSettings());
 		Loop::SetEnergyModel(dnaEnergyModel);
 	} else {
 		dnaEnergyModel = Loop::GetEnergyModel();
@@ -119,7 +118,7 @@ void SimulationSystem::printTransition(double input) {
 
 	cout << "Using RNG =" << input;
 	Move* myMove = startState->getChoice(&input);
-	cout << ", we selected move: \n " << myMove->toString() << " \n ";
+	cout << ", we selected move: \n " << myMove->toString(sim_options->energyOptions) << " \n ";
 
 }
 
@@ -321,8 +320,7 @@ void SimulationSystem::SimulationLoop_Standard(void) {
 				traverse = first;
 				while (traverse->next != NULL && !checkresult) {
 					traverse = traverse->next;
-					checkresult = complexList->checkStopComplexList(
-							traverse->citem);
+					checkresult = complexList->checkStopComplexList(traverse->citem);
 				}
 				// Note: we cannot delete first here if checkresult != 0,
 				// as traverse->tag may be needed. It will get checked at
@@ -347,8 +345,7 @@ void SimulationSystem::SimulationLoop_Standard(void) {
 	}
 }
 
-void SimulationSystem::SimulationLoop_Trajectory(long output_count_interval,
-		double output_time_interval) {
+void SimulationSystem::SimulationLoop_Trajectory(long output_count_interval, double output_time_interval) {
 
 	double rchoice, rate, current_simulation_time, last_trajectory_time;
 	rchoice = rate = 0.0;
@@ -387,8 +384,7 @@ void SimulationSystem::SimulationLoop_Trajectory(long output_count_interval,
 		// we check this here so the reported state is the one present at the time
 		// listed, rather than the one /after/ that.
 		if (output_time_interval > 0.0)
-			if (current_simulation_time - last_trajectory_time
-					> output_time_interval) {
+			if (current_simulation_time - last_trajectory_time > output_time_interval) {
 				last_trajectory_time += output_time_interval;
 				sendTrajectory_CurrentStateToPython(last_trajectory_time);
 				//complexList->printComplexList( 0 );
@@ -407,8 +403,7 @@ void SimulationSystem::SimulationLoop_Trajectory(long output_count_interval,
 			traverse = first;
 			while (traverse->next != NULL && !checkresult) {
 				traverse = traverse->next;
-				checkresult = complexList->checkStopComplexList(
-						traverse->citem);
+				checkresult = complexList->checkStopComplexList(traverse->citem);
 			}
 		}
 
@@ -424,8 +419,7 @@ void SimulationSystem::SimulationLoop_Trajectory(long output_count_interval,
 	if (current_simulation_time == NAN)
 		sim_options->stopResultNan(current_seed);
 	else if (checkresult) {
-		sim_options->stopResultNormal(current_seed, current_simulation_time,
-				traverse->tag);
+		sim_options->stopResultNormal(current_seed, current_simulation_time, traverse->tag);
 	} else
 		sim_options->stopResultTime(current_seed, current_simulation_time);
 
@@ -508,14 +502,12 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 			first = sim_options->getStopComplexes(0);
 			traverse = first;
 			for (int idx = 0; idx < stopcount; idx++) {
-				checkresult = complexList->checkStopComplexList(
-						traverse->citem);
+				checkresult = complexList->checkStopComplexList(traverse->citem);
 				if (checkresult && stop_entries[idx] == true) {
 					// multiple stop states could suddenly be true, we add
 					// a status line entry for the first one found.
 					if (!stop_flag) {
-						sim_options->stopResultNormal(current_seed, stime,
-								traverse->tag);
+						sim_options->stopResultNormal(current_seed, stime, traverse->tag);
 					}
 
 					stop_flag = true;
@@ -599,8 +591,7 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 	complexList->doJoinChoice(rchoice);
 
 	// store the forward rate used for the initial step so we can record it.
-	frate = rate * dnaEnergyModel->getJoinRate_NoVolumeTerm()
-			/ dnaEnergyModel->getJoinRate();
+	frate = rate * dnaEnergyModel->getJoinRate_NoVolumeTerm() / dnaEnergyModel->getJoinRate();
 
 	// rate is the total flux across all join moves - this is exactly equal to total_move_count *
 	// dnaEnergyModel->getJoinRate()
@@ -628,8 +619,7 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 			checkresult = complexList->checkStopComplexList(traverse->citem);
 			while (traverse->next != NULL && !checkresult) {
 				traverse = traverse->next;
-				checkresult = complexList->checkStopComplexList(
-						traverse->citem);
+				checkresult = complexList->checkStopComplexList(traverse->citem);
 			}
 			if (!checkresult && first != NULL)
 				delete first;
@@ -639,11 +629,9 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 	if (checkresult) {
 		dumpCurrentStateToPython();
 		if (strcmp(traverse->tag, "REVERSE") == 0)
-			sim_options->stopResultBimolecular("Reverse", current_seed, stime,
-					frate, traverse->tag);
+			sim_options->stopResultBimolecular("Reverse", current_seed, stime, frate, traverse->tag);
 		else
-			sim_options->stopResultBimolecular("Forward", current_seed, stime,
-					frate, traverse->tag);
+			sim_options->stopResultBimolecular("Forward", current_seed, stime, frate, traverse->tag);
 		delete first;
 	} else {
 		dumpCurrentStateToPython();
@@ -666,10 +654,8 @@ void SimulationSystem::dumpCurrentStateToPython(void) {
 	SComplexListEntry *temp;
 	temp = complexList->getFirst();
 	while (temp != NULL) {
-		temp->dumpComplexEntryToPython(&id, &names, &sequence, &structure,
-				&energy);
-		printComplexStateLine(sim_options->getPythonSettings(), current_seed,
-				id, names, sequence, structure, energy);
+		temp->dumpComplexEntryToPython(&id, &names, &sequence, &structure, &energy);
+		printComplexStateLine(sim_options->getPythonSettings(), current_seed, id, names, sequence, structure, energy);
 		temp = temp->next;
 	}
 }
@@ -681,8 +667,7 @@ void SimulationSystem::dumpCurrentStateToPython(void) {
 //  about which transition states we are in.									   //
 /////////////////////////////////////////////////////////////////////////////////////
 
-void SimulationSystem::sendTransitionStateVectorToPython(
-		boolvector transition_states, double current_time) {
+void SimulationSystem::sendTransitionStateVectorToPython(boolvector transition_states, double current_time) {
 	PyObject *mylist = PyList_New((Py_ssize_t) transition_states.size());
 	// we now have a new reference here that we'll need to DECREF.
 
@@ -728,18 +713,15 @@ void SimulationSystem::sendTransitionStateVectorToPython(
 // Helper function to send current state to python side. //
 ///////////////////////////////////////////////////////////
 
-void SimulationSystem::sendTrajectory_CurrentStateToPython(
-		double current_time) {
+void SimulationSystem::sendTrajectory_CurrentStateToPython(double current_time) {
 	int id;
 	char *names, *sequence, *structure;
 	double energy;
 	SComplexListEntry *temp;
 	temp = complexList->getFirst();
 	while (temp != NULL) {
-		temp->dumpComplexEntryToPython(&id, &names, &sequence, &structure,
-				&energy);
-		pushTrajectoryComplex(system_options, current_seed, id, names, sequence,
-				structure, energy);
+		temp->dumpComplexEntryToPython(&id, &names, &sequence, &structure, &energy);
+		pushTrajectoryComplex(system_options, current_seed, id, names, sequence, structure, energy);
 		//sim_options->pushTrajectory(current_seed, id, names, sequence,
 		//		structure, energy);
 		temp = temp->next;
@@ -764,10 +746,8 @@ int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
 
 	for (int i = 0; i < sim_options->myComplexes->size(); i++) {
 
-		char* tempSequence = copyToCharArray(
-				sim_options->myComplexes->at(i).sequence);
-		char* tempStructure = copyToCharArray(
-				sim_options->myComplexes->at(i).structure);
+		char* tempSequence = copyToCharArray(sim_options->myComplexes->at(i).sequence);
+		char* tempStructure = copyToCharArray(sim_options->myComplexes->at(i).structure);
 
 		id = sim_options->myComplexes->at(i).list;
 
@@ -808,8 +788,7 @@ void SimulationSystem::generateNextRandom(void) {
 	srand48(current_seed);
 }
 
-PyObject *SimulationSystem::calculateEnergy(PyObject *start_state,
-		int typeflag) {
+PyObject *SimulationSystem::calculateEnergy(PyObject *start_state, int typeflag) {
 	double *values = NULL;
 	PyObject *retval = NULL;
 

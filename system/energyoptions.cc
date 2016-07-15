@@ -12,11 +12,10 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <cmath>
 
 using std::vector;
 using std::string;
-
-
 
 void EnergyOptions::initializeArrheniusConstants(void) {
 
@@ -60,8 +59,7 @@ double EnergyOptions::getJoinConcentration(void) {
 
 }
 
-
-bool EnergyOptions::usingArrhenius(void){
+bool EnergyOptions::usingArrhenius(void) {
 
 	return useArrhenius;
 
@@ -102,10 +100,56 @@ string EnergyOptions::toString(void) {
 
 }
 
+string EnergyOptions::primeRateToString(double rate) {
+
+	std::stringstream ss;
+
+	ss << rate << " - or: ";
+
+	if (fmod(rate, 1.0) > 0.49) {
+
+		rate = 2 * rate;  // dealing with rate / 2 case
+
+	}
+
+	int myRate = round(rate);
+
+	for (int i = 0; i < MOVETYPE_SIZE; i++) {
+
+		if (rate == round(AValues[i])) {
+
+			myRate = myRate * 2; // the combination contains prime factor 2; fix this.
+
+		}
+
+	}
+
+	for (int i = 0; i < MOVETYPE_SIZE; i++) {
+
+		int myPrime = round(AValues[i]);
+
+		if ((myRate % myPrime) == 0) {
+
+			ss << MoveToString[i] << ", ";
+
+			if ((myRate % (myPrime * myPrime) == 0)) {
+
+				ss << MoveToString[i] << ", ";
+
+			}
+
+		}
+
+	}
+
+	return ss.str();
+
+}
+
 PEnergyOptions::PEnergyOptions(PyObject* input) :
 		EnergyOptions() {
 
-	// extended constructor, inherits from regular energyOptions
+// extended constructor, inherits from regular energyOptions
 
 	python_settings = input;
 
@@ -118,7 +162,7 @@ PEnergyOptions::PEnergyOptions(PyObject* input) :
 	getDoubleAttr(python_settings, bimolecular_scaling, &biScale);
 	getDoubleAttr(python_settings, unimolecular_scaling, &uniScale);
 
-	// not sure if these are for both models or not;
+// not sure if these are for both models or not;
 	getDoubleAttr(python_settings, join_concentration, &joinConcentration);
 
 }
@@ -140,9 +184,9 @@ void PEnergyOptions::getParameterFile(char* input, PyObject* tempString) {
 CEnergyOptions::CEnergyOptions() :
 		EnergyOptions() {
 
-	// extended constructor, inherits from regular energyOptions
+// extended constructor, inherits from regular energyOptions
 
-	// some basic default values;
+// some basic default values;
 	temperature = 310.15;
 	dangles = 1;
 	logml = 0;

@@ -123,9 +123,10 @@ public:
 	virtual double OpenloopEnergy(int size, int *sidelen, char **sequences) = 0;
 	virtual void eStackEnergy(int type1, int type2, energyS *energy) = 0;
 
+	SimOptions* simOptions;
+
 protected:
 	long dangles;
-	SimOptions* simOptions;
 	double arrheniusRates[MOVETYPE_SIZE * MOVETYPE_SIZE];
 
 };

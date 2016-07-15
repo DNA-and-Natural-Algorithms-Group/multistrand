@@ -12,6 +12,7 @@
 #include "move.h"
 #include "loop.h"
 #include "utility.h"
+#include "energyoptions.h"
 
 using std::string;
 
@@ -118,7 +119,29 @@ Loop *Move::doChoice(void) {
 		return NULL;
 }
 
-string Move::toString(void) {
+string Move::rateToString(EnergyOptions* eOptions) {
+
+	std::stringstream ss;
+
+	ss << "rate: ";
+
+	if (eOptions->primeRates) {
+
+		ss << eOptions->primeRateToString(rate);
+
+	} else {
+
+		ss << std::setprecision(10) << ss << rate;
+
+	}
+
+	ss << " \n";
+
+	return ss.str();
+
+}
+
+string Move::toString(EnergyOptions* eOptions) {
 
 	std::stringstream ss;
 
@@ -129,7 +152,8 @@ string Move::toString(void) {
 		ss << "moveType: " << type << " -- ";
 		ss << utility::moveType(type) << "\n";
 		ss << "Index: " << index[0] << ", " << index[1] << ", " << index[2] << ", " << index[3] << " \n";
-		ss << "rate: " << std::setprecision(10) << rate << " \n";
+		ss << this->rateToString(eOptions);
+//		ss << "rate: " << std::setprecision(10) << rate << " \n";
 		ss << "AFFECTED: ";
 		if (affected[0] != NULL) {
 			ss << affected[0]->toStringShort() << " ";
@@ -198,7 +222,6 @@ string Move::toString(void) {
 //		index[loop] = indexarray[loop];
 //
 //}
-
 
 /* MoveTree info */
 MoveTree::~MoveTree(void) {
@@ -277,19 +300,19 @@ void MoveList::resetDeleteMoves(void) {
 	del_moves_index = 0;
 }
 
-void MoveList::printAllMoves(void) {
+void MoveList::printAllMoves(EnergyOptions* eOptions) {
 
 	for (int i = 0; i < moves_index; i++) {
 
 		cout << "Move-" << i << "\n";
-		cout << moves[i]->toString();
+		cout << moves[i]->toString(eOptions);
 
 	}
 
 	for (int i = 0; i < del_moves_index; i++) {
 
 		cout << "Move-" << i << "\n";
-		cout << del_moves[i]->toString();
+		cout << del_moves[i]->toString(eOptions);
 
 	}
 
