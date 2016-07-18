@@ -161,11 +161,11 @@ MoveType prefactorEndSingleOpen(int openSide, int closedSide) {
 
 }
 
-MoveType EnergyModel::prefactorOpen(int index, int numAdjacent, int sideLengths[]) {
-	assert(index < (numAdjacent + 1));
+MoveType EnergyModel::prefactorOpen(int index, int numOfSides, int sideLengths[]) {
+	assert(index < (numOfSides + 1));
 
 	bool openOnLeft = (index == 0);
-	bool openOnRight = (index + 1) == numAdjacent;
+	bool openOnRight = (index + 1) == numOfSides - 1;
 
 // each strand can either be non-existing, or single stranded, or double stranded.
 

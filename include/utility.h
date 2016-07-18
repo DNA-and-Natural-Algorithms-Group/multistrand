@@ -56,7 +56,7 @@ string copyToString(char*);
 
 string moveType(int);
 
-const static string ArrTypeMap[] = { "Undefined", "End", "Loop", "Stack",
+const static string moveTypeString[] = { "Undefined", "End", "Loop", "Stack",
 		"Stack-Stack", "Loop-End", "Stack-End", "Stack-Loop" };
 
 

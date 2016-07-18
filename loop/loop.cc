@@ -16,12 +16,10 @@
 #include <simoptions.h>
 #include <energyoptions.h>
 
-
 using std::string;
 using std::cout;
 
 EnergyModel* Loop::energyModel = NULL;
-
 
 extern int baseLookup(char base);
 
@@ -5220,12 +5218,15 @@ void OpenLoop::generateMoves(void) {
 					// Which is something, and something else
 					if (energyModel->useArrhenius()) {
 
-//						cout << "OPENLOOP, LOOP3=" << loop3 << "\n";
-//						utility::printIntegers(sideLengths, numAdjacent + 1);
+						cout << "OPENLOOP, LOOP3=" << loop3 << "\n";
+						utility::printIntegers(sideLengths, numAdjacent + 1);
 
 						// the new stack/bulge/interior is the LeftMove (see above);
 						// the new Openloop
 						MoveType rightMove = energyModel->prefactorOpen(loop3, numAdjacent + 1, sideLengths);
+
+						cout << "RightMOVE=" << moveTypeString[rightMove] << "\n";
+
 						tempRate = tempRate * energyModel->applyPrefactors(leftMove, rightMove);
 
 					}
