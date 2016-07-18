@@ -5218,14 +5218,14 @@ void OpenLoop::generateMoves(void) {
 					// Which is something, and something else
 					if (energyModel->useArrhenius()) {
 
-						cout << "OPENLOOP, LOOP3=" << loop3 << "\n";
-						utility::printIntegers(sideLengths, numAdjacent + 1);
+//						cout << "OPENLOOP, LOOP3=" << loop3 << "\n";
+//						utility::printIntegers(sideLengths, numAdjacent + 1);
 
 						// the new stack/bulge/interior is the LeftMove (see above);
 						// the new Openloop
 						MoveType rightMove = energyModel->prefactorOpen(loop3, numAdjacent + 1, sideLengths);
 
-						cout << "RightMOVE=" << moveTypeString[rightMove] << "\n";
+//						cout << "RightMOVE=" << moveTypeString[rightMove] << "\n";
 
 						tempRate = tempRate * energyModel->applyPrefactors(leftMove, rightMove);
 
@@ -5302,8 +5302,15 @@ void OpenLoop::generateMoves(void) {
 						// openLoop is splitting off . Which is something, and something else
 						if (energyModel->useArrhenius()) {
 
-							MoveType rightMove = energyModel->prefactorInternal(sideLengths[loop3], sideLengths[loop4]);
+//							cout << "Openloop - MOVE3 ";
+//							cout << " loop3=" << loop3 << "\n";
+//							cout << " numAdjacent - (loop4 - loop3)=" << numAdjacent - (loop4 - loop3) + 2  << "\n";
+//							utility::printIntegers(sideLengths, numAdjacent - (loop4 - loop3) + 2);
+
+							MoveType rightMove = energyModel->prefactorOpen(loop3, numAdjacent - (loop4 - loop3) + 2, sideLengths);
 							tempRate = tempRate * energyModel->applyPrefactors(leftMove, rightMove);
+
+//							cout << "moveRate=" << moveTypeString[rightMove]  << "\n" ;
 
 						}
 
