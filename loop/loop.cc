@@ -4840,12 +4840,12 @@ string OpenLoop::typeInternalsToString(void) {
 
 	for (int i = 0; i < numAdjacent + 1; i++) {
 
-		ss << "len" << i << "=  ";
+		ss << "len" << i << "=";
 		ss << sidelen[i];
-		ss << ",   seq=";
-		ss << utility::sequenceToString(seqs[i], sidelen[i]) << ",   ";
+		ss << ", ";
+		ss << utility::sequenceToString(seqs[i], sidelen[i]) << ",  ";
 //		ss << ";   pairType= " << pairtype[i];
-//		ss << " \n";
+		ss << " \n";
 
 	}
 
