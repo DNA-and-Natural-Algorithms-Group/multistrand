@@ -50,43 +50,43 @@ string utility::moveType(int type) {
 
 	if (type & MOVE_INVALID) {
 
-		ss << "invalid, ";
+		ss << "invalid";
 
 	}
 
 	if (type & MOVE_CREATE) {
 
-		ss << "create, ";
+		ss << "create";
 
 	}
 
 	if (type & MOVE_DELETE) {
 
-		ss << "delete, ";
+		ss << "delete";
 
 	}
 
 	if (type & MOVE_SHIFT) {
 
-		ss << "shift, ";
+		ss << "shift";
 
 	}
 
 	if (type & MOVE_1) {
 
-		ss << "Move-1, ";
+		ss << "_1, ";
 
 	}
 
 	if (type & MOVE_2) {
 
-		ss << "Move-2, ";
+		ss << "_2, ";
 
 	}
 
 	if (type & MOVE_3) {
 
-		ss << "Move-3, ";
+		ss << "_3, ";
 
 	}
 
@@ -128,15 +128,15 @@ void utility::printDoubleArray(double input[], int length) {
 
 }
 
-void utility::printDoubleMatrix(double input[], int length, int depth) {
+void utility::printDoubleMatrix(double input[], int length, int depth, int precision) {
 
-	cout << "Double array: ";
+//	cout << "Double array: ";
 
 	for (int j = 0; j < depth; j++) {
 
 		for (int i = 0; i < length; i++) {
 
-			cout << input[j * depth + i] << ",";
+			cout << std::setprecision(precision) << input[j * depth + i] << ",";
 
 		}
 

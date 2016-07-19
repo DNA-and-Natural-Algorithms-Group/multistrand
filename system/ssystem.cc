@@ -126,13 +126,13 @@ void SimulationSystem::printTransition(double input) {
 void SimulationSystem::InitialInfo(void) {
 	bool hflag = false;
 
-	printf("Starting information dump about the initial state.	\n");
-	printf("Initializing system now \n");
+	printf("Printing transition rates for:	\n");
+//	printf("Initializing system now \n");
 
 	if (InitializeSystem() != 0)
 		return;
 
-	printf("Initializing list now \n");
+//	printf("Initializing list now \n");
 	complexList->initializeList();
 	complexList->printComplexList(2);
 
@@ -168,10 +168,10 @@ void SimulationSystem::InitialInfo(void) {
 //	cout << "Printing complex list";
 //	complexList->printComplexList(2);
 
-	cout << "Printing all moves \n";
+//	cout << "Printing all moves \n";
 	startState->printAllMoves();
 
-	cout << "Exiting InitialInfo()" << " \n";
+//	cout << "Exiting InitialInfo()" << " \n";
 
 }
 

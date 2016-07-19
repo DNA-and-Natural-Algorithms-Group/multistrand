@@ -11,6 +11,10 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <sstream>
+#include <iomanip>
+
+
 #include "optionlists.h"
 
 using namespace std;
@@ -63,7 +67,7 @@ const static string moveTypeString[] = { "Undefined", "End", "Loop", "Stack",
 void printIntegers(int[], int);
 void printDouble(double);
 void printDoubleArray(double[], int);
-void printDoubleMatrix(double[], int, int);
+void printDoubleMatrix(double[], int, int, int);
 
 
 }

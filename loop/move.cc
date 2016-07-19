@@ -123,7 +123,6 @@ string Move::rateToString(EnergyOptions* eOptions) {
 
 	std::stringstream ss;
 
-	ss << "rate: ";
 
 	if (eOptions->primeRates) {
 
@@ -131,11 +130,11 @@ string Move::rateToString(EnergyOptions* eOptions) {
 
 	} else {
 
-		ss << std::setprecision(10) << rate;
+		ss << std::setprecision(3) << rate;
 
 	}
 
-	ss << " \n";
+	ss << " ";
 
 	return ss.str();
 
@@ -149,18 +148,16 @@ string Move::toString(EnergyOptions* eOptions) {
 
 	if (rate > 0) {
 
-		ss << "moveType: " << type << " -- ";
-		ss << utility::moveType(type) << "\n";
-		ss << "Index: " << index[0] << ", " << index[1] << ", " << index[2] << ", " << index[3] << " \n";
-		ss << this->rateToString(eOptions);
-//		ss << "rate: " << std::setprecision(10) << rate << " \n";
-		ss << "AFFECTED: ";
+		ss << utility::moveType(type) << " ";
 		if (affected[0] != NULL) {
 			ss << affected[0]->toStringShort() << " ";
 		}
 		if (affected[1] != NULL) {
-			ss << affected[1]->toStringShort() << " ";
+			ss << affected[1]->toStringShort();
 		}
+		ss << ", ";
+		ss << "(" << index[0] << ", " << index[1] << ", " << index[2] << ", " << index[3] << "),  ";
+		ss << this->rateToString(eOptions);
 		ss << " \n";
 
 	}
@@ -304,14 +301,14 @@ void MoveList::printAllMoves(EnergyOptions* eOptions) {
 
 	for (int i = 0; i < moves_index; i++) {
 
-		cout << "Move-" << i << "\n";
+		cout << "Move" << i << " ";
 		cout << moves[i]->toString(eOptions);
 
 	}
 
-	for (int i = 0; i < del_moves_index; i++) {
+	for (int i = moves_index; i < del_moves_index + moves_index; i++) {
 
-		cout << "Move-" << i << "\n";
+		cout << "Move" << i << " ";
 		cout << del_moves[i]->toString(eOptions);
 
 	}

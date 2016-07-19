@@ -6,16 +6,11 @@
 #include <stdio.h>
 #include <assert.h>
 #include "loop.h"
-#include <sstream>
 #include <typeinfo>
-
-#include <string>
-#include <iostream>
 
 #include "utility.h"
 #include <simoptions.h>
 #include <energyoptions.h>
-
 
 using std::string;
 
@@ -257,22 +252,47 @@ void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen) 
 	return;
 }
 
+string identityToString(char loop) {
+
+	switch (loop) {
+
+	case 'O':
+		return "openloop";
+	case 'S':
+		return "stackloop";
+	case 'M':
+		return "multiloop";
+	case 'B':
+		return "bulgeloop";
+	case 'I':
+		return "interiorloop";
+	case 'H':
+		return "hairpinloop";
+
+	}
+
+	return "Could not identify loop";
+}
+
 string Loop::toString(void) {
 
 	std::stringstream ss;
 
-//	<< ", typeID =" << typeid(this).name()
-	ss << "Loop-" << identity << ", dG =" << energy << ", t_rate = " << totalRate;
-//	ss << ", energyFlag =" << energyFlag ; //<< ", add_index =" << add_index; // << ", numAdjacent=" << numAdjacent;
+	ss << "\n** " << identityToString(identity);
 
-	ss << "\n";
+//	ss << ", rate= " << std::setprecision(3) << totalRate << "\n";
+
+	ss << " adjacent ";
 
 	for (int i = 0; i < numAdjacent; i++) {
 
-		ss << "adjacent" << i << "=";
-		ss << "Loop-" << adjacentLoops[i]->identity << "\n";
+		ss << identityToString(adjacentLoops[i]->identity) << ",";
 
 	}
+
+	ss << " dG=" << std::setprecision(3) << energy << "\n";
+
+	ss << "** ";
 
 	ss << this->typeInternalsToString();
 
@@ -284,7 +304,7 @@ string Loop::toStringShort(void) {
 
 	std::stringstream ss;
 
-	ss << "Loop-" << identity;
+	ss << identityToString(identity);
 
 	return ss.str();
 
@@ -292,7 +312,7 @@ string Loop::toStringShort(void) {
 
 void Loop::printAllMoves(Loop* from) {
 
-	std::cout << "Printing moves for loop: \n " << toString() << "\n";
+	std::cout << toString();
 
 	moves->printAllMoves(energyModel->simOptions->energyOptions);
 
@@ -885,7 +905,7 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		return tempRate / 2.0;
 	}
 
-	// start bulge
+// start bulge
 
 	if (start->identity == 'B' && end->identity == 'B') {
 		BulgeLoop *end_ = (BulgeLoop *) end, *start_ = (BulgeLoop *) start;
@@ -1083,9 +1103,9 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		return tempRate / 2.0;
 	}
 
-	// end bulge
+// end bulge
 
-	// start hairpin
+// start hairpin
 
 	if (start->identity == 'H' && end->identity == 'H') {
 		fprintf(stderr, "Hairpin/Hairpin deletion move encountered - not currently supported.\n");
@@ -1273,9 +1293,9 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		return tempRate / 2.0;
 	}
 
-	// end hairpin
+// end hairpin
 
-	// start multiloop
+// start multiloop
 
 	if (start->identity == 'M' && end->identity == 'M') {
 		MultiLoop *start_;
@@ -1436,9 +1456,9 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		return tempRate / 2.0;
 	}
 
-	// end multiloop
+// end multiloop
 
-	// start openloop
+// start openloop
 
 	if (start->identity == 'O' && end->identity == 'O') {
 
@@ -1513,7 +1533,7 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		return tempRate;
 	}
 
-	// end openloop
+// end openloop
 	return -1.0;
 }
 
@@ -2207,8 +2227,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 		return newLoop;
 	}
 
-	// end interior
-	// begin bulge
+// end interior
+// begin bulge
 
 	if (start->identity == 'B' && end->identity == 'B') {
 		BulgeLoop *start_, *end_;
@@ -2457,9 +2477,9 @@ Loop *Loop::performDeleteMove(Move *move) {
 		return newLoop;
 	}
 
-	// end bulge
+// end bulge
 
-	// start hairpin
+// start hairpin
 
 	if (start->identity == 'H' && end->identity == 'H') {
 		fprintf(stderr, "Hairpin/Hairpin deletion move encountered - not currently supported.\n");
@@ -2681,9 +2701,9 @@ Loop *Loop::performDeleteMove(Move *move) {
 		return newLoop;
 	}
 
-	// end hairpin
+// end hairpin
 
-	// start multiloop
+// start multiloop
 
 	if (start->identity == 'M' && end->identity == 'M') {
 		MultiLoop *start_;
@@ -2866,18 +2886,18 @@ Loop *Loop::performDeleteMove(Move *move) {
 		return newLoop;
 	}
 
-	// end multiloop
+// end multiloop
 
-	// start openloop
+// start openloop
 
-	// Control flow should never reach here, as Scomplex shortcuts O/O deletion moves (complex breaks) to a different function - performComplexSplit
+// Control flow should never reach here, as Scomplex shortcuts O/O deletion moves (complex breaks) to a different function - performComplexSplit
 	if (start->identity == 'O' && end->identity == 'O') {
 		fprintf(stderr, "Openloop/Openloop deletion reached via performDeleteMove, bad control flow\n");
 		assert(0);
 		return NULL;
 	}
 
-	// end openloop
+// end openloop
 
 	else
 		return NULL;
@@ -2922,7 +2942,7 @@ void StackLoop::printMove(Loop *comefrom, char *structure_p, char *seq_p) {
 			adjacentLoops[loop]->printMove(this, structure_p, seq_p);
 		assert(adjacentLoops[loop] != NULL);
 	}
-	// for now, Stack loops also don't have deletion moves.
+// for now, Stack loops also don't have deletion moves.
 }
 
 Move *StackLoop::getChoice(double *randomchoice, Loop *from) {
@@ -2950,7 +2970,7 @@ Move *StackLoop::getChoice(double *randomchoice, Loop *from) {
 
 double StackLoop::doChoice(Move *move, Loop **returnLoop) {
 	;
-	// currently no moves in stackloop, in the future will include deletion moves
+// currently no moves in stackloop, in the future will include deletion moves
 }
 
 char *StackLoop::getLocation(Move *move, int index) {
@@ -3013,7 +3033,7 @@ StackLoop::StackLoop(int type1, int type2, char *seq1, char *seq2, Loop *left, L
 //FD: The attached loop is the loop where the basepair will be formed/removed.
 MoveType StackLoop::declareMoveType(Loop* attachedLoop) {
 
-	// a Stack always contributes a stackMove term.
+// a Stack always contributes a stackMove term.
 	return stackMove;
 
 }
@@ -3022,13 +3042,16 @@ string StackLoop::typeInternalsToString(void) {
 
 	std::stringstream ss;
 
-	ss << "pairtype[0]=  " << pairtype[0] << "      pairtype[1] = " << pairtype[1];
-	ss << "\n ";
+//	ss << "pairtype=  " << pairtype[0] << "," << pairtype[1];
+//	ss << "      ";
 
-	ss << "    seqs[0][0]=  " << baseTypeString[seqs[0][0] - 1];
-	ss << "    seqs[0][1]=  " << baseTypeString[seqs[0][1] - 1];
-	ss << "    seqs[1][0]=  " << baseTypeString[seqs[1][0] - 1];
-	ss << "    seqs[1][1]=  " << baseTypeString[seqs[1][1] - 1];
+	ss << "(" << baseTypeString[seqs[0][0] - 1] << "/";
+	ss << baseTypeString[seqs[1][1] - 1] << ", ";
+
+	ss << baseTypeString[seqs[0][1] - 1] << "/";
+	ss << baseTypeString[seqs[1][0] - 1];
+
+	ss << ") \n";
 
 	return ss.str();
 
@@ -3071,8 +3094,8 @@ string HairpinLoop::typeInternalsToString(void) {
 
 	std::stringstream ss;
 
-	ss << "pairType =" << pairtype << " \n ";
-	ss << "hairpin seq = " << utility::sequenceToString(hairpin_seq, hairpinsize);
+	ss << "pairType =" << pairtype << ", ";
+	ss << "seq= " << utility::sequenceToString(hairpin_seq, hairpinsize);
 
 	return ss.str();
 
@@ -3356,8 +3379,8 @@ string BulgeLoop::typeInternalsToString(void) {
 
 	std::stringstream ss;
 
-	ss << " bulgeSize0 " << utility::sequenceToString(bulge_seq[0], bulgesize[0]) << " \n";
-	ss << " bulgeSize1 " << utility::sequenceToString(bulge_seq[1], bulgesize[1]);
+	ss << " seq0=" << utility::sequenceToString(bulge_seq[0], bulgesize[0]) << " \n";
+	ss << " seq1= " << utility::sequenceToString(bulge_seq[1], bulgesize[1]);
 
 	return ss.str();
 
@@ -3700,6 +3723,9 @@ MoveType InteriorLoop::declareMoveType(Loop* attachedLoop) {
 string InteriorLoop::typeInternalsToString(void) {
 
 	std::stringstream ss;
+
+	ss << " seq0=" << utility::sequenceToString(int_seq[0], sizes[0]) << " \n";
+	ss << " seq1= " << utility::sequenceToString(int_seq[1], sizes[1]);
 
 	return ss.str();
 
@@ -4152,6 +4178,16 @@ MoveType MultiLoop::declareMoveType(Loop* attachedLoop) {
 string MultiLoop::typeInternalsToString(void) {
 
 	std::stringstream ss;
+
+	ss << "sideLength = ";
+
+	for (int i = 0; i < numAdjacent + 1; i++) {
+
+		ss << sidelen[i];
+
+	}
+
+	ss << "\n";
 
 	return ss.str();
 
@@ -4804,12 +4840,12 @@ string OpenLoop::typeInternalsToString(void) {
 
 	for (int i = 0; i < numAdjacent + 1; i++) {
 
-		ss << "length" << i << " =  ";
+		ss << "len" << i << "=  ";
 		ss << sidelen[i];
-		ss << ";   seq=";
-		ss << utility::sequenceToString(seqs[i], sidelen[i]);
-		ss << ";   pairType= " << pairtype[i];
-		ss << " \n";
+		ss << ",   seq=";
+		ss << utility::sequenceToString(seqs[i], sidelen[i]) << ",   ";
+//		ss << ";   pairType= " << pairtype[i];
+//		ss << " \n";
 
 	}
 

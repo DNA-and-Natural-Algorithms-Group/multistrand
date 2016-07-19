@@ -470,8 +470,14 @@ NupackEnergyModel::NupackEnergyModel(PyObject* energy_options) :
 
 	simOptions = new PSimOptions(energy_options);
 	processOptions();
-	computeArrheniusRates(current_temp);
-	utility::printDoubleMatrix(arrheniusRates, MOVETYPE_SIZE, MOVETYPE_SIZE);
+
+	if (simOptions->energyOptions->usingArrhenius()) {
+
+		computeArrheniusRates(current_temp);
+
+		//utility::printDoubleMatrix(arrheniusRates, MOVETYPE_SIZE, MOVETYPE_SIZE);
+
+	}
 
 }
 
