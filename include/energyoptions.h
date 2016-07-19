@@ -61,9 +61,9 @@ public:
 	double ELoopEnd = 3.80;
 	double EStackStack = 6.57;
 
-	const double AValues[MOVETYPE_SIZE] = { 2, 3, 5, 7, 11, 13, 17 };
-	const bool primeRates = true;
-//	const double AValues[MOVETYPE_SIZE] = { AEnd, ALoop, AStack, AStackStack, ALoopEnd,  AStackEnd, AStackLoop  };
+//	const double AValues[MOVETYPE_SIZE] = { 2, 3, 5, 7, 11, 13, 17 };
+	const bool primeRates = false;
+	const double AValues[MOVETYPE_SIZE] = { AEnd, ALoop, AStack, AStackStack, ALoopEnd,  AStackEnd, AStackLoop  };
 	const double EValues[MOVETYPE_SIZE] = { EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop };
 	const string MoveToString[MOVETYPE_SIZE] = { "End", "Loop", "Stack", "StackStack", "LoopEnd", "StackEnd", "StackLoop" };
 
@@ -90,7 +90,7 @@ protected:
 	long substrate_type; // = NULL;
 
 	// Hard coding some default Arrhenius constants (for now)
-	const bool useArrhenius = true;
+	const bool useArrhenius = false;
 
 };
 

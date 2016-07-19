@@ -131,7 +131,7 @@ string Move::rateToString(EnergyOptions* eOptions) {
 
 	} else {
 
-		ss << std::setprecision(10) << ss << rate;
+		ss << std::setprecision(10) << rate;
 
 	}
 

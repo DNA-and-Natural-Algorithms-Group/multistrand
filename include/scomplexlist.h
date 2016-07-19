@@ -8,7 +8,13 @@
 
 #include "scomplex.h"
 #include "energymodel.h"
-#include "optionlists.h" 
+#include "optionlists.h"
+#include <stdio.h>
+
+#include <iostream>
+
+
+using std::cout;
 
 class SComplexListEntry;
 

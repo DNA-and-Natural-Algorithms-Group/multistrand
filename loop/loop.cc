@@ -16,8 +16,8 @@
 #include <simoptions.h>
 #include <energyoptions.h>
 
+
 using std::string;
-using std::cout;
 
 EnergyModel* Loop::energyModel = NULL;
 
@@ -261,8 +261,9 @@ string Loop::toString(void) {
 
 	std::stringstream ss;
 
-	ss << "Loop-" << identity << ", typeID =" << typeid(this).name() << ", dG =" << energy << ", t_rate = " << totalRate;
-	ss << ", energyFlag =" << energyFlag << ", add_index =" << add_index; // << ", numAdjacent=" << numAdjacent;
+//	<< ", typeID =" << typeid(this).name()
+	ss << "Loop-" << identity << ", dG =" << energy << ", t_rate = " << totalRate;
+//	ss << ", energyFlag =" << energyFlag ; //<< ", add_index =" << add_index; // << ", numAdjacent=" << numAdjacent;
 
 	ss << "\n";
 
@@ -291,7 +292,7 @@ string Loop::toStringShort(void) {
 
 void Loop::printAllMoves(Loop* from) {
 
-	cout << "Printing moves for loop: \n " << toString() << "\n";
+	std::cout << "Printing moves for loop: \n " << toString() << "\n";
 
 	moves->printAllMoves(energyModel->simOptions->energyOptions);
 
