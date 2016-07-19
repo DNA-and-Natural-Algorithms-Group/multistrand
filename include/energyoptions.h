@@ -90,7 +90,7 @@ protected:
 	long substrate_type; // = NULL;
 
 	// Hard coding some default Arrhenius constants (for now)
-	const bool useArrhenius = false;
+	const bool useArrRates = false;
 
 };
 

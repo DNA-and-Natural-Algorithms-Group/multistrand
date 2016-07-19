@@ -61,7 +61,7 @@ double EnergyOptions::getJoinConcentration(void) {
 
 bool EnergyOptions::usingArrhenius(void) {
 
-	return useArrhenius;
+	return useArrRates;
 
 }
 
@@ -164,6 +164,8 @@ PEnergyOptions::PEnergyOptions(PyObject* input) :
 
 // not sure if these are for both models or not;
 	getDoubleAttr(python_settings, join_concentration, &joinConcentration);
+
+//	getBoolAttr(python_settings, useArrRates, &useArrRates);
 
 }
 
