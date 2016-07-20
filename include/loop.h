@@ -53,6 +53,7 @@ public:
 
 protected:
 	static EnergyModel *energyModel;
+
 	Loop** adjacentLoops;
 	int numAdjacent;
 	int curAdjacent;

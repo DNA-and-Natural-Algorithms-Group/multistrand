@@ -17,6 +17,12 @@
 using std::vector;
 using std::string;
 
+
+
+const double EnergyOptions::valuesPrime[MOVETYPE_SIZE] = {  3, 5, 7, 11, 13, 17, 19 };
+const string EnergyOptions::MoveToString[MOVETYPE_SIZE] = { "End", "Loop", "Stack", "StackStack", "LoopEnd", "StackEnd", "StackLoop" };
+
+
 void EnergyOptions::initializeArrheniusConstants(void) {
 
 	// unused, for now.
@@ -114,19 +120,19 @@ string EnergyOptions::primeRateToString(double rate) {
 
 	int myRate = round(rate);
 
+//	for (int i = 0; i < MOVETYPE_SIZE; i++) {
+//
+//		if (rate == round(AValues[i])) {
+//
+//			myRate = myRate * 2; // the combination contains prime factor 2; fix this.
+//
+//		}
+//
+//	}
+
 	for (int i = 0; i < MOVETYPE_SIZE; i++) {
 
-		if (rate == round(AValues[i])) {
-
-			myRate = myRate * 2; // the combination contains prime factor 2; fix this.
-
-		}
-
-	}
-
-	for (int i = 0; i < MOVETYPE_SIZE; i++) {
-
-		int myPrime = round(AValues[i]);
+		int myPrime = valuesPrime[i]; ///round(AValues[i]);
 
 		if ((myRate % myPrime) == 0) {
 

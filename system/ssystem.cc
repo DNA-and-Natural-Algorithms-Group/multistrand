@@ -21,7 +21,7 @@
 SimulationSystem::SimulationSystem(PyObject *system_o) {
 
 	system_options = system_o;
-	sim_options = new PSimOptions(system_o);
+	simOptions = new PSimOptions(system_o);
 
 	construct();
 
@@ -30,11 +30,12 @@ SimulationSystem::SimulationSystem(PyObject *system_o) {
 SimulationSystem::SimulationSystem(SimOptions* options) {
 
 	system_options = NULL;
-	sim_options = options;
+	simOptions = options;
 
 	construct();
 
 }
+
 
 void SimulationSystem::construct(void) {
 
@@ -48,19 +49,16 @@ void SimulationSystem::construct(void) {
 	ProfilerStart("ssystem_init_profile.prof");
 #endif
 
-//	system_options = system_o;
-//	sim_options = new PSimOptions(system_o);
-
 // We no longer need the below line; we are guaranteed that options
 // will have a good reference for the lifetime of our object, as the
 // controlling wrapper in multistrand_module.cc grabs the reference.
 
-	simulation_mode = sim_options->getSimulationMode();
-	simulation_count_remaining = sim_options->getSimulationCount();
+	simulation_mode = simOptions->getSimulationMode();
+	simulation_count_remaining = simOptions->getSimulationCount();
 
 	if (Loop::GetEnergyModel() == NULL) {
 		dnaEnergyModel = NULL;
-		dnaEnergyModel = new NupackEnergyModel(sim_options->getPythonSettings());
+		dnaEnergyModel = new NupackEnergyModel(simOptions->getPythonSettings());
 		Loop::SetEnergyModel(dnaEnergyModel);
 	} else {
 		dnaEnergyModel = Loop::GetEnergyModel();
@@ -89,7 +87,7 @@ SimulationSystem::SimulationSystem(void) {
 	}
 
 	system_options = NULL;
-	sim_options = NULL;
+	simOptions = NULL;
 	startState = NULL;
 	complexList = NULL;
 }
@@ -109,8 +107,7 @@ SimulationSystem::~SimulationSystem(void) {
 	// just in case something thread-unsafe happens.
 
 	dnaEnergyModel = NULL;
-	//system_options = NULL;
-	sim_options = NULL;
+	simOptions = NULL;
 	startState = NULL;
 }
 
@@ -118,7 +115,16 @@ void SimulationSystem::printTransition(double input) {
 
 	cout << "Using RNG =" << input;
 	Move* myMove = startState->getChoice(&input);
-	cout << ", we selected move: \n " << myMove->toString(sim_options->energyOptions) << " \n ";
+	cout << ", we selected move: \n " << myMove->toString(simOptions->energyOptions) << " \n ";
+
+}
+
+void SimulationSystem::printAllMoves() {
+
+	complexList->initializeList();
+	complexList->printComplexList(3);
+
+	startState->printAllMoves();
 
 }
 
@@ -126,15 +132,23 @@ void SimulationSystem::printTransition(double input) {
 void SimulationSystem::InitialInfo(void) {
 	bool hflag = false;
 
-	printf("Printing transition rates for:	\n");
-//	printf("Initializing system now \n");
-
-	if (InitializeSystem() != 0)
+	if (InitializeSystem() != 0){
 		return;
+	}
+	simOptions->setPrimeRates(true);
 
-//	printf("Initializing list now \n");
-	complexList->initializeList();
-	complexList->printComplexList(2);
+//	if (simOptions->energyOptions->usingArrhenius()) {
+//		// first print the rates with their Arr local enviroments
+//
+//		printAllMoves();
+//
+//		simOptions->setPrimeRates(false);
+//
+//		cout << " ** \n ** \n ** \n";
+//
+//	}
+
+	printAllMoves();
 
 	//cout << "Printing starting structure ";
 	//startState->
@@ -169,7 +183,6 @@ void SimulationSystem::InitialInfo(void) {
 //	complexList->printComplexList(2);
 
 //	cout << "Printing all moves \n";
-	startState->printAllMoves();
 
 //	cout << "Exiting InitialInfo()" << " \n";
 
@@ -196,7 +209,7 @@ void SimulationSystem::StartSimulation(void) {
 		StartSimulation_Standard();
 
 	// end info about the used sim_options object
-	cout << sim_options->toString();
+	cout << simOptions->toString();
 
 #ifdef PROFILING
 	ProfilerStop();
@@ -246,8 +259,8 @@ void SimulationSystem::StartSimulation_Transition(void) {
 
 void SimulationSystem::StartSimulation_Trajectory(void) {
 
-	long ointerval = sim_options->getOInterval();
-	double otime = sim_options->getOTime();
+	long ointerval = simOptions->getOInterval();
+	double otime = simOptions->getOTime();
 
 	InitializeRNG();
 	while (simulation_count_remaining > 0) {
@@ -274,9 +287,9 @@ void SimulationSystem::SimulationLoop_Standard(void) {
 	bool checkresult = false;
 	class stopComplexes *traverse = NULL, *first = NULL;
 
-	double maxsimtime = sim_options->getMaxSimTime();
-	long stopcount = sim_options->getStopCount();
-	long stopoptions = sim_options->getStopOptions();
+	double maxsimtime = simOptions->getMaxSimTime();
+	long stopcount = simOptions->getStopCount();
+	long stopoptions = simOptions->getStopOptions();
 
 	complexList->initializeList();
 
@@ -311,11 +324,11 @@ void SimulationSystem::SimulationLoop_Standard(void) {
 
 			if (stopoptions) {
 				if (stopcount <= 0) {
-					sim_options->stopResultError(current_seed);
+					simOptions->stopResultError(current_seed);
 					return;
 				}
 				checkresult = false;
-				first = sim_options->getStopComplexes(0);
+				first = simOptions->getStopComplexes(0);
 				checkresult = complexList->checkStopComplexList(first->citem);
 				traverse = first;
 				while (traverse->next != NULL && !checkresult) {
@@ -333,15 +346,15 @@ void SimulationSystem::SimulationLoop_Standard(void) {
 	} while (stime < maxsimtime && !checkresult);
 
 	if (stime == NAN)
-		sim_options->stopResultNan(current_seed);
+		simOptions->stopResultNan(current_seed);
 	else if (checkresult) {
 		dumpCurrentStateToPython();
-		sim_options->stopResultNormal(current_seed, stime, traverse->tag);
+		simOptions->stopResultNormal(current_seed, stime, traverse->tag);
 		delete first;
 	} else // stime >= maxsimtime
 	{
 		dumpCurrentStateToPython();
-		sim_options->stopResultTime(current_seed, maxsimtime);
+		simOptions->stopResultTime(current_seed, maxsimtime);
 	}
 }
 
@@ -350,9 +363,9 @@ void SimulationSystem::SimulationLoop_Trajectory(long output_count_interval, dou
 	double rchoice, rate, current_simulation_time, last_trajectory_time;
 	rchoice = rate = 0.0;
 
-	double maxsimtime = sim_options->getMaxSimTime();
-	long stopcount = sim_options->getStopCount();
-	long stopoptions = sim_options->getStopOptions();
+	double maxsimtime = simOptions->getMaxSimTime();
+	long stopcount = simOptions->getStopCount();
+	long stopoptions = simOptions->getStopOptions();
 
 	bool checkresult = false;
 	long current_state_count = 0;
@@ -369,10 +382,10 @@ void SimulationSystem::SimulationLoop_Trajectory(long output_count_interval, dou
 
 	if (stopoptions) {
 		if (stopcount <= 0) {
-			sim_options->stopResultError(current_seed);
+			simOptions->stopResultError(current_seed);
 			return;
 		}
-		first = sim_options->getStopComplexes(0);
+		first = simOptions->getStopComplexes(0);
 	}
 
 	do {
@@ -417,11 +430,11 @@ void SimulationSystem::SimulationLoop_Trajectory(long output_count_interval, dou
 	} while (current_simulation_time < maxsimtime && !checkresult);
 
 	if (current_simulation_time == NAN)
-		sim_options->stopResultNan(current_seed);
+		simOptions->stopResultNan(current_seed);
 	else if (checkresult) {
-		sim_options->stopResultNormal(current_seed, current_simulation_time, traverse->tag);
+		simOptions->stopResultNormal(current_seed, current_simulation_time, traverse->tag);
 	} else
-		sim_options->stopResultTime(current_seed, current_simulation_time);
+		simOptions->stopResultTime(current_seed, current_simulation_time);
 
 	if (first != NULL)
 		delete first;
@@ -441,16 +454,16 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 	long stopcount = 0;
 	class stopComplexes *traverse = NULL, *first = NULL;
 
-	long sMode = sim_options->getSimulationMode();
-	long ointerval = sim_options->getOInterval();
-	long stopoptions = sim_options->getStopOptions();
-	stopcount = sim_options->getStopCount();
-	maxsimtime = sim_options->getMaxSimTime();
-	otime = sim_options->getOTime();
+	long sMode = simOptions->getSimulationMode();
+	long ointerval = simOptions->getOInterval();
+	long stopoptions = simOptions->getStopOptions();
+	stopcount = simOptions->getStopCount();
+	maxsimtime = simOptions->getMaxSimTime();
+	otime = simOptions->getOTime();
 
 	if (stopcount <= 0 || !stopoptions) {
 		// this simulation mode MUST have some stop conditions set.
-		sim_options->stopResultError(current_seed);
+		simOptions->stopResultError(current_seed);
 		return;
 	}
 
@@ -464,7 +477,7 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 
 	complexList->initializeList();
 
-	first = sim_options->getStopComplexes(0);
+	first = simOptions->getStopComplexes(0);
 	traverse = first;
 	checkresult = false;
 	for (int idx = 0; idx < stopcount; idx++) {
@@ -499,7 +512,7 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 
 			// check if our transition state membership vector has changed
 			checkresult = false;
-			first = sim_options->getStopComplexes(0);
+			first = simOptions->getStopComplexes(0);
 			traverse = first;
 			for (int idx = 0; idx < stopcount; idx++) {
 				checkresult = complexList->checkStopComplexList(traverse->citem);
@@ -507,7 +520,7 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 					// multiple stop states could suddenly be true, we add
 					// a status line entry for the first one found.
 					if (!stop_flag) {
-						sim_options->stopResultNormal(current_seed, stime, traverse->tag);
+						simOptions->stopResultNormal(current_seed, stime, traverse->tag);
 					}
 
 					stop_flag = true;
@@ -529,13 +542,13 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 	} while (stime < maxsimtime && !stop_flag);
 
 	if (stime == NAN)
-		sim_options->stopResultNan(current_seed);
+		simOptions->stopResultNan(current_seed);
 	else if (stop_flag) {
 		dumpCurrentStateToPython();
 	} else // stime >= maxsimtime
 	{
 		dumpCurrentStateToPython();
-		sim_options->stopResultTime(current_seed, maxsimtime);
+		simOptions->stopResultTime(current_seed, maxsimtime);
 	}
 
 }
@@ -560,12 +573,12 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 	long trajMode;
 	double frate = 0.0;
 
-	double maxsimtime = sim_options->getMaxSimTime();
-	long stopcount = sim_options->getStopCount();
-	long stopoptions = sim_options->getStopOptions();
-	long ointerval = sim_options->getOInterval();
-	double otime = sim_options->getOTime();
-	double otime_interval = sim_options->getOInterval();
+	double maxsimtime = simOptions->getMaxSimTime();
+	long stopcount = simOptions->getStopCount();
+	long stopoptions = simOptions->getStopOptions();
+	long ointerval = simOptions->getOInterval();
+	double otime = simOptions->getOTime();
+	double otime_interval = simOptions->getOInterval();
 
 	complexList->initializeList();
 
@@ -578,7 +591,7 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 	// deserved.
 
 	if (rate == 0.0) { // no initial moves
-		sim_options->stopResultBimolecular("NoMoves", current_seed, 0.0, 0.0,
+		simOptions->stopResultBimolecular("NoMoves", current_seed, 0.0, 0.0,
 		NULL);
 		return;
 	}
@@ -614,7 +627,7 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 
 		if (stopcount > 0 && stopoptions) {
 			checkresult = false;
-			first = sim_options->getStopComplexes(0);
+			first = simOptions->getStopComplexes(0);
 			traverse = first;
 			checkresult = complexList->checkStopComplexList(traverse->citem);
 			while (traverse->next != NULL && !checkresult) {
@@ -629,13 +642,13 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 	if (checkresult) {
 		dumpCurrentStateToPython();
 		if (strcmp(traverse->tag, "REVERSE") == 0)
-			sim_options->stopResultBimolecular("Reverse", current_seed, stime, frate, traverse->tag);
+			simOptions->stopResultBimolecular("Reverse", current_seed, stime, frate, traverse->tag);
 		else
-			sim_options->stopResultBimolecular("Forward", current_seed, stime, frate, traverse->tag);
+			simOptions->stopResultBimolecular("Forward", current_seed, stime, frate, traverse->tag);
 		delete first;
 	} else {
 		dumpCurrentStateToPython();
-		sim_options->stopResultBimolecular("FTime", current_seed, stime, frate,
+		simOptions->stopResultBimolecular("FTime", current_seed, stime, frate,
 		NULL);
 	}
 
@@ -655,7 +668,7 @@ void SimulationSystem::dumpCurrentStateToPython(void) {
 	temp = complexList->getFirst();
 	while (temp != NULL) {
 		temp->dumpComplexEntryToPython(&id, &names, &sequence, &structure, &energy);
-		printComplexStateLine(sim_options->getPythonSettings(), current_seed, id, names, sequence, structure, energy);
+		printComplexStateLine(simOptions->getPythonSettings(), current_seed, id, names, sequence, structure, energy);
 		temp = temp->next;
 	}
 }
@@ -735,7 +748,7 @@ int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
 	class StrandComplex *tempcomplex;
 	class identList *id;
 
-	sim_options->generateComplexes(alternate_start, current_seed);
+	simOptions->generateComplexes(alternate_start, current_seed);
 
 	// FD: Somehow, the program is scared their complex list will be pre-populated.
 	startState = NULL;
@@ -744,12 +757,12 @@ int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
 
 	complexList = new SComplexList(dnaEnergyModel);
 
-	for (int i = 0; i < sim_options->myComplexes->size(); i++) {
+	for (int i = 0; i < simOptions->myComplexes->size(); i++) {
 
-		char* tempSequence = copyToCharArray(sim_options->myComplexes->at(i).sequence);
-		char* tempStructure = copyToCharArray(sim_options->myComplexes->at(i).structure);
+		char* tempSequence = copyToCharArray(simOptions->myComplexes->at(i).sequence);
+		char* tempStructure = copyToCharArray(simOptions->myComplexes->at(i).structure);
 
-		id = sim_options->myComplexes->at(i).list;
+		id = simOptions->myComplexes->at(i).list;
 
 		tempcomplex = new StrandComplex(tempSequence, tempStructure, id);
 
@@ -765,8 +778,8 @@ void SimulationSystem::InitializeRNG(void) {
 
 	FILE *fp = NULL;
 
-	if (sim_options->useFixedRandomSeed()) {
-		current_seed = sim_options->getInitialSeed();
+	if (simOptions->useFixedRandomSeed()) {
+		current_seed = simOptions->getInitialSeed();
 	} else {
 		if ((fp = fopen("/dev/urandom", "r")) != NULL) { // if urandom exists, use it to provide a seed
 			long deviceseed;

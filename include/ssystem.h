@@ -56,13 +56,17 @@ private:
 	void sendTransitionStateVectorToPython(boolvector transition_states,
 			double current_time);
 
+
+	void printAllMoves(void);
+
+
 	EnergyModel *dnaEnergyModel;
 
 	StrandComplex *startState;
 	SComplexList *complexList;
 
 	PyObject *system_options;
-	SimOptions *sim_options;
+	SimOptions *simOptions;
 
 	long current_seed;
 	bool initial_trajectory;

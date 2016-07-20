@@ -20,7 +20,6 @@
 using std::string;
 
 class Loop;
-class EnergyOptions;
 
 // Using an enum to state the moves types
 enum ArrType {
@@ -38,11 +37,11 @@ public:
 	Move(int mtype, double mrate, Loop *affected_1, Loop *affected_2, int index1);
 	~Move(void);
 	double getRate(void);
-	string rateToString(EnergyOptions*);
 	int getType(void);
 	Loop *getAffected(int index);
 	Loop *doChoice(void);
-	string toString(EnergyOptions*);
+	string toString(bool);
+	string rateToString(bool);
 	friend class Loop;
 	friend class HairpinLoop;
 	friend class StackLoop;
@@ -84,7 +83,7 @@ public:
 	virtual Move *getChoice(double *rnd) = 0;
 	virtual Move *getMove(Move *iterator) = 0;
 
-	virtual void printAllMoves(EnergyOptions*) = 0;
+	virtual void printAllMoves(bool) = 0;
 
 protected:
 	double totalrate;
@@ -110,7 +109,7 @@ public:
 	Move *getMove(Move *iterator);
 	void resetDeleteMoves(void);
 
-	void printAllMoves(EnergyOptions*);
+	void printAllMoves(bool);
 
 	//  friend class Move;
 private:

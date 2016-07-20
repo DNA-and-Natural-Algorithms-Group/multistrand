@@ -43,15 +43,15 @@ void EnergyModel::setArrheniusRate(double ratesArray[], EnergyOptions* options, 
 	double kLeft = expRate(ALeft, ELeft, temperature);
 	double kRight = expRate(ARight, ERight, temperature);
 
-	if (simOptions->energyOptions->primeRates) {
+//	if (simOptions->energyOptions->primeRates) {
+//
+//		ratesArray[left * MOVETYPE_SIZE + right] = ALeft * ARight;
+//
+//	} else {
 
-		ratesArray[left * MOVETYPE_SIZE + right] = ALeft * ARight;
+	ratesArray[left * MOVETYPE_SIZE + right] = kLeft * kRight;
 
-	} else {
-
-		ratesArray[left * MOVETYPE_SIZE + right] = kLeft * kRight;
-
-	}
+//	}
 
 //	ratesArray[left * MOVETYPE_SIZE + right] = 1.0;
 
@@ -74,6 +74,12 @@ void EnergyModel::computeArrheniusRates(double temperature) {
 }
 
 double EnergyModel::applyPrefactors(MoveType left, MoveType right) {
+
+	if (simOptions->usePrimeRates) {
+
+		return simOptions->energyOptions->valuesPrime[left] * simOptions->energyOptions->valuesPrime[right];
+
+	}
 
 	return arrheniusRates[left * MOVETYPE_SIZE + right];
 

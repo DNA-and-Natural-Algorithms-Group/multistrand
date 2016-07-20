@@ -314,7 +314,9 @@ void Loop::printAllMoves(Loop* from) {
 
 	std::cout << toString();
 
-	moves->printAllMoves(energyModel->simOptions->energyOptions);
+	cout << "printing all moves, usePrimeRates is " << energyModel->simOptions->usePrimeRates << "\n";
+
+	moves->printAllMoves(energyModel->simOptions->usePrimeRates);
 
 	for (int i = 0; i < numAdjacent; i++) {
 
@@ -4845,9 +4847,10 @@ string OpenLoop::typeInternalsToString(void) {
 		ss << ", ";
 		ss << utility::sequenceToString(seqs[i], sidelen[i]) << ",  ";
 //		ss << ";   pairType= " << pairtype[i];
-		ss << " \n";
 
 	}
+
+	ss << " \n";
 
 	return ss.str();
 

@@ -35,7 +35,7 @@ NupackEnergyModel::~NupackEnergyModel(void) {
 
 double NupackEnergyModel::returnRate(double start_energy, double end_energy, int enth_entr_toggle) {
 
-	if (simOptions->energyOptions->primeRates) {
+	if (simOptions->usePrimeRates) {
 		return 1.0;
 	}
 
@@ -475,7 +475,7 @@ NupackEnergyModel::NupackEnergyModel(PyObject* energy_options) :
 
 		computeArrheniusRates(current_temp);
 
-		//utility::printDoubleMatrix(arrheniusRates, MOVETYPE_SIZE, MOVETYPE_SIZE);
+		utility::printDoubleMatrix(arrheniusRates, MOVETYPE_SIZE, MOVETYPE_SIZE, 2);
 
 	}
 

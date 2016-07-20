@@ -105,26 +105,22 @@ int StrandComplex::checkIDBound(char *id) {
 	return ordering->checkIDBound(id);
 }
 
-StrandComplex *StrandComplex::performComplexJoin(StrandComplex **complexes,
-		char *types, int *index) {
+StrandComplex *StrandComplex::performComplexJoin(StrandComplex **complexes, char *types, int *index) {
 	OpenLoop *loops[2];
 	OpenLoop *new_loops[2] = { NULL, NULL };
 	StrandOrdering *new_ordering = NULL;
 	char *locations[2] = { NULL, NULL };
 
 	// find the affected loops, and update indexes to be into those loops.
-	loops[0] = complexes[0]->ordering->getIndex(types[0], &index[0],
-			&locations[0]);
-	loops[1] = complexes[1]->ordering->getIndex(types[1], &index[1],
-			&locations[1]);
+	loops[0] = complexes[0]->ordering->getIndex(types[0], &index[0], &locations[0]);
+	loops[1] = complexes[1]->ordering->getIndex(types[1], &index[1], &locations[1]);
 
 	// Strand Orderings are now ready to be joined.
 	complexes[0]->ordering->reorder(loops[0]);
 	complexes[1]->ordering->reorder(loops[1]);
 
 	// Join the strand orderings.
-	new_ordering = StrandOrdering::joinOrdering(complexes[0]->ordering,
-			complexes[1]->ordering);
+	new_ordering = StrandOrdering::joinOrdering(complexes[0]->ordering, complexes[1]->ordering);
 
 	// Join the open loops
 	OpenLoop::performComplexJoin(loops, new_loops, types, index);
@@ -169,24 +165,20 @@ StrandComplex *StrandComplex::doChoice(Move *move) {
 	if (id2 == 'O' && id3 == 'O') { // Break the complex.
 		Loop *newLoop[2] = { NULL, NULL };
 		StrandOrdering *newOrdering = NULL;
-		ordering->breakBasepair(move->getAffected(0)->getLocation(move, 0),
-				move->getAffected(1)->getLocation(move, 1));
+		ordering->breakBasepair(move->getAffected(0)->getLocation(move, 0), move->getAffected(1)->getLocation(move, 1));
 		Loop::performComplexSplit(move, &newLoop[0], &newLoop[1]);
 		// We now have open loop pointers to the two resulting open loops.
 		// Now need to link up the new open loops correctly in the strand ordering
 		// and then split the ordering, using one piece to build a new complex, which we then need to return to the calling function (presumably a system which can then add the new complex into the environment.
-		newOrdering = ordering->breakOrdering(temp2, temp3, newLoop[0],
-				newLoop[1]);
+		newOrdering = ordering->breakOrdering(temp2, temp3, newLoop[0], newLoop[1]);
 		beginLoop = ordering->getLoop();
 
 		return (new StrandComplex(newOrdering)); // newComplex
 	} else {
 		if (move->getType() & MOVE_CREATE)	 // FD: test if we have a create-basepair move
-			ordering->addBasepair(move->getAffected(0)->getLocation(move, 0),
-					move->getAffected(0)->getLocation(move, 1));
+			ordering->addBasepair(move->getAffected(0)->getLocation(move, 0), move->getAffected(0)->getLocation(move, 1));
 		else if (move->getType() & MOVE_DELETE) // FD: test if we have a delete-basepair move
-			ordering->breakBasepair(move->getAffected(0)->getLocation(move, 0),
-					move->getAffected(1)->getLocation(move, 1));
+			ordering->breakBasepair(move->getAffected(0)->getLocation(move, 0), move->getAffected(1)->getLocation(move, 1));
 
 		temp = move->doChoice();
 
@@ -314,8 +306,7 @@ int StrandComplex::generateLoops(void) {
 					templist->seqlen = 0;
 					templist->predec = NULL;
 					templist->next = NULL;
-					templist->pairtype =
-							pairtypes[newseq[startpos]][newseq[pairlist[startpos]]];
+					templist->pairtype = pairtypes[newseq[startpos]][newseq[pairlist[startpos]]];
 					// CHECK to make sure startpos+1 is the right index. FIXME 5/26
 					listlength++;
 				} else // we have unpaired bases after the initiating branch
@@ -365,18 +356,15 @@ int StrandComplex::generateLoops(void) {
 						templist->seqlen = seqlen;
 						templist->predec = NULL;
 						templist->next = NULL;
-						templist->pairtype =
-								pairtypes[newseq[traverse]][newseq[pairlist[traverse]]];
+						templist->pairtype = pairtypes[newseq[traverse]][newseq[pairlist[traverse]]];
 						seqlen = 0;
 					} else {
-						templisttail->next =
-								(struct intlist *) new struct intlist;
+						templisttail->next = (struct intlist *) new struct intlist;
 						templisttail->next->data = traverse;
 						templisttail->next->seqlen = seqlen;
 						templisttail->next->predec = NULL;
 						templisttail->next->next = NULL;
-						templisttail->next->pairtype =
-								pairtypes[newseq[traverse]][newseq[pairlist[traverse]]];
+						templisttail->next->pairtype = pairtypes[newseq[traverse]][newseq[pairlist[traverse]]];
 						seqlen = 0;
 						templisttail = templisttail->next;
 					}
@@ -427,8 +415,7 @@ int StrandComplex::generateLoops(void) {
 				   //    adjacent to the nick.
 			{
 				temp_intlist = templist;
-				for (loop = 0; loop < listlength - 1; loop++, temp_intlist =
-						temp_intlist->next) {
+				for (loop = 0; loop < listlength - 1; loop++, temp_intlist = temp_intlist->next) {
 					if (temp_intlist->data > olflag) // this data item is after the nick.
 						break; // cause this loop to end.
 					// temp_intlist will then be the first pairing after the nick.
@@ -447,16 +434,14 @@ int StrandComplex::generateLoops(void) {
 						OL_pairtypes[loop] = stacklist->pairtype;
 						if (loop != 0)
 							OL_sidelengths[loop] = seqlen;
-						OL_sequences[loop + 1] = ordering->convertIndex(
-								stacklist->data);
+						OL_sequences[loop + 1] = ordering->convertIndex(stacklist->data);
 					} else {
 						if (openloopcount >= 0)
 							openloopcount++;
 						OL_pairtypes[loop] = temp_intlist->pairtype;
 						if (loop != 0)
 							OL_sidelengths[loop] = temp_intlist->seqlen;
-						OL_sequences[loop + 1] = ordering->convertIndex(
-								pairlist[temp_intlist->data]);
+						OL_sequences[loop + 1] = ordering->convertIndex(pairlist[temp_intlist->data]);
 						temp_intlist = temp_intlist->next;
 					}
 				}
@@ -464,8 +449,7 @@ int StrandComplex::generateLoops(void) {
 			}
 			//for( loop = 0; loop <= listlength ; loop ++ )
 			//printf("Seq %d: %s\n Length %d: %d\n",loop,OL_sequences[loop],loop,OL_sidelengths[loop]);
-			newLoop = new OpenLoop(listlength, OL_pairtypes, OL_sidelengths,
-					OL_sequences);
+			newLoop = new OpenLoop(listlength, OL_pairtypes, OL_sidelengths, OL_sequences);
 			newLoop->initAdjacency(-(openloopcount + 1));
 			ordering->addOpenLoop((OpenLoop *) newLoop, olflag);
 			olflag = -1;
@@ -490,16 +474,13 @@ int StrandComplex::generateLoops(void) {
 				// Possibly a problem here, need to make sure sequences get paired correctly with lengths. FIXME
 				OL_sequences[0] = ordering->convertIndex(stacklist->data);
 				OL_sidelengths[listlength] = seqlen;
-				for (loop = 0; loop < listlength; loop++, temp_intlist =
-						temp_intlist->next) {
+				for (loop = 0; loop < listlength; loop++, temp_intlist = temp_intlist->next) {
 					OL_pairtypes[loop] = temp_intlist->pairtype;
 					OL_sidelengths[loop] = temp_intlist->seqlen;
-					OL_sequences[loop + 1] = ordering->convertIndex(
-							pairlist[temp_intlist->data]);
+					OL_sequences[loop + 1] = ordering->convertIndex(pairlist[temp_intlist->data]);
 				}
 
-				newLoop = new OpenLoop(listlength, OL_pairtypes, OL_sidelengths,
-						OL_sequences);
+				newLoop = new OpenLoop(listlength, OL_pairtypes, OL_sidelengths, OL_sequences);
 				ordering->addOpenLoop((OpenLoop *) newLoop, stacklist->data);
 			} else {
 				OL_sidelengths = (int *) new int[listlength + 1];
@@ -539,8 +520,7 @@ int StrandComplex::generateLoops(void) {
 			// new code for pairtypes, sidelengths, seqs for multiloop, matching sequencing correctly.
 			ML_pairtypes[0] = stacklist->pairtype;
 			ML_sidelengths[0] = temp_intlist->seqlen;
-			ML_sequences[1] = ordering->convertIndex(
-					pairlist[temp_intlist->data]);
+			ML_sequences[1] = ordering->convertIndex(pairlist[temp_intlist->data]);
 			for (loop = 1; loop < listlength; loop++) {
 				ML_pairtypes[loop] = temp_intlist->pairtype;
 				temp_intlist = temp_intlist->next;
@@ -549,36 +529,28 @@ int StrandComplex::generateLoops(void) {
 					ML_sequences[0] = ordering->convertIndex(stacklist->data);
 				} else {
 					ML_sidelengths[loop] = temp_intlist->seqlen;
-					ML_sequences[loop + 1] = ordering->convertIndex(
-							pairlist[temp_intlist->data]);
+					ML_sequences[loop + 1] = ordering->convertIndex(pairlist[temp_intlist->data]);
 				}
 			}
 			// end new code.
 
-			newLoop = new MultiLoop(listlength, ML_pairtypes, ML_sidelengths,
-					ML_sequences);
+			newLoop = new MultiLoop(listlength, ML_pairtypes, ML_sidelengths, ML_sequences);
 		} else if (listlength == 1 && seqlen >= 3) // Hairpin Loop
 				{
-			newLoop = new HairpinLoop(stacklist->pairtype, seqlen,
-					ordering->convertIndex(stacklist->data));
+			newLoop = new HairpinLoop(stacklist->pairtype, seqlen, ordering->convertIndex(stacklist->data));
 		} else if (listlength == 2 && (seqlen > 0 && templist->seqlen > 0)) // Interior Loop
 				{
-			newLoop = new InteriorLoop(stacklist->pairtype, templist->pairtype,
-					templist->seqlen, seqlen,
-					ordering->convertIndex(startpos - 1),
+			newLoop = new InteriorLoop(stacklist->pairtype, templist->pairtype, templist->seqlen, seqlen, ordering->convertIndex(startpos - 1),
 					ordering->convertIndex(pairlist[templist->data]), NULL,
 					NULL);
 		} else if (listlength == 2 && (seqlen == 0 && templist->seqlen == 0)) // Stack Loop
 				{
-			newLoop = new StackLoop(stacklist->pairtype, templist->pairtype,
-					ordering->convertIndex(startpos - 1),
+			newLoop = new StackLoop(stacklist->pairtype, templist->pairtype, ordering->convertIndex(startpos - 1),
 					ordering->convertIndex(pairlist[templist->data]));
 		} else if (listlength == 2 && (seqlen == 0 || templist->seqlen == 0)) // Bulge Loop
 				// this must be after stackloop, otherwise it may catch stackloop's conditions.
 				{
-			newLoop = new BulgeLoop(stacklist->pairtype, templist->pairtype,
-					templist->seqlen, seqlen,
-					ordering->convertIndex(startpos - 1),
+			newLoop = new BulgeLoop(stacklist->pairtype, templist->pairtype, templist->seqlen, seqlen, ordering->convertIndex(startpos - 1),
 					ordering->convertIndex(pairlist[templist->data]), NULL,
 					NULL);
 		} else if (1) // Error-generating Loop
@@ -631,8 +603,6 @@ int StrandComplex::generateLoops(void) {
 	if (charsequence != NULL)
 		delete[] charsequence;
 }
-
-
 
 void StrandComplex::printAllMoves(void) {
 
@@ -698,11 +668,8 @@ double StrandComplex::getEnergy(void) {
 // + Loop::energyModel_Primary->getJoinEnergy();
 }
 
-void StrandComplex::moveDisplay(void) {
+void StrandComplex::generateMoves(void) {
 	beginLoop->firstGen( NULL);
-// FIXME: The following line prolly needs a valid second parameter.
-// FD: this is broken.
-//beginLoop->moveDisplay( NULL, this->getStructure(), this->getSequence());
 }
 
 Move *StrandComplex::getChoice(double *rand_choice) {

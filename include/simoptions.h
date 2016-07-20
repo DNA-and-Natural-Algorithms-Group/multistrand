@@ -45,6 +45,8 @@ public:
 	long getStopCount(void);
 	double getMaxSimTime(void);
 
+	void setPrimeRates(bool);
+
 	// Virtual methods
 
 	virtual PyObject* getPythonSettings(void) = 0;
@@ -65,6 +67,9 @@ public:
 	vector<complex_input>* myComplexes;
 	EnergyOptions* energyOptions;
 
+	// non-protected because we trust other programmers
+	bool usePrimeRates = false;
+
 protected:
 	long simulation_mode;
 	long simulation_count;
@@ -76,6 +81,7 @@ protected:
 	long seed;
 	stopComplexes* myStopComplexes;
 	bool fixedRandomSeed;
+
 
 };
 

@@ -47,7 +47,7 @@ SComplexListEntry::~SComplexListEntry(void) {
 
 void SComplexListEntry::initializeComplex(void) {
 	thisComplex->generateLoops();
-	thisComplex->moveDisplay();
+	thisComplex->generateMoves();
 }
 
 void SComplexListEntry::fillData(EnergyModel *em) {
@@ -61,13 +61,17 @@ void SComplexListEntry::fillData(EnergyModel *em) {
  */
 
 void SComplexListEntry::printComplex(int printtype, EnergyModel *em) {
-	printf("Complex %02d: %s\n", id, thisComplex->getStrandNames());
+//	printf("Complex %02d: %s\n", id, thisComplex->getStrandNames());
+	printf("Complex %02d: \n", id);
 	printf("          : %s\n", thisComplex->getSequence());
 	printf("          : %s\n", thisComplex->getStructure());
 	if (printtype == 1)
 		printf("          : Energy: (%6.6f) TotalFlux: %6.2f\n", energy - (em->getVolumeEnergy() * (thisComplex->getStrandCount() - 1)), rate);
 	else if (printtype == 2)
 		printf("          : Energy: (%6.6f) TotalFlux: %6.2f\n", energy - (em->getVolumeEnergy() + em->getAssocEnergy()) * (thisComplex->getStrandCount() - 1),
+				rate);
+	else if (printtype == 3)
+		printf("          : Energy: (%6.2f) TotalFlux: %6.0f\n", energy - (em->getVolumeEnergy() + em->getAssocEnergy()) * (thisComplex->getStrandCount() - 1),
 				rate);
 	else
 		printf("          : Energy: (%6.6f) TotalFlux: %6.2f\n", energy, rate);

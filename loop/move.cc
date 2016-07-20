@@ -119,14 +119,13 @@ Loop *Move::doChoice(void) {
 		return NULL;
 }
 
-string Move::rateToString(EnergyOptions* eOptions) {
+string Move::rateToString(bool usePrime) {
 
 	std::stringstream ss;
 
+	if (usePrime) {
 
-	if (eOptions->primeRates) {
-
-		ss << eOptions->primeRateToString(rate);
+		ss << EnergyOptions::primeRateToString(rate);
 
 	} else {
 
@@ -140,7 +139,7 @@ string Move::rateToString(EnergyOptions* eOptions) {
 
 }
 
-string Move::toString(EnergyOptions* eOptions) {
+string Move::toString(bool usePrime) {
 
 	std::stringstream ss;
 
@@ -157,7 +156,7 @@ string Move::toString(EnergyOptions* eOptions) {
 		}
 		ss << ", ";
 		ss << "(" << index[0] << ", " << index[1] << ", " << index[2] << ", " << index[3] << "),  ";
-		ss << this->rateToString(eOptions);
+		ss << this->rateToString(usePrime);
 		ss << " \n";
 
 	}
@@ -297,19 +296,19 @@ void MoveList::resetDeleteMoves(void) {
 	del_moves_index = 0;
 }
 
-void MoveList::printAllMoves(EnergyOptions* eOptions) {
+void MoveList::printAllMoves(bool usePrime) {
 
 	for (int i = 0; i < moves_index; i++) {
 
 		cout << "Move" << i << " ";
-		cout << moves[i]->toString(eOptions);
+		cout << moves[i]->toString(usePrime);
 
 	}
 
-	for (int i = moves_index; i < del_moves_index + moves_index; i++) {
+	for (int i = 0; i < del_moves_index; i++) {
 
-		cout << "Move" << i << " ";
-		cout << del_moves[i]->toString(eOptions);
+		cout << "Move" << i + moves_index << " ";
+		cout << del_moves[i]->toString(usePrime);
 
 	}
 

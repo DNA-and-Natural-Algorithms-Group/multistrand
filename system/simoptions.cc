@@ -183,6 +183,12 @@ double SimOptions::getMaxSimTime(void) {
 
 }
 
+void SimOptions::setPrimeRates(bool input) {
+
+	usePrimeRates = input;
+
+}
+
 PyObject* PSimOptions::getPythonSettings() {
 
 	return python_settings;
