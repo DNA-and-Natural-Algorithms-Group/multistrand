@@ -158,6 +158,12 @@ PEnergyOptions::PEnergyOptions(PyObject* input) :
 
 	getBoolAttr(python_settings, useArrRates, &useArrRates);
 
+
+
+
+
+
+
 }
 
 bool PEnergyOptions::compareSubstrateType(long type) {

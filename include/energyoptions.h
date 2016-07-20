@@ -61,13 +61,9 @@ public:
 	double ELoopEnd = 3.80;
 	double EStackStack = 6.57;
 
-//	const double valuesPrime[MOVETYPE_SIZE] = {  3, 5, 7, 11, 13, 17, 19 };
-//	const string MoveToString[MOVETYPE_SIZE] = { "End", "Loop", "Stack", "StackStack", "LoopEnd", "StackEnd", "StackLoop" };
+	static const double valuesPrime[MOVETYPE_SIZE];
+	static const string MoveToString[MOVETYPE_SIZE];
 
-	static const double valuesPrime[MOVETYPE_SIZE];  // = {  3, 5, 7, 11, 13, 17, 19 };
-	static const string MoveToString[MOVETYPE_SIZE]; // = { "End", "Loop", "Stack", "StackStack", "LoopEnd", "StackEnd", "StackLoop" };
-
-//	const bool primeRates = false;
 	const double AValues[MOVETYPE_SIZE] = { AEnd, ALoop, AStack, AStackStack, ALoopEnd, AStackEnd, AStackLoop };
 	const double EValues[MOVETYPE_SIZE] = { EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop };
 
