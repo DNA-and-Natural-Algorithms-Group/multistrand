@@ -85,22 +85,22 @@ double Loop::returnFlux(Loop *comefrom) {
 }
 
 void Loop::firstGen(Loop *comefrom) {
-	int loop;
+
 	generateMoves();
 
-	for (loop = 0; loop < curAdjacent; loop++) {
+	for (int loop = 0; loop < curAdjacent; loop++) {
 		if (adjacentLoops[loop] != comefrom && adjacentLoops[loop] != NULL)
 			// shouldn't happen, being careful.
 			adjacentLoops[loop]->firstGen(this);
 		assert(adjacentLoops[loop] != NULL);
 	}
+
 }
 
 inline double Loop::getTotalRate(void) {
 	return totalRate;
 }
 
-//Loop::Loop(void) {
 Loop::Loop(void) {
 	numAdjacent = 0;
 	curAdjacent = 0;
@@ -274,6 +274,12 @@ string identityToString(char loop) {
 	return "Could not identify loop";
 }
 
+void Loop::setPrimeRates(bool input) {
+
+	energyModel->simOptions->setPrimeRates(input);
+
+}
+
 string Loop::toString(void) {
 
 	std::stringstream ss;
@@ -346,6 +352,8 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 	if (start->identity == 'S' && end->identity == 'S') {
 
+//		cout << "GENERATING DELETE STACK STACK MOVE";
+
 		StackLoop *start_ = (StackLoop *) start;
 		StackLoop *end_ = (StackLoop *) end;
 		Loop *start_extra, *end_extra;
@@ -371,6 +379,9 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		old_energy = start->getEnergy() + end->getEnergy();
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 
+//		cout << "FOUND SS DELETE MOVE \n";
+//		cout << "energyModel->useArrhenius()=" << energyModel->useArrhenius();
+
 		if (energyModel->useArrhenius()) {
 
 			// FD: Two stack loops are created by three basepairs.
@@ -379,6 +390,8 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 			MoveType right = stackMove;
 			MoveType left = stackMove;
+
+//			cout << "FOUND SS DELETE MOVE \n";
 
 			tempRate = tempRate * energyModel->applyPrefactors(left, right);
 

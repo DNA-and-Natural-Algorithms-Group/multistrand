@@ -88,8 +88,8 @@ public:
 	double ArrheniusLoopEnergy(char* seq, int size);
 	void setArrheniusRate(double ratesArray[], EnergyOptions* options, double temperature, int left, int right);
 	void computeArrheniusRates(double temperature);
+	void printPrecomputedArrRates(void);
 	double applyPrefactors(MoveType left, MoveType right);
-//	MoveType getPrefactorsMulti(int, Loop*, int[]);
 	MoveType getPrefactorsMulti(int, int, int[]);
 	MoveType prefactorOpen(int, int, int[]);
 	MoveType prefactorInternal(int, int);

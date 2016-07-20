@@ -43,17 +43,7 @@ void EnergyModel::setArrheniusRate(double ratesArray[], EnergyOptions* options, 
 	double kLeft = expRate(ALeft, ELeft, temperature);
 	double kRight = expRate(ARight, ERight, temperature);
 
-//	if (simOptions->energyOptions->primeRates) {
-//
-//		ratesArray[left * MOVETYPE_SIZE + right] = ALeft * ARight;
-//
-//	} else {
-
 	ratesArray[left * MOVETYPE_SIZE + right] = kLeft * kRight;
-
-//	}
-
-//	ratesArray[left * MOVETYPE_SIZE + right] = 1.0;
 
 }
 
@@ -73,23 +63,59 @@ void EnergyModel::computeArrheniusRates(double temperature) {
 
 }
 
+void EnergyModel::printPrecomputedArrRates(void) {
+
+	// print some initial info on the Arrhenius model
+
+	cout << "type      ";
+
+	for (int i = 0; i < MOVETYPE_SIZE; i++) {
+
+		cout << EnergyOptions::MoveToString[i] << "     ";
+
+	}
+
+	cout << setprecision(3);
+
+	cout << "\nA         ";
+
+	for (int i = 0; i < MOVETYPE_SIZE; i++) {
+
+		cout << simOptions->energyOptions->AValues[i] << "      ";
+
+	}
+
+	cout << "\nE         ";
+
+	for (int i = 0; i < MOVETYPE_SIZE; i++) {
+
+		cout << simOptions->energyOptions->EValues[i] << "      ";
+
+	}
+
+	cout << "\nR         ";
+
+	for (int i = 0; i < MOVETYPE_SIZE; i++) {
+
+		cout << arrheniusRates[i] << "  ";
+
+	}
+
+	cout << "\n \n";
+
+}
+
 double EnergyModel::applyPrefactors(MoveType left, MoveType right) {
 
 	if (simOptions->usePrimeRates) {
 
-		return simOptions->energyOptions->valuesPrime[left] * simOptions->energyOptions->valuesPrime[right];
+		return EnergyOptions::valuesPrime[left] * EnergyOptions::valuesPrime[right];
 
 	}
 
 	return arrheniusRates[left * MOVETYPE_SIZE + right];
 
 }
-
-//MoveType EnergyModel::getPrefactorsMulti(int index, Loop* loop, int sideLengths[]) {
-//
-//	return this->getPrefactorsMulti(index, loop->numAdjacent, sideLengths);
-//
-//}
 
 // FD: A base pair is present between a stacking loop and a multi loop.
 // FD: We query the local context of the middle pair;

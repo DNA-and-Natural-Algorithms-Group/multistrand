@@ -25,7 +25,6 @@ using namespace utility;
 
 class EnergyOptions;
 
-
 class SimOptions {
 public:
 
@@ -69,6 +68,7 @@ public:
 
 	// non-protected because we trust other programmers
 	bool usePrimeRates = false;
+//	bool useArrRates = false;
 
 protected:
 	long simulation_mode;
@@ -81,7 +81,6 @@ protected:
 	long seed;
 	stopComplexes* myStopComplexes;
 	bool fixedRandomSeed;
-
 
 };
 

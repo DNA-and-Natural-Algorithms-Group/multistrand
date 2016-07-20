@@ -17,11 +17,8 @@
 using std::vector;
 using std::string;
 
-
-
-const double EnergyOptions::valuesPrime[MOVETYPE_SIZE] = {  3, 5, 7, 11, 13, 17, 19 };
+const double EnergyOptions::valuesPrime[MOVETYPE_SIZE] = { 3, 5, 7, 11, 13, 17, 19 };
 const string EnergyOptions::MoveToString[MOVETYPE_SIZE] = { "End", "Loop", "Stack", "StackStack", "LoopEnd", "StackEnd", "StackLoop" };
-
 
 void EnergyOptions::initializeArrheniusConstants(void) {
 
@@ -110,29 +107,17 @@ string EnergyOptions::primeRateToString(double rate) {
 
 	std::stringstream ss;
 
-	ss << rate << " - or: ";
+	if (fmod(rate, 1.0) > 0.49) {		// dealing with rate / 2 case
 
-	if (fmod(rate, 1.0) > 0.49) {
-
-		rate = 2 * rate;  // dealing with rate / 2 case
+		rate = 2 * rate;
 
 	}
 
 	int myRate = round(rate);
 
-//	for (int i = 0; i < MOVETYPE_SIZE; i++) {
-//
-//		if (rate == round(AValues[i])) {
-//
-//			myRate = myRate * 2; // the combination contains prime factor 2; fix this.
-//
-//		}
-//
-//	}
-
 	for (int i = 0; i < MOVETYPE_SIZE; i++) {
 
-		int myPrime = valuesPrime[i]; ///round(AValues[i]);
+		int myPrime = valuesPrime[i];
 
 		if ((myRate % myPrime) == 0) {
 
@@ -171,7 +156,7 @@ PEnergyOptions::PEnergyOptions(PyObject* input) :
 // not sure if these are for both models or not;
 	getDoubleAttr(python_settings, join_concentration, &joinConcentration);
 
-//	getBoolAttr(python_settings, useArrRates, &useArrRates);
+	getBoolAttr(python_settings, useArrRates, &useArrRates);
 
 }
 

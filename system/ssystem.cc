@@ -36,7 +36,6 @@ SimulationSystem::SimulationSystem(SimOptions* options) {
 
 }
 
-
 void SimulationSystem::construct(void) {
 
 	bool hflag = false;
@@ -132,23 +131,23 @@ void SimulationSystem::printAllMoves() {
 void SimulationSystem::InitialInfo(void) {
 	bool hflag = false;
 
-	if (InitializeSystem() != 0){
+	if (InitializeSystem() != 0) {
 		return;
 	}
-	simOptions->setPrimeRates(true);
-
-//	if (simOptions->energyOptions->usingArrhenius()) {
-//		// first print the rates with their Arr local enviroments
-//
-//		printAllMoves();
-//
-//		simOptions->setPrimeRates(false);
-//
-//		cout << " ** \n ** \n ** \n";
-//
-//	}
-
 	printAllMoves();
+
+	if (simOptions->energyOptions->usingArrhenius()) {
+
+		cout << " ** \n ** \n ** \n";
+		Loop::setPrimeRates(true);
+		complexList->regenerateMoves();
+//		complexList->printComplexList(3);
+
+		startState->printAllMoves();
+
+		Loop::setPrimeRates(false);
+
+	}
 
 	//cout << "Printing starting structure ";
 	//startState->

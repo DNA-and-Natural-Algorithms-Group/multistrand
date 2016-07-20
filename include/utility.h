@@ -60,8 +60,8 @@ string copyToString(char*);
 
 string moveType(int);
 
-const static string moveTypeString[] = { "Undefined", "End", "Loop", "Stack",
-		"Stack-Stack", "Loop-End", "Stack-End", "Stack-Loop" };
+//const static string moveTypeString[] = { "Undefined", "End", "Loop", "Stack",
+//		"Stack-Stack", "Loop-End", "Stack-End", "Stack-Loop" };
 
 
 void printIntegers(int[], int);

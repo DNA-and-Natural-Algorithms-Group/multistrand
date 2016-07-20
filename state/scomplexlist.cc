@@ -50,6 +50,10 @@ void SComplexListEntry::initializeComplex(void) {
 	thisComplex->generateMoves();
 }
 
+void SComplexListEntry::regenerateMoves(void) {
+	thisComplex->generateMoves();
+}
+
 void SComplexListEntry::fillData(EnergyModel *em) {
 	energy = thisComplex->getEnergy() + (em->getVolumeEnergy() + em->getAssocEnergy()) * (thisComplex->getStrandCount() - 1);
 	rate = thisComplex->getTotalFlux();
@@ -142,6 +146,15 @@ void SComplexList::initializeList(void) {
 	SComplexListEntry *temp = first;
 	while (temp != NULL) {
 		temp->initializeComplex();
+		temp->fillData(dnaEnergyModel);
+		temp = temp->next;
+	}
+}
+
+void SComplexList::regenerateMoves(void) {
+	SComplexListEntry *temp = first;
+	while (temp != NULL) {
+		temp->regenerateMoves();
 		temp->fillData(dnaEnergyModel);
 		temp = temp->next;
 	}
