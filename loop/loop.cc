@@ -481,6 +481,8 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 				end_->bulgesize[e_index] + 1);
 		old_energy = start->getEnergy() + end->getEnergy();
 
+		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
+
 		if (energyModel->useArrhenius()) {
 
 			// FD: A base pair is present between a stacking loop and a bulge loop.
@@ -492,8 +494,6 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 			tempRate = tempRate * energyModel->applyPrefactors(left, right);
 
 		}
-
-		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 
 		return tempRate / 2.0;
 	}
@@ -3392,7 +3392,7 @@ string BulgeLoop::typeInternalsToString(void) {
 	std::stringstream ss;
 
 	ss << " seq0=" << utility::sequenceToString(bulge_seq[0], bulgesize[0]) << " \n";
-	ss << " seq1= " << utility::sequenceToString(bulge_seq[1], bulgesize[1]);
+	ss << " seq1= " << utility::sequenceToString(bulge_seq[1], bulgesize[1]) << "\n";
 
 	return ss.str();
 
@@ -3553,9 +3553,10 @@ void BulgeLoop::generateMoves(void) {
 					}
 					// need to add sequence info -definate FIXME for dangles != 0
 					energies[0] = energyModel->MultiloopEnergy(3, sidelen, sequences);
-
 					// loop2 - loop + 1 is the new hairpin size.
 					energies[1] = energyModel->HairpinEnergy(&bulge_seq[bside][loop], loop2 - loop - 1);
+
+					tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
 
 					// hairpin and multiloop, so this is loopMove and something
 					if (energyModel->useArrhenius()) {
@@ -3571,8 +3572,6 @@ void BulgeLoop::generateMoves(void) {
 						tempRate = tempRate * energyModel->applyPrefactors(loopMove, multiMove);
 
 					}
-
-					tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
 
 					moves->addMove(new Move( MOVE_CREATE, tempRate, this, loop, loop2));
 				}

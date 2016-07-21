@@ -156,6 +156,7 @@ string Move::toString(bool usePrime) {
 		}
 		ss << ", ";
 		ss << "(" << index[0] << ", " << index[1] << ", " << index[2] << ", " << index[3] << "),  ";
+//		ss << rate << " " << this->rateToString(usePrime);
 		ss << this->rateToString(usePrime);
 		ss << " \n";
 
