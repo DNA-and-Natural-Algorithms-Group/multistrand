@@ -352,8 +352,6 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 	if (start->identity == 'S' && end->identity == 'S') {
 
-//		cout << "GENERATING DELETE STACK STACK MOVE";
-
 		StackLoop *start_ = (StackLoop *) start;
 		StackLoop *end_ = (StackLoop *) end;
 		Loop *start_extra, *end_extra;
@@ -662,8 +660,7 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 			// FD: A stack and an open loop. e_index is the location of the stack.
 
-			MoveType move = energyModel->prefactorOpen(e_index, end_->numAdjacent, sidelens);
-
+			MoveType move = energyModel->prefactorOpen(e_index, (end_->numAdjacent + 1), end_->sidelen);
 			tempRate = tempRate * energyModel->applyPrefactors(stackMove, move);
 
 		}

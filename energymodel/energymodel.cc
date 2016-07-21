@@ -152,6 +152,8 @@ MoveType EnergyModel::prefactorInternal(int sideLength1, int sideLength2) {
 
 MoveType prefactorEndBothOpen(int left, int right) {
 
+//	cout << "prefactorEndBothOpen " << left << " " << right << "\n";
+
 	if (left > 0 && right > 0) {
 
 		return loopMove;
@@ -194,10 +196,11 @@ MoveType prefactorEndSingleOpen(int openSide, int closedSide) {
 }
 
 MoveType EnergyModel::prefactorOpen(int index, int numOfSides, int sideLengths[]) {
+
 	assert(index < (numOfSides + 1));
 
 	bool openOnLeft = (index == 0);
-	bool openOnRight = (index + 1) == numOfSides - 1;
+	bool openOnRight = ((index + 1) == numOfSides - 1);
 
 // each strand can either be non-existing, or single stranded, or double stranded.
 
