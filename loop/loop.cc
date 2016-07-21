@@ -3262,7 +3262,7 @@ void HairpinLoop::generateMoves(void) {
 						// new bulgeloop + hairpin: this is openMove and stackLoopMove
 						if (energyModel->useArrhenius()) {
 
-							tempRate = tempRate * energyModel->applyPrefactors(stackMove, stackLoopMove);
+							tempRate = tempRate * energyModel->applyPrefactors(loopMove, stackLoopMove);
 
 						}
 
