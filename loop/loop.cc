@@ -3107,7 +3107,7 @@ string HairpinLoop::typeInternalsToString(void) {
 	std::stringstream ss;
 
 	ss << "pairType =" << pairtype << ", ";
-	ss << "seq= " << utility::sequenceToString(hairpin_seq, hairpinsize);
+	ss << "seq= " << utility::sequenceToString(hairpin_seq, hairpinsize) << "\n";
 
 	return ss.str();
 
@@ -3392,7 +3392,7 @@ string BulgeLoop::typeInternalsToString(void) {
 	std::stringstream ss;
 
 	ss << " seq0=" << utility::sequenceToString(bulge_seq[0], bulgesize[0]) << " \n";
-	ss << " seq1= " << utility::sequenceToString(bulge_seq[1], bulgesize[1]) << "\n";
+	ss << " seq1= " << utility::sequenceToString(bulge_seq[1], bulgesize[1]);
 
 	return ss.str();
 
@@ -3960,7 +3960,7 @@ void InteriorLoop::generateMoves(void) {
 			pt = pairtypes[int_seq[0][loop]][int_seq[0][loop2]];
 
 			if (pt != 0) {
-				energies[0] = energyModel->Energy(&int_seq[0][loop], loop2 - loop - 1);
+				energies[0] = energyModel->HairpinEnergy(&int_seq[0][loop], loop2 - loop - 1);
 
 				// Multiloop energy
 
