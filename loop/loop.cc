@@ -320,7 +320,7 @@ void Loop::printAllMoves(Loop* from) {
 
 	std::cout << toString();
 
-	cout << "printing all moves, usePrimeRates is " << energyModel->simOptions->usePrimeRates << "\n";
+//	cout << "printing all moves, usePrimeRates is " << energyModel->simOptions->usePrimeRates << "\n";
 
 	moves->printAllMoves(energyModel->simOptions->usePrimeRates);
 

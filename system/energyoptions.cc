@@ -158,11 +158,53 @@ PEnergyOptions::PEnergyOptions(PyObject* input) :
 
 	getBoolAttr(python_settings, useArrRates, &useArrRates);
 
+	if (useArrRates) {
 
+//		cout << "Loading Arrhenius constants -- do not forget to set AEnd, Eend, and so on. \n";
 
+		getDoubleAttr(python_settings, AEnd, &AEnd);
+		AValues[endMove] = AEnd;
 
+		getDoubleAttr(python_settings, ALoop, &ALoop);
+		AValues[loopMove] = ALoop;
 
+		getDoubleAttr(python_settings, AStack, &AStack);
+		AValues[stackMove] = AStack;
 
+		getDoubleAttr(python_settings, AStackStack, &AStackStack);
+		AValues[stackStackMove] = AStackStack;
+
+		getDoubleAttr(python_settings, ALoopEnd, &ALoopEnd);
+		AValues[loopEndMove] = ALoopEnd;
+
+		getDoubleAttr(python_settings, AStackEnd, &AStackEnd);
+		AValues[stackEndMove] = AStackEnd;
+
+		getDoubleAttr(python_settings, AStackLoop, &AStackLoop);
+		AValues[stackLoopMove] = AStackLoop;
+
+		getDoubleAttr(python_settings, EEnd, &EEnd);
+		EValues[endMove] = EEnd;
+
+		getDoubleAttr(python_settings, ELoop, &ELoop);
+		EValues[loopMove] = ELoop;
+
+		getDoubleAttr(python_settings, EStack, &EStack);
+		EValues[stackMove] = EStack;
+
+		getDoubleAttr(python_settings, EStackStack, &EStackStack);
+		EValues[stackStackMove] = EStackStack;
+
+		getDoubleAttr(python_settings, ELoopEnd, &ELoopEnd);
+		EValues[loopEndMove] = ELoopEnd;
+
+		getDoubleAttr(python_settings, EStackEnd, &EStackEnd);
+		EValues[stackEndMove] = EStackEnd;
+
+		getDoubleAttr(python_settings, EStackLoop, &EStackLoop);
+		EValues[stackLoopMove] = EStackLoop;
+
+	}
 
 }
 

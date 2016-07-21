@@ -45,27 +45,46 @@ public:
 	virtual void getParameterFile(char*, PyObject*) = 0;
 
 	// unprotected Arrhenius variables because we trust the user.
-	double AStack = 6.10;
-	double ALoop = 16.58;
-	double AEnd = 31.49;
-	double AStackLoop = 10.83;
-	double AStackEnd = 15.34;
-	double ALoopEnd = 8.55;
-	double AStackStack = 4.91;
+//	double AStack = 6.10;
+//	double ALoop = 16.58;
+//	double AEnd = 31.49;
+//	double AStackLoop = 10.83;
+//	double AStackEnd = 15.34;
+//	double ALoopEnd = 8.55;
+//	double AStackStack = 4.91;
+//
+//	double EStack = 0.75;
+//	double ELoop = 5.84;
+//	double EEnd = 12.38;
+//	double EStackLoop = 3.83;
+//	double EStackEnd = -0.43;
+//	double ELoopEnd = 3.80;
+//	double EStackStack = 6.57;
 
-	double EStack = 0.75;
-	double ELoop = 5.84;
-	double EEnd = 12.38;
-	double EStackLoop = 3.83;
-	double EStackEnd = -0.43;
-	double ELoopEnd = 3.80;
-	double EStackStack = 6.57;
+
+
+	double AStack = -0.1;
+	double ALoop = -0.1;
+	double AEnd = -0.1;
+	double AStackLoop = -0.1;
+	double AStackEnd = -0.1;
+	double ALoopEnd = -0.1;
+	double AStackStack = -0.1;
+
+	double EStack = -0.1;
+	double ELoop = -0.1;
+	double EEnd = -0.1;
+	double EStackLoop = -0.1;
+	double EStackEnd = -0.1;
+	double ELoopEnd = -0.1;
+	double EStackStack = -0.1;
+
 
 	static const double valuesPrime[MOVETYPE_SIZE];
 	static const string MoveToString[MOVETYPE_SIZE];
 
-	const double AValues[MOVETYPE_SIZE] = { AEnd, ALoop, AStack, AStackStack, ALoopEnd, AStackEnd, AStackLoop };
-	const double EValues[MOVETYPE_SIZE] = { EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop };
+	double AValues[MOVETYPE_SIZE] = { AEnd, ALoop, AStack, AStackStack, ALoopEnd, AStackEnd, AStackLoop };
+	double EValues[MOVETYPE_SIZE] = { EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop };
 
 	double dS_A = 1.02;
 	double dS_C = 4.41;
