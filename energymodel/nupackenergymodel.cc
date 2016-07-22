@@ -470,6 +470,7 @@ NupackEnergyModel::NupackEnergyModel(PyObject* energy_options) :
 
 	simOptions = new PSimOptions(energy_options);
 	processOptions();
+	computeArrheniusRates(current_temp);
 
 	if (simOptions->energyOptions->usingArrhenius()) {
 

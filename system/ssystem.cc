@@ -20,10 +20,13 @@
 
 SimulationSystem::SimulationSystem(PyObject *system_o) {
 
+
+
 	system_options = system_o;
 	simOptions = new PSimOptions(system_o);
 
 	construct();
+	initialPrint();
 
 }
 
@@ -73,6 +76,24 @@ void SimulationSystem::construct(void) {
 		HeapProfilerStop();
 	}
 #endif
+
+
+
+
+
+}
+
+void SimulationSystem::initialPrint(void) {
+
+//	cout << "SimulationSystem::initialPrint \n ";
+//	cout << "energyModel->useArrhenius()= "<< energyModel->useArrhenius() << "\n";
+
+	if (energyModel->useArrhenius()) {
+
+		energyModel->printPrecomputedArrRates();
+
+	}
+
 }
 
 SimulationSystem::SimulationSystem(void) {
@@ -133,7 +154,6 @@ void SimulationSystem::InitialInfo(void) {
 	if (InitializeSystem() != 0) {
 		return;
 	}
-
 
 	printAllMoves();
 

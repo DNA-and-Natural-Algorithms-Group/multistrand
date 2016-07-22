@@ -23,6 +23,7 @@ public:
 
 	// helper method for constructors
 	void construct(void);
+	void initialPrint(void);
 
 	~SimulationSystem(void);
 
