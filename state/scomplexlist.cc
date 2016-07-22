@@ -190,7 +190,7 @@ double SComplexList::getTotalFlux(void) {
 
 double SComplexList::getJoinFlux(void) {
 
-	cout << "Computing join flux";
+//	cout << "Computing join flux";
 
 	SComplexListEntry *temp = first;
 	struct exterior_bases *ext_bases = NULL, total_bases;

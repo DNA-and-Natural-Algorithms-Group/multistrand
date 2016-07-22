@@ -82,14 +82,16 @@ public:
 
 	static const double valuesPrime[MOVETYPE_SIZE];
 	static const string MoveToString[MOVETYPE_SIZE];
+	static const string MoveToString2[MOVETYPE_SIZE];
+
 
 	double AValues[MOVETYPE_SIZE] = { AEnd, ALoop, AStack, AStackStack, ALoopEnd, AStackEnd, AStackLoop };
 	double EValues[MOVETYPE_SIZE] = { EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop };
 
-	double dS_A = 1.02;
-	double dS_C = 4.41;
-	double dS_T = 0.55;
-	double dS_G = -5.99;
+	double dSA = 1.02;
+	double dSC = 4.41;
+	double dST = 0.55;
+	double dSG = -5.99;
 
 	double alpha = 0.045;
 

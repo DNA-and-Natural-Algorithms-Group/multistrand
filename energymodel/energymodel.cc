@@ -71,7 +71,8 @@ void EnergyModel::printPrecomputedArrRates(void) {
 
 	for (int i = 0; i < MOVETYPE_SIZE; i++) {
 
-		cout << EnergyOptions::MoveToString[i] << "     ";
+		cout << EnergyOptions::MoveToString[i];
+		cout << EnergyOptions::MoveToString2[i] << " ";
 
 	}
 
@@ -100,6 +101,14 @@ void EnergyModel::printPrecomputedArrRates(void) {
 		cout << arrheniusRates[i] << "  ";
 
 	}
+
+	cout << " \n \n";
+	cout << "    dS_A     dS_T     dS_C     dS_G      alpha		\n";
+	cout << "    " << simOptions->energyOptions->dSA;
+	cout << "     " << simOptions->energyOptions->dST;
+	cout << "     " << simOptions->energyOptions->dSC;
+	cout << "     " << simOptions->energyOptions->dSG;
+	cout << "     " << simOptions->energyOptions->alpha;
 
 	cout << "\n \n";
 
@@ -239,16 +248,16 @@ double EnergyModel::ArrheniusLoopEnergy(char* seq, int size) {
 		switch (seq[i]) {
 
 		case BASE_A:
-			output += (simOptions->energyOptions->dS_A);
+			output += (simOptions->energyOptions->dSA);
 			break;
 		case BASE_C:
-			output += (simOptions->energyOptions->dS_C);
+			output += (simOptions->energyOptions->dSC);
 			break;
 		case BASE_G:
-			output += (simOptions->energyOptions->dS_G);
+			output += (simOptions->energyOptions->dSG);
 			break;
 		case BASE_T:
-			output += (simOptions->energyOptions->dS_T);
+			output += (simOptions->energyOptions->dST);
 			break;
 		}
 

@@ -19,6 +19,7 @@ using std::string;
 
 const double EnergyOptions::valuesPrime[MOVETYPE_SIZE] = { 3, 5, 7, 11, 13, 17, 19 };
 const string EnergyOptions::MoveToString[MOVETYPE_SIZE] = { "End", "Loop", "Stack", "StackStack", "LoopEnd", "StackEnd", "StackLoop" };
+const string EnergyOptions::MoveToString2[MOVETYPE_SIZE] = { "      ", "     ", "   ", "", "  ", " ", " " };
 
 void EnergyOptions::initializeArrheniusConstants(void) {
 
@@ -203,6 +204,16 @@ PEnergyOptions::PEnergyOptions(PyObject* input) :
 
 		getDoubleAttr(python_settings, EStackLoop, &EStackLoop);
 		EValues[stackLoopMove] = EStackLoop;
+
+		getDoubleAttr(python_settings, dSA, &dSA);
+		getDoubleAttr(python_settings, dST, &dST);
+		getDoubleAttr(python_settings, dSC, &dSC);
+		getDoubleAttr(python_settings, dSG, &dSG);
+
+		getDoubleAttr(python_settings, alpha, &alpha);
+
+
+		// also loading four constants for entropy of nucleotide chain
 
 	}
 

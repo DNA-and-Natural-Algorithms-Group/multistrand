@@ -1536,8 +1536,12 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		// multiloop and multiLoop, so something plus something else
 		if (energyModel->useArrhenius()) {
 
-			MoveType move1 = energyModel->getPrefactorsMulti(index[0], tempLoop[0]->numAdjacent, tempLoop[0]->sidelen);
-			MoveType move2 = energyModel->getPrefactorsMulti(index[1], tempLoop[1]->numAdjacent, tempLoop[1]->sidelen);
+			MoveType move1 = energyModel->getPrefactorsMulti(index[0], tempLoop[0]->numAdjacent+1, tempLoop[0]->sidelen);
+			MoveType move2 = energyModel->getPrefactorsMulti(index[1], tempLoop[1]->numAdjacent+1, tempLoop[1]->sidelen);
+
+//
+//			MoveType move1 = energyModel->getPrefactorsMulti(index[0], tempLoop[0]->numAdjacent, tempLoop[0]->sidelen);
+//			MoveType move2 = energyModel->getPrefactorsMulti(index[1], tempLoop[1]->numAdjacent, tempLoop[1]->sidelen);
 			tempRate = tempRate * energyModel->applyPrefactors(move1, move2);
 
 		}

@@ -31,15 +31,15 @@ class Options(object):
                 "parameter_type":1,
                 "simulation_time":600.0,
                 "temperature":310.15,
-                "useArrRates":False,
-                "AEnd":-1.0,
-                "ALoop":-1.0,
-                "AStack":-1.0,
-                "AStackStack":-1.0,
-                "ALoopEnd":-1.0,
-                "AStackEnd":-1.0,
-                "AStackLoop":-1.0,
-                "EEnd":-1.0,
+                "useArrRates":False
+#                 "AEnd":-1.0,
+#                 "ALoop":-1.0,
+#                 "AStack":-1.0,
+#                 "AStackStack":-1.0,
+#                 "ALoopEnd":-1.0,
+#                 "AStackEnd":-1.0,
+#                 "AStackLoop":-1.0,
+#                 "EEnd":-1.0,
 #                 "ELoop":-1.0,
 #                 "EStack":-1.0,
 #                 "EStackStack":-1.0,
@@ -348,6 +348,16 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         self.ELoopEnd = -0.1;
         self.EStackEnd = -0.1;
         self.EStackLoop = -0.1; 
+        
+        
+        self.dSA = -0.1;
+        self.dST = -0.1;
+        self.dSC = -0.1;
+        self.dSG = -0.1;
+        
+        self.alpha = 1.0;
+        
+        
         
         
         ####################

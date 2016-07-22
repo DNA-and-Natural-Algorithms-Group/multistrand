@@ -129,11 +129,12 @@ void SimulationSystem::printAllMoves() {
 
 // FD: a simple peak into the initial state
 void SimulationSystem::InitialInfo(void) {
-	bool hflag = false;
 
 	if (InitializeSystem() != 0) {
 		return;
 	}
+
+
 	printAllMoves();
 
 	if (simOptions->energyOptions->usingArrhenius()) {
@@ -141,8 +142,6 @@ void SimulationSystem::InitialInfo(void) {
 		cout << " ** \n ** \n ** \n";
 		Loop::setPrimeRates(true);
 		complexList->regenerateMoves();
-//		complexList->printComplexList(3);
-
 		startState->printAllMoves();
 
 		Loop::setPrimeRates(false);
@@ -208,7 +207,7 @@ void SimulationSystem::StartSimulation(void) {
 		StartSimulation_Standard();
 
 	// end info about the used sim_options object
-	cout << simOptions->toString();
+//	cout << simOptions->toString();
 
 #ifdef PROFILING
 	ProfilerStop();
