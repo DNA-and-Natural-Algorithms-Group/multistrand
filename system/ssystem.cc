@@ -56,11 +56,11 @@ void SimulationSystem::construct(void) {
 	simulation_count_remaining = simOptions->getSimulationCount();
 
 	if (Loop::GetEnergyModel() == NULL) {
-		dnaEnergyModel = NULL;
-		dnaEnergyModel = new NupackEnergyModel(simOptions->getPythonSettings());
-		Loop::SetEnergyModel(dnaEnergyModel);
+		energyModel = NULL;
+		energyModel = new NupackEnergyModel(simOptions->getPythonSettings());
+		Loop::SetEnergyModel(energyModel);
 	} else {
-		dnaEnergyModel = Loop::GetEnergyModel();
+		energyModel = Loop::GetEnergyModel();
 	}
 
 	startState = NULL;
@@ -80,9 +80,9 @@ SimulationSystem::SimulationSystem(void) {
 	simulation_count_remaining = -1;
 
 	if (Loop::GetEnergyModel() == NULL) {
-		dnaEnergyModel = NULL;
+		energyModel = NULL;
 	} else {
-		dnaEnergyModel = Loop::GetEnergyModel();
+		energyModel = Loop::GetEnergyModel();
 	}
 
 	system_options = NULL;
@@ -92,7 +92,7 @@ SimulationSystem::SimulationSystem(void) {
 }
 
 int SimulationSystem::getErrorFlag(void) {
-	if (dnaEnergyModel == NULL)
+	if (energyModel == NULL)
 		return 1;
 	return 0;
 }
@@ -105,7 +105,7 @@ SimulationSystem::~SimulationSystem(void) {
 	// the remaining members are not our responsibility, we null them out
 	// just in case something thread-unsafe happens.
 
-	dnaEnergyModel = NULL;
+	energyModel = NULL;
 	simOptions = NULL;
 	startState = NULL;
 }
@@ -602,7 +602,7 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 	complexList->doJoinChoice(rchoice);
 
 	// store the forward rate used for the initial step so we can record it.
-	frate = rate * dnaEnergyModel->getJoinRate_NoVolumeTerm() / dnaEnergyModel->getJoinRate();
+	frate = rate * energyModel->getJoinRate_NoVolumeTerm() / energyModel->getJoinRate();
 
 	// rate is the total flux across all join moves - this is exactly equal to total_move_count *
 	// dnaEnergyModel->getJoinRate()
@@ -753,7 +753,7 @@ int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
 	if (complexList != NULL)
 		delete complexList;
 
-	complexList = new SComplexList(dnaEnergyModel);
+	complexList = new SComplexList(energyModel);
 
 	for (int i = 0; i < simOptions->myComplexes->size(); i++) {
 

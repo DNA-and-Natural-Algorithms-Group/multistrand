@@ -3,7 +3,7 @@
 # Python implementation of the options object.                                 #
 # Copyright 2010 Caltech                                                       #
 # Written by:  Joseph Schaeffer.                                               #
-# Some stuff written by:  Chris Berlind                                        #
+# Some stuff written by:  Chris Berlind, Frits Dannenberg                      #
 #                                                                              #
 # (others add your names as you modify files)                                  #
 #                                                                              #

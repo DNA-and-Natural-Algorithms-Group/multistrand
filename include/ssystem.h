@@ -60,7 +60,7 @@ private:
 	void printAllMoves(void);
 
 
-	EnergyModel *dnaEnergyModel;
+	EnergyModel *energyModel;
 
 	StrandComplex *startState;
 	SComplexList *complexList;
