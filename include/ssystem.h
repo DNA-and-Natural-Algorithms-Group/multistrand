@@ -8,9 +8,13 @@
 #ifndef __SSYSTEM_H__
 #define __SSYSTEM_H__
 
+#include <vector>
+#include <tr1/unordered_map>
+#include <iostream>
+#include <string>
+
 #include "energymodel.h"
 #include "scomplexlist.h"
-#include <vector>
 
 typedef std::vector<bool> boolvector;
 typedef std::vector<bool>::iterator boolvector_iterator;
@@ -54,12 +58,9 @@ private:
 	// helper function for sending current state to Python side
 	void dumpCurrentStateToPython(void);
 	void sendTrajectory_CurrentStateToPython(double current_time);
-	void sendTransitionStateVectorToPython(boolvector transition_states,
-			double current_time);
-
+	void sendTransitionStateVectorToPython(boolvector transition_states, double current_time);
 
 	void printAllMoves(void);
-
 
 	EnergyModel *energyModel;
 
@@ -73,6 +74,10 @@ private:
 	bool initial_trajectory;
 	long simulation_mode;
 	long simulation_count_remaining;
+
+	// some results objects
+	std::tr1::unordered_map<std::string, int> countMap;
+
 };
 
 #endif

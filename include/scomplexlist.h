@@ -54,6 +54,7 @@ public:
 	void initializeComplex(void);
 	void regenerateMoves(void);
 	void fillData(EnergyModel *em);
+	string toString(int printtype, EnergyModel *em);
 	void printComplex(int printtype, EnergyModel *em);
 	void dumpComplexEntryToPython(int *our_id, char **names, char **sequence, char **structure, double *our_energy);
 	int id;

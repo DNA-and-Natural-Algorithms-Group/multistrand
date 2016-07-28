@@ -69,6 +69,10 @@ public:
 	// non-protected because we trust other programmers
 	bool usePrimeRates = false;
 //	bool useArrRates = false;
+	const static bool countStates = true;
+
+
+
 
 protected:
 	long simulation_mode;

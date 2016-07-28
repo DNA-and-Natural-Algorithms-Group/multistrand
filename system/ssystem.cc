@@ -78,6 +78,12 @@ void SimulationSystem::construct(void) {
 #endif
 
 
+//	if(SimOptions::countStates){
+//
+//		countMap =
+//
+//	}
+
 
 
 
@@ -338,6 +344,17 @@ void SimulationSystem::SimulationLoop_Standard(void) {
 			// FD: when we remember the memoryless property of the Markov chain
 
 			complexList->doBasicChoice(rchoice, stime);
+
+			///add the hashfunction things
+
+			if(SimOptions::countStates){
+
+
+
+
+			}
+
+
 			rate = complexList->getTotalFlux();
 
 			if (stopoptions) {

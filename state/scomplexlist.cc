@@ -12,6 +12,9 @@
 #include <vector>
 #include <iostream>
 
+#include <utility.h>
+
+
 typedef std::vector<int> intvec;
 typedef std::vector<int>::iterator intvec_it;
 
@@ -64,21 +67,33 @@ void SComplexListEntry::fillData(EnergyModel *em) {
  SComplexListEntry::printComplex
  */
 
-void SComplexListEntry::printComplex(int printtype, EnergyModel *em) {
-//	printf("Complex %02d: %s\n", id, thisComplex->getStrandNames());
-	printf("Complex %02d: \n", id);
-	printf("          : %s\n", thisComplex->getSequence());
-	printf("          : %s\n", thisComplex->getStructure());
+string SComplexListEntry::toString(int printtype, EnergyModel *em) {
+
+	std::stringstream ss;
+
+	ss << ("Complex %02d: \n", id);
+	ss << ("          : %s\n", thisComplex->getSequence());
+	ss << ("          : %s\n", thisComplex->getStructure());
 	if (printtype == 1)
-		printf("          : Energy: (%6.6f) TotalFlux: %6.2f\n", energy - (em->getVolumeEnergy() * (thisComplex->getStrandCount() - 1)), rate);
+		ss << ("          : Energy: (%6.6f) TotalFlux: %6.2f\n", energy - (em->getVolumeEnergy() * (thisComplex->getStrandCount() - 1)), rate);
 	else if (printtype == 2)
-		printf("          : Energy: (%6.6f) TotalFlux: %6.2f\n", energy - (em->getVolumeEnergy() + em->getAssocEnergy()) * (thisComplex->getStrandCount() - 1),
-				rate);
+		ss
+				<< ("          : Energy: (%6.6f) TotalFlux: %6.2f\n", energy
+						- (em->getVolumeEnergy() + em->getAssocEnergy()) * (thisComplex->getStrandCount() - 1), rate);
 	else if (printtype == 3)
-		printf("          : Energy: (%6.2f) TotalFlux: %6.0f\n", energy - (em->getVolumeEnergy() + em->getAssocEnergy()) * (thisComplex->getStrandCount() - 1),
-				rate);
+		ss
+				<< ("          : Energy: (%6.2f) TotalFlux: %6.0f\n", energy
+						- (em->getVolumeEnergy() + em->getAssocEnergy()) * (thisComplex->getStrandCount() - 1), rate);
 	else
-		printf("          : Energy: (%6.6f) TotalFlux: %6.2f\n", energy, rate);
+		ss << ("          : Energy: (%6.6f) TotalFlux: %6.2f\n", energy, rate);
+
+	return ss.str();
+
+}
+
+void SComplexListEntry::printComplex(int printtype, EnergyModel *em) {
+
+	cout << this->toString(printtype, em);
 
 }
 
@@ -322,6 +337,7 @@ SComplexListEntry *SComplexList::doBasicChoice(double choice, double newtime) {
 		temp = addComplex(newComplex);
 		temp->fillData(dnaEnergyModel);
 		temp2->fillData(dnaEnergyModel);
+
 		return NULL;
 	}
 
