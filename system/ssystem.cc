@@ -20,8 +20,6 @@
 
 SimulationSystem::SimulationSystem(PyObject *system_o) {
 
-
-
 	system_options = system_o;
 	simOptions = new PSimOptions(system_o);
 
@@ -77,15 +75,11 @@ void SimulationSystem::construct(void) {
 	}
 #endif
 
-
 //	if(SimOptions::countStates){
 //
 //		countMap =
 //
 //	}
-
-
-
 
 }
 
@@ -265,6 +259,9 @@ void SimulationSystem::StartSimulation_Standard(void) {
 
 		generateNextRandom();
 	}
+
+	cout << "Explored " << countMap.size() << " states. \n";
+
 }
 
 void SimulationSystem::StartSimulation_Transition(void) {
@@ -347,13 +344,23 @@ void SimulationSystem::SimulationLoop_Standard(void) {
 
 			///add the hashfunction things
 
-			if(SimOptions::countStates){
+			if (SimOptions::countStates) {
 
+//				cout << "ADDING STATE TO HASH \n";
 
+				string myComplex = complexList->toString();
 
+				if (countMap.count(myComplex) == 0) {
+
+					countMap[myComplex] = 1;
+
+				} else {
+
+					countMap[myComplex]++;
+
+				}
 
 			}
-
 
 			rate = complexList->getTotalFlux();
 

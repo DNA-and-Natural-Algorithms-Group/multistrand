@@ -162,10 +162,12 @@ PEnergyOptions::PEnergyOptions(PyObject* input) :
 	getBoolAttr(python_settings, useArrRates, &useArrRates);
 
 
-	cout << "Post: useArrRates=" << useArrRates << "\n";
+//	cout << "Post: useArrRates=" << useArrRates << "\n";
 
 
 	if (useArrRates) {
+
+		uniScale = 1.0;
 
 //		cout << "Loading Arrhenius constants -- do not forget to set AEnd, Eend, and so on. \n";
 

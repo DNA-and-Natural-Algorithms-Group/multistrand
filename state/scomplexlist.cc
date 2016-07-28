@@ -4,8 +4,8 @@
  */
 
 #include "scomplexlist.h"
-#include <stdio.h>
-#include <string.h>
+//#include <stdio.h>
+//#include <string.h>
 #include <assert.h>
 #include <math.h>
 
@@ -13,7 +13,6 @@
 #include <iostream>
 
 #include <utility.h>
-
 
 typedef std::vector<int> intvec;
 typedef std::vector<int>::iterator intvec_it;
@@ -532,6 +531,12 @@ bool SComplexList::checkStopComplexList(class complexItem *stoplist) {
 	else
 		// type = STOPTYPE_STRUCTURE, STOPTYPE_DISASSOC, STOPTYPE_LOOSE or STOPTYPE_COUNT_OR_PERCENT
 		return checkStopComplexList_Structure_Disassoc(stoplist);
+}
+
+string SComplexList::toString() {
+
+	return first->toString(0, NULL);
+
 }
 
 /*

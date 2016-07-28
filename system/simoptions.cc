@@ -384,6 +384,10 @@ void CSimOptions::generateComplexes(PyObject *alternate_start, long current_seed
 	return;
 }
 
+
+
+
+
 stopComplexes* CSimOptions::getStopComplexes(int) {
 
 	cout << "getStopComplexes, cannot proceed \n";
