@@ -103,8 +103,7 @@ public:
 	char *verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop *from);
 
 	HairpinLoop(void);
-	HairpinLoop(int type, int size, char *hairpin_sequence, Loop *previous =
-	NULL);
+	HairpinLoop(int type, int size, char *hairpin_sequence, Loop *previous = NULL);
 	friend double Loop::generateDeleteMoveRate(Loop *start, Loop *end);
 	friend Loop * Loop::performDeleteMove(Move *move);
 	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);

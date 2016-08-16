@@ -68,8 +68,7 @@ public:
 
 	// non-protected because we trust other programmers
 	bool usePrimeRates = false;
-//	bool useArrRates = false;
-	const static bool countStates = true;
+	const static bool countStates = false;
 
 
 

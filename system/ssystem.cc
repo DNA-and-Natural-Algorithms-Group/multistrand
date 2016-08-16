@@ -75,18 +75,9 @@ void SimulationSystem::construct(void) {
 	}
 #endif
 
-//	if(SimOptions::countStates){
-//
-//		countMap =
-//
-//	}
-
 }
 
 void SimulationSystem::initialPrint(void) {
-
-//	cout << "SimulationSystem::initialPrint \n ";
-//	cout << "energyModel->useArrhenius()= "<< energyModel->useArrhenius() << "\n";
 
 	if (energyModel->useArrhenius()) {
 
@@ -345,8 +336,6 @@ void SimulationSystem::SimulationLoop_Standard(void) {
 			///add the hashfunction things
 
 			if (SimOptions::countStates) {
-
-//				cout << "ADDING STATE TO HASH \n";
 
 				string myComplex = complexList->toString();
 

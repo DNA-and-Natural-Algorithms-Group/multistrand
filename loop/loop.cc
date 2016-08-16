@@ -3739,8 +3739,8 @@ string InteriorLoop::typeInternalsToString(void) {
 
 	std::stringstream ss;
 
-	ss << " seq0=" << utility::sequenceToString(int_seq[0], sizes[0]) << " \n";
-	ss << " seq1= " << utility::sequenceToString(int_seq[1], sizes[1]) << "\n";
+	ss << " seq0=" << utility::sequenceToString(int_seq[0], sizes[0]+1) << " \n";
+	ss << " seq1= " << utility::sequenceToString(int_seq[1], sizes[1]+1) << "\n";
 
 	return ss.str();
 
