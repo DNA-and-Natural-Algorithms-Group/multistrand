@@ -251,7 +251,9 @@ void SimulationSystem::StartSimulation_Standard(void) {
 		generateNextRandom();
 	}
 
-	cout << "Explored " << countMap.size() << " states. \n";
+	if (SimOptions::countStates) {
+		cout << "Explored " << countMap.size() << " states. \n";
+	}
 
 }
 
