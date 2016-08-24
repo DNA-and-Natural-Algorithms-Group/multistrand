@@ -1029,8 +1029,8 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         self.full_trajectory.append(self.trajectory_complexes)
         self.full_trajectory_times.append(self.trajectory_current_time)
         self.trajectory_complexes = []
-        if self.trajectory_state_count % 10 == 0:
-            print "Count: {0} Time: {1}".format(self.trajectory_state_count, self.trajectory_current_time)
+#         if self.trajectory_state_count % 10 == 0:
+#             print "Count: {0} Time: {1}".format(self.trajectory_state_count, self.trajectory_current_time)
 
 
         # if self.current_graph == None:

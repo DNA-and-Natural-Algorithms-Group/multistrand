@@ -100,6 +100,9 @@ void SComplexListEntry::dumpComplexEntryToPython(int *our_id, char **names, char
 	*sequence = thisComplex->getSequence();
 	*structure = thisComplex->getStructure();
 	*our_energy = energy;
+
+
+
 }
 
 ///////////////////////////////////////////////////////////////////////

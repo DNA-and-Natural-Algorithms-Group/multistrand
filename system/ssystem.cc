@@ -207,7 +207,7 @@ void SimulationSystem::StartSimulation(void) {
 	}
 	ProfilerStart("ssystem_run_profile.prof");
 #endif
-	//printf("Simulation Mode: %d\n",simulation_mode);
+//	printf("Simulation Mode: %d\n",simulation_mode);
 	if (simulation_mode & SIMULATION_MODE_FLAG_FIRST_BIMOLECULAR) {
 		StartSimulation_FirstStep();
 	} else if (simulation_mode & SIMULATION_MODE_FLAG_TRAJECTORY) {
@@ -457,7 +457,6 @@ void SimulationSystem::SimulationLoop_Trajectory(long output_count_interval, dou
 		if (output_count_interval >= 0)
 			if ((current_state_count % output_count_interval) == 0) {
 				sendTrajectory_CurrentStateToPython(current_simulation_time);
-				//         complexList->printComplexList( 0 );
 			}
 
 	} while (current_simulation_time < maxsimtime && !checkresult);
@@ -589,12 +588,16 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 void SimulationSystem::StartSimulation_FirstStep(void) {
 	InitializeRNG();
 
+//	cout << "Starting FIRST STEP MODE";
+
 	while (simulation_count_remaining > 0) {
 		if (InitializeSystem() != 0)
 			return;
 
 		SimulationLoop_FirstStep();
 		finalizeRun();
+		pingAttr(system_options, increment_trajectory_count); //TODO
+
 	}
 }
 
@@ -612,6 +615,8 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 	long ointerval = simOptions->getOInterval();
 	double otime = simOptions->getOTime();
 	double otime_interval = simOptions->getOInterval();
+
+	long current_state_count = 0;
 
 	complexList->initializeList();
 
@@ -657,6 +662,7 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 
 		complexList->doBasicChoice(rchoice, stime);
 		rate = complexList->getTotalFlux();
+		current_state_count++;
 
 		if (stopcount > 0 && stopoptions) {
 			checkresult = false;
@@ -670,6 +676,13 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 			if (!checkresult && first != NULL)
 				delete first;
 		}
+
+		//    trajectory output via outputinterval option
+		if ((current_state_count % 1) == 0) {
+//			cout << "Pushing state!" << (stime);
+			sendTrajectory_CurrentStateToPython (stime);
+		}
+
 	} while (stime < maxsimtime && !checkresult);
 
 	if (checkresult) {
@@ -766,14 +779,16 @@ void SimulationSystem::sendTrajectory_CurrentStateToPython(double current_time) 
 	SComplexListEntry *temp;
 	temp = complexList->getFirst();
 	while (temp != NULL) {
+
 		temp->dumpComplexEntryToPython(&id, &names, &sequence, &structure, &energy);
+
 		pushTrajectoryComplex(system_options, current_seed, id, names, sequence, structure, energy);
-		//sim_options->pushTrajectory(current_seed, id, names, sequence,
-		//		structure, energy);
+
 		temp = temp->next;
 	}
+
 	pushTrajectoryInfo(system_options, current_time);
-	//sim_options->pushTrajectoryInf(current_time);
+
 }
 
 // FD: OK to feed in alternate_start = NULL
