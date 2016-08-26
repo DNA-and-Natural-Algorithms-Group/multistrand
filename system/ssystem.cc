@@ -207,14 +207,10 @@ void SimulationSystem::StartSimulation_Transition(void) {
 
 void SimulationSystem::StartSimulation_Trajectory(void) {
 
-//	long ointerval = simOptions->getOInterval();
-//	double otime = simOptions->getOTime();
-
 	while (simulation_count_remaining > 0) {
 		if (InitializeSystem() != 0)
 			return;
 
-//		SimulationLoop_Trajectory(ointerval, otime);
 		SimulationLoop_Trajectory();
 
 		finalizeRun();
@@ -385,10 +381,11 @@ void SimulationSystem::SimulationLoop_Trajectory() {
 		// we check this here so the reported state is the one present at the time
 		// listed, rather than the one /after/ that.
 		if (exportStatesInterval) {
-			if (stime - last_trajectory_time > simOptions->getOTime()) {
-				last_trajectory_time += simOptions->getOTime();
-				sendTrajectory_CurrentStateToPython(last_trajectory_time);
-			}
+			exportInterval(stime*, last_trajectory_time*);
+//		if (stime - last_trajectory_time > simOptions->getOTime()) {
+//			last_trajectory_time += simOptions->getOTime();
+//			sendTrajectory_CurrentStateToPython(last_trajectory_time);
+//		}
 		}
 
 		complexList->doBasicChoice(rchoice, stime);
@@ -436,7 +433,7 @@ void SimulationSystem::SimulationLoop_Trajectory() {
 void SimulationSystem::SimulationLoop_Transition(void) {
 
 	double rchoice, rate, stime, ctime;
-	// Could really use some commenting on these local vars.
+// Could really use some commenting on these local vars.
 	rchoice = rate = stime = ctime = 0.0;
 
 	double maxsimtime, otime;
@@ -461,8 +458,8 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 		return;
 	}
 
-	// figure out which stop entries should cause us to halt, update a bool vector to
-	// have true in the indices corresponding to which stop states are halting states.
+// figure out which stop entries should cause us to halt, update a bool vector to
+// have true in the indices corresponding to which stop states are halting states.
 
 	boolvector stop_entries;
 	boolvector transition_states;
@@ -755,7 +752,7 @@ int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
 
 	complexList = new SComplexList(energyModel);
 
-	// FD: this is the python - C interface
+// FD: this is the python - C interface
 	for (int i = 0; i < simOptions->myComplexes->size(); i++) {
 
 		char* tempSequence = copyToCharArray(simOptions->myComplexes->at(i).sequence);
@@ -830,6 +827,17 @@ void SimulationSystem::printTransition(double input) {
 	cout << "Using RNG =" << input;
 	Move* myMove = startState->getChoice(&input);
 	cout << ", we selected move: \n " << myMove->toString(simOptions->energyOptions) << " \n ";
+
+}
+
+void SimulationSystem::exportInterval(double* simTime, double* lastExportTime) {
+
+	if (simTime - lastExportTime > simOptions->getOTime()) {
+
+		lastExportTime += simOptions->getOTime();
+		sendTrajectory_CurrentStateToPython (last_trajectory_time);
+
+	}
 
 }
 
