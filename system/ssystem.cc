@@ -18,7 +18,7 @@
 #include "google/heap-profiler.h"
 #endif
 
-const bool exportStates = false;
+//const bool exportStates = false;
 
 SimulationSystem::SimulationSystem(PyObject *system_o) {
 
@@ -139,9 +139,6 @@ void SimulationSystem::StartSimulation(void) {
 	}
 	ProfilerStart("ssystem_run_profile.prof");
 #endif
-
-//	cout << "ointerval = " << ointerval;
-//	cout << "otime = " << otime;
 
 	InitializeRNG();
 
@@ -380,12 +377,13 @@ void SimulationSystem::SimulationLoop_Trajectory() {
 		// trajectory output via outputtime option
 		// we check this here so the reported state is the one present at the time
 		// listed, rather than the one /after/ that.
+		if (exportStatesTime) {
+			exportTime(stime, &last_trajectory_time);
+		}
+
+		//FD: this used to be tested after making the transition.
 		if (exportStatesInterval) {
-			exportInterval(stime*, last_trajectory_time*);
-//		if (stime - last_trajectory_time > simOptions->getOTime()) {
-//			last_trajectory_time += simOptions->getOTime();
-//			sendTrajectory_CurrentStateToPython(last_trajectory_time);
-//		}
+			exportInterval(stime, current_state_count);
 		}
 
 		complexList->doBasicChoice(rchoice, stime);
@@ -399,13 +397,6 @@ void SimulationSystem::SimulationLoop_Trajectory() {
 			while (traverse->next != NULL && !stopFlag) {
 				traverse = traverse->next;
 				stopFlag = complexList->checkStopComplexList(traverse->citem);
-			}
-		}
-
-		//    trajectory output via outputinterval option
-		if (exportStatesInterval) { //output_count_interval >= 0)
-			if ((current_state_count % simOptions->getOInterval()) == 0) {
-				sendTrajectory_CurrentStateToPython(stime);
 			}
 		}
 
@@ -555,6 +546,7 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 void SimulationSystem::SimulationLoop_FirstStep(void) {
 	double rchoice, rate, stime = 0.0, ctime = 0.0;
 	bool stopFlag = false;
+	double last_trajectory_time = 0.0;
 
 	class stopComplexes *traverse = NULL, *first = NULL;
 	long trajMode;
@@ -608,6 +600,16 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 		rchoice = rate * drand48();
 		stime += (log(1. / (1.0 - drand48())) / rate);
 
+		// trajectory output via outputtime option
+		if (exportStatesTime) {
+			exportTime(stime, &last_trajectory_time);
+		}
+
+		//FD: this used to be tested after making the transition.
+		if (exportStatesInterval) {
+			exportInterval(stime, current_state_count);
+		}
+
 		complexList->doBasicChoice(rchoice, stime);
 		rate = complexList->getTotalFlux();
 		current_state_count++;
@@ -625,10 +627,10 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 				delete first;
 		}
 
-		//    trajectory output via outputinterval option
-		if (exportStates && ((current_state_count % 1) == 0)) {
-			sendTrajectory_CurrentStateToPython(stime);
-		}
+//		//    trajectory output via outputinterval option
+//		if (exportStates && ((current_state_count % 1) == 0)) {
+//			sendTrajectory_CurrentStateToPython(stime);
+//		}
 
 	} while (stime < maxsimtime && !stopFlag);
 
@@ -830,13 +832,21 @@ void SimulationSystem::printTransition(double input) {
 
 }
 
-void SimulationSystem::exportInterval(double* simTime, double* lastExportTime) {
+void SimulationSystem::exportTime(double simTime, double* lastExportTime) {
 
-	if (simTime - lastExportTime > simOptions->getOTime()) {
+	if (simTime - *lastExportTime > simOptions->getOTime()) {
 
-		lastExportTime += simOptions->getOTime();
-		sendTrajectory_CurrentStateToPython (last_trajectory_time);
+		*lastExportTime += simOptions->getOTime();
+		sendTrajectory_CurrentStateToPython(*lastExportTime);
 
+	}
+
+}
+
+void SimulationSystem::exportInterval(double simTime, int transitionCount) {
+
+	if ((transitionCount % simOptions->getOInterval()) == 0) {
+		sendTrajectory_CurrentStateToPython(simTime);
 	}
 
 }

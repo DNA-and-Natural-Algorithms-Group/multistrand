@@ -62,10 +62,10 @@ private:
 	void sendTransitionStateVectorToPython(boolvector transition_states, double current_time);
 
 	void countState(SComplexList*);
-	void exportInterval(double* simTime, double* lastExportTime);
+	void exportTime(double simTime, double* lastExportTime);
+	void exportInterval(double simTime, int period);
 
 	void printAllMoves(void);
-	void exportInterval(double*, double*);
 
 	EnergyModel *energyModel;
 
