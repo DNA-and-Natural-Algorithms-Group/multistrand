@@ -210,6 +210,9 @@ void SimulationSystem::StartSimulation(void) {
 	ProfilerStart("ssystem_run_profile.prof");
 #endif
 
+
+	InitializeRNG();
+
 	if (simulation_mode & SIMULATION_MODE_FLAG_FIRST_BIMOLECULAR) {
 		StartSimulation_FirstStep();
 	} else if (simulation_mode & SIMULATION_MODE_FLAG_TRAJECTORY) {
@@ -230,7 +233,6 @@ void SimulationSystem::StartSimulation(void) {
 }
 
 void SimulationSystem::StartSimulation_FirstStep(void) {
-	InitializeRNG();
 
 	while (simulation_count_remaining > 0) {
 		if (InitializeSystem() != 0)
@@ -245,7 +247,8 @@ void SimulationSystem::StartSimulation_FirstStep(void) {
 
 void SimulationSystem::StartSimulation_Standard(void) {
 
-	InitializeRNG();
+
+
 	while (simulation_count_remaining > 0) {
 		if (InitializeSystem() != 0)
 			return;
@@ -266,7 +269,8 @@ void SimulationSystem::StartSimulation_Standard(void) {
 }
 
 void SimulationSystem::StartSimulation_Transition(void) {
-	InitializeRNG();
+
+
 	while (simulation_count_remaining > 0) {
 		if (InitializeSystem() != 0)
 			return;
@@ -286,7 +290,6 @@ void SimulationSystem::StartSimulation_Trajectory(void) {
 	long ointerval = simOptions->getOInterval();
 	double otime = simOptions->getOTime();
 
-	InitializeRNG();
 	while (simulation_count_remaining > 0) {
 		if (InitializeSystem() != 0)
 			return;
