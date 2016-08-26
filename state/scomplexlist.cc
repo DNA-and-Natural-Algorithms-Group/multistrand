@@ -344,19 +344,6 @@ SComplexListEntry *SComplexList::doBasicChoice(double choice, double newtime) {
 	temp2->fillData(dnaEnergyModel);
 	return temp2;
 
-	/*  struc = pickedComplex->getStructure();
-	 int temp1=0;
-	 for( int loop = 0; loop < strlen(struc); loop++)
-	 {
-	 if(struc[loop] == '(') temp1++;
-	 if(struc[loop] == ')') temp1--;
-	 assert( temp1 >= 0 );
-	 if(loop > 0)
-	 assert( !(struc[loop-1]=='(' && struc[loop] == ')'));
-	 }
-
-	 assert( temp1 == 0 );*/
-
 }
 
 /*

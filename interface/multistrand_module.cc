@@ -331,7 +331,7 @@ static PyObject *System_calculate_rate(PyObject *self, PyObject *args, PyObject 
 
 			return NULL;
 		}
-		if (Loop::GetEnergyModel() == NULL){
+		if (Loop::GetEnergyModel() == NULL) {
 			Loop::SetEnergyModel(em);
 		}
 	}

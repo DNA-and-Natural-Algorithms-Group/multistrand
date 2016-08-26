@@ -60,6 +60,9 @@ private:
 	void sendTrajectory_CurrentStateToPython(double current_time);
 	void sendTransitionStateVectorToPython(boolvector transition_states, double current_time);
 
+	void countState(SComplexList*);
+
+
 	void printAllMoves(void);
 
 	EnergyModel *energyModel;
