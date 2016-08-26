@@ -71,7 +71,7 @@ void SimulationSystem::construct(void) {
 	complexList = NULL;
 
 	exportStatesInterval = (simOptions->getOInterval() >= 0);
-	exportStatesTime = (simOptions->getOTime());
+	exportStatesTime = (simOptions->getOTime() >= 0);
 
 #ifdef PROFILING
 	ProfilerStop();

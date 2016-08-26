@@ -81,8 +81,8 @@ private:
 	long simulation_count_remaining;
 
 	//bool triggers for output
-	bool exportStatesTime;
-	bool exportStatesInterval;
+	bool exportStatesTime= false;
+	bool exportStatesInterval = false;
 
 	// some results objects
 	std::tr1::unordered_map<std::string, int> countMap;
