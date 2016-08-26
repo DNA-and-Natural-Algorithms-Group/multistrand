@@ -46,7 +46,8 @@ private:
 
 	void SimulationLoop_Standard(void);
 	void SimulationLoop_FirstStep(void);
-	void SimulationLoop_Trajectory(long ointerval, double otime);
+//	void SimulationLoop_Trajectory(long ointerval, double otime);
+	void SimulationLoop_Trajectory(void);
 	void SimulationLoop_Transition(void);
 
 	int InitializeSystem(PyObject *alternate_start = NULL);
@@ -77,6 +78,10 @@ private:
 	bool initial_trajectory;
 	long simulation_mode;
 	long simulation_count_remaining;
+
+	//bool triggers for output
+	bool exportStatesTime;
+	bool exportStatesInterval;
 
 	// some results objects
 	std::tr1::unordered_map<std::string, int> countMap;

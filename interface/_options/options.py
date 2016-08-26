@@ -31,21 +31,7 @@ class Options(object):
                 "parameter_type":1,
                 "simulation_time":600.0,
                 "temperature":310.15,
-                "useArrRates":False
-#                 "AEnd":-1.0,
-#                 "ALoop":-1.0,
-#                 "AStack":-1.0,
-#                 "AStackStack":-1.0,
-#                 "ALoopEnd":-1.0,
-#                 "AStackEnd":-1.0,
-#                 "AStackLoop":-1.0,
-#                 "EEnd":-1.0,
-#                 "ELoop":-1.0,
-#                 "EStack":-1.0,
-#                 "EStackStack":-1.0,
-#                 "ELoopEnd":-1.0,
-#                 "EStackEnd":-1.0,
-#                 "EStackLoop":-1.0            
+                "useArrRates":False          
                 }
     
     def __init__(self, *args, **kargs):

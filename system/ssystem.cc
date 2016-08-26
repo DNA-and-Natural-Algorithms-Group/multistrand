@@ -69,6 +69,10 @@ void SimulationSystem::construct(void) {
 
 	startState = NULL;
 	complexList = NULL;
+
+	exportStatesInterval = (simOptions->getOInterval() >= 0);
+	exportStatesTime = (simOptions->getOTime());
+
 #ifdef PROFILING
 	ProfilerStop();
 	if (hflag)
@@ -136,6 +140,9 @@ void SimulationSystem::StartSimulation(void) {
 	ProfilerStart("ssystem_run_profile.prof");
 #endif
 
+//	cout << "ointerval = " << ointerval;
+//	cout << "otime = " << otime;
+
 	InitializeRNG();
 
 	if (simulation_mode & SIMULATION_MODE_FLAG_FIRST_BIMOLECULAR) {
@@ -200,21 +207,17 @@ void SimulationSystem::StartSimulation_Transition(void) {
 
 void SimulationSystem::StartSimulation_Trajectory(void) {
 
-	long ointerval = simOptions->getOInterval();
-	double otime = simOptions->getOTime();
+//	long ointerval = simOptions->getOInterval();
+//	double otime = simOptions->getOTime();
 
 	while (simulation_count_remaining > 0) {
 		if (InitializeSystem() != 0)
 			return;
 
-		SimulationLoop_Trajectory(ointerval, otime);
+//		SimulationLoop_Trajectory(ointerval, otime);
+		SimulationLoop_Trajectory();
 
 		finalizeRun();
-
-//		simulation_count_remaining--;
-//		pingAttr(system_options, increment_trajectory_count);
-//
-//		generateNextRandom();
 
 	}
 }
@@ -341,7 +344,8 @@ void SimulationSystem::countState(SComplexList* complexList) {
 
 }
 
-void SimulationSystem::SimulationLoop_Trajectory(long output_count_interval, double output_time_interval) {
+//void SimulationSystem::SimulationLoop_Trajectory(long output_count_interval, double output_time_interval) {
+void SimulationSystem::SimulationLoop_Trajectory() {
 
 	double rchoice, rate, stime, last_trajectory_time;
 	rchoice = rate = 0.0;
@@ -380,11 +384,12 @@ void SimulationSystem::SimulationLoop_Trajectory(long output_count_interval, dou
 		// trajectory output via outputtime option
 		// we check this here so the reported state is the one present at the time
 		// listed, rather than the one /after/ that.
-		if (output_time_interval > 0.0)
-			if (stime - last_trajectory_time > output_time_interval) {
-				last_trajectory_time += output_time_interval;
+		if (exportStatesInterval) {
+			if (stime - last_trajectory_time > simOptions->getOTime()) {
+				last_trajectory_time += simOptions->getOTime();
 				sendTrajectory_CurrentStateToPython(last_trajectory_time);
 			}
+		}
 
 		complexList->doBasicChoice(rchoice, stime);
 		rate = complexList->getTotalFlux();
@@ -401,10 +406,11 @@ void SimulationSystem::SimulationLoop_Trajectory(long output_count_interval, dou
 		}
 
 		//    trajectory output via outputinterval option
-		if (output_count_interval >= 0)
-			if ((current_state_count % output_count_interval) == 0) {
+		if (exportStatesInterval) { //output_count_interval >= 0)
+			if ((current_state_count % simOptions->getOInterval()) == 0) {
 				sendTrajectory_CurrentStateToPython(stime);
 			}
+		}
 
 	} while (stime < maxsimtime && !stopFlag);
 
@@ -513,8 +519,11 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 
 					stopFlag = true;
 				}
-				if (!state_changed && transition_states[idx] != checkresult)
+
+				if (!state_changed && transition_states[idx] != checkresult) {
 					state_changed = true;
+				}
+
 				transition_states[idx] = checkresult;
 				traverse = traverse->next;
 			}

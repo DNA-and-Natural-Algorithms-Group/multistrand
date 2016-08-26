@@ -27,8 +27,6 @@ string utility::sequenceToString(char* sequence, int size) {
 
 	for (int i = 0; i < size + 1; i++) {
 
-//		cout << (int) sequence[i] << endl;
-
 		ss << baseTypeString[sequence[i] - 1];
 
 	}
@@ -132,7 +130,6 @@ void utility::printDoubleArray(double input[], int length) {
 
 void utility::printDoubleMatrix(double input[], int length, int depth, int precision) {
 
-//	cout << "Double array: ";
 
 	for (int j = 0; j < depth; j++) {
 
