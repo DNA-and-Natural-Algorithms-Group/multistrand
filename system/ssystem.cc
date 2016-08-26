@@ -229,14 +229,6 @@ void SimulationSystem::StartSimulation(void) {
 #endif
 }
 
-void SimulationSystem::finalizeRun(void) {
-
-	simulation_count_remaining--;
-	pingAttr(system_options, increment_trajectory_count);
-
-	generateNextRandom();
-}
-
 void SimulationSystem::StartSimulation_FirstStep(void) {
 	InitializeRNG();
 
@@ -246,22 +238,25 @@ void SimulationSystem::StartSimulation_FirstStep(void) {
 
 		SimulationLoop_FirstStep();
 		finalizeRun();
-		pingAttr(system_options, increment_trajectory_count); //TODO
+//		pingAttr(system_options, increment_trajectory_count); //TODO
 
 	}
 }
 
 void SimulationSystem::StartSimulation_Standard(void) {
+
 	InitializeRNG();
 	while (simulation_count_remaining > 0) {
 		if (InitializeSystem() != 0)
 			return;
 
 		SimulationLoop_Standard();
-		simulation_count_remaining--;
-		pingAttr(system_options, increment_trajectory_count);
+		finalizeRun();
 
-		generateNextRandom();
+//		simulation_count_remaining--;
+//		pingAttr(system_options, increment_trajectory_count);
+//
+//		generateNextRandom();
 	}
 
 	if (SimOptions::countStates) {
@@ -277,10 +272,12 @@ void SimulationSystem::StartSimulation_Transition(void) {
 			return;
 
 		SimulationLoop_Transition();
-		simulation_count_remaining--;
-		pingAttr(system_options, increment_trajectory_count);
+		finalizeRun();
 
-		generateNextRandom();
+//		simulation_count_remaining--;
+//		pingAttr(system_options, increment_trajectory_count);
+//
+//		generateNextRandom();
 	}
 }
 
@@ -296,12 +293,22 @@ void SimulationSystem::StartSimulation_Trajectory(void) {
 
 		SimulationLoop_Trajectory(ointerval, otime);
 
-		simulation_count_remaining--;
-		pingAttr(system_options, increment_trajectory_count);
+		finalizeRun();
 
-		generateNextRandom();
+//		simulation_count_remaining--;
+//		pingAttr(system_options, increment_trajectory_count);
+//
+//		generateNextRandom();
 
 	}
+}
+
+void SimulationSystem::finalizeRun(void) {
+
+	simulation_count_remaining--;
+	pingAttr(system_options, increment_trajectory_count);
+
+	generateNextRandom();
 }
 
 void SimulationSystem::SimulationLoop_Standard(void) {
@@ -795,6 +802,7 @@ int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
 
 	complexList = new SComplexList(energyModel);
 
+	// FD: this is the python - C interface
 	for (int i = 0; i < simOptions->myComplexes->size(); i++) {
 
 		char* tempSequence = copyToCharArray(simOptions->myComplexes->at(i).sequence);
