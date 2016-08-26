@@ -18,13 +18,14 @@
 #include "google/heap-profiler.h"
 #endif
 
+const bool exportStates = false;
+
 SimulationSystem::SimulationSystem(PyObject *system_o) {
 
 	system_options = system_o;
 	simOptions = new PSimOptions(system_o);
 
 	construct();
-	initialPrint();
 
 }
 
@@ -34,6 +35,7 @@ SimulationSystem::SimulationSystem(SimOptions* options) {
 	simOptions = options;
 
 	construct();
+	initialPrint();
 
 }
 
@@ -103,10 +105,10 @@ SimulationSystem::SimulationSystem(void) {
 	complexList = NULL;
 }
 
-int SimulationSystem::getErrorFlag(void) {
-	if (energyModel == NULL)
-		return 1;
-	return 0;
+int SimulationSystem::isEnergymodelNull(void) {
+
+	return (energyModel == NULL);
+
 }
 
 SimulationSystem::~SimulationSystem(void) {
@@ -114,8 +116,8 @@ SimulationSystem::~SimulationSystem(void) {
 		delete complexList;
 	complexList = NULL;
 
-	// the remaining members are not our responsibility, we null them out
-	// just in case something thread-unsafe happens.
+// the remaining members are not our responsibility, we null them out
+// just in case something thread-unsafe happens.
 
 	energyModel = NULL;
 	simOptions = NULL;
@@ -159,8 +161,8 @@ void SimulationSystem::InitialInfo(void) {
 
 	}
 
-	//cout << "Printing starting structure ";
-	//startState->
+//cout << "Printing starting structure ";
+//startState->
 
 //	printTransition(0.1);
 //	printTransition(1);
@@ -207,7 +209,7 @@ void SimulationSystem::StartSimulation(void) {
 	}
 	ProfilerStart("ssystem_run_profile.prof");
 #endif
-//	printf("Simulation Mode: %d\n",simulation_mode);
+
 	if (simulation_mode & SIMULATION_MODE_FLAG_FIRST_BIMOLECULAR) {
 		StartSimulation_FirstStep();
 	} else if (simulation_mode & SIMULATION_MODE_FLAG_TRAJECTORY) {
@@ -216,9 +218,6 @@ void SimulationSystem::StartSimulation(void) {
 		StartSimulation_Transition();
 	} else
 		StartSimulation_Standard();
-
-	// end info about the used sim_options object
-//	cout << simOptions->toString();
 
 #ifdef PROFILING
 	ProfilerStop();
@@ -236,6 +235,20 @@ void SimulationSystem::finalizeRun(void) {
 	pingAttr(system_options, increment_trajectory_count);
 
 	generateNextRandom();
+}
+
+void SimulationSystem::StartSimulation_FirstStep(void) {
+	InitializeRNG();
+
+	while (simulation_count_remaining > 0) {
+		if (InitializeSystem() != 0)
+			return;
+
+		SimulationLoop_FirstStep();
+		finalizeRun();
+		pingAttr(system_options, increment_trajectory_count); //TODO
+
+	}
 }
 
 void SimulationSystem::StartSimulation_Standard(void) {
@@ -294,7 +307,7 @@ void SimulationSystem::StartSimulation_Trajectory(void) {
 void SimulationSystem::SimulationLoop_Standard(void) {
 	double rchoice, rate, stime, ctime;
 
-	// Could really use some commenting on these local vars.
+// Could really use some commenting on these local vars.
 	rchoice = rate = stime = ctime = 0.0;
 
 	int curcount = 0;
@@ -393,7 +406,7 @@ void SimulationSystem::SimulationLoop_Standard(void) {
 
 void SimulationSystem::SimulationLoop_Trajectory(long output_count_interval, double output_time_interval) {
 
-	double rchoice, rate, current_simulation_time, last_trajectory_time;
+	double rchoice, rate, stime, last_trajectory_time;
 	rchoice = rate = 0.0;
 
 	double maxsimtime = simOptions->getMaxSimTime();
@@ -407,10 +420,10 @@ void SimulationSystem::SimulationLoop_Trajectory(long output_count_interval, dou
 	complexList->initializeList();
 	rate = complexList->getTotalFlux();
 
-	// We start at the beginning of time.
-	current_simulation_time = 0.0;
+// We start at the beginning of time.
+	stime = 0.0;
 
-	// The last time we gave the output state.
+// The last time we gave the output state.
 	last_trajectory_time = 0.0;
 
 	if (stopoptions) {
@@ -423,23 +436,20 @@ void SimulationSystem::SimulationLoop_Trajectory(long output_count_interval, dou
 
 	do {
 		rchoice = rate * drand48();
-
-		current_simulation_time += (log(1. / (1.0 - drand48())) / rate);
+		stime += (log(1. / (1.0 - drand48())) / rate);
+		// 1.0 - drand as drand returns in the [0.0, 1.0) range, we need a (0.0,1.0] range.
+		// see notes below in First Step mode.
 
 		// trajectory output via outputtime option
 		// we check this here so the reported state is the one present at the time
 		// listed, rather than the one /after/ that.
 		if (output_time_interval > 0.0)
-			if (current_simulation_time - last_trajectory_time > output_time_interval) {
+			if (stime - last_trajectory_time > output_time_interval) {
 				last_trajectory_time += output_time_interval;
 				sendTrajectory_CurrentStateToPython(last_trajectory_time);
-				//complexList->printComplexList( 0 );
 			}
 
-		// 1.0 - drand as drand returns in the [0.0, 1.0) range, we need a (0.0,1.0] range.
-		// see notes below in First Step mode.
-
-		complexList->doBasicChoice(rchoice, current_simulation_time);
+		complexList->doBasicChoice(rchoice, stime);
 		rate = complexList->getTotalFlux();
 		current_state_count += 1;
 
@@ -456,17 +466,17 @@ void SimulationSystem::SimulationLoop_Trajectory(long output_count_interval, dou
 		//    trajectory output via outputinterval option
 		if (output_count_interval >= 0)
 			if ((current_state_count % output_count_interval) == 0) {
-				sendTrajectory_CurrentStateToPython(current_simulation_time);
+				sendTrajectory_CurrentStateToPython(stime);
 			}
 
-	} while (current_simulation_time < maxsimtime && !checkresult);
+	} while (stime < maxsimtime && !checkresult);
 
-	if (current_simulation_time == NAN)
+	if (stime == NAN)
 		simOptions->stopResultNan(current_seed);
 	else if (checkresult) {
-		simOptions->stopResultNormal(current_seed, current_simulation_time, traverse->tag);
+		simOptions->stopResultNormal(current_seed, stime, traverse->tag);
 	} else
-		simOptions->stopResultTime(current_seed, current_simulation_time);
+		simOptions->stopResultTime(current_seed, stime);
 
 	if (first != NULL)
 		delete first;
@@ -474,7 +484,7 @@ void SimulationSystem::SimulationLoop_Trajectory(long output_count_interval, dou
 
 void SimulationSystem::SimulationLoop_Transition(void) {
 	double rchoice, rate, stime, ctime;
-	// Could really use some commenting on these local vars.
+// Could really use some commenting on these local vars.
 	rchoice = rate = stime = ctime = 0.0;
 
 	double maxsimtime, otime;
@@ -499,8 +509,8 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 		return;
 	}
 
-	// figure out which stop entries should cause us to halt, update a bool vector to
-	// have true in the indices corresponding to which stop states are halting states.
+// figure out which stop entries should cause us to halt, update a bool vector to
+// have true in the indices corresponding to which stop states are halting states.
 
 	boolvector stop_entries;
 	boolvector transition_states;
@@ -523,7 +533,7 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 	}
 	delete first;
 	sendTransitionStateVectorToPython(transition_states, stime);
-	// start
+// start
 
 	rate = complexList->getTotalFlux();
 	state_changed = false;
@@ -585,22 +595,6 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 
 }
 
-void SimulationSystem::StartSimulation_FirstStep(void) {
-	InitializeRNG();
-
-//	cout << "Starting FIRST STEP MODE";
-
-	while (simulation_count_remaining > 0) {
-		if (InitializeSystem() != 0)
-			return;
-
-		SimulationLoop_FirstStep();
-		finalizeRun();
-		pingAttr(system_options, increment_trajectory_count); //TODO
-
-	}
-}
-
 void SimulationSystem::SimulationLoop_FirstStep(void) {
 	double rchoice, rate, stime = 0.0, ctime = 0.0;
 	bool checkresult = false;
@@ -622,11 +616,11 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 
 	rate = complexList->getJoinFlux();
 
-	// scomplexlist returns a 0.0 rate if there was a single complex in
-	// the system, and a -1.0 rate if there are exactly 0 join moves. So
-	// the 0.0 rate should probably be caught, though if you use a
-	// single complex system for a starting state it's probably
-	// deserved.
+// scomplexlist returns a 0.0 rate if there was a single complex in
+// the system, and a -1.0 rate if there are exactly 0 join moves. So
+// the 0.0 rate should probably be caught, though if you use a
+// single complex system for a starting state it's probably
+// deserved.
 
 	if (rate == 0.0) { // no initial moves
 		simOptions->stopResultBimolecular("NoMoves", current_seed, 0.0, 0.0,
@@ -636,24 +630,21 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 
 	rchoice = rate * drand48();
 
-	// if( ointerval >= 0 || otime_interval >= 0.0 )
-	//   complexList->printComplexList( 0 );
-
 	complexList->doJoinChoice(rchoice);
 
-	// store the forward rate used for the initial step so we can record it.
+// store the forward rate used for the initial step so we can record it.
 	frate = rate * energyModel->getJoinRate_NoVolumeTerm() / energyModel->getJoinRate();
 
-	// rate is the total flux across all join moves - this is exactly equal to total_move_count *
-	// dnaEnergyModel->getJoinRate()
+// rate is the total flux across all join moves - this is exactly equal to total_move_count *
+// dnaEnergyModel->getJoinRate()
 
-	// This join rate is the dG_volume * bimolecular scaling constant
-	// used for forward transitions.  What we actually need is the
-	// bimolecular scaling constant * total move count. (dG volume is
-	// the volume dependent term that is not actually related to the
-	// 'collision' rate, but rather the volume we are simulating.
+// This join rate is the dG_volume * bimolecular scaling constant
+// used for forward transitions.  What we actually need is the
+// bimolecular scaling constant * total move count. (dG volume is
+// the volume dependent term that is not actually related to the
+// 'collision' rate, but rather the volume we are simulating.
 
-	// Begin normal steps.
+// Begin normal steps.
 	rate = complexList->getTotalFlux();
 	do {
 
@@ -678,9 +669,8 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 		}
 
 		//    trajectory output via outputinterval option
-		if ((current_state_count % 1) == 0) {
-//			cout << "Pushing state!" << (stime);
-			sendTrajectory_CurrentStateToPython (stime);
+		if (exportStates && ((current_state_count % 1) == 0)) {
+			sendTrajectory_CurrentStateToPython(stime);
 		}
 
 	} while (stime < maxsimtime && !checkresult);
@@ -728,7 +718,7 @@ void SimulationSystem::dumpCurrentStateToPython(void) {
 
 void SimulationSystem::sendTransitionStateVectorToPython(boolvector transition_states, double current_time) {
 	PyObject *mylist = PyList_New((Py_ssize_t) transition_states.size());
-	// we now have a new reference here that we'll need to DECREF.
+// we now have a new reference here that we'll need to DECREF.
 
 	if (mylist == NULL)
 		return; // TODO: Perhaps raise an exception to the Python side here that
@@ -752,17 +742,17 @@ void SimulationSystem::sendTransitionStateVectorToPython(boolvector transition_s
 	}
 
 	PyObject *transition_tuple = Py_BuildValue("dO", current_time, mylist);
-	// we now have a new reference to transition_tuple.  note that our
-	// reference to mylist has NOT been stolen by this call [it was
-	// increffed in the call itself, so we can decref now with no
-	// worries]
+// we now have a new reference to transition_tuple.  note that our
+// reference to mylist has NOT been stolen by this call [it was
+// increffed in the call itself, so we can decref now with no
+// worries]
 	Py_DECREF(mylist);
-	// we now have no references to mylist directly owned [though transition tuple has one via BuildValue]
+// we now have no references to mylist directly owned [though transition tuple has one via BuildValue]
 
 	pushTransitionInfo(system_options, transition_tuple);
-	//sim_options->sendTransitionInfo(transition_tuple);
+//sim_options->sendTransitionInfo(transition_tuple);
 
-	// transition_tuple has been decreffed by this macro, so we no longer own any references to it
+// transition_tuple has been decreffed by this macro, so we no longer own any references to it
 
 }
 
@@ -798,7 +788,7 @@ int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
 
 	simOptions->generateComplexes(alternate_start, current_seed);
 
-	// FD: Somehow, the program is scared their complex list will be pre-populated.
+// FD: Somehow, the program is scared their complex list will be pre-populated.
 	startState = NULL;
 	if (complexList != NULL)
 		delete complexList;
@@ -840,7 +830,7 @@ void SimulationSystem::InitializeRNG(void) {
 			current_seed = time(NULL);
 		}
 	}
-	// now initialize this generator using our random seed, so that we can reproduce as necessary.
+// now initialize this generator using our random seed, so that we can reproduce as necessary.
 	srand48(current_seed);
 }
 
@@ -853,21 +843,21 @@ PyObject *SimulationSystem::calculateEnergy(PyObject *start_state, int typeflag)
 	double *values = NULL;
 	PyObject *retval = NULL;
 
-	// calc based on current state, do not clean up anything.
+// calc based on current state, do not clean up anything.
 	if (start_state != Py_None) {
 		InitializeSystem(start_state);
 		complexList->initializeList();
 	}
 
 	values = complexList->getEnergy(typeflag); // NUPACK energy output : bimolecular penalty, no Volume term.
-	// number is complexList->getCount()
+// number is complexList->getCount()
 
 	retval = PyTuple_New(complexList->getCount());
-	// New Reference, we return it.
-	// The complex list is a linked list and new items are added at the head; so we need to reverse the resulting list to get the data back out.
+// New Reference, we return it.
+// The complex list is a linked list and new items are added at the head; so we need to reverse the resulting list to get the data back out.
 	for (int loop = complexList->getCount() - 1; loop >= 0; loop--)
 		PyTuple_SET_ITEM(retval, loop, PyFloat_FromDouble(values[loop]));
-	// the reference from PyFloat_FromDouble is immediately stolen by PyTuple_SET_ITEM.
+// the reference from PyFloat_FromDouble is immediately stolen by PyTuple_SET_ITEM.
 
 	delete[] values;
 

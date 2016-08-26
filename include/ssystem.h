@@ -36,7 +36,7 @@ public:
 	void printTransition(double); // printing function
 
 	PyObject *calculateEnergy(PyObject *start_state, int typeflag);
-	int getErrorFlag(void);
+	int isEnergymodelNull(void);
 
 private:
 	void StartSimulation_Standard(void);
