@@ -82,7 +82,7 @@ protected:
 	long stop_count;
 	double max_sim_time;
 	long seed;
-	stopComplexes* myStopComplexes;
+	stopComplexes* myStopComplexes = NULL;
 	bool fixedRandomSeed;
 
 };

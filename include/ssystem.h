@@ -64,6 +64,8 @@ private:
 	void countState(SComplexList*);
 	void exportTime(double simTime, double* lastExportTime);
 	void exportInterval(double simTime, int period);
+	void exportTrajState(double simTime, double* lastExportTime, int period);
+
 
 	void printAllMoves(void);
 

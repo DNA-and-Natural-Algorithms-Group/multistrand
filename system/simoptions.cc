@@ -280,7 +280,11 @@ void PSimOptions::generateComplexes(PyObject *alternate_start, long current_seed
 
 stopComplexes* PSimOptions::getStopComplexes(int) {
 
+//	if(myStopComplexes == NULL){
+
 	myStopComplexes = getStopComplexList(python_settings, 0);
+
+//	}
 
 	return myStopComplexes;
 

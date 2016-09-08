@@ -543,6 +543,20 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 
 }
 
+void SimulationSystem::exportTrajState(double stime, double* last_trajectory_time, int current_state_count) {
+
+	// trajectory output via outputtime option
+	if (exportStatesTime) {
+		exportTime(stime, last_trajectory_time);
+	}
+
+	//FD: this used to be tested after making the transition.
+	if (exportStatesInterval) {
+		exportInterval(stime, current_state_count);
+	}
+
+}
+
 void SimulationSystem::SimulationLoop_FirstStep(void) {
 	double rchoice, rate, stime = 0.0, ctime = 0.0;
 	bool stopFlag = false;
@@ -560,6 +574,9 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 	double otime_interval = simOptions->getOInterval();
 
 	long current_state_count = 0;
+
+	// time to export the initial state
+	exportTrajState(stime, &last_trajectory_time, current_state_count);
 
 	complexList->initializeList();
 
@@ -600,15 +617,18 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 		rchoice = rate * drand48();
 		stime += (log(1. / (1.0 - drand48())) / rate);
 
-		// trajectory output via outputtime option
-		if (exportStatesTime) {
-			exportTime(stime, &last_trajectory_time);
-		}
+		// time to export the state
+		exportTrajState(stime, &last_trajectory_time, current_state_count);
 
-		//FD: this used to be tested after making the transition.
-		if (exportStatesInterval) {
-			exportInterval(stime, current_state_count);
-		}
+//		// trajectory output via outputtime option
+//		if (exportStatesTime) {
+//			exportTime(stime, &last_trajectory_time);
+//		}
+//
+//		//FD: this used to be tested after making the transition.
+//		if (exportStatesInterval) {
+//			exportInterval(stime, current_state_count);
+//		}
 
 		complexList->doBasicChoice(rchoice, stime);
 		rate = complexList->getTotalFlux();
