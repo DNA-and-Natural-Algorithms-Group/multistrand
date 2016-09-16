@@ -368,6 +368,9 @@ void SimulationSystem::SimulationLoop_Trajectory() {
 		first = simOptions->getStopComplexes(0);
 	}
 
+	// write the initial state:
+	exportTrajState(stime, &last_trajectory_time, current_state_count);
+
 	do {
 		rchoice = rate * drand48();
 		stime += (log(1. / (1.0 - drand48())) / rate);
@@ -377,14 +380,17 @@ void SimulationSystem::SimulationLoop_Trajectory() {
 		// trajectory output via outputtime option
 		// we check this here so the reported state is the one present at the time
 		// listed, rather than the one /after/ that.
-		if (exportStatesTime) {
-			exportTime(stime, &last_trajectory_time);
-		}
+		exportTrajState(stime,&last_trajectory_time, current_state_count);
 
-		//FD: this used to be tested after making the transition.
-		if (exportStatesInterval) {
-			exportInterval(stime, current_state_count);
-		}
+
+//		if (exportStatesTime) {
+//			exportTime(stime, &last_trajectory_time);
+//		}
+//
+//		//FD: this used to be tested after making the transition.
+//		if (exportStatesInterval) {
+//			exportInterval(stime, current_state_count);
+//		}
 
 		complexList->doBasicChoice(rchoice, stime);
 		rate = complexList->getTotalFlux();
