@@ -624,7 +624,7 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 
 		// trajectory output via outputtime option
 		if (exportStatesTime) {
-			exportTime(stime, last_trajectory_time);
+			exportTime(stime, &last_trajectory_time);
 		}
 
 		complexList->doBasicChoice(rchoice, stime);
