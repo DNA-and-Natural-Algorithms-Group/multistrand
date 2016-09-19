@@ -369,7 +369,11 @@ void SimulationSystem::SimulationLoop_Trajectory() {
 	}
 
 	// write the initial state:
-	exportTrajState(stime, &last_trajectory_time, current_state_count);
+	if (exportStatesInterval) {
+		exportInterval(stime, current_state_count);
+	}
+
+//	exportTrajState(stime, &last_trajectory_time, current_state_count);
 
 	do {
 		rchoice = rate * drand48();
@@ -548,19 +552,19 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 
 }
 
-void SimulationSystem::exportTrajState(double stime, double* last_trajectory_time, int current_state_count) {
-
-	// trajectory output via outputtime option
-	if (exportStatesTime) {
-		exportTime(stime, last_trajectory_time);
-	}
-
-	//FD: this used to be tested after making the transition.
-	if (exportStatesInterval) {
-		exportInterval(stime, current_state_count);
-	}
-
-}
+//void SimulationSystem::exportTrajState(double stime, double* last_trajectory_time, int current_state_count) {
+//
+//	// trajectory output via outputtime option
+//	if (exportStatesTime) {
+//		exportTime(stime, last_trajectory_time);
+//	}
+//
+//	//FD: this used to be tested after making the transition.
+//	if (exportStatesInterval) {
+//		exportInterval(stime, current_state_count);
+//	}
+//
+//}
 
 void SimulationSystem::SimulationLoop_FirstStep(void) {
 	double rchoice, rate, stime = 0.0, ctime = 0.0;
@@ -580,8 +584,12 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 
 	long current_state_count = 0;
 
+	if (exportStatesInterval) {
+		exportInterval(stime, current_state_count);
+	}
+
 	// time to export the initial state
-	exportTrajState(stime, &last_trajectory_time, current_state_count);
+//	exportTrajState(stime, &last_trajectory_time, current_state_count);
 
 	complexList->initializeList();
 
