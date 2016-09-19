@@ -380,21 +380,20 @@ void SimulationSystem::SimulationLoop_Trajectory() {
 		// trajectory output via outputtime option
 		// we check this here so the reported state is the one present at the time
 		// listed, rather than the one /after/ that.
-		exportTrajState(stime,&last_trajectory_time, current_state_count);
+//		exportTrajState(stime, &last_trajectory_time, current_state_count);
 
-
-//		if (exportStatesTime) {
-//			exportTime(stime, &last_trajectory_time);
-//		}
-//
-//		//FD: this used to be tested after making the transition.
-//		if (exportStatesInterval) {
-//			exportInterval(stime, current_state_count);
-//		}
+		if (exportStatesTime) {
+			exportTime(stime, &last_trajectory_time);
+		}
 
 		complexList->doBasicChoice(rchoice, stime);
 		rate = complexList->getTotalFlux();
 		current_state_count += 1;
+
+		//FD: this used to be tested after making the transition.
+		if (exportStatesInterval) {
+			exportInterval(stime, current_state_count);
+		}
 
 		if (stopoptions) {
 			stopFlag = false;
@@ -623,22 +622,18 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 		rchoice = rate * drand48();
 		stime += (log(1. / (1.0 - drand48())) / rate);
 
-		// time to export the state
-		exportTrajState(stime, &last_trajectory_time, current_state_count);
-
-//		// trajectory output via outputtime option
-//		if (exportStatesTime) {
-//			exportTime(stime, &last_trajectory_time);
-//		}
-//
-//		//FD: this used to be tested after making the transition.
-//		if (exportStatesInterval) {
-//			exportInterval(stime, current_state_count);
-//		}
+		// trajectory output via outputtime option
+		if (exportStatesTime) {
+			exportTime(stime, last_trajectory_time);
+		}
 
 		complexList->doBasicChoice(rchoice, stime);
 		rate = complexList->getTotalFlux();
 		current_state_count++;
+
+		if (exportStatesInterval) {
+			exportInterval(stime, current_state_count);
+		}
 
 		if (stopcount > 0 && stopoptions) {
 			stopFlag = false;
@@ -652,11 +647,6 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 			if (!stopFlag && first != NULL)
 				delete first;
 		}
-
-//		//    trajectory output via outputinterval option
-//		if (exportStates && ((current_state_count % 1) == 0)) {
-//			sendTrajectory_CurrentStateToPython(stime);
-//		}
 
 	} while (stime < maxsimtime && !stopFlag);
 
