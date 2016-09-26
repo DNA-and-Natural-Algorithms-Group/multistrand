@@ -602,6 +602,7 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 // deserved.
 
 	if (rate == 0.0) { // no initial moves
+		cout << "No initial moves for this first step simulation \n";
 		simOptions->stopResultBimolecular("NoMoves", current_seed, 0.0, 0.0,
 		NULL);
 		return;
