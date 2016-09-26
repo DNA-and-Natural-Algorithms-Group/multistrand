@@ -584,9 +584,7 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 
 	long current_state_count = 0;
 
-	if (exportStatesInterval) {
-		exportInterval(stime, current_state_count);
-	}
+
 
 	// time to export the initial state
 //	exportTrajState(stime, &last_trajectory_time, current_state_count);
@@ -611,6 +609,12 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 	rchoice = rate * drand48();
 
 	complexList->doJoinChoice(rchoice);
+
+
+	if (exportStatesInterval) {
+		exportInterval(stime, current_state_count);
+	}
+
 
 // store the forward rate used for the initial step so we can record it.
 	frate = rate * energyModel->getJoinRate_NoVolumeTerm() / energyModel->getJoinRate();
