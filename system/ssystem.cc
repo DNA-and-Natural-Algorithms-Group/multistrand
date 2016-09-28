@@ -601,6 +601,7 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 
 	if (rate == 0.0) { // no initial moves
 		cout << "No initial moves for this first step simulation \n";
+		cout << flush;
 		simOptions->stopResultBimolecular("NoMoves", current_seed, 0.0, 0.0,
 		NULL);
 		return;
@@ -671,8 +672,9 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 			simOptions->stopResultBimolecular("Forward", current_seed, stime, frate, traverse->tag);
 		delete first;
 	} else {
-		dumpCurrentStateToPython();
 		cout << "Final simulation time was exceeded \n";
+		cout << flush;
+		dumpCurrentStateToPython();
 		simOptions->stopResultBimolecular("FTime", current_seed, stime, frate,
 		NULL);
 	}
