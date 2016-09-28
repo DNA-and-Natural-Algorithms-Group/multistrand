@@ -672,6 +672,7 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 		delete first;
 	} else {
 		dumpCurrentStateToPython();
+		cout << "Final simulation time was exceeded \n";
 		simOptions->stopResultBimolecular("FTime", current_seed, stime, frate,
 		NULL);
 	}
