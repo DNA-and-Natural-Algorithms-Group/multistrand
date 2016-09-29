@@ -20,6 +20,9 @@
 
 //const bool exportStates = false;
 
+int noInitialMoves = 0;
+int timeOut = 0;
+
 SimulationSystem::SimulationSystem(PyObject *system_o) {
 
 	system_options = system_o;
@@ -171,6 +174,9 @@ void SimulationSystem::StartSimulation_FirstStep(void) {
 		finalizeRun();
 
 	}
+
+	finalizeSimulation();
+
 }
 
 void SimulationSystem::StartSimulation_Standard(void) {
@@ -221,6 +227,22 @@ void SimulationSystem::finalizeRun(void) {
 	pingAttr(system_options, increment_trajectory_count);
 
 	generateNextRandom();
+}
+
+void SimulationSystem::finalizeSimulation(void) {
+
+	if (noInitialMoves > 0) {
+
+		cout << "No initial moves for this first step simulation x" << noInitialMoves;
+	}
+
+	if (timeOut > 0) {
+
+		cout << "time-out detected x" << noInitialMoves;
+
+	}
+
+	cout << flush;
 }
 
 void SimulationSystem::SimulationLoop_Standard(void) {
@@ -373,18 +395,11 @@ void SimulationSystem::SimulationLoop_Trajectory() {
 		exportInterval(stime, current_state_count);
 	}
 
-//	exportTrajState(stime, &last_trajectory_time, current_state_count);
-
 	do {
 		rchoice = rate * drand48();
 		stime += (log(1. / (1.0 - drand48())) / rate);
 		// 1.0 - drand as drand returns in the [0.0, 1.0) range, we need a (0.0,1.0] range.
 		// see notes below in First Step mode.
-
-		// trajectory output via outputtime option
-		// we check this here so the reported state is the one present at the time
-		// listed, rather than the one /after/ that.
-//		exportTrajState(stime, &last_trajectory_time, current_state_count);
 
 		if (exportStatesTime) {
 			exportTime(stime, &last_trajectory_time);
@@ -394,7 +409,6 @@ void SimulationSystem::SimulationLoop_Trajectory() {
 		rate = complexList->getTotalFlux();
 		current_state_count += 1;
 
-		//FD: this used to be tested after making the transition.
 		if (exportStatesInterval) {
 			exportInterval(stime, current_state_count);
 		}
@@ -433,7 +447,7 @@ void SimulationSystem::SimulationLoop_Trajectory() {
 void SimulationSystem::SimulationLoop_Transition(void) {
 
 	double rchoice, rate, stime, ctime;
-// Could really use some commenting on these local vars.
+
 	rchoice = rate = stime = ctime = 0.0;
 
 	double maxsimtime, otime;
@@ -584,11 +598,6 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 
 	long current_state_count = 0;
 
-
-
-	// time to export the initial state
-//	exportTrajState(stime, &last_trajectory_time, current_state_count);
-
 	complexList->initializeList();
 
 	rate = complexList->getJoinFlux();
@@ -600,8 +609,11 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 // deserved.
 
 	if (rate == 0.0) { // no initial moves
-		cout << "No initial moves for this first step simulation \n";
-		cout << flush;
+
+		noInitialMoves++;
+
+//		cout << "No initial moves for this first step simulation \n";
+//		cout << flush;
 		simOptions->stopResultBimolecular("NoMoves", current_seed, 0.0, 0.0,
 		NULL);
 		return;
@@ -611,11 +623,9 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 
 	complexList->doJoinChoice(rchoice);
 
-
 	if (exportStatesInterval) {
 		exportInterval(stime, current_state_count);
 	}
-
 
 // store the forward rate used for the initial step so we can record it.
 	frate = rate * energyModel->getJoinRate_NoVolumeTerm() / energyModel->getJoinRate();
@@ -672,8 +682,9 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 			simOptions->stopResultBimolecular("Forward", current_seed, stime, frate, traverse->tag);
 		delete first;
 	} else {
-		cout << "Final simulation time was exceeded \n";
-		cout << flush;
+		timeOut++;
+//		cout << "Final simulation time was exceeded \n";
+//		cout << flush;
 		dumpCurrentStateToPython();
 		simOptions->stopResultBimolecular("FTime", current_seed, stime, frate,
 		NULL);

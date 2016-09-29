@@ -46,7 +46,6 @@ private:
 
 	void SimulationLoop_Standard(void);
 	void SimulationLoop_FirstStep(void);
-//	void SimulationLoop_Trajectory(long ointerval, double otime);
 	void SimulationLoop_Trajectory(void);
 	void SimulationLoop_Transition(void);
 
@@ -55,6 +54,7 @@ private:
 	void InitializeRNG(void);
 	void generateNextRandom(void);
 	void finalizeRun(void);
+	void finalizeSimulation(void);
 
 	// helper function for sending current state to Python side
 	void dumpCurrentStateToPython(void);
