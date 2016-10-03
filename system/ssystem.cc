@@ -89,7 +89,7 @@ void SimulationSystem::construct(void) {
 
 void SimulationSystem::initialPrint(void) {
 
-	if (energyModel->useArrhenius() && current_seed == 777) {
+	if (energyModel->useArrhenius() && (current_seed == 777)) {
 
 		energyModel->printPrecomputedArrRates();
 
@@ -238,7 +238,7 @@ void SimulationSystem::finalizeSimulation(void) {
 
 	if (timeOut > 0) {
 
-		cout << "time-out detected x" << noInitialMoves << "\n";
+		cout << "time-out detected x" << timeOut << "\n";
 
 	}
 
