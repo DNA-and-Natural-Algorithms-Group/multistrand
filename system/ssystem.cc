@@ -89,7 +89,7 @@ void SimulationSystem::construct(void) {
 
 void SimulationSystem::initialPrint(void) {
 
-	if (energyModel->useArrhenius()) {
+	if (energyModel->useArrhenius() && current_seed == 777) {
 
 		energyModel->printPrecomputedArrRates();
 
@@ -233,12 +233,12 @@ void SimulationSystem::finalizeSimulation(void) {
 
 	if (noInitialMoves > 0) {
 
-		cout << "No initial moves for this first step simulation x" << noInitialMoves;
+		cout << "No initial moves for this first step simulation x" << noInitialMoves << "\n";
 	}
 
 	if (timeOut > 0) {
 
-		cout << "time-out detected x" << noInitialMoves;
+		cout << "time-out detected x" << noInitialMoves << "\n";
 
 	}
 
@@ -246,9 +246,8 @@ void SimulationSystem::finalizeSimulation(void) {
 }
 
 void SimulationSystem::SimulationLoop_Standard(void) {
-	double rchoice, rate, stime, ctime;
 
-// Could really use some commenting on these local vars.
+	double rchoice, rate, stime, ctime;
 	rchoice = rate = stime = ctime = 0.0;
 
 	int curcount = 0;
@@ -612,8 +611,6 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 
 		noInitialMoves++;
 
-//		cout << "No initial moves for this first step simulation \n";
-//		cout << flush;
 		simOptions->stopResultBimolecular("NoMoves", current_seed, 0.0, 0.0,
 		NULL);
 		return;

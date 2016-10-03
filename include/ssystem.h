@@ -66,7 +66,6 @@ private:
 	void exportInterval(double simTime, int period);
 	void exportTrajState(double simTime, double* lastExportTime, int period);
 
-
 	void printAllMoves(void);
 
 	EnergyModel *energyModel;
@@ -83,7 +82,7 @@ private:
 	long simulation_count_remaining;
 
 	//bool triggers for output
-	bool exportStatesTime= false;
+	bool exportStatesTime = false;
 	bool exportStatesInterval = false;
 
 	// some results objects

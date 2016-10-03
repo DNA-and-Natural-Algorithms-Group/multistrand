@@ -77,13 +77,17 @@ double EnergyOptions::getBiScale(void) {
 
 double EnergyOptions::getUniScale(void) {
 
-	return uniScale;
+	if (useArrRates) {
+		return 1.0;
+	} else {
+		return uniScale;
+	}
 
 }
 
 string EnergyOptions::toString(void) {
 
-	// not sure if these are long
+// not sure if these are long
 	long substrate_type = NULL;
 
 	std::stringstream ss;
@@ -161,9 +165,7 @@ PEnergyOptions::PEnergyOptions(PyObject* input) :
 
 	getBoolAttr(python_settings, useArrRates, &useArrRates);
 
-
 //	cout << "Post: useArrRates=" << useArrRates << "\n";
-
 
 	if (useArrRates) {
 
@@ -219,7 +221,6 @@ PEnergyOptions::PEnergyOptions(PyObject* input) :
 		getDoubleAttr(python_settings, dSG, &dSG);
 
 		getDoubleAttr(python_settings, alpha, &alpha);
-
 
 		// also loading four constants for entropy of nucleotide chain
 

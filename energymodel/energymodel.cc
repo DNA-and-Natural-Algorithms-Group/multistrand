@@ -28,7 +28,7 @@ bool EnergyModel::useArrhenius(void) {
 
 double expRate(double A, double E, double temperature) {
 
-	return A * exp(E / (gasConstant * temperature));
+	return exp(A) * exp(-E / (gasConstant * temperature));
 
 }
 
@@ -98,7 +98,7 @@ void EnergyModel::printPrecomputedArrRates(void) {
 
 	for (int i = 0; i < MOVETYPE_SIZE; i++) {
 
-		cout << arrheniusRates[i] << "  ";
+		cout << arrheniusRates[MOVETYPE_SIZE*i + i] << "  ";
 
 	}
 
