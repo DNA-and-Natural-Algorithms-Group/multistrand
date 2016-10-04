@@ -7,6 +7,11 @@
 #include "simoptions.h"
 #include "loop.h"
 
+#include <iostream>
+#include <fstream>
+
+bool printedRates = false;
+
 EnergyModel::EnergyModel(PyObject *options) {
 	// nothing yet
 }
@@ -67,50 +72,66 @@ void EnergyModel::printPrecomputedArrRates(void) {
 
 	// print some initial info on the Arrhenius model
 
-	cout << "type      ";
+	std::stringstream ss;
+
+	ss << "type      ";
 
 	for (int i = 0; i < MOVETYPE_SIZE; i++) {
 
-		cout << EnergyOptions::MoveToString[i];
-		cout << EnergyOptions::MoveToString2[i] << " ";
+		ss << EnergyOptions::MoveToString[i];
+		ss << EnergyOptions::MoveToString2[i] << " ";
 
 	}
 
-	cout << setprecision(3);
+	ss << setprecision(3);
 
-	cout << "\nA         ";
+	ss << "\nA         ";
 
 	for (int i = 0; i < MOVETYPE_SIZE; i++) {
 
-		cout << simOptions->energyOptions->AValues[i] << "      ";
+		ss << simOptions->energyOptions->AValues[i] << "      ";
 
 	}
 
-	cout << "\nE         ";
+	ss << "\nE         ";
 
 	for (int i = 0; i < MOVETYPE_SIZE; i++) {
 
-		cout << simOptions->energyOptions->EValues[i] << "      ";
+		ss << simOptions->energyOptions->EValues[i] << "      ";
 
 	}
 
-	cout << "\nR         ";
+	ss << "\nR         ";
 
 	for (int i = 0; i < MOVETYPE_SIZE; i++) {
 
-		cout << arrheniusRates[MOVETYPE_SIZE*i + i] << "  ";
+		ss << arrheniusRates[MOVETYPE_SIZE * i + i] << "  ";
 
 	}
 
-	cout << " \n \n";
-	cout << "    dS_A     dS_T     dS_C     dS_G      alpha		\n";
-	cout << "    " << simOptions->energyOptions->dSA;
-	cout << "     " << simOptions->energyOptions->dST;
-	cout << "     " << simOptions->energyOptions->dSC;
-	cout << "     " << simOptions->energyOptions->dSG;
-	cout << "     " << simOptions->energyOptions->alpha;
+	ss << " \n \n";
+	ss << "    dS_A     dS_T     dS_C     dS_G      alpha		\n";
+	ss << "    " << simOptions->energyOptions->dSA;
+	ss << "     " << simOptions->energyOptions->dST;
+	ss << "     " << simOptions->energyOptions->dSC;
+	ss << "     " << simOptions->energyOptions->dSG;
+	ss << "     " << simOptions->energyOptions->alpha;
 
-	cout << "\n \n";
+	ss << "\n";
+
+	if (!printedRates) {
+
+		ofstream myfile;
+		myfile.open("computedRates.txt");
+
+		myfile << ss.str();
+
+		myfile.close();
+
+		printedRates = true;
+
+//	cout << ss.str();
+	}
 
 }
 

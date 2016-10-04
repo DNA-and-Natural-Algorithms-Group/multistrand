@@ -476,7 +476,7 @@ NupackEnergyModel::NupackEnergyModel(PyObject* energy_options) :
 
 		computeArrheniusRates(current_temp);
 //		if(simOptions->current_seed)
-//		printPrecomputedArrRates();
+		printPrecomputedArrRates();
 
 //		utility::printDoubleMatrix(arrheniusRates, MOVETYPE_SIZE, MOVETYPE_SIZE, 2);
 
