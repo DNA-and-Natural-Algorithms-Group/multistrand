@@ -219,7 +219,6 @@ void SimulationSystem::StartSimulation_Trajectory(void) {
 			return;
 
 		SimulationLoop_Trajectory();
-
 		finalizeRun();
 
 	}
@@ -369,7 +368,7 @@ void SimulationSystem::countState(SComplexList* complexList) {
 
 }
 
-//void SimulationSystem::SimulationLoop_Trajectory(long output_count_interval, double output_time_interval) {
+
 void SimulationSystem::SimulationLoop_Trajectory() {
 
 	double rchoice, rate, stime, last_trajectory_time;
@@ -576,19 +575,6 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 
 }
 
-//void SimulationSystem::exportTrajState(double stime, double* last_trajectory_time, int current_state_count) {
-//
-//	// trajectory output via outputtime option
-//	if (exportStatesTime) {
-//		exportTime(stime, last_trajectory_time);
-//	}
-//
-//	//FD: this used to be tested after making the transition.
-//	if (exportStatesInterval) {
-//		exportInterval(stime, current_state_count);
-//	}
-//
-//}
 
 void SimulationSystem::SimulationLoop_FirstStep(void) {
 	double rchoice, rate, stime = 0.0, ctime = 0.0;
@@ -691,8 +677,6 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 		delete first;
 	} else {
 		timeOut++;
-//		cout << "Final simulation time was exceeded \n";
-//		cout << flush;
 		dumpCurrentStateToPython();
 		simOptions->stopResultBimolecular("FTime", current_seed, stime, frate,
 		NULL);
@@ -705,7 +689,6 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 // 													  //
 // Helper function to send current state to python side. //
 ///////////////////////////////////////////////////////////
-// FD: keeping this around for now
 void SimulationSystem::dumpCurrentStateToPython(void) {
 	int id;
 	char *names, *sequence, *structure;
@@ -791,14 +774,14 @@ void SimulationSystem::sendTrajectory_CurrentStateToPython(double current_time) 
 
 }
 
-// FD: OK to feed in alternate_start = NULL
+// FD: OK to have alternate_start = NULL
 int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
 	class StrandComplex *tempcomplex;
 	class identList *id;
 
 	simOptions->generateComplexes(alternate_start, current_seed);
 
-// FD: Somehow, the program is scared their complex list will be pre-populated.
+// FD: Somehow, check if complex list is pre-populated.
 	startState = NULL;
 	if (complexList != NULL)
 		delete complexList;
@@ -930,42 +913,6 @@ void SimulationSystem::InitialInfo(void) {
 		Loop::setPrimeRates(false);
 
 	}
-
-//cout << "Printing starting structure ";
-//startState->
-
-//	printTransition(0.1);
-//	printTransition(1);
-//	printTransition(10);
-//	printTransition(100);
-//	printTransition(1000);
-//	printTransition(10000);
-//	printTransition(100000);
-//	printTransition(1000000);
-//	printTransition(10000000);
-//	printTransition(10000000);
-//	printTransition(20000000);
-//	printTransition(30000000);
-//	printTransition(40000000);
-//	printTransition(50000000);
-//	printTransition(60000000);
-//	printTransition(70000000);
-
-//	cout << "Moving to a new state";
-//
-//	double nextStepRate = 715942327.61 - 22519432 - 373574;
-//	Move* selectedMove = startState->getChoice(&nextStepRate);
-//
-//	cout << "Applying move " << selectedMove->toString();
-//
-//	startState->doChoice(selectedMove);
-//
-//	cout << "Printing complex list";
-//	complexList->printComplexList(2);
-
-//	cout << "Printing all moves \n";
-
-//	cout << "Exiting InitialInfo()" << " \n";
 
 }
 

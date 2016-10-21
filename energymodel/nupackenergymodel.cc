@@ -1,6 +1,7 @@
 /*
- Copyright (c) 2007-2010 Caltech. All rights reserved.
+ Copyright (c) 2007-2016 Caltech. All rights reserved.
  Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
+ 	 	   Frits Dannenberg (fdann@caltech.edu)
  */
 
 #include <string.h>
@@ -51,7 +52,7 @@ double NupackEnergyModel::returnRate(double start_energy, double end_energy, int
 	} else if (kinetic_rate_method == RATE_METHOD_METROPOLIS) {
 		// Metropolis
 		if (dE < 0) {
-			return uniscale * 1;
+			return uniscale * 1.0;
 		} else {
 			return uniscale * exp(-dE / _RT);
 		}
@@ -80,150 +81,9 @@ double NupackEnergyModel::getAssocEnergy(void) {
 void NupackEnergyModel::eStackEnergy(int type1, int type2, energyS *energy) {
 	energy->dH = stack_37_dH[type1][basepair_sw[type2]];
 	energy->nTdS = stack_37_dG[type1][basepair_sw[type2]] - energy->dH;
-	//  return stack_37_dG[type1][basepair_sw[type2]];
+
 }
 
-/* change these to ent/enth versions.
- int NupackEnergyModel::BulgeEnergy( int type1, int type2, int bulgesize )
- {
- int energy = 0;
- if( bulgesize <= 30 )
- energy = bulge_37_dG[bulgesize];
- else
- energy = bulge_37_dG[30] + (int) (log((double)bulgesize / 30.0) * log_loop_penalty);
-
- if( bulgesize == 1) // add stacking term for single-base bulges.
- energy += stack_37_dG[type1][basepair_sw[type2]];
- else // AU penalty doesn't apply if they stack.
- {
- if( ptype == VIENNA )
- {
- if( type1 > 2 ) // AU penalty applies
- energy += terminal_AU;
- if( type2 > 2 ) // AU penalty applies
- energy += terminal_AU;
- }
- }
-
- return energy;
- }
-
- int NupackEnergyModel::InteriorEnergy( int type1, int type2, int size1, int size2, char mismatch[4] )
- {
- double energy,ninio;
- //  for( int loop = 0; loop < 4 ; loop++ )
- //  mismatch[loop] = baseLookup(mismatch[loop]);
-
- // special case time. 1x1, 2x1 and 2x2's all get special cases.
- if( size1 == 1 && size2 == 1)
- return internal_1_1_37_dG[type1][basepair_sw[type2]][mismatch[0]][mismatch[1]];
- if( size1 <= 2 && size2 <= 2)
- if( size1 == 1 || size2 == 1)
- {
- if( size1 == 1)
- return internal_2_1_37_dG[type1][basepair_sw[type2]][mismatch[0]][mismatch[3]][mismatch[1]];
- else
- {
- if( ptype == MFOLD)
- return internal_2_1_37_dG[basepair_sw_mfold_actual[type2]][basepair_sw_mfold_actual[type1]][mismatch[3]][mismatch[0]][mismatch[2]];
- else
- return internal_2_1_37_dG[basepair_sw[type2]][type1][mismatch[3]][mismatch[0]][mismatch[2]];
- }
- }
- if( size1 == 2 && size2 == 2)
- return internal_2_2_37_dG[type1][basepair_sw[type2]][mismatch[0]][mismatch[2]][mismatch[3]][mismatch[1]];
-
-
- // Generic case.
-
- if( size1 + size2 <= 30 )
- energy = internal_37_dG[ size1 + size2 ];
- else
- energy = internal_37_dG[30] + (int) (log((double)(size1+size2) / 30.0) * log_loop_penalty);
-
- // NINIO term... no idea why this is used.
- ninio = abs(size2 - size1) * ninio_correction_37[2]; // don't ask me why, this is according to the Vienna energy model and this term is in it.
-
- if( maximum_NINIO < ninio )
- energy += maximum_NINIO;
- else
- energy += ninio;
-
- energy += internal_mismatch_37_dG[type1][mismatch[0]][mismatch[1]] +
- internal_mismatch_37_dG[basepair_sw[type2]][mismatch[3]][mismatch[2]];
-
- return energy;
-
- }
-
- int NupackEnergyModel::HairpinEnergy( int type1, int size, char *special )
- {
- double energy;
- char cmpstring[7] = {0,0,0,0,0,0,0};
- char *temp;
- if( size <= 30 )
- energy = hairpin_37_dG[size];
- else
- energy = hairpin_37_dG[30] + (log((double)size / 30.0) * log_loop_penalty / 100.0);
-
- if( size == 3 ) // triloop bonuses
- {
- strncpy( cmpstring, special, size+2 );
- temp = strstr( hairpin_triloops  ,cmpstring);
- if( temp != NULL )
- energy += hairpin_triloop_37_dG[(temp - hairpin_triloops ) / 6];
- if( ptype == VIENNA && type1 > 2) // pairs which qualify for the AT penalty
- energy += terminal_AU;
- else if( ptype == MFOLD && ((type1 > 3) || (type1 == 1)))
- energy += terminal_AU;
-
- }
- if( size == 4)
- {
- strncpy( cmpstring, special, size+2 );
- temp = strstr( hairpin_tetraloops  ,cmpstring);
- if( temp != NULL )
- energy += hairpin_tetraloop_37_dG[(temp - hairpin_tetraloops ) / 7];
- }
- if( size >= 4 )
- energy += hairpin_mismatch_37_dG[type1][special[1]][special[size]];
-
- return energy;
- }
-
- int NupackEnergyModel::MultiloopEnergy( int size, int *pairtypes, int *sidelen, char **sequences)
- {
- // no dangle terms yet, this is equiv to dangles = 0;
- int totallength=0,energy=0;
- for( int loop = 0; loop < size; loop++)
- {
- totallength += sidelen[loop];
- if( pairtypes[loop] > 2)
- energy += terminal_AU;
- }
- energy += size * multiloop_internal;
- energy += multiloop_closing;
- if( totallength <= 6 )
- energy += multiloop_base * totallength;
- else
- energy += multiloop_base * 6 + (int) (log((double)totallength / 6.0) * log_loop_penalty);
-
- return energy;
- }
-
-
- int NupackEnergyModel::OpenloopEnergy( int size, int *pairtypes, int *sidelen, char **sequences)
- {
- // no dangle terms yet, this is equiv to dangles = 0;
- int energy=0;
- for( int loop = 0; loop < size; loop++)
- {
- if( pairtypes[loop] > 2)
- energy += terminal_AU;
- }
- return energy;
- }
- */
 
 // non entropy/enthalpy energy functions
 double NupackEnergyModel::StackEnergy(int i, int j, int p, int q) {
@@ -475,10 +335,8 @@ NupackEnergyModel::NupackEnergyModel(PyObject* energy_options) :
 	if (simOptions->energyOptions->usingArrhenius()) {
 
 		computeArrheniusRates(current_temp);
-//		if(simOptions->current_seed)
 		printPrecomputedArrRates();
 
-//		utility::printDoubleMatrix(arrheniusRates, MOVETYPE_SIZE, MOVETYPE_SIZE, 2);
 
 	}
 
@@ -526,11 +384,9 @@ void NupackEnergyModel::processOptions() {
 		for (loop2 = 0; loop2 < NUM_BASES; loop2++)
 			pairtypes[loop][loop2] = pairtypes_mfold[loop][loop2];
 
-//	if (testLongAttr(energy_options, substrate_type, =, SUBSTRATE_INVALID)) {
 	if (myEnergyOptions->compareSubstrateType(SUBSTRATE_INVALID)) {
 		PyObject *tmpStr = NULL;
-//		char *tmp = (char *) getStringAttr(energy_options, parameter_file,
-//				tmpStr);
+
 
 		char* tmp = NULL;
 		myEnergyOptions->getParameterFile(tmp, tmpStr);

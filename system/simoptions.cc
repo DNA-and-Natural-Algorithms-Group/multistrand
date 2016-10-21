@@ -101,8 +101,6 @@ string SimOptions::toString() {
 	for (int i = 0; i < myComplexes->size(); i++) {
 
 		ss << "{ " << myComplexes->at(i).sequence << ", " << myComplexes->at(i).structure << " }";
-		// something wrong with tostring of python IDs
-		//ss << myComplexes->at(i).list->toString() << " }";
 
 	}
 
@@ -280,11 +278,7 @@ void PSimOptions::generateComplexes(PyObject *alternate_start, long current_seed
 
 stopComplexes* PSimOptions::getStopComplexes(int) {
 
-//	if(myStopComplexes == NULL){
-
 	myStopComplexes = getStopComplexList(python_settings, 0);
-
-//	}
 
 	return myStopComplexes;
 

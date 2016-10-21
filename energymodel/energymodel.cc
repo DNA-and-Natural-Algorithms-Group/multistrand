@@ -130,7 +130,7 @@ void EnergyModel::printPrecomputedArrRates(void) {
 
 		printedRates = true;
 
-//	cout << ss.str();
+
 	}
 
 }

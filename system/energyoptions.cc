@@ -161,11 +161,7 @@ PEnergyOptions::PEnergyOptions(PyObject* input) :
 // not sure if these are for both models or not;
 	getDoubleAttr(python_settings, join_concentration, &joinConcentration);
 
-//	cout << "Pre: useArrRates=" << useArrRates << "\n";
-
 	getBoolAttr(python_settings, useArrRates, &useArrRates);
-
-//	cout << "Post: useArrRates=" << useArrRates << "\n";
 
 	if (useArrRates) {
 

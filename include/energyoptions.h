@@ -44,25 +44,7 @@ public:
 	virtual bool compareSubstrateType(long) =0;
 	virtual void getParameterFile(char*, PyObject*) = 0;
 
-	// unprotected Arrhenius variables because we trust the user.
-//	double AStack = 6.10;
-//	double ALoop = 16.58;
-//	double AEnd = 31.49;
-//	double AStackLoop = 10.83;
-//	double AStackEnd = 15.34;
-//	double ALoopEnd = 8.55;
-//	double AStackStack = 4.91;
-//
-//	double EStack = 0.75;
-//	double ELoop = 5.84;
-//	double EEnd = 12.38;
-//	double EStackLoop = 3.83;
-//	double EStackEnd = -0.43;
-//	double ELoopEnd = 3.80;
-//	double EStackStack = 6.57;
-
-
-
+	// unprotected Arrhenius variables
 	double AStack = -0.1;
 	double ALoop = -0.1;
 	double AEnd = -0.1;
@@ -97,18 +79,18 @@ public:
 
 protected:
 
-	double temperature; // = 0NULL;
-	long dangles; // = NULL;
-	long logml; // = NULL;
-	bool gtenable; // = NULL;
-	long kinetic_rate_method; // = NULL;
-	double joinConcentration; // = NULL;
+	double temperature;
+	long dangles;
+	long logml;
+	bool gtenable;
+	long kinetic_rate_method;
+	double joinConcentration;
 
-	double biScale; // = NULL;
-	double uniScale; // = NULL;
+	double biScale;
+	double uniScale;
 
 	// not sure if these are long
-	long substrate_type; // = NULL;
+	long substrate_type;
 
 	// Hard coding some default Arrhenius constants (for now)
 	bool useArrRates = false;
