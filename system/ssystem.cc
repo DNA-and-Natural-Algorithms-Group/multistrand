@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2007-2010 Caltech. All rights reserved.
+h Copyright (c) 2007-2010 Caltech. All rights reserved.
  Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
  */
 
@@ -154,6 +154,12 @@ void SimulationSystem::StartSimulation(void) {
 	} else
 		StartSimulation_Standard();
 
+
+
+	finalizeSimulation();
+
+
+
 #ifdef PROFILING
 	ProfilerStop();
 	if (hflag)
@@ -162,6 +168,9 @@ void SimulationSystem::StartSimulation(void) {
 		HeapProfilerStop();
 	}
 #endif
+
+
+
 }
 
 void SimulationSystem::StartSimulation_FirstStep(void) {
@@ -175,7 +184,6 @@ void SimulationSystem::StartSimulation_FirstStep(void) {
 
 	}
 
-	finalizeSimulation();
 
 }
 
@@ -188,10 +196,6 @@ void SimulationSystem::StartSimulation_Standard(void) {
 		SimulationLoop_Standard();
 		finalizeRun();
 
-	}
-
-	if (SimOptions::countStates) {
-		cout << "Explored " << countMap.size() << " states. \n";
 	}
 
 }
@@ -239,6 +243,13 @@ void SimulationSystem::finalizeSimulation(void) {
 	if (timeOut > 0) {
 
 		cout << "time-out detected x" << timeOut << "\n";
+
+	}
+
+	// display size of statespace if used
+	if (SimOptions::countStates) {
+
+		cout << "Explored " << countMap.size() << " states. \n";
 
 	}
 
