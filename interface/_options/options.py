@@ -1015,8 +1015,17 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         self.trajectory_state_count += 1
         self.full_trajectory.append(self.trajectory_complexes)
         self.full_trajectory_times.append(self.trajectory_current_time)
-        self.full_trajectory_transition.append([rate, local])
+#         self.full_trajectory_transition.append([rate, local])
         self.trajectory_complexes = []
+        
+        
+    @property
+    def add_trajectory_local(self):
+        return None
+
+    @add_trajectory_local.setter
+    def add_trajectory_local(self, val):
+        self.full_trajectory_transition.append(val)
 #         if self.trajectory_state_count % 10 == 0:
 #             print "Count: {0} Time: {1}".format(self.trajectory_state_count, self.trajectory_current_time)
 

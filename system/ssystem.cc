@@ -771,6 +771,8 @@ void SimulationSystem::sendTrajectory_CurrentStateToPython(double current_time) 
 	}
 
 	pushTrajectoryInfo(system_options, current_time);
+	pushTrajectoryInfo2(system_options, 88.0);
+
 
 }
 
