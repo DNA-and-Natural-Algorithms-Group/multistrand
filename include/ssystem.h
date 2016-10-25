@@ -58,12 +58,12 @@ private:
 
 	// helper function for sending current state to Python side
 	void dumpCurrentStateToPython(void);
-	void sendTrajectory_CurrentStateToPython(double current_time);
+	void sendTrajectory_CurrentStateToPython(double current_time, int arrType = 77);
 	void sendTransitionStateVectorToPython(boolvector transition_states, double current_time);
 
 	void countState(SComplexList*);
 	void exportTime(double simTime, double* lastExportTime);
-	void exportInterval(double simTime, int period);
+	void exportInterval(double simTime, int period, int arrType = 88);
 	void exportTrajState(double simTime, double* lastExportTime, int period);
 
 	void printAllMoves(void);

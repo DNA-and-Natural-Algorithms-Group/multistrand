@@ -298,7 +298,7 @@ int SComplexList::getCount(void) {
  SComplexListEntry *SComplexList::doBasicChoice( double choice, double newtime )
  */
 
-SComplexListEntry *SComplexList::doBasicChoice(double choice, double newtime) {
+int SComplexList::doBasicChoice(double choice, double newtime) {
 	double rchoice = choice, moverate;
 	int type;
 	SComplexListEntry *temp, *temp2 = first;
@@ -308,7 +308,8 @@ SComplexListEntry *SComplexList::doBasicChoice(double choice, double newtime) {
 
 	if (rchoice < joinRate) {
 		doJoinChoice(rchoice);
-		return NULL;
+//		return NULL;
+		return 8888;
 	} else {
 		rchoice -= joinRate;
 	}
@@ -338,11 +339,13 @@ SComplexListEntry *SComplexList::doBasicChoice(double choice, double newtime) {
 		temp->fillData(dnaEnergyModel);
 		temp2->fillData(dnaEnergyModel);
 
-		return NULL;
+//		return NULL;
+		return 7777;
 	}
 
 	temp2->fillData(dnaEnergyModel);
-	return temp2;
+//	return temp2;
+	return 6666;
 
 }
 

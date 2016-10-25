@@ -1,5 +1,5 @@
 /*
-h Copyright (c) 2007-2010 Caltech. All rights reserved.
+ h Copyright (c) 2007-2010 Caltech. All rights reserved.
  Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
  */
 
@@ -154,11 +154,7 @@ void SimulationSystem::StartSimulation(void) {
 	} else
 		StartSimulation_Standard();
 
-
-
 	finalizeSimulation();
-
-
 
 #ifdef PROFILING
 	ProfilerStop();
@@ -168,8 +164,6 @@ void SimulationSystem::StartSimulation(void) {
 		HeapProfilerStop();
 	}
 #endif
-
-
 
 }
 
@@ -183,7 +177,6 @@ void SimulationSystem::StartSimulation_FirstStep(void) {
 		finalizeRun();
 
 	}
-
 
 }
 
@@ -368,11 +361,12 @@ void SimulationSystem::countState(SComplexList* complexList) {
 
 }
 
-
 void SimulationSystem::SimulationLoop_Trajectory() {
 
 	double rchoice, rate, stime, last_trajectory_time;
 	rchoice = rate = 0.0;
+
+	int localContext= 0;
 
 	double maxsimtime = simOptions->getMaxSimTime();
 	long stopcount = simOptions->getStopCount();
@@ -401,7 +395,7 @@ void SimulationSystem::SimulationLoop_Trajectory() {
 
 	// write the initial state:
 	if (exportStatesInterval) {
-		exportInterval(stime, current_state_count);
+		exportInterval(stime, current_state_count, 9999);
 	}
 
 	do {
@@ -414,12 +408,12 @@ void SimulationSystem::SimulationLoop_Trajectory() {
 			exportTime(stime, &last_trajectory_time);
 		}
 
-		complexList->doBasicChoice(rchoice, stime);
+		localContext = complexList->doBasicChoice(rchoice, stime);
 		rate = complexList->getTotalFlux();
 		current_state_count += 1;
 
 		if (exportStatesInterval) {
-			exportInterval(stime, current_state_count);
+			exportInterval(stime, current_state_count, localContext);
 		}
 
 		if (stopoptions) {
@@ -574,7 +568,6 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 	}
 
 }
-
 
 void SimulationSystem::SimulationLoop_FirstStep(void) {
 	double rchoice, rate, stime = 0.0, ctime = 0.0;
@@ -755,7 +748,7 @@ void SimulationSystem::sendTransitionStateVectorToPython(boolvector transition_s
 // Helper function to send current state to python side. //
 ///////////////////////////////////////////////////////////
 
-void SimulationSystem::sendTrajectory_CurrentStateToPython(double current_time) {
+void SimulationSystem::sendTrajectory_CurrentStateToPython(double current_time, int arrType) {
 	int id;
 	char *names, *sequence, *structure;
 	double energy;
@@ -771,8 +764,7 @@ void SimulationSystem::sendTrajectory_CurrentStateToPython(double current_time) 
 	}
 
 	pushTrajectoryInfo(system_options, current_time);
-	pushTrajectoryInfo2(system_options, 88.0);
-
+	pushTrajectoryInfo2(system_options, arrType);
 
 }
 
@@ -879,10 +871,10 @@ void SimulationSystem::exportTime(double simTime, double* lastExportTime) {
 
 }
 
-void SimulationSystem::exportInterval(double simTime, int transitionCount) {
+void SimulationSystem::exportInterval(double simTime, int transitionCount, int arrType) {
 
 	if ((transitionCount % simOptions->getOInterval()) == 0) {
-		sendTrajectory_CurrentStateToPython(simTime);
+		sendTrajectory_CurrentStateToPython(simTime, arrType);
 	}
 
 }
