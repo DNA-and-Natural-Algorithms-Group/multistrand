@@ -300,7 +300,7 @@ int SComplexList::getCount(void) {
 
 int SComplexList::doBasicChoice(double choice, double newtime) {
 	double rchoice = choice, moverate;
-	int type;
+	int type, arrType;
 	SComplexListEntry *temp, *temp2 = first;
 	StrandComplex *pickedComplex = NULL, *newComplex = NULL;
 	Move *tempmove;
@@ -333,6 +333,7 @@ int SComplexList::doBasicChoice(double choice, double newtime) {
 	tempmove = pickedComplex->getChoice(&rchoice);
 	moverate = tempmove->getRate();
 	type = tempmove->getType();
+	arrType = tempmove->getArrType();
 	newComplex = pickedComplex->doChoice(tempmove);
 	if (newComplex != NULL) {
 		temp = addComplex(newComplex);
@@ -340,12 +341,12 @@ int SComplexList::doBasicChoice(double choice, double newtime) {
 		temp2->fillData(dnaEnergyModel);
 
 //		return NULL;
-		return 7777;
+		return arrType;
 	}
 
 	temp2->fillData(dnaEnergyModel);
 //	return temp2;
-	return 6666;
+	return arrType;
 
 }
 

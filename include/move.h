@@ -38,6 +38,7 @@ public:
 	~Move(void);
 	double getRate(void);
 	int getType(void);
+	int getArrType(void);
 	Loop *getAffected(int index);
 	Loop *doChoice(void);
 	string toString(bool);
@@ -52,6 +53,7 @@ public:
 	friend class StrandComplex;
 protected:
 	int type;
+	int arrType = 3333;
 	double rate;
 	int index[4];
 	Loop* affected[2];
