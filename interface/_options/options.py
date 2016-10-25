@@ -76,6 +76,7 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         """
         self.full_trajectory = []
         self.full_trajectory_times = []
+        self.full_trajectory_transition = []
         self.trajectory_complexes = []
         self.trajectory_state_count = 0
         self._current_end_state = []
@@ -1009,11 +1010,12 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         return None
 
     @add_trajectory_current_time.setter
-    def add_trajectory_current_time(self, val):
+    def add_trajectory_current_time(self, val, rate=1.0, local="local-options-options"):
         self.trajectory_current_time = val
         self.trajectory_state_count += 1
         self.full_trajectory.append(self.trajectory_complexes)
         self.full_trajectory_times.append(self.trajectory_current_time)
+        self.full_trajectory_transition.append([rate, local])
         self.trajectory_complexes = []
 #         if self.trajectory_state_count % 10 == 0:
 #             print "Count: {0} Time: {1}".format(self.trajectory_state_count, self.trajectory_current_time)
