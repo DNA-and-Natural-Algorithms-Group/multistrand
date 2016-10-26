@@ -3239,7 +3239,7 @@ void HairpinLoop::generateMoves(void) {
 						// stack and hairpin, so this is openLoop and stack
 						if (energyModel->useArrhenius()) {
 
-							tempRate = energyModel->applyPrefactors(loopMove, stackMove);
+							tempRate = energyModel->applyPrefactors(tempRate, loopMove, stackMove);
 
 						}
 
@@ -4054,7 +4054,7 @@ void InteriorLoop::generateMoves(void) {
 				// interior loop is closing, so this could be anything.
 				if (energyModel->useArrhenius()) {
 
-					tempRate = energyModel->applyPrefactors(left, right);
+					tempRate = energyModel->applyPrefactors(tempRate, left, right);
 
 				}
 
@@ -5196,7 +5196,7 @@ void OpenLoop::generateMoves(void) {
 					if (energyModel->useArrhenius()) {
 
 						right = energyModel->prefactorOpen(loop3, numAdjacent + 2, sideLengths);
-						tempRate = energyModel->applyPrefactors(loopMove, right);
+						tempRate = energyModel->applyPrefactors(tempRate, loopMove, right);
 
 					}
 
@@ -5281,7 +5281,7 @@ void OpenLoop::generateMoves(void) {
 
 //						cout << "RightMOVE=" << moveTypeString[rightMove] << "\n";
 
-						tempRate = energyModel->applyPrefactors(left, right);
+						tempRate = energyModel->applyPrefactors(tempRate, left, right);
 
 					}
 
@@ -5362,7 +5362,7 @@ void OpenLoop::generateMoves(void) {
 //							utility::printIntegers(sideLengths, numAdjacent - (loop4 - loop3) + 2);
 
 							right = energyModel->prefactorOpen(loop3, numAdjacent - (loop4 - loop3) + 2, sideLengths);
-							tempRate = energyModel->applyPrefactors(left, right);
+							tempRate = energyModel->applyPrefactors(tempRate, left, right);
 
 //							cout << "moveRate=" << moveTypeString[rightMove]  << "\n" ;
 
