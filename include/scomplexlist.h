@@ -30,8 +30,8 @@ public:
 	double *getEnergy(int volume_flag);
 	void printComplexList(int printoptions);
 	SComplexListEntry *getFirst(void);
-	int doBasicChoice(double choice, double newtime);
 	void doJoinChoice(double choice);
+	int doBasicChoice(double choice, double newtime);
 	bool checkStopComplexList(class complexItem *stoplist);
 	string toString(void);
 

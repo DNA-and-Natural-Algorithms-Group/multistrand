@@ -8,7 +8,7 @@
 #include "loop.h"
 #include <typeinfo>
 
-#include "utility.h"
+#include <utility.h>
 #include <simoptions.h>
 #include <energyoptions.h>
 
@@ -54,6 +54,8 @@ void Loop::cleanupAdjacent(void) {
 	}
 	curAdjacent = 0;
 }
+
+int ARRTYPE = 7676;
 
 double Loop::returnEnergies(Loop *comefrom) {
 	double total;
@@ -286,8 +288,6 @@ string Loop::toString(void) {
 
 	ss << "\n** " << identityToString(identity);
 
-//	ss << ", rate= " << std::setprecision(3) << totalRate << "\n";
-
 	ss << " adjacent ";
 
 	for (int i = 0; i < numAdjacent; i++) {
@@ -320,8 +320,6 @@ void Loop::printAllMoves(Loop* from) {
 
 	std::cout << toString();
 
-//	cout << "printing all moves, usePrimeRates is " << energyModel->simOptions->usePrimeRates << "\n";
-
 	moves->printAllMoves(energyModel->simOptions->usePrimeRates);
 
 	for (int i = 0; i < numAdjacent; i++) {
@@ -338,14 +336,14 @@ void Loop::printAllMoves(Loop* from) {
 
 void Loop::generateAndSaveDeleteMove(Loop* input, int position) {
 
-	double temprate = Loop::generateDeleteMoveRate(this, input);
-	if (temprate >= 0.0) {
-		moves->addMove(new Move( MOVE_DELETE | MOVE_1, temprate, this, input, position));
+	RateArr temprate = Loop::generateDeleteMoveRate(this, input);
+	if (temprate.rate >= 0.0) {
+		moves->addMove(new Move( MOVE_DELETE | MOVE_1, temprate.rate, this, input, position, temprate.arrType));
 	}
 
 }
 
-double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
+RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 	double tempRate;
 	double new_energy, old_energy;
@@ -377,9 +375,6 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		old_energy = start->getEnergy() + end->getEnergy();
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 
-//		cout << "FOUND SS DELETE MOVE \n";
-//		cout << "energyModel->useArrhenius()=" << energyModel->useArrhenius();
-
 		if (energyModel->useArrhenius()) {
 
 			// FD: Two stack loops are created by three basepairs.
@@ -389,13 +384,11 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 			MoveType right = stackMove;
 			MoveType left = stackMove;
 
-//			cout << "FOUND SS DELETE MOVE \n";
-
 			tempRate = energyModel->applyPrefactors(left, right);
 
 		}
 
-		return tempRate / 2.0;
+		return RateArr(tempRate / 2.0, ARRTYPE);
 	}
 
 	if ((start->identity == 'S' && end->identity == 'I') || (start->identity == 'I' && end->identity == 'S')) {
@@ -445,7 +438,7 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		}
 
-		return tempRate / 2.0;
+		return RateArr(tempRate / 2.0, ARRTYPE);
 	}
 
 	if ((start->identity == 'S' && end->identity == 'B') || (start->identity == 'B' && end->identity == 'S')) {
@@ -495,7 +488,7 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		}
 
-		return tempRate / 2.0;
+		return RateArr(tempRate / 2.0, ARRTYPE);
 	}
 
 	if ((start->identity == 'S' && end->identity == 'H') || (start->identity == 'H' && end->identity == 'S')) {
@@ -537,7 +530,7 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		}
 
-		return tempRate / 2.0;
+		return RateArr(tempRate / 2.0, ARRTYPE);
 	}
 
 	if ((start->identity == 'S' && end->identity == 'M') || (start->identity == 'M' && end->identity == 'S')) {
@@ -604,7 +597,7 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		delete[] sidelens;
 		delete[] seqs;
 
-		return tempRate / 2.0;
+		return RateArr(tempRate / 2.0, ARRTYPE);
 	}
 
 	if ((start->identity == 'S' && end->identity == 'O') || (start->identity == 'O' && end->identity == 'S')) {
@@ -669,7 +662,7 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		delete[] sidelens;
 		delete[] seqs;
 
-		return tempRate / 2.0;
+		return RateArr(tempRate / 2.0, ARRTYPE);
 
 	}
 
@@ -702,7 +695,7 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		}
 
-		return tempRate / 2.0;
+		return RateArr(tempRate / 2.0, ARRTYPE);
 
 	}
 
@@ -748,7 +741,7 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		}
 
-		return tempRate / 2.0;
+		return RateArr(tempRate / 2.0, ARRTYPE);
 	}
 
 	if ((start->identity == 'I' && end->identity == 'H') || (start->identity == 'H' && end->identity == 'I')) {
@@ -784,7 +777,7 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		}
 
-		return tempRate / 2.0;
+		return RateArr(tempRate / 2.0, ARRTYPE);
 	}
 
 	if ((start->identity == 'I' && end->identity == 'M') || (start->identity == 'M' && end->identity == 'I')) {
@@ -848,7 +841,7 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		delete[] sidelens;
 		delete[] seqs;
 
-		return tempRate / 2.0;
+		return RateArr(tempRate / 2.0, ARRTYPE);
 	}
 	if ((start->identity == 'I' && end->identity == 'O') || (start->identity == 'O' && end->identity == 'I')) {
 		InteriorLoop *start_;
@@ -914,7 +907,7 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		delete[] sidelens;
 		delete[] seqs;
 
-		return tempRate / 2.0;
+		return RateArr(tempRate / 2.0, ARRTYPE);
 	}
 
 // start bulge
@@ -948,7 +941,7 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		}
 
-		return tempRate / 2.0;
+		return RateArr(tempRate / 2.0, ARRTYPE);
 
 	}
 
@@ -985,7 +978,7 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		}
 
-		return tempRate / 2.0;
+		return RateArr(tempRate / 2.0, ARRTYPE);
 	}
 
 	if ((start->identity == 'B' && end->identity == 'M') || (start->identity == 'M' && end->identity == 'B')) {
@@ -1047,7 +1040,7 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		delete[] pairtypes;
 		delete[] sidelens;
 		delete[] seqs;
-		return tempRate / 2.0;
+		return RateArr(tempRate / 2.0, ARRTYPE);
 	}
 
 	if ((start->identity == 'B' && end->identity == 'O') || (start->identity == 'O' && end->identity == 'B')) {
@@ -1112,7 +1105,7 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		delete[] pairtypes;
 		delete[] sidelens;
 		delete[] seqs;
-		return tempRate / 2.0;
+		return RateArr(tempRate / 2.0, ARRTYPE);
 	}
 
 // end bulge
@@ -1122,7 +1115,7 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 	if (start->identity == 'H' && end->identity == 'H') {
 		fprintf(stderr, "Hairpin/Hairpin deletion move encountered - not currently supported.\n");
 		assert(0);
-		return -1;
+		return RateArr(-1.0, ARRTYPE);
 	}
 
 	if ((start->identity == 'H' && end->identity == 'M') || (start->identity == 'M' && end->identity == 'H')) {
@@ -1175,7 +1168,7 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 				}
 
-				return tempRate / 2.0;
+				return RateArr(tempRate / 2.0, ARRTYPE);
 
 			} else  // bulge loop case
 			{
@@ -1192,7 +1185,7 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 				}
 
-				return tempRate / 2.0;
+				return RateArr(tempRate / 2.0, ARRTYPE);
 
 			}
 		}
@@ -1242,7 +1235,7 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 			delete[] sidelens;
 			delete[] seqs;
 
-			return tempRate / 2.0;
+			return RateArr(tempRate / 2.0, ARRTYPE);
 		}
 
 	}
@@ -1302,7 +1295,7 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		delete[] pairtypes;
 		delete[] sidelens;
 		delete[] seqs;
-		return tempRate / 2.0;
+		return RateArr(tempRate / 2.0, ARRTYPE);
 	}
 
 // end hairpin
@@ -1376,7 +1369,7 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		delete[] pairtypes;
 		delete[] sidelens;
 		delete[] seqs;
-		return tempRate / 2.0;
+		return RateArr(tempRate / 2.0, ARRTYPE);
 	}
 
 	if ((start->identity == 'M' && end->identity == 'O') || (start->identity == 'O' && end->identity == 'M')) {
@@ -1465,7 +1458,7 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		delete[] pairtypes;
 		delete[] sidelens;
 		delete[] seqs;
-		return tempRate / 2.0;
+		return RateArr(tempRate / 2.0, ARRTYPE);
 	}
 
 // end multiloop
@@ -1543,10 +1536,10 @@ double Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		}
 
-		return tempRate;
+		return RateArr(tempRate, ARRTYPE);
 	}
 
-	return -1.0;
+	return RateArr(-1.0, ARRTYPE);
 }
 
 Loop *Loop::performDeleteMove(Move *move) {
@@ -3245,7 +3238,7 @@ void HairpinLoop::generateMoves(void) {
 
 						}
 
-						moves->addMove(new Move( MOVE_CREATE | MOVE_1, tempRate, this, loop, loop2));
+						moves->addMove(new Move( MOVE_CREATE | MOVE_1, tempRate, this, loop, loop2, ARRTYPE));
 					}
 					// bulge + hairpin
 					else if (loop == 1 || loop2 == hairpinsize) {
@@ -3266,7 +3259,7 @@ void HairpinLoop::generateMoves(void) {
 
 						}
 
-						moves->addMove(new Move( MOVE_CREATE | MOVE_2, tempRate, this, loop, loop2));
+						moves->addMove(new Move( MOVE_CREATE | MOVE_2, tempRate, this, loop, loop2, ARRTYPE));
 					} else // interior loop + hairpin case.
 					{
 						//		  char mismatches[4] = { hairpin_seq[1], hairpin_seq[hairpinsize], hairpin_seq[loop-1], hairpin_seq[loop2+1]};
@@ -3285,7 +3278,7 @@ void HairpinLoop::generateMoves(void) {
 
 						}
 
-						moves->addMove(new Move( MOVE_CREATE | MOVE_3, tempRate, this, loop, loop2));
+						moves->addMove(new Move( MOVE_CREATE | MOVE_3, tempRate, this, loop, loop2, ARRTYPE));
 					}
 				}
 			}
@@ -3573,7 +3566,7 @@ void BulgeLoop::generateMoves(void) {
 
 					}
 
-					moves->addMove(new Move( MOVE_CREATE, tempRate, this, loop, loop2));
+					moves->addMove(new Move( MOVE_CREATE, tempRate, this, loop, loop2, -4545));
 				}
 			}
 	}
@@ -3979,7 +3972,7 @@ void InteriorLoop::generateMoves(void) {
 
 				}
 
-				moves->addMove(new Move( MOVE_CREATE | MOVE_1, tempRate, this, loop, loop2));
+				moves->addMove(new Move( MOVE_CREATE | MOVE_1, tempRate, this, loop, loop2, ARRTYPE));
 			}
 		}
 	}
@@ -4009,7 +4002,7 @@ void InteriorLoop::generateMoves(void) {
 
 				}
 
-				moves->addMove(new Move( MOVE_CREATE | MOVE_2, tempRate, this, loop, loop2));
+				moves->addMove(new Move( MOVE_CREATE | MOVE_2, tempRate, this, loop, loop2, ARRTYPE));
 			}
 		}
 
@@ -4058,7 +4051,7 @@ void InteriorLoop::generateMoves(void) {
 
 				}
 
-				moves->addMove(new Move( MOVE_CREATE | MOVE_3, tempRate, this, loop, loop2));
+				moves->addMove(new Move( MOVE_CREATE | MOVE_3, tempRate, this, loop, loop2, ARRTYPE));
 			}
 		}
 
@@ -4544,7 +4537,7 @@ void MultiLoop::generateMoves(void) {
 
 					}
 
-					moves->addMove(new Move( MOVE_CREATE | MOVE_1, tempRate, this, loop, loop2, loop3));
+					moves->addMove(new Move( MOVE_CREATE | MOVE_1, tempRate, this, loop, loop2, loop3, ARRTYPE));
 				}
 			}
 		}
@@ -4619,7 +4612,7 @@ void MultiLoop::generateMoves(void) {
 
 					}
 
-					moves->addMove(new Move( MOVE_CREATE | MOVE_2, tempRate, this, loop, loop2, loop3));
+					moves->addMove(new Move( MOVE_CREATE | MOVE_2, tempRate, this, loop, loop2, loop3, ARRTYPE));
 				}
 			}
 		}
@@ -4708,7 +4701,7 @@ void MultiLoop::generateMoves(void) {
 
 						}
 
-						moves->addMove(new Move( MOVE_CREATE | MOVE_3, tempRate, this, loops));
+						moves->addMove(new Move( MOVE_CREATE | MOVE_3, tempRate, this, loops, ARRTYPE));
 					}
 
 				}
@@ -5195,7 +5188,7 @@ void OpenLoop::generateMoves(void) {
 
 					}
 
-					Move *tmove = new Move( MOVE_CREATE | MOVE_1, tempRate, this, loop, loop2, loop3);
+					Move *tmove = new Move( MOVE_CREATE | MOVE_1, tempRate, this, loop, loop2, loop3, ARRTYPE);
 					moves->addMove(tmove);
 				}
 			}
@@ -5280,7 +5273,7 @@ void OpenLoop::generateMoves(void) {
 
 					}
 
-					moves->addMove(new Move( MOVE_CREATE | MOVE_2, tempRate, this, loop, loop2, loop3));
+					moves->addMove(new Move( MOVE_CREATE | MOVE_2, tempRate, this, loop, loop2, loop3, ARRTYPE));
 				}
 			}
 
@@ -5367,7 +5360,7 @@ void OpenLoop::generateMoves(void) {
 						loops[1] = loop2;
 						loops[2] = loop3;
 						loops[3] = loop4;
-						moves->addMove(new Move( MOVE_CREATE | MOVE_3, tempRate, this, loops));
+						moves->addMove(new Move( MOVE_CREATE | MOVE_3, tempRate, this, loops, ARRTYPE));
 					}
 
 				}

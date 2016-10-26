@@ -29,12 +29,12 @@ enum ArrType {
 class Move {
 public:
 	Move(void);
-	Move(int mtype, double mrate, Loop *affected_1, int index1, int index2);
-	Move(int mtype, double mrate, Loop *affected_1, int index1, int index2, int index3);
-	Move(int mtype, double mrate, Loop *affected_1, int index1, int index2, int index3, int index4);
-	Move(int mtype, double mrate, Loop *affected_1, int *indexarray);
-	Move(int mtype, double mrate, Loop *affected_1, Loop *affected_2, int index1, int index2);
-	Move(int mtype, double mrate, Loop *affected_1, Loop *affected_2, int index1);
+	Move(int mtype, double mrate, Loop *affected_1, int index1, int index2, int arrConstant);
+	Move(int mtype, double mrate, Loop *affected_1, int index1, int index2, int index3, int arrConstant);
+	Move(int mtype, double mrate, Loop *affected_1, int index1, int index2, int index3, int index4, int arrConstant);
+	Move(int mtype, double mrate, Loop *affected_1, int *indexarray, int arrConstant);
+	Move(int mtype, double mrate, Loop *affected_1, Loop *affected_2, int index1, int index2, int arrConstant);
+	Move(int mtype, double mrate, Loop *affected_1, Loop *affected_2, int index1, int arrConstant);
 	~Move(void);
 	double getRate(void);
 	int getType(void);
@@ -53,7 +53,7 @@ public:
 	friend class StrandComplex;
 protected:
 	int type;
-	int arrType = 3333;
+	int arrConstant = 3333;
 	double rate;
 	int index[4];
 	Loop* affected[2];

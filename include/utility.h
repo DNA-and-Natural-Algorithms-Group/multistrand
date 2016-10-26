@@ -50,6 +50,7 @@ struct complex_input {
 };
 
 
+
 //helper functions
 
 string sequenceToString(char*, int);
