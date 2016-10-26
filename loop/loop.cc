@@ -14,6 +14,8 @@
 
 using std::string;
 
+//using EnergyOptions::ARRTYPEF(int, int);
+
 EnergyModel* Loop::energyModel = NULL;
 
 extern int baseLookup(char base);
@@ -56,6 +58,7 @@ void Loop::cleanupAdjacent(void) {
 }
 
 int ARRTYPE = 7676;
+
 
 double Loop::returnEnergies(Loop *comefrom) {
 	double total;
@@ -172,7 +175,7 @@ EnergyModel *Loop::GetEnergyModel(void) {
 }
 
 void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen) {
-	//  return;
+//  return;
 	OpenLoop *tempLoop[2], *newLoop;
 	int index[2], sizes[2], loop, flipflop = 0, temp;
 	int *pairtypes = NULL;
@@ -250,7 +253,7 @@ void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen) 
 		else
 			*secondOpen = newLoop;
 	}
-	//printf("O/O performed, new energies: %lf  %lf\n", (*firstOpen)->getEnergy(), (*secondOpen)->getEnergy() );
+//printf("O/O performed, new energies: %lf  %lf\n", (*firstOpen)->getEnergy(), (*secondOpen)->getEnergy() );
 	return;
 }
 
@@ -347,6 +350,8 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 	double tempRate;
 	double new_energy, old_energy;
+	RateArr outRate;
+	MoveType left, right;
 
 	if (start->identity == 'S' && end->identity == 'S') {
 
@@ -381,14 +386,14 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 			// FD: We query the local context of the middle pair;
 			// FD: This is simply two stack environments.
 
-			MoveType right = stackMove;
-			MoveType left = stackMove;
+			right = stackMove;
+			left = stackMove;
 
 			tempRate = energyModel->applyPrefactors(left, right);
 
 		}
 
-		return RateArr(tempRate / 2.0, ARRTYPE);
+		return RateArr(tempRate / 2.0, EnergyOptions::ARRTYPEF(right, left));
 	}
 
 	if ((start->identity == 'S' && end->identity == 'I') || (start->identity == 'I' && end->identity == 'S')) {

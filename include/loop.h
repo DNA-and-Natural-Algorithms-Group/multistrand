@@ -20,6 +20,15 @@ struct RateArr {
 	int arrType;
 
 
+	RateArr() {
+
+		rate = -1.0;
+		arrType = -1.0;
+
+	}
+
+
+
 	RateArr(double inRate, int inArr) {
 
 		rate = inRate;

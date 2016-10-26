@@ -64,6 +64,7 @@ enum MoveType {
 	endMove, loopMove, stackMove, stackStackMove, loopEndMove, stackEndMove, stackLoopMove, MOVETYPE_SIZE
 };
 
+
 enum BaseType {
 
 	baseA, baseC, baseG, baseT, BASETYPE_SIZE
