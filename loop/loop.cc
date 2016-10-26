@@ -3243,7 +3243,7 @@ void HairpinLoop::generateMoves(void) {
 
 						}
 
-						moves->addMove(new Move( MOVE_CREATE | MOVE_1, tempRate, this, loop, loop2, ARRTYPE));
+						moves->addMove(new Move( MOVE_CREATE | MOVE_1, tempRate, this, loop, loop2, EnergyOptions::ARRTYPEF(loopMove, stackMove)));
 					}
 					// bulge + hairpin
 					else if (loop == 1 || loop2 == hairpinsize) {
@@ -3264,7 +3264,7 @@ void HairpinLoop::generateMoves(void) {
 
 						}
 
-						moves->addMove(new Move( MOVE_CREATE | MOVE_2, tempRate, this, loop, loop2, ARRTYPE));
+						moves->addMove(new Move( MOVE_CREATE | MOVE_2, tempRate, this, loop, loop2, EnergyOptions::ARRTYPEF(loopMove, stackLoopMove)));
 					} else // interior loop + hairpin case.
 					{
 						//		  char mismatches[4] = { hairpin_seq[1], hairpin_seq[hairpinsize], hairpin_seq[loop-1], hairpin_seq[loop2+1]};
@@ -3283,7 +3283,7 @@ void HairpinLoop::generateMoves(void) {
 
 						}
 
-						moves->addMove(new Move( MOVE_CREATE | MOVE_3, tempRate, this, loop, loop2, ARRTYPE));
+						moves->addMove(new Move( MOVE_CREATE | MOVE_3, tempRate, this, loop, loop2, EnergyOptions::ARRTYPEF(loopMove, loopMove)));
 					}
 				}
 			}
@@ -3931,6 +3931,8 @@ void InteriorLoop::generateMoves(void) {
 	int loop, loop2;
 	double tempRate = 0;
 
+	MoveType left, right;
+
 	int nummoves = sizes[0] * sizes[1];
 	if (sizes[0] > 4)
 		nummoves += sizes[0] - 4;
@@ -3972,12 +3974,12 @@ void InteriorLoop::generateMoves(void) {
 				// hairpin and multiloop, so this is loopMove and something
 				if (energyModel->useArrhenius()) {
 
-					MoveType multiMove = energyModel->prefactorInternal(sidelen[0], sidelen[1]);
-					tempRate = energyModel->applyPrefactors(loopMove, multiMove);
+					left = energyModel->prefactorInternal(sidelen[0], sidelen[1]);
+					tempRate = energyModel->applyPrefactors(loopMove, left);
 
 				}
 
-				moves->addMove(new Move( MOVE_CREATE | MOVE_1, tempRate, this, loop, loop2, ARRTYPE));
+				moves->addMove(new Move( MOVE_CREATE | MOVE_1, tempRate, this, loop, loop2, EnergyOptions::ARRTYPEF(loopMove, left)));
 			}
 		}
 	}
@@ -4002,12 +4004,12 @@ void InteriorLoop::generateMoves(void) {
 				// hairpin and multiloop, so this is loopMove and something
 				if (energyModel->useArrhenius()) {
 
-					MoveType multiMove = energyModel->prefactorInternal(sidelen[1], sidelen[2]);
-					tempRate = energyModel->applyPrefactors(loopMove, multiMove);
+					left = energyModel->prefactorInternal(sidelen[1], sidelen[2]);
+					tempRate = energyModel->applyPrefactors(loopMove, left);
 
 				}
 
-				moves->addMove(new Move( MOVE_CREATE | MOVE_2, tempRate, this, loop, loop2, ARRTYPE));
+				moves->addMove(new Move( MOVE_CREATE | MOVE_2, tempRate, this, loop, loop2, EnergyOptions::ARRTYPEF(loopMove, left)));
 			}
 		}
 
@@ -4021,18 +4023,18 @@ void InteriorLoop::generateMoves(void) {
 				// Need to check conditions for each side in order to determine what the two new loops types would be.
 				// adjacent to first pair side:
 
-				MoveType leftMove = stackMove;
-				MoveType rightMove = stackMove;
+				left = stackMove;
+				right = stackMove;
 
 				if (loop == 1 && loop2 == sizes[1]) {			// stack
 					energies[0] = energyModel->StackEnergy(int_seq[0][0], int_seq[1][sizes[1] + 1], int_seq[0][loop], int_seq[1][loop2]);
 				} else if (loop == 1 || loop2 == sizes[1]) {		// bulge
 					energies[0] = energyModel->BulgeEnergy(int_seq[0][0], int_seq[1][sizes[1] + 1], int_seq[0][loop], int_seq[1][loop2],
 							(loop - 1) + (sizes[1] - loop2));
-					leftMove = stackEndMove;
+					left = stackEndMove;
 				} else {  // interior
 					energies[0] = energyModel->InteriorEnergy(int_seq[0], &int_seq[1][loop2], loop - 1, sizes[1] - loop2);
-					leftMove = loopMove;
+					left = loopMove;
 				}
 
 				// other side
@@ -4041,10 +4043,10 @@ void InteriorLoop::generateMoves(void) {
 				} else if (loop == sizes[0] || loop2 == 1) { // bulge
 					energies[1] = energyModel->BulgeEnergy(int_seq[0][loop], int_seq[1][loop2], int_seq[0][sizes[0] + 1], int_seq[1][0],
 							(loop2 - 1) + (sizes[0] - loop));
-					rightMove = stackEndMove;
+					right = stackEndMove;
 				} else { // interior
 					energies[1] = energyModel->InteriorEnergy(&int_seq[0][loop], int_seq[1], sizes[0] - loop, loop2 - 1);
-					rightMove = loopMove;
+					right = loopMove;
 				}
 
 				tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
@@ -4052,11 +4054,11 @@ void InteriorLoop::generateMoves(void) {
 				// interior loop is closing, so this could be anything.
 				if (energyModel->useArrhenius()) {
 
-					tempRate = energyModel->applyPrefactors(leftMove, rightMove);
+					tempRate = energyModel->applyPrefactors(left, right);
 
 				}
 
-				moves->addMove(new Move( MOVE_CREATE | MOVE_3, tempRate, this, loop, loop2, ARRTYPE));
+				moves->addMove(new Move( MOVE_CREATE | MOVE_3, tempRate, this, loop, loop2, EnergyOptions::ARRTYPEF(left, right)));
 			}
 		}
 
@@ -5125,6 +5127,9 @@ void OpenLoop::generateMoves(void) {
 	double tempRate;
 	double energies[2];
 
+	MoveType left, right;
+
+
 	if (moves != NULL)
 		delete moves;
 	moves = new MoveList(1);
@@ -5188,12 +5193,12 @@ void OpenLoop::generateMoves(void) {
 					// multiLoop is splitting off an hairpin. Which is loopMove, and something else
 					if (energyModel->useArrhenius()) {
 
-						MoveType rightMove = energyModel->prefactorOpen(loop3, numAdjacent + 2, sideLengths);
-						tempRate = energyModel->applyPrefactors(loopMove, rightMove);
+						right = energyModel->prefactorOpen(loop3, numAdjacent + 2, sideLengths);
+						tempRate = energyModel->applyPrefactors(loopMove, right);
 
 					}
 
-					Move *tmove = new Move( MOVE_CREATE | MOVE_1, tempRate, this, loop, loop2, loop3, ARRTYPE);
+					Move *tmove = new Move( MOVE_CREATE | MOVE_1, tempRate, this, loop, loop2, loop3, EnergyOptions::ARRTYPEF(loopMove, right));
 					moves->addMove(tmove);
 				}
 			}
@@ -5210,7 +5215,7 @@ void OpenLoop::generateMoves(void) {
 				if (pairType != 0) {
 
 					// three cases for which type of move:
-					MoveType leftMove = stackMove;
+					left = stackMove;
 
 					if (loop == sidelen[loop3] && loop2 == 1) { 					// #2a: stack
 
@@ -5230,13 +5235,13 @@ void OpenLoop::generateMoves(void) {
 
 						}
 
-						leftMove = stackLoopMove;
+						left = stackLoopMove;
 
 					} else { 					// #2c: interior
 
 						energies[0] = energyModel->InteriorEnergy(&seqs[loop3][loop], seqs[loop3 + 1], sidelen[loop3] - loop, loop2 - 1);
 
-						leftMove = loopMove;
+						left = loopMove;
 
 					}
 
@@ -5270,15 +5275,15 @@ void OpenLoop::generateMoves(void) {
 
 						// the new stack/bulge/interior is the LeftMove (see above);
 						// the new Openloop
-						MoveType rightMove = energyModel->prefactorOpen(loop3, numAdjacent + 1, sideLengths);
+						right = energyModel->prefactorOpen(loop3, numAdjacent + 1, sideLengths);
 
 //						cout << "RightMOVE=" << moveTypeString[rightMove] << "\n";
 
-						tempRate = energyModel->applyPrefactors(leftMove, rightMove);
+						tempRate = energyModel->applyPrefactors(left, right);
 
 					}
 
-					moves->addMove(new Move( MOVE_CREATE | MOVE_2, tempRate, this, loop, loop2, loop3, ARRTYPE));
+					moves->addMove(new Move( MOVE_CREATE | MOVE_2, tempRate, this, loop, loop2, loop3, EnergyOptions::ARRTYPEF(left, right)));
 				}
 			}
 
@@ -5320,7 +5325,7 @@ void OpenLoop::generateMoves(void) {
 						}
 
 						energies[0] = energyModel->MultiloopEnergy(loop4 - loop3 + 1, sideLengths, sequences);
-						MoveType leftMove = energyModel->prefactorInternal(sideLengths[loop3], sideLengths[loop4]);
+						left = energyModel->prefactorInternal(sideLengths[loop3], sideLengths[loop4]);
 
 						// Open loop
 						for (temploop = 0, tempindex = 0; temploop <= numAdjacent - (loop4 - loop3 - 1); tempindex++) {
@@ -5354,8 +5359,8 @@ void OpenLoop::generateMoves(void) {
 //							cout << " numAdjacent - (loop4 - loop3)=" << numAdjacent - (loop4 - loop3) + 2  << "\n";
 //							utility::printIntegers(sideLengths, numAdjacent - (loop4 - loop3) + 2);
 
-							MoveType rightMove = energyModel->prefactorOpen(loop3, numAdjacent - (loop4 - loop3) + 2, sideLengths);
-							tempRate = energyModel->applyPrefactors(leftMove, rightMove);
+							right = energyModel->prefactorOpen(loop3, numAdjacent - (loop4 - loop3) + 2, sideLengths);
+							tempRate = energyModel->applyPrefactors(left, right);
 
 //							cout << "moveRate=" << moveTypeString[rightMove]  << "\n" ;
 
@@ -5365,7 +5370,7 @@ void OpenLoop::generateMoves(void) {
 						loops[1] = loop2;
 						loops[2] = loop3;
 						loops[3] = loop4;
-						moves->addMove(new Move( MOVE_CREATE | MOVE_3, tempRate, this, loops, ARRTYPE));
+						moves->addMove(new Move( MOVE_CREATE | MOVE_3, tempRate, this, loops, EnergyOptions::ARRTYPEF(left, right)));
 					}
 
 				}
