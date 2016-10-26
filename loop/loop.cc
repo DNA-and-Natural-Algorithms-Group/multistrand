@@ -443,7 +443,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		}
 
-		return RateArr(tempRate / 2.0, ARRTYPE);
+		return RateArr(tempRate / 2.0, EnergyOptions::ARRTYPEF(right, left));
 	}
 
 	if ((start->identity == 'S' && end->identity == 'B') || (start->identity == 'B' && end->identity == 'S')) {
@@ -493,7 +493,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		}
 
-		return RateArr(tempRate / 2.0, ARRTYPE);
+		return RateArr(tempRate / 2.0, EnergyOptions::ARRTYPEF(right, left));
 	}
 
 	if ((start->identity == 'S' && end->identity == 'H') || (start->identity == 'H' && end->identity == 'S')) {
