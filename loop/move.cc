@@ -22,7 +22,7 @@ Move::Move(void) {
 	affected[0] = affected[1] = NULL;
 }
 
-Move::Move(int mtype, double mrate, Loop *affected_1, int index1, int index2, int arr) {
+Move::Move(int mtype, double mrate, Loop *affected_1, int index1, int index2) {
 	type = mtype;
 	rate = mrate;
 	affected[0] = affected_1;
@@ -31,11 +31,9 @@ Move::Move(int mtype, double mrate, Loop *affected_1, int index1, int index2, in
 	index[1] = index2;
 	index[2] = -1;
 	index[3] = -1;
-
-	arrConstant = arr;
 }
 
-Move::Move(int mtype, double mrate, Loop *affected_1, int index1, int index2, int index3, int arr ) {
+Move::Move(int mtype, double mrate, Loop *affected_1, int index1, int index2, int index3) {
 	type = mtype;
 	rate = mrate;
 	affected[0] = affected_1;
@@ -44,11 +42,9 @@ Move::Move(int mtype, double mrate, Loop *affected_1, int index1, int index2, in
 	index[1] = index2;
 	index[2] = index3;
 	index[3] = -1;
-
-	arrConstant = arr;
 }
 
-Move::Move(int mtype, double mrate, Loop *affected_1, Loop *affected_2, int index1, int index2, int arr) {
+Move::Move(int mtype, double mrate, Loop *affected_1, Loop *affected_2, int index1, int index2) {
 	type = mtype;
 	rate = mrate;
 	affected[0] = affected_1;
@@ -57,11 +53,9 @@ Move::Move(int mtype, double mrate, Loop *affected_1, Loop *affected_2, int inde
 	index[1] = index2;
 	index[2] = -1;
 	index[3] = -1;
-
-	arrConstant = arr;
 }
 
-Move::Move(int mtype, double mrate, Loop *affected_1, Loop *affected_2, int index1, int arr) {
+Move::Move(int mtype, double mrate, Loop *affected_1, Loop *affected_2, int index1) {
 	type = mtype;
 	rate = mrate;
 	affected[0] = affected_1;
@@ -70,11 +64,9 @@ Move::Move(int mtype, double mrate, Loop *affected_1, Loop *affected_2, int inde
 	index[1] = -1;
 	index[2] = -1;
 	index[3] = -1;
-
-	arrConstant = arr;
 }
 
-Move::Move(int mtype, double mrate, Loop *affected_1, int index1, int index2, int index3, int index4, int arr) {
+Move::Move(int mtype, double mrate, Loop *affected_1, int index1, int index2, int index3, int index4) {
 	type = mtype;
 	rate = mrate;
 	affected[0] = affected_1;
@@ -83,19 +75,15 @@ Move::Move(int mtype, double mrate, Loop *affected_1, int index1, int index2, in
 	index[1] = index2;
 	index[2] = index3;
 	index[3] = index4;
-
-	arrConstant = arr;
 }
 
-Move::Move(int mtype, double mrate, Loop *affected_1, int *indexarray, int arr) {
+Move::Move(int mtype, double mrate, Loop *affected_1, int *indexarray) {
 	type = mtype;
 	rate = mrate;
 	affected[0] = affected_1;
 	affected[1] = NULL;
 	for (int loop = 0; loop < 4; loop++)
 		index[loop] = indexarray[loop];
-
-	arrConstant = arr;
 
 }
 
@@ -111,12 +99,6 @@ double Move::getRate(void) {
 int Move::getType(void) {
 	return type;
 }
-
-int Move::getArrType(void) {
-	return arrConstant;
-}
-
-
 
 Loop *Move::getAffected(int index) {
 	assert(index >= 0 && index <= 1);

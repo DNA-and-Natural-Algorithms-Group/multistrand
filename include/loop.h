@@ -10,34 +10,7 @@
 
 #include <string>
 #include "energymodel.h"
-//#include <utility.h>
 #include "move.h"
-
-
-struct RateArr {
-
-	double rate;
-	int arrType;
-
-
-	RateArr() {
-
-		rate = -1.0;
-		arrType = -1.0;
-
-	}
-
-
-
-	RateArr(double inRate, int inArr) {
-
-		rate = inRate;
-		arrType = inArr;
-
-	}
-
-};
-
 
 class Loop {
 public:
@@ -68,7 +41,7 @@ public:
 	void firstGen(Loop *comefrom);
 	static void SetEnergyModel(EnergyModel *newEnergyModel);
 	static EnergyModel *GetEnergyModel(void);
-	static RateArr generateDeleteMoveRate(Loop *start, Loop *end);
+	static double generateDeleteMoveRate(Loop *start, Loop *end);
 	static Loop *performDeleteMove(Move *move);
 	static void performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);
 
@@ -104,7 +77,7 @@ public:
 	void printMove(Loop *comefrom, char *structure_p, char *seq_p);
 	char *getLocation(Move *move, int index);
 	char *verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop *from);
-	friend RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end);
+	friend double Loop::generateDeleteMoveRate(Loop *start, Loop *end);
 	friend Loop * Loop::performDeleteMove(Move *move);
 	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);
 	StackLoop(void);
@@ -131,7 +104,7 @@ public:
 
 	HairpinLoop(void);
 	HairpinLoop(int type, int size, char *hairpin_sequence, Loop *previous = NULL);
-	friend RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end);
+	friend double Loop::generateDeleteMoveRate(Loop *start, Loop *end);
 	friend Loop * Loop::performDeleteMove(Move *move);
 	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);
 	MoveType declareMoveType(Loop* attachedLoop);
@@ -156,7 +129,7 @@ public:
 	BulgeLoop(void);
 	BulgeLoop(int type1, int type2, int size1, int size2, char *bulge_sequence1, char *bulge_sequence2, Loop *left = NULL, Loop *right = NULL);
 	friend Loop * Loop::performDeleteMove(Move *move);
-	friend RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end);
+	friend double Loop::generateDeleteMoveRate(Loop *start, Loop *end);
 	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);
 	MoveType declareMoveType(Loop* attachedLoop);
 	string typeInternalsToString(void);
@@ -182,7 +155,7 @@ public:
 	InteriorLoop(int type1, int type2, int size1, int size2, char *int_seq1, char *int_seq2, Loop *left = NULL, Loop *right = NULL);
 
 	friend Loop * Loop::performDeleteMove(Move *move);
-	friend RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end);
+	friend double Loop::generateDeleteMoveRate(Loop *start, Loop *end);
 	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);
 	MoveType declareMoveType(Loop* attachedLoop);
 	string typeInternalsToString(void);
@@ -207,7 +180,7 @@ public:
 	MultiLoop(int branches, int *pairtypes, int *sidelengths, char **sequences);
 	~MultiLoop(void);
 
-	friend RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end);
+	friend double Loop::generateDeleteMoveRate(Loop *start, Loop *end);
 	friend Loop * Loop::performDeleteMove(Move *move);
 	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);
 	MoveType declareMoveType(Loop* attachedLoop);
@@ -242,7 +215,7 @@ public:
 	OpenLoop(void);
 	OpenLoop(int branches, int *pairtypes, int *sidelengths, char **sequences);
 	~OpenLoop(void);
-	friend RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end);
+	friend double Loop::generateDeleteMoveRate(Loop *start, Loop *end);
 	friend Loop * Loop::performDeleteMove(Move *move);
 	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);
 	static void performComplexJoin(OpenLoop **oldLoops, OpenLoop **newLoops, char *types, int *index);

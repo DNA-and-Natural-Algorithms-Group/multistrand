@@ -131,10 +131,6 @@
 #define pushTrajectoryInfo( obj, time ) \
   setDoubleAttr( obj, add_trajectory_current_time, time )
 
-#define pushTrajectoryInfo2(obj, val) \
-  setDoubleAttr( obj, add_trajectory_local, val )
-
-
 // This macro DECREFs the passed obj once it's done with it.
 #define pushTransitionInfo( options_obj, obj ) \
   _m_pushList( options_obj, obj, add_transition_info )

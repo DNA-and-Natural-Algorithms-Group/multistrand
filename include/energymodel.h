@@ -64,7 +64,6 @@ enum MoveType {
 	endMove, loopMove, stackMove, stackStackMove, loopEndMove, stackEndMove, stackLoopMove, MOVETYPE_SIZE
 };
 
-
 enum BaseType {
 
 	baseA, baseC, baseG, baseT, BASETYPE_SIZE
@@ -90,7 +89,7 @@ public:
 	void setArrheniusRate(double ratesArray[], EnergyOptions* options, double temperature, int left, int right);
 	void computeArrheniusRates(double temperature);
 	void printPrecomputedArrRates(void);
-	double applyPrefactors(double tempRate, MoveType left, MoveType right);
+	double applyPrefactors(MoveType left, MoveType right);
 	MoveType getPrefactorsMulti(int, int, int[]);
 	MoveType prefactorOpen(int, int, int[]);
 	MoveType prefactorInternal(int, int);
