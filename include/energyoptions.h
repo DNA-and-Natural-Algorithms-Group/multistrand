@@ -37,6 +37,8 @@ public:
 	double getBiScale(void);
 	double getUniScale(void);
 
+	static int ARRTYPEF(MoveType, MoveType);
+
 	string toString(void);
 	static string primeRateToString(double);
 
