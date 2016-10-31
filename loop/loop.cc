@@ -9,6 +9,7 @@
 #include <typeinfo>
 
 #include "utility.h"
+#include "moveutil.h"
 #include <simoptions.h>
 #include <energyoptions.h>
 

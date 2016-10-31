@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <python2.7/Python.h>
 #include <string>
+#include <moveutil.h>
 using std::string;
 
 class SimOptions;
@@ -60,9 +61,6 @@ enum LoopType {
 	openLoop, interiorLoop, bulgeLoop, stackLoop, hairpinLoop, multiLoop, LOOPTYPE_SIZE
 };
 
-enum MoveType {
-	endMove, loopMove, stackMove, stackStackMove, loopEndMove, stackEndMove, stackLoopMove, MOVETYPE_SIZE
-};
 
 enum BaseType {
 

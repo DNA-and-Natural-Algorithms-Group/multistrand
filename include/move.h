@@ -17,14 +17,15 @@
 #define MOVE_3      32
 
 #include <string>
+#include <moveutil.h>
 using std::string;
 
 class Loop;
 
-// Using an enum to state the moves types
-enum ArrType {
-	UNDEFINED, END, LOOP, STACK, STACKSTACK, LOOPEND, STACKEND, STACKLOOP
-};
+//// Using an enum to state the moves types
+//enum ArrType {
+//	UNDEFINED, END, LOOP, STACK, STACKSTACK, LOOPEND, STACKEND, STACKLOOP
+//};
 
 class Move {
 public:
