@@ -350,7 +350,7 @@ void Loop::generateAndSaveDeleteMove(Loop* input, int position) {
 	if (rate >= 0.0) {
 
 
-		moves->addMove(new Move( MOVE_DELETE | MOVE_1, rate, this, input, position, -99));
+		moves->addMove(new Move( MOVE_DELETE | MOVE_1, rate, this, input, position, stackMove, stackMove));
 	}
 
 }
@@ -3286,7 +3286,7 @@ void HairpinLoop::generateMoves(void) {
 
 						}
 
-						moves->addMove(new Move( MOVE_CREATE | MOVE_1, tempRate, this, loop, loop2, -99));
+						moves->addMove(new Move( MOVE_CREATE | MOVE_1, tempRate, this, loop, loop2, stackMove, stackMove));
 					}
 					// bulge + hairpin
 					else if (loop == 1 || loop2 == hairpinsize) {
@@ -3307,7 +3307,7 @@ void HairpinLoop::generateMoves(void) {
 
 						}
 
-						moves->addMove(new Move( MOVE_CREATE | MOVE_2, tempRate, this, loop, loop2, -99));
+						moves->addMove(new Move( MOVE_CREATE | MOVE_2, tempRate, this, loop, loop2, stackMove, stackMove));
 					} else // interior loop + hairpin case.
 					{
 						//		  char mismatches[4] = { hairpin_seq[1], hairpin_seq[hairpinsize], hairpin_seq[loop-1], hairpin_seq[loop2+1]};
@@ -3326,7 +3326,7 @@ void HairpinLoop::generateMoves(void) {
 
 						}
 
-						moves->addMove(new Move( MOVE_CREATE | MOVE_3, tempRate, this, loop, loop2, -99));
+						moves->addMove(new Move( MOVE_CREATE | MOVE_3, tempRate, this, loop, loop2, stackMove, stackMove));
 					}
 				}
 			}
@@ -3614,7 +3614,7 @@ void BulgeLoop::generateMoves(void) {
 
 					}
 
-					moves->addMove(new Move( MOVE_CREATE, tempRate, this, loop, loop2, -99));
+					moves->addMove(new Move( MOVE_CREATE, tempRate, this, loop, loop2, stackMove, stackMove));
 				}
 			}
 	}
@@ -4020,7 +4020,7 @@ void InteriorLoop::generateMoves(void) {
 
 				}
 
-				moves->addMove(new Move( MOVE_CREATE | MOVE_1, tempRate, this, loop, loop2, -99));
+				moves->addMove(new Move( MOVE_CREATE | MOVE_1, tempRate, this, loop, loop2, stackMove, stackMove));
 			}
 		}
 	}
@@ -4050,7 +4050,7 @@ void InteriorLoop::generateMoves(void) {
 
 				}
 
-				moves->addMove(new Move( MOVE_CREATE | MOVE_2, tempRate, this, loop, loop2, -99));
+				moves->addMove(new Move( MOVE_CREATE | MOVE_2, tempRate, this, loop, loop2, stackMove, stackMove));
 			}
 		}
 
@@ -4099,7 +4099,7 @@ void InteriorLoop::generateMoves(void) {
 
 				}
 
-				moves->addMove(new Move( MOVE_CREATE | MOVE_3, tempRate, this, loop, loop2, -99));
+				moves->addMove(new Move( MOVE_CREATE | MOVE_3, tempRate, this, loop, loop2, stackMove, stackMove));
 			}
 		}
 
@@ -4585,7 +4585,7 @@ void MultiLoop::generateMoves(void) {
 
 					}
 
-					moves->addMove(new Move( MOVE_CREATE | MOVE_1, tempRate, this, loop, loop2, loop3, -99));
+					moves->addMove(new Move( MOVE_CREATE | MOVE_1, tempRate, this, loop, loop2, loop3, stackMove, stackMove));
 				}
 			}
 		}
@@ -4660,7 +4660,7 @@ void MultiLoop::generateMoves(void) {
 
 					}
 
-					moves->addMove(new Move( MOVE_CREATE | MOVE_2, tempRate, this, loop, loop2, loop3, -99));
+					moves->addMove(new Move( MOVE_CREATE | MOVE_2, tempRate, this, loop, loop2, loop3, stackMove, stackMove));
 				}
 			}
 		}
@@ -4749,7 +4749,7 @@ void MultiLoop::generateMoves(void) {
 
 						}
 
-						moves->addMove(new Move( MOVE_CREATE | MOVE_3, tempRate, this, loops, -99));
+						moves->addMove(new Move( MOVE_CREATE | MOVE_3, tempRate, this, loops, stackMove, stackMove));
 					}
 
 				}
@@ -5236,7 +5236,7 @@ void OpenLoop::generateMoves(void) {
 
 					}
 
-					Move *tmove = new Move( MOVE_CREATE | MOVE_1, tempRate, this, loop, loop2, loop3, -99);
+					Move *tmove = new Move( MOVE_CREATE | MOVE_1, tempRate, this, loop, loop2, loop3, stackMove, stackMove);
 					moves->addMove(tmove);
 				}
 			}
@@ -5321,7 +5321,7 @@ void OpenLoop::generateMoves(void) {
 
 					}
 
-					moves->addMove(new Move( MOVE_CREATE | MOVE_2, tempRate, this, loop, loop2, loop3, -99));
+					moves->addMove(new Move( MOVE_CREATE | MOVE_2, tempRate, this, loop, loop2, loop3, stackMove, stackMove));
 				}
 			}
 
@@ -5401,7 +5401,7 @@ void OpenLoop::generateMoves(void) {
 						loops[1] = loop2;
 						loops[2] = loop3;
 						loops[3] = loop4;
-						moves->addMove(new Move( MOVE_CREATE | MOVE_3, tempRate, this, loops, -99));
+						moves->addMove(new Move( MOVE_CREATE | MOVE_3, tempRate, this, loops, stackMove, stackMove));
 					}
 
 				}

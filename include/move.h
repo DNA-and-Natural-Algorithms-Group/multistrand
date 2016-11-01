@@ -22,20 +22,16 @@ using std::string;
 
 class Loop;
 
-//// Using an enum to state the moves types
-//enum ArrType {
-//	UNDEFINED, END, LOOP, STACK, STACKSTACK, LOOPEND, STACKEND, STACKLOOP
-//};
 
 class Move {
 public:
 	Move(void);
-	Move(int mtype, double mrate, Loop *affected_1, int index1, int index2, int arrConstant);
-	Move(int mtype, double mrate, Loop *affected_1, int index1, int index2, int index3, int arrConstant);
-	Move(int mtype, double mrate, Loop *affected_1, int index1, int index2, int index3, int index4, int arrConstant);
-	Move(int mtype, double mrate, Loop *affected_1, int *indexarray, int arrConstant);
-	Move(int mtype, double mrate, Loop *affected_1, Loop *affected_2, int index1, int index2, int arrConstant);
-	Move(int mtype, double mrate, Loop *affected_1, Loop *affected_2, int index1, int arrConstant);
+	Move(int mtype, double mrate, Loop *affected_1, int index1, int index2, MoveType left, MoveType right);
+	Move(int mtype, double mrate, Loop *affected_1, int index1, int index2, int index3, MoveType left, MoveType right);
+	Move(int mtype, double mrate, Loop *affected_1, int index1, int index2, int index3, int index4, MoveType left, MoveType right);
+	Move(int mtype, double mrate, Loop *affected_1, int *indexarray, MoveType left, MoveType right);
+	Move(int mtype, double mrate, Loop *affected_1, Loop *affected_2, int index1, int index2, MoveType left, MoveType right);
+	Move(int mtype, double mrate, Loop *affected_1, Loop *affected_2, int index1, MoveType left, MoveType right);
 	~Move(void);
 	double getRate(void);
 	int getType(void);
