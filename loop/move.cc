@@ -18,11 +18,19 @@
 using std::string;
 
 
+RateEnv::RateEnv(void){
+
+	rate = 0;
+	arrType = -99;
+
+}
+
+
+
 RateEnv::RateEnv(double mRate, EnergyModel* eModel, MoveType left, MoveType right){
 
 	rate = eModel->applyPrefactors(mRate, left, right);
 	arrType = moveutil::typeMult(left, right);
-
 
 }
 
@@ -30,12 +38,12 @@ RateEnv::RateEnv(double mRate, EnergyModel* eModel, MoveType left, MoveType righ
 Move::Move(void) {
 
 	type = 0;
-	rate = 0.0;
+	rate = RateEnv();
 	affected[0] = affected[1] = NULL;
 
 }
 
-Move::Move(int mtype, double mrate, Loop *affected_1, int index1, int index2, MoveType left, MoveType right) {
+Move::Move(int mtype, RateEnv mrate, Loop *affected_1, int index1, int index2) {
 
 	type = mtype;
 	rate = mrate;
@@ -46,11 +54,11 @@ Move::Move(int mtype, double mrate, Loop *affected_1, int index1, int index2, Mo
 	index[2] = -1;
 	index[3] = -1;
 
-	arrConstant = -99;
+
 
 }
 
-Move::Move(int mtype, double mrate, Loop *affected_1, int index1, int index2, int index3, MoveType left, MoveType right ) {
+Move::Move(int mtype, RateEnv mrate, Loop *affected_1, int index1, int index2, int index3 ) {
 	type = mtype;
 	rate = mrate;
 	affected[0] = affected_1;
@@ -60,11 +68,10 @@ Move::Move(int mtype, double mrate, Loop *affected_1, int index1, int index2, in
 	index[2] = index3;
 	index[3] = -1;
 
-	arrConstant = -99;
 
 }
 
-Move::Move(int mtype, double mrate, Loop *affected_1, Loop *affected_2, int index1, int index2, MoveType left, MoveType right) {
+Move::Move(int mtype, RateEnv mrate, Loop *affected_1, Loop *affected_2, int index1, int index2) {
 	type = mtype;
 	rate = mrate;
 	affected[0] = affected_1;
@@ -74,10 +81,9 @@ Move::Move(int mtype, double mrate, Loop *affected_1, Loop *affected_2, int inde
 	index[2] = -1;
 	index[3] = -1;
 
-	arrConstant = -99;
 }
 
-Move::Move(int mtype, double mrate, Loop *affected_1, Loop *affected_2, int index1, MoveType left, MoveType right) {
+Move::Move(int mtype, RateEnv mrate, Loop *affected_1, Loop *affected_2, int index1) {
 	type = mtype;
 	rate = mrate;
 	affected[0] = affected_1;
@@ -87,10 +93,9 @@ Move::Move(int mtype, double mrate, Loop *affected_1, Loop *affected_2, int inde
 	index[2] = -1;
 	index[3] = -1;
 
-	arrConstant = -99;
 }
 
-Move::Move(int mtype, double mrate, Loop *affected_1, int index1, int index2, int index3, int index4, MoveType left, MoveType right) {
+Move::Move(int mtype, RateEnv mrate, Loop *affected_1, int index1, int index2, int index3, int index4) {
 	type = mtype;
 	rate = mrate;
 	affected[0] = affected_1;
@@ -100,10 +105,9 @@ Move::Move(int mtype, double mrate, Loop *affected_1, int index1, int index2, in
 	index[2] = index3;
 	index[3] = index4;
 
-	arrConstant = -99;
 }
 
-Move::Move(int mtype, double mrate, Loop *affected_1, int *indexarray, MoveType left, MoveType right) {
+Move::Move(int mtype, RateEnv mrate, Loop *affected_1, int *indexarray) {
 	type = mtype;
 	rate = mrate;
 	affected[0] = affected_1;
@@ -111,7 +115,6 @@ Move::Move(int mtype, double mrate, Loop *affected_1, int *indexarray, MoveType 
 	for (int loop = 0; loop < 4; loop++)
 		index[loop] = indexarray[loop];
 
-	arrConstant = -99;
 
 }
 
@@ -132,7 +135,7 @@ Move::~Move(void) {
 }
 
 double Move::getRate(void) {
-	return rate;
+	return rate.rate;
 }
 
 int Move::getType(void) {
@@ -164,11 +167,11 @@ string Move::rateToString(bool usePrime) {
 
 	if (usePrime) {
 
-		ss << EnergyOptions::primeRateToString(rate);
+		ss << EnergyOptions::primeRateToString(rate.rate);
 
 	} else {
 
-		ss << std::setprecision(3) << rate;
+		ss << std::setprecision(3) << rate.rate;
 
 	}
 
@@ -184,7 +187,7 @@ string Move::toString(bool usePrime) {
 
 	// FD: only print the move if the rate is > 0
 
-	if (rate > 0) {
+	if (rate.rate > 0) {
 
 		ss << utility::moveType(type) << " ";
 		if (affected[0] != NULL) {
@@ -207,57 +210,7 @@ string Move::toString(bool usePrime) {
 
 }
 
-// Arrhenius move container
 
-//AMove: Move () : { 		// Implements the Arrhenius model
-//
-//public:
-//	string toStringEnviroment();
-//protected:
-//	int leftEnv, rightEnv;
-//
-//};
-
-// Have to relay all the constuctors
-
-//ArrMove::ArrMove(void) :
-//		Move() {
-//
-//}
-//
-//ArrMove::ArrMove(int mtype, double mrate, Loop* affected_1, int index1, int index2) :
-//		Move(mtype, mrate, affected_1, index1, index2) {
-//
-//}
-//
-//ArrMove::ArrMove(int mtype, double mrate, Loop* affected_1, int index1, int index2, int index3) :
-//		Move(mtype, mrate, affected_1, index1, index2, index3) {
-//}
-//
-//ArrMove::ArrMove(int mtype, double mrate, Loop* affected_1, Loop* affected_2, int index1, int index2) :
-//		Move(mtype, mrate, affected_1, affected_2, index1, index2) {
-//
-//}
-//
-//ArrMove::ArrMove(int mtype, double mrate, Loop *affected_1, Loop *affected_2, int index1) :
-//		Move(mtype, mrate, affected_1, affected_2, index1) {
-//
-//}
-//
-//ArrMove::ArrMove(int mtype, double mrate, Loop *affected_1, int index1, int index2, int index3, int index4) :
-//		Move(mtype, mrate, affected_1, index1, index2, index3, index4) {
-//
-//}
-//
-//ArrMove::ArrMove(int mtype, double mrate, Loop *affected_1, int *indexarray) {
-//	type = mtype;
-//	rate = mrate;
-//	affected[0] = affected_1;
-//	affected[1] = NULL;
-//	for (int loop = 0; loop < 4; loop++)
-//		index[loop] = indexarray[loop];
-//
-//}
 
 /* MoveTree info */
 MoveTree::~MoveTree(void) {
