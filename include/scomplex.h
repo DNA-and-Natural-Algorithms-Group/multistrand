@@ -55,6 +55,7 @@ public:
 
 	void printAllMoves(void);
 	string toString(void);
+	string printStrandOrdering(void);
 
 	static StrandComplex *performComplexJoin(StrandComplex **complexes,
 			char *types, int *index);

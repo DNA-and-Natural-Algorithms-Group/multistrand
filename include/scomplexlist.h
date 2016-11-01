@@ -26,6 +26,7 @@ public:
 	void regenerateMoves(void);
 	double getTotalFlux(void);
 	double getJoinFlux(void);
+	double getJoinFluxArr(void);
 	int getCount(void);
 	double *getEnergy(int volume_flag);
 	void printComplexList(int printoptions);

@@ -9,6 +9,7 @@
 #include "loop.h"
 #include "scomplex.h"
 #include "optionlists.h"
+#include <string>
 
 // needed for the openloop components of a strand ordering
 
@@ -75,6 +76,7 @@ public:
 
 	// updates and returns the current exterior base count.
 	exterior_bases *getExteriorBases(void);
+	string toString(void);
 
 	// replaces the first open loop in the ordering with the second.
 	void replaceOpenLoop(Loop *oldLoop, Loop *newLoop);

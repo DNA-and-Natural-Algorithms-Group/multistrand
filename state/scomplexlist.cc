@@ -84,6 +84,11 @@ string SComplexListEntry::toString(int printtype, EnergyModel *em) {
 	else
 		ss << ("          : Energy: (%6.6f) TotalFlux: %6.2f\n", energy, rate);
 
+
+	// also print info on the openloop datastructures
+
+	ss << thisComplex->printStrandOrdering();
+
 	return ss.str();
 
 }
@@ -205,7 +210,6 @@ double SComplexList::getTotalFlux(void) {
 
 double SComplexList::getJoinFlux(void) {
 
-//	cout << "Computing join flux";
 
 	SComplexListEntry *temp = first;
 	struct exterior_bases *ext_bases = NULL, total_bases;
@@ -250,6 +254,14 @@ double SComplexList::getJoinFlux(void) {
 		return 0.0;  // CANNOT BE ANYTHING OTHER THAN 0.0! There are plenty of multi-complex structures with no total moves.
 	else
 		return (double) total_move_count * dnaEnergyModel->getJoinRate();
+}
+
+
+
+double SComplexList::getJoinFluxArr(void) {
+
+	return 0.0;
+
 }
 
 /*

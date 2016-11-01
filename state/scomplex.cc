@@ -610,30 +610,24 @@ void StrandComplex::printAllMoves(void) {
 
 }
 
-void printMyLoops(string input, Loop* myLoop) {
-
-	if (myLoop != NULL) {
-
-		input += myLoop->toString();
-
-	}
-
-//	for (int i = 0; i < myLoop->getCurAdjacent(); i++) {
-//
-//		printMyLoops
-//	}
-
-}
 
 string StrandComplex::toString() {
 
 	string output = "";
-
-	printMyLoops(output, beginLoop);
+	// doesn't do anything right now
+//	printMyLoops(output, beginLoop);
 
 	return output;
 
 }
+
+
+string StrandComplex::printStrandOrdering(){
+
+	return ordering->toString();
+
+}
+
 
 double StrandComplex::getTotalFlux(void) {
 	return totalFlux = beginLoop->returnFlux(NULL);

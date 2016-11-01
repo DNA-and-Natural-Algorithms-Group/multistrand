@@ -790,6 +790,15 @@ exterior_bases *StrandOrdering::getExteriorBases( void )
   return &total_exterior_bases;
 }
 
+
+string StrandOrdering::toString(void){
+
+
+	return "";
+
+
+}
+
 void StrandOrdering::addBasepair( char *first_bp, char *second_bp )
 {
   char *id[2] = {NULL,NULL};
