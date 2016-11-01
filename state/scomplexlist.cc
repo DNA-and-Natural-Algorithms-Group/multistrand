@@ -85,6 +85,8 @@ string SComplexListEntry::toString(int printtype, EnergyModel *em) {
 		ss << ("          : Energy: (%6.6f) TotalFlux: %6.2f\n", energy, rate);
 
 
+	ss << "\n";
+
 	// also print info on the openloop datastructures
 
 	ss << thisComplex->printStrandOrdering();

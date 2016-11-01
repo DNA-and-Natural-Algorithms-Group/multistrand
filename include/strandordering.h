@@ -21,8 +21,8 @@ public:
 			char *inCodeSeq, char* inStruct);
 	~orderinglist(void);
 	orderinglist *next, *prev;
-	OpenLoop *thisLoop; // corresponds to the OpenLoop to the 'left' of this strand
 	char *thisTag, *thisSeq, *thisCodeSeq, *thisStruct;
+	OpenLoop *thisLoop; // corresponds to the OpenLoop to the 'left' of this strand
 	int size;
 	int uid;
 };
