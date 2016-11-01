@@ -1258,7 +1258,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		if (energyModel->useArrhenius()) {
 
 			left = loopMove; //energyModel->getPrefactorsMulti(e_index, end_->numAdjacent, end_->sidelen);
-			right = stackStackMove;
+			right = energyModel->prefactorOpen(e_index, end_->numAdjacent+1, end_->sidelen);;
 
 		}
 
