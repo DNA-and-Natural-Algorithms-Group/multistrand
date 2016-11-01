@@ -189,7 +189,6 @@ MoveType EnergyModel::prefactorInternal(int sideLength1, int sideLength2) {
 
 MoveType prefactorEndBothOpen(int left, int right) {
 
-//	cout << "prefactorEndBothOpen " << left << " " << right << "\n";
 
 	if (left > 0 && right > 0) {
 

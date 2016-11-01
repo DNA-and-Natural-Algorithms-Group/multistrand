@@ -13,16 +13,31 @@
 #include "loop.h"
 #include "utility.h"
 #include "energyoptions.h"
+#include "energymodel.h"
 
 using std::string;
 
+
+
+RateEnv::RateEnv(double mRate, EnergyModel* eModel, MoveType left, MoveType right){
+
+	rate = eModel->applyPrefactors(mRate, left, right);
+	arrType = -99;
+
+
+}
+
+
 Move::Move(void) {
+
 	type = 0;
 	rate = 0.0;
 	affected[0] = affected[1] = NULL;
+
 }
 
 Move::Move(int mtype, double mrate, Loop *affected_1, int index1, int index2, MoveType left, MoveType right) {
+
 	type = mtype;
 	rate = mrate;
 	affected[0] = affected_1;
@@ -33,6 +48,7 @@ Move::Move(int mtype, double mrate, Loop *affected_1, int index1, int index2, Mo
 	index[3] = -1;
 
 	arrConstant = -99;
+
 }
 
 Move::Move(int mtype, double mrate, Loop *affected_1, int index1, int index2, int index3, MoveType left, MoveType right ) {
@@ -46,6 +62,7 @@ Move::Move(int mtype, double mrate, Loop *affected_1, int index1, int index2, in
 	index[3] = -1;
 
 	arrConstant = -99;
+
 }
 
 Move::Move(int mtype, double mrate, Loop *affected_1, Loop *affected_2, int index1, int index2, MoveType left, MoveType right) {
