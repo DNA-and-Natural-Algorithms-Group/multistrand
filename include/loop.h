@@ -17,13 +17,11 @@ class EnergyOptions;
 struct RateArr {
 
 	double rate;
-//	int arrType;
 	MoveType left;
 	MoveType right;
 
 	RateArr() {
 		rate = -1.0;
-//		arrType = -1.0;
 		left = stackMove;
 		right = stackMove;
 	}
@@ -32,7 +30,6 @@ struct RateArr {
 		rate = inRate;
 		left = inLeft;
 		right = inRight;
-//		arrType = EnergyOptions::ARRTYPEF(inLeft, inRight);
 	}
 };
 

@@ -868,7 +868,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		// FD: interior loop and open loop, this has to be loopMove and something else;
 		if (energyModel->useArrhenius()) {
 
-			left = energyModel->getPrefactorsMulti(e_index, end_->numAdjacent, end_->sidelen);
+			left = energyModel->prefactorOpen(e_index, end_->numAdjacent+1, end_->sidelen);
 			right = loopMove;
 
 		}
@@ -1088,6 +1088,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		return RateArr(-1.0, left, right);
 	}
 
+	// hairpin,
 	if ((start->identity == 'H' && end->identity == 'M') || (start->identity == 'M' && end->identity == 'H')) {
 		HairpinLoop *start_;
 		MultiLoop *end_;
