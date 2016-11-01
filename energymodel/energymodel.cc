@@ -6,6 +6,7 @@
 #include "energymodel.h"
 #include "simoptions.h"
 #include "loop.h"
+#include "moveutil.h"
 
 #include <iostream>
 #include <fstream>
@@ -78,8 +79,8 @@ void EnergyModel::printPrecomputedArrRates(void) {
 
 	for (int i = 0; i < MOVETYPE_SIZE; i++) {
 
-		ss << EnergyOptions::MoveToString[i];
-		ss << EnergyOptions::MoveToString2[i] << " ";
+		ss << moveutil::MoveToString[i];
+		ss << moveutil::MoveToString2[i] << " ";
 
 	}
 
@@ -139,7 +140,7 @@ double EnergyModel::applyPrefactors(double tempRate, MoveType left, MoveType rig
 
 	if (simOptions->usePrimeRates) {
 
-		return EnergyOptions::valuesPrime[left] * EnergyOptions::valuesPrime[right];
+		return moveutil::valuesPrime[left] * moveutil::valuesPrime[right];
 
 	}
 

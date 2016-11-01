@@ -7,6 +7,7 @@
 
 #include "options.h"	 	// python options helper
 #include "energyoptions.h"
+#include "moveutil.h"
 
 #include <vector>
 #include <iostream>
@@ -14,19 +15,18 @@
 #include <sstream>
 #include <cmath>
 
+
+
 using std::vector;
 using std::string;
 
-const double EnergyOptions::valuesPrime[MOVETYPE_SIZE] = { 3, 5, 7, 11, 13, 17, 19 };
-const string EnergyOptions::MoveToString[MOVETYPE_SIZE] = { "End", "Loop", "Stack", "StackStack", "LoopEnd", "StackEnd", "StackLoop" };
-const string EnergyOptions::MoveToString2[MOVETYPE_SIZE] = { "      ", "     ", "   ", "", "  ", " ", " " };
 
 
-int EnergyOptions::ARRTYPEF(MoveType left, MoveType right) {
-
-	return (int) (EnergyOptions::valuesPrime[left] * EnergyOptions::valuesPrime[right]);
-
-}
+//int EnergyOptions::ARRTYPEF(MoveType left, MoveType right) {
+//
+//	return (int) (EnergyOptions::valuesPrime[left] * EnergyOptions::valuesPrime[right]);
+//
+//}
 
 
 void EnergyOptions::initializeArrheniusConstants(void) {
@@ -130,15 +130,15 @@ string EnergyOptions::primeRateToString(double rate) {
 
 	for (int i = 0; i < MOVETYPE_SIZE; i++) {
 
-		int myPrime = valuesPrime[i];
+		int myPrime = moveutil::valuesPrime[i];
 
 		if ((myRate % myPrime) == 0) {
 
-			ss << MoveToString[i] << ", ";
+			ss << moveutil::MoveToString[i] << ", ";
 
 			if ((myRate % (myPrime * myPrime) == 0)) {
 
-				ss << MoveToString[i] << ", ";
+				ss << moveutil::MoveToString[i] << ", ";
 
 			}
 

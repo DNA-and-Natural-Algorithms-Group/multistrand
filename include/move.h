@@ -31,8 +31,8 @@ class RateEnv {
 	double rate;
 	int arrType = -444;
 
-
 };
+
 
 class Move {
 public:

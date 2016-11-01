@@ -25,6 +25,7 @@ const static string MoveToString[MOVETYPE_SIZE] = { "End", "Loop", "Stack", "Sta
 const static string MoveToString2[MOVETYPE_SIZE] = { "      ", "     ", "   ", "", "  ", " ", " " };
 
 
+int typeMult(MoveType left, MoveType right);
 
 
 }

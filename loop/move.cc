@@ -18,11 +18,10 @@
 using std::string;
 
 
-
 RateEnv::RateEnv(double mRate, EnergyModel* eModel, MoveType left, MoveType right){
 
 	rate = eModel->applyPrefactors(mRate, left, right);
-	arrType = -99;
+	arrType = moveutil::typeMult(left, right);
 
 
 }
@@ -196,7 +195,7 @@ string Move::toString(bool usePrime) {
 		}
 		ss << ", ";
 		ss << "(" << index[0] << ", " << index[1] << ", " << index[2] << ", " << index[3] << "),  ";
-//		ss << rate << " " << this->rateToString(usePrime);
+
 		ss << this->rateToString(usePrime);
 		ss << " \n";
 

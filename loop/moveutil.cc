@@ -10,3 +10,8 @@ using namespace std;
 //string moveutil::MoveToString2[MOVETYPE_SIZE] = { "      ", "     ", "   ", "", "  ", " ", " " };
 //
 
+int moveutil::typeMult(MoveType left, MoveType right) {
+
+	return (int) (valuesPrime[left] * valuesPrime[right]);
+
+}
