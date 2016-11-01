@@ -142,6 +142,10 @@ int Move::getType(void) {
 	return type;
 }
 
+int Move::getArrType(void) {
+	return rate.arrType;
+}
+
 Loop *Move::getAffected(int index) {
 	assert(index >= 0 && index <= 1);
 	return affected[index];

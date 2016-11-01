@@ -47,6 +47,7 @@ public:
 	~Move(void);
 	double getRate(void);
 	int getType(void);
+	int getArrType(void);
 	Loop *getAffected(int index);
 	Loop *doChoice(void);
 	string toString(bool);
@@ -61,27 +62,14 @@ public:
 	friend class StrandComplex;
 protected:
 	int type;
-//	int arrConstant = 3333;
+
 	RateEnv rate;
 	int index[4];
 	Loop* affected[2];
 
 };
 
-//class ArrMove: public Move { 		// Implements the Arrhenius model
-//public:
-//	// all the constructors that moves has..
-//	ArrMove(void);
-//	ArrMove(int mtype, double mrate, Loop *affected_1, int index1, int index2);
-//	ArrMove(int mtype, double mrate, Loop *affected_1, int index1, int index2, int index3);
-//	ArrMove(int mtype, double mrate, Loop *affected_1, int index1, int index2, int index3, int index4);
-//	ArrMove(int mtype, double mrate, Loop *affected_1, int *indexarray);
-//	ArrMove(int mtype, double mrate, Loop *affected_1, Loop *affected_2, int index1, int index2);
-//	ArrMove(int mtype, double mrate, Loop *affected_1, Loop *affected_2, int index1);
-//
-//	string toString();
-//
-//};
+
 
 class MoveContainer {
 public:

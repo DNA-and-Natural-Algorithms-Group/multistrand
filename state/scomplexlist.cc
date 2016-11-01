@@ -298,7 +298,9 @@ int SComplexList::getCount(void) {
  SComplexListEntry *SComplexList::doBasicChoice( double choice, double newtime )
  */
 
-SComplexListEntry *SComplexList::doBasicChoice(double choice, double newtime) {
+//SComplexListEntry *SComplexList::doBasicChoice(double choice, double newtime) {
+int SComplexList::doBasicChoice(double choice, double newtime) {
+
 	double rchoice = choice, moverate;
 	int type;
 	SComplexListEntry *temp, *temp2 = first;
@@ -342,7 +344,10 @@ SComplexListEntry *SComplexList::doBasicChoice(double choice, double newtime) {
 	}
 
 	temp2->fillData(dnaEnergyModel);
-	return temp2;
+//	return temp2;
+
+	return tempmove->getArrType();
+
 
 }
 

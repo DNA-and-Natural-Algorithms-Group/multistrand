@@ -296,7 +296,7 @@ void SimulationSystem::SimulationLoop_Standard(void) {
 			// FD: Mathematically it is also the correct thing to do,
 			// FD: when we remember the memoryless property of the Markov chain
 
-			complexList->doBasicChoice(rchoice, stime);
+			int myMove = complexList->doBasicChoice(rchoice, stime);
 
 			///Add the state to the hashmap counter
 			this->countState(complexList);
@@ -414,12 +414,12 @@ void SimulationSystem::SimulationLoop_Trajectory() {
 			exportTime(stime, &last_trajectory_time);
 		}
 
-		complexList->doBasicChoice(rchoice, stime);
+		int ArrMoveType = complexList->doBasicChoice(rchoice, stime);
 		rate = complexList->getTotalFlux();
 		current_state_count += 1;
 
 		if (exportStatesInterval) {
-			exportInterval(stime, current_state_count);
+			exportInterval(stime, current_state_count, ArrMoveType);
 		}
 
 		if (stopoptions) {
@@ -755,7 +755,7 @@ void SimulationSystem::sendTransitionStateVectorToPython(boolvector transition_s
 // Helper function to send current state to python side. //
 ///////////////////////////////////////////////////////////
 
-void SimulationSystem::sendTrajectory_CurrentStateToPython(double current_time) {
+void SimulationSystem::sendTrajectory_CurrentStateToPython(double current_time, int arrType) {
 	int id;
 	char *names, *sequence, *structure;
 	double energy;
@@ -771,8 +771,10 @@ void SimulationSystem::sendTrajectory_CurrentStateToPython(double current_time) 
 	}
 
 	pushTrajectoryInfo(system_options, current_time);
+	pushTrajectoryInfo2(system_options, arrType);
 
 }
+
 
 // FD: OK to have alternate_start = NULL
 int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
@@ -877,10 +879,11 @@ void SimulationSystem::exportTime(double simTime, double* lastExportTime) {
 
 }
 
-void SimulationSystem::exportInterval(double simTime, int transitionCount) {
+void SimulationSystem::exportInterval(double simTime, int transitionCount, int arrType) {
 
 	if ((transitionCount % simOptions->getOInterval()) == 0) {
-		sendTrajectory_CurrentStateToPython(simTime);
+		sendTrajectory_CurrentStateToPython(simTime, arrType);
+//		sendTrajectory_CurrentArrMoveToPython(arrType);
 	}
 
 }
