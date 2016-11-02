@@ -3021,11 +3021,11 @@ string StackLoop::typeInternalsToString(void) {
 //	ss << "pairtype=  " << pairtype[0] << "," << pairtype[1];
 //	ss << "      ";
 
-	ss << "(" << baseTypeString[seqs[0][0] - 1] << "/";
-	ss << baseTypeString[seqs[1][1] - 1] << ", ";
+	ss << "(" << baseTypeString[seqs[0][0] ] << "/";
+	ss << baseTypeString[seqs[1][1] ] << ", ";
 
-	ss << baseTypeString[seqs[0][1] - 1] << "/";
-	ss << baseTypeString[seqs[1][0] - 1];
+	ss << baseTypeString[seqs[0][1] ] << "/";
+	ss << baseTypeString[seqs[1][0] ];
 
 	ss << ") \n";
 

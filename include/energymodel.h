@@ -68,7 +68,10 @@ enum BaseType {
 
 };
 
-const string baseTypeString[BASETYPE_SIZE] = { "A", "C", "G", "T" };
+const string baseTypeString[BASETYPE_SIZE + 1] = { "&", "A", "C", "G", "T" };
+
+
+
 
 class energyS {
 public:

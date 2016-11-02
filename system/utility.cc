@@ -23,13 +23,23 @@ char* utility::copyToCharArray(string& myString) {
 
 string utility::sequenceToString(char* sequence, int size) {
 
+ // the first and final character is the paired base -- adjust the print for this.
+
 	std::stringstream ss;
 
-	for (int i = 0; i < size + 1; i++) {
+	ss << "[";
+	ss << baseTypeString[sequence[0] ];
+	ss << "-";
 
-		ss << baseTypeString[sequence[i] - 1];
+	for (int i = 1; i < size + 1; i++) {
+
+		ss << baseTypeString[sequence[i] ];
 
 	}
+
+	ss << "-";
+	ss << baseTypeString[sequence[1] ];
+	ss << "]";
 
 	return ss.str();
 
