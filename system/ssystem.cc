@@ -891,7 +891,7 @@ void SimulationSystem::exportInterval(double simTime, int transitionCount, int a
 void SimulationSystem::printAllMoves() {
 
 	complexList->initializeList();
-	complexList->printComplexList(3);
+	complexList->printComplexList();
 
 	startState->printAllMoves();
 

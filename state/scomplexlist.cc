@@ -64,25 +64,27 @@ void SComplexListEntry::fillData(EnergyModel *em) {
  SComplexListEntry::printComplex
  */
 
-string SComplexListEntry::toString(int printtype, EnergyModel *em) {
+string SComplexListEntry::toString( EnergyModel *em) {
+
+	// print types are depreciated.
 
 	std::stringstream ss;
 
 	ss << "Complex: " << id << " \n";
 	ss << "seq    : " << thisComplex->getSequence()  <<" \n" ;
 	ss << "struct : " << thisComplex->getStructure() <<" \n" ;
-	if (printtype == 1)
-		ss << ("          : Energy: (%6.6f) TotalFlux: %6.2f\n", energy - (em->getVolumeEnergy() * (thisComplex->getStrandCount() - 1)), rate);
-	else if (printtype == 2)
-		ss
-				<< ("          : Energy: (%6.6f) TotalFlux: %6.2f\n", energy
-						- (em->getVolumeEnergy() + em->getAssocEnergy()) * (thisComplex->getStrandCount() - 1), rate);
-	else if (printtype == 3)
+//	if (printtype == 1)
+//		ss << ("          : Energy: (%6.6f) TotalFlux: %6.2f\n", energy - (em->getVolumeEnergy() * (thisComplex->getStrandCount() - 1)), rate);
+//	else if (printtype == 2)
+//		ss
+//				<< ("          : Energy: (%6.6f) TotalFlux: %6.2f\n", energy
+//						- (em->getVolumeEnergy() + em->getAssocEnergy()) * (thisComplex->getStrandCount() - 1), rate);
+//	else if (printtype == 3)
 		ss
 				<< ("          : Energy: (%6.2f) TotalFlux: %6.0f\n", energy
 						- (em->getVolumeEnergy() + em->getAssocEnergy()) * (thisComplex->getStrandCount() - 1), rate);
-	else
-		ss << ("          : Energy: (%6.6f) TotalFlux: %6.2f\n", energy, rate);
+//	else
+//		ss << ("          : Energy: (%6.6f) TotalFlux: %6.2f\n", energy, rate);
 
 
 	ss << "\n";
@@ -95,11 +97,11 @@ string SComplexListEntry::toString(int printtype, EnergyModel *em) {
 
 }
 
-void SComplexListEntry::printComplex(int printtype, EnergyModel *em) {
-
-	cout << this->toString(printtype, em);
-
-}
+//void SComplexListEntry::printComplex(int printtype, EnergyModel *em) {
+//
+//	cout << this->toString(printtype, em);
+//
+//}
 
 void SComplexListEntry::dumpComplexEntryToPython(int *our_id, char **names, char **sequence, char **structure, double *our_energy) {
 	*our_id = id;
@@ -292,11 +294,11 @@ double *SComplexList::getEnergy(int volume_flag) {
  SComplexList::printComplexList
  */
 
-void SComplexList::printComplexList(int printoptions) {
+void SComplexList::printComplexList() {
 	SComplexListEntry *temp = first;
 
 	while (temp != NULL) {
-		temp->printComplex(printoptions, dnaEnergyModel);
+		cout << temp->toString(dnaEnergyModel);
 		temp = temp->next;
 	}
 }
@@ -542,7 +544,7 @@ bool SComplexList::checkStopComplexList(class complexItem *stoplist) {
 
 string SComplexList::toString() {
 
-	return first->toString(0, NULL);
+	return first->toString( NULL);
 
 }
 

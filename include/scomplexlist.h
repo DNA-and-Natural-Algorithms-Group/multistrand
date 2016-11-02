@@ -29,7 +29,7 @@ public:
 	double getJoinFluxArr(void);
 	int getCount(void);
 	double *getEnergy(int volume_flag);
-	void printComplexList(int printoptions);
+	void printComplexList();
 	SComplexListEntry *getFirst(void);
 	int doBasicChoice(double choice, double newtime);
 	void doJoinChoice(double choice);
@@ -56,8 +56,7 @@ public:
 	void initializeComplex(void);
 	void regenerateMoves(void);
 	void fillData(EnergyModel *em);
-	string toString(int printtype, EnergyModel *em);
-	void printComplex(int printtype, EnergyModel *em);
+	string toString( EnergyModel *em);
 	void dumpComplexEntryToPython(int *our_id, char **names, char **sequence, char **structure, double *our_energy);
 	int id;
 	StrandComplex *thisComplex;
