@@ -68,9 +68,9 @@ string SComplexListEntry::toString(int printtype, EnergyModel *em) {
 
 	std::stringstream ss;
 
-	ss << ("Complex %02d: \n", id);
-	ss << ("          : %s\n", thisComplex->getSequence());
-	ss << ("          : %s\n", thisComplex->getStructure());
+	ss << "Complex: " << id << " \n";
+	ss << "seq    : " << thisComplex->getSequence()  <<" \n" ;
+	ss << "struct : " << thisComplex->getStructure() <<" \n" ;
 	if (printtype == 1)
 		ss << ("          : Energy: (%6.6f) TotalFlux: %6.2f\n", energy - (em->getVolumeEnergy() * (thisComplex->getStrandCount() - 1)), rate);
 	else if (printtype == 2)
