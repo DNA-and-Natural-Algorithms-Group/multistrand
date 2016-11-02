@@ -64,28 +64,17 @@ void SComplexListEntry::fillData(EnergyModel *em) {
  SComplexListEntry::printComplex
  */
 
-string SComplexListEntry::toString( EnergyModel *em) {
+string SComplexListEntry::toString(EnergyModel *em) {
 
 	// print types are depreciated.
 
 	std::stringstream ss;
 
-	ss << "Complex: " << id << " \n";
-	ss << "seq    : " << thisComplex->getSequence()  <<" \n" ;
-	ss << "struct : " << thisComplex->getStructure() <<" \n" ;
-//	if (printtype == 1)
-//		ss << ("          : Energy: (%6.6f) TotalFlux: %6.2f\n", energy - (em->getVolumeEnergy() * (thisComplex->getStrandCount() - 1)), rate);
-//	else if (printtype == 2)
-//		ss
-//				<< ("          : Energy: (%6.6f) TotalFlux: %6.2f\n", energy
-//						- (em->getVolumeEnergy() + em->getAssocEnergy()) * (thisComplex->getStrandCount() - 1), rate);
-//	else if (printtype == 3)
-		ss
-				<< ("          : Energy: (%6.2f) TotalFlux: %6.0f\n", energy
-						- (em->getVolumeEnergy() + em->getAssocEnergy()) * (thisComplex->getStrandCount() - 1), rate);
-//	else
-//		ss << ("          : Energy: (%6.6f) TotalFlux: %6.2f\n", energy, rate);
-
+	ss << "Complex  : " << id << " \n";
+	ss << "seq      : " << thisComplex->getSequence() << " \n";
+	ss << "struct   : " << thisComplex->getStructure() << " \n";
+	ss << "energy   : " << energy - (em->getVolumeEnergy() + em->getAssocEnergy()) * (thisComplex->getStrandCount() - 1) << "\n";
+	ss << "totalFlux: " << rate;
 
 	ss << "\n";
 
@@ -97,20 +86,12 @@ string SComplexListEntry::toString( EnergyModel *em) {
 
 }
 
-//void SComplexListEntry::printComplex(int printtype, EnergyModel *em) {
-//
-//	cout << this->toString(printtype, em);
-//
-//}
-
 void SComplexListEntry::dumpComplexEntryToPython(int *our_id, char **names, char **sequence, char **structure, double *our_energy) {
 	*our_id = id;
 	*names = thisComplex->getStrandNames();
 	*sequence = thisComplex->getSequence();
 	*structure = thisComplex->getStructure();
 	*our_energy = energy;
-
-
 
 }
 
@@ -214,7 +195,6 @@ double SComplexList::getTotalFlux(void) {
 
 double SComplexList::getJoinFlux(void) {
 
-
 	SComplexListEntry *temp = first;
 	struct exterior_bases *ext_bases = NULL, total_bases;
 
@@ -259,8 +239,6 @@ double SComplexList::getJoinFlux(void) {
 	else
 		return (double) total_move_count * dnaEnergyModel->getJoinRate();
 }
-
-
 
 double SComplexList::getJoinFluxArr(void) {
 
@@ -363,7 +341,6 @@ int SComplexList::doBasicChoice(double choice, double newtime) {
 //	return temp2;
 
 	return tempmove->getArrType();
-
 
 }
 
