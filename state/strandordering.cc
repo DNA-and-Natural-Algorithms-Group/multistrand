@@ -1,12 +1,14 @@
 /*
- Copyright (c) 2007-2010 Caltech. All rights reserved.
+ Copyright (c) 2007-2016 Caltech. All rights reserved.
  Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
+ 	 	   Frits Dannenberg (fdann@caltech.edu)
  */
 
 // StrandOrdering object
 // used to track sequences and structures within a complex for easy printing, etc.
 #include "scomplex.h" // implicitly includes strandordering.h, and is necessary for proper ordering. TODO: decorrelate these headers, they should be independent.
-#include <string.h>
+#include <string>
+#include <sstream>
 #include <assert.h>
 
 orderinglist::orderinglist(int insize, int n_id, char *inTag, char *inSeq, char *inCodeSeq, char* inStruct) {
@@ -701,7 +703,10 @@ exterior_bases *StrandOrdering::getExteriorBases(void) {
 
 string StrandOrdering::toString(void) {
 
-	string output = "Printing strandordering \n";
+
+	std::stringstream ss;
+
+	ss << "\nStrand ordering: \n";
 
 	orderinglist *traverse = NULL;
 	int *free_bases;
@@ -711,13 +716,14 @@ string StrandOrdering::toString(void) {
 	for (traverse = first; traverse != NULL; traverse = traverse->next) {
 
 		assert(traverse->thisLoop != NULL);
-		output += traverse->thisLoop->typeInternalsToString();
+		ss << traverse->thisLoop->typeInternalsToString();
 
 	}
 
-	output += "Done printing strand ordering \n";
+	ss << "\n";
+//	output += "Done printing strand ordering \n";
 
-	return output;
+	return ss.str();
 
 }
 

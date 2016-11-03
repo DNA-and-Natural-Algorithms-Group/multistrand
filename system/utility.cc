@@ -27,9 +27,9 @@ string utility::sequenceToString(char* sequence, int size) {
 
 	std::stringstream ss;
 
-	ss << "[";
+	ss << "";
 	ss << baseTypeString[sequence[0] ];
-	ss << "-";
+	ss << ":";
 
 	for (int i = 1; i < size + 1; i++) {
 
@@ -37,9 +37,9 @@ string utility::sequenceToString(char* sequence, int size) {
 
 	}
 
-	ss << "-";
-	ss << baseTypeString[sequence[1] ];
-	ss << "]";
+	ss << ":";
+	ss << baseTypeString[sequence[size + 1] ];
+	ss << "";
 
 	return ss.str();
 

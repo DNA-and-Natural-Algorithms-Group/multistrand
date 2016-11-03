@@ -52,6 +52,9 @@ const int basepair_sw_mfold[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
 const int basepair_sw_mfold_actual[8] = { 0, 4, 3, 2, 1, 6, 5, 7 }; // Why do this? Yeah, because vienna's parameter file sucks and stores pairings in the opposite ordering. So for one of them, we need to swap basepairs to get the correct ordering, in the other one, we don't.
 extern int basepair_sw[8]; // = {0,0,0,0,0,0,0,0};
 
+const static string basepairString[NUM_BASEPAIRS_NUPACK] = {"A/T", "C/G", "G/C", "T/A", "G/T", "T/G"};
+
+
 int baseLookup(char base);
 
 #define INF 100000
@@ -68,7 +71,7 @@ enum BaseType {
 
 };
 
-const string baseTypeString[BASETYPE_SIZE + 1] = { "&", "A", "C", "G", "T" };
+const string baseTypeString[BASETYPE_SIZE + 1] = { "·", "A", "C", "G", "T" };
 
 
 

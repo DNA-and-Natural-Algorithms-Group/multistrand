@@ -22,6 +22,9 @@ typedef std::vector<int>::iterator intvec_it;
 
  */
 
+
+
+
 SComplexListEntry::SComplexListEntry(StrandComplex *newComplex, int newid) {
 	thisComplex = newComplex;
 	energy = 0.0;
@@ -242,6 +245,15 @@ double SComplexList::getJoinFlux(void) {
 
 double SComplexList::getJoinFluxArr(void) {
 
+// there are 7x7 options, so these rates we have to tally and then sum.
+
+	SComplexListEntry *temp = first;
+
+	while (temp != NULL) {
+//		ext_bases = temp->thisComplex->getExteriorBases();
+
+	}
+
 	return 0.0;
 
 }
@@ -279,6 +291,7 @@ void SComplexList::printComplexList() {
 		cout << temp->toString(dnaEnergyModel);
 		temp = temp->next;
 	}
+
 }
 
 SComplexListEntry *SComplexList::getFirst(void) {

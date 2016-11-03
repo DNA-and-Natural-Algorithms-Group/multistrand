@@ -22,12 +22,6 @@ using std::string;
 
 
 
-//int EnergyOptions::ARRTYPEF(MoveType left, MoveType right) {
-//
-//	return (int) (EnergyOptions::valuesPrime[left] * EnergyOptions::valuesPrime[right]);
-//
-//}
-
 
 void EnergyOptions::initializeArrheniusConstants(void) {
 

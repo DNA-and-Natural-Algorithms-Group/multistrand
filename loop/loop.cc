@@ -1499,11 +1499,11 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		double tempRate = energyModel->returnRate(old_energy, new_energy, 3);
 
-		// multiloop and multiLoop, so something plus something else
+		// openLoop and openLoop, so something plus something else
 		if (energyModel->useArrhenius()) {
 
-			left = energyModel->getPrefactorsMulti(index[0], tempLoop[0]->numAdjacent + 1, tempLoop[0]->sidelen);
-			right = energyModel->getPrefactorsMulti(index[1], tempLoop[1]->numAdjacent + 1, tempLoop[1]->sidelen);
+			left = energyModel->prefactorOpen(index[0], tempLoop[0]->numAdjacent + 1, tempLoop[0]->sidelen);
+			right = energyModel->prefactorOpen(index[1], tempLoop[1]->numAdjacent + 1, tempLoop[1]->sidelen);
 
 		}
 
@@ -4733,7 +4733,13 @@ string OpenLoop::typeInternalsToString(void) {
 		ss << ", ";
 		ss << utility::sequenceToString(seqs[i], sidelen[i]) << ",  ";
 
+	}
 
+	ss << "\n";
+
+	for (int i = 0; i < numAdjacent ; i++) {
+
+		ss << "        pairTypes " << basepairString[pairtype[i]-1] << ", " ;
 	}
 
 	ss << " \n";
