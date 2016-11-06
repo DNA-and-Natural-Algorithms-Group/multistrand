@@ -12,6 +12,12 @@ enum MoveType {
 	endMove, loopMove, stackMove, stackStackMove, loopEndMove, stackEndMove, stackLoopMove, MOVETYPE_SIZE
 };
 
+enum halfContext {
+	End, Strand, Stack, HALFCONTXT_SIZE
+};
+
+
+
 
 namespace moveutil {
 

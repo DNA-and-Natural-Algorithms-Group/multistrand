@@ -11,6 +11,7 @@
 #include <string>
 #include "energymodel.h"
 #include "move.h"
+#include "moveutil.h"
 
 class EnergyOptions;
 
@@ -223,6 +224,8 @@ public:
 	void printMove(Loop *comefrom, char *structure_p, char *seq_p);
 	char *getLocation(Move *move, int index);
 	char *verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop *from);
+	void updateLocalContext();
+
 
 	// OpenLoop::getFreeBases returns the base composition information for the
 	//   open loop. Return form is a pointer to an array of size 5, containing
@@ -247,6 +250,13 @@ private:
 	int *pairtype;
 	int *sidelen;
 	char **seqs;
+
+	halfContext** context;
+	// array of enums, mimics the structure of seqs, excluding bases
+	// so that index i in seqs, corresponds to i-1, and halfContext is
+	// 2 indices shorter than seqs (external bases excluded)
+
+	bool updatedContext = false;
 };
 
 #endif

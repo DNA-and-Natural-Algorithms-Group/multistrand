@@ -811,6 +811,26 @@ void StrandOrdering::breakBasepair(char *first_bp, char *second_bp) {
 	return;
 }
 
+
+void StrandOrdering::computeLocalContext(){
+
+	// we only have to iterate over the open loops to update the local context
+	orderinglist *traverse = NULL;
+
+
+	for (traverse = first; traverse != NULL; traverse = traverse->next) {
+
+		assert(traverse->thisLoop != NULL);
+		traverse->thisLoop->updateLocalContext();
+
+	}
+
+
+
+
+}
+
+
 int StrandOrdering::getStrandCount(void) {
 	return count;
 }

@@ -43,6 +43,7 @@ public:
 	long getStopOptions(void);
 	long getStopCount(void);
 	double getMaxSimTime(void);
+	bool usingArrhenius(void);
 
 	void setPrimeRates(bool);
 

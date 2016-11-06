@@ -5466,3 +5466,39 @@ char *OpenLoop::verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop 
 	else
 		return NULL;
 }
+
+
+void OpenLoop::updateLocalContext(){
+
+	// do nothing if not required
+	if(updatedContext){
+
+		return;
+
+	}
+
+	if (context!=NULL){
+
+		delete context;
+
+	}
+
+
+
+	context = new halfContext* [numAdjacent];
+
+
+	for (int i = 0; i< numAdjacent; i++){
+
+		// new array
+		context[i] = new halfContext[sidelen[i]];
+
+//		parseLocalContext(i);
+
+	}
+
+
+	updatedContext = true;
+
+}
+
