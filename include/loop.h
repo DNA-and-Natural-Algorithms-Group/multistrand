@@ -9,9 +9,12 @@
 #define __LOOP_H__
 
 #include <string>
+#include <vector>
 #include "energymodel.h"
 #include "move.h"
 #include "moveutil.h"
+
+using std::vector;
 
 class EnergyOptions;
 
@@ -225,7 +228,7 @@ public:
 	char *getLocation(Move *move, int index);
 	char *verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop *from);
 	void updateLocalContext();
-
+	void parseLocalContext(int);
 
 	// OpenLoop::getFreeBases returns the base composition information for the
 	//   open loop. Return form is a pointer to an array of size 5, containing
@@ -251,12 +254,12 @@ private:
 	int *sidelen;
 	char **seqs;
 
-	halfContext** context;
-	// array of enums, mimics the structure of seqs, excluding bases
+	bool updatedContext = false;
+	std::vector<std::vector<halfContext>> context;
+	// vector array of halfContext, mimics the structure of seqs, excluding bases
 	// so that index i in seqs, corresponds to i-1, and halfContext is
 	// 2 indices shorter than seqs (external bases excluded)
 
-	bool updatedContext = false;
 };
 
 #endif
