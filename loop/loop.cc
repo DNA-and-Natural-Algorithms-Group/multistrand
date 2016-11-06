@@ -868,7 +868,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		// FD: interior loop and open loop, this has to be loopMove and something else;
 		if (energyModel->useArrhenius()) {
 
-			left = energyModel->prefactorOpen(e_index, end_->numAdjacent + 1, end_->sidelen);
+			left = energyModel->prefactorOpen(e_index, end_->numAdjacent+1, end_->sidelen);
 			right = loopMove;
 
 		}
@@ -1258,8 +1258,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		if (energyModel->useArrhenius()) {
 
 			left = loopMove; //energyModel->getPrefactorsMulti(e_index, end_->numAdjacent, end_->sidelen);
-			right = energyModel->prefactorOpen(e_index, end_->numAdjacent + 1, end_->sidelen);
-			;
+			right = energyModel->prefactorOpen(e_index, end_->numAdjacent+1, end_->sidelen);;
 
 		}
 
@@ -3022,11 +3021,11 @@ string StackLoop::typeInternalsToString(void) {
 //	ss << "pairtype=  " << pairtype[0] << "," << pairtype[1];
 //	ss << "      ";
 
-	ss << "(" << baseTypeString[seqs[0][0]] << "/";
-	ss << baseTypeString[seqs[1][1]] << ", ";
+	ss << "(" << baseTypeString[seqs[0][0] ] << "/";
+	ss << baseTypeString[seqs[1][1] ] << ", ";
 
-	ss << baseTypeString[seqs[0][1]] << "/";
-	ss << baseTypeString[seqs[1][0]];
+	ss << baseTypeString[seqs[0][1] ] << "/";
+	ss << baseTypeString[seqs[1][0] ];
 
 	ss << ") \n";
 
@@ -3528,6 +3527,7 @@ void BulgeLoop::generateMoves(void) {
 						multiMove = energyModel->prefactorInternal(sidelen[1], sidelen[2]);
 					}
 
+
 					rateEnv = RateEnv(tempRate, energyModel, loopMove, multiMove);
 
 					moves->addMove(new Move( MOVE_CREATE, rateEnv, this, loop, loop2));
@@ -3546,6 +3546,7 @@ void BulgeLoop::generateDeleteMoves(void) {
 
 	generateAndSaveDeleteMove(adjacentLoops[0], 0);
 	generateAndSaveDeleteMove(adjacentLoops[1], 1);
+
 
 	totalRate = moves->getRate();
 }
@@ -3797,7 +3798,7 @@ double InteriorLoop::doChoice(Move *move, Loop **returnLoop) {
 
 					newLoop[1] = new BulgeLoop(pt, pairtype[1], (sizes[0] - loop), (loop2 - 1), &int_seq[0][loop], int_seq[1]);
 				else
-					// interior
+						// interior
 					newLoop[1] = new InteriorLoop(pt, pairtype[1], sizes[0] - loop, loop2 - 1, &int_seq[0][loop], int_seq[1]);
 
 			}
@@ -4736,9 +4737,9 @@ string OpenLoop::typeInternalsToString(void) {
 
 	ss << "\n";
 
-	for (int i = 0; i < numAdjacent; i++) {
+	for (int i = 0; i < numAdjacent ; i++) {
 
-		ss << "        pairTypes " << basepairString[pairtype[i] - 1] << ", ";
+		ss << "        pairTypes " << basepairString[pairtype[i]-1] << ", " ;
 	}
 
 	ss << " \n";
@@ -5389,6 +5390,7 @@ void OpenLoop::performComplexJoin(OpenLoop **oldLoops, OpenLoop **newLoops, char
 				if (loop < sizes[toggle]) // again, never false
 					pairtype[loop] = pairtypes[types[toggle]][types[1 - toggle]];
 
+
 				sidelen[loop] = seqindex[toggle] - 1;
 				seqs[loop] = oldLoops[toggle]->seqs[loop];
 			} else if (loop > seqnum[toggle]) {
@@ -5464,82 +5466,3 @@ char *OpenLoop::verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop 
 	else
 		return NULL;
 }
-
-void OpenLoop::updateLocalContext() {
-
-	// do nothing if not required
-	if (updatedContext) {
-
-		return;
-
-	}
-
-	context.clear();
-
-	context = vector<vector<halfContext>>(numAdjacent);
-
-	for (int i = 0; i < numAdjacent; i++) {
-
-		parseLocalContext(i);
-
-	}
-
-	updatedContext = true;
-
-}
-
-void OpenLoop::parseLocalContext(int index) {
-
-	int length = sidelen[index];
-	vector<halfContext> newContext;
-
-	for (int i = 1; i < (length + 1); i++) {
-
-		halfContext hContext;
-
-		// check if we have a stack or an end on the left
-		if (i == 1) {
-
-
-
-			if (seqs[index][0] > 0) {
-
-				hContext.left = stackC;
-
-			} else
-
-				hContext.left = endC;
-
-		} else {
-
-			hContext.left = strandC;
-
-		}
-
-		if (i == length) {	// the final index of seqs
-
-			// check if we have a stack on the right or an end
-			if (seqs[index][i + 1] > 0) {
-
-				hContext.right = stackC;
-
-			} else {
-
-				hContext.right = endC;
-
-			}
-
-		} else {
-
-			hContext.right = strandC;
-
-		}
-
-
-		newContext[i] = hContext;
-	}
-
-	context[index] = newContext;
-
-}
-

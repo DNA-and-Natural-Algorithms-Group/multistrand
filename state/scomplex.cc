@@ -666,14 +666,6 @@ void StrandComplex::generateMoves(void) {
 	beginLoop->firstGen( NULL);
 }
 
-
-void StrandComplex::computeLocalContext(void){
-
-	ordering->computeLocalContext();
-
-}
-
-
 Move *StrandComplex::getChoice(double *rand_choice) {
 	return beginLoop->getChoice(rand_choice, NULL);
 }

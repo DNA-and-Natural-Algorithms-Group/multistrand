@@ -25,7 +25,7 @@ public:
 	void initializeList(void);
 	void regenerateMoves(void);
 	double getTotalFlux(void);
-	double getJoinFlux(SimOptions* = NULL);
+	double getJoinFlux(void);
 	double getJoinFluxArr(void);
 	int getCount(void);
 	double *getEnergy(int volume_flag);
@@ -57,7 +57,6 @@ public:
 	void regenerateMoves(void);
 	void fillData(EnergyModel *em);
 	string toString( EnergyModel *em);
-//	void computeLocalContext();
 	void dumpComplexEntryToPython(int *our_id, char **names, char **sequence, char **structure, double *our_energy);
 	int id;
 	StrandComplex *thisComplex;

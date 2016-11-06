@@ -43,7 +43,6 @@ public:
 	void reorder(OpenLoop *index); // reorder so that open loop passed is the available openloop
 	void addBasepair(char *first_bp, char *second_bp);
 	void breakBasepair(char *first_bp, char *second_bp);
-	void computeLocalContext();
 
 	OpenLoop *checkIDList(class identList *stoplist, int count);
 	int checkIDBound(char *id);

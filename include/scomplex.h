@@ -37,7 +37,6 @@ public:
 	int getStrandCount(void); // # of strands in the complex.
 	double getEnergy(void); // returns the energy of the complex
 	void generateMoves(void); // display function to output the dot-paren structure of all moves contained in this complex. Should be preceded by printing the sequence, possibly I should change it to just do that straight out. Used for testing purposes (comparing all moves adjacent and rates).
-	void computeLocalContext(void); // generates additional data in the openloop structures, related to computing local contexts
 	char *getSequence(void); // returns char representation of sequence
 	char *getStructure(void); // returns dot-paren notation structure for seq.
 	char *getStrandNames(void); // returns ordered list of strand names
