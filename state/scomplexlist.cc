@@ -538,6 +538,18 @@ string SComplexList::toString() {
 
 }
 
+
+void SComplexList::updateLocalContext(void){
+
+	SComplexListEntry *temp = first;
+	while (temp != NULL) {
+		temp->thisComplex->updateLocalContext();
+		temp = temp->next;
+	}
+
+}
+
+
 /*
 
  bool SComplexList::checkStopComplexList_Bound( class complex_item *stoplist )

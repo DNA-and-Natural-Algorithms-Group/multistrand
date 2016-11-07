@@ -4744,6 +4744,38 @@ string OpenLoop::typeInternalsToString(void) {
 
 }
 
+string OpenLoop::halfContextToString(void) {
+
+	// if the half contexts are updated, print them
+
+	std::stringstream ss;
+
+	if (updatedContext) {
+
+		ss << "hContext:";
+
+		for (int i = 0; i < numAdjacent + 1; i++) {
+
+			ss << "c" << i << " - ";
+
+			for (int j = 0; j < context[i].size(); i++) {
+
+				ss << context[i][j];
+
+			}
+
+			ss << "  --  ";
+
+		}
+
+	}
+
+	ss << " \n";
+
+	return ss.str();
+
+}
+
 void OpenLoop::calculateEnergy(void) {
 	if (energyModel == NULL)
 		return; // if the loops try to get used before the energy model initializes, it's all over.
@@ -5473,7 +5505,7 @@ void OpenLoop::updateLocalContext() {
 
 	context.clear();
 
-	for (int i = 0; i < numAdjacent; i++) {
+	for (int i = 0; i < numAdjacent+1; i++) {
 
 		parseLocalContext(i);
 
@@ -5517,7 +5549,7 @@ void OpenLoop::parseLocalContext(int index) {
 		// process right side
 		if (i == size) {
 
-			if (seqs[index][i+1] > 0) { // there is a stack on the right
+			if (seqs[index][i + 1] > 0) { // there is a stack on the right
 
 				qContext.right = stackC;
 
@@ -5537,10 +5569,7 @@ void OpenLoop::parseLocalContext(int index) {
 
 	}
 
-//	context[index] = newContext;
 	context.push_back(newContext);
-
-
 
 }
 

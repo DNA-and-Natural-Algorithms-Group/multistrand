@@ -35,6 +35,7 @@ public:
 	void doJoinChoice(double choice);
 	bool checkStopComplexList(class complexItem *stoplist);
 	string toString(void);
+	void updateLocalContext(void);
 
 private:
 	bool checkStopComplexList_Bound(class complexItem *stoplist);

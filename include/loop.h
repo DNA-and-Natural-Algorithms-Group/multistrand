@@ -246,6 +246,7 @@ public:
 	static void performComplexJoin(OpenLoop **oldLoops, OpenLoop **newLoops, char *types, int *index);
 	MoveType declareMoveType(Loop* attachedLoop);
 	string typeInternalsToString(void);
+	string halfContextToString(void);
 	void updateLocalContext(void);
 	void parseLocalContext(int);
 
