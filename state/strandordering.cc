@@ -727,7 +727,7 @@ string StrandOrdering::toString(void) {
 		assert(traverse->thisLoop != NULL);
 		ss << traverse->thisLoop->typeInternalsToString();
 		// now also print local Contexts
-//		ss << traverse->thisLoop->halfContextToString();
+		ss << traverse->thisLoop->halfContextToString();
 
 	}
 

@@ -4752,19 +4752,21 @@ string OpenLoop::halfContextToString(void) {
 
 	if (updatedContext) {
 
-		ss << "hContext:";
+		ss << "hContext: \n";
 
-		for (int i = 0; i < numAdjacent + 1; i++) {
+		for (int i = 0; i < numAdjacent + 1 ; i++) {
 
-			ss << "c" << i << " - ";
+			ss << "   c" << i << " - ";
 
-			for (int j = 0; j < context[i].size(); i++) {
+			for (int j = 0; j < context[i].size(); j++) {
+
 
 				ss << context[i][j];
 
 			}
 
-			ss << "  --  ";
+
+			ss << "  \n";
 
 		}
 
@@ -5521,7 +5523,10 @@ void OpenLoop::parseLocalContext(int index) {
 
 	vector<halfContext> newContext;
 
-	size = 2; // run once testing
+	cout << "size is " << size;
+	cout.flush();
+
+//	size = 2; // run once testing
 
 	for (int i = 1; i < size + 1; i++) {
 

@@ -8,7 +8,7 @@
 
 
 
-std::string quartContextString[HALFCONTEXT_SIZE] = { "endC  ", "strandC", "stackC" };
+std::string quartContextString[HALFCONTEXT_SIZE] = { "end", "loop", "stack" };
 
 int moveutil::typeMult(MoveType left, MoveType right) {
 
@@ -19,7 +19,9 @@ int moveutil::typeMult(MoveType left, MoveType right) {
 
 std::ostream& operator<< (std::ostream &os, halfContext& m) {
 
-	os << "left quart: " << quartContextString[m.left] << ", left right:  " << quartContextString[m.right] << " \n";
+//	os << "left quart: " << quartContextString[m.left] << ", left right:  " << quartContextString[m.right] << " \n";
+	os << "(" << quartContextString[m.left] << ", " << quartContextString[m.right] << ") ";
+
 	return os;
 
 }
