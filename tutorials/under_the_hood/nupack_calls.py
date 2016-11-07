@@ -62,6 +62,12 @@ pfunc(rna_seq, material = 'rna', multi = False, pseudo = True)
 ## Example with energy()
 # Find the energy (in kcal/mol) of this DNA structure.
 print(energy(dna_seqs, dna_struct, material = 'dna'))
+
+print(energy(["TCG","CGA"],"(((+)))", material = 'dna'))
+# print(energy(["TCG","CGA"],"...+...", material = 'dna'))
+
+
+
 # Output: -61.79270283815892
 
 ## Example with defect()

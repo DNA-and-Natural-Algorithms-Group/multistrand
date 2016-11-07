@@ -611,6 +611,12 @@ void StrandComplex::printAllMoves(void) {
 }
 
 
+//void StrandComplex::printHalfContexts(void){
+//
+//	cout << ordering->halfContextsString();
+//
+//}
+
 string StrandComplex::toString() {
 
 	string output = "";
@@ -624,6 +630,8 @@ string StrandComplex::toString() {
 
 string StrandComplex::printStrandOrdering(){
 
+	// first update the half contexts.
+//	ordering->updateHalfContexts();
 	return ordering->toString();
 
 }

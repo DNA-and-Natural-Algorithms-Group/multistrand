@@ -912,6 +912,7 @@ void SimulationSystem::InitialInfo(void) {
 		Loop::setPrimeRates(true);
 		complexList->regenerateMoves();
 		startState->printAllMoves();
+//		startState->printHalfContexts();
 
 		Loop::setPrimeRates(false);
 

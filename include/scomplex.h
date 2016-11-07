@@ -54,6 +54,7 @@ public:
 	int generateLoops(void);
 
 	void printAllMoves(void);
+//	void printHalfContexts(void);
 	string toString(void);
 	string printStrandOrdering(void);
 
