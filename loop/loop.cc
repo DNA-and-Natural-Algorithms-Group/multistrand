@@ -5475,7 +5475,7 @@ void OpenLoop::updateLocalContext() {
 
 	for (int i = 0; i < numAdjacent; i++) {
 
-//		parseLocalContext(i);
+		parseLocalContext(i);
 
 	}
 
@@ -5488,6 +5488,8 @@ void OpenLoop::parseLocalContext(int index) {
 	int size = sidelen[index];
 
 	vector<halfContext> newContext;
+
+	size = 2; // run once testing
 
 	for (int i = 1; i < size + 1; i++) {
 
@@ -5531,11 +5533,12 @@ void OpenLoop::parseLocalContext(int index) {
 
 		}
 
-		newContext[i-1] = qContext;
+		newContext.push_back(qContext);
 
 	}
 
-	context[index] = newContext;
+//	context[index] = newContext;
+	context.push_back(newContext);
 
 
 
