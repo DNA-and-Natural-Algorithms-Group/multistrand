@@ -81,11 +81,10 @@
 import random
 import numpy as np
 import os
-os.environ["NUPACKHOME"] = "/home/hazel/workspace/nupack3.0.5"
 
 
-if False:  # only needed if you're having trouble with your Multistrand installation
-    import multistrand_setup
+# if False:  # only needed if you're having trouble with your Multistrand installation
+#     import multistrand_setup
 
 try:
     from multistrand.objects import *

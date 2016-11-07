@@ -18,7 +18,7 @@
 #   python -i hairpin_trajectories.py
 
 import os
-os.environ["NUPACKHOME"] = "/home/hazel/workspace/nupack3.0.5"
+
 
 
 if False:  # only needed if you're having trouble with your Multistrand installation
