@@ -3019,9 +3019,6 @@ string StackLoop::typeInternalsToString(void) {
 
 	std::stringstream ss;
 
-//	ss << "pairtype=  " << pairtype[0] << "," << pairtype[1];
-//	ss << "      ";
-
 	ss << "(" << baseTypeString[seqs[0][0]] << "/";
 	ss << baseTypeString[seqs[1][1]] << ", ";
 
@@ -5492,12 +5489,12 @@ void OpenLoop::parseLocalContext(int index) {
 
 	vector<halfContext> newContext;
 
-	for (int i = 1; i < index + 1; i++) {
+	for (int i = 1; i < size + 1; i++) {
 
 		halfContext qContext;
 
 		// process left side
-		if (i == 0) {
+		if (i == 1) {
 
 			if (seqs[index][i] > 0) { // there is a stack on the left
 
@@ -5516,9 +5513,9 @@ void OpenLoop::parseLocalContext(int index) {
 		}
 
 		// process right side
-		if (i == 0) {
+		if (i == size) {
 
-			if (seqs[index][i] > 0) { // there is a stack on the right
+			if (seqs[index][i+1] > 0) { // there is a stack on the right
 
 				qContext.right = stackC;
 
