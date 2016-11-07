@@ -4696,6 +4696,7 @@ OpenLoop::~OpenLoop(void) {
 	delete[] pairtype;
 	delete[] sidelen;
 	delete[] seqs;
+
 }
 
 OpenLoop::OpenLoop(int branches, int *pairtypes, int *sidelengths, char **sequences) {
@@ -4743,276 +4744,292 @@ string OpenLoop::typeInternalsToString(void) {
 
 	ss << " \n";
 
-	return ss.str();
+	// also add the Arrhenius local context
+	for (int i = 0; i < numAdjacent; i++) {
+
+		vector<halfContext> vec = context[i];
+
+		for (int j = 0; j < vec.size(); j++) {
+
+
+		ss << vec[j];
+
+	}
+
+}
+
+ss << " \n";
+
+return ss.str();
 
 }
 
 void OpenLoop::calculateEnergy(void) {
-	if (energyModel == NULL)
-		return; // if the loops try to get used before the energy model initializes, it's all over.
+if (energyModel == NULL)
+	return; // if the loops try to get used before the energy model initializes, it's all over.
 
-	energy = energyModel->OpenloopEnergy(numAdjacent, sidelen, seqs);
-	return;
+energy = energyModel->OpenloopEnergy(numAdjacent, sidelen, seqs);
+return;
 }
 
 Move *OpenLoop::getChoice(double *randomchoice, Loop *from) {
-	Move *stor;
-	assert(randomchoice != NULL);
-	assert(*randomchoice >= 0.0); // never should see a negative choice value.
+Move *stor;
+assert(randomchoice != NULL);
+assert(*randomchoice >= 0.0); // never should see a negative choice value.
 
-	if (*randomchoice < totalRate) // something was chosen, do this
-		return moves->getChoice(randomchoice);
-	else {
-		*randomchoice -= totalRate;
-		for (int loop = 0; loop < curAdjacent; loop++)
-			if (adjacentLoops[loop] != from) {
-				stor = adjacentLoops[loop]->getChoice(randomchoice, this);
-				if (stor != NULL)
-					return stor;
-			}
-	}
-	return NULL;
+if (*randomchoice < totalRate) // something was chosen, do this
+	return moves->getChoice(randomchoice);
+else {
+	*randomchoice -= totalRate;
+	for (int loop = 0; loop < curAdjacent; loop++)
+		if (adjacentLoops[loop] != from) {
+			stor = adjacentLoops[loop]->getChoice(randomchoice, this);
+			if (stor != NULL)
+				return stor;
+		}
+}
+return NULL;
 }
 
 double OpenLoop::doChoice(Move *move, Loop **returnLoop) {
-	Loop *newLoop[2];
-	int pt, loop, loop2, loop3, loop4, temploop, tempindex;
-	int *ptypes;
-	int *sidelengths;
-	char **sequences;
+Loop *newLoop[2];
+int pt, loop, loop2, loop3, loop4, temploop, tempindex;
+int *ptypes;
+int *sidelengths;
+char **sequences;
 
-	if (move->type & MOVE_CREATE) {
-		loop = move->index[0];
-		loop2 = move->index[1];
-		loop3 = move->index[2];
-		loop4 = move->index[3];
+if (move->type & MOVE_CREATE) {
+	loop = move->index[0];
+	loop2 = move->index[1];
+	loop3 = move->index[2];
+	loop4 = move->index[3];
 
-		if (move->type & MOVE_1) {
-			//single side, hairpin + open with 1 higher mag.
-			ptypes = new int[numAdjacent + 1];
-			sidelengths = new int[numAdjacent + 2];
-			sequences = new char *[numAdjacent + 2];
+	if (move->type & MOVE_1) {
+		//single side, hairpin + open with 1 higher mag.
+		ptypes = new int[numAdjacent + 1];
+		sidelengths = new int[numAdjacent + 2];
+		sequences = new char *[numAdjacent + 2];
 
-			pt = pairtypes[seqs[loop3][loop]][seqs[loop3][loop2]];
+		pt = pairtypes[seqs[loop3][loop]][seqs[loop3][loop2]];
 
-			for (temploop = 0, tempindex = 0; temploop <= numAdjacent + 1; temploop++, tempindex++) {
-				if (temploop == loop3) {
-					ptypes[temploop] = pt;
-					sidelengths[temploop] = loop - 1;
-					sequences[temploop] = seqs[temploop];
-					if (temploop != numAdjacent)
-						ptypes[temploop + 1] = pairtype[temploop];
-					sidelengths[temploop + 1] = sidelen[temploop] - loop2;
-					sequences[temploop + 1] = seqs[temploop] + loop2;
-					temploop = temploop + 1;
-				} else {
-					if (temploop != numAdjacent + 1)
-						ptypes[temploop] = pairtype[tempindex];
-					sidelengths[temploop] = sidelen[tempindex];
-					sequences[temploop] = seqs[tempindex];
-				}
+		for (temploop = 0, tempindex = 0; temploop <= numAdjacent + 1; temploop++, tempindex++) {
+			if (temploop == loop3) {
+				ptypes[temploop] = pt;
+				sidelengths[temploop] = loop - 1;
+				sequences[temploop] = seqs[temploop];
+				if (temploop != numAdjacent)
+					ptypes[temploop + 1] = pairtype[temploop];
+				sidelengths[temploop + 1] = sidelen[temploop] - loop2;
+				sequences[temploop + 1] = seqs[temploop] + loop2;
+				temploop = temploop + 1;
+			} else {
+				if (temploop != numAdjacent + 1)
+					ptypes[temploop] = pairtype[tempindex];
+				sidelengths[temploop] = sidelen[tempindex];
+				sequences[temploop] = seqs[tempindex];
 			}
+		}
 
-			newLoop[0] = new OpenLoop(numAdjacent + 1, ptypes, sidelengths, sequences);
+		newLoop[0] = new OpenLoop(numAdjacent + 1, ptypes, sidelengths, sequences);
 
-			newLoop[1] = new HairpinLoop(pt, loop2 - loop - 1, &seqs[loop3][loop]);
+		newLoop[1] = new HairpinLoop(pt, loop2 - loop - 1, &seqs[loop3][loop]);
 
-			for (temploop = 0; temploop < numAdjacent; temploop++) {
-				if (temploop == loop3) {
-					newLoop[0]->addAdjacent(newLoop[1]);
-					newLoop[0]->addAdjacent(adjacentLoops[temploop]);
-					adjacentLoops[temploop]->replaceAdjacent(this, newLoop[0]);
-					adjacentLoops[temploop]->generateMoves();
-				} else {
-					newLoop[0]->addAdjacent(adjacentLoops[temploop]);
-					adjacentLoops[temploop]->replaceAdjacent(this, newLoop[0]);
-					adjacentLoops[temploop]->generateMoves();
-				}
-			}
-			if (temploop == loop3)
+		for (temploop = 0; temploop < numAdjacent; temploop++) {
+			if (temploop == loop3) {
 				newLoop[0]->addAdjacent(newLoop[1]);
-
-			newLoop[1]->addAdjacent(newLoop[0]);
-			newLoop[0]->generateMoves();
-			newLoop[1]->generateMoves();
-			*returnLoop = newLoop[0];
-			return ((newLoop[0]->getTotalRate() + newLoop[1]->getTotalRate()) - totalRate);
+				newLoop[0]->addAdjacent(adjacentLoops[temploop]);
+				adjacentLoops[temploop]->replaceAdjacent(this, newLoop[0]);
+				adjacentLoops[temploop]->generateMoves();
+			} else {
+				newLoop[0]->addAdjacent(adjacentLoops[temploop]);
+				adjacentLoops[temploop]->replaceAdjacent(this, newLoop[0]);
+				adjacentLoops[temploop]->generateMoves();
+			}
 		}
+		if (temploop == loop3)
+			newLoop[0]->addAdjacent(newLoop[1]);
 
-		// MOVE_2
-		if (move->type & MOVE_2) {
-			//adjacent sides, one of: stack    + open with same mag
-			//                        bulge    + open with same mag
-			//                        interior + open with same mag
-			ptypes = new int[numAdjacent];
-			sidelengths = new int[numAdjacent + 1];
-			sequences = new char *[numAdjacent + 1];
-
-			pt = pairtypes[seqs[loop3][loop]][seqs[loop3 + 1][loop2]];
-
-			for (temploop = 0; temploop <= numAdjacent; temploop++) {
-				if (temploop == loop3) {
-					ptypes[temploop] = pt;
-					sidelengths[temploop] = loop - 1;
-					sequences[temploop] = seqs[temploop];
-				} else {
-					if (temploop != numAdjacent)
-						ptypes[temploop] = pairtype[temploop];
-					if (temploop == loop3 + 1) {
-						sidelengths[temploop] = sidelen[temploop] - loop2;
-						sequences[temploop] = &seqs[temploop][loop2];
-					} else {
-						sidelengths[temploop] = sidelen[temploop];
-						sequences[temploop] = seqs[temploop];
-					}
-				}
-			}
-
-			newLoop[0] = new OpenLoop(numAdjacent, ptypes, sidelengths, sequences);
-
-			// three cases for which type of move:
-			// #2a: stack
-			if (loop == sidelen[loop3] && loop2 == 1) {
-				newLoop[1] = new StackLoop(pt, pairtype[loop3], &seqs[loop3][loop], &seqs[loop3 + 1][0]);
-			}
-			// #2b: bulge
-			else if (loop == sidelen[loop3] || loop2 == 1) {
-				newLoop[1] = new BulgeLoop(pt, pairtype[loop3], sidelen[loop3] - loop, loop2 - 1, &seqs[loop3][loop], &seqs[loop3 + 1][0]);
-			}
-
-			//FIXME 01/17/05: not necessarily in this location: need to make sure that we have a consistent case: sequences in multiloops/openloops are always /before/ (as is the case with open loops) or after, the pairing. 01/17/05 - this definately is the case, open loops have the sequence /before/ the pair with the same index - multi and all others have the squence /after/ the pair with the same index. It appears to be consistently used in most cases, but perhaps i should add an assert into the code to ensure this is the case.
-
-			// #2c: interior
-			else {
-				newLoop[1] = new InteriorLoop(pt, pairtype[loop3], sidelen[loop3] - loop, loop2 - 1, &seqs[loop3][loop], &seqs[loop3 + 1][0]);
-			}
-
-			for (temploop = 0; temploop < numAdjacent; temploop++) {
-				if (temploop == loop3) {
-					newLoop[0]->addAdjacent(newLoop[1]);
-				} else {
-					newLoop[0]->addAdjacent(adjacentLoops[temploop]);
-					adjacentLoops[temploop]->replaceAdjacent(this, newLoop[0]);
-					adjacentLoops[temploop]->generateMoves();
-				}
-			}
-
-			newLoop[1]->addAdjacent(newLoop[0]);
-			newLoop[1]->addAdjacent(adjacentLoops[loop3]);
-			adjacentLoops[loop3]->replaceAdjacent(this, newLoop[1]);
-			adjacentLoops[loop3]->generateMoves();
-
-			newLoop[0]->generateMoves();
-			newLoop[1]->generateMoves();
-			*returnLoop = newLoop[0];
-			return ((newLoop[0]->getTotalRate() + newLoop[1]->getTotalRate()) - totalRate);
-		}
-
-		// MOVE_3
-		if (move->type & MOVE_3) {
-			//non-adjacent sides, multi + open loop
-
-			ptypes = new int[loop4 - loop3 + 1];
-			sidelengths = new int[loop4 - loop3 + 1];
-			sequences = new char *[loop4 - loop3 + 1];
-
-			pt = pairtypes[seqs[loop3][loop]][seqs[loop4][loop2]];
-
-			for (temploop = 0, tempindex = 0; temploop < (loop4 - loop3 + 1); tempindex++) // note that loop4 - loop3 is the number of pairings that got included in the multiloop. The extra closing pair makes the +1.
-					{
-				if (tempindex == loop3) {
-					ptypes[temploop] = pt;
-					sidelengths[temploop] = sidelen[tempindex] - loop;
-					sequences[temploop] = &seqs[tempindex][loop];
-					temploop++;
-				}
-				if (tempindex > loop3 && tempindex < loop4) {
-					ptypes[temploop] = pairtype[tempindex - 1];
-					sidelengths[temploop] = sidelen[tempindex];
-					sequences[temploop] = seqs[tempindex];
-					temploop++;
-				}
-				if (tempindex == loop4) {
-					ptypes[temploop] = pairtype[tempindex - 1];
-					sidelengths[temploop] = loop2 - 1;
-					sequences[temploop] = seqs[tempindex];
-					temploop++;
-				}
-			}
-
-			newLoop[0] = new MultiLoop(loop4 - loop3 + 1, ptypes, sidelengths, sequences);
-
-			ptypes = new int[numAdjacent - (loop4 - loop3 - 1)];
-			sidelengths = new int[numAdjacent - (loop4 - loop3 - 1) + 1];
-			sequences = new char *[numAdjacent - (loop4 - loop3 - 1) + 1];
-
-			for (temploop = 0, tempindex = 0; temploop <= numAdjacent - (loop4 - loop3 - 1); tempindex++) {
-				if (tempindex == loop3) {
-					ptypes[temploop] = pt;
-					sidelengths[temploop] = loop - 1;
-					sequences[temploop] = seqs[tempindex];
-					temploop++;
-				} else if (tempindex == loop4) {
-					if (temploop < numAdjacent - (loop4 - loop3 - 1))
-						ptypes[temploop] = pairtype[tempindex];
-					sidelengths[temploop] = sidelen[tempindex] - loop2;
-					sequences[temploop] = &seqs[tempindex][loop2];
-					temploop++;
-				} else if (!((tempindex > loop3) && (tempindex < loop4))) {
-					if (temploop != numAdjacent - (loop4 - loop3 - 1))
-						ptypes[temploop] = pairtype[tempindex];
-					sidelengths[temploop] = sidelen[tempindex];
-					sequences[temploop] = seqs[tempindex];
-					temploop++;
-				}
-			}
-			newLoop[1] = new OpenLoop(numAdjacent - (loop4 - loop3 - 1), ptypes, sidelengths, sequences);
-
-			// fix all the connections
-
-			for (temploop = 0; temploop < numAdjacent; temploop++) {
-				if (temploop < loop3) {
-					newLoop[1]->addAdjacent(adjacentLoops[temploop]);
-					adjacentLoops[temploop]->replaceAdjacent(this, newLoop[1]);
-					adjacentLoops[temploop]->generateMoves();
-				} else if (temploop == loop3) {
-					newLoop[1]->addAdjacent(newLoop[0]);
-					newLoop[0]->addAdjacent(newLoop[1]);
-					newLoop[0]->addAdjacent(adjacentLoops[temploop]);
-					adjacentLoops[temploop]->replaceAdjacent(this, newLoop[0]);
-					adjacentLoops[temploop]->generateMoves();
-				} else if (temploop < loop4) {
-					newLoop[0]->addAdjacent(adjacentLoops[temploop]);
-					adjacentLoops[temploop]->replaceAdjacent(this, newLoop[0]);
-					adjacentLoops[temploop]->generateMoves();
-				} else {
-					newLoop[1]->addAdjacent(adjacentLoops[temploop]);
-					adjacentLoops[temploop]->replaceAdjacent(this, newLoop[1]);
-					adjacentLoops[temploop]->generateMoves();
-				}
-			}
-
-			newLoop[0]->generateMoves();
-			newLoop[1]->generateMoves();
-			*returnLoop = newLoop[1];
-			return ((newLoop[0]->getTotalRate() + newLoop[1]->getTotalRate()) - totalRate);
-		}
-
+		newLoop[1]->addAdjacent(newLoop[0]);
+		newLoop[0]->generateMoves();
+		newLoop[1]->generateMoves();
+		*returnLoop = newLoop[0];
+		return ((newLoop[0]->getTotalRate() + newLoop[1]->getTotalRate()) - totalRate);
 	}
-	return -totalRate;
+
+	// MOVE_2
+	if (move->type & MOVE_2) {
+		//adjacent sides, one of: stack    + open with same mag
+		//                        bulge    + open with same mag
+		//                        interior + open with same mag
+		ptypes = new int[numAdjacent];
+		sidelengths = new int[numAdjacent + 1];
+		sequences = new char *[numAdjacent + 1];
+
+		pt = pairtypes[seqs[loop3][loop]][seqs[loop3 + 1][loop2]];
+
+		for (temploop = 0; temploop <= numAdjacent; temploop++) {
+			if (temploop == loop3) {
+				ptypes[temploop] = pt;
+				sidelengths[temploop] = loop - 1;
+				sequences[temploop] = seqs[temploop];
+			} else {
+				if (temploop != numAdjacent)
+					ptypes[temploop] = pairtype[temploop];
+				if (temploop == loop3 + 1) {
+					sidelengths[temploop] = sidelen[temploop] - loop2;
+					sequences[temploop] = &seqs[temploop][loop2];
+				} else {
+					sidelengths[temploop] = sidelen[temploop];
+					sequences[temploop] = seqs[temploop];
+				}
+			}
+		}
+
+		newLoop[0] = new OpenLoop(numAdjacent, ptypes, sidelengths, sequences);
+
+		// three cases for which type of move:
+		// #2a: stack
+		if (loop == sidelen[loop3] && loop2 == 1) {
+			newLoop[1] = new StackLoop(pt, pairtype[loop3], &seqs[loop3][loop], &seqs[loop3 + 1][0]);
+		}
+		// #2b: bulge
+		else if (loop == sidelen[loop3] || loop2 == 1) {
+			newLoop[1] = new BulgeLoop(pt, pairtype[loop3], sidelen[loop3] - loop, loop2 - 1, &seqs[loop3][loop], &seqs[loop3 + 1][0]);
+		}
+
+		//FIXME 01/17/05: not necessarily in this location: need to make sure that we have a consistent case: sequences in multiloops/openloops are always /before/ (as is the case with open loops) or after, the pairing. 01/17/05 - this definately is the case, open loops have the sequence /before/ the pair with the same index - multi and all others have the squence /after/ the pair with the same index. It appears to be consistently used in most cases, but perhaps i should add an assert into the code to ensure this is the case.
+
+		// #2c: interior
+		else {
+			newLoop[1] = new InteriorLoop(pt, pairtype[loop3], sidelen[loop3] - loop, loop2 - 1, &seqs[loop3][loop], &seqs[loop3 + 1][0]);
+		}
+
+		for (temploop = 0; temploop < numAdjacent; temploop++) {
+			if (temploop == loop3) {
+				newLoop[0]->addAdjacent(newLoop[1]);
+			} else {
+				newLoop[0]->addAdjacent(adjacentLoops[temploop]);
+				adjacentLoops[temploop]->replaceAdjacent(this, newLoop[0]);
+				adjacentLoops[temploop]->generateMoves();
+			}
+		}
+
+		newLoop[1]->addAdjacent(newLoop[0]);
+		newLoop[1]->addAdjacent(adjacentLoops[loop3]);
+		adjacentLoops[loop3]->replaceAdjacent(this, newLoop[1]);
+		adjacentLoops[loop3]->generateMoves();
+
+		newLoop[0]->generateMoves();
+		newLoop[1]->generateMoves();
+		*returnLoop = newLoop[0];
+		return ((newLoop[0]->getTotalRate() + newLoop[1]->getTotalRate()) - totalRate);
+	}
+
+	// MOVE_3
+	if (move->type & MOVE_3) {
+		//non-adjacent sides, multi + open loop
+
+		ptypes = new int[loop4 - loop3 + 1];
+		sidelengths = new int[loop4 - loop3 + 1];
+		sequences = new char *[loop4 - loop3 + 1];
+
+		pt = pairtypes[seqs[loop3][loop]][seqs[loop4][loop2]];
+
+		for (temploop = 0, tempindex = 0; temploop < (loop4 - loop3 + 1); tempindex++) // note that loop4 - loop3 is the number of pairings that got included in the multiloop. The extra closing pair makes the +1.
+				{
+			if (tempindex == loop3) {
+				ptypes[temploop] = pt;
+				sidelengths[temploop] = sidelen[tempindex] - loop;
+				sequences[temploop] = &seqs[tempindex][loop];
+				temploop++;
+			}
+			if (tempindex > loop3 && tempindex < loop4) {
+				ptypes[temploop] = pairtype[tempindex - 1];
+				sidelengths[temploop] = sidelen[tempindex];
+				sequences[temploop] = seqs[tempindex];
+				temploop++;
+			}
+			if (tempindex == loop4) {
+				ptypes[temploop] = pairtype[tempindex - 1];
+				sidelengths[temploop] = loop2 - 1;
+				sequences[temploop] = seqs[tempindex];
+				temploop++;
+			}
+		}
+
+		newLoop[0] = new MultiLoop(loop4 - loop3 + 1, ptypes, sidelengths, sequences);
+
+		ptypes = new int[numAdjacent - (loop4 - loop3 - 1)];
+		sidelengths = new int[numAdjacent - (loop4 - loop3 - 1) + 1];
+		sequences = new char *[numAdjacent - (loop4 - loop3 - 1) + 1];
+
+		for (temploop = 0, tempindex = 0; temploop <= numAdjacent - (loop4 - loop3 - 1); tempindex++) {
+			if (tempindex == loop3) {
+				ptypes[temploop] = pt;
+				sidelengths[temploop] = loop - 1;
+				sequences[temploop] = seqs[tempindex];
+				temploop++;
+			} else if (tempindex == loop4) {
+				if (temploop < numAdjacent - (loop4 - loop3 - 1))
+					ptypes[temploop] = pairtype[tempindex];
+				sidelengths[temploop] = sidelen[tempindex] - loop2;
+				sequences[temploop] = &seqs[tempindex][loop2];
+				temploop++;
+			} else if (!((tempindex > loop3) && (tempindex < loop4))) {
+				if (temploop != numAdjacent - (loop4 - loop3 - 1))
+					ptypes[temploop] = pairtype[tempindex];
+				sidelengths[temploop] = sidelen[tempindex];
+				sequences[temploop] = seqs[tempindex];
+				temploop++;
+			}
+		}
+		newLoop[1] = new OpenLoop(numAdjacent - (loop4 - loop3 - 1), ptypes, sidelengths, sequences);
+
+		// fix all the connections
+
+		for (temploop = 0; temploop < numAdjacent; temploop++) {
+			if (temploop < loop3) {
+				newLoop[1]->addAdjacent(adjacentLoops[temploop]);
+				adjacentLoops[temploop]->replaceAdjacent(this, newLoop[1]);
+				adjacentLoops[temploop]->generateMoves();
+			} else if (temploop == loop3) {
+				newLoop[1]->addAdjacent(newLoop[0]);
+				newLoop[0]->addAdjacent(newLoop[1]);
+				newLoop[0]->addAdjacent(adjacentLoops[temploop]);
+				adjacentLoops[temploop]->replaceAdjacent(this, newLoop[0]);
+				adjacentLoops[temploop]->generateMoves();
+			} else if (temploop < loop4) {
+				newLoop[0]->addAdjacent(adjacentLoops[temploop]);
+				adjacentLoops[temploop]->replaceAdjacent(this, newLoop[0]);
+				adjacentLoops[temploop]->generateMoves();
+			} else {
+				newLoop[1]->addAdjacent(adjacentLoops[temploop]);
+				adjacentLoops[temploop]->replaceAdjacent(this, newLoop[1]);
+				adjacentLoops[temploop]->generateMoves();
+			}
+		}
+
+		newLoop[0]->generateMoves();
+		newLoop[1]->generateMoves();
+		*returnLoop = newLoop[1];
+		return ((newLoop[0]->getTotalRate() + newLoop[1]->getTotalRate()) - totalRate);
+	}
+
+}
+return -totalRate;
 }
 
 void OpenLoop::generateMoves(void) {
 
-	int loop, loop2, loop3, loop4, temploop, tempindex, loops[4];
-	int pairType;
-	double tempRate;
-	RateEnv rateEnv;
-	double energies[2];
+int loop, loop2, loop3, loop4, temploop, tempindex, loops[4];
+int pairType;
+double tempRate;
+RateEnv rateEnv;
+double energies[2];
 
-	if (moves != NULL)
-		delete moves;
-	moves = new MoveList(1);
+if (moves != NULL)
+	delete moves;
+moves = new MoveList(1);
 //  Several options here:
 //     #1: creation move within a side this results in a hairpin and a open loop with 1 greater magnitude.
 //     #2a: creation move between sides resulting in a stack and open loop
@@ -5025,309 +5042,309 @@ void OpenLoop::generateMoves(void) {
 // i'd like to optimize so they don't need to be created/deleted very often
 // but i'm  not sure of a good way of handling that yet.
 
-	int *ptypes = NULL;
-	int *sideLengths = NULL;
-	char **sequences = NULL;
+int *ptypes = NULL;
+int *sideLengths = NULL;
+char **sequences = NULL;
 
-	ptypes = new int[numAdjacent + 1];
-	sideLengths = new int[numAdjacent + 2];
-	sequences = new char *[numAdjacent + 2];
+ptypes = new int[numAdjacent + 1];
+sideLengths = new int[numAdjacent + 2];
+sequences = new char *[numAdjacent + 2];
 // Case #1: Single Side only Creation Moves
-	for (loop3 = 0; loop3 < numAdjacent + 1; loop3++) {
+for (loop3 = 0; loop3 < numAdjacent + 1; loop3++) {
 
-		char* mySequence = seqs[loop3]; // this is the sequence of the strand that we use
+	char* mySequence = seqs[loop3]; // this is the sequence of the strand that we use
 
-		for (loop = 1; loop < sidelen[loop3] - 3; loop++) {
+	for (loop = 1; loop < sidelen[loop3] - 3; loop++) {
 
-			for (loop2 = loop + 4; loop2 <= sidelen[loop3]; loop2++) { // each possibility is a hairpin and open loop, see above.
+		for (loop2 = loop + 4; loop2 <= sidelen[loop3]; loop2++) { // each possibility is a hairpin and open loop, see above.
 
-				pairType = pairtypes[mySequence[loop]][mySequence[loop2]];
+			pairType = pairtypes[mySequence[loop]][mySequence[loop2]];
 
-				if (pairType != 0) { // FD: the NUPACK model puts terms here to be non-zero.    in NUPACK, G-T stacking is a thing. Hairpin loops are size 3 or more.
+			if (pairType != 0) { // FD: the NUPACK model puts terms here to be non-zero.    in NUPACK, G-T stacking is a thing. Hairpin loops are size 3 or more.
 
-					energies[0] = energyModel->HairpinEnergy(&mySequence[loop], loop2 - loop - 1);
+				energies[0] = energyModel->HairpinEnergy(&mySequence[loop], loop2 - loop - 1);
 
-					for (temploop = 0, tempindex = 0; temploop < numAdjacent + 2; temploop++, tempindex++) {
-						if (temploop == loop3) {
-							ptypes[temploop] = pairType;
-							sideLengths[temploop] = loop - 1;
-							sequences[temploop] = seqs[temploop];
-							if (temploop != numAdjacent)
-								ptypes[temploop + 1] = pairtype[temploop];
-							sideLengths[temploop + 1] = sidelen[temploop] - loop2;
-							sequences[temploop + 1] = seqs[temploop] + loop2;
-							temploop = temploop + 1;
-						} else {
-							if (temploop != numAdjacent + 1)
-								ptypes[temploop] = pairtype[tempindex];
-							sideLengths[temploop] = sidelen[tempindex];
-							sequences[temploop] = seqs[tempindex];
-						}
+				for (temploop = 0, tempindex = 0; temploop < numAdjacent + 2; temploop++, tempindex++) {
+					if (temploop == loop3) {
+						ptypes[temploop] = pairType;
+						sideLengths[temploop] = loop - 1;
+						sequences[temploop] = seqs[temploop];
+						if (temploop != numAdjacent)
+							ptypes[temploop + 1] = pairtype[temploop];
+						sideLengths[temploop + 1] = sidelen[temploop] - loop2;
+						sequences[temploop + 1] = seqs[temploop] + loop2;
+						temploop = temploop + 1;
+					} else {
+						if (temploop != numAdjacent + 1)
+							ptypes[temploop] = pairtype[tempindex];
+						sideLengths[temploop] = sidelen[tempindex];
+						sequences[temploop] = seqs[tempindex];
 					}
-					energies[1] = energyModel->OpenloopEnergy(numAdjacent + 1, sideLengths, sequences);
-					tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
-
-					// if the new Arrhenius model is used, modify the existing rate based on the local context.
-					// to start, we need to learn what the local context is, AFTER the nucleotide is put in place.
-
-					// multiLoop is splitting off an hairpin. Which is loopMove, and something else
-
-					MoveType rightMove = energyModel->prefactorOpen(loop3, numAdjacent + 2, sideLengths);
-					rateEnv = RateEnv(tempRate, energyModel, loopMove, rightMove);
-
-					Move *tmove = new Move( MOVE_CREATE | MOVE_1, rateEnv, this, loop, loop2, loop3);
-					moves->addMove(tmove);
 				}
+				energies[1] = energyModel->OpenloopEnergy(numAdjacent + 1, sideLengths, sequences);
+				tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
+
+				// if the new Arrhenius model is used, modify the existing rate based on the local context.
+				// to start, we need to learn what the local context is, AFTER the nucleotide is put in place.
+
+				// multiLoop is splitting off an hairpin. Which is loopMove, and something else
+
+				MoveType rightMove = energyModel->prefactorOpen(loop3, numAdjacent + 2, sideLengths);
+				rateEnv = RateEnv(tempRate, energyModel, loopMove, rightMove);
+
+				Move *tmove = new Move( MOVE_CREATE | MOVE_1, rateEnv, this, loop, loop2, loop3);
+				moves->addMove(tmove);
 			}
 		}
 	}
+}
 
 // Case #2a-c: adjacent loop creation moves
-	for (loop3 = 0; loop3 < numAdjacent; loop3++) // CHECK: is numAdjacent really correct? it could be numAdjacent+1
-		for (loop = 1; loop <= sidelen[loop3]; loop++)
-			for (loop2 = 1; loop2 <= sidelen[loop3 + 1]; loop2++) { // each possibility is a hairpin and open loop, see above.
+for (loop3 = 0; loop3 < numAdjacent; loop3++) // CHECK: is numAdjacent really correct? it could be numAdjacent+1
+	for (loop = 1; loop <= sidelen[loop3]; loop++)
+		for (loop2 = 1; loop2 <= sidelen[loop3 + 1]; loop2++) { // each possibility is a hairpin and open loop, see above.
 
-				pairType = pairtypes[seqs[loop3][loop]][seqs[loop3 + 1][loop2]];
+			pairType = pairtypes[seqs[loop3][loop]][seqs[loop3 + 1][loop2]];
 
-				if (pairType != 0) {
+			if (pairType != 0) {
 
-					// three cases for which type of move:
-					MoveType leftMove = stackMove;
+				// three cases for which type of move:
+				MoveType leftMove = stackMove;
 
-					if (loop == sidelen[loop3] && loop2 == 1) { 					// #2a: stack
+				if (loop == sidelen[loop3] && loop2 == 1) { 					// #2a: stack
 
-						energies[0] = energyModel->StackEnergy(seqs[loop3][loop], seqs[loop3 + 1][loop2], seqs[loop3][sidelen[loop3] + 1], seqs[loop3 + 1][0]);
+					energies[0] = energyModel->StackEnergy(seqs[loop3][loop], seqs[loop3 + 1][loop2], seqs[loop3][sidelen[loop3] + 1], seqs[loop3 + 1][0]);
 
-					} else if (loop == sidelen[loop3] || loop2 == 1) { 			// #2b: bulge
+				} else if (loop == sidelen[loop3] || loop2 == 1) { 			// #2b: bulge
 
-						if (loop2 == 1) {
+					if (loop2 == 1) {
 
-							energies[0] = energyModel->BulgeEnergy(seqs[loop3][loop], seqs[loop3 + 1][loop2], seqs[loop3][sidelen[loop3] + 1],
-									seqs[loop3 + 1][0], sidelen[loop3] - loop);
+						energies[0] = energyModel->BulgeEnergy(seqs[loop3][loop], seqs[loop3 + 1][loop2], seqs[loop3][sidelen[loop3] + 1], seqs[loop3 + 1][0],
+								sidelen[loop3] - loop);
 
-						} else {
+					} else {
 
-							energies[0] = energyModel->BulgeEnergy(seqs[loop3][loop], seqs[loop3 + 1][loop2], seqs[loop3][sidelen[loop3] + 1],
-									seqs[loop3 + 1][0], loop2 - 1);
-
-						}
-
-						leftMove = stackLoopMove;
-
-					} else { 					// #2c: interior
-
-						energies[0] = energyModel->InteriorEnergy(&seqs[loop3][loop], seqs[loop3 + 1], sidelen[loop3] - loop, loop2 - 1);
-
-						leftMove = loopMove;
+						energies[0] = energyModel->BulgeEnergy(seqs[loop3][loop], seqs[loop3 + 1][loop2], seqs[loop3][sidelen[loop3] + 1], seqs[loop3 + 1][0],
+								loop2 - 1);
 
 					}
 
-					for (temploop = 0; temploop < numAdjacent + 1; temploop++) {
-						if (temploop == loop3) {
-							ptypes[temploop] = pairType;
-							sideLengths[temploop] = loop - 1;
-							sequences[temploop] = seqs[temploop];
-						} else {
-							if (temploop != numAdjacent)
-								ptypes[temploop] = pairtype[temploop];
-							if (temploop == loop3 + 1) {
-								sideLengths[temploop] = sidelen[temploop] - loop2;
-								sequences[temploop] = &seqs[temploop][loop2];
-							} else {
-								sideLengths[temploop] = sidelen[temploop];
-								sequences[temploop] = seqs[temploop];
-							}
-						}
-					}
-					energies[1] = energyModel->OpenloopEnergy(numAdjacent, sideLengths, sequences);
+					leftMove = stackLoopMove;
 
-					tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
+				} else { 					// #2c: interior
 
-					// openLoop is splitting off an stack/bulge/interior, and another openloop.
-					// Which is something, and something else
+					energies[0] = energyModel->InteriorEnergy(&seqs[loop3][loop], seqs[loop3 + 1], sidelen[loop3] - loop, loop2 - 1);
 
-					// the new stack/bulge/interior is the LeftMove (see above);
-					// the new Openloop:
-					MoveType rightMove = energyModel->prefactorOpen(loop3, numAdjacent + 1, sideLengths);
+					leftMove = loopMove;
 
-					rateEnv = RateEnv(tempRate, energyModel, leftMove, rightMove);
-					moves->addMove(new Move( MOVE_CREATE | MOVE_2, rateEnv, this, loop, loop2, loop3));
 				}
+
+				for (temploop = 0; temploop < numAdjacent + 1; temploop++) {
+					if (temploop == loop3) {
+						ptypes[temploop] = pairType;
+						sideLengths[temploop] = loop - 1;
+						sequences[temploop] = seqs[temploop];
+					} else {
+						if (temploop != numAdjacent)
+							ptypes[temploop] = pairtype[temploop];
+						if (temploop == loop3 + 1) {
+							sideLengths[temploop] = sidelen[temploop] - loop2;
+							sequences[temploop] = &seqs[temploop][loop2];
+						} else {
+							sideLengths[temploop] = sidelen[temploop];
+							sequences[temploop] = seqs[temploop];
+						}
+					}
+				}
+				energies[1] = energyModel->OpenloopEnergy(numAdjacent, sideLengths, sequences);
+
+				tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
+
+				// openLoop is splitting off an stack/bulge/interior, and another openloop.
+				// Which is something, and something else
+
+				// the new stack/bulge/interior is the LeftMove (see above);
+				// the new Openloop:
+				MoveType rightMove = energyModel->prefactorOpen(loop3, numAdjacent + 1, sideLengths);
+
+				rateEnv = RateEnv(tempRate, energyModel, leftMove, rightMove);
+				moves->addMove(new Move( MOVE_CREATE | MOVE_2, rateEnv, this, loop, loop2, loop3));
 			}
+		}
 
 // Case #3: non-adjacent loop creation moves (2d)
 // Revamped so it actually works. Algorithm follows:
 // This is all connections between non-adjacent sides. Thus we must exclude adjacent sides, and must try all possible combinations which match. This means we have to cover ~n^2 side combinations, where n is the total number of sides. Note that in this data structure, n is numAdjacent+1, and they are labelled 0,1,...,numAdjacent
 // Loop over all sides. Within this loop, cover all sides that are labelled higher that the first, and are non adjacent. For each pair of bases in these two sides, check whether they can pair. For each pair, compute energies and add move to list.
-	for (loop3 = 0; loop3 <= numAdjacent - 2; loop3++) // The last 2 entries are not needed as neither have higher numbered non-adjacent sections.
-		for (loop4 = loop3 + 2; loop4 <= numAdjacent; loop4++) {
+for (loop3 = 0; loop3 <= numAdjacent - 2; loop3++) // The last 2 entries are not needed as neither have higher numbered non-adjacent sections.
+	for (loop4 = loop3 + 2; loop4 <= numAdjacent; loop4++) {
 
-			for (loop = 1; loop <= sidelen[loop3]; loop++) { // new version with all sequences in openloop starting at 1.
+		for (loop = 1; loop <= sidelen[loop3]; loop++) { // new version with all sequences in openloop starting at 1.
 
-				for (loop2 = 1; loop2 <= sidelen[loop4]; loop2++) {
+			for (loop2 = 1; loop2 <= sidelen[loop4]; loop2++) {
 
-					pairType = pairtypes[seqs[loop3][loop]][seqs[loop4][loop2]];
+				pairType = pairtypes[seqs[loop3][loop]][seqs[loop4][loop2]];
 
-					if (pairType != 0) { // result is a multiloop and open loop.
+				if (pairType != 0) { // result is a multiloop and open loop.
 
-						for (temploop = 0, tempindex = 0; temploop < (loop4 - loop3 + 1); tempindex++) { // note that loop4 - loop3 is the number of pairings that got included in the multiloop. The extra closing pair makes the +1.
+					for (temploop = 0, tempindex = 0; temploop < (loop4 - loop3 + 1); tempindex++) { // note that loop4 - loop3 is the number of pairings that got included in the multiloop. The extra closing pair makes the +1.
 
-							if (tempindex == loop3) {
-								ptypes[temploop] = pairType;
-								sideLengths[temploop] = sidelen[tempindex] - loop;
-								sequences[temploop] = &seqs[tempindex][loop];
-								temploop++;
-							}
-							if (tempindex > loop3 && tempindex < loop4) {
-								ptypes[temploop] = pairtype[tempindex - 1];
-								sideLengths[temploop] = sidelen[tempindex];
-								sequences[temploop] = seqs[tempindex];
-								temploop++;
-							}
-							if (tempindex == loop4) {
-								ptypes[temploop] = pairtype[tempindex - 1];
-								sideLengths[temploop] = loop2 - 1;
-								sequences[temploop] = seqs[tempindex];
-								temploop++;
-							}
+						if (tempindex == loop3) {
+							ptypes[temploop] = pairType;
+							sideLengths[temploop] = sidelen[tempindex] - loop;
+							sequences[temploop] = &seqs[tempindex][loop];
+							temploop++;
 						}
-
-						energies[0] = energyModel->MultiloopEnergy(loop4 - loop3 + 1, sideLengths, sequences);
-						MoveType leftMove = energyModel->prefactorInternal(sideLengths[loop3], sideLengths[loop4]);
-
-						// Open loop
-						for (temploop = 0, tempindex = 0; temploop <= numAdjacent - (loop4 - loop3 - 1); tempindex++) {
-							if (tempindex == loop3) {
-								ptypes[temploop] = pairType;
-								sideLengths[temploop] = loop - 1;
-								sequences[temploop] = seqs[tempindex];
-								temploop++;
-							} else if (tempindex == loop4) {
-								if (temploop < numAdjacent - (loop4 - loop3 - 1))
-									ptypes[temploop] = pairtype[tempindex];
-								sideLengths[temploop] = sidelen[tempindex] - loop2;
-								sequences[temploop] = &seqs[tempindex][loop2];
-								temploop++;
-							} else if (!((tempindex > loop3) && (tempindex < loop4))) {
-								if (temploop != numAdjacent - (loop4 - loop3 - 1))
-									ptypes[temploop] = pairtype[tempindex];
-								sideLengths[temploop] = sidelen[tempindex];
-								sequences[temploop] = seqs[tempindex];
-								temploop++;
-							}
+						if (tempindex > loop3 && tempindex < loop4) {
+							ptypes[temploop] = pairtype[tempindex - 1];
+							sideLengths[temploop] = sidelen[tempindex];
+							sequences[temploop] = seqs[tempindex];
+							temploop++;
 						}
-						energies[1] = energyModel->OpenloopEnergy(numAdjacent - (loop4 - loop3 - 1), sideLengths, sequences);
-						tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
-
-						// openLoop is splitting off . Which is something, and something else
-
-						MoveType rightMove = energyModel->prefactorOpen(loop3, numAdjacent - (loop4 - loop3) + 2, sideLengths);
-
-						loops[0] = loop;
-						loops[1] = loop2;
-						loops[2] = loop3;
-						loops[3] = loop4;
-
-						rateEnv = RateEnv(tempRate, energyModel, leftMove, rightMove);
-
-						moves->addMove(new Move( MOVE_CREATE | MOVE_3, rateEnv, this, loops));
+						if (tempindex == loop4) {
+							ptypes[temploop] = pairtype[tempindex - 1];
+							sideLengths[temploop] = loop2 - 1;
+							sequences[temploop] = seqs[tempindex];
+							temploop++;
+						}
 					}
 
+					energies[0] = energyModel->MultiloopEnergy(loop4 - loop3 + 1, sideLengths, sequences);
+					MoveType leftMove = energyModel->prefactorInternal(sideLengths[loop3], sideLengths[loop4]);
+
+					// Open loop
+					for (temploop = 0, tempindex = 0; temploop <= numAdjacent - (loop4 - loop3 - 1); tempindex++) {
+						if (tempindex == loop3) {
+							ptypes[temploop] = pairType;
+							sideLengths[temploop] = loop - 1;
+							sequences[temploop] = seqs[tempindex];
+							temploop++;
+						} else if (tempindex == loop4) {
+							if (temploop < numAdjacent - (loop4 - loop3 - 1))
+								ptypes[temploop] = pairtype[tempindex];
+							sideLengths[temploop] = sidelen[tempindex] - loop2;
+							sequences[temploop] = &seqs[tempindex][loop2];
+							temploop++;
+						} else if (!((tempindex > loop3) && (tempindex < loop4))) {
+							if (temploop != numAdjacent - (loop4 - loop3 - 1))
+								ptypes[temploop] = pairtype[tempindex];
+							sideLengths[temploop] = sidelen[tempindex];
+							sequences[temploop] = seqs[tempindex];
+							temploop++;
+						}
+					}
+					energies[1] = energyModel->OpenloopEnergy(numAdjacent - (loop4 - loop3 - 1), sideLengths, sequences);
+					tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
+
+					// openLoop is splitting off . Which is something, and something else
+
+					MoveType rightMove = energyModel->prefactorOpen(loop3, numAdjacent - (loop4 - loop3) + 2, sideLengths);
+
+					loops[0] = loop;
+					loops[1] = loop2;
+					loops[2] = loop3;
+					loops[3] = loop4;
+
+					rateEnv = RateEnv(tempRate, energyModel, leftMove, rightMove);
+
+					moves->addMove(new Move( MOVE_CREATE | MOVE_3, rateEnv, this, loops));
 				}
+
 			}
 		}
+	}
 
-	totalRate = moves->getRate();
+totalRate = moves->getRate();
 
-	if (ptypes != NULL)
-		delete[] ptypes;
-	if (sideLengths != NULL)
-		delete[] sideLengths;
-	if (sequences != NULL)
-		delete[] sequences;
+if (ptypes != NULL)
+	delete[] ptypes;
+if (sideLengths != NULL)
+	delete[] sideLengths;
+if (sequences != NULL)
+	delete[] sequences;
 
-	generateDeleteMoves();
+generateDeleteMoves();
 }
 
 void OpenLoop::generateDeleteMoves(void) {
-	double temprate;
+double temprate;
 
-	assert(moves != NULL);
+assert(moves != NULL);
 
-	for (int loop = 0; loop < numAdjacent; loop++) {
-		generateAndSaveDeleteMove(adjacentLoops[loop], loop);
+for (int loop = 0; loop < numAdjacent; loop++) {
+	generateAndSaveDeleteMove(adjacentLoops[loop], loop);
 
-	}
+}
 
-	totalRate = moves->getRate();
+totalRate = moves->getRate();
 }
 
 void OpenLoop::printMove(Loop *comefrom, char *structure_p, char *seq_p) {
-	int loop, item, loop2;
-	for (loop = 0; loop < numAdjacent; loop++) {
-		loop2 = (loop + 1) % (numAdjacent + 1);
-		item = (seqs[loop] < seqs[loop2]);
-		structure_p[seqs[loop] - seq_p + 1 + sidelen[loop]] = item ? '(' : ')';
-		structure_p[seqs[loop2] - seq_p] = item ? ')' : '(';
-	}
+int loop, item, loop2;
+for (loop = 0; loop < numAdjacent; loop++) {
+	loop2 = (loop + 1) % (numAdjacent + 1);
+	item = (seqs[loop] < seqs[loop2]);
+	structure_p[seqs[loop] - seq_p + 1 + sidelen[loop]] = item ? '(' : ')';
+	structure_p[seqs[loop2] - seq_p] = item ? ')' : '(';
+}
 
-	for (loop = 0; loop < curAdjacent; loop++) {
-		if (adjacentLoops[loop] != comefrom && adjacentLoops[loop] != NULL)
-			// shouldn't happen, being careful.
-			adjacentLoops[loop]->printMove(this, structure_p, seq_p);
-		assert(adjacentLoops[loop] != NULL);
-	}
+for (loop = 0; loop < curAdjacent; loop++) {
+	if (adjacentLoops[loop] != comefrom && adjacentLoops[loop] != NULL)
+		// shouldn't happen, being careful.
+		adjacentLoops[loop]->printMove(this, structure_p, seq_p);
+	assert(adjacentLoops[loop] != NULL);
+}
 }
 
 char *OpenLoop::getLocation(Move *move, int index) {
-	if (move->getType() & MOVE_CREATE) {
-		if (move->getType() & MOVE_1)
-			return &seqs[move->index[2]][move->index[index]];
-		if (move->getType() & MOVE_2)
-			return &seqs[move->index[2] + index][move->index[index]];
-		if (move->getType() & MOVE_3)
-			return &seqs[move->index[2 + index]][move->index[index]];
-	} else if (move->getType() & MOVE_DELETE) {
-		for (int loop = 0; loop < numAdjacent; loop++)
-			if (adjacentLoops[loop] == move->affected[0] || adjacentLoops[loop] == move->affected[1])
-				return seqs[loop + 1];
-	}
-	assert(0);
+if (move->getType() & MOVE_CREATE) {
+	if (move->getType() & MOVE_1)
+		return &seqs[move->index[2]][move->index[index]];
+	if (move->getType() & MOVE_2)
+		return &seqs[move->index[2] + index][move->index[index]];
+	if (move->getType() & MOVE_3)
+		return &seqs[move->index[2 + index]][move->index[index]];
+} else if (move->getType() & MOVE_DELETE) {
+	for (int loop = 0; loop < numAdjacent; loop++)
+		if (adjacentLoops[loop] == move->affected[0] || adjacentLoops[loop] == move->affected[1])
+			return seqs[loop + 1];
+}
+assert(0);
 }
 
 char *OpenLoop::getBase(char type, int index) {
-	int loop, loop2;
-	int newindex = index;
-	for (loop = 0; loop <= numAdjacent; loop++) {
-		for (loop2 = 1; loop2 <= sidelen[loop]; loop2++)
-			if (seqs[loop][loop2] == type) {
-				if (newindex == 0)
-					return &seqs[loop][loop2];
-				else
-					newindex--;
-			}
-	}
+int loop, loop2;
+int newindex = index;
+for (loop = 0; loop <= numAdjacent; loop++) {
+	for (loop2 = 1; loop2 <= sidelen[loop]; loop2++)
+		if (seqs[loop][loop2] == type) {
+			if (newindex == 0)
+				return &seqs[loop][loop2];
+			else
+				newindex--;
+		}
+}
 
-	assert(0);
-	return NULL;
+assert(0);
+return NULL;
 }
 
 int *OpenLoop::getFreeBases(void) {
-	int *results;
-	int loop, loop2;
-	results = new int[5];
-	for (loop = 0; loop < 5; loop++)
-		results[loop] = 0;
+int *results;
+int loop, loop2;
+results = new int[5];
+for (loop = 0; loop < 5; loop++)
+	results[loop] = 0;
 
-	for (loop = 0; loop <= numAdjacent; loop++) {
-		for (loop2 = 1; loop2 <= sidelen[loop]; loop2++) {
-			if (seqs[loop][loop2] < 5)
-				results[seqs[loop][loop2]]++;
-			else
-				results[0]++;
-		}
+for (loop = 0; loop <= numAdjacent; loop++) {
+	for (loop2 = 1; loop2 <= sidelen[loop]; loop2++) {
+		if (seqs[loop][loop2] < 5)
+			results[seqs[loop][loop2]]++;
+		else
+			results[0]++;
 	}
-	return results;
+}
+return results;
 }
 
 /*
@@ -5340,207 +5357,205 @@ int *OpenLoop::getFreeBases(void) {
  */
 
 void OpenLoop::performComplexJoin(OpenLoop **oldLoops, OpenLoop **newLoops, char *types, int *index) {
-	int seqnum[2] = { -1, -1 };
-	int seqindex[2] = { -1, -1 };
-	int sizes[2];
-	int loop, loop2;
-	int newindex;
-	int toggle;
-	OpenLoop *newLoop;
-	int *pairtype;
-	int *sidelen;
-	char **seqs;
+int seqnum[2] = { -1, -1 };
+int seqindex[2] = { -1, -1 };
+int sizes[2];
+int loop, loop2;
+int newindex;
+int toggle;
+OpenLoop *newLoop;
+int *pairtype;
+int *sidelen;
+char **seqs;
 
-	for (toggle = 0; toggle <= 1; toggle++) {
-		newindex = index[toggle];
-		for (loop = 0; loop <= oldLoops[toggle]->numAdjacent && newindex >= 0; loop++) {
-			for (loop2 = 1; loop2 <= oldLoops[toggle]->sidelen[loop]; loop2++)
-				if (oldLoops[toggle]->seqs[loop][loop2] == types[toggle]) {
-					if (newindex == 0) {
-						seqnum[toggle] = loop;
-						seqindex[toggle] = loop2;
-						loop2 = oldLoops[toggle]->sidelen[loop] + 1;
-						newindex--;
-						//		    loop = oldLoops[toggle]->numAdjacent+1;
-					} else
-						newindex--;
-				}
-		}
+for (toggle = 0; toggle <= 1; toggle++) {
+	newindex = index[toggle];
+	for (loop = 0; loop <= oldLoops[toggle]->numAdjacent && newindex >= 0; loop++) {
+		for (loop2 = 1; loop2 <= oldLoops[toggle]->sidelen[loop]; loop2++)
+			if (oldLoops[toggle]->seqs[loop][loop2] == types[toggle]) {
+				if (newindex == 0) {
+					seqnum[toggle] = loop;
+					seqindex[toggle] = loop2;
+					loop2 = oldLoops[toggle]->sidelen[loop] + 1;
+					newindex--;
+					//		    loop = oldLoops[toggle]->numAdjacent+1;
+				} else
+					newindex--;
+			}
 	}
+}
 
 // seqnum and seqindex now have the appropriate locations within each openloop. Time to compute the new #'s of adjacent loops.
 
-	sizes[0] = seqnum[0] + 1 + (oldLoops[1]->numAdjacent - seqnum[1]);
-	sizes[1] = seqnum[1] + 1 + (oldLoops[0]->numAdjacent - seqnum[0]);
+sizes[0] = seqnum[0] + 1 + (oldLoops[1]->numAdjacent - seqnum[1]);
+sizes[1] = seqnum[1] + 1 + (oldLoops[0]->numAdjacent - seqnum[0]);
 
-	for (toggle = 0; toggle <= 1; toggle++) {
-		pairtype = new int[sizes[toggle]];
-		sidelen = new int[sizes[toggle] + 1];
-		seqs = new char *[sizes[toggle] + 1];
+for (toggle = 0; toggle <= 1; toggle++) {
+	pairtype = new int[sizes[toggle]];
+	sidelen = new int[sizes[toggle] + 1];
+	seqs = new char *[sizes[toggle] + 1];
 
-		for (loop = 0; loop < sizes[toggle] + 1; loop++) {
-			if (loop < seqnum[toggle]) {
-				if (loop < sizes[toggle]) // should never be false?
-					pairtype[loop] = oldLoops[toggle]->pairtype[loop];
-				sidelen[loop] = oldLoops[toggle]->sidelen[loop];
-				seqs[loop] = oldLoops[toggle]->seqs[loop];
+	for (loop = 0; loop < sizes[toggle] + 1; loop++) {
+		if (loop < seqnum[toggle]) {
+			if (loop < sizes[toggle]) // should never be false?
+				pairtype[loop] = oldLoops[toggle]->pairtype[loop];
+			sidelen[loop] = oldLoops[toggle]->sidelen[loop];
+			seqs[loop] = oldLoops[toggle]->seqs[loop];
 
-			} else if (loop == seqnum[toggle]) {
-				if (loop < sizes[toggle]) // again, never false
-					pairtype[loop] = pairtypes[types[toggle]][types[1 - toggle]];
+		} else if (loop == seqnum[toggle]) {
+			if (loop < sizes[toggle]) // again, never false
+				pairtype[loop] = pairtypes[types[toggle]][types[1 - toggle]];
 
-				sidelen[loop] = seqindex[toggle] - 1;
-				seqs[loop] = oldLoops[toggle]->seqs[loop];
-			} else if (loop > seqnum[toggle]) {
-				if (loop < sizes[toggle])
-					pairtype[loop] = oldLoops[1 - toggle]->pairtype[loop - seqnum[toggle] - 1 + seqnum[1 - toggle]];
+			sidelen[loop] = seqindex[toggle] - 1;
+			seqs[loop] = oldLoops[toggle]->seqs[loop];
+		} else if (loop > seqnum[toggle]) {
+			if (loop < sizes[toggle])
+				pairtype[loop] = oldLoops[1 - toggle]->pairtype[loop - seqnum[toggle] - 1 + seqnum[1 - toggle]];
 
-				if (loop == seqnum[toggle] + 1) {
-					sidelen[loop] = oldLoops[1 - toggle]->sidelen[loop - seqnum[toggle] - 1 + seqnum[1 - toggle]] - seqindex[1 - toggle];
-					seqs[loop] = &(oldLoops[1 - toggle]->seqs[loop - seqnum[toggle] + seqnum[1 - toggle] - 1][seqindex[1 - toggle]]);
-				} else {
-					sidelen[loop] = oldLoops[1 - toggle]->sidelen[loop - seqnum[toggle] + seqnum[1 - toggle] - 1];
-					seqs[loop] = oldLoops[1 - toggle]->seqs[loop - seqnum[toggle] + seqnum[1 - toggle] - 1];
-				}
-			}
-		}
-		//initialize the new openloops, and connect them correctly, then initialize their moves, etc.
-		newLoop = new OpenLoop(sizes[toggle], pairtype, sidelen, seqs);
-
-		for (loop = 0; loop < sizes[toggle]; loop++) {
-			if (loop < seqnum[toggle]) {
-				newLoop->addAdjacent(oldLoops[toggle]->adjacentLoops[loop]);
-				loop2 = oldLoops[toggle]->adjacentLoops[loop]->replaceAdjacent(oldLoops[toggle], newLoop);
-				assert(loop2 > 0);
-			} else if (loop == seqnum[toggle]) {
-				newLoop->addAdjacent( NULL); // This is a Trick. We'll later replace the null value with the first/second loop generated. Note that this doesn't require a replacement as in the other cases.
+			if (loop == seqnum[toggle] + 1) {
+				sidelen[loop] = oldLoops[1 - toggle]->sidelen[loop - seqnum[toggle] - 1 + seqnum[1 - toggle]] - seqindex[1 - toggle];
+				seqs[loop] = &(oldLoops[1 - toggle]->seqs[loop - seqnum[toggle] + seqnum[1 - toggle] - 1][seqindex[1 - toggle]]);
 			} else {
-				newLoop->addAdjacent(oldLoops[1 - toggle]->adjacentLoops[loop - seqnum[toggle] + seqnum[1 - toggle] - 1]);
-
-				loop2 = oldLoops[1 - toggle]->adjacentLoops[loop - seqnum[toggle] + seqnum[1 - toggle] - 1]->replaceAdjacent(oldLoops[1 - toggle], newLoop);
-				assert(loop2 > 0);
+				sidelen[loop] = oldLoops[1 - toggle]->sidelen[loop - seqnum[toggle] + seqnum[1 - toggle] - 1];
+				seqs[loop] = oldLoops[1 - toggle]->seqs[loop - seqnum[toggle] + seqnum[1 - toggle] - 1];
 			}
 		}
+	}
+	//initialize the new openloops, and connect them correctly, then initialize their moves, etc.
+	newLoop = new OpenLoop(sizes[toggle], pairtype, sidelen, seqs);
 
-		newLoops[toggle] = newLoop;
+	for (loop = 0; loop < sizes[toggle]; loop++) {
+		if (loop < seqnum[toggle]) {
+			newLoop->addAdjacent(oldLoops[toggle]->adjacentLoops[loop]);
+			loop2 = oldLoops[toggle]->adjacentLoops[loop]->replaceAdjacent(oldLoops[toggle], newLoop);
+			assert(loop2 > 0);
+		} else if (loop == seqnum[toggle]) {
+			newLoop->addAdjacent( NULL); // This is a Trick. We'll later replace the null value with the first/second loop generated. Note that this doesn't require a replacement as in the other cases.
+		} else {
+			newLoop->addAdjacent(oldLoops[1 - toggle]->adjacentLoops[loop - seqnum[toggle] + seqnum[1 - toggle] - 1]);
+
+			loop2 = oldLoops[1 - toggle]->adjacentLoops[loop - seqnum[toggle] + seqnum[1 - toggle] - 1]->replaceAdjacent(oldLoops[1 - toggle], newLoop);
+			assert(loop2 > 0);
+		}
 	}
 
-// must do these after, otherwise the links between the two loops don't exist
-	newLoops[0]->replaceAdjacent( NULL, newLoops[1]);
-	newLoops[1]->replaceAdjacent( NULL, newLoops[0]);
+	newLoops[toggle] = newLoop;
+}
 
-	newLoops[0]->generateMoves();
-	newLoops[1]->generateMoves();
+// must do these after, otherwise the links between the two loops don't exist
+newLoops[0]->replaceAdjacent( NULL, newLoops[1]);
+newLoops[1]->replaceAdjacent( NULL, newLoops[0]);
+
+newLoops[0]->generateMoves();
+newLoops[1]->generateMoves();
 
 // need to re-generate the moves for all adjacent loops.
 // TODO: change this to only re-generate the deletion moves.
-	for (toggle = 0; toggle <= 1; toggle++)
-		for (loop = 0; loop < sizes[toggle]; loop++)
-			if (loop != seqnum[toggle])
-				newLoops[toggle]->adjacentLoops[loop]->generateMoves();
+for (toggle = 0; toggle <= 1; toggle++)
+	for (loop = 0; loop < sizes[toggle]; loop++)
+		if (loop != seqnum[toggle])
+			newLoops[toggle]->adjacentLoops[loop]->generateMoves();
 
 }
 
 char *OpenLoop::verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop *from) {
-	char *ret_seq;
-	int call_index = -1, call_adjacent;
-	int adjacent;
-	int loop;
-	for (loop = 0; loop < numAdjacent; loop++) {
-		if (adjacentLoops[loop] == from) {
-			call_index = loop;
-		} else {
-			ret_seq = adjacentLoops[loop]->verifyLoop(&seqs[loop][sidelen[loop] + 1], pairtype[loop], this);
-			assert(ret_seq == seqs[loop + 1]);
-		}
+char *ret_seq;
+int call_index = -1, call_adjacent;
+int adjacent;
+int loop;
+for (loop = 0; loop < numAdjacent; loop++) {
+	if (adjacentLoops[loop] == from) {
+		call_index = loop;
+	} else {
+		ret_seq = adjacentLoops[loop]->verifyLoop(&seqs[loop][sidelen[loop] + 1], pairtype[loop], this);
+		assert(ret_seq == seqs[loop + 1]);
 	}
+}
 
-	if (call_index != -1 && incoming_sequence != seqs[call_index + 1]) {
-		fprintf(stderr, "Verification Failed\n");
-		assert(incoming_sequence == seqs[call_index + 1]);
-	}
-	if (call_index != -1)
-		return seqs[call_index] + sidelen[call_index] + 1;
-	else
-		return NULL;
+if (call_index != -1 && incoming_sequence != seqs[call_index + 1]) {
+	fprintf(stderr, "Verification Failed\n");
+	assert(incoming_sequence == seqs[call_index + 1]);
+}
+if (call_index != -1)
+	return seqs[call_index] + sidelen[call_index] + 1;
+else
+	return NULL;
 }
 
 void OpenLoop::updateLocalContext() {
 
-	// do nothing if not required
-	if (updatedContext) {
+// do nothing if not required
+if (updatedContext) {
 
-		return;
+	return;
 
-	}
+}
 
-	context.clear();
+context.clear();
 
-	for (int i = 0; i < numAdjacent; i++) {
+for (int i = 0; i < numAdjacent; i++) {
 
-		parseLocalContext(i);
+	parseLocalContext(i);
 
-	}
+}
 
-	updatedContext = true;
+updatedContext = true;
 
 }
 
 void OpenLoop::parseLocalContext(int index) {
 
-	int size = sidelen[index];
+int size = sidelen[index];
 
-	vector<halfContext> newContext;
+vector<halfContext> newContext;
 
-	for (int i = 1; i < index + 1; i++) {
+for (int i = 1; i < index + 1; i++) {
 
-		halfContext qContext;
+	halfContext qContext;
 
-		// process left side
-		if (i == 0) {
+	// process left side
+	if (i == 0) {
 
-			if (seqs[index][i] > 0) { // there is a stack on the left
+		if (seqs[index][i] > 0) { // there is a stack on the left
 
-				qContext.left = stackC;
-
-			} else {
-
-				qContext.right = endC;
-
-			}
+			qContext.left = stackC;
 
 		} else {
 
-			qContext.left = strandC;
+			qContext.right = endC;
 
 		}
 
-		// process right side
-		if (i == 0) {
+	} else {
 
-			if (seqs[index][i] > 0) { // there is a stack on the right
-
-				qContext.right = stackC;
-
-			} else {
-
-				qContext.right = endC;
-
-			}
-
-		} else {
-
-			qContext.right = strandC;
-
-		}
-
-		newContext[i-1] = qContext;
+		qContext.left = strandC;
 
 	}
 
-	context[index] = newContext;
+	// process right side
+	if (i == 0) {
 
+		if (seqs[index][i] > 0) { // there is a stack on the right
 
+			qContext.right = stackC;
+
+		} else {
+
+			qContext.right = endC;
+
+		}
+
+	} else {
+
+		qContext.right = strandC;
+
+	}
+
+	newContext[i - 1] = qContext;
+
+}
+
+context[index] = newContext;
 
 }
 

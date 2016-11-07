@@ -2,16 +2,25 @@
 
 #include <moveutil.h>
 #include <string>
+#include <iostream>
 
 using namespace std;
 
-//double moveutil::valuesPrime[MOVETYPE_SIZE] = { 3, 5, 7, 11, 13, 17, 19 };
-//string moveutil::MoveToString[MOVETYPE_SIZE] = { "End", "Loop", "Stack", "StackStack", "LoopEnd", "StackEnd", "StackLoop" };
-//string moveutil::MoveToString2[MOVETYPE_SIZE] = { "      ", "     ", "   ", "", "  ", " ", " " };
-//
+
+string quartContextString[HALFCONTEXT_SIZE] = { "endC  ", "strandC", "stackC" };
+
 
 int moveutil::typeMult(MoveType left, MoveType right) {
 
 	return (int) (valuesPrime[left] * valuesPrime[right]);
 
 }
+
+
+std::ostream& operator<< (std::ostream &os, halfContext& m) {
+
+	os << "left quart: " << quartContextString[m.left] << ", left right:  " << quartContextString[m.right] << " \n";
+	return os;
+
+}
+
