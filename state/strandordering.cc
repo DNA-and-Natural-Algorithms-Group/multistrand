@@ -701,6 +701,15 @@ exterior_bases *StrandOrdering::getExteriorBases(void) {
 	return &total_exterior_bases;
 }
 
+void StrandOrdering::updateLocalContext(void){
+
+	orderinglist *traverse = NULL;
+	for (traverse = first; traverse != NULL; traverse = traverse->next) {
+		traverse->thisLoop->updateLocalContext();
+	}
+
+}
+
 string StrandOrdering::toString(void) {
 
 

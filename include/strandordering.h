@@ -76,6 +76,7 @@ public:
 
 	// updates and returns the current exterior base count.
 	exterior_bases *getExteriorBases(void);
+	void updateLocalContext();
 	string toString(void);
 
 	// replaces the first open loop in the ordering with the second.

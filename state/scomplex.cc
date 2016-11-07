@@ -628,6 +628,12 @@ string StrandComplex::printStrandOrdering(){
 
 }
 
+void StrandComplex::updateLocalContext(){
+
+	ordering->updateLocalContext();
+
+}
+
 
 double StrandComplex::getTotalFlux(void) {
 	return totalFlux = beginLoop->returnFlux(NULL);

@@ -5475,7 +5475,7 @@ void OpenLoop::updateLocalContext() {
 
 	for (int i = 0; i < numAdjacent; i++) {
 
-		parseLocalContext(i);
+//		parseLocalContext(i);
 
 	}
 

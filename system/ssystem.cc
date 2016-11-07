@@ -911,6 +911,8 @@ void SimulationSystem::InitialInfo(void) {
 		cout << " ** \n ** \n ** \n";
 		Loop::setPrimeRates(true);
 		complexList->regenerateMoves();
+		// also generate the half contexts
+		startState->updateLocalContext();
 		startState->printAllMoves();
 
 		Loop::setPrimeRates(false);
