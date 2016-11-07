@@ -596,7 +596,7 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 
 	complexList->initializeList();
 
-	rate = complexList->getJoinFlux(simOptions);
+	rate = complexList->getJoinFlux();
 
 // scomplexlist returns a 0.0 rate if there was a single complex in
 // the system, and a -1.0 rate if there are exactly 0 join moves. So

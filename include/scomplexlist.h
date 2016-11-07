@@ -25,7 +25,7 @@ public:
 	void initializeList(void);
 	void regenerateMoves(void);
 	double getTotalFlux(void);
-	double getJoinFlux(SimOptions*);
+	double getJoinFlux(void);
 	double getJoinFluxArr(void);
 	int getCount(void);
 	double *getEnergy(int volume_flag);

@@ -9,7 +9,7 @@
 
 #include <vector>
 #include <iostream>
-#include <simoptions.h>
+
 #include <utility.h>
 
 typedef std::vector<int> intvec;
@@ -21,6 +21,9 @@ typedef std::vector<int>::iterator intvec_it;
 
 
  */
+
+
+
 
 SComplexListEntry::SComplexListEntry(StrandComplex *newComplex, int newid) {
 	thisComplex = newComplex;
@@ -176,13 +179,13 @@ double SComplexList::getTotalFlux(void) {
 		total += temp->rate;
 		temp = temp->next;
 	}
-	joinRate = getJoinFlux(dnaEnergyModel->simOptions);
+	joinRate = getJoinFlux();
 	total += joinRate;
 	return total;
 }
 
 /*
- double SComplexList::getJoinFlux( SimOptions* sOptions )
+ double SComplexList::getJoinFlux( void )
 
  Computes the total flux of moves which join pairs of complexes.
 
@@ -193,15 +196,7 @@ double SComplexList::getTotalFlux(void) {
  2b. Add this amount * rate per join move to total.
  */
 
-double SComplexList::getJoinFlux(SimOptions* sOptions) {
-
-	// FD: We need to re-write this for the Arrhenius routine
-
-	if (sOptions != NULL && sOptions->usingArrhenius()) {
-
-		return getJoinFluxArr();
-
-	}
+double SComplexList::getJoinFlux(void) {
 
 	SComplexListEntry *temp = first;
 	struct exterior_bases *ext_bases = NULL, total_bases;
@@ -250,9 +245,12 @@ double SComplexList::getJoinFlux(SimOptions* sOptions) {
 
 double SComplexList::getJoinFluxArr(void) {
 
+// there are 7x7 options, so these rates we have to tally and then sum.
+
 	SComplexListEntry *temp = first;
 
 	while (temp != NULL) {
+//		ext_bases = temp->thisComplex->getExteriorBases();
 
 	}
 
