@@ -73,7 +73,8 @@ public:
 	static void setPrimeRates(bool);
 
 	// FD functions
-	string toString(void);
+//	string toString(void);
+	friend std::ostream& operator<< (std::ostream&, Loop&);
 	string toStringShort(void);
 	void printAllMoves(Loop*);
 	void generateAndSaveDeleteMove(Loop*, int);
@@ -122,7 +123,6 @@ public:
 	void generateDeleteMoves(void);
 	Move *getChoice(double *randnum, Loop *from);
 	double doChoice(Move *move, Loop **returnLoop);
-//	void moveDisplay(Loop *comefrom, char *structure_p, char *seq_p);
 	void printMove(Loop *comefrom, char *structure_p, char *seq_p);
 	char *getLocation(Move *move, int index);
 	char *verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop *from);

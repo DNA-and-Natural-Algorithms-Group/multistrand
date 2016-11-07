@@ -283,29 +283,54 @@ void Loop::setPrimeRates(bool input) {
 
 }
 
-string Loop::toString(void) {
+std::ostream& operator<< (std::ostream &ss, Loop& m) {
 
-	std::stringstream ss;
 
-	ss << "\n** " << identityToString(identity);
+
+	ss << "\n** " << identityToString(m.identity);
 
 	ss << " adjacent ";
 
-	for (int i = 0; i < numAdjacent; i++) {
+	for (int i = 0; i < m.numAdjacent; i++) {
 
-		ss << identityToString(adjacentLoops[i]->identity) << ",";
+		ss << identityToString(m.adjacentLoops[i]->identity) << ",";
 
 	}
 
-	ss << " dG=" << std::setprecision(3) << energy << "\n";
+	ss << " dG=" << std::setprecision(3) << m.energy << "\n";
 
 	ss << "** ";
 
-	ss << this->typeInternalsToString();
+	ss << m.typeInternalsToString();
 
-	return ss.str();
+	return ss;
 
 }
+
+
+//string Loop::toString(void) {
+//
+//	std::stringstream ss;
+//
+//	ss << "\n** " << identityToString(identity);
+//
+//	ss << " adjacent ";
+//
+//	for (int i = 0; i < numAdjacent; i++) {
+//
+//		ss << identityToString(adjacentLoops[i]->identity) << ",";
+//
+//	}
+//
+//	ss << " dG=" << std::setprecision(3) << energy << "\n";
+//
+//	ss << "** ";
+//
+//	ss << this->typeInternalsToString();
+//
+//	return ss.str();
+//
+//}
 
 string Loop::toStringShort(void) {
 
@@ -319,7 +344,7 @@ string Loop::toStringShort(void) {
 
 void Loop::printAllMoves(Loop* from) {
 
-	std::cout << toString();
+	std::cout << from;
 
 	moves->printAllMoves(energyModel->simOptions->usePrimeRates);
 
