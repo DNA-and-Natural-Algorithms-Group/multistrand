@@ -283,25 +283,27 @@ void Loop::setPrimeRates(bool input) {
 
 }
 
-std::ostream& operator<<(std::ostream &ss, Loop& m) {
+string Loop::toString(void) {
 
-	ss << "\n** " << identityToString(m.identity);
+	std::stringstream ss;
+
+	ss << "\n** " << identityToString(identity);
 
 	ss << " adjacent ";
 
-	for (int i = 0; i < m.numAdjacent; i++) {
+	for (int i = 0; i < numAdjacent; i++) {
 
-		ss << identityToString(m.adjacentLoops[i]->identity) << ",";
+		ss << identityToString(adjacentLoops[i]->identity) << ",";
 
 	}
 
-	ss << " dG=" << std::setprecision(3) << m.energy << "\n";
+	ss << " dG=" << std::setprecision(3) << energy << "\n";
 
 	ss << "** ";
 
-	ss << m.typeInternalsToString();
+	ss << this->typeInternalsToString();
 
-	return ss;
+	return ss.str();
 
 }
 
@@ -317,7 +319,7 @@ string Loop::toStringShort(void) {
 
 void Loop::printAllMoves(Loop* from) {
 
-	std::cout << from;
+	std::cout << toString();
 
 	moves->printAllMoves(energyModel->simOptions->usePrimeRates);
 
@@ -4745,40 +4747,6 @@ string OpenLoop::typeInternalsToString(void) {
 
 }
 
-string OpenLoop::halfContextToString(void) {
-
-	// if the half contexts are updated, print them
-
-	std::stringstream ss;
-
-	if (updatedContext) {
-
-//	ss << "hContext:" ;
-//
-//		for (int i = 0; i < numAdjacent+1; i++){
-//
-//			ss << "c" << i << " - ";
-////
-////			for (int j = 0; j < context[i].size(); i++){
-////
-////				ss << context[i][j];
-////
-////			}
-//
-//			ss << "  --  ";
-//
-//
-//
-//		}
-
-	}
-
-	ss << " \n";
-
-	return ss.str();
-
-}
-
 void OpenLoop::calculateEnergy(void) {
 	if (energyModel == NULL)
 		return; // if the loops try to get used before the energy model initializes, it's all over.
@@ -5279,7 +5247,6 @@ void OpenLoop::generateMoves(void) {
 		delete[] sequences;
 
 	generateDeleteMoves();
-
 }
 
 void OpenLoop::generateDeleteMoves(void) {
@@ -5500,7 +5467,7 @@ char *OpenLoop::verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop 
 
 void OpenLoop::updateLocalContext() {
 
-	// do nothing if up-to-date
+	// do nothing if not required
 	if (updatedContext) {
 
 		return;
@@ -5522,14 +5489,15 @@ void OpenLoop::updateLocalContext() {
 void OpenLoop::parseLocalContext(int index) {
 
 	int size = sidelen[index];
+
 	vector<halfContext> newContext;
 
-	for (int i = 1; i < size + 1; i++) {
+	for (int i = 1; i < index + 1; i++) {
 
 		halfContext qContext;
 
 		// process left side
-		if (i == 1) {
+		if (i == 0) {
 
 			if (seqs[index][i] > 0) { // there is a stack on the left
 
@@ -5548,9 +5516,9 @@ void OpenLoop::parseLocalContext(int index) {
 		}
 
 		// process right side
-		if (i == size) {
+		if (i == 0) {
 
-			if (seqs[index][i+1] > 0) { // there is a stack on the right
+			if (seqs[index][i] > 0) { // there is a stack on the right
 
 				qContext.right = stackC;
 
@@ -5566,11 +5534,13 @@ void OpenLoop::parseLocalContext(int index) {
 
 		}
 
-		newContext[i - 1] = qContext;
+		newContext[i-1] = qContext;
 
 	}
 
 	context[index] = newContext;
+
+
 
 }
 

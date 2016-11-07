@@ -18,9 +18,6 @@ enum quartContext {
 
 struct halfContext {
 
-public:
-	friend std::ostream& operator<< (std::ostream&, halfContext&);
-
 	quartContext left;
 	quartContext right;
 

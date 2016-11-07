@@ -1,7 +1,7 @@
 /*
  Copyright (c) 2007-2016 Caltech. All rights reserved.
  Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
- Frits Dannenberg (fdann@caltech.edu)
+ 	 	   Frits Dannenberg (fdann@caltech.edu)
  */
 
 // StrandOrdering object
@@ -703,6 +703,7 @@ exterior_bases *StrandOrdering::getExteriorBases(void) {
 
 string StrandOrdering::toString(void) {
 
+
 	std::stringstream ss;
 
 	ss << "\nStrand ordering: \n";
@@ -716,8 +717,6 @@ string StrandOrdering::toString(void) {
 
 		assert(traverse->thisLoop != NULL);
 		ss << traverse->thisLoop->typeInternalsToString();
-		// now also print local Contexts
-		ss << traverse->thisLoop->halfContextToString();
 
 	}
 
@@ -725,20 +724,6 @@ string StrandOrdering::toString(void) {
 //	output += "Done printing strand ordering \n";
 
 	return ss.str();
-
-}
-
-void StrandOrdering::updateHalfContexts() {
-
-	orderinglist *traverse = NULL;
-	int *free_bases;
-
-	for (traverse = first; traverse != NULL; traverse = traverse->next) {
-
-		assert(traverse->thisLoop != NULL);
-//		traverse->thisLoop->updateLocalContext();
-
-	}
 
 }
 
