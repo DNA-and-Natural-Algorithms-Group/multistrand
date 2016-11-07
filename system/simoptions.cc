@@ -181,6 +181,13 @@ double SimOptions::getMaxSimTime(void) {
 
 }
 
+bool SimOptions::usingArrhenius(void) {
+
+	return energyOptions->usingArrhenius();
+
+}
+
+
 void SimOptions::setPrimeRates(bool input) {
 
 	usePrimeRates = input;
