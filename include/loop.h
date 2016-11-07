@@ -9,8 +9,12 @@
 #define __LOOP_H__
 
 #include <string>
+#include <vector>
 #include "energymodel.h"
 #include "move.h"
+#include "moveutil.h"
+
+using std::vector;
 
 class EnergyOptions;
 
@@ -242,11 +246,22 @@ public:
 	static void performComplexJoin(OpenLoop **oldLoops, OpenLoop **newLoops, char *types, int *index);
 	MoveType declareMoveType(Loop* attachedLoop);
 	string typeInternalsToString(void);
+	void updateLocalContext(void);
+	void parseLocalContext(int);
 
 private:
 	int *pairtype;
 	int *sidelen;
 	char **seqs;
+
+	vector<vector<halfContext>> context;
+	// array of enums, mimics the structure of seqs, excluding bases
+	// so that index i in seqs, corresponds to i-1, and halfContext is
+	// 2 indices shorter than seqs (external bases excluded)
+
+	bool updatedContext = false;
+
+
 };
 
 #endif

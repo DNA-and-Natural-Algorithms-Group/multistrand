@@ -12,12 +12,22 @@ enum MoveType {
 	endMove, loopMove, stackMove, stackStackMove, loopEndMove, stackEndMove, stackLoopMove, MOVETYPE_SIZE
 };
 
+enum quartContext {
+	endC, strandC, stackC, HALFCONTEXT_SIZE
+};
+
+struct halfContext {
+
+	quartContext left;
+	quartContext right;
+
+};
+
+
+
+
 
 namespace moveutil {
-
-//double valuesPrime[MOVETYPE_SIZE];
-//string MoveToString[MOVETYPE_SIZE];
-//string MoveToString2[MOVETYPE_SIZE];
 
 
 const static double valuesPrime[MOVETYPE_SIZE] = { 3, 5, 7, 11, 13, 17, 19 };
