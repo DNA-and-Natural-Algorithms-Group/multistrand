@@ -4724,14 +4724,14 @@ string OpenLoop::typeInternalsToString(void) {
 
 	for (int i = 0; i < numAdjacent + 1; i++) {
 
-		ss << "len" << i << "=";
-		ss << sidelen[i];
-		ss << ", ";
-		ss << utility::sequenceToString(seqs[i], sidelen[i]) << ",  ";
+//		ss << "len" << i << "=";
+//		ss << sidelen[i];
+		ss << utility::sequenceToString(seqs[i], sidelen[i]) << "    \n";
+//		ss << ", ";
 
 	}
 
-	ss << "\n";
+//	ss << "\n";
 
 	for (int i = 0; i < numAdjacent; i++) {
 
@@ -5523,11 +5523,6 @@ void OpenLoop::parseLocalContext(int index) {
 
 	vector<halfContext> newContext;
 
-	cout << "size is " << size;
-	cout.flush();
-
-//	size = 2; // run once testing
-
 	for (int i = 1; i < size + 1; i++) {
 
 		halfContext qContext;
@@ -5535,7 +5530,7 @@ void OpenLoop::parseLocalContext(int index) {
 		// process left side
 		if (i == 1) {
 
-			if (seqs[index][i] > 0) { // there is a stack on the left
+			if (seqs[index][0] > 0) { // there is a stack on the left
 
 				qContext.left = stackC;
 

@@ -891,7 +891,11 @@ void SimulationSystem::exportInterval(double simTime, int transitionCount, int a
 void SimulationSystem::printAllMoves() {
 
 	complexList->initializeList();
+
+	// also generate the half contexts
 	complexList->updateLocalContext();
+
+	// also generate the half contexts
 	complexList->printComplexList();
 
 	startState->printAllMoves();
@@ -912,8 +916,6 @@ void SimulationSystem::InitialInfo(void) {
 		cout << " ** \n ** \n ** \n";
 		Loop::setPrimeRates(true);
 		complexList->regenerateMoves();
-		// also generate the half contexts
-//		startState->updateLocalContext();
 		startState->printAllMoves();
 
 		Loop::setPrimeRates(false);

@@ -23,22 +23,22 @@ char* utility::copyToCharArray(string& myString) {
 
 string utility::sequenceToString(char* sequence, int size) {
 
- // the first and final character is the paired base -- adjust the print for this.
+	// the first and final character is the paired base -- adjust the print for this.
 
 	std::stringstream ss;
 
 	ss << "";
-	ss << baseTypeString[sequence[0] ];
+	ss << baseTypeString[sequence[0]];
 	ss << ":";
 
 	for (int i = 1; i < size + 1; i++) {
 
-		ss << baseTypeString[sequence[i] ];
+		ss << baseTypeString[sequence[i]];
 
 	}
 
 	ss << ":";
-	ss << baseTypeString[sequence[size + 1] ];
+	ss << baseTypeString[sequence[size + 1]];
 	ss << "";
 
 	return ss.str();
@@ -139,7 +139,6 @@ void utility::printDoubleArray(double input[], int length) {
 }
 
 void utility::printDoubleMatrix(double input[], int length, int depth, int precision) {
-
 
 	for (int j = 0; j < depth; j++) {
 
