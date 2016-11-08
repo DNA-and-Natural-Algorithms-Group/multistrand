@@ -3006,7 +3006,6 @@ StackLoop::StackLoop(int type1, int type2, char *seq1, char *seq2, Loop *left, L
 	seqs[1] = seq2;
 }
 
-
 string StackLoop::typeInternalsToString(void) {
 
 	std::stringstream ss;
@@ -3048,8 +3047,6 @@ HairpinLoop::HairpinLoop(int type, int size, char *hairpin_sequence, Loop *previ
 	hairpin_seq = hairpin_sequence;
 	identity = 'H';
 }
-
-
 
 string HairpinLoop::typeInternalsToString(void) {
 
@@ -3320,7 +3317,6 @@ BulgeLoop::BulgeLoop(int type1, int type2, int size1, int size2, char *bulge_seq
 	pairtype[1] = type2;
 	identity = 'B';
 }
-
 
 string BulgeLoop::typeInternalsToString(void) {
 
@@ -3614,8 +3610,6 @@ InteriorLoop::InteriorLoop(int type1, int type2, int size1, int size2, char *int
 	identity = 'I';
 
 }
-
-
 
 string InteriorLoop::typeInternalsToString(void) {
 
@@ -4035,8 +4029,6 @@ MultiLoop::~MultiLoop(void) {
 	delete[] sidelen;
 	delete[] seqs;
 }
-
-
 
 string MultiLoop::typeInternalsToString(void) {
 
@@ -4681,8 +4673,6 @@ OpenLoop::OpenLoop(int branches, int *pairtypes, int *sidelengths, char **sequen
 	identity = 'O';
 }
 
-
-
 string OpenLoop::typeInternalsToString(void) {
 
 	std::stringstream ss;
@@ -4718,17 +4708,15 @@ void OpenLoop::halfContextToString(std::stringstream& ss) {
 
 		ss << "hContext: \n";
 
-		for (int i = 0; i < numAdjacent + 1 ; i++) {
+		for (int i = 0; i < numAdjacent + 1; i++) {
 
 			ss << "   c" << i << " - ";
 
 			for (int j = 0; j < context[i].size(); j++) {
 
-
 				ss << context[i][j];
 
 			}
-
 
 			ss << "  \n";
 
@@ -5325,6 +5313,28 @@ int *OpenLoop::getFreeBases(void) {
 	return results;
 }
 
+// FD: in c99 and beyond, int[5] will initialize to {0, 0, 0, 0,0}
+// FD: Declaring ints in the loop itself is not evil because they are
+// FD: already exist in the stack. nov 8 2016
+// This function exist to help with the arrhenius rates.
+// Here we return the count of internal nucleotides in the open loop.
+int* OpenLoop::getFreeBasesInternal(void) {
+
+	int results[5];
+
+	for (int loop = 0; loop <= numAdjacent; loop++) {
+		for (int loop2 = 2; loop2 <= sidelen[loop] - 1; loop2++) {
+
+			// removing checks because I'd like to software to fail if
+			// errors in the sequence exist.
+			results[seqs[loop][loop2]]++;
+
+		}
+	}
+
+	return results;
+}
+
 /*
  OpenLoop::performComplexJoin
 
@@ -5470,8 +5480,9 @@ void OpenLoop::updateLocalContext() {
 	}
 
 	context.clear();
+	exposedNucleotides = 0;
 
-	for (int i = 0; i < numAdjacent+1; i++) {
+	for (int i = 0; i < numAdjacent + 1; i++) {
 
 		parseLocalContext(i);
 

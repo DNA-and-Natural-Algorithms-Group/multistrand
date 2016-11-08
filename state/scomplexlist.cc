@@ -342,6 +342,28 @@ return output;
 
 double SComplexList::computeCrossRateArr(OpenLoop* input1, OpenLoop* input2){
 
+	int adjacent1 = input1->numAdjacent;
+	int adjacent2 = input2->numAdjacent;
+
+	int output = 0.0;
+
+	// there are no open nucletides
+	if (input1->context.size() == 0){
+
+		return output;
+
+	}
+
+	// the only non-(loop, loop) local structures are in the first and last position.
+
+
+//
+//	for(int i = 0; i< adjacent1)
+//
+//	if(input1->sidelen[])
+
+
+
 	return 1.0;
 
 
