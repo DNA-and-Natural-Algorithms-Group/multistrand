@@ -11,18 +11,14 @@
 #include <python2.7/Python.h>
 #include <string>
 #include <moveutil.h>
+#include <sequtil.h>
+
 using std::string;
 
 class SimOptions;
 class Loop;
 class EnergyOptions;
 
-#define NUM_BASEPAIRS_VIENNA 8
-// Vienna: 0 is invalid, then CG, GC, GU, UG, AU, UA, and Special are 1-7
-#define NUM_BASEPAIRS_NUPACK 6
-// MFold/Nupack:  0 is AT, then CG, GC, TA, GT, TG
-#define NUM_BASES 5
-// 0 is invalid, then A, C, G, U
 
 #define BASE_A 1
 #define BASE_C 2
@@ -52,7 +48,6 @@ const int basepair_sw_mfold[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
 const int basepair_sw_mfold_actual[8] = { 0, 4, 3, 2, 1, 6, 5, 7 }; // Why do this? Yeah, because vienna's parameter file sucks and stores pairings in the opposite ordering. So for one of them, we need to swap basepairs to get the correct ordering, in the other one, we don't.
 extern int basepair_sw[8]; // = {0,0,0,0,0,0,0,0};
 
-const static string basepairString[NUM_BASEPAIRS_NUPACK] = {"A/T", "C/G", "G/C", "T/A", "G/T", "T/G"};
 
 
 int baseLookup(char base);
@@ -63,16 +58,6 @@ const double gasConstant = 0.0019872041;
 enum LoopType {
 	openLoop, interiorLoop, bulgeLoop, stackLoop, hairpinLoop, multiLoop, LOOPTYPE_SIZE
 };
-
-
-enum BaseType {
-
-	baseA, baseC, baseG, baseT, BASETYPE_SIZE
-
-};
-
-const string baseTypeString[BASETYPE_SIZE + 1] = { "·", "A", "C", "G", "T" };
-
 
 
 

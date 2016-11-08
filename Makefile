@@ -12,12 +12,12 @@
 # 
 
 vpath %.h include
-INCLUDES = utility.h energymodel.h loop.h move.h moveutil.h optionlists.h python_options.h scomplex.h scomplexlist.h energyoptions.h simoptions.h ssystem.h strandordering.h 
+INCLUDES = utility.h sequtil.h energymodel.h loop.h move.h moveutil.h optionlists.h python_options.h scomplex.h scomplexlist.h energyoptions.h simoptions.h ssystem.h strandordering.h 
 
 SOURCES_LOOP = loop.cc move.cc moveutil.cc
 SOURCES_ENERGYMODEL = energymodel.cc nupackenergymodel.cc viennaenergymodel.cc
 SOURCES_STATE = scomplex.cc scomplexlist.cc strandordering.cc
-SOURCES_SYSTEM =  utility.cc  energyoptions.cc simoptions.cc ssystem.cc 
+SOURCES_SYSTEM =  utility.cc sequtil.cc  energyoptions.cc simoptions.cc ssystem.cc 
 SOURCES_OPTIONS = optionlists.cc python_options.cc
 SOURCES_TESTING = testingmain.cc
 
@@ -29,7 +29,7 @@ SOURCES = $(SOURCES_LOOP) $(SOURCES_ENERGYMODEL) $(SOURCES_STATE) $(SOURCES_SYST
 VPATH=loop state system energymodel include interface
 
 MAIN_OBJECT = testingmain.o
-OBJECTS = loop.o scomplex.o energymodel.o viennaenergymodel.o nupackenergymodel.o move.o moveutil.o energyoptions.o  simoptions.o ssystem.o scomplexlist.o strandordering.o python_options.o optionlists.o 
+OBJECTS = loop.o scomplex.o sequtil.o energymodel.o viennaenergymodel.o nupackenergymodel.o move.o moveutil.o energyoptions.o  simoptions.o ssystem.o scomplexlist.o strandordering.o python_options.o optionlists.o 
 
 
 OBJPATH=obj

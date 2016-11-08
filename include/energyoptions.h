@@ -37,8 +37,6 @@ public:
 	double getBiScale(void);
 	double getUniScale(void);
 
-//	static int ARRTYPEF(MoveType, MoveType);
-
 	string toString(void);
 	static string primeRateToString(double);
 
@@ -62,9 +60,6 @@ public:
 	double EStackEnd = -0.1;
 	double ELoopEnd = -0.1;
 	double EStackStack = -0.1;
-
-
-
 
 	double AValues[MOVETYPE_SIZE] = { AEnd, ALoop, AStack, AStackStack, ALoopEnd, AStackEnd, AStackLoop };
 	double EValues[MOVETYPE_SIZE] = { EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop };
