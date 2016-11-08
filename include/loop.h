@@ -51,7 +51,6 @@ public:
 	virtual double doChoice(Move *move, Loop **returnLoop) = 0;
 	virtual char *getLocation(Move *move, int index) =0;
 	virtual char *verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop *from) =0;
-	virtual MoveType declareMoveType(Loop* attachedLoop) =0;
 	virtual string typeInternalsToString(void) = 0;
 	virtual void printMove(Loop *comefrom, char *structure_p, char *seq_p) = 0;
 	Loop *getAdjacent(int index);
@@ -107,7 +106,6 @@ public:
 	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);
 	StackLoop(void);
 	StackLoop(int type1, int type2, char *seq1, char *seq2, Loop *left = NULL, Loop *right = NULL);
-	MoveType declareMoveType(Loop* attachedLoop);
 	string typeInternalsToString(void);
 
 private:
@@ -132,7 +130,6 @@ public:
 	friend RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end);
 	friend Loop * Loop::performDeleteMove(Move *move);
 	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);
-	MoveType declareMoveType(Loop* attachedLoop);
 	string typeInternalsToString(void);
 
 private:
@@ -156,7 +153,6 @@ public:
 	friend Loop * Loop::performDeleteMove(Move *move);
 	friend RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end);
 	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);
-	MoveType declareMoveType(Loop* attachedLoop);
 	string typeInternalsToString(void);
 
 private:
@@ -182,7 +178,6 @@ public:
 	friend Loop * Loop::performDeleteMove(Move *move);
 	friend RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end);
 	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);
-	MoveType declareMoveType(Loop* attachedLoop);
 	string typeInternalsToString(void);
 
 private:
@@ -208,7 +203,6 @@ public:
 	friend RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end);
 	friend Loop * Loop::performDeleteMove(Move *move);
 	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);
-	MoveType declareMoveType(Loop* attachedLoop);
 	string typeInternalsToString(void);
 
 private:
@@ -244,7 +238,6 @@ public:
 	friend Loop * Loop::performDeleteMove(Move *move);
 	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);
 	static void performComplexJoin(OpenLoop **oldLoops, OpenLoop **newLoops, char *types, int *index);
-	MoveType declareMoveType(Loop* attachedLoop);
 	string typeInternalsToString(void);
 	string halfContextToString(void);
 	void updateLocalContext(void);

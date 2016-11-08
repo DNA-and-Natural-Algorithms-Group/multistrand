@@ -3006,14 +3006,6 @@ StackLoop::StackLoop(int type1, int type2, char *seq1, char *seq2, Loop *left, L
 	seqs[1] = seq2;
 }
 
-//FD: This is the function that declares what moveType the loop represents.
-//FD: The attached loop is the loop where the basepair will be formed/removed.
-MoveType StackLoop::declareMoveType(Loop* attachedLoop) {
-
-// a Stack always contributes a stackMove term.
-	return stackMove;
-
-}
 
 string StackLoop::typeInternalsToString(void) {
 
@@ -3057,12 +3049,7 @@ HairpinLoop::HairpinLoop(int type, int size, char *hairpin_sequence, Loop *previ
 	identity = 'H';
 }
 
-//FD: What movetype is the hairpin loop? Always unstacked.
-MoveType HairpinLoop::declareMoveType(Loop* attachedLoop) {
 
-	return loopMove;
-
-}
 
 string HairpinLoop::typeInternalsToString(void) {
 
@@ -3334,12 +3321,6 @@ BulgeLoop::BulgeLoop(int type1, int type2, int size1, int size2, char *bulge_seq
 	identity = 'B';
 }
 
-//FD: For Bulge loops, one strand is double stranded, the other is single stranded.
-MoveType BulgeLoop::declareMoveType(Loop* attachedLoop) {
-
-	return stackLoopMove;
-
-}
 
 string BulgeLoop::typeInternalsToString(void) {
 
@@ -3634,12 +3615,7 @@ InteriorLoop::InteriorLoop(int type1, int type2, int size1, int size2, char *int
 
 }
 
-//FD: For the interior loops, the two strands are unpaired; so this is an loopMove
-MoveType InteriorLoop::declareMoveType(Loop* attachedLoop) {
 
-	return loopMove;
-
-}
 
 string InteriorLoop::typeInternalsToString(void) {
 
@@ -4060,12 +4036,7 @@ MultiLoop::~MultiLoop(void) {
 	delete[] seqs;
 }
 
-//FD: A multiloop is merely an open loop, involving more than one strand.
-MoveType MultiLoop::declareMoveType(Loop* attachedLoop) {
 
-	return stackMove;
-
-}
 
 string MultiLoop::typeInternalsToString(void) {
 
@@ -4710,13 +4681,7 @@ OpenLoop::OpenLoop(int branches, int *pairtypes, int *sidelengths, char **sequen
 	identity = 'O';
 }
 
-//FD: Placeholder function
-MoveType OpenLoop::declareMoveType(Loop* attachedLoop) {
 
-//	throw "OpenLoop::declareMoveType not implemented";
-	return stackMove;
-
-}
 
 string OpenLoop::typeInternalsToString(void) {
 
