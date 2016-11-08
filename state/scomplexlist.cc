@@ -268,20 +268,56 @@ double SComplexList::getJoinFluxArr(void) {
 
 	}
 
-	return getJoinFlux(NULL);
+//	return getJoinFlux(NULL);
+	return rate;
 
 }
 
-double SComplexList::computeArrBiRate(SComplexListEntry* first, StrandOrdering* order) {
+double SComplexList::computeArrBiRate(SComplexListEntry* input, StrandOrdering* order) {
 
 	double output = 0.0;
 
+	SComplexListEntry* temp = first;
+
+	while (temp != NULL) {
+
+		if(temp->thisComplex->getOrdering() == order){
+			break;
+		}
+
+		temp = temp->next;
+	}
+
+	// post: temp is pointing to the entry that matches order
+
+	temp = temp->next;
+
+	// now start computing rates with the remaining entries
+
+	while (temp!=NULL){
+
+		StrandOrdering* otherOrder = temp->thisComplex->getOrdering();
+		output += computeCrossRateArr(order, otherOrder);
+
+		temp = temp->next;
+	}
 
 
 	return output;
 
 }
 
+
+double	SComplexList::computeCrossRateArr(StrandOrdering* input1, StrandOrdering* input2){
+
+		double output = 1.0;
+
+
+
+		return output;
+
+
+	}
 /*
  SComplexList::getEnergy( int volume_flag )
  */

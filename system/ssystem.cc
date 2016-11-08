@@ -1,5 +1,5 @@
 /*
-h Copyright (c) 2007-2010 Caltech. All rights reserved.
+ h Copyright (c) 2007-2010 Caltech. All rights reserved.
  Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
  */
 
@@ -17,7 +17,6 @@ h Copyright (c) 2007-2010 Caltech. All rights reserved.
 #include "google/profiler.h"
 #include "google/heap-profiler.h"
 #endif
-
 
 int noInitialMoves = 0;
 int timeOut = 0;
@@ -153,11 +152,7 @@ void SimulationSystem::StartSimulation(void) {
 	} else
 		StartSimulation_Standard();
 
-
-
 	finalizeSimulation();
-
-
 
 #ifdef PROFILING
 	ProfilerStop();
@@ -167,8 +162,6 @@ void SimulationSystem::StartSimulation(void) {
 		HeapProfilerStop();
 	}
 #endif
-
-
 
 }
 
@@ -182,7 +175,6 @@ void SimulationSystem::StartSimulation_FirstStep(void) {
 		finalizeRun();
 
 	}
-
 
 }
 
@@ -366,7 +358,6 @@ void SimulationSystem::countState(SComplexList* complexList) {
 	}
 
 }
-
 
 void SimulationSystem::SimulationLoop_Trajectory() {
 
@@ -574,7 +565,6 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 
 }
 
-
 void SimulationSystem::SimulationLoop_FirstStep(void) {
 	double rchoice, rate, stime = 0.0, ctime = 0.0;
 	bool stopFlag = false;
@@ -774,7 +764,6 @@ void SimulationSystem::sendTrajectory_CurrentStateToPython(double current_time, 
 
 }
 
-
 // FD: OK to have alternate_start = NULL
 int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
 	class StrandComplex *tempcomplex;
@@ -908,8 +897,6 @@ void SimulationSystem::InitialInfo(void) {
 		return;
 	}
 
-
-
 	printAllMoves();
 
 	if (simOptions->usingArrhenius()) {
@@ -924,7 +911,7 @@ void SimulationSystem::InitialInfo(void) {
 	}
 
 	// print info on bimolecular rates
-	double biRate = complexList->getTotalFlux();
+	double biRate = complexList->getJoinFlux(simOptions);
 
 	cout << "biRate is " << biRate;
 	cout << " \n \n";
