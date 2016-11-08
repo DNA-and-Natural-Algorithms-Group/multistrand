@@ -19,11 +19,7 @@ typedef std::vector<int>::iterator intvec_it;
 
  SComplexListEntry Constructor/Destructor
 
-
  */
-
-
-
 
 SComplexListEntry::SComplexListEntry(StrandComplex *newComplex, int newid) {
 	thisComplex = newComplex;
@@ -44,7 +40,6 @@ SComplexListEntry::~SComplexListEntry(void) {
 /*
 
  SComplexListEntry - InitializeComplex and FillData
-
 
  */
 
@@ -196,18 +191,15 @@ double SComplexList::getTotalFlux(void) {
  2b. Add this amount * rate per join move to total.
  */
 
-
 double SComplexList::getJoinFlux(SimOptions* sOptions) {
 
-	// FD: We need to re-write this for the Arrhenius routine
+
 
 	if (sOptions != NULL && sOptions->usingArrhenius()) {
 
 		return getJoinFluxArr();
 
 	}
-
-
 
 	SComplexListEntry *temp = first;
 	struct exterior_bases *ext_bases = NULL, total_bases;
@@ -254,14 +246,26 @@ double SComplexList::getJoinFlux(SimOptions* sOptions) {
 		return (double) total_move_count * dnaEnergyModel->getJoinRate();
 }
 
+
+// FD: We need to re-write this for the Arrhenius routine
+
+// General strategy: simply sum all of the encountered rates.
+// Because the inner nucleotides are constantly (loop, loop),
+// this part of the computation can be improved if needed.
 double SComplexList::getJoinFluxArr(void) {
 
-// there are 7x7 options, so these rates we have to tally and then sum.
+// there are 4x6x6 options, so these rates we have to tally and then sum.
 
 	SComplexListEntry *temp = first;
 
 	while (temp != NULL) {
-//		ext_bases = temp->thisComplex->getExteriorBases();
+
+		StrandOrdering* order = temp->thisComplex->getOrdering();
+
+
+
+		temp = temp->next;
+
 
 	}
 
@@ -549,8 +553,7 @@ string SComplexList::toString() {
 
 }
 
-
-void SComplexList::updateLocalContext(void){
+void SComplexList::updateLocalContext(void) {
 
 	SComplexListEntry *temp = first;
 	while (temp != NULL) {
@@ -559,7 +562,6 @@ void SComplexList::updateLocalContext(void){
 	}
 
 }
-
 
 /*
 

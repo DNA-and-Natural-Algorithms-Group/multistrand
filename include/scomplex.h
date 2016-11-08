@@ -61,6 +61,9 @@ public:
 	static StrandComplex *performComplexJoin(StrandComplex **complexes,
 			char *types, int *index);
 
+
+	StrandOrdering* getOrdering();
+
 private:
 	StrandOrdering *ordering;
 	Loop *beginLoop;

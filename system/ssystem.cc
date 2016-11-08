@@ -908,9 +908,11 @@ void SimulationSystem::InitialInfo(void) {
 		return;
 	}
 
+
+
 	printAllMoves();
 
-	if (simOptions->energyOptions->usingArrhenius()) {
+	if (simOptions->usingArrhenius()) {
 
 		cout << " ** \n ** \n ** \n";
 		Loop::setPrimeRates(true);
@@ -920,6 +922,12 @@ void SimulationSystem::InitialInfo(void) {
 		Loop::setPrimeRates(false);
 
 	}
+
+	// print info on bimolecular rates
+	double biRate = complexList->getTotalFlux();
+
+	cout << "biRate is " << biRate;
+	cout << " \n \n";
 
 }
 
