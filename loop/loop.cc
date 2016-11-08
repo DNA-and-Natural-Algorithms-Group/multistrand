@@ -4724,14 +4724,11 @@ string OpenLoop::typeInternalsToString(void) {
 
 	for (int i = 0; i < numAdjacent + 1; i++) {
 
-//		ss << "len" << i << "=";
-//		ss << sidelen[i];
-		ss << utility::sequenceToString(seqs[i], sidelen[i]) << "    \n";
-//		ss << ", ";
+		ss << utility::sequenceToString(seqs[i], sidelen[i]) << "     -- ";
 
 	}
 
-//	ss << "\n";
+	ss << "\n";
 
 	for (int i = 0; i < numAdjacent; i++) {
 
