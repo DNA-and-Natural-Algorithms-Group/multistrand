@@ -193,8 +193,6 @@ double SComplexList::getTotalFlux(void) {
 
 double SComplexList::getJoinFlux(SimOptions* sOptions) {
 
-
-
 	if (sOptions != NULL && sOptions->usingArrhenius()) {
 
 		return getJoinFluxArr();
@@ -246,30 +244,41 @@ double SComplexList::getJoinFlux(SimOptions* sOptions) {
 		return (double) total_move_count * dnaEnergyModel->getJoinRate();
 }
 
-
 // FD: We need to re-write this for the Arrhenius routine
 
-// General strategy: simply sum all of the encountered rates.
-// Because the inner nucleotides are constantly (loop, loop),
-// this part of the computation can be improved if needed.
+// General strategy: A quick summation of all possible rates.
+// On hit, we work back which transition we needed.
+// This strategy can be faster, because interior nucleotides of openloops
+// always have the same structure
 double SComplexList::getJoinFluxArr(void) {
 
 // there are 4x6x6 options, so these rates we have to tally and then sum.
 
-	SComplexListEntry *temp = first;
+	double rate = 0.0;
+
+	SComplexListEntry* temp = first;
 
 	while (temp != NULL) {
 
 		StrandOrdering* order = temp->thisComplex->getOrdering();
 
-
+		rate += computeArrBiRate(first, order);
 
 		temp = temp->next;
-
 
 	}
 
 	return getJoinFlux(NULL);
+
+}
+
+double SComplexList::computeArrBiRate(SComplexListEntry* first, StrandOrdering* order) {
+
+	double output = 0.0;
+
+
+
+	return output;
 
 }
 

@@ -27,6 +27,7 @@ public:
 	double getTotalFlux(void);
 	double getJoinFlux(SimOptions* sOptions = NULL);
 	double getJoinFluxArr(void);
+	double computeArrBiRate(SComplexListEntry*, StrandOrdering*);
 	int getCount(void);
 	double *getEnergy(int volume_flag);
 	void printComplexList();
