@@ -82,9 +82,10 @@ public:
 	// replaces the first open loop in the ordering with the second.
 	void replaceOpenLoop(Loop *oldLoop, Loop *newLoop);
 
+	// moving first, last to public because we cycle over two of them for Arr bimolecular rates
+	orderinglist *first, *last;
 private:
 	char *seq, *struc, *strandnames;
-	orderinglist *first, *last;
 	int count;
 	exterior_bases total_exterior_bases;
 
