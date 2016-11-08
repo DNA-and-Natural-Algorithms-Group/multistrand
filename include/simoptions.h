@@ -45,6 +45,7 @@ public:
 	double getMaxSimTime(void);
 
 	void setPrimeRates(bool);
+	bool usingArrhenius(void);
 
 	// Virtual methods
 

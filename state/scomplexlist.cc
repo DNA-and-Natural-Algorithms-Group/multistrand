@@ -9,7 +9,7 @@
 
 #include <vector>
 #include <iostream>
-
+#include <simoptions.h>
 #include <utility.h>
 
 typedef std::vector<int> intvec;
@@ -196,7 +196,18 @@ double SComplexList::getTotalFlux(void) {
  2b. Add this amount * rate per join move to total.
  */
 
-double SComplexList::getJoinFlux(void) {
+
+double SComplexList::getJoinFlux(SimOptions* sOptions) {
+
+	// FD: We need to re-write this for the Arrhenius routine
+
+	if (sOptions != NULL && sOptions->usingArrhenius()) {
+
+		return getJoinFluxArr();
+
+	}
+
+
 
 	SComplexListEntry *temp = first;
 	struct exterior_bases *ext_bases = NULL, total_bases;
@@ -254,7 +265,7 @@ double SComplexList::getJoinFluxArr(void) {
 
 	}
 
-	return 0.0;
+	return getJoinFlux(NULL);
 
 }
 

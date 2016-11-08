@@ -18,7 +18,6 @@ h Copyright (c) 2007-2010 Caltech. All rights reserved.
 #include "google/heap-profiler.h"
 #endif
 
-//const bool exportStates = false;
 
 int noInitialMoves = 0;
 int timeOut = 0;

@@ -187,6 +187,13 @@ void SimOptions::setPrimeRates(bool input) {
 
 }
 
+bool SimOptions::usingArrhenius(void){
+
+	return energyOptions->usingArrhenius();
+
+}
+
+
 PyObject* PSimOptions::getPythonSettings() {
 
 	return python_settings;
