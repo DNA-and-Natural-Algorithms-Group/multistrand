@@ -4702,15 +4702,17 @@ string OpenLoop::typeInternalsToString(void) {
 
 	ss << " \n";
 
+	halfContextToString(ss);
+
 	return ss.str();
 
 }
 
-string OpenLoop::halfContextToString(void) {
+void OpenLoop::halfContextToString(std::stringstream& ss) {
 
 	// if the half contexts are updated, print them
 
-	std::stringstream ss;
+//	std::stringstream ss;
 
 	if (updatedContext) {
 
@@ -4736,7 +4738,7 @@ string OpenLoop::halfContextToString(void) {
 
 	ss << " \n";
 
-	return ss.str();
+//	return ss.str();
 
 }
 
