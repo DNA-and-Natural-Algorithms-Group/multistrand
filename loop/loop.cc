@@ -5319,21 +5319,18 @@ int *OpenLoop::getFreeBases(void) {
 // FD: already exist in the stack. nov 8 2016
 // This function exist to help with the arrhenius rates.
 // Here we return the count of internal nucleotides in the open loop.
-int* OpenLoop::getFreeBasesInternal(void) {
-
-	int results[5];
+void OpenLoop::setFreeBasesInternal() {
 
 	for (int loop = 0; loop <= numAdjacent; loop++) {
 		for (int loop2 = 2; loop2 <= sidelen[loop] - 1; loop2++) {
 
 			// removing checks because I'd like to software to fail if
 			// errors in the sequence exist.
-			results[seqs[loop][loop2]]++;
+			context.exposedInternalNucl[seqs[loop][loop2]]++;
 
 		}
 	}
 
-	return results;
 }
 
 /*
@@ -5543,56 +5540,9 @@ void OpenLoop::parseLocalContext(int index) {
 
 	context.push(newContext);
 
+	// now update the internal exposed toeholds:
+	// the rates for these are easier to compute because they are
+	// loop by loop local contexts.
+	setFreeBasesInternal();
+
 }
-
-//	int size = sidelen[index];
-//
-//	vector<halfContext> newContext;
-//
-//	for (int i = 1; i < size + 1; i++) {
-//
-//		halfContext qContext;
-//
-//		// process left side
-//		if (i == 1) {
-//
-//			if (seqs[index][0] > 0) { // there is a stack on the left
-//
-//				qContext.left = stackC;
-//
-//			} else {
-//
-//				qContext.right = endC;
-//
-//			}
-//
-//		} else {
-//
-//			qContext.left = strandC;
-//
-//		}
-//
-//		// process right side
-//		if (i == size) {
-//
-//			if (seqs[index][i + 1] > 0) { // there is a stack on the right
-//
-//				qContext.right = stackC;
-//
-//			} else {
-//
-//				qContext.right = endC;
-//
-//			}
-//
-//		} else {
-//
-//			qContext.right = strandC;
-//
-//		}
-//
-//		newContext.push_back(qContext);
-//
-//	}
-//
-

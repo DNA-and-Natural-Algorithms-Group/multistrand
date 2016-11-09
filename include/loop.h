@@ -231,7 +231,7 @@ public:
 	//   Calling function needs to free the array.
 	// TODO: Possibly change this so it returns the index of a static array inside the function, so there's no memory overhead for the function call. (Data is accessed single-threaded, and information is copied out by the calling function.) Could also make it a private data member that's just returned.  Not completed currently.
 	int *getFreeBases(void);
-	int* getFreeBasesInternal(void);
+	void setFreeBasesInternal(void);
 
 	char *getBase(char type, int index);
 
@@ -243,23 +243,12 @@ public:
 	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);
 	static void performComplexJoin(OpenLoop **oldLoops, OpenLoop **newLoops, char *types, int *index);
 	string typeInternalsToString(void);
-//	void halfContextToString(std::stringstream& );
 	void updateLocalContext(void);
 	void parseLocalContext(int);
 
 	// non-private because we trust each other;
 	// so: only the loop itself is allowed to set these.
-
-
-
 	OpenInfo context;
-//	vector<vector<halfContext>> context;
-//	int exposedNucleotides = 0;
-	// array of enums, mimics the structure of seqs, excluding bases
-	// so that index i in seqs, corresponds to i-1, and halfContext is
-	// 2 indices shorter than seqs (external bases excluded)
-
-
 	bool updatedContext = false;
 
 private:
