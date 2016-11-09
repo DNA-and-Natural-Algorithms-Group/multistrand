@@ -201,11 +201,11 @@ double SComplexList::getJoinFlux(SimOptions* sOptions) {
 	}
 
 	SComplexListEntry *temp = first;
-	struct exterior_bases *ext_bases = NULL, total_bases;
+//	struct exterior_bases *ext_bases = NULL, total_bases;
 
 // FD: refactoring starts here nov 9 2016
-	BaseCounter* externalBases;
-//	BaseCounter total_bases;
+	BaseCounter* ext_bases;
+	BaseCounter total_bases;
 
 	int total_move_count = 0;
 
@@ -216,17 +216,16 @@ double SComplexList::getJoinFlux(SimOptions* sOptions) {
 
 	while (temp != NULL) {
 
-		ext_bases = temp->thisComplex->getExteriorBases();
+		ext_bases = new BaseCounter(temp->thisComplex->getExteriorBases());
 
-		externalBases = new BaseCounter(temp->thisComplex->getExteriorBases());
+//		externalBases = new BaseCounter(temp->thisComplex->getExteriorBases());
 
+		total_bases.increment(ext_bases);
 
-//		total_bases.increment(ext_bases);
-
-		total_bases.A += ext_bases->A;
-		total_bases.C += ext_bases->C;
-		total_bases.G += ext_bases->G;
-		total_bases.T += ext_bases->T;
+//		total_bases.A += ext_bases->A;
+//		total_bases.C += ext_bases->C;
+//		total_bases.G += ext_bases->G;
+//		total_bases.T += ext_bases->T;
 
 		temp = temp->next;
 
@@ -234,21 +233,20 @@ double SComplexList::getJoinFlux(SimOptions* sOptions) {
 
 	temp = first;
 	while (temp != NULL) {
-		ext_bases = temp->thisComplex->getExteriorBases();
+		ext_bases = new BaseCounter(temp->thisComplex->getExteriorBases());
 
-//		total_bases.decrement(ext_bases);
-//		total_move_count += total_bases.multiCount(ext_bases);
+		total_bases.decrement(ext_bases);
+		total_move_count += total_bases.multiCount(ext_bases);
 
-
-		total_bases.A -= ext_bases->A;
-		total_bases.C -= ext_bases->C;
-		total_bases.G -= ext_bases->G;
-		total_bases.T -= ext_bases->T;
-
-		total_move_count += total_bases.A * ext_bases->T;
-		total_move_count += total_bases.T * ext_bases->A;
-		total_move_count += total_bases.G * ext_bases->C;
-		total_move_count += total_bases.C * ext_bases->G;
+//		total_bases.A -= ext_bases->A;
+//		total_bases.C -= ext_bases->C;
+//		total_bases.G -= ext_bases->G;
+//		total_bases.T -= ext_bases->T;
+//
+//		total_move_count += total_bases.A * ext_bases->T;
+//		total_move_count += total_bases.T * ext_bases->A;
+//		total_move_count += total_bases.G * ext_bases->C;
+//		total_move_count += total_bases.C * ext_bases->G;
 
 		temp = temp->next;
 	}
