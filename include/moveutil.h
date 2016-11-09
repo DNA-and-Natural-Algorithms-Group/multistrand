@@ -24,7 +24,7 @@ struct HalfContext {
 public:
 	friend std::ostream& operator<<(std::ostream&, HalfContext&);
 
-	BaseType base;
+	BaseType base = baseNone;
 	QuartContext left = endC;
 	QuartContext right = endC;
 

@@ -197,6 +197,7 @@ double SComplexList::getJoinFlux(SimOptions* sOptions) {
 	if (sOptions != NULL && sOptions->usingArrhenius()) {
 
 		return getJoinFluxArr();
+
 	}
 
 	SComplexListEntry *temp = first;
@@ -314,12 +315,10 @@ double SComplexList::cycleCrossRateArr(StrandOrdering* input1, StrandOrdering* i
 
 		while (temp2 != NULL) {
 
-//			OpenLoop* loop2 = temp2->thisLoop;
-
 			OpenInfo& local1 = input1->getLocalContext();
 			OpenInfo& local2 = input2->getLocalContext();
 
-//			output += computeCrossRateArr(loop1, loop2);
+
 
 			temp2 = temp2->next;
 
