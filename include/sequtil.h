@@ -40,6 +40,8 @@ struct BaseCounter {
 
 	// Constructor to help interface with existing code
 	// This also helps in refactoring
+	// also declare base constructor because auto constructor has been voided
+	BaseCounter();
 	BaseCounter(exterior_bases* );
 
 	void increment(BaseCounter* other);

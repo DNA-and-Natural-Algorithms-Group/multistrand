@@ -11,6 +11,7 @@
 #include <iostream>
 #include <simoptions.h>
 #include <utility.h>
+#include <sequtil.h>
 
 typedef std::vector<int> intvec;
 typedef std::vector<int>::iterator intvec_it;
@@ -202,15 +203,22 @@ double SComplexList::getJoinFlux(SimOptions* sOptions) {
 	SComplexListEntry *temp = first;
 	struct exterior_bases *ext_bases = NULL, total_bases;
 
+// FD: refactoring starts here nov 9 2016
+//	BaseCounter* ext_bases;
+//	BaseCounter total_bases;
+
 	int total_move_count = 0;
 
-	total_bases.A = total_bases.G = total_bases.T = total_bases.C = 0;
+//	total_bases.A = total_bases.G = total_bases.T = total_bases.C = 0;
 
 	if (numentries <= 1)
 		return 0.0;
 
 	while (temp != NULL) {
+
 		ext_bases = temp->thisComplex->getExteriorBases();
+
+//		total_bases.increment(ext_bases);
 
 		total_bases.A += ext_bases->A;
 		total_bases.C += ext_bases->C;
@@ -218,11 +226,16 @@ double SComplexList::getJoinFlux(SimOptions* sOptions) {
 		total_bases.T += ext_bases->T;
 
 		temp = temp->next;
+
 	}
 
 	temp = first;
 	while (temp != NULL) {
 		ext_bases = temp->thisComplex->getExteriorBases();
+
+//		total_bases.decrement(ext_bases);
+//		total_move_count += total_bases.multiCount(ext_bases);
+
 
 		total_bases.A -= ext_bases->A;
 		total_bases.C -= ext_bases->C;
@@ -237,7 +250,6 @@ double SComplexList::getJoinFlux(SimOptions* sOptions) {
 		temp = temp->next;
 	}
 
-	//  printf("Total join moves: %d\n",total_move_count);
 	if (total_move_count == 0)
 		return 0.0;  // CANNOT BE ANYTHING OTHER THAN 0.0! There are plenty of multi-complex structures with no total moves.
 	else
@@ -258,7 +270,6 @@ double SComplexList::getJoinFluxArr(void) {
 
 	SComplexListEntry* temp = first;
 
-
 	// The trick is to compute all rates between the first complex,
 	// and the remaining complexes. Then, compute the rate between the second complex,
 	// and the remaining complexes (set minus first and second), and so on.
@@ -276,7 +287,6 @@ double SComplexList::getJoinFluxArr(void) {
 	return rate;
 
 }
-
 
 double SComplexList::computeArrBiRate(SComplexListEntry* input, StrandOrdering* order) {
 
@@ -361,9 +371,6 @@ double SComplexList::computeCrossRateArr(OpenLoop* input1, OpenLoop* input2) {
 	} else {
 
 		// loop, loop local context
-
-
-
 
 	}
 

@@ -664,7 +664,7 @@ char *StrandComplex::getStrandNames(void) {
 	return ordering->getStrandNames();
 }
 
-struct exterior_bases *StrandComplex::getExteriorBases(void) {
+exterior_bases *StrandComplex::getExteriorBases(void) {
 	return ordering->getExteriorBases();
 }
 
