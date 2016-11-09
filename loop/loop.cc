@@ -4700,35 +4700,35 @@ string OpenLoop::typeInternalsToString(void) {
 
 void OpenLoop::halfContextToString(std::stringstream& ss) {
 
-	// if the half contexts are updated, print them
-
-//	std::stringstream ss;
-
-	if (updatedContext) {
-
-		ss << "hContext: \n";
-
-		for (int i = 0; i < numAdjacent + 1; i++) {
-
-			ss << "   c" << i << " - ";
-
-			for (int j = 0; j < context[i].size(); j++) {
-
-				ss << context[i][j];
-
-			}
-
-			ss << "  \n";
-
-		}
-
-	}
-
-	ss << " \n";
-
-//	return ss.str();
+	ss << context;
 
 }
+
+// if the half contexts are updated, print them
+
+//	if (updatedContext) {
+//
+//		ss << "hContext: \n";
+//
+//		for (int i = 0; i < numAdjacent + 1; i++) {
+//
+//			ss << "   c" << i << " - ";
+//
+//			for (int j = 0; j < context[i].size(); j++) {
+//
+//				ss << context[i][j];
+//
+//			}
+//
+//			ss << "  \n";
+//
+//		}
+//
+//	}
+
+//	ss << " \n";
+
+//	return ss.str();
 
 void OpenLoop::calculateEnergy(void) {
 	if (energyModel == NULL)
@@ -5480,7 +5480,6 @@ void OpenLoop::updateLocalContext() {
 	}
 
 	context.clear();
-	exposedNucleotides = 0;
 
 	for (int i = 0; i < numAdjacent + 1; i++) {
 
@@ -5494,57 +5493,105 @@ void OpenLoop::updateLocalContext() {
 
 void OpenLoop::parseLocalContext(int index) {
 
+	// FD: redoing this to save more information,
+	// and only record local context for exterior
+	// zero, one or two nucleotides
+
+	char* mySeq = seqs[index];
 	int size = sidelen[index];
 
-	vector<halfContext> newContext;
+	context.numExposed += size;
 
-	for (int i = 1; i < size + 1; i++) {
+	if (size > 2) {	 // there are internal nucleotides
 
-		halfContext qContext;
+		context.numExposedInternal += size - 2;
 
-		// process left side
-		if (i == 1) {
+	}
 
-			if (seqs[index][0] > 0) { // there is a stack on the left
+	vector<HalfContext> newContext;
 
-				qContext.left = stackC;
+	if (size > 0) {
 
-			} else {
+		HalfContext qContext = HalfContext(mySeq[1]);
 
-				qContext.right = endC;
+		qContext.left = moveutil::getContext(mySeq[0]);
 
-			}
+		if (size == 1) { // exactly one nucleotide
 
-		} else {
-
-			qContext.left = strandC;
-
-		}
-
-		// process right side
-		if (i == size) {
-
-			if (seqs[index][i + 1] > 0) { // there is a stack on the right
-
-				qContext.right = stackC;
-
-			} else {
-
-				qContext.right = endC;
-
-			}
+			qContext.right = moveutil::getContext(mySeq[2]);
 
 		} else {
 
 			qContext.right = strandC;
-
 		}
+
+		newContext.push_back(qContext);
+	}
+
+	// also record the second external nucleotide, if it exists
+	if (size > 1) {
+
+		HalfContext qContext = HalfContext(mySeq[size]);
+
+		qContext.left = strandC;
+		qContext.right = moveutil::getContext(mySeq[size + 1]);
 
 		newContext.push_back(qContext);
 
 	}
 
-	context.push_back(newContext);
+	context.push(newContext);
 
 }
+
+//	int size = sidelen[index];
+//
+//	vector<halfContext> newContext;
+//
+//	for (int i = 1; i < size + 1; i++) {
+//
+//		halfContext qContext;
+//
+//		// process left side
+//		if (i == 1) {
+//
+//			if (seqs[index][0] > 0) { // there is a stack on the left
+//
+//				qContext.left = stackC;
+//
+//			} else {
+//
+//				qContext.right = endC;
+//
+//			}
+//
+//		} else {
+//
+//			qContext.left = strandC;
+//
+//		}
+//
+//		// process right side
+//		if (i == size) {
+//
+//			if (seqs[index][i + 1] > 0) { // there is a stack on the right
+//
+//				qContext.right = stackC;
+//
+//			} else {
+//
+//				qContext.right = endC;
+//
+//			}
+//
+//		} else {
+//
+//			qContext.right = strandC;
+//
+//		}
+//
+//		newContext.push_back(qContext);
+//
+//	}
+//
 

@@ -4,6 +4,7 @@
 
 #include <string>
 #include <vector>
+#include <sequtil.h>
 
 using std::vector;
 using std::string;
@@ -13,31 +14,37 @@ enum MoveType {
 	endMove, loopMove, stackMove, stackStackMove, loopEndMove, stackEndMove, stackLoopMove, MOVETYPE_SIZE
 };
 
-enum quartContext {
+enum QuartContext {
 	endC, strandC, stackC, HALFCONTEXT_SIZE
 };
 
-struct halfContext {
+struct HalfContext {
+
+	HalfContext(char base);
 
 public:
-	friend std::ostream& operator<<(std::ostream&, halfContext&);
+	friend std::ostream& operator<<(std::ostream&, HalfContext&);
 
-	quartContext left = endC;
-	quartContext right = endC;
+	BaseType base;
+	QuartContext left = endC;
+	QuartContext right = endC;
 
 };
 
 // This struct contains info computed
 // at-time-of-creation for the OpenLoop object.
 
-struct openInfo {
+struct OpenInfo {
 
 public:
-	friend std::ostream& operator<<(std::ostream&, openInfo&);
+	friend std::ostream& operator<<(std::ostream&, OpenInfo&);
+	void clear(void);
+	void push(vector<HalfContext>&);
 
-	vector<vector<halfContext>> context;
-	int exposedInternalNucl[5];
+	vector<vector<HalfContext>> context;
+	vector<int> exposedInternalNucl = {0,0,0,0,0};
 	int numExposedInternal;
+	int numExposed;
 
 };
 
@@ -46,6 +53,9 @@ namespace moveutil {
 const static double valuesPrime[MOVETYPE_SIZE] = { 3, 5, 7, 11, 13, 17, 19 };
 const static string MoveToString[MOVETYPE_SIZE] = { "End", "Loop", "Stack", "StackStack", "LoopEnd", "StackEnd", "StackLoop" };
 const static string MoveToString2[MOVETYPE_SIZE] = { "      ", "     ", "   ", "", "  ", " ", " " };
+
+
+QuartContext getContext(char input);
 
 int typeMult(MoveType left, MoveType right);
 

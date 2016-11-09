@@ -14,6 +14,7 @@
 #include "move.h"
 #include "moveutil.h"
 
+
 using std::vector;
 
 class EnergyOptions;
@@ -249,11 +250,15 @@ public:
 	// non-private because we trust each other;
 	// so: only the loop itself is allowed to set these.
 
-	vector<vector<halfContext>> context;
-	int exposedNucleotides = 0;
+
+
+	OpenInfo context;
+//	vector<vector<halfContext>> context;
+//	int exposedNucleotides = 0;
 	// array of enums, mimics the structure of seqs, excluding bases
 	// so that index i in seqs, corresponds to i-1, and halfContext is
 	// 2 indices shorter than seqs (external bases excluded)
+
 
 	bool updatedContext = false;
 
