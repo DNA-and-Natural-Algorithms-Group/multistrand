@@ -18,6 +18,11 @@ const int NUM_BASES = 5;
 
 const static string basepairString[NUM_BASEPAIRS_NUPACK] = { "A/T", "C/G", "G/C", "T/A", "G/T", "T/G" };
 
+// structure containing information about bases exterior to the complex, IE bases that could pair with other complexes. First incarnation of such.a structure, prolly will change as I work out multiple-complex issues.
+// FD: refactoring to stop using exterior_bases, in favor of BaseCounter -- nov 9 2016
+struct exterior_bases {
+	int A, T, C, G;
+};
 
 enum BaseType {
 
@@ -32,6 +37,10 @@ const string baseTypeString[BASETYPE_SIZE] = { "·", "A", "C", "G", "T" };
 struct BaseCounter {
 
 	vector<int> count = {0, 0, 0, 0, 0}; // use baseType as access
+
+	// Constructor to help interface with existing code
+	// This also helps in refactoring
+	BaseCounter(exterior_bases* );
 
 	void increment(BaseCounter* other);
 	void decrement(BaseCounter* other);

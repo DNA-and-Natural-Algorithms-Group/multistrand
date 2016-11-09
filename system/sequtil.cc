@@ -2,6 +2,16 @@
 
 #include <sequtil.h>
 
+// compatibility constructor
+BaseCounter::BaseCounter(exterior_bases* input){
+
+	count[1] = input->A;
+	count[2] = input->C;
+	count[3] = input->G;
+	count[1] = input->T;
+
+}
+
 void BaseCounter::increment(BaseCounter* other) {
 	for (int i : { baseA, baseC, baseG, baseT }) {
 		count[i] += other->count[i];
