@@ -23,6 +23,23 @@ BaseCounter::BaseCounter(exterior_bases* input) {
 
 }
 
+// compatibility constructor
+BaseCounter::BaseCounter(int* input) {
+
+	count[1] = input[1];
+	count[2] = input[2];
+	count[3] = input[3];
+	count[4] = input[4];
+
+}
+
+
+void BaseCounter::clear(void) {
+
+	count = {0,0,0,0,0};
+
+}
+
 void BaseCounter::increment(BaseCounter* other) {
 
 	std::cout << "Attempting to increment";
