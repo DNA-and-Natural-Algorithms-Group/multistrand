@@ -258,6 +258,11 @@ double SComplexList::getJoinFluxArr(void) {
 
 	SComplexListEntry* temp = first;
 
+
+	// The trick is to compute all rates between the first complex,
+	// and the remaining complexes. Then, compute the rate between the second complex,
+	// and the remaining complexes (set minus first and second), and so on.
+
 	while (temp != NULL) {
 
 		StrandOrdering* order = temp->thisComplex->getOrdering();
@@ -268,10 +273,10 @@ double SComplexList::getJoinFluxArr(void) {
 
 	}
 
-//	return getJoinFlux(NULL);
 	return rate;
 
 }
+
 
 double SComplexList::computeArrBiRate(SComplexListEntry* input, StrandOrdering* order) {
 
@@ -293,7 +298,6 @@ double SComplexList::computeArrBiRate(SComplexListEntry* input, StrandOrdering* 
 	temp = temp->next;
 
 	// now start computing rates with the remaining entries
-
 	while (temp != NULL) {
 
 		StrandOrdering* otherOrder = temp->thisComplex->getOrdering();
@@ -306,6 +310,8 @@ double SComplexList::computeArrBiRate(SComplexListEntry* input, StrandOrdering* 
 
 }
 
+// Given two strand orderings, compute the bimolecular rate
+// according to the arrhenius model.
 double SComplexList::cycleCrossRateArr(StrandOrdering* input1, StrandOrdering* input2) {
 
 	double output = 1.0;
@@ -336,6 +342,10 @@ double SComplexList::cycleCrossRateArr(StrandOrdering* input1, StrandOrdering* i
 
 }
 
+// Given two openloops, compute the bimolecular rate between them\
+// there are two phases:
+// The internal exposed nucleotides react with a loop x loop local context.
+// The external exposed nucleotides react with one of six possibilities
 double SComplexList::computeCrossRateArr(OpenLoop* input1, OpenLoop* input2) {
 
 	int adjacent1 = input1->numAdjacent;
@@ -347,6 +357,13 @@ double SComplexList::computeCrossRateArr(OpenLoop* input1, OpenLoop* input2) {
 	if (input1->context.numExposedInternal == 0) {
 
 		return output;
+
+	} else {
+
+		// loop, loop local context
+
+
+
 
 	}
 

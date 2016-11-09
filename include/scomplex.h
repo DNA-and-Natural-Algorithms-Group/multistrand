@@ -18,7 +18,7 @@ struct exterior_bases {
 #include "strandordering.h"
 #include "optionlists.h"
 
-//#include "movetree.h"
+
 
 class StrandComplex {
 public:
@@ -40,7 +40,7 @@ public:
 	char *getSequence(void); // returns char representation of sequence
 	char *getStructure(void); // returns dot-paren notation structure for seq.
 	char *getStrandNames(void); // returns ordered list of strand names
-	struct exterior_bases *getExteriorBases(void);
+	exterior_bases *getExteriorBases(void);
 	int checkIDList(class identList *stoplist, int id_count);
 	int checkIDBound(char *id);
 
