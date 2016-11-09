@@ -8,15 +8,19 @@
 #
 #
 
-sources = ["interface/multistrand_module.cc",
+sources = ["system/utility.cc",
+           "interface/multistrand_module.cc",
            "interface/optionlists.cc",
            "interface/options.cc",
            "loop/move.cc",
+           "loop/moveutil.cc",
            "loop/loop.cc",
+           "system/energyoptions.cc",
            "energymodel/nupackenergymodel.cc",
            "energymodel/energymodel.cc",
            "state/scomplex.cc",
            "state/scomplexlist.cc",
+           "system/simoptions.cc",
            "system/ssystem.cc",
            "system/simoptions.cc",
            "state/strandordering.cc",

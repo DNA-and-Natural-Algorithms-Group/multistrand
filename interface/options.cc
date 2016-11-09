@@ -11,11 +11,11 @@
 // TODO: check deallocation of new objects
 
 
-class stopcomplexes *getStopComplexList(PyObject *options, int index)
+class stopComplexes *getStopComplexList(PyObject *options, int index)
 {
-    class identlist *id_list;
-    class complex_item *complexes;
-    class stopcomplexes *return_list;
+    class identList *id_list;
+    class complexItem *complexes;
+    class stopComplexes *return_list;
     
     PyObject *strand_list;
     char *structure;
@@ -72,9 +72,9 @@ class stopcomplexes *getStopComplexList(PyObject *options, int index)
             // strand_list reference is now clean.
             
             if (j == m - 1)
-                complexes = new complex_item(structure, id_list, NULL, stoptype, count);
+                complexes = new complexItem(structure, id_list, NULL, stoptype, count);
             else
-                complexes = new complex_item(structure, id_list, complexes, stoptype, count);
+                complexes = new complexItem(structure, id_list, complexes, stoptype, count);
 
             Py_DECREF( pyo_structure );
             structure = NULL;
@@ -85,9 +85,9 @@ class stopcomplexes *getStopComplexList(PyObject *options, int index)
         // tuple_list is now clean.
 
         if (i == n - 1)
-            return_list = new stopcomplexes(tag, complexes, NULL);
+            return_list = new stopComplexes(tag, complexes, NULL);
         else
-            return_list = new stopcomplexes(tag, complexes, return_list);
+            return_list = new stopComplexes(tag, complexes, return_list);
         
         Py_DECREF( pyo_tag );
         tag = NULL;
@@ -98,7 +98,7 @@ class stopcomplexes *getStopComplexList(PyObject *options, int index)
 }
 
 
-class identlist *getID_list(PyObject *options, int index, PyObject *alternate_start)
+class identList *getID_list(PyObject *options, int index, PyObject *alternate_start)
 {
   PyObject *pyo_strand_list = NULL;
   PyObject *pyo_start_complex_list = NULL;
@@ -118,7 +118,7 @@ class identlist *getID_list(PyObject *options, int index, PyObject *alternate_st
   Py_DECREF( pyo_start_complex_list );
   // pyo_start_complex_list is now clean, pyo_strand_list has a new reference.
 
-  class identlist *tmp = NULL;
+  class identList *tmp = NULL;
 
   tmp = makeID_list( pyo_strand_list );
   // makeID_list does not steal the reference. 
@@ -130,9 +130,9 @@ class identlist *getID_list(PyObject *options, int index, PyObject *alternate_st
 }
 
 // TODO still.
-class identlist *makeID_list(PyObject *strand_list)
+class identList *makeID_list(PyObject *strand_list)
 {
-    class identlist *id_list;
+    class identList *id_list;
     long u_id;
     long n;
     char *name;
@@ -155,7 +155,7 @@ class identlist *makeID_list(PyObject *strand_list)
 #endif
     // new reference
     
-    id_list = new identlist( u_id, name );  // next is NULL default.
+    id_list = new identList( u_id, name );  // next is NULL default.
     // id_list should make a copy of name, it is now ok to free it.
 
     Py_DECREF( pyo_name );
@@ -174,7 +174,7 @@ class identlist *makeID_list(PyObject *strand_list)
         getLongAttr(py_strand, id, &u_id);
 
         // new reference
-        id_list = new identlist( u_id, name, id_list );
+        id_list = new identList( u_id, name, id_list );
         // id_list should make a copy of name, it is now ok to free it.
         
         Py_DECREF( pyo_name );

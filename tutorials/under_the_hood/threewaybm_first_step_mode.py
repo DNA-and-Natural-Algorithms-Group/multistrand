@@ -297,7 +297,7 @@ if __name__ == '__main__':
         idx = str(sys.argv[1])
      
     if idx == 'test':
-        testrun = ThreeWaySimRunner([3],[150], "Metropolis", jobcount=10,offset_for_unique_name=399)
+        testrun = ThreeWaySimRunner([3],[50], "Metropolis", jobcount=3,offset_for_unique_name=399)
         #testrun = ThreeWaySimRunner([list of toehold lengths],
         #                            [list of #sims per job, for each toehold length], 
         #                            Rate method ("Kawasaki" or "Metropolis"), 

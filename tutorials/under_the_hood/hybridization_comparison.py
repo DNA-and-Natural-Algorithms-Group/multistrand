@@ -384,8 +384,8 @@ def compare_hybridization(seq, concentrations, T=25, material="DNA"):
    print
 
    # do one "first passage time" run for dissociation, and get k_rev
-   krev_1p = first_passage_dissociation(seq, 500, T=T, material=material)  # this is good, for short enough strands
-   # krev_1p = first_passage_dissociation(seq, 10, T=T, material=material)     # too few, but faster
+#    krev_1p = first_passage_dissociation(seq, 500, T=T, material=material)  # this is good, for short enough strands
+   krev_1p = first_passage_dissociation(seq, 10, T=T, material=material)     # too few, but faster
    time4=time.time()
    time1passage_rev = time4-time3
    print "krev = %g /s (%g seconds)" % (krev_1p, time1passage_rev)

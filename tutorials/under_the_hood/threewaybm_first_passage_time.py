@@ -40,7 +40,7 @@ Count_Macrostate = 4   # match a secondary structure, allowing a certain number 
 
 # here, design A has a hairpin and is slow / fails often.  design B is fast
 # in figure 7.4, design A has the same sequence, but...                                                     design B is "ACCGCACCACGTGGGTGTCG"
-def setup_threewaybm_comparison(trials=100, toehold_seq = "GTGGGT", bm_design_A = "ACCGCACGTCCACGGTGTCG", bm_design_B = "ACCGCACGTCACTCACCTCG"):
+def setup_threewaybm_comparison(trials=10, toehold_seq = "GTGGGT", bm_design_A = "ACCGCACGTCCACGGTGTCG", bm_design_B = "ACCGCACGTCACTCACCTCG"):
 
     toehold = Domain(name="toehold",sequence=toehold_seq,length=len(toehold_seq))
     branch_migration_A = Domain(name="bm_A", sequence=bm_design_A, seq_length=len(bm_design_A))
@@ -212,7 +212,7 @@ def plot_completion_graph_complete_vs_failed( result_list, colors=['b','m'], fig
 if __name__ == '__main__':
 
     # o1,o2 = setup_threewaybm_comparison()  # equivalent to below, since they are defaults
-    o1,o2 = setup_threewaybm_comparison(trials=100, toehold_seq = "GTGGGT", bm_design_A = "ACCGCACGTCCACGGTGTCG", bm_design_B = "ACCGCACGTCACTCACCTCG")
+    o1,o2 = setup_threewaybm_comparison(trials=10, toehold_seq = "GTGGGT", bm_design_A = "ACCGCACGTCCACGGTGTCG", bm_design_B = "ACCGCACGTCACTCACCTCG")
     # o1,o2 = setup_threewaybm_comparison(trials=100, toehold_seq = "GTGGGTAGGT", bm_design_A = "ACCGCACGTCCACGGTGTCG", bm_design_B = "ACCGCACGTCACTCACCTCG")
 
     print

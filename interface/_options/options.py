@@ -3,7 +3,7 @@
 # Python implementation of the options object.                                 #
 # Copyright 2010 Caltech                                                       #
 # Written by:  Joseph Schaeffer.                                               #
-# Some stuff written by:  Chris Berlind                                        #
+# Some stuff written by:  Chris Berlind, Frits Dannenberg                      #
 #                                                                              #
 # (others add your names as you modify files)                                  #
 #                                                                              #
@@ -12,7 +12,7 @@
 from interface import Interface
 from ..objects import Strand, Complex, RestingState, StopCondition
 from constants import _OptionsConstants
-#from ..pygraphviztesting import create_graph,update_graph
+# from ..pygraphviztesting import create_graph,update_graph
 
 _OC = _OptionsConstants()
 
@@ -20,7 +20,7 @@ import copy
 
 FILLIN = None
 
-class Options( object ):
+class Options(object):
     """ The main wrapper for controlling a Multistrand simulation. Has information about the energy model, simulation options, and an interface for returning results. """
 
     defaults = {"num_simulations":1,
@@ -30,7 +30,9 @@ class Options( object ):
                 "simulation_mode":16,
                 "parameter_type":1,
                 "simulation_time":600.0,
-                "temperature":310.15}
+                "temperature":310.15,
+                "useArrRates":False          
+                }
     
     def __init__(self, *args, **kargs):
         """
@@ -52,6 +54,8 @@ class Options( object ):
                                         parameters.
         rate_method                  -- Whether we want 'Kawasaki' or 'Metropolis'
                                         rate method for unimolecular steps.
+        useArrRates     [type=bool]  -- if TRUE, use Arrhenius rate model. If using, please set AEnd, ALoop, AStack, AStackStack, ALoopEnd, AStackEnd, AStackLoop
+EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value).
         """
         
 
@@ -72,6 +76,7 @@ class Options( object ):
         """
         self.full_trajectory = []
         self.full_trajectory_times = []
+        self.full_trajectory_arrType = []
         self.trajectory_complexes = []
         self.trajectory_state_count = 0
         self._current_end_state = []
@@ -123,12 +128,12 @@ class Options( object ):
         then chosen using this parameter.
         """
 
-        ###
-        ### See the temperature property way below (after __init__)
-        ### for more info on accessors for these data members.
-        ###
+        # ##
+        # ## See the temperature property way below (after __init__)
+        # ## for more info on accessors for these data members.
+        # ##
         self._temperature_celsius = 37.0
-        self._temperature_kelvin  = 310.15
+        self._temperature_kelvin = 310.15
 
         self._rate_scaling = 'Default'
         """ Where to get the following two parameters when queried. """
@@ -228,17 +233,17 @@ class Options( object ):
         
         self.inputfilename = FILLIN
         """ deprecated """
-        ##char
+        # #char
 
 
         self.logfilename = FILLIN
         """ filename to send log entries to """
-        ##char
+        # #char
 
 
         self.trajectoryfilename = FILLIN
         """ filename to send trajectory entries to """
-        ##char
+        # #char
 
 
         # self.trajectory_type = 0
@@ -313,6 +318,34 @@ class Options( object ):
         Modified when start state is added. Used as a lookup when stop states 
         are added.
         """
+        
+        self.useArrRates = False;
+        
+        self.AEnd = -0.1;
+        self.ALoop = -0.1;
+        self.AStack = -0.1;
+        self.AStackStack = -0.1;
+        self.ALoopEnd = -0.1;
+        self.AStackEnd = -0.1;
+        self.AStackLoop = -0.1;        
+        self.EEnd = -0.1;
+        self.ELoop = -0.1;
+        self.EStack = -0.1;
+        self.EStackStack = -0.1;
+        self.ELoopEnd = -0.1;
+        self.EStackEnd = -0.1;
+        self.EStackLoop = -0.1; 
+        
+        
+        self.dSA = -0.1;
+        self.dST = -0.1;
+        self.dSC = -0.1;
+        self.dSG = -0.1;
+        
+        self.alpha = 1.0;
+        
+        
+        
         
         ####################
         #
@@ -403,7 +436,7 @@ class Options( object ):
         #
         ##############################
 
-        self.__init_keyword_args(self, *args, **kargs )
+        self.__init_keyword_args(self, *args, **kargs)
 
     @property
     def verbosity(self):
@@ -419,7 +452,7 @@ class Options( object ):
         return self._verbosity
 
     @verbosity.setter
-    def verbosity( self, val):
+    def verbosity(self, val):
         self._verbosity = int(val)
         
     
@@ -442,16 +475,16 @@ class Options( object ):
     @boltzmann_sample.setter
     def boltzmann_sample(self, val):
         # Set all resting states to use this boltzmann flag.
-        if not isinstance( val, bool ):
+        if not isinstance(val, bool):
             raise ValueError("the boltzmann_sample property can only be a boolean, sorry. When set, it applies globally to all resting state used in the start complexes, unless they have already been set.")
-        for c,s in self._start_state:
+        for c, s in self._start_state:
             if s is not None:
                 s.boltzmann_sample = val
             else:
                 c.boltzmann_sample = val 
 
     @property
-    def rate_scaling( self ):
+    def rate_scaling(self):
         """ Source for rate scaling factor for unimolecular and bimolecular reactions. Allows choice of the default calibrated factors, setting the factors manually, or other specific parameter sets (such as those used for calibration).
 
         Type: str
@@ -467,14 +500,14 @@ class Options( object ):
         return self._rate_scaling
 
     @rate_scaling.setter
-    def rate_scaling( self, val ):
+    def rate_scaling(self, val):
         if val == 'Fixed' or val in _OC.rate_scaling_sets.keys():
             self._rate_scaling = val
         else:
             raise ValueError("Value {0}: Should either be 'Default', 'Fixed', or one of the keys found in multistrand.options.Constants.rate_scaling_sets.".format(val))
 
     @property
-    def calibration_string( self ):
+    def calibration_string(self):
         """ Descriptive string for current unimolecular and bimolecular parameter set, including actual values for current model choices."""
 
         model_data = (_OC.SUBSTRATE_TYPE_inv[self.substrate_type],
@@ -484,12 +517,12 @@ class Options( object ):
                       self.temperature)
 
         if self._rate_scaling == 'Fixed':
-            return "User-defined scaling rates: Unimolecular: {0}\n                            Bimolecular: {1}\nEnergy Model Parameters: Concentration: {3:.2e}M Temperature: {2[4]:.2f}K\n Model: [{2[1]}] Substrate: [{2[0]}] Dangles: [{2[2]}] Rate Method: [{2[3]}]\n".format( self.unimolecular_scaling, self.bimolecular_scaling, model_data , self.join_concentration)
+            return "User-defined scaling rates: Unimolecular: {0}\n                            Bimolecular: {1}\nEnergy Model Parameters: Concentration: {3:.2e}M Temperature: {2[4]:.2f}K\n Model: [{2[1]}] Substrate: [{2[0]}] Dangles: [{2[2]}] Rate Method: [{2[3]}]\n".format(self.unimolecular_scaling, self.bimolecular_scaling, model_data , self.join_concentration)
         else:
-            return _OC.rate_scaling_sets[self._rate_scaling]['description'].format( self.unimolecular_scaling, self.bimolecular_scaling, model_data, self.join_concentration )
+            return _OC.rate_scaling_sets[self._rate_scaling]['description'].format(self.unimolecular_scaling, self.bimolecular_scaling, model_data, self.join_concentration)
 
     @property
-    def calibration_data( self ):
+    def calibration_data(self):
         """ Returns a tuple containing the current calibration data.
             Note: text versions of any numerical choice, e.g. 'None'
                   rather than 0 for dangles.
@@ -510,7 +543,7 @@ class Options( object ):
         
         
     @property
-    def unimolecular_scaling( self ):
+    def unimolecular_scaling(self):
         """ Rate scaling factor for unimolecular reactions.
 
         Type         Default
@@ -528,7 +561,7 @@ class Options( object ):
             return self._unimolecular_scaling
         else:
             try:
-                return _OC.rate_scaling_sets[self._rate_scaling][model_string+temperature_string]['uni']
+                return _OC.rate_scaling_sets[self._rate_scaling][model_string + temperature_string]['uni']
             except KeyError:
                 try:
                     return _OC.rate_scaling_sets[self._rate_scaling][model_string]['uni']
@@ -540,19 +573,19 @@ class Options( object ):
                 
 
     @unimolecular_scaling.setter
-    def unimolecular_scaling( self, val ):
-        if not (self._rate_scaling == 'Fixed' or self._rate_scaling =='Default'):
+    def unimolecular_scaling(self, val):
+        if not (self._rate_scaling == 'Fixed' or self._rate_scaling == 'Default'):
             import warnings
             warnings.warn("Options.rate_scaling changed from a 'Default' or 'Fixed' option to a specific calibration set, but then Options.unimolecular_scaling was set directly.")
             
-        self._unimolecular_scaling = float( val )
+        self._unimolecular_scaling = float(val)
         self._rate_scaling = 'Fixed'
 
 
 
         
     @property
-    def bimolecular_scaling( self ):
+    def bimolecular_scaling(self):
         """ Rate scaling factor for bimolecular reactions.
         double       0.5e6:
                      Unitless. Details on calibration sets in thesis. WARNING: this default value is ONLY used if the combination of model choices is not found in the appropriate calibration set."""
@@ -568,7 +601,7 @@ class Options( object ):
             return self._bimolecular_scaling        
         else:
             try:
-                return _OC.rate_scaling_sets[self._rate_scaling][model_string+temperature_string]['bi']
+                return _OC.rate_scaling_sets[self._rate_scaling][model_string + temperature_string]['bi']
             except KeyError:
                 try:
                     return _OC.rate_scaling_sets[self._rate_scaling][model_string]['bi']
@@ -580,12 +613,12 @@ class Options( object ):
 
 
     @bimolecular_scaling.setter
-    def bimolecular_scaling( self, val ):
-        if not (self._rate_scaling == 'Fixed' or self._rate_scaling =='Default'):
+    def bimolecular_scaling(self, val):
+        if not (self._rate_scaling == 'Fixed' or self._rate_scaling == 'Default'):
             import warnings
             warnings.warn("Options.rate_scaling changed from a 'Default' or 'Fixed' option to a specific calibration set, but then Options.bimolecular_scaling was set directly.")
             
-        self._bimolecular_scaling = float( val )
+        self._bimolecular_scaling = float(val)
         self._rate_scaling = 'Fixed'
 
     
@@ -621,7 +654,7 @@ class Options( object ):
         how to start.
         """
         # Error checking first
-        if self._start_state !=  []:
+        if self._start_state != []:
             raise Exception("Start state should only be set once.")
         if len(args) == 0 or len(args[0]) == 0:
             raise ValueError("No start state given.")
@@ -629,10 +662,10 @@ class Options( object ):
         # deduce our input from the type of args[0].
         # Copy the input list because it's easy to do and it's safer
         
-        if isinstance(args[0],Complex) or isinstance(args[0],RestingState):
-            #args is a list of complexes or resting states.
+        if isinstance(args[0], Complex) or isinstance(args[0], RestingState):
+            # args is a list of complexes or resting states.
             vals = copy.deepcopy(args) 
-        elif len(args) == 1 and hasattr(args[0],"__iter__"):
+        elif len(args) == 1 and hasattr(args[0], "__iter__"):
             vals = copy.deepcopy(args[0])
         else:
             raise ValueError("Could not comprehend the start state you gave me.")
@@ -641,22 +674,22 @@ class Options( object ):
         # it complexes or resting states.
         
         for i in vals:
-            if not isinstance(i,Complex) and not isinstance(i,RestingState):
-                raise ValueError("Start states must be Complexes or RestingStates. Received something of type {0}.".format( type(i)) )
+            if not isinstance(i, Complex) and not isinstance(i, RestingState):
+                raise ValueError("Start states must be Complexes or RestingStates. Received something of type {0}.".format(type(i)))
         
-            self._add_start_complex( i )
+            self._add_start_complex(i)
 
-    def _add_start_complex( self, item ):
+    def _add_start_complex(self, item):
         if isinstance(item, Complex):
-            self._start_state.append( (item,None))
-            item.set_boltzmann_parameters( _OC.DANGLES_inv[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius )
+            self._start_state.append((item, None))
+            item.set_boltzmann_parameters(_OC.DANGLES_inv[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius)
         else:
-            self._start_state.append( (item[0], item) )
+            self._start_state.append((item[0], item))
             # JS 8/30/2014 Not entirely sure about this one. If I remember right, resting states may have more than one
             # component, so setting only the first to have proper Boltzmann sampling might be an error.
             # 
             # If so, it should probably be 'for i in item: i.set_boltzmann_parameters'... {etc}
-            item[0].set_boltzmann_parameters( _OC.DANGLES_inv[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius )
+            item[0].set_boltzmann_parameters(_OC.DANGLES_inv[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius)
 
     @property
     def initial_seed_flag(self):
@@ -705,7 +738,7 @@ class Options( object ):
 
 
     @property
-    def use_stop_conditions( self ):
+    def use_stop_conditions(self):
         """ Indicates whether trajectories should end when stop states
         are reached.
         
@@ -720,7 +753,7 @@ class Options( object ):
         return self._use_stop_conditions
 
     @use_stop_conditions.setter
-    def use_stop_conditions( self, val ):
+    def use_stop_conditions(self, val):
         if val == True and len(self._stop_conditions) == 0:
             import warnings
             warnings.warn("Options.use_stop_conditions was set to True, but no stop conditions have been defined!")
@@ -750,7 +783,7 @@ class Options( object ):
 
 
     @property
-    def substrate_type( self ):
+    def substrate_type(self):
         """ What substrate's parameter files to use. Note that some
         combinations of this and energymodel_type will be invalid and
         Multistrand will complain.
@@ -771,16 +804,16 @@ class Options( object ):
         return self._substrate_type
 
     @substrate_type.setter
-    def substrate_type( self, value ):
+    def substrate_type(self, value):
         # see if it's a valid key for the dangles dictionary
         try:
             self._substrate_type = _OC.SUBSTRATE_TYPE[value]
         except KeyError:
             # if it isn't, assume int and let any exception go upwards
             self._substrate_type = int(value)
-            if len( self._start_state) > 0:
-                for c,s in self._start_state:
-                    c.set_boltzmann_parameters( _OC.DANGLES_inv[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius )
+            if len(self._start_state) > 0:
+                for c, s in self._start_state:
+                    c.set_boltzmann_parameters(_OC.DANGLES_inv[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius)
 
 
 
@@ -810,9 +843,9 @@ class Options( object ):
         except KeyError:
             # if it isn't, just pretend it's an int. If that fails, let the exception go upwards.
             self._dangles = int(value)
-            if len( self._start_state) > 0:
-                for c,s in self._start_state:
-                    c.set_boltzmann_parameters( _OC.DANGLES_inv[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius )
+            if len(self._start_state) > 0:
+                for c, s in self._start_state:
+                    c.set_boltzmann_parameters(_OC.DANGLES_inv[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius)
     
     @property
     def temperature(self):
@@ -842,7 +875,7 @@ class Options( object ):
 
 
     @temperature.setter
-    def temperature(self,val):
+    def temperature(self, val):
         """ performs some sanity checking and provides a log error if
         perhaps the user was confused.
 
@@ -862,24 +895,24 @@ class Options( object ):
         if 273.0 < val < 373.0:
             self._temperature_kelvin = val
             self._temperature_celsius = val - _OC.ZERO_C_IN_K
-            if len( self._start_state) > 0:
-                for c,s in self._start_state:
-                    c.set_boltzmann_parameters( _OC.DANGLES_inv[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius )
+            if len(self._start_state) > 0:
+                for c, s in self._start_state:
+                    c.set_boltzmann_parameters(_OC.DANGLES_inv[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius)
 
         elif 0.0 < val < 100.0:
             self._temperature_celsius = val
             self._temperature_kelvin = val + _OC.ZERO_C_IN_K
-            if len( self._start_state) > 0:
-                for c,s in self._start_state:
-                    c.set_boltzmann_parameters( _OC.DANGLES_inv[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius )
+            if len(self._start_state) > 0:
+                for c, s in self._start_state:
+                    c.set_boltzmann_parameters(_OC.DANGLES_inv[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius)
             self.errorlog.append("Warning: Temperature was set at the value [{0}]. We expected a value in Kelvin, or with appropriate units.\n         Temperature was automatically converted to [{1}] degrees Kelvin.\n".format(val, self._temperature_kelvin))
 
         else:
             self._temperature_kelvin = val
             self._temperature_celsius = val - _OC.ZERO_C_IN_K
-            if len( self._start_state) > 0:
-                for c,s in self._start_state:
-                    c.set_boltzmann_parameters( _OC.DANGLES_inv[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius )
+            if len(self._start_state) > 0:
+                for c, s in self._start_state:
+                    c.set_boltzmann_parameters(_OC.DANGLES_inv[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius)
             self.errorlog.append("Warning: Temperature was set at the value [{0}]. This is outside the normal range of temperatures we expect, so it was assumed to be in Kelvin.\n".format(val))
             raise Warning("Temperature did not fall in the usual expected ranges. Temperatures should be in units Kelvin, though the range [0,100] is assumed to mean units of Celsius.")
         
@@ -903,16 +936,16 @@ class Options( object ):
         return None
 
     @add_result_status_line.setter
-    def add_result_status_line(self,val):
+    def add_result_status_line(self, val):
         """ Takes a 4-tuple as the only value type, it should be:
             (random number seed, stop result flag, completion time, stop result tag)
 
             Prints thingies. Also sets useful values."""
         if not isinstance(val, tuple) or len(val) != 4:
             raise ValueError("Print status line needs a 4-tuple of values.")
-        self.interface.add_result( val, res_type = 'status_line' )
+        self.interface.add_result(val, res_type='status_line')
         if len(self._current_end_state) > 0:
-            self.interface.end_states.append( self._current_end_state )
+            self.interface.end_states.append(self._current_end_state)
             self._current_end_state = []
     
     @property
@@ -920,71 +953,81 @@ class Options( object ):
         return None
 
     @add_result_status_line_firststep.setter
-    def add_result_status_line_firststep( self, val ):
+    def add_result_status_line_firststep(self, val):
         """ Takes a 5-tuple as the only value type, it should be:
             (random number seed, stop result flag, completion time, collision rate, stop result tag)
 
             Prints thingies. Also sets useful values."""
         if not isinstance(val, tuple) or len(val) != 5:
             raise ValueError("Print status line needs a 5-tuple of values.")
-        self.interface.add_result( val, res_type = 'firststep' )
+        self.interface.add_result(val, res_type='firststep')
         if len(self._current_end_state) > 0:
-            self.interface.end_states.append( self._current_end_state )
+            self.interface.end_states.append(self._current_end_state)
             self._current_end_state = []
             
     @property
-    def add_complex_state_line( self ):
+    def add_complex_state_line(self):
         return None
 
     @add_complex_state_line.setter
-    def add_complex_state_line( self, val ):
+    def add_complex_state_line(self, val):
         """ Takes a 6-tuple as only value, it should be:
             (random number seed, unique complex id, strand names, sequence, structure, energy )
             Adds this data to the interface's results object."""
 
-        self._current_end_state.append( val )
+        self._current_end_state.append(val)
         if self.verbosity > 0:
-            print( "{0[0]}: [{0[1]}] '{0[2]}': {0[5]} \n{0[3]}\n{0[4]}\n".format( val ))
+            print("{0[0]}: [{0[1]}] '{0[2]}': {0[5]} \n{0[3]}\n{0[4]}\n".format(val))
 
 
     @property
-    def add_transition_info( self ):
+    def add_transition_info(self):
         return None
 
     @add_transition_info.setter
-    def add_transition_info( self, val ):
+    def add_transition_info(self, val):
         """ Takes a 2-tuple, 1st value is current time, 2nd value is a
             list of boolean values indicating which stop conditions we
             currently meet."""
         # print( "Time: {0[0]} Membership: {0[1]}".format( val ))
-        self._current_transition_list.append( val )
+        self._current_transition_list.append(val)
 
     @property
-    def add_trajectory_complex( self ):
+    def add_trajectory_complex(self):
         return None
 
     @add_trajectory_complex.setter
-    def add_trajectory_complex( self, val ):
+    def add_trajectory_complex(self, val):
         """ Takes a 6-tuple as only value, it should be:
             (random number seed, unique complex id, strand names, sequence, structure, energy )
             Adds this data to the interface's results object."""
 
-        self.trajectory_complexes.append( val )
-        #print "Number of complexes in current traj output:" + str(len(self.trajectory_complexes))
+        self.trajectory_complexes.append(val)
+        # print "Number of complexes in current traj output:" + str(len(self.trajectory_complexes))
 
     @property
-    def add_trajectory_current_time( self ):
+    def add_trajectory_current_time(self):
         return None
 
     @add_trajectory_current_time.setter
-    def add_trajectory_current_time( self, val ):
+    def add_trajectory_current_time(self, val):
         self.trajectory_current_time = val
         self.trajectory_state_count += 1
-        self.full_trajectory.append( self.trajectory_complexes )
-        self.full_trajectory_times.append( self.trajectory_current_time )
+        self.full_trajectory.append(self.trajectory_complexes)
+        self.full_trajectory_times.append(self.trajectory_current_time)
         self.trajectory_complexes = []
-        if self.trajectory_state_count % 10 == 0:
-            print "Count: {0} Time: {1}".format(self.trajectory_state_count,self.trajectory_current_time)
+        
+        
+    @property
+    def add_trajectory_arrType(self):
+        return None
+
+    @add_trajectory_arrType.setter
+    def add_trajectory_arrType(self, val):
+        self.full_trajectory_arrType.append(val)
+
+#         if self.trajectory_state_count % 10 == 0:
+#             print "Count: {0} Time: {1}".format(self.trajectory_state_count, self.trajectory_current_time)
 
 
         # if self.current_graph == None:
@@ -1002,7 +1045,7 @@ class Options( object ):
         #     self.current_graph.draw('test{0:04d}.png'.format(self.trajectory_count))
             
         #     print( "{2}, {1:3e}(s): [{0[1]}] '{0[2]}' Energy (kcal/mol): {0[5]} \n{0[3]}\n{0[4]}\n".format( state, val, self.trajectory_count ))
-        #from IPython.Debugger import Pdb; Pdb().set_trace()
+        # from IPython.Debugger import Pdb; Pdb().set_trace()
         
     @property
     def interface_current_seed(self):
@@ -1038,29 +1081,29 @@ class Options( object ):
         self.interface.start_structures[val] = structures
 
     @property
-    def increment_trajectory_count( self ):
+    def increment_trajectory_count(self):
         self.interface.increment_trajectory_count()
         if len(self._current_transition_list) > 0:
-            self.interface.transition_lists.append(self._current_transition_list )
+            self.interface.transition_lists.append(self._current_transition_list)
             self._current_transition_list = []
 
-    def __repr__( self ):
+    def __repr__(self):
         items_to_save = {}
         for k in Options.defaults.keys():
             if self.__getattribute__(k) != Options.defaults[k]:
                 items_to_save[k] = self.__getattribute__(k)
-        def prep(k,v):
-            return "{key}={value},\n".format(key=k,value=v)
+        def prep(k, v):
+            return "{key}={value},\n".format(key=k, value=v)
         if len(items_to_save) == 0:
             res = "Options()\n"
         else:
-            res = "Options( " + "".join( [prep(*items_to_save.items()[0])] +
-                                     [pad + prep(*item) for item,pad in zip( items_to_save.items()[1:], ["         "] * (len(items_to_save) - 1))])
+            res = "Options( " + "".join([prep(*items_to_save.items()[0])] + 
+                                     [pad + prep(*item) for item, pad in zip(items_to_save.items()[1:], ["         "] * (len(items_to_save) - 1))])
             res = res[:-2]
             res = res + ")\n"
         return res
 
-    def __init_keyword_args( self, *args, **kargs ):
+    def __init_keyword_args(self, *args, **kargs):
         """ Helper subfunction. """
         
         """ Create an options object [with default (presumably useful) values]
@@ -1090,20 +1133,20 @@ class Options( object ):
         ...
         More to come!"""
         arg_lookup_table = {
-            'simulation_mode': lambda x: self.__setattr__('simulation_mode',_OC.SIMULATION_MODE[x]),
-            'dangles': lambda x: self.__setattr__('dangles',_OC.DANGLES[x]),
+            'simulation_mode': lambda x: self.__setattr__('simulation_mode', _OC.SIMULATION_MODE[x]),
+            'dangles': lambda x: self.__setattr__('dangles', _OC.DANGLES[x]),
             'parameter_type': lambda x: self.__setattr__('parameter_type', _OC.ENERGYMODEL_TYPE[x]),
             'substrate_type': lambda x: self.__setattr__('substrate_type', _OC.SUBSTRATE_TYPE[x]),
             'rate_method': lambda x: self.__setattr__('rate_method', _OC.RATEMETHOD[x]),
             'biscale': lambda x: self.__setattr__('bimolecular_scaling', x),
             'uniscale': lambda x: self.__setattr__('unimolecular_scaling', x),
             'num_sims': lambda x: self.__setattr__('num_simulations', x),
-            'sim_time': lambda x: self.__setattr__('simulation_time',x),
-            'concentration': lambda x: self.__setattr__('join_concentration',x)
+            'sim_time': lambda x: self.__setattr__('simulation_time', x),
+            'concentration': lambda x: self.__setattr__('join_concentration', x)
             }
         
         for k in kargs.keys():
             if k in arg_lookup_table:
-                arg_lookup_table[k]( kargs[k] )
+                arg_lookup_table[k](kargs[k])
             else:
                 self.__setattr__(k, kargs[k])

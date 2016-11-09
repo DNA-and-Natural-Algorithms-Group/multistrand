@@ -3,7 +3,7 @@
 #                                                                              #
 #           This is a README file for the Multistrand distribution.            #
 #                                                                              #
-#           Copyright (c) 2010-2012 Caltech. All rights reserved.              #
+#           Copyright (c) 2010-2017 Caltech. All rights reserved.              #
 #                                                                              #
 #    This software is being provided "as is", without any express or implied   #
 #   warranty.  In particular, neither the authors nor Caltech make any         #
@@ -19,8 +19,9 @@
 ################################################################################
 #                                                                              #
 #                                                                              #
-#  Maintainer / Primary Author / Primary Contact:                              #
+#  Maintainers / Primary Authors / Primary Contacts:                           #
 #    Joseph Schaeffer (schaeffer@dna.caltech.edu)                              #
+#    Frits Dannenberg (fdann@caltech.edu)	                               #
 #                                                                              #
 #  Contributing Authors:                                                       #
 #    Chris Berlind (cberlind@dna.caltech.edu)                                  #

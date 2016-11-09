@@ -1,6 +1,9 @@
 import sys,os,os.path
 import cPickle
+import math
 import subprocess # for Popen to call some nupack functions
+
+### FRITS -- THIS IS THE CASE STUDY.
 
 multihome = None
 if 'MULTISTRANDHOME' in os.environ:
@@ -85,6 +88,8 @@ def run_distribution( seq ):
                 eq_dict[cmplx[4]] = [cmplx[5], 1]
     return eq_dict
 
+
+run_distribution('ATATAA')
         
 # NOTE: should also look at what % of total PF was covered by the
 # states seen.
