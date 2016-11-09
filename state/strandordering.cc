@@ -725,14 +725,14 @@ string StrandOrdering::toString(void) {
 	for (traverse = first; traverse != NULL; traverse = traverse->next) {
 
 		assert(traverse->thisLoop != NULL);
-		ss << traverse->thisLoop->typeInternalsToString();
+
 		// now also print local Contexts
-//		ss << traverse->thisLoop->halfContextToString();
+		ss << traverse->thisLoop->typeInternalsToString();
+
 
 	}
 
 	ss << "\n";
-//	output += "Done printing strand ordering \n";
 
 	return ss.str();
 

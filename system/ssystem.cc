@@ -883,7 +883,6 @@ void SimulationSystem::printAllMoves() {
 	// also generate the half contexts
 	complexList->updateLocalContext();
 
-	// also generate the half contexts
 	complexList->printComplexList();
 
 	startState->printAllMoves();

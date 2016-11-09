@@ -243,7 +243,7 @@ public:
 	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);
 	static void performComplexJoin(OpenLoop **oldLoops, OpenLoop **newLoops, char *types, int *index);
 	string typeInternalsToString(void);
-	void halfContextToString(std::stringstream& );
+//	void halfContextToString(std::stringstream& );
 	void updateLocalContext(void);
 	void parseLocalContext(int);
 

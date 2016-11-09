@@ -38,7 +38,8 @@ std::ostream& operator<<(std::ostream &ss, OpenInfo& m) {
 		ss << " \n";	// prints empty line for empty interior sequences
 	}
 
-	ss << "#ExposedInternalNucl= " << m.numExposedInternal;
+	ss << "#ExposedInternalNucl= " << m.numExposedInternal << "\n";
+	ss << "#ExposedNucl=         " << m.numExposed << "\n";
 
 	ss << "\n";
 
