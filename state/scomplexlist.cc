@@ -204,7 +204,7 @@ double SComplexList::getJoinFlux(SimOptions* sOptions) {
 	struct exterior_bases *ext_bases = NULL, total_bases;
 
 // FD: refactoring starts here nov 9 2016
-//	BaseCounter* ext_bases;
+	BaseCounter* externalBases;
 //	BaseCounter total_bases;
 
 	int total_move_count = 0;
@@ -217,6 +217,9 @@ double SComplexList::getJoinFlux(SimOptions* sOptions) {
 	while (temp != NULL) {
 
 		ext_bases = temp->thisComplex->getExteriorBases();
+
+		externalBases = new BaseCounter(temp->thisComplex->getExteriorBases());
+
 
 //		total_bases.increment(ext_bases);
 

@@ -2,9 +2,9 @@
 
 #include <sequtil.h>
 #include <stdio.h>
+#include <iostream>
 
-
-using std::cout;
+//using std::cout;
 
 // base constructor
 BaseCounter::BaseCounter() {
@@ -16,16 +16,17 @@ BaseCounter::BaseCounter() {
 // compatibility constructor
 BaseCounter::BaseCounter(exterior_bases* input) {
 
-	count[1] = input->A();
-	count[2] = input->C();
-	count[3] = input->G();
-	count[4] = input->T();
+	count[1] = input->A;
+	count[2] = input->C;
+	count[3] = input->G;
+	count[4] = input->T;
 
 }
 
 void BaseCounter::increment(BaseCounter* other) {
 
-	std::cout << "Attempting to increment"; std::cout.flush();
+	std::cout << "Attempting to increment";
+	std::cout.flush();
 
 	for (int i : { baseA, baseC, baseG, baseT }) {
 		count[i] += other->count[i];
@@ -34,7 +35,8 @@ void BaseCounter::increment(BaseCounter* other) {
 
 void BaseCounter::decrement(BaseCounter* other) {
 
-	std::cout << "Attempting to increment"; std::cout.flush();
+	std::cout << "Attempting to increment";
+	std::cout.flush();
 
 	for (int i : { baseA, baseC, baseG, baseT }) {
 		count[i] -= other->count[i];
