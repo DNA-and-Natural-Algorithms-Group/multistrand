@@ -711,6 +711,21 @@ void StrandOrdering::updateLocalContext(void) {
 
 }
 
+OpenInfo& StrandOrdering::getLocalContext(void) {
+
+	// cycle over open loops, add the external constexts together.
+
+	openContext.clear();
+
+	orderinglist *traverse = NULL;
+	for (traverse = first; traverse != NULL; traverse = traverse->next) {
+		openContext.increment(traverse->thisLoop->context);
+	}
+
+	return openContext;
+
+}
+
 string StrandOrdering::toString(void) {
 
 	std::stringstream ss;

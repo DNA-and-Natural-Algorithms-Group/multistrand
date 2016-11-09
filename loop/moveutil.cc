@@ -71,6 +71,26 @@ void OpenInfo::push(vector<HalfContext>& input) {
 
 }
 
+
+void OpenInfo::increment(OpenInfo& input){
+
+
+	exposedInternalNucl.increment(&input.exposedInternalNucl);
+
+	for (vector<HalfContext> vec : input.context){
+
+		context.push_back(vec);
+
+	}
+
+	numExposedInternal += input.numExposedInternal;
+	numExposed += input.numExposed;
+
+
+
+}
+
+
 // constructor assigns the base
 HalfContext::HalfContext(char input) {
 

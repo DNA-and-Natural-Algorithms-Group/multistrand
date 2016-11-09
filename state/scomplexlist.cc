@@ -195,6 +195,7 @@ double SComplexList::getTotalFlux(void) {
 double SComplexList::getJoinFlux(SimOptions* sOptions) {
 
 	if (sOptions != NULL && sOptions->usingArrhenius()) {
+
 		return getJoinFluxArr();
 	}
 
@@ -313,9 +314,10 @@ double SComplexList::cycleCrossRateArr(StrandOrdering* input1, StrandOrdering* i
 
 		while (temp2 != NULL) {
 
-			OpenLoop* loop2 = temp2->thisLoop;
+//			OpenLoop* loop2 = temp2->thisLoop;
 
-//			OpenInfo local1 = input1.getLocalContext();
+			OpenInfo& local1 = input1->getLocalContext();
+			OpenInfo& local2 = input2->getLocalContext();
 
 //			output += computeCrossRateArr(loop1, loop2);
 
@@ -470,7 +472,6 @@ void SComplexList::doJoinChoice(double choice) {
 	BaseCounter* ext_bases;
 	BaseCounter* ext_bases_temp;
 	BaseCounter total_bases;
-
 
 	StrandComplex *deleted;
 	StrandComplex *picked[2] = { NULL, NULL };

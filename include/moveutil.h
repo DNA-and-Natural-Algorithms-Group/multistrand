@@ -9,7 +9,6 @@
 using std::vector;
 using std::string;
 
-
 enum MoveType {
 	endMove, loopMove, stackMove, stackStackMove, loopEndMove, stackEndMove, stackLoopMove, MOVETYPE_SIZE
 };
@@ -41,10 +40,12 @@ public:
 	void clear(void);
 	void push(vector<HalfContext>&);
 
+	void increment(OpenInfo&);
+
 	vector<vector<HalfContext>> context;
 	BaseCounter exposedInternalNucl = BaseCounter();
-	int numExposedInternal;
-	int numExposed;
+	int numExposedInternal = 0;
+	int numExposed = 0;
 
 };
 
@@ -53,7 +54,6 @@ namespace moveutil {
 const static double valuesPrime[MOVETYPE_SIZE] = { 3, 5, 7, 11, 13, 17, 19 };
 const static string MoveToString[MOVETYPE_SIZE] = { "End", "Loop", "Stack", "StackStack", "LoopEnd", "StackEnd", "StackLoop" };
 const static string MoveToString2[MOVETYPE_SIZE] = { "      ", "     ", "   ", "", "  ", " ", " " };
-
 
 QuartContext getContext(char input);
 

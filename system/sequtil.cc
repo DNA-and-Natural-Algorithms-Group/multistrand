@@ -53,18 +53,12 @@ void BaseCounter::clear(void) {
 
 void BaseCounter::increment(BaseCounter* other) {
 
-	std::cout << "Attempting to increment";
-	std::cout.flush();
-
 	for (int i : { baseA, baseC, baseG, baseT }) {
 		count[i] += other->count[i];
 	}
 }
 
 void BaseCounter::decrement(BaseCounter* other) {
-
-	std::cout << "Attempting to increment";
-	std::cout.flush();
 
 	for (int i : { baseA, baseC, baseG, baseT }) {
 		count[i] -= other->count[i];

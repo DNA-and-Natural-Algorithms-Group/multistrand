@@ -71,8 +71,10 @@ public:
 
 	// updates and returns the current exterior base count.
 	BaseCounter *getExteriorBases(void);
-	void updateLocalContext();
+	void updateLocalContext(void);
 	string toString(void);
+	OpenInfo& getLocalContext(void);
+
 
 	// replaces the first open loop in the ordering with the second.
 	void replaceOpenLoop(Loop *oldLoop, Loop *newLoop);
@@ -83,7 +85,9 @@ private:
 	char *seq, *struc, *strandnames;
 	int count;
 	BaseCounter total_exterior_bases = BaseCounter();
-	OpenInfo openConext;
+
+	OpenInfo openContext = OpenInfo();
+
 
 };
 
