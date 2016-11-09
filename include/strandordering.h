@@ -82,7 +82,8 @@ public:
 private:
 	char *seq, *struc, *strandnames;
 	int count;
-	BaseCounter total_exterior_bases;
+	BaseCounter total_exterior_bases = BaseCounter();
+	OpenInfo openConext;
 
 };
 

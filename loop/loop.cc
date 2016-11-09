@@ -3010,11 +3010,11 @@ string StackLoop::typeInternalsToString(void) {
 
 	std::stringstream ss;
 
-	ss << "(" << baseTypeString[seqs[0][0]] << "/";
-	ss << baseTypeString[seqs[1][1]] << ", ";
+	ss << "(" << baseToString[seqs[0][0]] << "/";
+	ss << baseToString[seqs[1][1]] << ", ";
 
-	ss << baseTypeString[seqs[0][1]] << "/";
-	ss << baseTypeString[seqs[1][0]];
+	ss << baseToString[seqs[0][1]] << "/";
+	ss << baseToString[seqs[1][0]];
 
 	ss << ") \n";
 
@@ -5326,7 +5326,7 @@ void OpenLoop::setFreeBasesInternal() {
 
 			// removing checks because I'd like to software to fail if
 			// errors in the sequence exist.
-			context.exposedInternalNucl[seqs[loop][loop2]]++;
+			context.exposedInternalNucl.count[seqs[loop][loop2]]++;
 
 		}
 	}

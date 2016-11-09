@@ -42,7 +42,7 @@ public:
 	void push(vector<HalfContext>&);
 
 	vector<vector<HalfContext>> context;
-	vector<int> exposedInternalNucl = {0,0,0,0,0};
+	BaseCounter exposedInternalNucl = BaseCounter();
 	int numExposedInternal;
 	int numExposed;
 

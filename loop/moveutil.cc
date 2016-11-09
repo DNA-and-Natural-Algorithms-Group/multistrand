@@ -43,11 +43,13 @@ std::ostream& operator<<(std::ostream &ss, OpenInfo& m) {
 
 	ss << "\n";
 
-	for (int i : { 0, 1, 2, 3, 4 }) {
+	ss << m.exposedInternalNucl;
 
-		ss << baseTypeString[i] << ": " << m.exposedInternalNucl[i] << " ";
-
-	}
+//	for (int i : { 0, 1, 2, 3, 4 }) {
+//
+//		ss << baseToString[i] << ": " << m.exposedInternalNucl << " ";
+//
+//	}
 
 	return ss;
 
@@ -56,7 +58,7 @@ std::ostream& operator<<(std::ostream &ss, OpenInfo& m) {
 void OpenInfo::clear(void) {
 
 	context.clear();
-	exposedInternalNucl = {0,0,0,0,0};
+	exposedInternalNucl.clear();
 	numExposedInternal = 0;
 	numExposed = 0;
 

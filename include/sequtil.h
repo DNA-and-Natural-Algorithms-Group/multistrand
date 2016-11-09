@@ -30,12 +30,11 @@ enum BaseType {
 
 };
 
-const string baseTypeString[BASETYPE_SIZE] = { "·", "A", "C", "G", "T" };
+const string baseToString[BASETYPE_SIZE] = { "·", "A", "C", "G", "T" };
 
 // structure containing information about bases exterior to the complex, IE bases that could pair with other complexes. First incarnation of such.a structure, prolly will change as I work out multiple-complex issues.
 struct BaseCounter {
 
-	vector<int> count = { 0, 0, 0, 0, 0 }; // use baseType as access
 
 	// Constructor to help interface with existing code
 	// This also helps in refactoring
@@ -45,6 +44,10 @@ struct BaseCounter {
 	BaseCounter(int* );	 // second friendly constructor for refactoring
 
 	void clear(void);
+
+	friend std::ostream& operator<<(std::ostream&, BaseCounter&);
+
+
 
 	void increment(BaseCounter* other);
 	void decrement(BaseCounter* other);
@@ -59,6 +62,8 @@ struct BaseCounter {
 	int G(void);
 	int C(void);
 
+	// the actual data structure; rest is convienience
+	vector<int> count = { 0, 0, 0, 0, 0 }; // use baseType as access
 };
 
 #endif

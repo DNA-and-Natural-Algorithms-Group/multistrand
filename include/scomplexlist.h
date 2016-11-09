@@ -29,7 +29,7 @@ public:
 	double getJoinFluxArr(void);
 	double computeArrBiRate(SComplexListEntry*, StrandOrdering*);
 	double cycleCrossRateArr(StrandOrdering*, StrandOrdering*);
-	double computeCrossRateArr(OpenLoop*, OpenLoop*);
+//	double computeCrossRateArr(OpenLoop*, OpenLoop*);
 	int getCount(void);
 	double *getEnergy(int volume_flag);
 	void printComplexList();

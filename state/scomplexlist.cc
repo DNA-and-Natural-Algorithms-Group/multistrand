@@ -315,7 +315,9 @@ double SComplexList::cycleCrossRateArr(StrandOrdering* input1, StrandOrdering* i
 
 			OpenLoop* loop2 = temp2->thisLoop;
 
-			output += computeCrossRateArr(loop1, loop2);
+//			OpenInfo local1 = input1.getLocalContext();
+
+//			output += computeCrossRateArr(loop1, loop2);
 
 			temp2 = temp2->next;
 
@@ -330,33 +332,33 @@ double SComplexList::cycleCrossRateArr(StrandOrdering* input1, StrandOrdering* i
 
 }
 
-// Given two openloops, compute the bimolecular rate between them\
-// there are two phases:
-// The internal exposed nucleotides react with a loop x loop local context.
-// The external exposed nucleotides react with one of six possibilities
-double SComplexList::computeCrossRateArr(OpenLoop* input1, OpenLoop* input2) {
-
-	int adjacent1 = input1->numAdjacent;
-	int adjacent2 = input2->numAdjacent;
-
-	int output = 1.0;
-
-	// there are no internal nucleotides
-	if (input1->context.numExposedInternal == 0) {
-
-		return output;
-
-	} else {
-
-		// loop, loop local context
-
-	}
-
-	// the only non-(loop, loop) local structures are in the first and last position.
-
-	return output;
-
-}
+//// Given two openloops, compute the bimolecular rate between them\
+//// there are two phases:
+//// The internal exposed nucleotides react with a loop x loop local context.
+//// The external exposed nucleotides react with one of six possibilities
+//double SComplexList::computeCrossRateArr(OpenLoop* input1, OpenLoop* input2) {
+//
+//	int adjacent1 = input1->numAdjacent;
+//	int adjacent2 = input2->numAdjacent;
+//
+//	int output = 1.0;
+//
+//	// there are no internal nucleotides
+//	if (input1->context.numExposedInternal == 0) {
+//
+//		return output;
+//
+//	} else {
+//
+//		// loop, loop local context
+//
+//	}
+//
+//	// the only non-(loop, loop) local structures are in the first and last position.
+//
+//	return output;
+//
+//}
 
 /*
  SComplexList::getEnergy( int volume_flag )
