@@ -4683,17 +4683,16 @@ string OpenLoop::typeInternalsToString(void) {
 
 	}
 
-	ss << "\n";
+//	ss << "\n";
 
 	for (int i = 0; i < numAdjacent; i++) {
 
-		ss << "        pairTypes " << basepairString[pairtype[i] - 1] << ", ";
+		ss << "        pairs: " << basepairString[pairtype[i] - 1] << ", ";
 	}
 
 	ss << " \n";
 
-//	halfContextToString(ss);
-	ss << context;
+//	ss << context;
 
 	return ss.str();
 
@@ -5319,16 +5318,15 @@ int *OpenLoop::getFreeBases(void) {
 // FD: already exist in the stack. nov 8 2016
 // This function exist to help with the arrhenius rates.
 // Here we return the count of internal nucleotides in the open loop.
-void OpenLoop::setFreeBasesInternal() {
+void OpenLoop::setFreeBasesInternal(int loop) {
 
-	for (int loop = 0; loop <= numAdjacent; loop++) {
-		for (int loop2 = 2; loop2 <= sidelen[loop] - 1; loop2++) {
+	for (int loop2 = 2; loop2 <= (sidelen[loop] - 1); loop2++) {
 
-			// removing checks because I'd like to software to fail if
-			// errors in the sequence exist.
-			context.exposedInternalNucl.count[seqs[loop][loop2]]++;
+		// removing checks because I'd like to software to fail if
+		// errors in the sequence exist.
+		int base = seqs[loop][loop2];
 
-		}
+		context.exposedInternalNucl.count[base]++;
 	}
 
 }
@@ -5479,9 +5477,10 @@ void OpenLoop::updateLocalContext() {
 
 	context.clear();
 
-	for (int i = 0; i < numAdjacent + 1; i++) {
+	for (int i = 0; i < (numAdjacent + 1); i++) {
 
 		parseLocalContext(i);
+		setFreeBasesInternal(i);
 
 	}
 
@@ -5539,10 +5538,5 @@ void OpenLoop::parseLocalContext(int index) {
 	}
 
 	context.push(newContext);
-
-	// now update the internal exposed toeholds:
-	// the rates for these are easier to compute because they are
-	// loop by loop local contexts.
-	setFreeBasesInternal();
 
 }

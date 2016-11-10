@@ -903,7 +903,7 @@ void SimulationSystem::InitialInfo(void) {
 		cout << " ** \n ** \n ** \n";
 		Loop::setPrimeRates(true);
 		complexList->regenerateMoves();
-		startState->printAllMoves();
+//		startState->printAllMoves();
 
 		Loop::setPrimeRates(false);
 

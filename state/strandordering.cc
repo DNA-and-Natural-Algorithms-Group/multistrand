@@ -730,13 +730,20 @@ string StrandOrdering::toString(void) {
 
 	std::stringstream ss;
 
-	ss << "\nStrand ordering: \n";
-
 	orderinglist *traverse = NULL;
 	int *free_bases;
 
 	total_exterior_bases.clear();
 
+	updateLocalContext(); // generates the local contexts for the open loops.
+
+	// now generate the openContext for the strandordering
+
+	// first print the openContext of the entire ordering
+	ss << getLocalContext();
+
+
+	// now print the loops
 	for (traverse = first; traverse != NULL; traverse = traverse->next) {
 
 		assert(traverse->thisLoop != NULL);

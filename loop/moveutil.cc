@@ -41,8 +41,6 @@ std::ostream& operator<<(std::ostream &ss, OpenInfo& m) {
 	ss << "#ExposedInternalNucl= " << m.numExposedInternal << "\n";
 	ss << "#ExposedNucl=         " << m.numExposed << "\n";
 
-//	ss << "\n";
-
 	ss << "Exposed are: ";
 	ss << m.exposedInternalNucl;
 
