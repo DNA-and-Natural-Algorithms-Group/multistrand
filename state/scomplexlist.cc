@@ -194,28 +194,22 @@ double SComplexList::getTotalFlux(SimOptions* sOptions) {
 
 double SComplexList::getJoinFlux(SimOptions* sOptions) {
 
-	if (sOptions != NULL && sOptions->usingArrhenius()) {
+	bool useArr = sOptions->usingArrhenius();
 
-		return getJoinFluxArr();
-
-	}
-
-
-
+	int total_move_count = 0;
+	double output = 0.0;
 	SComplexListEntry *temp = first;
 
 	// FD: refactoring starts here nov 9 2016
 	BaseCounter* ext_bases;
 	BaseCounter total_bases;
 
-	int total_move_count = 0;
-
 	if (numentries <= 1)
 		return 0.0;
 
 	while (temp != NULL) {
 
-		ext_bases = temp->thisComplex->getExteriorBases();
+		ext_bases = temp->thisComplex->getExteriorBases(useArr);
 		total_bases.increment(ext_bases);
 
 		temp = temp->next;
@@ -224,7 +218,7 @@ double SComplexList::getJoinFlux(SimOptions* sOptions) {
 	temp = first;
 	while (temp != NULL) {
 
-		ext_bases = temp->thisComplex->getExteriorBases();
+		ext_bases = temp->thisComplex->getExteriorBases(useArr);
 
 		total_bases.decrement(ext_bases);
 		total_move_count += total_bases.multiCount(ext_bases);
@@ -232,10 +226,24 @@ double SComplexList::getJoinFlux(SimOptions* sOptions) {
 		temp = temp->next;
 	}
 
-	if (total_move_count == 0)
-		return 0.0;  // CANNOT BE ANYTHING OTHER THAN 0.0! There are plenty of multi-complex structures with no total moves.
-	else
-		return (double) total_move_count * dnaEnergyModel->getJoinRate();
+	if (total_move_count == 0) {
+
+		output = 0.0;
+
+	} else {
+
+		//TODO: this needs to take loop x loop into account when arr is active.
+		output = (double) total_move_count * dnaEnergyModel->getJoinRate();
+	}
+
+	if (useArr) {
+
+		output += getJoinFluxArr();
+
+	}
+
+	return output;
+
 }
 
 // FD: We need to re-write this for the Arrhenius routine
@@ -252,9 +260,9 @@ double SComplexList::getJoinFluxArr(void) {
 
 	SComplexListEntry* temp = first;
 
-	// The trick is to compute all rates between the first complex,
-	// and the remaining complexes. Then, compute the rate between the second complex,
-	// and the remaining complexes (set minus first and second), and so on.
+// The trick is to compute all rates between the first complex,
+// and the remaining complexes. Then, compute the rate between the second complex,
+// and the remaining complexes (set minus first and second), and so on.
 
 	while (temp != NULL) {
 
@@ -285,11 +293,11 @@ double SComplexList::computeArrBiRate(SComplexListEntry* input, StrandOrdering* 
 		temp = temp->next;
 	}
 
-	// post: temp is pointing to the entry that matches order
+// post: temp is pointing to the entry that matches order
 
 	temp = temp->next;
 
-	// now start computing rates with the remaining entries
+// now start computing rates with the remaining entries
 	while (temp != NULL) {
 
 		StrandOrdering* otherOrder = temp->thisComplex->getOrdering();
@@ -320,8 +328,6 @@ double SComplexList::cycleCrossRateArr(StrandOrdering* input1, StrandOrdering* i
 			OpenInfo& local1 = input1->getLocalContext();
 			OpenInfo& local2 = input2->getLocalContext();
 
-
-
 			temp2 = temp2->next;
 
 		}
@@ -329,7 +335,7 @@ double SComplexList::cycleCrossRateArr(StrandOrdering* input1, StrandOrdering* i
 		temp1 = temp1->next;
 	}
 
-	// post: we've cycled all openloops in input1 over all openloops of input2
+// post: we've cycled all openloops in input1 over all openloops of input2
 
 	return output;
 
@@ -488,7 +494,7 @@ void SComplexList::doJoinChoice(double choice) {
 		return;
 
 	while (temp != NULL) {
-		ext_bases = temp->thisComplex->getExteriorBases();
+		ext_bases = temp->thisComplex->getExteriorBases(false);
 
 		total_bases.increment(ext_bases);
 
@@ -502,7 +508,7 @@ void SComplexList::doJoinChoice(double choice) {
 
 	temp = first;
 	while (temp != NULL) {
-		ext_bases = temp->thisComplex->getExteriorBases();
+		ext_bases = temp->thisComplex->getExteriorBases(false);
 
 		total_bases.increment(ext_bases);
 
@@ -517,7 +523,7 @@ void SComplexList::doJoinChoice(double choice) {
 			types[1] = 1;
 			temp = temp->next;
 			while (temp != NULL) {
-				ext_bases_temp = temp->thisComplex->getExteriorBases();
+				ext_bases_temp = temp->thisComplex->getExteriorBases(false);
 
 				if (int_choice < ext_bases_temp->A() * ext_bases->T()) {
 					picked[1] = temp->thisComplex;
@@ -539,7 +545,7 @@ void SComplexList::doJoinChoice(double choice) {
 			types[1] = 4;
 			temp = temp->next;
 			while (temp != NULL) {
-				ext_bases_temp = temp->thisComplex->getExteriorBases();
+				ext_bases_temp = temp->thisComplex->getExteriorBases(false);
 
 				if (int_choice < ext_bases_temp->T() * ext_bases->A()) {
 					picked[1] = temp->thisComplex;
@@ -561,7 +567,7 @@ void SComplexList::doJoinChoice(double choice) {
 			types[1] = 3;
 			temp = temp->next;
 			while (temp != NULL) {
-				ext_bases_temp = temp->thisComplex->getExteriorBases();
+				ext_bases_temp = temp->thisComplex->getExteriorBases(false);
 
 				if (int_choice < ext_bases_temp->G() * ext_bases->C()) {
 					picked[1] = temp->thisComplex;
@@ -583,7 +589,7 @@ void SComplexList::doJoinChoice(double choice) {
 			types[1] = 2;
 			temp = temp->next;
 			while (temp != NULL) {
-				ext_bases_temp = temp->thisComplex->getExteriorBases();
+				ext_bases_temp = temp->thisComplex->getExteriorBases(false);
 
 				if (int_choice < ext_bases_temp->C() * ext_bases->G()) {
 					picked[1] = temp->thisComplex;

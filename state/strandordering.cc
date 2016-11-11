@@ -467,20 +467,21 @@ char *StrandOrdering::convertIndex(int index) {
 // Used for delete moves to get the actual Open loop and location within which is to be joined.
 OpenLoop *StrandOrdering::getIndex(char type, int *index, char **location) {
 	orderinglist *traverse;
-	int *free_bases;
+// free_bases;
 	for (traverse = first; traverse != NULL; traverse = traverse->next) {
 		assert(traverse->thisLoop != NULL);
-		free_bases = traverse->thisLoop->getFreeBases();
-		assert(free_bases != NULL);
 
-		if (*index < free_bases[type]) {
+		BaseCounter& free_bases = traverse->thisLoop->getFreeBases();
+//		assert(free_bases != NULL);
+
+		if (*index < free_bases.count[type]) {
 			*location = traverse->thisLoop->getBase(type, *index);
-			delete[] free_bases;
+//			delete[] free_bases;
 			return traverse->thisLoop;
 		} else
-			*index = *index - free_bases[type];
+			*index = *index - free_bases.count[type];
 
-		delete[] free_bases;
+//		delete[] free_bases;
 	}
 	assert(0);
 	return NULL;
@@ -680,23 +681,34 @@ void StrandOrdering::replaceOpenLoop(Loop *oldLoop, Loop *newLoop) {
 	assert(0); // no loop matched, that's bad.
 }
 
-BaseCounter* StrandOrdering::getExteriorBases(void) {
+BaseCounter* StrandOrdering::getExteriorBases(bool useArr) {
 
 	orderinglist *traverse = NULL;
-	int *free_bases;
+//	int *free_bases;
 
 	total_exterior_bases.clear();
 
 	for (traverse = first; traverse != NULL; traverse = traverse->next) {
 		assert(traverse->thisLoop != NULL);
-		free_bases = traverse->thisLoop->getFreeBases();
-		assert(free_bases != NULL);
 
-		BaseCounter newCount = BaseCounter(free_bases);
+		if (!useArr) {
 
-		total_exterior_bases.increment(&newCount);
+			BaseCounter& free_bases = traverse->thisLoop->getFreeBases();
+			total_exterior_bases.increment(&free_bases);
 
-		delete[] free_bases;
+		} else {
+
+			BaseCounter& free_bases = traverse->thisLoop->getFreeBasesInternal();
+			total_exterior_bases.increment(&free_bases);
+
+		}
+//		assert(free_bases != NULL);
+//
+//		BaseCounter newCount = BaseCounter(free_bases);
+
+//		total_exterior_bases.increment(*free_bases);
+
+//		delete[] free_bases;
 	}
 
 	return &total_exterior_bases;
@@ -741,7 +753,6 @@ string StrandOrdering::toString(void) {
 
 	// first print the openContext of the entire ordering
 	ss << getLocalContext();
-
 
 	// now print the loops
 	for (traverse = first; traverse != NULL; traverse = traverse->next) {

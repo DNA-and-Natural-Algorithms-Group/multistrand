@@ -5295,40 +5295,59 @@ char *OpenLoop::getBase(char type, int index) {
 	return NULL;
 }
 
-int *OpenLoop::getFreeBases(void) {
-	int *results;
-	int loop, loop2;
-	results = new int[5];
-	for (loop = 0; loop < 5; loop++)
-		results[loop] = 0;
+//int *OpenLoop::getFreeBases(void) {
+//	int *results;
+//	int loop, loop2;
+//	results = new int[5];
+//	for (loop = 0; loop < 5; loop++)
+//		results[loop] = 0;
+//
+//	for (loop = 0; loop <= numAdjacent; loop++) {
+//		for (loop2 = 1; loop2 <= sidelen[loop]; loop2++) {
+//			if (seqs[loop][loop2] < 5)
+//				results[seqs[loop][loop2]]++;
+//			else
+//				results[0]++;
+//		}
+//	}
+//	return results;
 
-	for (loop = 0; loop <= numAdjacent; loop++) {
-		for (loop2 = 1; loop2 <= sidelen[loop]; loop2++) {
-			if (seqs[loop][loop2] < 5)
-				results[seqs[loop][loop2]]++;
-			else
-				results[0]++;
+BaseCounter& OpenLoop::getFreeBases(void) {
+
+	// do nothing if not required
+	if (false) {
+		// FD; for now, always re-compute the exposed bases because
+		// this matcht the previous behaviour.
+
+		return exposedBases;
+
+	} else {
+
+		exposedBases.clear();
+
+		for (int loop = 0; loop < (numAdjacent + 1); loop++) {
+			for (int loop2 = 2; loop2 <= (sidelen[loop] - 1); loop2++) {
+
+				// removing checks because I'd like to software to fail if
+				// errors in the sequence exist.
+				int base = seqs[loop][loop2];
+
+				exposedBases.count[base]++;
+			}
+
 		}
+
+		updatedContext2 = true;
+
 	}
-	return results;
+
+	return exposedBases;
 }
 
-// FD: in c99 and beyond, int[5] will initialize to {0, 0, 0, 0,0}
-// FD: Declaring ints in the loop itself is not evil because they are
-// FD: already exist in the stack. nov 8 2016
-// This function exist to help with the arrhenius rates.
-// Here we return the count of internal nucleotides in the open loop.
-void OpenLoop::setFreeBasesInternal(int loop) {
+BaseCounter& OpenLoop::getFreeBasesInternal(void) {
 
-	for (int loop2 = 2; loop2 <= (sidelen[loop] - 1); loop2++) {
-
-		// removing checks because I'd like to software to fail if
-		// errors in the sequence exist.
-		int base = seqs[loop][loop2];
-
-		context.exposedInternalNucl.count[base]++;
-	}
-
+	updateLocalContext();
+	return context.exposedInternalNucl;
 }
 
 /*
@@ -5485,6 +5504,24 @@ void OpenLoop::updateLocalContext() {
 	}
 
 	updatedContext = true;
+
+}
+
+// FD: in c99 and beyond, int[5] will initialize to {0, 0, 0, 0,0}
+// FD: Declaring ints in the loop itself is not evil because they are
+// FD: already exist in the stack. nov 8 2016
+// This function exist to help with the arrhenius rates.
+// Here we set the count of internal nucleotides in the open loop.
+void OpenLoop::setFreeBasesInternal(int loop) {
+
+	for (int loop2 = 2; loop2 <= (sidelen[loop] - 1); loop2++) {
+
+		// removing checks because I'd like to software to fail if
+		// errors in the sequence exist.
+		int base = seqs[loop][loop2];
+
+		context.exposedInternalNucl.count[base]++;
+	}
 
 }
 

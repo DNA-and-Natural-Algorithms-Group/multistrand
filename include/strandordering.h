@@ -70,7 +70,7 @@ public:
 	int getStrandCount(void);
 
 	// updates and returns the current exterior base count.
-	BaseCounter *getExteriorBases(void);
+	BaseCounter *getExteriorBases(bool);
 	void updateLocalContext(void);
 	string toString(void);
 	OpenInfo& getLocalContext(void);
