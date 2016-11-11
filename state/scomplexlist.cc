@@ -168,14 +168,14 @@ void SComplexList::regenerateMoves(void) {
  SComplexList::getTotalFlux
  */
 
-double SComplexList::getTotalFlux(void) {
+double SComplexList::getTotalFlux(SimOptions* sOptions) {
 	double total = 0.0;
 	SComplexListEntry *temp = first;
 	while (temp != NULL) {
 		total += temp->rate;
 		temp = temp->next;
 	}
-	joinRate = getJoinFlux();
+	joinRate = getJoinFlux(sOptions);
 	total += joinRate;
 	return total;
 }
@@ -199,6 +199,8 @@ double SComplexList::getJoinFlux(SimOptions* sOptions) {
 		return getJoinFluxArr();
 
 	}
+
+
 
 	SComplexListEntry *temp = first;
 

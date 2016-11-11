@@ -261,7 +261,7 @@ void SimulationSystem::SimulationLoop_Standard(void) {
 
 	complexList->initializeList();
 
-	rate = complexList->getTotalFlux();
+	rate = complexList->getTotalFlux(simOptions);
 
 	do {
 
@@ -292,7 +292,7 @@ void SimulationSystem::SimulationLoop_Standard(void) {
 			///Add the state to the hashmap counter
 			this->countState(complexList);
 
-			rate = complexList->getTotalFlux();
+			rate = complexList->getTotalFlux(simOptions);
 
 			if (stopoptions) {
 
@@ -373,7 +373,7 @@ void SimulationSystem::SimulationLoop_Trajectory() {
 	class stopComplexes *traverse = NULL, *first = NULL;
 
 	complexList->initializeList();
-	rate = complexList->getTotalFlux();
+	rate = complexList->getTotalFlux(simOptions);
 
 // We start at the beginning of time.
 	stime = 0.0;
@@ -405,7 +405,7 @@ void SimulationSystem::SimulationLoop_Trajectory() {
 		}
 
 		int ArrMoveType = complexList->doBasicChoice(rchoice, stime);
-		rate = complexList->getTotalFlux();
+		rate = complexList->getTotalFlux(simOptions);
 		current_state_count += 1;
 
 		if (exportStatesInterval) {
@@ -497,7 +497,7 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 	sendTransitionStateVectorToPython(transition_states, stime);
 // start
 
-	rate = complexList->getTotalFlux();
+	rate = complexList->getTotalFlux(simOptions);
 	state_changed = false;
 	stopFlag = false;
 	do {
@@ -512,7 +512,7 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 			// See note in SimulationLoop_Standard
 
 			complexList->doBasicChoice(rchoice, stime);
-			rate = complexList->getTotalFlux();
+			rate = complexList->getTotalFlux(simOptions);
 
 			// check if our transition state membership vector has changed
 			checkresult = false;
@@ -585,7 +585,7 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 
 	complexList->initializeList();
 
-	rate = complexList->getJoinFlux();
+	rate = complexList->getJoinFlux(simOptions);
 
 // scomplexlist returns a 0.0 rate if there was a single complex in
 // the system, and a -1.0 rate if there are exactly 0 join moves. So
@@ -623,7 +623,7 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 // 'collision' rate, but rather the volume we are simulating.
 
 // Begin normal steps.
-	rate = complexList->getTotalFlux();
+	rate = complexList->getTotalFlux(simOptions);
 	do {
 
 		rchoice = rate * drand48();
@@ -635,7 +635,7 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 		}
 
 		complexList->doBasicChoice(rchoice, stime);
-		rate = complexList->getTotalFlux();
+		rate = complexList->getTotalFlux(simOptions);
 		current_state_count++;
 
 		if (exportStatesInterval) {
