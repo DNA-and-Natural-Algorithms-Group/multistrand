@@ -55,7 +55,7 @@ public:
 	void updateLocalContext(void);
 
 	static StrandComplex *performComplexJoin(StrandComplex **complexes,
-			char *types, int *index);
+			char *types, int *index, bool);
 
 
 	StrandOrdering* getOrdering();

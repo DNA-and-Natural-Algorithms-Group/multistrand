@@ -60,7 +60,7 @@ public:
 	// one exterior base type for the complex, and returns that Openloop, as well
 	// as the updated index into that open loop only, and a char * pointing at
 	// the particular base in the open loop.
-	OpenLoop *getIndex(char type, int *index, char **location);
+	OpenLoop *getIndex(char type, int *index, char **location, bool);
 
 	// i/o routines and accessors for strandcomplex
 	char *getSequence(void);

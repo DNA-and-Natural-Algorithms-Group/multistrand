@@ -5279,6 +5279,7 @@ char *OpenLoop::getLocation(Move *move, int index) {
 }
 
 char *OpenLoop::getBase(char type, int index) {
+
 	int loop, loop2;
 	int newindex = index;
 	for (loop = 0; loop <= numAdjacent; loop++) {
@@ -5315,9 +5316,9 @@ char *OpenLoop::getBase(char type, int index) {
 BaseCounter& OpenLoop::getFreeBases(void) {
 
 	// do nothing if not required
-	if (false) {
+	if (updatedContext2) {
 		// FD; for now, always re-compute the exposed bases because
-		// this matcht the previous behaviour.
+		// this matches the previous behaviour.
 
 		return exposedBases;
 

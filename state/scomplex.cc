@@ -105,15 +105,15 @@ int StrandComplex::checkIDBound(char *id) {
 	return ordering->checkIDBound(id);
 }
 
-StrandComplex *StrandComplex::performComplexJoin(StrandComplex **complexes, char *types, int *index) {
+StrandComplex *StrandComplex::performComplexJoin(StrandComplex **complexes, char *types, int *index, bool useArr) {
 	OpenLoop *loops[2];
 	OpenLoop *new_loops[2] = { NULL, NULL };
 	StrandOrdering *new_ordering = NULL;
 	char *locations[2] = { NULL, NULL };
 
 	// find the affected loops, and update indexes to be into those loops.
-	loops[0] = complexes[0]->ordering->getIndex(types[0], &index[0], &locations[0]);
-	loops[1] = complexes[1]->ordering->getIndex(types[1], &index[1], &locations[1]);
+	loops[0] = complexes[0]->ordering->getIndex(types[0], &index[0], &locations[0], useArr);
+	loops[1] = complexes[1]->ordering->getIndex(types[1], &index[1], &locations[1], useArr);
 
 	// Strand Orderings are now ready to be joined.
 	complexes[0]->ordering->reorder(loops[0]);
@@ -648,11 +648,7 @@ char *StrandComplex::getSequence(void) {
 }
 
 char *StrandComplex::getStructure(void) {
-//char *structure;
-//  structure = new char[strlen(tempseq)];
-//for( int loop = 0; loop < strlen(structure); loop++)
-//  structure[loop] = '.';
-//beginLoop->printMove(NULL,structure,getSequence());
+
 	return ordering->getStructure();
 }
 
