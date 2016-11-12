@@ -49,6 +49,9 @@ public:
 
 };
 
+
+
+
 namespace moveutil {
 
 const static double valuesPrime[MOVETYPE_SIZE] = { 3, 5, 7, 11, 13, 17, 19 };

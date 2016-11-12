@@ -35,7 +35,7 @@ public:
 	void printComplexList();
 	SComplexListEntry *getFirst(void);
 	int doBasicChoice(double choice, double newtime);
-	void doJoinChoice(double choice);
+	int doJoinChoice(double choice);
 	bool checkStopComplexList(class complexItem *stoplist);
 	string toString(void);
 	void updateLocalContext(void);

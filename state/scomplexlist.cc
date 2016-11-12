@@ -449,8 +449,8 @@ int SComplexList::doBasicChoice(double choice, double newtime) {
 	char *struc;
 
 	if (rchoice < joinRate) {
-		doJoinChoice(rchoice);
-		return NULL;
+		int move = doJoinChoice(rchoice);
+		return move;
 	} else {
 		rchoice -= joinRate;
 	}
@@ -493,7 +493,7 @@ int SComplexList::doBasicChoice(double choice, double newtime) {
  SComplexList::doJoinChoice( double choice )
  */
 
-void SComplexList::doJoinChoice(double choice) {
+int SComplexList::doJoinChoice(double choice) {
 	SComplexListEntry *temp = first, *temp2 = NULL;
 
 	BaseCounter* ext_bases;
@@ -513,7 +513,8 @@ void SComplexList::doJoinChoice(double choice) {
 	int_choice = (int) floor(choice / joinRate);
 
 	if (numentries <= 1)
-		return;
+		cout << "Error: Tried to do a join choice, but no entries available."; cout.flush(); assert(0);
+		return 0;
 
 	while (temp != NULL) {
 		ext_bases = temp->thisComplex->getExteriorBases(useArr);
@@ -647,7 +648,11 @@ void SComplexList::doJoinChoice(double choice) {
 	}
 	numentries--;
 
-	return;
+	// return a basic object with the loop, loop context.
+
+	RateEnv myRate = RateEnv(dnaEnergyModel->getJoinRate(), dnaEnergyModel, loopMove, loopMove);
+
+	return myRate.arrType;
 }
 
 /*

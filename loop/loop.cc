@@ -5278,18 +5278,35 @@ char *OpenLoop::getLocation(Move *move, int index) {
 	assert(0);
 }
 
-char *OpenLoop::getBase(char type, int index) {
+char *OpenLoop::getBase(char type, int index, bool useArr) {
 
-	int loop, loop2;
+	// if using Arrhenius, then ignore the outermost two nucleotides.
 	int newindex = index;
-	for (loop = 0; loop <= numAdjacent; loop++) {
-		for (loop2 = 1; loop2 <= sidelen[loop]; loop2++)
-			if (seqs[loop][loop2] == type) {
-				if (newindex == 0)
-					return &seqs[loop][loop2];
-				else
-					newindex--;
-			}
+
+	if (!useArr) {
+
+		for (int loop = 0; loop <= numAdjacent; loop++) {
+			for (int loop2 = 1; loop2 <= sidelen[loop]; loop2++)
+				if (seqs[loop][loop2] == type) {
+					if (newindex == 0)
+						return &seqs[loop][loop2];
+					else
+						newindex--;
+				}
+		}
+
+	} else {
+
+		for (int loop = 0; loop <= numAdjacent; loop++) {
+			for (int loop2 = 2; loop2 < sidelen[loop]; loop2++)
+				if (seqs[loop][loop2] == type) {
+					if (newindex == 0)
+						return &seqs[loop][loop2];
+					else
+						newindex--;
+				}
+		}
+
 	}
 
 	assert(0);

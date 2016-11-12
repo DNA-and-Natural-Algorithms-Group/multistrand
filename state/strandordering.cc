@@ -465,21 +465,41 @@ char *StrandOrdering::convertIndex(int index) {
 }
 
 // Used for delete moves to get the actual Open loop and location within which is to be joined.
-OpenLoop *StrandOrdering::getIndex(char type, int *index, char **location, bool useArr) {
+OpenLoop* StrandOrdering::getIndex(char type, int *index, char **location, bool useArr) {
 	orderinglist *traverse;
+
+	int baseCount = 0;
+
+	if (useArr) {
+
+		baseCount = traverse->thisLoop->getFreeBasesInternal().count[type];
+
+	} else {
+
+		baseCount = traverse->thisLoop->getFreeBases().count[type];
+	}
 
 	for (traverse = first; traverse != NULL; traverse = traverse->next) {
 		assert(traverse->thisLoop != NULL);
 
-		BaseCounter& free_bases = traverse->thisLoop->getFreeBases();
+		int baseCount = 0;
 
-		if (*index < free_bases.count[type]) {
+		if (useArr) {
 
-			*location = traverse->thisLoop->getBase(type, *index);
+			baseCount = traverse->thisLoop->getFreeBasesInternal().count[type];
+
+		} else {
+
+			baseCount = traverse->thisLoop->getFreeBases().count[type];
+		}
+
+		if (*index < baseCount) {
+
+			*location = traverse->thisLoop->getBase(type, *index, useArr);
 			return traverse->thisLoop;
 
 		} else
-			*index = *index - free_bases.count[type];
+			*index = *index - baseCount;
 
 	}
 	assert(0);
