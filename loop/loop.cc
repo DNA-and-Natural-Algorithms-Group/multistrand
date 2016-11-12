@@ -3010,11 +3010,11 @@ string StackLoop::typeInternalsToString(void) {
 
 	std::stringstream ss;
 
-	ss << "(" << baseToString[seqs[0][0]] << "/";
-	ss << baseToString[seqs[1][1]] << ", ";
+	ss << "(" << baseTypeString[seqs[0][0]] << "/";
+	ss << baseTypeString[seqs[1][1]] << ", ";
 
-	ss << baseToString[seqs[0][1]] << "/";
-	ss << baseToString[seqs[1][0]];
+	ss << baseTypeString[seqs[0][1]] << "/";
+	ss << baseTypeString[seqs[1][0]];
 
 	ss << ") \n";
 
@@ -4683,16 +4683,17 @@ string OpenLoop::typeInternalsToString(void) {
 
 	}
 
-//	ss << "\n";
+	ss << "\n";
 
 	for (int i = 0; i < numAdjacent; i++) {
 
-		ss << "        pairs: " << basepairString[pairtype[i] - 1] << ", ";
+		ss << "        pairTypes " << basepairString[pairtype[i] - 1] << ", ";
 	}
 
 	ss << " \n";
 
-//	ss << context;
+//	halfContextToString(ss);
+	ss << context;
 
 	return ss.str();
 
@@ -5278,94 +5279,58 @@ char *OpenLoop::getLocation(Move *move, int index) {
 	assert(0);
 }
 
-char *OpenLoop::getBase(char type, int index, bool useArr) {
-
-	// if using Arrhenius, then ignore the outermost two nucleotides.
+char *OpenLoop::getBase(char type, int index) {
+	int loop, loop2;
 	int newindex = index;
-
-	if (!useArr) {
-
-		for (int loop = 0; loop <= numAdjacent; loop++) {
-			for (int loop2 = 1; loop2 <= sidelen[loop]; loop2++)
-				if (seqs[loop][loop2] == type) {
-					if (newindex == 0)
-						return &seqs[loop][loop2];
-					else
-						newindex--;
-				}
-		}
-
-	} else {
-
-		for (int loop = 0; loop <= numAdjacent; loop++) {
-			for (int loop2 = 2; loop2 < sidelen[loop]; loop2++)
-				if (seqs[loop][loop2] == type) {
-					if (newindex == 0)
-						return &seqs[loop][loop2];
-					else
-						newindex--;
-				}
-		}
-
+	for (loop = 0; loop <= numAdjacent; loop++) {
+		for (loop2 = 1; loop2 <= sidelen[loop]; loop2++)
+			if (seqs[loop][loop2] == type) {
+				if (newindex == 0)
+					return &seqs[loop][loop2];
+				else
+					newindex--;
+			}
 	}
 
 	assert(0);
 	return NULL;
 }
 
-//int *OpenLoop::getFreeBases(void) {
-//	int *results;
-//	int loop, loop2;
-//	results = new int[5];
-//	for (loop = 0; loop < 5; loop++)
-//		results[loop] = 0;
-//
-//	for (loop = 0; loop <= numAdjacent; loop++) {
-//		for (loop2 = 1; loop2 <= sidelen[loop]; loop2++) {
-//			if (seqs[loop][loop2] < 5)
-//				results[seqs[loop][loop2]]++;
-//			else
-//				results[0]++;
-//		}
-//	}
-//	return results;
+int *OpenLoop::getFreeBases(void) {
+	int *results;
+	int loop, loop2;
+	results = new int[5];
+	for (loop = 0; loop < 5; loop++)
+		results[loop] = 0;
 
-BaseCounter& OpenLoop::getFreeBases(void) {
-
-	// do nothing if not required
-	if (updatedContext2) {
-		// FD; for now, always re-compute the exposed bases because
-		// this matches the previous behaviour.
-
-		return exposedBases;
-
-	} else {
-
-		exposedBases.clear();
-
-		for (int loop = 0; loop < (numAdjacent + 1); loop++) {
-			for (int loop2 = 2; loop2 <= (sidelen[loop] - 1); loop2++) {
-
-				// removing checks because I'd like to software to fail if
-				// errors in the sequence exist.
-				int base = seqs[loop][loop2];
-
-				exposedBases.count[base]++;
-			}
-
+	for (loop = 0; loop <= numAdjacent; loop++) {
+		for (loop2 = 1; loop2 <= sidelen[loop]; loop2++) {
+			if (seqs[loop][loop2] < 5)
+				results[seqs[loop][loop2]]++;
+			else
+				results[0]++;
 		}
-
-		updatedContext2 = true;
-
 	}
-
-	return exposedBases;
+	return results;
 }
 
-BaseCounter& OpenLoop::getFreeBasesInternal(void) {
+// FD: in c99 and beyond, int[5] will initialize to {0, 0, 0, 0,0}
+// FD: Declaring ints in the loop itself is not evil because they are
+// FD: already exist in the stack. nov 8 2016
+// This function exist to help with the arrhenius rates.
+// Here we return the count of internal nucleotides in the open loop.
+void OpenLoop::setFreeBasesInternal() {
 
-	updateLocalContext();
-	return context.exposedInternalNucl;
+	for (int loop = 0; loop <= numAdjacent; loop++) {
+		for (int loop2 = 2; loop2 <= sidelen[loop] - 1; loop2++) {
+
+			// removing checks because I'd like to software to fail if
+			// errors in the sequence exist.
+			context.exposedInternalNucl[seqs[loop][loop2]]++;
+
+		}
+	}
+
 }
 
 /*
@@ -5514,32 +5479,13 @@ void OpenLoop::updateLocalContext() {
 
 	context.clear();
 
-	for (int i = 0; i < (numAdjacent + 1); i++) {
+	for (int i = 0; i < numAdjacent + 1; i++) {
 
 		parseLocalContext(i);
-		setFreeBasesInternal(i);
 
 	}
 
 	updatedContext = true;
-
-}
-
-// FD: in c99 and beyond, int[5] will initialize to {0, 0, 0, 0,0}
-// FD: Declaring ints in the loop itself is not evil because they are
-// FD: already exist in the stack. nov 8 2016
-// This function exist to help with the arrhenius rates.
-// Here we set the count of internal nucleotides in the open loop.
-void OpenLoop::setFreeBasesInternal(int loop) {
-
-	for (int loop2 = 2; loop2 <= (sidelen[loop] - 1); loop2++) {
-
-		// removing checks because I'd like to software to fail if
-		// errors in the sequence exist.
-		int base = seqs[loop][loop2];
-
-		context.exposedInternalNucl.count[base]++;
-	}
 
 }
 
@@ -5593,5 +5539,10 @@ void OpenLoop::parseLocalContext(int index) {
 	}
 
 	context.push(newContext);
+
+	// now update the internal exposed toeholds:
+	// the rates for these are easier to compute because they are
+	// loop by loop local contexts.
+	setFreeBasesInternal();
 
 }

@@ -31,7 +31,7 @@ QuartContext moveutil::getContext(char input) {
 std::ostream& operator<<(std::ostream &ss, OpenInfo& m) {
 
 	// prints vector<halfContext>
-	for (vector<HalfContext>& value : m.context) {
+	for (vector<HalfContext> & value : m.context) {
 		for (HalfContext& context : value) {
 			ss << context << ", ";
 		}
@@ -41,8 +41,13 @@ std::ostream& operator<<(std::ostream &ss, OpenInfo& m) {
 	ss << "#ExposedInternalNucl= " << m.numExposedInternal << "\n";
 	ss << "#ExposedNucl=         " << m.numExposed << "\n";
 
-	ss << "Exposed are: ";
-	ss << m.exposedInternalNucl;
+	ss << "\n";
+
+	for (int i : { 0, 1, 2, 3, 4 }) {
+
+		ss << baseTypeString[i] << ": " << m.exposedInternalNucl[i] << " ";
+
+	}
 
 	return ss;
 
@@ -51,7 +56,7 @@ std::ostream& operator<<(std::ostream &ss, OpenInfo& m) {
 void OpenInfo::clear(void) {
 
 	context.clear();
-	exposedInternalNucl.clear();
+	exposedInternalNucl = {0,0,0,0,0};
 	numExposedInternal = 0;
 	numExposed = 0;
 
@@ -64,21 +69,6 @@ void OpenInfo::push(vector<HalfContext>& input) {
 
 }
 
-void OpenInfo::increment(OpenInfo& input) {
-
-	exposedInternalNucl.increment(&input.exposedInternalNucl);
-
-	for (vector<HalfContext> vec : input.context) {
-
-		context.push_back(vec);
-
-	}
-
-	numExposedInternal += input.numExposedInternal;
-	numExposed += input.numExposed;
-
-}
-
 // constructor assigns the base
 HalfContext::HalfContext(char input) {
 
@@ -88,9 +78,7 @@ HalfContext::HalfContext(char input) {
 
 std::ostream& operator<<(std::ostream &os, HalfContext& m) {
 
-	os << "(" << quartContextString[m.left] << "-";
-	os << baseToString[m.base] << "-";
-	os << quartContextString[m.right] << ") ";
+	os << "(" << quartContextString[m.left] << ", " << quartContextString[m.right] << ") ";
 
 	return os;
 

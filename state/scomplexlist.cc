@@ -11,14 +11,16 @@
 #include <iostream>
 #include <simoptions.h>
 #include <utility.h>
-#include <sequtil.h>
 
 typedef std::vector<int> intvec;
 typedef std::vector<int>::iterator intvec_it;
 
 /*
+
  SComplexListEntry Constructor/Destructor
+
  */
+
 SComplexListEntry::SComplexListEntry(StrandComplex *newComplex, int newid) {
 	thisComplex = newComplex;
 	energy = 0.0;
@@ -36,8 +38,11 @@ SComplexListEntry::~SComplexListEntry(void) {
 }
 
 /*
+
  SComplexListEntry - InitializeComplex and FillData
+
  */
+
 void SComplexListEntry::initializeComplex(void) {
 	thisComplex->generateLoops();
 	thisComplex->generateMoves();
@@ -56,6 +61,7 @@ void SComplexListEntry::fillData(EnergyModel *em) {
 /*
  SComplexListEntry::printComplex
  */
+
 string SComplexListEntry::toString(EnergyModel *em) {
 
 	// print types are depreciated.
@@ -97,6 +103,7 @@ void SComplexListEntry::dumpComplexEntryToPython(int *our_id, char **names, char
  SComplexList Constructor and Destructor
 
  */
+
 SComplexList::SComplexList(EnergyModel *energyModel) {
 	numentries = 0;
 	first = NULL;
@@ -160,14 +167,14 @@ void SComplexList::regenerateMoves(void) {
  SComplexList::getTotalFlux
  */
 
-double SComplexList::getTotalFlux(SimOptions* sOptions) {
+double SComplexList::getTotalFlux(void) {
 	double total = 0.0;
 	SComplexListEntry *temp = first;
 	while (temp != NULL) {
 		total += temp->rate;
 		temp = temp->next;
 	}
-	joinRate = getJoinFlux(sOptions);
+	joinRate = getJoinFlux();
 	total += joinRate;
 	return total;
 }
@@ -183,78 +190,79 @@ double SComplexList::getTotalFlux(SimOptions* sOptions) {
  2a. Using the new sum, compute sum.A * complex.T + sum.T * complex.A * sum.G * complex.C + sum.C * complex.G
  2b. Add this amount * rate per join move to total.
  */
+
 double SComplexList::getJoinFlux(SimOptions* sOptions) {
 
-	bool useArr = sOptions->usingArrhenius();
+	if (sOptions != NULL && sOptions->usingArrhenius()) {
+
+		return getJoinFluxArr();
+
+	}
+
+	SComplexListEntry *temp = first;
+	struct exterior_bases *ext_bases = NULL, total_bases;
 
 	int total_move_count = 0;
-	double tempRate = 0.0;
-	SComplexListEntry *temp = first;
 
-	// FD: refactoring starts here nov 9 2016
-	BaseCounter* ext_bases;
-	BaseCounter total_bases;
+	total_bases.A = total_bases.G = total_bases.T = total_bases.C = 0;
 
 	if (numentries <= 1)
 		return 0.0;
 
 	while (temp != NULL) {
+		ext_bases = temp->thisComplex->getExteriorBases();
 
-		ext_bases = temp->thisComplex->getExteriorBases(useArr);
-		total_bases.increment(ext_bases);
+		total_bases.A += ext_bases->A;
+		total_bases.C += ext_bases->C;
+		total_bases.G += ext_bases->G;
+		total_bases.T += ext_bases->T;
 
 		temp = temp->next;
 	}
 
 	temp = first;
-
 	while (temp != NULL) {
+		ext_bases = temp->thisComplex->getExteriorBases();
 
-		ext_bases = temp->thisComplex->getExteriorBases(useArr);
+		total_bases.A -= ext_bases->A;
+		total_bases.C -= ext_bases->C;
+		total_bases.G -= ext_bases->G;
+		total_bases.T -= ext_bases->T;
 
-		total_bases.decrement(ext_bases);
-		total_move_count += total_bases.multiCount(ext_bases);
+		total_move_count += total_bases.A * ext_bases->T;
+		total_move_count += total_bases.T * ext_bases->A;
+		total_move_count += total_bases.G * ext_bases->C;
+		total_move_count += total_bases.C * ext_bases->G;
 
 		temp = temp->next;
 	}
 
-	if (total_move_count == 0) {
-
-		tempRate = 0.0;
-
-	} else {
-
-		tempRate = (double) total_move_count * dnaEnergyModel->getJoinRate();
-		tempRate = dnaEnergyModel->applyPrefactors(tempRate, loopMove, loopMove);
-
-	}
-
-	if (useArr) {
-
-		// this adds the moves from the side-bases.
-		tempRate += getJoinFluxArr();
-
-	}
-
-	return tempRate;
-
+	//  printf("Total join moves: %d\n",total_move_count);
+	if (total_move_count == 0)
+		return 0.0;  // CANNOT BE ANYTHING OTHER THAN 0.0! There are plenty of multi-complex structures with no total moves.
+	else
+		return (double) total_move_count * dnaEnergyModel->getJoinRate();
 }
+
+// FD: We need to re-write this for the Arrhenius routine
 
 // General strategy: A quick summation of all possible rates.
 // On hit, we work back which transition we needed.
+// This strategy can be faster, because interior nucleotides of openloops
+// always have the same structure
 double SComplexList::getJoinFluxArr(void) {
 
-// We compute the rates for the bases occuring at the side of each sequence.
-// these bases do not have loop x loop types.
-// there are 4x6x6 options, so we have to tally and then sum.
+// there are 4x6x6 options, so these rates we have to tally and then sum.
 
 	double rate = 0.0;
 
 	SComplexListEntry* temp = first;
 
-// The trick is to compute all rates between the first complex,
-// and the remaining complexes. Then, compute the rate between the second complex,
-// and the remaining complexes (set minus first and second), and so on.
+
+	// The trick is to compute all rates between the first complex,
+	// and the remaining complexes. Then, compute the rate between the second complex,
+	// and the remaining complexes (set minus first and second), and so on.
+
 	while (temp != NULL) {
 
 		StrandOrdering* order = temp->thisComplex->getOrdering();
@@ -269,10 +277,12 @@ double SComplexList::getJoinFluxArr(void) {
 
 }
 
+
 double SComplexList::computeArrBiRate(SComplexListEntry* input, StrandOrdering* order) {
 
-	SComplexListEntry* temp = first;
 	double output = 0.0;
+
+	SComplexListEntry* temp = first;
 
 	while (temp != NULL) {
 
@@ -282,6 +292,7 @@ double SComplexList::computeArrBiRate(SComplexListEntry* input, StrandOrdering* 
 
 		temp = temp->next;
 	}
+
 	// post: temp is pointing to the entry that matches order
 
 	temp = temp->next;
@@ -314,21 +325,9 @@ double SComplexList::cycleCrossRateArr(StrandOrdering* input1, StrandOrdering* i
 
 		while (temp2 != NULL) {
 
-			OpenInfo& local1 = input1->getLocalContext();
-			OpenInfo& local2 = input1->getLocalContext();
+			OpenLoop* loop2 = temp2->thisLoop;
 
-			// now cycle over exposed external nicks in local 1
-			for (vector<HalfContext>& vec : local1.context) {
-
-				for (HalfContext& text : vec) {
-
-					output += cycleOverOpenContext(text, local2);
-
-				}
-
-			}
-
-//			MoveType side1 = moveType(local1.context.);
+			output += computeCrossRateArr(loop1, loop2);
 
 			temp2 = temp2->next;
 
@@ -337,59 +336,42 @@ double SComplexList::cycleCrossRateArr(StrandOrdering* input1, StrandOrdering* i
 		temp1 = temp1->next;
 	}
 
-// post: we've cycled all openloops in input1 over all openloops of input2
+	// post: we've cycled all openloops in input1 over all openloops of input2
 
 	return output;
 
 }
 
-// given a context for one nucleotide, compute transitions with an opposing openloop.
-double SComplexList::cycleOverOpenContext(HalfContext& context, OpenInfo& info) {
+// Given two openloops, compute the bimolecular rate between them\
+// there are two phases:
+// The internal exposed nucleotides react with a loop x loop local context.
+// The external exposed nucleotides react with one of six possibilities
+double SComplexList::computeCrossRateArr(OpenLoop* input1, OpenLoop* input2) {
 
-	double output = 0.0;
+	int adjacent1 = input1->numAdjacent;
+	int adjacent2 = input2->numAdjacent;
 
-	// now cycle over exposed external nicks in local 1
-	for (vector<HalfContext>& vec : info.context) {
+	int output = 1.0;
 
-		for (HalfContext& text : vec) {
+	// there are no internal nucleotides
+	if (input1->context.numExposedInternal == 0) {
 
-//			output += cycleOverOpenContext(text,local2);
+		return output;
 
-		}
+	} else {
+
+		// loop, loop local context
+
+
+
 
 	}
 
-	return 0.0;
+	// the only non-(loop, loop) local structures are in the first and last position.
+
+	return output;
 
 }
-
-//// Given two openloops, compute the bimolecular rate between them\
-//// there are two phases:
-//// The internal exposed nucleotides react with a loop x loop local context.
-//// The external exposed nucleotides react with one of six possibilities
-//double SComplexList::computeCrossRateArr(OpenLoop* input1, OpenLoop* input2) {
-//
-//	int adjacent1 = input1->numAdjacent;
-//	int adjacent2 = input2->numAdjacent;
-//
-//	int output = 1.0;
-//
-//	// there are no internal nucleotides
-//	if (input1->context.numExposedInternal == 0) {
-//
-//		return output;
-//
-//	} else {
-//
-//		// loop, loop local context
-//
-//	}
-//
-//	// the only non-(loop, loop) local structures are in the first and last position.
-//
-//	return output;
-//
-//}
 
 /*
  SComplexList::getEnergy( int volume_flag )
@@ -449,8 +431,8 @@ int SComplexList::doBasicChoice(double choice, double newtime) {
 	char *struc;
 
 	if (rchoice < joinRate) {
-		int move = doJoinChoice(rchoice);
-		return move;
+		doJoinChoice(rchoice);
+		return NULL;
 	} else {
 		rchoice -= joinRate;
 	}
@@ -484,6 +466,7 @@ int SComplexList::doBasicChoice(double choice, double newtime) {
 	}
 
 	temp2->fillData(dnaEnergyModel);
+//	return temp2;
 
 	return tempmove->getArrType();
 
@@ -493,13 +476,9 @@ int SComplexList::doBasicChoice(double choice, double newtime) {
  SComplexList::doJoinChoice( double choice )
  */
 
-int SComplexList::doJoinChoice(double choice) {
+void SComplexList::doJoinChoice(double choice) {
 	SComplexListEntry *temp = first, *temp2 = NULL;
-
-	BaseCounter* ext_bases;
-	BaseCounter* ext_bases_temp;
-	BaseCounter total_bases;
-
+	struct exterior_bases *ext_bases = NULL, *ext_bases_temp = NULL, total_bases;
 	StrandComplex *deleted;
 	StrandComplex *picked[2] = { NULL, NULL };
 	char types[2] = { 0, 0 };
@@ -507,122 +486,125 @@ int SComplexList::doJoinChoice(double choice) {
 	int int_choice;
 	int total_move_count = 0;
 
-	bool useArr = dnaEnergyModel->useArrhenius();
-	double joinRate = dnaEnergyModel->applyPrefactors(dnaEnergyModel->getJoinRate(), loopMove, loopMove);
-
-	int_choice = (int) floor(choice / joinRate);
+	int_choice = (int) floor(choice / dnaEnergyModel->getJoinRate());
+	total_bases.A = total_bases.G = total_bases.T = total_bases.C = 0;
 
 	if (numentries <= 1)
-		cout << "Error: Tried to do a join choice, but no entries available."; cout.flush(); assert(0);
-		return 0;
+		return;
 
 	while (temp != NULL) {
-		ext_bases = temp->thisComplex->getExteriorBases(useArr);
+		ext_bases = temp->thisComplex->getExteriorBases();
 
-		total_bases.increment(ext_bases);
+		total_bases.A += ext_bases->A;
+		total_bases.C += ext_bases->C;
+		total_bases.G += ext_bases->G;
+		total_bases.T += ext_bases->T;
 
 		temp = temp->next;
 	}
 
 	temp = first;
 	while (temp != NULL) {
-		ext_bases = temp->thisComplex->getExteriorBases(useArr);
+		ext_bases = temp->thisComplex->getExteriorBases();
 
-		total_bases.increment(ext_bases);
+		total_bases.A -= ext_bases->A;
+		total_bases.C -= ext_bases->C;
+		total_bases.G -= ext_bases->G;
+		total_bases.T -= ext_bases->T;
 
-		if (int_choice < total_bases.A() * ext_bases->T()) {
+		if (int_choice < total_bases.A * ext_bases->T) {
 			picked[0] = temp->thisComplex;
 			types[0] = 4;
 			types[1] = 1;
 			temp = temp->next;
 			while (temp != NULL) {
-				ext_bases_temp = temp->thisComplex->getExteriorBases(useArr);
+				ext_bases_temp = temp->thisComplex->getExteriorBases();
 
-				if (int_choice < ext_bases_temp->A() * ext_bases->T()) {
+				if (int_choice < ext_bases_temp->A * ext_bases->T) {
 					picked[1] = temp->thisComplex;
-					index[0] = (int) floor(int_choice / ext_bases_temp->A());
-					index[1] = int_choice - index[0] * ext_bases_temp->A();
+					index[0] = (int) floor(int_choice / ext_bases_temp->A);
+					index[1] = int_choice - index[0] * ext_bases_temp->A;
 					temp = NULL;
 				} else {
 					temp = temp->next;
-					int_choice -= ext_bases_temp->A() * ext_bases->T();
+					int_choice -= ext_bases_temp->A * ext_bases->T;
 				}
 			}
 			continue; // We must have picked something, thus temp must be NULL and we need to exit the loop.
 		} else
-			int_choice -= total_bases.A() * ext_bases->T();
+			int_choice -= total_bases.A * ext_bases->T;
 
-		if (int_choice < total_bases.T() * ext_bases->A()) {
+		if (int_choice < total_bases.T * ext_bases->A) {
 			picked[0] = temp->thisComplex;
 			types[0] = 1;
 			types[1] = 4;
 			temp = temp->next;
 			while (temp != NULL) {
-				ext_bases_temp = temp->thisComplex->getExteriorBases(useArr);
+				ext_bases_temp = temp->thisComplex->getExteriorBases();
 
-				if (int_choice < ext_bases_temp->T() * ext_bases->A()) {
+				if (int_choice < ext_bases_temp->T * ext_bases->A) {
 					picked[1] = temp->thisComplex;
-					index[0] = (int) floor(int_choice / ext_bases_temp->T());
-					index[1] = int_choice - index[0] * ext_bases_temp->T();
+					index[0] = (int) floor(int_choice / ext_bases_temp->T);
+					index[1] = int_choice - index[0] * ext_bases_temp->T;
 					temp = NULL;
 				} else {
 					temp = temp->next;
-					int_choice -= ext_bases_temp->T() * ext_bases->A();
+					int_choice -= ext_bases_temp->T * ext_bases->A;
 				}
 			}
 			continue;
 		} else
-			int_choice -= total_bases.T() * ext_bases->A();
+			int_choice -= total_bases.T * ext_bases->A;
 
-		if (int_choice < total_bases.G() * ext_bases->C()) {
+		if (int_choice < total_bases.G * ext_bases->C) {
 			picked[0] = temp->thisComplex;
 			types[0] = 2;
 			types[1] = 3;
 			temp = temp->next;
 			while (temp != NULL) {
-				ext_bases_temp = temp->thisComplex->getExteriorBases(useArr);
+				ext_bases_temp = temp->thisComplex->getExteriorBases();
 
-				if (int_choice < ext_bases_temp->G() * ext_bases->C()) {
+				if (int_choice < ext_bases_temp->G * ext_bases->C) {
 					picked[1] = temp->thisComplex;
-					index[0] = (int) floor(int_choice / ext_bases_temp->G());
-					index[1] = int_choice - index[0] * ext_bases_temp->G();
+					index[0] = (int) floor(int_choice / ext_bases_temp->G);
+					index[1] = int_choice - index[0] * ext_bases_temp->G;
 					temp = NULL;
 				} else {
 					temp = temp->next;
-					int_choice -= ext_bases_temp->G() * ext_bases->C();
+					int_choice -= ext_bases_temp->G * ext_bases->C;
 				}
 			}
 			continue;
 		} else
-			int_choice -= total_bases.G() * ext_bases->C();
+			int_choice -= total_bases.G * ext_bases->C;
 
-		if (int_choice < total_bases.C() * ext_bases->G()) {
+		if (int_choice < total_bases.C * ext_bases->G) {
 			picked[0] = temp->thisComplex;
 			types[0] = 3;
 			types[1] = 2;
 			temp = temp->next;
 			while (temp != NULL) {
-				ext_bases_temp = temp->thisComplex->getExteriorBases(false);
+				ext_bases_temp = temp->thisComplex->getExteriorBases();
 
-				if (int_choice < ext_bases_temp->C() * ext_bases->G()) {
+				if (int_choice < ext_bases_temp->C * ext_bases->G) {
 					picked[1] = temp->thisComplex;
-					index[0] = (int) floor(int_choice / ext_bases_temp->C());
-					index[1] = int_choice - index[0] * ext_bases_temp->C();
+					index[0] = (int) floor(int_choice / ext_bases_temp->C);
+					index[1] = int_choice - index[0] * ext_bases_temp->C;
 					temp = NULL;
 				} else {
 					temp = temp->next;
-					int_choice -= ext_bases_temp->C() * ext_bases->G();
+					int_choice -= ext_bases_temp->C * ext_bases->G;
 				}
 			}
 			continue;
 		} else
-			int_choice -= total_bases.C() * ext_bases->G();
+			int_choice -= total_bases.C * ext_bases->G;
 
 		if (temp != NULL)
 			temp = temp->next;
 	}
 
-	deleted = StrandComplex::performComplexJoin(picked, types, index, useArr);
+	deleted = StrandComplex::performComplexJoin(picked, types, index);
 
 //  if( GlobalOptions->getOutputState() && !(GlobalOptions->getSimulationMode() & SIMULATION_PYTHON))
 // printf("Join Chosen: %d x %d (%d,%d)\n",index[0],index[1], types[0],  types[1]);
@@ -648,11 +630,7 @@ int SComplexList::doJoinChoice(double choice) {
 	}
 	numentries--;
 
-	// return a basic object with the loop, loop context.
-
-	RateEnv myRate = RateEnv(dnaEnergyModel->getJoinRate(), dnaEnergyModel, loopMove, loopMove);
-
-	return myRate.arrType;
+	return;
 }
 
 /*

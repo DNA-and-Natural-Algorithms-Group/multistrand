@@ -9,6 +9,7 @@
 using std::vector;
 using std::string;
 
+
 enum MoveType {
 	endMove, loopMove, stackMove, stackStackMove, loopEndMove, stackEndMove, stackLoopMove, MOVETYPE_SIZE
 };
@@ -24,7 +25,7 @@ struct HalfContext {
 public:
 	friend std::ostream& operator<<(std::ostream&, HalfContext&);
 
-	BaseType base = baseNone;
+	BaseType base;
 	QuartContext left = endC;
 	QuartContext right = endC;
 
@@ -40,23 +41,19 @@ public:
 	void clear(void);
 	void push(vector<HalfContext>&);
 
-	void increment(OpenInfo&);
-
 	vector<vector<HalfContext>> context;
-	BaseCounter exposedInternalNucl = BaseCounter();
-	int numExposedInternal = 0;
-	int numExposed = 0;
+	vector<int> exposedInternalNucl = {0,0,0,0,0};
+	int numExposedInternal;
+	int numExposed;
 
 };
-
-
-
 
 namespace moveutil {
 
 const static double valuesPrime[MOVETYPE_SIZE] = { 3, 5, 7, 11, 13, 17, 19 };
 const static string MoveToString[MOVETYPE_SIZE] = { "End", "Loop", "Stack", "StackStack", "LoopEnd", "StackEnd", "StackLoop" };
 const static string MoveToString2[MOVETYPE_SIZE] = { "      ", "     ", "   ", "", "  ", " ", " " };
+
 
 QuartContext getContext(char input);
 

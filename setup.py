@@ -9,7 +9,6 @@
 #
 
 sources = ["system/utility.cc",
-           "system/sequtil.cc",
            "interface/multistrand_module.cc",
            "interface/optionlists.cc",
            "interface/options.cc",

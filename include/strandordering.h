@@ -17,7 +17,8 @@ class OpenLoop;
 
 class orderinglist {
 public:
-	orderinglist(int insize, int in_id, char *inTag, char *inSeq, char *inCodeSeq, char* inStruct);
+	orderinglist(int insize, int in_id, char *inTag, char *inSeq,
+			char *inCodeSeq, char* inStruct);
 	~orderinglist(void);
 	orderinglist *next, *prev;
 	char *thisTag, *thisSeq, *thisCodeSeq, *thisStruct;
@@ -31,11 +32,14 @@ public:
 	StrandOrdering(void);
 	StrandOrdering(char *in_seq, char *in_struc, char *in_cseq);
 	StrandOrdering(orderinglist *beginning, orderinglist *ending, int numitems);
-	StrandOrdering(char *in_seq, char *in_structure, char *in_cseq, class identList *strandids);
+	StrandOrdering(char *in_seq, char *in_structure, char *in_cseq,
+			class identList *strandids);
 	~StrandOrdering(void);
 	void cleanup(void);
-	static StrandOrdering * joinOrdering(StrandOrdering *first, StrandOrdering *second);
-	StrandOrdering *breakOrdering(Loop *firstOldBreak, Loop *secondOldBreak, Loop *firstNewBreak, Loop *secondNewBreak); // maybe id or openloop pointer
+	static StrandOrdering * joinOrdering(StrandOrdering *first,
+			StrandOrdering *second);
+	StrandOrdering *breakOrdering(Loop *firstOldBreak, Loop *secondOldBreak,
+			Loop *firstNewBreak, Loop *secondNewBreak); // maybe id or openloop pointer
 	void reorder(OpenLoop *index); // reorder so that open loop passed is the available openloop
 	void addBasepair(char *first_bp, char *second_bp);
 	void breakBasepair(char *first_bp, char *second_bp);
@@ -46,7 +50,8 @@ public:
 	// following three functions are used by SComplex::generateLoops
 	// to generate the loop structure of a given complex, using a flat representation of the starting sequence and structure.
 	// Note that the first function, generateFlatSequence, is given pointers to appopriate char * markers to hold the flat representation. Structure is very difficult to have based on the ordering, though, so perhaps it needs to be handled differently.
-	void generateFlatSequence(char **sequence, char **structure, char **code_sequence);
+	void generateFlatSequence(char **sequence, char **structure,
+			char **code_sequence);
 
 	// this function converts an index into a previously given sequence from generateFlatSequence into a char * pointer into the appropriate strand's sequence at the given location.
 	char *convertIndex(int index);
@@ -60,7 +65,7 @@ public:
 	// one exterior base type for the complex, and returns that Openloop, as well
 	// as the updated index into that open loop only, and a char * pointing at
 	// the particular base in the open loop.
-	OpenLoop *getIndex(char type, int *index, char **location, bool);
+	OpenLoop *getIndex(char type, int *index, char **location);
 
 	// i/o routines and accessors for strandcomplex
 	char *getSequence(void);
@@ -70,11 +75,9 @@ public:
 	int getStrandCount(void);
 
 	// updates and returns the current exterior base count.
-	BaseCounter *getExteriorBases(bool);
-	void updateLocalContext(void);
+	exterior_bases *getExteriorBases(void);
+	void updateLocalContext();
 	string toString(void);
-	OpenInfo& getLocalContext(void);
-
 
 	// replaces the first open loop in the ordering with the second.
 	void replaceOpenLoop(Loop *oldLoop, Loop *newLoop);
@@ -84,10 +87,7 @@ public:
 private:
 	char *seq, *struc, *strandnames;
 	int count;
-	BaseCounter total_exterior_bases = BaseCounter();
-
-	OpenInfo openContext = OpenInfo();
-
+	exterior_bases total_exterior_bases;
 
 };
 

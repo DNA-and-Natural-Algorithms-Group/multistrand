@@ -10,6 +10,10 @@
 #include "loop.h"
 #include <string>
 
+// structure containing information about bases exterior to the complex, IE bases that could pair with other complexes. First incarnation of such.a structure, prolly will change as I work out multiple-complex issues.
+struct exterior_bases {
+	int A, T, C, G;
+};
 
 #include "strandordering.h"
 #include "optionlists.h"
@@ -36,7 +40,7 @@ public:
 	char *getSequence(void); // returns char representation of sequence
 	char *getStructure(void); // returns dot-paren notation structure for seq.
 	char *getStrandNames(void); // returns ordered list of strand names
-	BaseCounter* getExteriorBases(bool);
+	exterior_bases *getExteriorBases(void);
 	int checkIDList(class identList *stoplist, int id_count);
 	int checkIDBound(char *id);
 
@@ -55,7 +59,7 @@ public:
 	void updateLocalContext(void);
 
 	static StrandComplex *performComplexJoin(StrandComplex **complexes,
-			char *types, int *index, bool);
+			char *types, int *index);
 
 
 	StrandOrdering* getOrdering();

@@ -230,16 +230,10 @@ public:
 	//   frequence counts of each type of base, plus invalid/out of bounds bases.
 	//   Calling function needs to free the array.
 	// TODO: Possibly change this so it returns the index of a static array inside the function, so there's no memory overhead for the function call. (Data is accessed single-threaded, and information is copied out by the calling function.) Could also make it a private data member that's just returned.  Not completed currently.
-	// FD: this doesn't say if/when it needs to update. Should it update after a merge? Unknown right now.
-	//	int *getFreeBases(void);
+	int *getFreeBases(void);
+	void setFreeBasesInternal(void);
 
-	BaseCounter& getFreeBases(void);
-	BaseCounter& getFreeBasesInternal(void);
-
-
-	void setFreeBasesInternal(int index);
-
-	char *getBase(char type, int index, bool );
+	char *getBase(char type, int index);
 
 	OpenLoop(void);
 	OpenLoop(int branches, int *pairtypes, int *sidelengths, char **sequences);
@@ -255,9 +249,7 @@ public:
 	// non-private because we trust each other;
 	// so: only the loop itself is allowed to set these.
 	OpenInfo context;
-	BaseCounter exposedBases = BaseCounter();
 	bool updatedContext = false;
-	bool updatedContext2 = false;
 
 private:
 	int *pairtype;

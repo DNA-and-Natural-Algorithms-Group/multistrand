@@ -28,17 +28,17 @@ string utility::sequenceToString(char* sequence, int size) {
 	std::stringstream ss;
 
 	ss << "";
-	ss << baseToString[sequence[0]];
+	ss << baseTypeString[sequence[0]];
 	ss << ":";
 
 	for (int i = 1; i < size + 1; i++) {
 
-		ss << baseToString[sequence[i]];
+		ss << baseTypeString[sequence[i]];
 
 	}
 
 	ss << ":";
-	ss << baseToString[sequence[size + 1]];
+	ss << baseTypeString[sequence[size + 1]];
 	ss << "";
 
 	return ss.str();

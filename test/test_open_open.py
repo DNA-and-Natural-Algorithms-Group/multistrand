@@ -1,7 +1,6 @@
 from multistrand.objects import *
 from multistrand.options import Options
 from multistrand.system import *
-
 dd = Domain(name="short",sequence="TGCCGGTAT")
 st = Strand(name="base", domains=[dd])
 c = Complex( strands=[st,st.C], structure="....(....+....)....")

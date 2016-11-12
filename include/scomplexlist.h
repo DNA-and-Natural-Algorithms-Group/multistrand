@@ -24,18 +24,18 @@ public:
 	SComplexListEntry *addComplex(StrandComplex *newComplex);
 	void initializeList(void);
 	void regenerateMoves(void);
-	double getTotalFlux(SimOptions*);
-	double getJoinFlux(SimOptions*);
+	double getTotalFlux(void);
+	double getJoinFlux(SimOptions* sOptions = NULL);
 	double getJoinFluxArr(void);
 	double computeArrBiRate(SComplexListEntry*, StrandOrdering*);
 	double cycleCrossRateArr(StrandOrdering*, StrandOrdering*);
-	double cycleOverOpenContext(HalfContext&, OpenInfo&);
+	double computeCrossRateArr(OpenLoop*, OpenLoop*);
 	int getCount(void);
 	double *getEnergy(int volume_flag);
 	void printComplexList();
 	SComplexListEntry *getFirst(void);
 	int doBasicChoice(double choice, double newtime);
-	int doJoinChoice(double choice);
+	void doJoinChoice(double choice);
 	bool checkStopComplexList(class complexItem *stoplist);
 	string toString(void);
 	void updateLocalContext(void);
@@ -60,9 +60,8 @@ public:
 	void initializeComplex(void);
 	void regenerateMoves(void);
 	void fillData(EnergyModel *em);
-	string toString(EnergyModel *em);
+	string toString( EnergyModel *em);
 	void dumpComplexEntryToPython(int *our_id, char **names, char **sequence, char **structure, double *our_energy);
-
 	int id;
 	StrandComplex *thisComplex;
 	double energy;
