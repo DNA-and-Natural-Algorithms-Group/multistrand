@@ -5314,12 +5314,11 @@ char *OpenLoop::getBase(char type, int index) {
 //	return results;
 //}
 
-BaseCounter& OpenLoop::getFreeBases(void) {
+// if using Arr, do not count the external bases.
+BaseCounter& OpenLoop::getFreeBases(bool useArr) {
 
-	// do nothing if not required
+	// do nothing if already computed last time
 	if (updatedContext2) {
-		// FD; for now, always re-compute the exposed bases because
-		// this matches the previous behaviour.
 
 		return exposedBases;
 
@@ -5328,21 +5327,31 @@ BaseCounter& OpenLoop::getFreeBases(void) {
 		exposedBases.clear();
 
 		for (int loop = 0; loop < (numAdjacent + 1); loop++) {
-			for (int loop2 = 1; loop2 <= sidelen[loop]; loop2++) {
+
+			int loop2 = 1;
+			int end = sidelen[loop] + 1;
+
+			if (useArr) {
+				// avoid counting external nucleotides
+				loop2++;
+				end--;
+			}
+
+			for (int loop2 = 1; loop2 < end; loop2++) {
 
 				int base = seqs[loop][loop2];
 
 				if (seqs[loop][loop2] < 5) {
 
-					// removing checks because I'd like to software to fail if
-					// errors in the sequence exist.
-
 					exposedBases.count[base]++;
 
 				} else {
 
+					// I'd like the software to fail if
+					// errors in the sequence exist.
 					exposedBases.count[0]++;
 					cout << "Encountered nonsense base in sequence.";
+					assert(0);
 
 				}
 			}

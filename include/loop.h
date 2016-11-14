@@ -231,7 +231,7 @@ public:
 	//   Calling function needs to free the array.
 	// TODO: Possibly change this so it returns the index of a static array inside the function, so there's no memory overhead for the function call. (Data is accessed single-threaded, and information is copied out by the calling function.) Could also make it a private data member that's just returned.  Not completed currently.
 //	int *getFreeBases(void);
-	BaseCounter& getFreeBases(void);
+	BaseCounter& getFreeBases(bool);
 	void setFreeBasesInternal(void);
 
 	char *getBase(char type, int index);
