@@ -1,7 +1,7 @@
 /*
  Copyright (c) 2007-2016 Caltech. All rights reserved.
  Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
- 	 	   Frits Dannenberg (fdann@caltech.edu)
+ Frits Dannenberg (fdann@caltech.edu)
  */
 
 // StrandOrdering object
@@ -466,21 +466,27 @@ char *StrandOrdering::convertIndex(int index) {
 
 // Used for delete moves to get the actual Open loop and location within which is to be joined.
 OpenLoop *StrandOrdering::getIndex(char type, int *index, char **location) {
+
 	orderinglist *traverse;
-	int *free_bases;
+
 	for (traverse = first; traverse != NULL; traverse = traverse->next) {
 		assert(traverse->thisLoop != NULL);
-		free_bases = traverse->thisLoop->getFreeBases();
-		assert(free_bases != NULL);
+
+		vector<int>& free_bases = traverse->thisLoop->getFreeBases().count;
+//		assert(free_bases != NULL);
 
 		if (*index < free_bases[type]) {
+
 			*location = traverse->thisLoop->getBase(type, *index);
-			delete[] free_bases;
+
 			return traverse->thisLoop;
-		} else
+
+		} else {
+
 			*index = *index - free_bases[type];
 
-		delete[] free_bases;
+		}
+
 	}
 	assert(0);
 	return NULL;
@@ -682,26 +688,26 @@ void StrandOrdering::replaceOpenLoop(Loop *oldLoop, Loop *newLoop) {
 
 exterior_bases *StrandOrdering::getExteriorBases(void) {
 	orderinglist *traverse = NULL;
-	int *free_bases;
 
 	total_exterior_bases.A = total_exterior_bases.T = total_exterior_bases.C = total_exterior_bases.G = 0;
 
 	for (traverse = first; traverse != NULL; traverse = traverse->next) {
+
 		assert(traverse->thisLoop != NULL);
-		free_bases = traverse->thisLoop->getFreeBases();
-		assert(free_bases != NULL);
+
+		vector<int>& free_bases = traverse->thisLoop->getFreeBases().count;
 
 		total_exterior_bases.A += free_bases[1];
 		total_exterior_bases.C += free_bases[2];
 		total_exterior_bases.G += free_bases[3];
 		total_exterior_bases.T += free_bases[4];
-		delete[] free_bases;
+
 	}
 
 	return &total_exterior_bases;
 }
 
-void StrandOrdering::updateLocalContext(void){
+void StrandOrdering::updateLocalContext(void) {
 
 	orderinglist *traverse = NULL;
 	for (traverse = first; traverse != NULL; traverse = traverse->next) {
@@ -711,7 +717,6 @@ void StrandOrdering::updateLocalContext(void){
 }
 
 string StrandOrdering::toString(void) {
-
 
 	std::stringstream ss;
 
@@ -728,7 +733,6 @@ string StrandOrdering::toString(void) {
 
 		// now also print local Contexts
 		ss << traverse->thisLoop->typeInternalsToString();
-
 
 	}
 
