@@ -5279,7 +5279,11 @@ char *OpenLoop::getLocation(Move *move, int index) {
 	assert(0);
 }
 
-char *OpenLoop::getBase(char type, int index) {
+char *OpenLoop::getBase(char type, int index, bool useArr) {
+
+	// FD 2016-11-14
+	// index is OUTPUT
+
 	int loop, loop2;
 	int newindex = index;
 	for (loop = 0; loop <= numAdjacent; loop++) {

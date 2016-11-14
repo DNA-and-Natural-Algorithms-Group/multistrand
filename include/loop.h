@@ -234,7 +234,7 @@ public:
 	BaseCounter& getFreeBases(bool);
 	void setFreeBasesInternal(void);
 
-	char *getBase(char type, int index);
+	char *getBase(char type, int index, bool);
 
 	OpenLoop(void);
 	OpenLoop(int branches, int *pairtypes, int *sidelengths, char **sequences);

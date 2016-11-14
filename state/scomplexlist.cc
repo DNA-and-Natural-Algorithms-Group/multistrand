@@ -494,7 +494,7 @@ void SComplexList::doJoinChoice(double choice) {
 	int int_choice;
 	int total_move_count = 0;
 
-	int_choice = (int) floor(choice / eModel->getJoinRate());
+	int_choice = (int) floor(choice / eModel->applyPrefactors(eModel->getJoinRate(), loopMove, loopMove));
 
 	if (numentries <= 1)
 		return;
@@ -798,7 +798,7 @@ bool SComplexList::checkStopComplexList_Structure_Disassoc(class complexItem *st
 	return true;
 }
 
-/* 
+/*
  Methods used for checking loose structure definitions and counting structure defs.
 
  int SComplexList::checkLooseStructure( char *our_struc, char *stop_struc, int count );

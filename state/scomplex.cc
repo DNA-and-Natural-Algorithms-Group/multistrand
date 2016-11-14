@@ -107,6 +107,9 @@ int StrandComplex::checkIDBound(char *id) {
 
 StrandComplex *StrandComplex::performComplexJoin(StrandComplex **complexes, char *types, int *index, bool useArr) {
 
+	// FD 2016 Nov 14: Adjusting this to ignore the exterior nucleotides if useArr= TRUE;
+
+
 	OpenLoop *loops[2];
 	OpenLoop *new_loops[2] = { NULL, NULL };
 	StrandOrdering *new_ordering = NULL;
