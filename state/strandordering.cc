@@ -686,10 +686,9 @@ void StrandOrdering::replaceOpenLoop(Loop *oldLoop, Loop *newLoop) {
 	assert(0); // no loop matched, that's bad.
 }
 
-BaseCounter& StrandOrdering::getExteriorBases(void) {
+BaseCounter& StrandOrdering::getExteriorBases(bool useArr) {
 	orderinglist *traverse = NULL;
 
-//	total_exterior_bases.A = total_exterior_bases.T = total_exterior_bases.C = total_exterior_bases.G = 0;
 	total_exterior_bases.clear();
 
 	for (traverse = first; traverse != NULL; traverse = traverse->next) {
@@ -698,11 +697,6 @@ BaseCounter& StrandOrdering::getExteriorBases(void) {
 
 		BaseCounter& free_bases = traverse->thisLoop->getFreeBases();
 		total_exterior_bases.increment(free_bases);
-
-//		total_exterior_bases.A += free_bases[1];
-//		total_exterior_bases.C += free_bases[2];
-//		total_exterior_bases.G += free_bases[3];
-//		total_exterior_bases.T += free_bases[4];
 
 	}
 

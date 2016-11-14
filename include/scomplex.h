@@ -34,7 +34,7 @@ public:
 	char *getStructure(void); // returns dot-paren notation structure for seq.
 	char *getStrandNames(void); // returns ordered list of strand names
 //	exterior_bases *getExteriorBases(void);
-	BaseCounter& getExteriorBases(void);
+	BaseCounter& getExteriorBases(bool);
 	int checkIDList(class identList *stoplist, int id_count);
 	int checkIDBound(char *id);
 

@@ -203,6 +203,8 @@ double SComplexList::getJoinFlux(SimOptions* sOptions) {
 
 	double output = 0.0;
 
+	bool useArr = eModel->useArrhenius();
+
 //	if (sOptions != NULL && sOptions->usingArrhenius()) {
 //
 //		return getJoinFluxArr();
@@ -221,7 +223,7 @@ double SComplexList::getJoinFlux(SimOptions* sOptions) {
 
 	while (temp != NULL) {
 
-		BaseCounter& ext_bases = temp->thisComplex->getExteriorBases();
+		BaseCounter& ext_bases = temp->thisComplex->getExteriorBases(useArr);
 		total_bases.increment(ext_bases);
 
 		temp = temp->next;
@@ -230,7 +232,7 @@ double SComplexList::getJoinFlux(SimOptions* sOptions) {
 	temp = first;
 	while (temp != NULL) {
 
-		BaseCounter& ext_bases = temp->thisComplex->getExteriorBases();
+		BaseCounter& ext_bases = temp->thisComplex->getExteriorBases(useArr);
 		total_bases.decrement(ext_bases);
 
 		total_move_count += total_bases.multiCount(ext_bases);
@@ -481,10 +483,12 @@ int SComplexList::doBasicChoice(double choice, double newtime) {
  */
 
 void SComplexList::doJoinChoice(double choice) {
+
 	SComplexListEntry *temp = first, *temp2 = NULL;
 
-	BaseCounter total_bases;
-//	exterior_bases total_bases;
+	BaseCounter baseSum;
+	bool useArr = eModel->useArrhenius();
+
 	StrandComplex *deleted;
 	StrandComplex *picked[2] = { NULL, NULL };
 	char types[2] = { 0, 0 };
@@ -493,15 +497,14 @@ void SComplexList::doJoinChoice(double choice) {
 	int total_move_count = 0;
 
 	int_choice = (int) floor(choice / eModel->getJoinRate());
-//	total_bases.A = total_bases.G = total_bases.T = total_bases.C = 0;
 
 	if (numentries <= 1)
 		return;
 
 	while (temp != NULL) {
 
-		BaseCounter& ext_bases = temp->thisComplex->getExteriorBases();
-		total_bases.increment(ext_bases);
+		BaseCounter& ext_bases = temp->thisComplex->getExteriorBases(useArr);
+		baseSum.increment(ext_bases);
 
 		temp = temp->next;
 	}
@@ -509,10 +512,10 @@ void SComplexList::doJoinChoice(double choice) {
 	temp = first;
 	while (temp != NULL) {
 
-		BaseCounter& ext_bases = temp->thisComplex->getExteriorBases();
-		total_bases.decrement(ext_bases);
+		BaseCounter& ext_bases = temp->thisComplex->getExteriorBases(useArr);
+		baseSum.decrement(ext_bases);
 
-		if (int_choice < total_bases.A() * ext_bases.T()) {
+		if (int_choice < baseSum.A() * ext_bases.T()) {
 
 			picked[0] = temp->thisComplex;
 			types[0] = 4;
@@ -521,7 +524,7 @@ void SComplexList::doJoinChoice(double choice) {
 
 			while (temp != NULL) {
 
-				BaseCounter& ext_bases_temp = temp->thisComplex->getExteriorBases();
+				BaseCounter& ext_bases_temp = temp->thisComplex->getExteriorBases(useArr);
 
 				if (int_choice < ext_bases_temp.A() * ext_bases.T()) {
 
@@ -539,9 +542,9 @@ void SComplexList::doJoinChoice(double choice) {
 			}
 			continue; // We must have picked something, thus temp must be NULL and we need to exit the loop.
 		} else
-			int_choice -= total_bases.A() * ext_bases.T();
+			int_choice -= baseSum.A() * ext_bases.T();
 
-		if (int_choice < total_bases.T() * ext_bases.A()) {
+		if (int_choice < baseSum.T() * ext_bases.A()) {
 
 			picked[0] = temp->thisComplex;
 			types[0] = 1;
@@ -550,7 +553,7 @@ void SComplexList::doJoinChoice(double choice) {
 
 			while (temp != NULL) {
 
-				BaseCounter& ext_bases_temp = temp->thisComplex->getExteriorBases();
+				BaseCounter& ext_bases_temp = temp->thisComplex->getExteriorBases(useArr);
 
 				if (int_choice < ext_bases_temp.T() * ext_bases.A()) {
 
@@ -569,9 +572,9 @@ void SComplexList::doJoinChoice(double choice) {
 			continue;
 		} else
 
-			int_choice -= total_bases.T() * ext_bases.A();
+			int_choice -= baseSum.T() * ext_bases.A();
 
-		if (int_choice < total_bases.G() * ext_bases.C()) {
+		if (int_choice < baseSum.G() * ext_bases.C()) {
 
 			picked[0] = temp->thisComplex;
 			types[0] = 2;
@@ -580,7 +583,7 @@ void SComplexList::doJoinChoice(double choice) {
 
 			while (temp != NULL) {
 
-				BaseCounter& ext_bases_temp = temp->thisComplex->getExteriorBases();
+				BaseCounter& ext_bases_temp = temp->thisComplex->getExteriorBases(useArr);
 
 				if (int_choice < ext_bases_temp.G() * ext_bases.C()) {
 
@@ -599,16 +602,16 @@ void SComplexList::doJoinChoice(double choice) {
 			continue;
 		} else
 
-			int_choice -= total_bases.G() * ext_bases.C();
+			int_choice -= baseSum.G() * ext_bases.C();
 
-		if (int_choice < total_bases.C() * ext_bases.G()) {
+		if (int_choice < baseSum.C() * ext_bases.G()) {
 			picked[0] = temp->thisComplex;
 			types[0] = 3;
 			types[1] = 2;
 			temp = temp->next;
 			while (temp != NULL) {
 
-				BaseCounter& ext_bases_temp = temp->thisComplex->getExteriorBases();
+				BaseCounter& ext_bases_temp = temp->thisComplex->getExteriorBases(useArr);
 
 				if (int_choice < ext_bases_temp.C() * ext_bases.G()) {
 
@@ -627,16 +630,13 @@ void SComplexList::doJoinChoice(double choice) {
 			continue;
 		} else
 
-			int_choice -= total_bases.C() * ext_bases.G();
+			int_choice -= baseSum.C() * ext_bases.G();
 
 		if (temp != NULL)
 			temp = temp->next;
 	}
 
 	deleted = StrandComplex::performComplexJoin(picked, types, index);
-
-//  if( GlobalOptions->getOutputState() && !(GlobalOptions->getSimulationMode() & SIMULATION_PYTHON))
-// printf("Join Chosen: %d x %d (%d,%d)\n",index[0],index[1], types[0],  types[1]);
 
 	for (temp = first; temp != NULL; temp = temp->next) {
 
@@ -675,12 +675,16 @@ void SComplexList::doJoinChoice(double choice) {
 
  */
 bool SComplexList::checkStopComplexList(class complexItem *stoplist) {
-//if( stoplist->type == STOPTYPE_STRUCTURE || stoplist->type == STOPTYPE_DISASSOC )
-	if (stoplist->type == STOPTYPE_BOUND)
+
+	if (stoplist->type == STOPTYPE_BOUND) {
+
 		return checkStopComplexList_Bound(stoplist);
-	else
-// type = STOPTYPE_STRUCTURE, STOPTYPE_DISASSOC, STOPTYPE_LOOSE or STOPTYPE_COUNT_OR_PERCENT
+
+	} else {
+
 		return checkStopComplexList_Structure_Disassoc(stoplist);
+	}
+
 }
 
 string SComplexList::toString() {
@@ -704,7 +708,6 @@ void SComplexList::updateLocalContext(void) {
  bool SComplexList::checkStopComplexList_Bound( class complex_item *stoplist )
 
  */
-
 bool SComplexList::checkStopComplexList_Bound(class complexItem *stoplist) {
 	class identList *id_traverse = stoplist->strand_ids;
 	class SComplexListEntry *entry_traverse = first;
@@ -739,8 +742,6 @@ bool SComplexList::checkStopComplexList_Structure_Disassoc(class complexItem *st
 	int id_count = 0, max_complexes = 0;
 	bool successflag = false;
 	class identList *id_traverse = stoplist->strand_ids;
-
-//  if( traverse->type == STOPTYPE_BOUND )
 
 	while (traverse != NULL) {
 		max_complexes++;

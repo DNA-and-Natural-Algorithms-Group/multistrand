@@ -660,8 +660,8 @@ char *StrandComplex::getStrandNames(void) {
 	return ordering->getStrandNames();
 }
 
-BaseCounter& StrandComplex::getExteriorBases(void) {
-	return ordering->getExteriorBases();
+BaseCounter& StrandComplex::getExteriorBases(bool useArr) {
+	return ordering->getExteriorBases(useArr);
 }
 
 double StrandComplex::getEnergy(void) {
