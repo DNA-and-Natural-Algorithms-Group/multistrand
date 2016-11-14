@@ -17,23 +17,19 @@
 
 using std::string;
 
-
-RateEnv::RateEnv(void){
+RateEnv::RateEnv(void) {
 
 	rate = 0;
 	arrType = -99;
 
 }
 
-
-
-RateEnv::RateEnv(double mRate, EnergyModel* eModel, MoveType left, MoveType right){
+RateEnv::RateEnv(double mRate, EnergyModel* eModel, MoveType left, MoveType right) {
 
 	rate = eModel->applyPrefactors(mRate, left, right);
 	arrType = moveutil::typeMult(left, right);
 
 }
-
 
 Move::Move(void) {
 
@@ -54,11 +50,9 @@ Move::Move(int mtype, RateEnv mrate, Loop *affected_1, int index1, int index2) {
 	index[2] = -1;
 	index[3] = -1;
 
-
-
 }
 
-Move::Move(int mtype, RateEnv mrate, Loop *affected_1, int index1, int index2, int index3 ) {
+Move::Move(int mtype, RateEnv mrate, Loop *affected_1, int index1, int index2, int index3) {
 	type = mtype;
 	rate = mrate;
 	affected[0] = affected_1;
@@ -67,7 +61,6 @@ Move::Move(int mtype, RateEnv mrate, Loop *affected_1, int index1, int index2, i
 	index[1] = index2;
 	index[2] = index3;
 	index[3] = -1;
-
 
 }
 
@@ -115,9 +108,7 @@ Move::Move(int mtype, RateEnv mrate, Loop *affected_1, int *indexarray) {
 	for (int loop = 0; loop < 4; loop++)
 		index[loop] = indexarray[loop];
 
-
 }
-
 
 //Move::Move(int mtype, double mrate, Loop *affected_1, int *indexarray) {
 //	type = mtype;
@@ -213,8 +204,6 @@ string Move::toString(bool usePrime) {
 	return output;
 
 }
-
-
 
 /* MoveTree info */
 MoveTree::~MoveTree(void) {
@@ -371,19 +360,23 @@ Move *MoveList::getMove(Move *iterator) {
 }
 
 Move *MoveList::getChoice(double *rnd) {
-	int index;
+
 	double tmp;
-	for (index = 0; index < moves_index + del_moves_index; index++) {
-		if (index < moves_index)
+
+	for (int index = 0; index < moves_index + del_moves_index; index++) {
+
+		if (index < moves_index) {
 			tmp = moves[index]->getRate();
-		else
+		} else {
 			tmp = del_moves[index - moves_index]->getRate();
-		if (*rnd < tmp && index < moves_index)
+		}
+		if (*rnd < tmp && index < moves_index) {
 			return moves[index];
-		else if (*rnd < tmp)
+		} else if (*rnd < tmp) {
 			return del_moves[index - moves_index];
-		else
+		} else {
 			*rnd -= tmp;
+		}
 	}
 	assert(*rnd > 0);
 	assert(0); // should never call for a move from a container unless it will get one.

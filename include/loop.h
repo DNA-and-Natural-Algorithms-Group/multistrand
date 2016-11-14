@@ -229,8 +229,12 @@ public:
 	//   open loop. Return form is a pointer to an array of size 5, containing
 	//   frequence counts of each type of base, plus invalid/out of bounds bases.
 	//   Calling function needs to free the array.
-	// TODO: Possibly change this so it returns the index of a static array inside the function, so there's no memory overhead for the function call. (Data is accessed single-threaded, and information is copied out by the calling function.) Could also make it a private data member that's just returned.  Not completed currently.
-//	int *getFreeBases(void);
+
+	// Possibly change this so it returns the index of a static array inside the function,
+	// so there's no memory overhead for the function call. (Data is accessed single-threaded,
+	// and information is copied out by the calling function.) Could also make it a private data
+	// member that's just returned.  Not completed currently.
+	// FD: 2016-11-14 the above is now implemented.
 	BaseCounter& getFreeBases(bool);
 	void setFreeBasesInternal(void);
 

@@ -432,6 +432,7 @@ int SComplexList::doBasicChoice(double choice, double newtime) {
 	char *struc;
 
 	if (rchoice < joinRate) {
+
 		doJoinChoice(rchoice);
 
 		RateEnv env = RateEnv(1.0, eModel, loopMove, loopMove);
@@ -461,6 +462,7 @@ int SComplexList::doBasicChoice(double choice, double newtime) {
 	moverate = tempmove->getRate();
 	type = tempmove->getType();
 	newComplex = pickedComplex->doChoice(tempmove);
+
 	if (newComplex != NULL) {
 		temp = addComplex(newComplex);
 		temp->fillData(eModel);

@@ -520,7 +520,9 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 			first = simOptions->getStopComplexes(0);
 			traverse = first;
 			for (int idx = 0; idx < stopcount; idx++) {
+
 				checkresult = complexList->checkStopComplexList(traverse->citem);
+
 				if (checkresult && stop_entries[idx] == true) {
 					// multiple stop states could suddenly be true, we add
 					// a status line entry for the first one found.

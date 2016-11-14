@@ -4744,16 +4744,17 @@ Move *OpenLoop::getChoice(double *randomchoice, Loop *from) {
 	assert(randomchoice != NULL);
 	assert(*randomchoice >= 0.0); // never should see a negative choice value.
 
-	if (*randomchoice < totalRate) // something was chosen, do this
+	if (*randomchoice < totalRate) { // something was chosen, do this
 		return moves->getChoice(randomchoice);
-	else {
+	} else {
 		*randomchoice -= totalRate;
-		for (int loop = 0; loop < curAdjacent; loop++)
+		for (int loop = 0; loop < curAdjacent; loop++) {
 			if (adjacentLoops[loop] != from) {
 				stor = adjacentLoops[loop]->getChoice(randomchoice, this);
 				if (stor != NULL)
 					return stor;
 			}
+		}
 	}
 	return NULL;
 }
