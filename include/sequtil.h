@@ -45,9 +45,9 @@ struct BaseCounter {
 
 	friend std::ostream& operator<<(std::ostream&, BaseCounter&);
 
-	void increment(BaseCounter* other);
-	void decrement(BaseCounter* other);
-	int multiCount(BaseCounter* other);
+	void increment(BaseCounter& other);
+	void decrement(BaseCounter& other);
+	int multiCount(BaseCounter& other);
 
 	int countFromChar(char c);
 

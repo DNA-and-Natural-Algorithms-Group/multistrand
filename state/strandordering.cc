@@ -85,7 +85,7 @@ void StrandOrdering::cleanup(void) {
 StrandOrdering::StrandOrdering(void) {
 	first = last = NULL;
 	count = 0;
-	total_exterior_bases.A = total_exterior_bases.T = total_exterior_bases.C = total_exterior_bases.G = -1;
+//	total_exterior_bases.A = total_exterior_bases.T = total_exterior_bases.C = total_exterior_bases.G = -1;
 	seq = struc = strandnames = NULL;
 }
 
@@ -94,7 +94,7 @@ StrandOrdering::StrandOrdering(orderinglist *beginning, orderinglist *ending, in
 	last = ending;
 	count = numitems;
 	seq = struc = strandnames = NULL;
-	total_exterior_bases.A = total_exterior_bases.T = total_exterior_bases.C = total_exterior_bases.G = -1;
+//	total_exterior_bases.A = total_exterior_bases.T = total_exterior_bases.C = total_exterior_bases.G = -1;
 }
 
 // Note that in_cseq is the code sequence (ie, not printable) and in_seq is the printable version.
@@ -102,7 +102,7 @@ StrandOrdering::StrandOrdering(char *in_seq, char *in_structure, char *in_cseq) 
 	char def_tag[] = "default";
 
 	first = last = NULL;
-	total_exterior_bases.A = total_exterior_bases.T = total_exterior_bases.C = total_exterior_bases.G = -1;
+//	total_exterior_bases.A = total_exterior_bases.T = total_exterior_bases.C = total_exterior_bases.G = -1;
 	seq = struc = strandnames = NULL;
 
 	// count the number of strands, verify balanced parentheses and connectedness.
@@ -175,7 +175,7 @@ StrandOrdering::StrandOrdering(char *in_seq, char *in_structure, char *in_cseq) 
 
 StrandOrdering::StrandOrdering(char *in_seq, char *in_structure, char *in_cseq, class identList *strandids) {
 	first = last = NULL;
-	total_exterior_bases.A = total_exterior_bases.T = total_exterior_bases.C = total_exterior_bases.G = -1;
+//	total_exterior_bases.A = total_exterior_bases.T = total_exterior_bases.C = total_exterior_bases.G = -1;
 	seq = struc = strandnames = NULL;
 	class identList *traverse = strandids;
 
@@ -686,25 +686,27 @@ void StrandOrdering::replaceOpenLoop(Loop *oldLoop, Loop *newLoop) {
 	assert(0); // no loop matched, that's bad.
 }
 
-exterior_bases *StrandOrdering::getExteriorBases(void) {
+BaseCounter& StrandOrdering::getExteriorBases(void) {
 	orderinglist *traverse = NULL;
 
-	total_exterior_bases.A = total_exterior_bases.T = total_exterior_bases.C = total_exterior_bases.G = 0;
+//	total_exterior_bases.A = total_exterior_bases.T = total_exterior_bases.C = total_exterior_bases.G = 0;
+	total_exterior_bases.clear();
 
 	for (traverse = first; traverse != NULL; traverse = traverse->next) {
 
 		assert(traverse->thisLoop != NULL);
 
-		vector<int>& free_bases = traverse->thisLoop->getFreeBases().count;
+		BaseCounter& free_bases = traverse->thisLoop->getFreeBases();
+		total_exterior_bases.increment(free_bases);
 
-		total_exterior_bases.A += free_bases[1];
-		total_exterior_bases.C += free_bases[2];
-		total_exterior_bases.G += free_bases[3];
-		total_exterior_bases.T += free_bases[4];
+//		total_exterior_bases.A += free_bases[1];
+//		total_exterior_bases.C += free_bases[2];
+//		total_exterior_bases.G += free_bases[3];
+//		total_exterior_bases.T += free_bases[4];
 
 	}
 
-	return &total_exterior_bases;
+	return total_exterior_bases;
 }
 
 void StrandOrdering::updateLocalContext(void) {
@@ -725,7 +727,7 @@ string StrandOrdering::toString(void) {
 	orderinglist *traverse = NULL;
 	int *free_bases;
 
-	total_exterior_bases.A = total_exterior_bases.T = total_exterior_bases.C = total_exterior_bases.G = 0;
+//	total_exterior_bases.A = total_exterior_bases.T = total_exterior_bases.C = total_exterior_bases.G = 0;
 
 	for (traverse = first; traverse != NULL; traverse = traverse->next) {
 

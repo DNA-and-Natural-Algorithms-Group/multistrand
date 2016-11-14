@@ -51,28 +51,28 @@ void BaseCounter::clear(void) {
 
 }
 
-void BaseCounter::increment(BaseCounter* other) {
+void BaseCounter::increment(BaseCounter& other) {
 
 	for (int i : { baseA, baseC, baseG, baseT }) {
-		count[i] += other->count[i];
+		count[i] += other.count[i];
 	}
 }
 
-void BaseCounter::decrement(BaseCounter* other) {
+void BaseCounter::decrement(BaseCounter& other) {
 
 	for (int i : { baseA, baseC, baseG, baseT }) {
-		count[i] -= other->count[i];
+		count[i] -= other.count[i];
 	}
 }
 
-int BaseCounter::multiCount(BaseCounter* other) {
+int BaseCounter::multiCount(BaseCounter& other) {
 
 	int output = 0;
 
-	output += count[baseA] * other->count[baseT];
-	output += count[baseC] * other->count[baseG];
-	output += count[baseG] * other->count[baseC];
-	output += count[baseT] * other->count[baseA];
+	output += count[baseA] * other.count[baseT];
+	output += count[baseC] * other.count[baseG];
+	output += count[baseG] * other.count[baseC];
+	output += count[baseT] * other.count[baseA];
 
 	return output;
 

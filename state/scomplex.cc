@@ -610,7 +610,6 @@ void StrandComplex::printAllMoves(void) {
 
 }
 
-
 string StrandComplex::toString() {
 
 	string output = "";
@@ -621,26 +620,23 @@ string StrandComplex::toString() {
 
 }
 
-
-string StrandComplex::printStrandOrdering(){
+string StrandComplex::printStrandOrdering() {
 
 	return ordering->toString();
 
 }
 
-void StrandComplex::updateLocalContext(){
+void StrandComplex::updateLocalContext() {
 
 	ordering->updateLocalContext();
 
 }
 
-
-StrandOrdering* StrandComplex::getOrdering(){
+StrandOrdering* StrandComplex::getOrdering() {
 
 	return ordering;
 
 }
-
 
 double StrandComplex::getTotalFlux(void) {
 	return totalFlux = beginLoop->returnFlux(NULL);
@@ -664,7 +660,7 @@ char *StrandComplex::getStrandNames(void) {
 	return ordering->getStrandNames();
 }
 
-struct exterior_bases *StrandComplex::getExteriorBases(void) {
+BaseCounter& StrandComplex::getExteriorBases(void) {
 	return ordering->getExteriorBases();
 }
 
