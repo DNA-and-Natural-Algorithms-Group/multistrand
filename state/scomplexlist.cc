@@ -109,7 +109,7 @@ void SComplexListEntry::dumpComplexEntryToPython(int *our_id, char **names, char
 SComplexList::SComplexList(EnergyModel *energyModel) {
 	numentries = 0;
 	first = NULL;
-	dnaEnergyModel = energyModel;
+	eModel = energyModel;
 	joinRate = 0.0;
 	idcounter = 0;
 }
@@ -151,7 +151,7 @@ void SComplexList::initializeList(void) {
 	SComplexListEntry *temp = first;
 	while (temp != NULL) {
 		temp->initializeComplex();
-		temp->fillData(dnaEnergyModel);
+		temp->fillData(eModel);
 		temp = temp->next;
 	}
 }
@@ -160,7 +160,7 @@ void SComplexList::regenerateMoves(void) {
 	SComplexListEntry *temp = first;
 	while (temp != NULL) {
 		temp->regenerateMoves();
-		temp->fillData(dnaEnergyModel);
+		temp->fillData(eModel);
 		temp = temp->next;
 	}
 }
@@ -201,6 +201,8 @@ double SComplexList::getTotalFlux(void) {
 
 double SComplexList::getJoinFlux(SimOptions* sOptions) {
 
+	double output = 0.0;
+
 //	if (sOptions != NULL && sOptions->usingArrhenius()) {
 //
 //		return getJoinFluxArr();
@@ -236,10 +238,16 @@ double SComplexList::getJoinFlux(SimOptions* sOptions) {
 		temp = temp->next;
 	}
 
-	if (total_move_count == 0)
-		return 0.0;  // CANNOT BE ANYTHING OTHER THAN 0.0! There are plenty of multi-complex structures with no total moves.
-	else
-		return (double) total_move_count * dnaEnergyModel->getJoinRate();
+	// There are plenty of multi-complex structures with no total moves.
+	if (total_move_count > 0) {
+
+		output = (double) total_move_count * eModel->getJoinRate();
+		output = eModel->applyPrefactors(output, loopMove, loopMove);
+
+	}
+
+	return output;
+
 }
 
 // FD: We need to re-write this for the Arrhenius routine
@@ -378,9 +386,9 @@ double *SComplexList::getEnergy(int volume_flag) {
 		energies[index] = temp->energy;
 
 		if (!(volume_flag & 0x01))
-			energies[index] -= (dnaEnergyModel->getVolumeEnergy() * (temp->thisComplex->getStrandCount() - 1));
+			energies[index] -= (eModel->getVolumeEnergy() * (temp->thisComplex->getStrandCount() - 1));
 		if (!(volume_flag & 0x02))
-			energies[index] -= (dnaEnergyModel->getAssocEnergy() * (temp->thisComplex->getStrandCount() - 1));
+			energies[index] -= (eModel->getAssocEnergy() * (temp->thisComplex->getStrandCount() - 1));
 
 		temp = temp->next;
 		index = index + 1;
@@ -396,7 +404,7 @@ void SComplexList::printComplexList() {
 	SComplexListEntry *temp = first;
 
 	while (temp != NULL) {
-		cout << temp->toString(dnaEnergyModel);
+		cout << temp->toString(eModel);
 		temp = temp->next;
 	}
 
@@ -426,7 +434,7 @@ int SComplexList::doBasicChoice(double choice, double newtime) {
 	if (rchoice < joinRate) {
 		doJoinChoice(rchoice);
 
-		RateEnv env = RateEnv(1.0, dnaEnergyModel, loopMove, loopMove);
+		RateEnv env = RateEnv(1.0, eModel, loopMove, loopMove);
 		return env.arrType;
 
 	} else {
@@ -455,13 +463,13 @@ int SComplexList::doBasicChoice(double choice, double newtime) {
 	newComplex = pickedComplex->doChoice(tempmove);
 	if (newComplex != NULL) {
 		temp = addComplex(newComplex);
-		temp->fillData(dnaEnergyModel);
-		temp2->fillData(dnaEnergyModel);
+		temp->fillData(eModel);
+		temp2->fillData(eModel);
 
 		return NULL;
 	}
 
-	temp2->fillData(dnaEnergyModel);
+	temp2->fillData(eModel);
 //	return temp2;
 
 	return tempmove->getArrType();
@@ -484,7 +492,7 @@ void SComplexList::doJoinChoice(double choice) {
 	int int_choice;
 	int total_move_count = 0;
 
-	int_choice = (int) floor(choice / dnaEnergyModel->getJoinRate());
+	int_choice = (int) floor(choice / eModel->getJoinRate());
 //	total_bases.A = total_bases.G = total_bases.T = total_bases.C = 0;
 
 	if (numentries <= 1)
@@ -633,7 +641,7 @@ void SComplexList::doJoinChoice(double choice) {
 	for (temp = first; temp != NULL; temp = temp->next) {
 
 		if (temp->thisComplex == picked[0]) {
-			temp->fillData(dnaEnergyModel);
+			temp->fillData(eModel);
 		}
 
 		if (temp->next != NULL) {

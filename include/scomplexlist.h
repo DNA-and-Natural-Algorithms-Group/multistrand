@@ -48,7 +48,7 @@ private:
 	int numentries;
 	int idcounter;
 	SComplexListEntry *first;
-	EnergyModel *dnaEnergyModel;
+	EnergyModel *eModel;
 	double joinRate;
 
 };
@@ -60,7 +60,7 @@ public:
 	void initializeComplex(void);
 	void regenerateMoves(void);
 	void fillData(EnergyModel *em);
-	string toString( EnergyModel *em);
+	string toString(EnergyModel *em);
 	void dumpComplexEntryToPython(int *our_id, char **names, char **sequence, char **structure, double *our_energy);
 	int id;
 	StrandComplex *thisComplex;

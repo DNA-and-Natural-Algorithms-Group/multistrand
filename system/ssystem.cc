@@ -71,6 +71,7 @@ void SimulationSystem::construct(void) {
 	startState = NULL;
 	complexList = NULL;
 
+	// move these to sim_settings
 	exportStatesInterval = (simOptions->getOInterval() >= 0);
 	exportStatesTime = (simOptions->getOTime() >= 0);
 
