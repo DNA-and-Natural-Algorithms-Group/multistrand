@@ -870,8 +870,9 @@ void SimulationSystem::exportTime(double simTime, double* lastExportTime) {
 void SimulationSystem::exportInterval(double simTime, int transitionCount, int arrType) {
 
 	if ((transitionCount % simOptions->getOInterval()) == 0) {
+
 		sendTrajectory_CurrentStateToPython(simTime, arrType);
-//		sendTrajectory_CurrentArrMoveToPython(arrType);
+
 	}
 
 }

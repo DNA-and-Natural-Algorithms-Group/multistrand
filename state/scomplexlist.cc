@@ -89,6 +89,8 @@ void SComplexListEntry::dumpComplexEntryToPython(int *our_id, char **names, char
 	*names = thisComplex->getStrandNames();
 	*sequence = thisComplex->getSequence();
 	*structure = thisComplex->getStructure();
+
+//	cout << "structure = " << string(*structure) << "\n";
 	*our_energy = energy;
 
 }
@@ -193,11 +195,13 @@ double SComplexList::getTotalFlux(void) {
 
 double SComplexList::getJoinFlux(SimOptions* sOptions) {
 
-	if (sOptions != NULL && sOptions->usingArrhenius()) {
+//	if (sOptions != NULL && sOptions->usingArrhenius()) {
+//
+//		return getJoinFluxArr();
+//
+//	}
 
-		return getJoinFluxArr();
-
-	}
+// just use the regular code for now.
 
 	SComplexListEntry *temp = first;
 	struct exterior_bases *ext_bases = NULL, total_bases;
@@ -258,7 +262,6 @@ double SComplexList::getJoinFluxArr(void) {
 
 	SComplexListEntry* temp = first;
 
-
 	// The trick is to compute all rates between the first complex,
 	// and the remaining complexes. Then, compute the rate between the second complex,
 	// and the remaining complexes (set minus first and second), and so on.
@@ -276,7 +279,6 @@ double SComplexList::getJoinFluxArr(void) {
 	return rate;
 
 }
-
 
 double SComplexList::computeArrBiRate(SComplexListEntry* input, StrandOrdering* order) {
 
@@ -362,9 +364,6 @@ double SComplexList::computeCrossRateArr(OpenLoop* input1, OpenLoop* input2) {
 
 		// loop, loop local context
 
-
-
-
 	}
 
 	// the only non-(loop, loop) local structures are in the first and last position.
@@ -432,7 +431,10 @@ int SComplexList::doBasicChoice(double choice, double newtime) {
 
 	if (rchoice < joinRate) {
 		doJoinChoice(rchoice);
-		return NULL;
+
+		RateEnv env = RateEnv(1.0, dnaEnergyModel, loopMove, loopMove);
+		return env.arrType;
+
 	} else {
 		rchoice -= joinRate;
 	}
