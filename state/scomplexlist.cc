@@ -170,14 +170,20 @@ void SComplexList::regenerateMoves(void) {
  */
 
 double SComplexList::getTotalFlux(void) {
+
 	double total = 0.0;
+
 	SComplexListEntry *temp = first;
 	while (temp != NULL) {
+
 		total += temp->rate;
+
 		temp = temp->next;
 	}
+
 	joinRate = getJoinFlux();
 	total += joinRate;
+
 	return total;
 }
 
@@ -204,11 +210,9 @@ double SComplexList::getJoinFlux(SimOptions* sOptions) {
 // just use the regular code for now.
 
 	SComplexListEntry *temp = first;
-	exterior_bases total_bases;
 
+	BaseCounter total_bases;
 	int total_move_count = 0;
-
-	total_bases.A = total_bases.G = total_bases.T = total_bases.C = 0;
 
 	if (numentries <= 1)
 		return 0.0;
@@ -216,11 +220,7 @@ double SComplexList::getJoinFlux(SimOptions* sOptions) {
 	while (temp != NULL) {
 
 		BaseCounter& ext_bases = temp->thisComplex->getExteriorBases();
-
-		total_bases.A += ext_bases.A();
-		total_bases.C += ext_bases.C();
-		total_bases.G += ext_bases.G();
-		total_bases.T += ext_bases.T();
+		total_bases.increment(ext_bases);
 
 		temp = temp->next;
 	}
@@ -229,21 +229,13 @@ double SComplexList::getJoinFlux(SimOptions* sOptions) {
 	while (temp != NULL) {
 
 		BaseCounter& ext_bases = temp->thisComplex->getExteriorBases();
+		total_bases.decrement(ext_bases);
 
-		total_bases.A -= ext_bases.A();
-		total_bases.C -= ext_bases.C();
-		total_bases.G -= ext_bases.G();
-		total_bases.T -= ext_bases.T();
-
-		total_move_count += total_bases.A * ext_bases.T();
-		total_move_count += total_bases.T * ext_bases.A();
-		total_move_count += total_bases.G * ext_bases.C();
-		total_move_count += total_bases.C * ext_bases.G();
+		total_move_count += total_bases.multiCount(ext_bases);
 
 		temp = temp->next;
 	}
 
-	//  printf("Total join moves: %d\n",total_move_count);
 	if (total_move_count == 0)
 		return 0.0;  // CANNOT BE ANYTHING OTHER THAN 0.0! There are plenty of multi-complex structures with no total moves.
 	else
