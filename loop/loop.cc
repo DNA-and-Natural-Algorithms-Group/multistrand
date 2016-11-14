@@ -5314,6 +5314,39 @@ int *OpenLoop::getFreeBases(void) {
 	return results;
 }
 
+
+//BaseCounter& OpenLoop::getFreeBases(void) {
+//
+//	// do nothing if not required
+//	if (updatedContext2) {
+//		// FD; for now, always re-compute the exposed bases because
+//		// this matches the previous behaviour.
+//
+//		return exposedBases;
+//
+//	} else {
+//
+//		exposedBases.clear();
+//
+//		for (int loop = 0; loop < (numAdjacent + 1); loop++) {
+//			for (int loop2 = 2; loop2 <= (sidelen[loop] - 1); loop2++) {
+//
+//				// removing checks because I'd like to software to fail if
+//				// errors in the sequence exist.
+//				int base = seqs[loop][loop2];
+//
+//				exposedBases.count[base]++;
+//			}
+//
+//		}
+//
+//		updatedContext2 = true;
+//
+//	}
+//
+//	return exposedBases;
+//}
+
 // FD: in c99 and beyond, int[5] will initialize to {0, 0, 0, 0,0}
 // FD: Declaring ints in the loop itself is not evil because they are
 // FD: already exist in the stack. nov 8 2016

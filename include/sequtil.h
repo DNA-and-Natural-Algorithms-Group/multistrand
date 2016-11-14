@@ -5,8 +5,8 @@
 #include <string>
 #include <vector>
 
-using std::string; using std::vector;
-
+using std::string;
+using std::vector;
 
 // Vienna: 0 is invalid, then CG, GC, GU, UG, AU, UA, and Special are 1-7
 // MFold/Nupack:  0 is AT, then CG, GC, TA, GT, TG
@@ -18,6 +18,10 @@ const int NUM_BASES = 5;
 
 const static string basepairString[NUM_BASEPAIRS_NUPACK] = { "A/T", "C/G", "G/C", "T/A", "G/T", "T/G" };
 
+// structure containing information about bases exterior to the complex, IE bases that could pair with other complexes. First incarnation of such.a structure, prolly will change as I work out multiple-complex issues.
+struct exterior_bases {
+	int A, T, C, G;
+};
 
 enum BaseType {
 
@@ -27,11 +31,19 @@ enum BaseType {
 
 const string baseTypeString[BASETYPE_SIZE] = { "·", "A", "C", "G", "T" };
 
-
 // structure containing information about bases exterior to the complex, IE bases that could pair with other complexes. First incarnation of such.a structure, prolly will change as I work out multiple-complex issues.
 struct BaseCounter {
 
-	vector<int> count = {0, 0, 0, 0, 0}; // use baseType as access
+	// Constructor to help interface with existing code
+	// This also helps in refactoring
+	// also declare base constructor because auto constructor has been voided
+	BaseCounter();
+	BaseCounter(exterior_bases*);
+	BaseCounter(int*);	 // second friendly constructor for refactoring
+
+	void clear(void);
+
+	friend std::ostream& operator<<(std::ostream&, BaseCounter&);
 
 	void increment(BaseCounter* other);
 	void decrement(BaseCounter* other);
@@ -46,6 +58,8 @@ struct BaseCounter {
 	int G(void);
 	int C(void);
 
+	// the actual data structure; rest is convienience
+	vector<int> count = { 0, 0, 0, 0, 0 }; // use baseType as access
 };
 
 #endif
