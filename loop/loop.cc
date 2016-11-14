@@ -5247,7 +5247,9 @@ void OpenLoop::generateDeleteMoves(void) {
 }
 
 void OpenLoop::printMove(Loop *comefrom, char *structure_p, char *seq_p) {
+
 	int loop, item, loop2;
+
 	for (loop = 0; loop < numAdjacent; loop++) {
 		loop2 = (loop + 1) % (numAdjacent + 1);
 		item = (seqs[loop] < seqs[loop2]);
@@ -5261,9 +5263,11 @@ void OpenLoop::printMove(Loop *comefrom, char *structure_p, char *seq_p) {
 			adjacentLoops[loop]->printMove(this, structure_p, seq_p);
 		assert(adjacentLoops[loop] != NULL);
 	}
+
 }
 
 char *OpenLoop::getLocation(Move *move, int index) {
+
 	if (move->getType() & MOVE_CREATE) {
 		if (move->getType() & MOVE_1)
 			return &seqs[move->index[2]][move->index[index]];
@@ -5276,23 +5280,41 @@ char *OpenLoop::getLocation(Move *move, int index) {
 			if (adjacentLoops[loop] == move->affected[0] || adjacentLoops[loop] == move->affected[1])
 				return seqs[loop + 1];
 	}
+
 	assert(0);
+	return NULL;
+
 }
 
 char *OpenLoop::getBase(char type, int index, bool useArr) {
 
 	// FD 2016-11-14
-	// index is OUTPUT
+	// adjusting this to work with arrhenius rates.
 
-	int loop, loop2;
-	int newindex = index;
-	for (loop = 0; loop <= numAdjacent; loop++) {
-		for (loop2 = 1; loop2 <= sidelen[loop]; loop2++)
+	for (int loop = 0; loop <= numAdjacent; loop++) {
+
+		int loop2 = 1;
+		int end = sidelen[loop] + 1;
+
+		if (useArr) {
+
+			loop2++;
+			end--;
+
+		}
+
+		for (loop2 = 1; loop2 < end; loop2++)
+
 			if (seqs[loop][loop2] == type) {
-				if (newindex == 0)
+
+				if (index == 0) {
+
 					return &seqs[loop][loop2];
-				else
-					newindex--;
+
+				} else {
+					index--;
+				}
+
 			}
 	}
 
