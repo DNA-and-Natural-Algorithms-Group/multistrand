@@ -619,6 +619,8 @@ void SComplexList::doJoinChoice(double choice) {
 
 				BaseCounter& ext_bases_temp = temp->thisComplex->getExteriorBases(useArr);
 
+//				cout << "Exterior bases are " << ext_bases_temp;
+
 				if (int_choice < ext_bases_temp.C() * external.G()) {
 
 					picked[1] = temp->thisComplex;
@@ -641,8 +643,10 @@ void SComplexList::doJoinChoice(double choice) {
 		if (temp != NULL)
 			temp = temp->next;
 	}
-
+//
 //	cout << "Picked indexes are: " << index[0] << ", " << index[1] << "\n";
+//	cout << "moveCount" << total_move_count << "\n";
+//	cout.flush();
 
 	deleted = StrandComplex::performComplexJoin(picked, types, index, useArr);
 
