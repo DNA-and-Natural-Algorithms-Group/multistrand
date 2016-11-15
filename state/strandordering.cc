@@ -10,6 +10,9 @@
 #include <string>
 #include <sstream>
 #include <assert.h>
+#include <iostream>
+
+using std::cout;
 
 orderinglist::orderinglist(int insize, int n_id, char *inTag, char *inSeq, char *inCodeSeq, char* inStruct) {
 	size = insize;
@@ -699,6 +702,7 @@ BaseCounter& StrandOrdering::getExteriorBases(bool useArr) {
 		assert(traverse->thisLoop != NULL);
 
 		BaseCounter& free_bases = traverse->thisLoop->getFreeBases(useArr);
+
 		total_exterior_bases.increment(free_bases);
 
 	}

@@ -5367,15 +5367,15 @@ BaseCounter& OpenLoop::getFreeBases(bool useArr) {
 
 			if (useArr) {
 				// avoid counting external nucleotides
-				loop2++;
-				end--;
+				loop2 = loop2 + 1;
+				end = end - 1;
 			}
 
-			for (int loop2 = 1; loop2 < end; loop2++) {
+			for (; loop2 < end; loop2++) {
 
 				int base = seqs[loop][loop2];
 
-				if (seqs[loop][loop2] < 5) {
+				if (base < 5) {
 
 					exposedBases.count[base]++;
 
@@ -5555,7 +5555,7 @@ char *OpenLoop::verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop 
 
 void OpenLoop::updateLocalContext() {
 
-	// do nothing if not required
+// do nothing if not required
 	if (updatedContext) {
 
 		return;
@@ -5576,9 +5576,9 @@ void OpenLoop::updateLocalContext() {
 
 void OpenLoop::parseLocalContext(int index) {
 
-	// FD: redoing this to save more information,
-	// and only record local context for exterior
-	// zero, one or two nucleotides
+// FD: redoing this to save more information,
+// and only record local context for exterior
+// zero, one or two nucleotides
 
 	char* mySeq = seqs[index];
 	int size = sidelen[index];
@@ -5611,7 +5611,7 @@ void OpenLoop::parseLocalContext(int index) {
 		newContext.push_back(qContext);
 	}
 
-	// also record the second external nucleotide, if it exists
+// also record the second external nucleotide, if it exists
 	if (size > 1) {
 
 		HalfContext qContext = HalfContext(mySeq[size]);
@@ -5625,9 +5625,9 @@ void OpenLoop::parseLocalContext(int index) {
 
 	context.push(newContext);
 
-	// now update the internal exposed toeholds:
-	// the rates for these are easier to compute because they are
-	// loop by loop local contexts.
+// now update the internal exposed toeholds:
+// the rates for these are easier to compute because they are
+// loop by loop local contexts.
 	setFreeBasesInternal();
 
 }

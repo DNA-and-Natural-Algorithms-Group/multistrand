@@ -240,7 +240,7 @@ double SComplexList::getJoinFlux(SimOptions* sOptions) {
 
 //	cout << "MoveCount is " << moveCount << "\n";
 
-	// There are plenty of multi-complex structures with no total moves.
+// There are plenty of multi-complex structures with no total moves.
 	if (moveCount > 0) {
 
 		output = (double) moveCount * eModel->getJoinRate();
@@ -512,6 +512,8 @@ void SComplexList::doJoinChoice(double choice) {
 
 		temp = temp->next;
 	}
+	// post: we know the exposed bases in all complexes.
+//	cout << "External bases: " << baseSum; // << "   useArr=" << useArr;
 
 	temp = first;
 	while (temp != NULL) {
@@ -639,6 +641,8 @@ void SComplexList::doJoinChoice(double choice) {
 		if (temp != NULL)
 			temp = temp->next;
 	}
+
+//	cout << "Picked indexes are: " << index[0] << ", " << index[1] << "\n";
 
 	deleted = StrandComplex::performComplexJoin(picked, types, index, useArr);
 
