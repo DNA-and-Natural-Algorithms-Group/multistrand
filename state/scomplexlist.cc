@@ -238,6 +238,8 @@ double SComplexList::getJoinFlux(SimOptions* sOptions) {
 		temp = temp->next;
 	}
 
+//	cout << "MoveCount is " << moveCount << "\n";
+
 	// There are plenty of multi-complex structures with no total moves.
 	if (moveCount > 0) {
 

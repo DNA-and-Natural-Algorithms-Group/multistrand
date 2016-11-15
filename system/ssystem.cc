@@ -916,8 +916,14 @@ void SimulationSystem::InitialInfo(void) {
 	// print info on bimolecular rates
 	double biRate = complexList->getJoinFlux(simOptions);
 
+	cout << "\n";
 	cout << "biRate is " << biRate;
-	cout << " \n \n";
+
+	biRate = biRate / energyModel->applyPrefactors(energyModel->getJoinRate(), loopMove, loopMove);
+
+	cout << "\n";
+	cout << "#inner-nucleotide joins is " << biRate;
+	cout << "\n";
 
 }
 
