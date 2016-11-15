@@ -502,6 +502,8 @@ void SComplexList::doJoinChoice(double choice) {
 
 	int_choice = (int) floor(choice / eModel->applyPrefactors(eModel->getJoinRate(), loopMove, loopMove));
 
+//	cout << "Int choice=" << int_choice << "\n";
+
 	if (numentries <= 1)
 		return;
 
@@ -514,8 +516,10 @@ void SComplexList::doJoinChoice(double choice) {
 	}
 	// post: we know the exposed bases in all complexes.
 //	cout << "External bases: " << baseSum; // << "   useArr=" << useArr;
+//	cout << "baseSum = " << baseSum << "\n";
 
 	temp = first;
+
 	while (temp != NULL) {
 
 		BaseCounter& external = temp->thisComplex->getExteriorBases(useArr);
@@ -547,8 +551,9 @@ void SComplexList::doJoinChoice(double choice) {
 				}
 			}
 			continue; // We must have picked something, thus temp must be NULL and we need to exit the loop.
-		} else
+		} else {
 			int_choice -= baseSum.A() * external.T();
+		}
 
 		if (int_choice < baseSum.T() * external.A()) {
 
@@ -576,9 +581,9 @@ void SComplexList::doJoinChoice(double choice) {
 				}
 			}
 			continue;
-		} else
-
+		} else {
 			int_choice -= baseSum.T() * external.A();
+		}
 
 		if (int_choice < baseSum.G() * external.C()) {
 
@@ -606,9 +611,9 @@ void SComplexList::doJoinChoice(double choice) {
 				}
 			}
 			continue;
-		} else
-
+		} else {
 			int_choice -= baseSum.G() * external.C();
+		}
 
 		if (int_choice < baseSum.C() * external.G()) {
 			picked[0] = temp->thisComplex;
@@ -636,19 +641,20 @@ void SComplexList::doJoinChoice(double choice) {
 				}
 			}
 			continue;
-		} else
-
+		} else {
 			int_choice -= baseSum.C() * external.G();
+		}
 
 		if (temp != NULL)
 			temp = temp->next;
 	}
 //
+
+	deleted = StrandComplex::performComplexJoin(picked, types, index, useArr);
+
 //	cout << "Picked indexes are: " << index[0] << ", " << index[1] << "\n";
 //	cout << "moveCount" << total_move_count << "\n";
 //	cout.flush();
-
-	deleted = StrandComplex::performComplexJoin(picked, types, index, useArr);
 
 	for (temp = first; temp != NULL; temp = temp->next) {
 

@@ -5294,6 +5294,24 @@ char *OpenLoop::getLocation(Move *move, int index) {
 
 }
 
+
+//char *OpenLoop::getBase(char type, int index) {
+//	int loop, loop2;
+//	int newindex = index;
+//	for (loop = 0; loop <= numAdjacent; loop++) {
+//		for (loop2 = 1; loop2 <= sidelen[loop]; loop2++)
+//			if (seqs[loop][loop2] == type) {
+//				if (newindex == 0)
+//					return &seqs[loop][loop2];
+//				else
+//					newindex--;
+//			}
+//	}
+//
+//	assert(0);
+//	return NULL;
+//}
+
 char *OpenLoop::getBase(char type, int index, bool useArr) {
 
 	// FD 2016-11-14
@@ -5311,7 +5329,7 @@ char *OpenLoop::getBase(char type, int index, bool useArr) {
 
 		}
 
-		for (loop2 = 1; loop2 < end; loop2++)
+		for ( ; loop2 < end; loop2++)
 
 			if (seqs[loop][loop2] == type) {
 
@@ -5427,7 +5445,7 @@ void OpenLoop::setFreeBasesInternal() {
 
  */
 
-void OpenLoop::performComplexJoin(OpenLoop **oldLoops, OpenLoop **newLoops, char *types, int *index) {
+void OpenLoop::performComplexJoin(OpenLoop **oldLoops, OpenLoop **newLoops, char *types, int *index, bool useArr) {
 	int seqnum[2] = { -1, -1 };
 	int seqindex[2] = { -1, -1 };
 	int sizes[2];
@@ -5442,7 +5460,19 @@ void OpenLoop::performComplexJoin(OpenLoop **oldLoops, OpenLoop **newLoops, char
 	for (toggle = 0; toggle <= 1; toggle++) {
 		newindex = index[toggle];
 		for (loop = 0; loop <= oldLoops[toggle]->numAdjacent && newindex >= 0; loop++) {
-			for (loop2 = 1; loop2 <= oldLoops[toggle]->sidelen[loop]; loop2++)
+
+			int loop2 = 1;
+			int end = oldLoops[toggle]->sidelen[loop]+1;
+
+			if (useArr) {
+
+				loop2++;
+				end--;
+
+			}
+
+
+			for ( ; loop2 < end; loop2++)
 				if (oldLoops[toggle]->seqs[loop][loop2] == types[toggle]) {
 					if (newindex == 0) {
 						seqnum[toggle] = loop;

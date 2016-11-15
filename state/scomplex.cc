@@ -8,6 +8,9 @@
 #include <assert.h>
 #include "scomplex.h"
 #include <vector>
+#include <iostream>
+
+using std::cout;
 
 // TODO: i'd like to optimize this lookup. It really should be just a bitwise
 //  or, and an array lookup, the extra function call annoys me.
@@ -107,8 +110,10 @@ int StrandComplex::checkIDBound(char *id) {
 
 StrandComplex *StrandComplex::performComplexJoin(StrandComplex **complexes, char *types, int *index, bool useArr) {
 
+//	std::cout << "index is " << index[0] << " " << index[1] << "\n";
+//	cout << "Types are " << (int) types[0] << "  " <<  (int) types[1];
+//	std::cout.flush();
 	// FD 2016 Nov 14: Adjusting this to ignore the exterior nucleotides if useArr= TRUE;
-
 
 	OpenLoop *loops[2];
 	OpenLoop *new_loops[2] = { NULL, NULL };
@@ -127,7 +132,7 @@ StrandComplex *StrandComplex::performComplexJoin(StrandComplex **complexes, char
 	new_ordering = StrandOrdering::joinOrdering(complexes[0]->ordering, complexes[1]->ordering);
 
 	// Join the open loops
-	OpenLoop::performComplexJoin(loops, new_loops, types, index);
+	OpenLoop::performComplexJoin(loops, new_loops, types, index, useArr);
 
 	// add the base pair into the output structure.
 	new_ordering->addBasepair(locations[0], locations[1]);

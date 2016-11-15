@@ -787,11 +787,14 @@ void StrandOrdering::addBasepair(char *first_bp, char *second_bp) {
 
 //
 void StrandOrdering::breakBasepair(char *first_bp, char *second_bp) {
+
 	char *id[2] = { NULL, NULL };
 	char *temp = NULL;
 	orderinglist *traverse = NULL;
 	int iflag = 0;
+
 	for (traverse = first; traverse != NULL; traverse = traverse->next, iflag = 0) {
+
 		if (((first_bp - traverse->thisCodeSeq) < traverse->size) && ((first_bp - traverse->thisCodeSeq) >= 0)) {
 			if (id[0] == NULL)
 				id[0] = &traverse->thisStruct[first_bp - traverse->thisCodeSeq];
