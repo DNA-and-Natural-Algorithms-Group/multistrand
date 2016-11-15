@@ -23,17 +23,17 @@ using std::string;
 class Loop;
 class EnergyModel;
 
-
 class RateEnv {
 public:
 	RateEnv(void);
 	RateEnv(double mrate, EnergyModel*, MoveType left, MoveType right);
 
+	friend std::ostream& operator<<(std::ostream&, RateEnv&);
+
 	double rate;
 	int arrType = -444;
 
 };
-
 
 class Move {
 public:
@@ -68,8 +68,6 @@ protected:
 	Loop* affected[2];
 
 };
-
-
 
 class MoveContainer {
 public:

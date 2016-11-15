@@ -341,11 +341,15 @@ void Loop::generateAndSaveDeleteMove(Loop* input, int position) {
 
 	double rate = energyModel->applyPrefactors(tempRate.rate, tempRate.left, tempRate.right);
 
-	if (rate >= 0.0) {
+	// if rate is less than zero, nuke the program.
+	assert(rate >= 0.0);
+
+	if (rate > 0.0) {
 
 		RateEnv rateEnv = RateEnv(tempRate.rate, energyModel, tempRate.left, tempRate.right);
 
 		moves->addMove(new Move( MOVE_DELETE | MOVE_1, rateEnv, this, input, position));
+
 	}
 
 }
@@ -581,6 +585,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 	}
 
 	if ((start->identity == 'S' && end->identity == 'O') || (start->identity == 'O' && end->identity == 'S')) {
+
 		StackLoop *start_ = (StackLoop *) end;
 		OpenLoop *end_ = (OpenLoop *) start;
 
@@ -592,10 +597,12 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		}
 
 		for (int loop = 0; (loop < end_->numAdjacent) || (loop < 2); loop++) {
-			if (loop <= 1)
+
+			if (loop <= 1) {
 				if (start_->adjacentLoops[loop] != end_) {
 					s_index = loop;
 				}
+			}
 			if (loop < end_->numAdjacent && (end_->adjacentLoops != NULL) && end_->adjacentLoops[loop] == start_) {
 				e_index = loop;
 			}
@@ -1436,7 +1443,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 	}
 
 // end multiloop
-
+// this is the DELETE MOVE function.
 // start openloop
 
 	if (start->identity == 'O' && end->identity == 'O') {
@@ -1505,6 +1512,9 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 			left = energyModel->prefactorOpen(index[0], tempLoop[0]->numAdjacent + 1, tempLoop[0]->sidelen);
 			right = energyModel->prefactorOpen(index[1], tempLoop[1]->numAdjacent + 1, tempLoop[1]->sidelen);
+
+			// TODO delete this
+//			cout << "Adding openloop delete move -- left = " << left << "right =" << right;
 
 		}
 

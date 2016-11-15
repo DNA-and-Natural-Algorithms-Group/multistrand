@@ -31,6 +31,32 @@ RateEnv::RateEnv(double mRate, EnergyModel* eModel, MoveType left, MoveType righ
 
 }
 
+std::ostream& operator<<(std::ostream& ss, RateEnv& env) {
+
+	ss << "  " << env.rate << "   ";
+
+	for (int i = 0; i < MOVETYPE_SIZE; i++) {
+
+		int myPrime = moveutil::valuesPrime[i];
+
+		if ((env.arrType % myPrime) == 0) {
+
+			ss << moveutil::MoveToString[i] << ", ";
+
+			if ((env.arrType % (myPrime * myPrime) == 0)) {
+
+				ss << moveutil::MoveToString[i] << ", ";
+
+			}
+
+		}
+
+	}
+
+	ss << "  " << env.arrType;
+
+}
+
 Move::Move(void) {
 
 	type = 0;
@@ -194,8 +220,9 @@ string Move::toString(bool usePrime) {
 		ss << ", ";
 		ss << "(" << index[0] << ", " << index[1] << ", " << index[2] << ", " << index[3] << "),  ";
 
-		ss << this->rateToString(usePrime);
-		ss << " \n";
+//		ss << " \n";
+		ss << rate << "\n";
+//		ss << this->rateToString(usePrime);
 
 	}
 
@@ -373,6 +400,10 @@ Move *MoveList::getChoice(double *rnd) {
 		if (*rnd < tmp && index < moves_index) {
 			return moves[index];
 		} else if (*rnd < tmp) {
+			// TODO
+			cout << "Returning delete move!! \n ";
+			cout << del_moves[index - moves_index]->toString(true);
+			cout.flush();
 			return del_moves[index - moves_index];
 		} else {
 			*rnd -= tmp;
