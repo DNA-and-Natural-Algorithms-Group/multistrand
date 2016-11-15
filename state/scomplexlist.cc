@@ -427,7 +427,7 @@ int SComplexList::doBasicChoice(double choice, double newtime) {
 	double rchoice = choice, moverate;
 	int type;
 	SComplexListEntry *temp, *temp2 = first;
-	StrandComplex *pickedComplex = NULL, *newComplex = NULL;
+	StrandComplex* newComplex = NULL;
 	Move *tempmove;
 	char *struc;
 
@@ -436,6 +436,7 @@ int SComplexList::doBasicChoice(double choice, double newtime) {
 		doJoinChoice(rchoice);
 
 		RateEnv env = RateEnv(1.0, eModel, loopMove, loopMove);
+
 		return env.arrType;
 
 	} else {
@@ -443,6 +444,8 @@ int SComplexList::doBasicChoice(double choice, double newtime) {
 	}
 
 	temp = first;
+	StrandComplex *pickedComplex = NULL;
+
 	while (temp != NULL) {
 		if (rchoice < temp->rate && pickedComplex == NULL) {
 			pickedComplex = temp->thisComplex;
@@ -455,6 +458,7 @@ int SComplexList::doBasicChoice(double choice, double newtime) {
 		}
 		temp = temp->next;
 	}
+	// POST: pickedComplex points to the complex that contains the executable move
 
 	assert(pickedComplex != NULL);
 
@@ -464,15 +468,13 @@ int SComplexList::doBasicChoice(double choice, double newtime) {
 	newComplex = pickedComplex->doChoice(tempmove);
 
 	if (newComplex != NULL) {
+
 		temp = addComplex(newComplex);
 		temp->fillData(eModel);
-		temp2->fillData(eModel);
 
-		return NULL;
 	}
 
 	temp2->fillData(eModel);
-//	return temp2;
 
 	return tempmove->getArrType();
 

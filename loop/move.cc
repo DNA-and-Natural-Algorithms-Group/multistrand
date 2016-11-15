@@ -400,10 +400,10 @@ Move *MoveList::getChoice(double *rnd) {
 		if (*rnd < tmp && index < moves_index) {
 			return moves[index];
 		} else if (*rnd < tmp) {
-			// TODO
-			cout << "Returning delete move!! \n ";
-			cout << del_moves[index - moves_index]->toString(true);
-			cout.flush();
+//			// TODO
+//			cout << "Returning delete move!! \n ";
+//			cout << del_moves[index - moves_index]->toString(true);
+//			cout.flush();
 			return del_moves[index - moves_index];
 		} else {
 			*rnd -= tmp;

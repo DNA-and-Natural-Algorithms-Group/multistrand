@@ -1514,7 +1514,8 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 			right = energyModel->prefactorOpen(index[1], tempLoop[1]->numAdjacent + 1, tempLoop[1]->sidelen);
 
 			// TODO delete this
-//			cout << "Adding openloop delete move -- left = " << left << "right =" << right;
+			cout << "Adding openloop delete move -- left = " << left << "right =" << right << "\n";
+			cout.flush();
 
 		}
 
