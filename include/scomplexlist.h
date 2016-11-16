@@ -25,11 +25,11 @@ public:
 	void initializeList(void);
 	void regenerateMoves(void);
 	double getTotalFlux(void);
-	double getJoinFlux(SimOptions* sOptions = NULL);
+	double getJoinFlux(void);
 	double getJoinFluxArr(void);
-	double computeArrBiRate(StrandOrdering*);
-	double cycleCrossRateArr(StrandOrdering*, StrandOrdering*);
-	double computeCrossRateArr(OpenLoop*, OpenLoop*);
+	void computeArrBiRate(StrandOrdering*);
+	void cycleCrossRateArr(StrandOrdering*, StrandOrdering*);
+	void computeCrossRateArr(OpenLoop*, OpenLoop*);
 	int getCount(void);
 	double *getEnergy(int volume_flag);
 	void printComplexList();

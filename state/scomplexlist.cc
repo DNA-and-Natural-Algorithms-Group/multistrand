@@ -199,7 +199,7 @@ double SComplexList::getTotalFlux(void) {
  2b. Add this amount * rate per join move to total.
  */
 
-double SComplexList::getJoinFlux(SimOptions* sOptions) {
+double SComplexList::getJoinFlux(void) {
 
 	double output = 0.0;
 	bool useArr = eModel->useArrhenius();
@@ -239,7 +239,7 @@ double SComplexList::getJoinFlux(SimOptions* sOptions) {
 	}
 
 	// We now compute the exterior nucleotide moves.
-	if (sOptions != NULL && sOptions->usingArrhenius()) {
+	if (useArr) {
 
 		output += getJoinFluxArr();
 
@@ -260,9 +260,6 @@ double SComplexList::getJoinFlux(SimOptions* sOptions) {
 double SComplexList::getJoinFluxArr(void) {
 
 // there are 4x6x6 options, so these rates we have to tally and then sum.
-
-//	double rate = 0.0;
-
 	arrExtern.clear();
 
 	SComplexListEntry* temp = first;
@@ -275,11 +272,15 @@ double SComplexList::getJoinFluxArr(void) {
 
 		StrandOrdering* order = temp->thisComplex->getOrdering();
 
-//		rate += computeArrBiRate(order);
+		computeArrBiRate(order);
 
 		temp = temp->next;
 
 	}
+
+	// We created the rate library. for now, print it.
+//	cout << "Printing.. scomplexlist";
+	cout << arrExtern;
 
 	return arrExtern.rateSum;
 
@@ -287,9 +288,7 @@ double SComplexList::getJoinFluxArr(void) {
 
 }
 
-double SComplexList::computeArrBiRate(StrandOrdering* order) {
-
-	double output = 0.0;
+void SComplexList::computeArrBiRate(StrandOrdering* order) {
 
 	SComplexListEntry* temp = first;
 
@@ -313,20 +312,18 @@ double SComplexList::computeArrBiRate(StrandOrdering* order) {
 	while (temp != NULL) {
 
 		StrandOrdering* otherOrder = temp->thisComplex->getOrdering();
-		output += cycleCrossRateArr(order, otherOrder);
+		cycleCrossRateArr(order, otherOrder);
 
 		temp = temp->next;
 	}
-
-	return output;
 
 }
 
 // Given two strand orderings, compute the bimolecular rate
 // according to the arrhenius model.
-double SComplexList::cycleCrossRateArr(StrandOrdering* input1, StrandOrdering* input2) {
+void SComplexList::cycleCrossRateArr(StrandOrdering* input1, StrandOrdering* input2) {
 
-	double output = 0.0;
+//	double output = 0.0;
 
 	orderinglist* temp1 = input1->first;
 	orderinglist* temp2 = input2->first;
@@ -339,7 +336,7 @@ double SComplexList::cycleCrossRateArr(StrandOrdering* input1, StrandOrdering* i
 
 			OpenLoop* loop2 = temp2->thisLoop;
 
-			output += computeCrossRateArr(loop1, loop2);
+			computeCrossRateArr(loop1, loop2);
 
 			temp2 = temp2->next;
 
@@ -350,20 +347,20 @@ double SComplexList::cycleCrossRateArr(StrandOrdering* input1, StrandOrdering* i
 
 	// post: we've cycled all openloops in input1 over all openloops of input2
 
-	return output;
+//	return output;
 
 }
 
-double SComplexList::computeCrossRateArr(OpenLoop* open1, OpenLoop* open2) {
+void SComplexList::computeCrossRateArr(OpenLoop* open1, OpenLoop* open2) {
 
-	double output = 0.0;
+//	double output = 0.0;
 
 	OpenInfo context1 = open1->context;
 	OpenInfo context2 = open1->context;
 
 //	for vector<>
 
-	return output;
+//	return output;
 
 }
 

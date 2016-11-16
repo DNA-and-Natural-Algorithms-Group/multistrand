@@ -914,7 +914,7 @@ void SimulationSystem::InitialInfo(void) {
 	}
 
 	// print info on bimolecular rates
-	double biRate = complexList->getJoinFlux(simOptions);
+	double biRate = complexList->getJoinFlux();
 
 	cout << "\n";
 	cout << "biRate is " << biRate;
