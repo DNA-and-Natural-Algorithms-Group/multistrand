@@ -9,13 +9,45 @@
 using std::vector;
 using std::string;
 
-
 enum MoveType {
 	endMove, loopMove, stackMove, stackStackMove, loopEndMove, stackEndMove, stackLoopMove, MOVETYPE_SIZE
 };
 
 enum QuartContext {
 	endC, strandC, stackC, HALFCONTEXT_SIZE
+};
+
+// general-purpose class that describes transitions and a
+// general-purpose transition container class TransitionList
+// FD: these are very similar to the MoveContainer, MoveList, and Move classes,
+// FD: except that for this class, we do not include any program logic.
+// FD: They only store rates and pointers to actual data.
+class Transition {
+
+public:
+
+	Transition(double, char*);
+	friend std::ostream& operator<<(std::ostream&, Transition&);
+
+private:
+	double rate = 0.0;
+	char* nucleotides;	 // a 2-set of which nucleotides are binding in this move
+
+};
+
+class TransitionList {
+
+public:
+	void push(double, char*);
+	void clear(void);
+
+	friend std::ostream& operator<<(std::ostream&, TransitionList&);
+
+	double rateSum = 0.0;
+
+private:
+	vector<Transition> list;
+
 };
 
 struct HalfContext {
@@ -42,7 +74,7 @@ public:
 	void push(vector<HalfContext>&);
 
 	vector<vector<HalfContext>> context;
-	vector<int> exposedInternalNucl = {0,0,0,0,0};
+	vector<int> exposedInternalNucl = { 0, 0, 0, 0, 0 };
 	int numExposedInternal;
 	int numExposed;
 
@@ -53,7 +85,6 @@ namespace moveutil {
 const static double valuesPrime[MOVETYPE_SIZE] = { 3, 5, 7, 11, 13, 17, 19 };
 const static string MoveToString[MOVETYPE_SIZE] = { "End", "Loop", "Stack", "StackStack", "LoopEnd", "StackEnd", "StackLoop" };
 const static string MoveToString2[MOVETYPE_SIZE] = { "      ", "     ", "   ", "", "  ", " ", " " };
-
 
 QuartContext getContext(char input);
 

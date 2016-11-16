@@ -84,3 +84,45 @@ std::ostream& operator<<(std::ostream &os, HalfContext& m) {
 
 }
 
+Transition::Transition(double rateIn, char* nucleotidesIn) {
+
+	rate = rateIn;
+	nucleotides = nucleotidesIn;
+
+}
+
+std::ostream& operator<<(std::ostream &ss, Transition& m) {
+
+	ss << "rate: " << m.rate;
+
+	return ss;
+
+}
+
+std::ostream& operator<<(std::ostream &ss, TransitionList& m) {
+
+	ss << "Printing transitionList: \n";
+
+	for (Transition trans : m.list) {
+
+		ss << trans;
+
+	}
+
+	return ss;
+
+}
+
+void TransitionList::push(double rate, char* nucleotides) {
+
+	Transition trans = Transition(rate, nucleotides);
+	list.push_back(trans);
+
+}
+
+void TransitionList::clear() {
+
+	rateSum = 0.0;
+	list.clear();
+
+}

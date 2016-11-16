@@ -53,9 +53,10 @@ void SComplexListEntry::regenerateMoves(void) {
 }
 
 void SComplexListEntry::fillData(EnergyModel *em) {
+
 	energy = thisComplex->getEnergy() + (em->getVolumeEnergy() + em->getAssocEnergy()) * (thisComplex->getStrandCount() - 1);
 	rate = thisComplex->getTotalFlux();
-	// thisComplex->fillVisData( &visiblebases )
+
 }
 
 /*
@@ -85,12 +86,11 @@ string SComplexListEntry::toString(EnergyModel *em) {
 }
 
 void SComplexListEntry::dumpComplexEntryToPython(int *our_id, char **names, char **sequence, char **structure, double *our_energy) {
+
 	*our_id = id;
 	*names = thisComplex->getStrandNames();
 	*sequence = thisComplex->getSequence();
 	*structure = thisComplex->getStructure();
-
-//	cout << "structure = " << string(*structure) << "\n";
 	*our_energy = energy;
 
 }
@@ -206,14 +206,6 @@ double SComplexList::getJoinFlux(SimOptions* sOptions) {
 	BaseCounter total_bases;
 	int moveCount = 0;
 
-//	if (sOptions != NULL && sOptions->usingArrhenius()) {
-//
-//		return getJoinFluxArr();
-//
-//	}
-
-// just use the regular code for now.
-
 	SComplexListEntry *temp = first;
 
 	if (numentries <= 1)
@@ -238,15 +230,22 @@ double SComplexList::getJoinFlux(SimOptions* sOptions) {
 		temp = temp->next;
 	}
 
-//	cout << "MoveCount is " << moveCount << "\n";
-
-// There are plenty of multi-complex structures with no total moves.
+	// There are plenty of multi-complex structures with no moves.
 	if (moveCount > 0) {
 
 		output = (double) moveCount * eModel->getJoinRate();
 		output = eModel->applyPrefactors(output, loopMove, loopMove);
 
 	}
+
+	// We now compute the exterior nucleotide moves.
+	if (sOptions != NULL && sOptions->usingArrhenius()) {
+
+		output += getJoinFluxArr();
+
+	}
+
+	// just use the regular code for now.
 
 	return output;
 
@@ -262,7 +261,9 @@ double SComplexList::getJoinFluxArr(void) {
 
 // there are 4x6x6 options, so these rates we have to tally and then sum.
 
-	double rate = 0.0;
+//	double rate = 0.0;
+
+	arrExtern.clear();
 
 	SComplexListEntry* temp = first;
 
@@ -274,17 +275,19 @@ double SComplexList::getJoinFluxArr(void) {
 
 		StrandOrdering* order = temp->thisComplex->getOrdering();
 
-		rate += computeArrBiRate(first, order);
+//		rate += computeArrBiRate(order);
 
 		temp = temp->next;
 
 	}
 
-	return rate;
+	return arrExtern.rateSum;
+
+//	return rate;
 
 }
 
-double SComplexList::computeArrBiRate(SComplexListEntry* input, StrandOrdering* order) {
+double SComplexList::computeArrBiRate(StrandOrdering* order) {
 
 	double output = 0.0;
 
@@ -303,6 +306,9 @@ double SComplexList::computeArrBiRate(SComplexListEntry* input, StrandOrdering* 
 
 	temp = temp->next;
 
+	// post: temp is pointing to the entry from which we want to iterate over
+	// and compute the rates
+
 	// now start computing rates with the remaining entries
 	while (temp != NULL) {
 
@@ -320,7 +326,7 @@ double SComplexList::computeArrBiRate(SComplexListEntry* input, StrandOrdering* 
 // according to the arrhenius model.
 double SComplexList::cycleCrossRateArr(StrandOrdering* input1, StrandOrdering* input2) {
 
-	double output = 1.0;
+	double output = 0.0;
 
 	orderinglist* temp1 = input1->first;
 	orderinglist* temp2 = input2->first;
@@ -348,29 +354,14 @@ double SComplexList::cycleCrossRateArr(StrandOrdering* input1, StrandOrdering* i
 
 }
 
-// Given two openloops, compute the bimolecular rate between them\
-// there are two phases:
-// The internal exposed nucleotides react with a loop x loop local context.
-// The external exposed nucleotides react with one of six possibilities
-double SComplexList::computeCrossRateArr(OpenLoop* input1, OpenLoop* input2) {
+double SComplexList::computeCrossRateArr(OpenLoop* open1, OpenLoop* open2) {
 
-	int adjacent1 = input1->numAdjacent;
-	int adjacent2 = input2->numAdjacent;
+	double output = 0.0;
 
-	int output = 1.0;
+	OpenInfo context1 = open1->context;
+	OpenInfo context2 = open1->context;
 
-	// there are no internal nucleotides
-	if (input1->context.numExposedInternal == 0) {
-
-		return output;
-
-	} else {
-
-		// loop, loop local context
-
-	}
-
-	// the only non-(loop, loop) local structures are in the first and last position.
+//	for vector<>
 
 	return output;
 

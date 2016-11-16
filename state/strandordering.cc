@@ -473,6 +473,7 @@ OpenLoop *StrandOrdering::getIndex(char type, int *index, char **location, bool 
 	// FD 2016 11-14: Adjusting this to work with useArr
 	// Type: this is the type of base we are looking for?
 	// location -- this is an OUTPUT variable.
+	// location is a pointer to a char in the char** seq array
 
 	orderinglist *traverse;
 

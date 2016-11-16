@@ -27,7 +27,7 @@ public:
 	double getTotalFlux(void);
 	double getJoinFlux(SimOptions* sOptions = NULL);
 	double getJoinFluxArr(void);
-	double computeArrBiRate(SComplexListEntry*, StrandOrdering*);
+	double computeArrBiRate(StrandOrdering*);
 	double cycleCrossRateArr(StrandOrdering*, StrandOrdering*);
 	double computeCrossRateArr(OpenLoop*, OpenLoop*);
 	int getCount(void);
@@ -39,6 +39,10 @@ public:
 	bool checkStopComplexList(class complexItem *stoplist);
 	string toString(void);
 	void updateLocalContext(void);
+
+
+	// contains the external nucleotide transitions
+	TransitionList arrExtern;
 
 private:
 	bool checkStopComplexList_Bound(class complexItem *stoplist);

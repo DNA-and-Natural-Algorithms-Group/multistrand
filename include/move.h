@@ -8,13 +8,21 @@
 #ifndef __MOVE_H__
 #define __MOVE_H__
 
-#define MOVE_INVALID 0
-#define MOVE_CREATE  1
-#define MOVE_DELETE  2
-#define MOVE_SHIFT   4
-#define MOVE_1       8
-#define MOVE_2      16
-#define MOVE_3      32
+//#define MOVE_INVALID 0
+//#define MOVE_CREATE  1
+//#define MOVE_DELETE  2
+//#define MOVE_SHIFT   4
+//#define MOVE_1       8
+//#define MOVE_2      16
+//#define MOVE_3      32
+
+const int MOVE_INVALID = 0;
+const int MOVE_CREATE = 1;
+const int MOVE_DELETE = 2;
+const int MOVE_SHIFT = 4;
+const int MOVE_1 = 8;
+const int MOVE_2 = 16;
+const int MOVE_3 = 32;
 
 #include <string>
 #include <moveutil.h>
