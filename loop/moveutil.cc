@@ -217,13 +217,6 @@ void TransitionList::push(double rate, char nucleotides) {
 
 }
 
-//void TransitionList::push(double rate, BaseType left, BaseType right) {
-//
-//
-//	Transition trans = Transition(rate, (char) left);
-//	list.push_back(trans);
-//
-//}
 
 void TransitionList::clear() {
 

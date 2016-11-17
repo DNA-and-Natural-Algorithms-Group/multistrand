@@ -21,11 +21,6 @@ const int NUM_BASES = 5;
 // FD: So I added an offset to the tostring array.
 const static string basepairString[NUM_BASEPAIRS_NUPACK + 1] = { "VOID", "A/T", "C/G", "G/C", "T/A", "G/T", "T/G" };
 
-// structure containing information about bases exterior to the complex, IE bases that could pair with other complexes. First incarnation of such.a structure, prolly will change as I work out multiple-complex issues.
-struct exterior_bases {
-	int A, C, G, T;
-};
-
 enum BaseType {
 
 	baseNone, baseA, baseC, baseG, baseT, BASETYPE_SIZE
@@ -41,7 +36,6 @@ struct BaseCounter {
 	// This also helps in refactoring
 	// also declare base constructor because auto constructor has been voided
 	BaseCounter();
-	BaseCounter(exterior_bases*);
 	BaseCounter(int*);	 // second friendly constructor for refactoring
 
 	void clear(void);

@@ -14,16 +14,6 @@ BaseCounter::BaseCounter() {
 }
 
 // compatibility constructor
-BaseCounter::BaseCounter(exterior_bases* input) {
-
-	count[1] = input->A;
-	count[2] = input->C;
-	count[3] = input->G;
-	count[4] = input->T;
-
-}
-
-// compatibility constructor
 BaseCounter::BaseCounter(int* input) {
 
 	count[1] = input[1];
