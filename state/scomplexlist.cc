@@ -12,6 +12,7 @@
 #include <simoptions.h>
 #include <utility.h>
 #include <moveutil.h>
+#include <assert.h>
 
 typedef std::vector<int> intvec;
 typedef std::vector<int>::iterator intvec_it;
@@ -269,9 +270,7 @@ double SComplexList::getJoinFluxArr(void) {
 
 	while (temp != NULL) {
 
-		StrandOrdering* order = temp->thisComplex->getOrdering();
-
-		computeArrBiRate(order);
+		computeArrBiRate(temp);
 
 		temp = temp->next;
 
@@ -285,30 +284,18 @@ double SComplexList::getJoinFluxArr(void) {
 
 }
 
-void SComplexList::computeArrBiRate(StrandOrdering* order) {
+void SComplexList::computeArrBiRate(SComplexListEntry* input) {
 
-	SComplexListEntry* temp = first;
+	SComplexListEntry* temp = input->next;
+	// post: temp is pointing to the enxt entry
 
-	while (temp != NULL) {
-
-		if (temp->thisComplex->getOrdering() == order) {
-			break;
-		}
-
-		temp = temp->next;
-	}
-
-	// post: temp is pointing to the entry that matches order
-
-	temp = temp->next;
-
-	// post: temp is pointing to the next entry
+	StrandOrdering* orderIn = input->thisComplex->getOrdering();
 
 	// now start computing rates with the remaining entries
 	while (temp != NULL) {
 
 		StrandOrdering* otherOrder = temp->thisComplex->getOrdering();
-		cycleCrossRateArr(order, otherOrder);
+		cycleCrossRateArr(orderIn, otherOrder);
 
 		temp = temp->next;
 	}
@@ -330,6 +317,8 @@ void SComplexList::cycleCrossRateArr(StrandOrdering* input1, StrandOrdering* inp
 
 			OpenLoop* loop2 = temp2->thisLoop;
 
+			assert(loop1 != loop2);
+
 			computeCrossRateArr(loop1, loop2);
 
 			temp2 = temp2->next;
@@ -346,7 +335,7 @@ void SComplexList::cycleCrossRateArr(StrandOrdering* input1, StrandOrdering* inp
 void SComplexList::computeCrossRateArr(OpenLoop* open1, OpenLoop* open2) {
 
 	OpenInfo& context1 = open1->context;
-	OpenInfo& context2 = open1->context;
+	OpenInfo& context2 = open2->context;
 
 	//FD: quadruple unfolding of the data structures ..
 

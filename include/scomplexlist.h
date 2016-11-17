@@ -27,7 +27,7 @@ public:
 	double getTotalFlux(void);
 	double getJoinFlux(void);
 	double getJoinFluxArr(void);
-	void computeArrBiRate(StrandOrdering*);
+	void computeArrBiRate(SComplexListEntry*);
 	void cycleCrossRateArr(StrandOrdering*, StrandOrdering*);
 	void computeCrossRateArr(OpenLoop*, OpenLoop*);
 	void addExtRate(HalfContext&, HalfContext&);
