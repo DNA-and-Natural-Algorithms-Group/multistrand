@@ -1,10 +1,12 @@
 #include <moveutil.h>
 #include <sequtil.h>
+#include <assert.h>
 #include <string>
 #include <vector>
 #include <iostream>
 
 using std::vector;
+using std::cout;
 
 std::string quartContextString[HALFCONTEXT_SIZE] = { "end", "loop", "stack" };
 
@@ -76,6 +78,89 @@ HalfContext::HalfContext(char input) {
 
 }
 
+MoveType moveutil::combine(QuartContext& one, QuartContext& two) {
+
+	// c++ doesn't do double variable switch
+
+	if (one == endC) {
+
+		if (two == endC) {
+
+			return endMove;
+
+		}
+
+		if (strandC) {
+
+			return loopEndMove;
+
+		}
+
+		if (two == stackC) {
+
+			return stackEndMove;
+
+		}
+
+	}
+
+	if (one == strandC) {
+
+		if (two == endC) {
+
+			return loopEndMove;
+
+		}
+
+		if (strandC) {
+
+			return loopMove;
+
+		}
+
+		if (two == stackC) {
+
+			return stackLoopMove;
+
+		}
+
+	}
+
+	if (one == stackC) {
+
+		if (two == endC) {
+
+			return stackEndMove;
+
+		}
+
+		if (strandC) {
+
+			return stackLoopMove;
+
+		}
+
+		if (two == stackC) {
+
+			return stackStackMove;
+
+		}
+
+	}
+
+	cout << "Failure to recongize quarter context in external nucleotides";
+	assert(0);
+
+	return MOVETYPE_SIZE;
+
+}
+
+bool moveutil::isPair(BaseType one, BaseType two) {
+
+	return (one + two == 5);
+
+}
+
 std::ostream& operator<<(std::ostream &os, HalfContext& m) {
 
 	os << "(" << quartContextString[m.left] << ", " << quartContextString[m.right] << ") ";
@@ -84,16 +169,19 @@ std::ostream& operator<<(std::ostream &os, HalfContext& m) {
 
 }
 
-Transition::Transition(double rateIn, char* nucleotidesIn) {
+Transition::Transition(double rateIn, char pairTypeIn) {
 
 	rate = rateIn;
-	nucleotides = nucleotidesIn;
+	pairType = pairTypeIn;
 
 }
 
 std::ostream& operator<<(std::ostream &ss, Transition& m) {
 
-	ss << "rate: " << m.rate;
+	ss << "rate: " << m.rate << "   ";
+	ss << "Bond: " << basepairString[m.pairType];
+
+	ss << "\n";
 
 	return ss;
 
@@ -113,12 +201,20 @@ std::ostream& operator<<(std::ostream &ss, TransitionList& m) {
 
 }
 
-void TransitionList::push(double rate, char* nucleotides) {
+void TransitionList::push(double rate, char nucleotides) {
 
 	Transition trans = Transition(rate, nucleotides);
 	list.push_back(trans);
 
 }
+
+//void TransitionList::push(double rate, BaseType left, BaseType right) {
+//
+//
+//	Transition trans = Transition(rate, (char) left);
+//	list.push_back(trans);
+//
+//}
 
 void TransitionList::clear() {
 

@@ -11,6 +11,7 @@
 #include <iostream>
 #include <simoptions.h>
 #include <utility.h>
+#include <moveutil.h>
 
 typedef std::vector<int> intvec;
 typedef std::vector<int>::iterator intvec_it;
@@ -279,7 +280,7 @@ double SComplexList::getJoinFluxArr(void) {
 	}
 
 	// We created the rate library. for now, print it.
-//	cout << "Printing.. scomplexlist";
+
 	cout << arrExtern;
 
 	return arrExtern.rateSum;
@@ -323,8 +324,6 @@ void SComplexList::computeArrBiRate(StrandOrdering* order) {
 // according to the arrhenius model.
 void SComplexList::cycleCrossRateArr(StrandOrdering* input1, StrandOrdering* input2) {
 
-//	double output = 0.0;
-
 	orderinglist* temp1 = input1->first;
 	orderinglist* temp2 = input2->first;
 
@@ -347,20 +346,60 @@ void SComplexList::cycleCrossRateArr(StrandOrdering* input1, StrandOrdering* inp
 
 	// post: we've cycled all openloops in input1 over all openloops of input2
 
-//	return output;
-
 }
 
 void SComplexList::computeCrossRateArr(OpenLoop* open1, OpenLoop* open2) {
 
-//	double output = 0.0;
+	cout << "Cycling past crossRateArr";
 
-	OpenInfo context1 = open1->context;
-	OpenInfo context2 = open1->context;
+	OpenInfo& context1 = open1->context;
+	OpenInfo& context2 = open1->context;
 
-//	for vector<>
+	// quadruple unfolding of the data structures ..
+
+	for (vector<HalfContext>& vec1 : context1.context) {
+
+		for (vector<HalfContext>& vec2 : context2.context) {
+
+			for (HalfContext& con1 : vec1) {
+
+				for (HalfContext& con2 : vec2) {
+
+					addExtRate(con1, con2);
+
+				}
+
+			}
+
+		}
+
+	}
 
 //	return output;
+
+}
+
+void SComplexList::addExtRate(HalfContext& con1, HalfContext& con2) {
+
+	// pair left with right and right with left.
+
+//	cout << "Adding External rate" << "\n";
+//	cout << con1;
+//	cout << con2;
+//	cout << "\n";
+
+	if (moveutil::isPair(con1.base, con2.base)) {
+
+		MoveType one = moveutil::combine(con1.left, con2.right);
+		MoveType two = moveutil::combine(con2.left, con1.right);
+
+		double rate = eModel->applyPrefactors(eModel->getJoinRate(), one, two);
+
+		arrExtern.push(rate, (char) con1.base);
+
+	}
+
+//	arrExtern.push();
 
 }
 

@@ -17,6 +17,21 @@ enum QuartContext {
 	endC, strandC, stackC, HALFCONTEXT_SIZE
 };
 
+namespace moveutil {
+
+MoveType combine(QuartContext&, QuartContext&);
+bool isPair(BaseType, BaseType);
+
+const static double valuesPrime[MOVETYPE_SIZE] = { 3, 5, 7, 11, 13, 17, 19 };
+const static string MoveToString[MOVETYPE_SIZE] = { "End", "Loop", "Stack", "StackStack", "LoopEnd", "StackEnd", "StackLoop" };
+const static string MoveToString2[MOVETYPE_SIZE] = { "      ", "     ", "   ", "", "  ", " ", " " };
+
+QuartContext getContext(char input);
+
+int typeMult(MoveType left, MoveType right);
+
+}
+
 // general-purpose class that describes transitions and a
 // general-purpose transition container class TransitionList
 // FD: these are very similar to the MoveContainer, MoveList, and Move classes,
@@ -26,19 +41,20 @@ class Transition {
 
 public:
 
-	Transition(double, char*);
+	Transition(double, char);
 	friend std::ostream& operator<<(std::ostream&, Transition&);
 
 private:
 	double rate = 0.0;
-	char* nucleotides;	 // a 2-set of which nucleotides are binding in this move
+	char pairType;	 // a 2-set of which nucleotides are binding in this move
 
 };
 
 class TransitionList {
 
 public:
-	void push(double, char*);
+//	void push(double, BaseType, BaseType);
+	void push(double, char);
 	void clear(void);
 
 	friend std::ostream& operator<<(std::ostream&, TransitionList&);
@@ -54,7 +70,8 @@ struct HalfContext {
 
 	HalfContext(char base);
 
-public:
+//public:
+
 	friend std::ostream& operator<<(std::ostream&, HalfContext&);
 
 	BaseType base;
@@ -79,17 +96,5 @@ public:
 	int numExposed;
 
 };
-
-namespace moveutil {
-
-const static double valuesPrime[MOVETYPE_SIZE] = { 3, 5, 7, 11, 13, 17, 19 };
-const static string MoveToString[MOVETYPE_SIZE] = { "End", "Loop", "Stack", "StackStack", "LoopEnd", "StackEnd", "StackLoop" };
-const static string MoveToString2[MOVETYPE_SIZE] = { "      ", "     ", "   ", "", "  ", " ", " " };
-
-QuartContext getContext(char input);
-
-int typeMult(MoveType left, MoveType right);
-
-}
 
 #endif

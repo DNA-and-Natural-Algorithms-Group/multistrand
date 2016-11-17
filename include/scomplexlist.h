@@ -30,6 +30,7 @@ public:
 	void computeArrBiRate(StrandOrdering*);
 	void cycleCrossRateArr(StrandOrdering*, StrandOrdering*);
 	void computeCrossRateArr(OpenLoop*, OpenLoop*);
+	void addExtRate(HalfContext&, HalfContext&);
 	int getCount(void);
 	double *getEnergy(int volume_flag);
 	void printComplexList();
