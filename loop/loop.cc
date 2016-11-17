@@ -348,7 +348,7 @@ void Loop::generateAndSaveDeleteMove(Loop* input, int position) {
 
 		RateEnv rateEnv = RateEnv(tempRate.rate, energyModel, tempRate.left, tempRate.right);
 
-		moves->addMove(new Move( MOVE_DELETE | MOVE_1, rateEnv, this, input, position));
+		moves->addMove(new Move(MOVE_DELETE | MOVE_1, rateEnv, this, input, position));
 
 	}
 
@@ -3101,7 +3101,7 @@ double HairpinLoop::doChoice(Move *move, Loop **returnLoop) {
 		loop2 = move->index[1];
 		pt = pairtypes[hairpin_seq[loop]][hairpin_seq[loop2]];
 		if (move->type & MOVE_1) // stack and hairpin
-		{
+				{
 			newLoop[0] = new StackLoop(pairtype, pt, hairpin_seq, &hairpin_seq[loop2]);
 			newLoop[1] = new HairpinLoop(pt, hairpinsize - 2, &hairpin_seq[1]);
 			newLoop[0]->addAdjacent(adjacentLoops[0]);
@@ -3115,7 +3115,7 @@ double HairpinLoop::doChoice(Move *move, Loop **returnLoop) {
 			return ((newLoop[0]->getTotalRate() + newLoop[1]->getTotalRate()) - totalRate);
 		}
 		if (move->type & MOVE_2) // bulge and hairpin
-		{
+				{
 			if (loop == 1)
 				newLoop[0] = new BulgeLoop(pairtype, pt, 0, (hairpinsize - loop2), &hairpin_seq[0], &hairpin_seq[loop2]);
 			else
@@ -3132,7 +3132,7 @@ double HairpinLoop::doChoice(Move *move, Loop **returnLoop) {
 			return ((newLoop[0]->getTotalRate() + newLoop[1]->getTotalRate()) - totalRate);
 		}
 		if (move->type & MOVE_3) // interior and hairpin
-		{
+				{
 			newLoop[0] = new InteriorLoop(pairtype, pt, loop - 1, hairpinsize - loop2, &hairpin_seq[0], &hairpin_seq[loop2]);
 			newLoop[1] = new HairpinLoop(pt, loop2 - loop - 1, &hairpin_seq[loop]);
 			newLoop[0]->addAdjacent(adjacentLoops[0]);
@@ -3195,7 +3195,7 @@ void HairpinLoop::generateMoves(void) {
 
 						// stack and hairpin, so this is loop and stack
 						rateEnv = RateEnv(tempRate, energyModel, loopMove, stackMove);
-						moves->addMove(new Move( MOVE_CREATE | MOVE_1, rateEnv, this, loop, loop2));
+						moves->addMove(new Move(MOVE_CREATE | MOVE_1, rateEnv, this, loop, loop2));
 
 					}
 					// bulge + hairpin
@@ -3213,7 +3213,7 @@ void HairpinLoop::generateMoves(void) {
 						// new bulgeloop + hairpin: this is openMove and stackLoopMove
 
 						rateEnv = RateEnv(tempRate, energyModel, loopMove, stackLoopMove);
-						moves->addMove(new Move( MOVE_CREATE | MOVE_2, rateEnv, this, loop, loop2));
+						moves->addMove(new Move(MOVE_CREATE | MOVE_2, rateEnv, this, loop, loop2));
 
 					} else // interior loop + hairpin case.
 					{
@@ -3230,7 +3230,7 @@ void HairpinLoop::generateMoves(void) {
 
 						rateEnv = RateEnv(tempRate, energyModel, loopMove, loopMove);
 
-						moves->addMove(new Move( MOVE_CREATE | MOVE_3, rateEnv, this, loop, loop2));
+						moves->addMove(new Move(MOVE_CREATE | MOVE_3, rateEnv, this, loop, loop2));
 					}
 				}
 			}
@@ -3511,7 +3511,7 @@ void BulgeLoop::generateMoves(void) {
 
 					rateEnv = RateEnv(tempRate, energyModel, loopMove, multiMove);
 
-					moves->addMove(new Move( MOVE_CREATE, rateEnv, this, loop, loop2));
+					moves->addMove(new Move(MOVE_CREATE, rateEnv, this, loop, loop2));
 				}
 			}
 	}
@@ -3856,7 +3856,7 @@ void InteriorLoop::generateMoves(void) {
 				MoveType multiMove = energyModel->prefactorInternal(sidelen[0], sidelen[1]);
 				rateEnv = RateEnv(tempRate, energyModel, multiMove, loopMove);
 
-				moves->addMove(new Move( MOVE_CREATE | MOVE_1, rateEnv, this, loop, loop2));
+				moves->addMove(new Move(MOVE_CREATE | MOVE_1, rateEnv, this, loop, loop2));
 			}
 		}
 	}
@@ -3882,7 +3882,7 @@ void InteriorLoop::generateMoves(void) {
 				MoveType multiMove = energyModel->prefactorInternal(sidelen[1], sidelen[2]);
 				rateEnv = RateEnv(tempRate, energyModel, loopMove, multiMove);
 
-				moves->addMove(new Move( MOVE_CREATE | MOVE_2, rateEnv, this, loop, loop2));
+				moves->addMove(new Move(MOVE_CREATE | MOVE_2, rateEnv, this, loop, loop2));
 			}
 		}
 
@@ -3927,7 +3927,7 @@ void InteriorLoop::generateMoves(void) {
 				// interior loop is closing, so this could be anything.
 				rateEnv = RateEnv(tempRate, energyModel, leftMove, rightMove);
 
-				moves->addMove(new Move( MOVE_CREATE | MOVE_3, rateEnv, this, loop, loop2));
+				moves->addMove(new Move(MOVE_CREATE | MOVE_3, rateEnv, this, loop, loop2));
 			}
 		}
 
@@ -4396,7 +4396,7 @@ void MultiLoop::generateMoves(void) {
 //					}
 					rateEnv = RateEnv(tempRate, energyModel, loopMove, rightMove);
 
-					moves->addMove(new Move( MOVE_CREATE | MOVE_1, rateEnv, this, loop, loop2, loop3));
+					moves->addMove(new Move(MOVE_CREATE | MOVE_1, rateEnv, this, loop, loop2, loop3));
 				}
 			}
 		}
@@ -4467,7 +4467,7 @@ void MultiLoop::generateMoves(void) {
 					MoveType rightMove = energyModel->prefactorInternal(sideLengths[loop3], sideLengths[loop4]);
 
 					rateEnv = RateEnv(tempRate, energyModel, leftMove, rightMove);
-					moves->addMove(new Move( MOVE_CREATE | MOVE_2, rateEnv, this, loop, loop2, loop3));
+					moves->addMove(new Move(MOVE_CREATE | MOVE_2, rateEnv, this, loop, loop2, loop3));
 				}
 			}
 		}
@@ -4553,7 +4553,7 @@ void MultiLoop::generateMoves(void) {
 						MoveType rightMove = energyModel->prefactorInternal(sideLengths[loop3], sideLengths[loop4]);
 
 						rateEnv = RateEnv(tempRate, energyModel, leftMove, rightMove);
-						moves->addMove(new Move( MOVE_CREATE | MOVE_3, rateEnv, this, loops));
+						moves->addMove(new Move(MOVE_CREATE | MOVE_3, rateEnv, this, loops));
 					}
 
 				}
@@ -4694,7 +4694,7 @@ string OpenLoop::typeInternalsToString(void) {
 
 	for (int i = 0; i < numAdjacent; i++) {
 
-		ss << "        pairTypes " << basepairString[pairtype[i] - 1] << ", ";
+		ss << "        pairTypes " << basepairString[pairtype[i]] << ", ";
 	}
 
 	ss << " \n";
@@ -5067,7 +5067,7 @@ void OpenLoop::generateMoves(void) {
 					MoveType rightMove = energyModel->prefactorOpen(loop3, numAdjacent + 2, sideLengths);
 					rateEnv = RateEnv(tempRate, energyModel, loopMove, rightMove);
 
-					Move *tmove = new Move( MOVE_CREATE | MOVE_1, rateEnv, this, loop, loop2, loop3);
+					Move *tmove = new Move(MOVE_CREATE | MOVE_1, rateEnv, this, loop, loop2, loop3);
 					moves->addMove(tmove);
 				}
 			}
@@ -5143,7 +5143,7 @@ void OpenLoop::generateMoves(void) {
 					MoveType rightMove = energyModel->prefactorOpen(loop3, numAdjacent + 1, sideLengths);
 
 					rateEnv = RateEnv(tempRate, energyModel, leftMove, rightMove);
-					moves->addMove(new Move( MOVE_CREATE | MOVE_2, rateEnv, this, loop, loop2, loop3));
+					moves->addMove(new Move(MOVE_CREATE | MOVE_2, rateEnv, this, loop, loop2, loop3));
 				}
 			}
 
@@ -5222,7 +5222,7 @@ void OpenLoop::generateMoves(void) {
 
 						rateEnv = RateEnv(tempRate, energyModel, leftMove, rightMove);
 
-						moves->addMove(new Move( MOVE_CREATE | MOVE_3, rateEnv, this, loops));
+						moves->addMove(new Move(MOVE_CREATE | MOVE_3, rateEnv, this, loops));
 					}
 
 				}
@@ -5294,7 +5294,6 @@ char *OpenLoop::getLocation(Move *move, int index) {
 
 }
 
-
 //char *OpenLoop::getBase(char type, int index) {
 //	int loop, loop2;
 //	int newindex = index;
@@ -5329,7 +5328,7 @@ char *OpenLoop::getBase(char type, int index, bool useArr) {
 
 		}
 
-		for ( ; loop2 < end; loop2++)
+		for (; loop2 < end; loop2++)
 
 			if (seqs[loop][loop2] == type) {
 
@@ -5462,7 +5461,7 @@ void OpenLoop::performComplexJoin(OpenLoop **oldLoops, OpenLoop **newLoops, char
 		for (loop = 0; loop <= oldLoops[toggle]->numAdjacent && newindex >= 0; loop++) {
 
 			int loop2 = 1;
-			int end = oldLoops[toggle]->sidelen[loop]+1;
+			int end = oldLoops[toggle]->sidelen[loop] + 1;
 
 			if (useArr) {
 
@@ -5471,8 +5470,7 @@ void OpenLoop::performComplexJoin(OpenLoop **oldLoops, OpenLoop **newLoops, char
 
 			}
 
-
-			for ( ; loop2 < end; loop2++)
+			for (; loop2 < end; loop2++)
 				if (oldLoops[toggle]->seqs[loop][loop2] == types[toggle]) {
 					if (newindex == 0) {
 						seqnum[toggle] = loop;

@@ -16,7 +16,10 @@ const int NUM_BASEPAIRS_VIENNA = 8;
 const int NUM_BASEPAIRS_NUPACK = 6;
 const int NUM_BASES = 5;
 
-const static string basepairString[NUM_BASEPAIRS_NUPACK] = { "A/T", "C/G", "G/C", "T/A", "G/T", "T/G" };
+// FD: I keep having to remove 1 from the pairtype internal representation.
+// FD: In this regard, multistrand follows Vienna notation.
+// FD: So I added an offset to the tostring array.
+const static string basepairString[NUM_BASEPAIRS_NUPACK + 1] = { "VOID", "A/T", "C/G", "G/C", "T/A", "G/T", "T/G" };
 
 // structure containing information about bases exterior to the complex, IE bases that could pair with other complexes. First incarnation of such.a structure, prolly will change as I work out multiple-complex issues.
 struct exterior_bases {

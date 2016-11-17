@@ -43,13 +43,13 @@ std::ostream& operator<<(std::ostream &ss, OpenInfo& m) {
 	ss << "#ExposedInternalNucl= " << m.numExposedInternal << "\n";
 	ss << "#ExposedNucl=         " << m.numExposed << "\n";
 
-	ss << "\n";
-
 	for (int i : { 0, 1, 2, 3, 4 }) {
 
 		ss << baseTypeString[i] << ": " << m.exposedInternalNucl[i] << " ";
 
 	}
+
+	ss << "\n";
 
 	return ss;
 
@@ -163,7 +163,9 @@ bool moveutil::isPair(BaseType one, BaseType two) {
 
 std::ostream& operator<<(std::ostream &os, HalfContext& m) {
 
-	os << "(" << quartContextString[m.left] << ", " << quartContextString[m.right] << ") ";
+	os << "(" << quartContextString[m.left] << ", ";
+	os << m.base << ", ";
+	os << quartContextString[m.right] << ") ";
 
 	return os;
 

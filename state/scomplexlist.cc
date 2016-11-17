@@ -246,8 +246,6 @@ double SComplexList::getJoinFlux(void) {
 
 	}
 
-	// just use the regular code for now.
-
 	return output;
 
 }
@@ -284,8 +282,6 @@ double SComplexList::getJoinFluxArr(void) {
 	cout << arrExtern;
 
 	return arrExtern.rateSum;
-
-//	return rate;
 
 }
 
@@ -344,18 +340,16 @@ void SComplexList::cycleCrossRateArr(StrandOrdering* input1, StrandOrdering* inp
 		temp1 = temp1->next;
 	}
 
-	// post: we've cycled all openloops in input1 over all openloops of input2
+	//FD:  post: we've cycled all openloops in input1 over all openloops of input2
 
 }
 
 void SComplexList::computeCrossRateArr(OpenLoop* open1, OpenLoop* open2) {
 
-	cout << "Cycling past crossRateArr";
-
 	OpenInfo& context1 = open1->context;
 	OpenInfo& context2 = open1->context;
 
-	// quadruple unfolding of the data structures ..
+	//FD: quadruple unfolding of the data structures ..
 
 	for (vector<HalfContext>& vec1 : context1.context) {
 
@@ -375,18 +369,11 @@ void SComplexList::computeCrossRateArr(OpenLoop* open1, OpenLoop* open2) {
 
 	}
 
-//	return output;
-
 }
 
 void SComplexList::addExtRate(HalfContext& con1, HalfContext& con2) {
 
-	// pair left with right and right with left.
-
-//	cout << "Adding External rate" << "\n";
-//	cout << con1;
-//	cout << con2;
-//	cout << "\n";
+	//FD: pair left with right and right with left.
 
 	if (moveutil::isPair(con1.base, con2.base)) {
 
@@ -398,8 +385,6 @@ void SComplexList::addExtRate(HalfContext& con1, HalfContext& con2) {
 		arrExtern.push(rate, (char) con1.base);
 
 	}
-
-//	arrExtern.push();
 
 }
 
