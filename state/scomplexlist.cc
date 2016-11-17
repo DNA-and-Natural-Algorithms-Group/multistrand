@@ -71,12 +71,11 @@ string SComplexListEntry::toString(EnergyModel *em) {
 
 	std::stringstream ss;
 
-	ss << "Complex  : " << id << " \n";
-	ss << "seq      : " << thisComplex->getSequence() << " \n";
-	ss << "struct   : " << thisComplex->getStructure() << " \n";
-	ss << "energy   : " << energy - (em->getVolumeEnergy() + em->getAssocEnergy()) * (thisComplex->getStrandCount() - 1) << "\n";
-	ss << "totalFlux: " << rate;
+	double energy = energy - (em->getVolumeEnergy() + em->getAssocEnergy()) * (thisComplex->getStrandCount() - 1);
 
+	ss << "Complex      : " << id << " \n";
+	ss << "seq, struc   : " << thisComplex->getSequence() << " - " << thisComplex->getStructure() << " \n";
+	ss << "energy,rate  : " << energy << " - " << rate;
 	ss << "\n";
 
 	// also print info on the openloop datastructures
@@ -243,7 +242,10 @@ double SComplexList::getJoinFlux(void) {
 	// We now compute the exterior nucleotide moves.
 	if (useArr) {
 
-		output += getJoinFluxArr();
+		// avoid adding the rates for now.
+		getJoinFluxArr();
+
+//		output += getJoinFluxArr();
 
 	}
 

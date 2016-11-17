@@ -724,12 +724,10 @@ string StrandOrdering::toString(void) {
 
 	std::stringstream ss;
 
-	ss << "\nStrand ordering: \n";
+	ss << "Ordering: ";
 
 	orderinglist *traverse = NULL;
 	int *free_bases;
-
-//	total_exterior_bases.A = total_exterior_bases.T = total_exterior_bases.C = total_exterior_bases.G = 0;
 
 	for (traverse = first; traverse != NULL; traverse = traverse->next) {
 

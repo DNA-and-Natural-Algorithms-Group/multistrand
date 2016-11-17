@@ -283,7 +283,7 @@ void Loop::setPrimeRates(bool input) {
 
 }
 
-string Loop::toString(void) {
+string Loop::toString() {
 
 	std::stringstream ss;
 
@@ -319,7 +319,9 @@ string Loop::toStringShort(void) {
 
 void Loop::printAllMoves(Loop* from) {
 
-	std::cout << toString();
+	// Doing a short version of the print here
+	std::cout << toStringShort();
+	std::cout << "\n";
 
 	moves->printAllMoves(energyModel->simOptions->usePrimeRates);
 
@@ -4686,11 +4688,11 @@ string OpenLoop::typeInternalsToString(void) {
 
 	for (int i = 0; i < numAdjacent + 1; i++) {
 
-		ss << utility::sequenceToString(seqs[i], sidelen[i]) << "     -- ";
+		ss << utility::sequenceToString(seqs[i], sidelen[i]) << "  -- ";
 
 	}
 
-	ss << "\n";
+//	ss << "\n";
 
 	for (int i = 0; i < numAdjacent; i++) {
 
@@ -4699,7 +4701,6 @@ string OpenLoop::typeInternalsToString(void) {
 
 	ss << " \n";
 
-//	halfContextToString(ss);
 	ss << context;
 
 	return ss.str();
