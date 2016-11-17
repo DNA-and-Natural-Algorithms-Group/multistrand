@@ -302,8 +302,7 @@ void SComplexList::computeArrBiRate(StrandOrdering* order) {
 
 	temp = temp->next;
 
-	// post: temp is pointing to the entry from which we want to iterate over
-	// and compute the rates
+	// post: temp is pointing to the next entry
 
 	// now start computing rates with the remaining entries
 	while (temp != NULL) {

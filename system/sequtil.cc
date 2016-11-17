@@ -35,13 +35,18 @@ BaseCounter::BaseCounter(int* input) {
 
 std::ostream& operator<<(std::ostream& ss, BaseCounter& input) {
 
+	ss << "ACGT=";
+
+	//baseTypeString[i] << "
 	for (int i : { baseA, baseC, baseG, baseT }) {
 
-		ss << baseTypeString[i] << "=" << input.count[i] << "    ";
+		ss << input.count[i] << "/";
 
 	}
 
 	ss << "    \n";
+
+	return ss;
 
 }
 

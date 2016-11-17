@@ -40,12 +40,19 @@ std::ostream& operator<<(std::ostream &ss, OpenInfo& m) {
 		ss << " \n";	// prints empty line for empty interior sequences
 	}
 
-	ss << "#ExposedInternalNucl= " << m.numExposedInternal << "\n";
-	ss << "#ExposedNucl=         " << m.numExposed << "\n";
+	ss << "Exposed, Intern/Total = " << m.numExposedInternal << " / ";
+	ss << m.numExposed << "	\n";
+
+	ss << "·ACGT" << "            ";
 
 	for (int i : { 0, 1, 2, 3, 4 }) {
 
-		ss << baseTypeString[i] << ": " << m.exposedInternalNucl[i] << " ";
+//		ss << baseTypeString[i] << ": " << m.exposedInternalNucl[i] << " ";
+		ss << m.exposedInternalNucl[i];
+
+		if (i != 4) {
+			ss << " / ";
+		}
 
 	}
 
