@@ -13,6 +13,7 @@
 #include <utility.h>
 #include <moveutil.h>
 #include <assert.h>
+#include <optionlists.h>
 
 typedef std::vector<int> intvec;
 typedef std::vector<int>::iterator intvec_it;
@@ -484,42 +485,66 @@ int SComplexList::doBasicChoice(double choice, double newtime) {
 
 }
 
-// helper function, non-classed for now.
+// FD: crit is an export variable, but the bool return signifies if a pair has been selected or not.
+JoinCriterea SComplexList::findJoinNucleotides(BaseType base, int choice, BaseCounter& external, SComplexListEntry* temp) {
 
-//bool checkIfSelected(int& int_choice, BaseCounter& baseSum, BaseCounter& external) {
-//
-//	if (int_choice < baseSum.A() * external.T()) {
-//
-//		picked[0] = temp->thisComplex;
-//		types[0] = 4;
-//		types[1] = 1;
-//		temp = temp->next;
-//
-//		while (temp != NULL) {
-//
-//			BaseCounter& ext_bases_temp = temp->thisComplex->getExteriorBases(useArr);
-//
-//			if (int_choice < ext_bases_temp.A() * external.T()) {
-//
-//				picked[1] = temp->thisComplex;
-//				index[0] = (int) floor(int_choice / ext_bases_temp.A());
-//				index[1] = int_choice - index[0] * ext_bases_temp.A();
-//				temp = NULL;
-//
-//			} else {
-//
-//				temp = temp->next;
-//				int_choice -= ext_bases_temp.A() * external.T();
-//
-//			}
-//		}
-////	continue; // We must have picked something, thus temp must be NULL and we need to exit the loop.
-//		return true;
-//	} else {
-//		int_choice -= baseSum.A() * external.T();
-//		return false;
-//	}
-//}
+	//			crit.picked[0] = temp->thisComplex;
+	//			crit.types[0] = 4;
+	//			crit.types[1] = 1;
+	//			temp = temp->next;
+	//
+	//			while (temp != NULL) {
+	//
+	//				BaseCounter& ext_bases_temp = temp->thisComplex->getExteriorBases(useArr);
+	//
+	//				if (int_choice < ext_bases_temp.A() * external.T()) {
+	//
+	//					crit.picked[1] = temp->thisComplex;
+	//					crit.index[0] = (int) floor(int_choice / ext_bases_temp.A());
+	//					crit.index[1] = int_choice - crit.index[0] * ext_bases_temp.A();
+	//					temp = NULL;
+	//
+	//				} else {
+	//
+	//					temp = temp->next;
+	//					int_choice -= ext_bases_temp.A() * external.T();
+	//
+	//				}
+
+	JoinCriterea crit = JoinCriterea();
+
+	int otherBase = 5 - (int) base;
+
+	crit.picked[0] = temp->thisComplex;
+	crit.types[0] = otherBase;
+	crit.types[1] = base;
+
+	temp = temp->next;
+
+	bool useArr = eModel->useArrhenius();
+
+	while (temp != NULL) {
+
+		BaseCounter& externOther = temp->thisComplex->getExteriorBases(useArr);
+
+		if (choice < externOther.count[base] * external.count[otherBase]) {
+
+			crit.picked[1] = temp->thisComplex;
+			crit.index[0] = (int) floor(choice / externOther.count[base]);
+			crit.index[1] = choice - crit.index[0] * externOther.count[base];
+			temp = NULL;
+
+		} else {
+
+			temp = temp->next;
+			choice -= externOther.count[base] * external.count[otherBase];
+
+		}
+	}
+
+	return crit;
+
+}
 
 /*
  SComplexList::doJoinChoice( double choice )
@@ -534,17 +559,11 @@ void SComplexList::doJoinChoice(double choice) {
 
 	StrandComplex *deleted;
 
-	JoinCriterea crit = JoinCriterea();
+	JoinCriterea crit; //= JoinCriterea();
 
-//	StrandComplex *picked[2] = { NULL, NULL };
-//	char types[2] = { 0, 0 };
-//	int index[2] = { 0, 0 };
 	int int_choice;
-	int total_move_count = 0;
 
 	int_choice = (int) floor(choice / eModel->applyPrefactors(eModel->getJoinRate(), loopMove, loopMove));
-
-//	cout << "Int choice=" << int_choice << "\n";
 
 	if (numentries <= 1)
 		return;
@@ -556,9 +575,6 @@ void SComplexList::doJoinChoice(double choice) {
 
 		temp = temp->next;
 	}
-	// post: we know the exposed bases in all complexes.
-//	cout << "External bases: " << baseSum; // << "   useArr=" << useArr;
-//	cout << "baseSum = " << baseSum << "\n";
 
 	temp = first;
 
@@ -569,29 +585,8 @@ void SComplexList::doJoinChoice(double choice) {
 
 		if (int_choice < baseSum.A() * external.T()) {
 
-			crit.picked[0] = temp->thisComplex;
-			crit.types[0] = 4;
-			crit.types[1] = 1;
-			temp = temp->next;
+			crit = findJoinNucleotides(baseA, int_choice, external, temp);
 
-			while (temp != NULL) {
-
-				BaseCounter& ext_bases_temp = temp->thisComplex->getExteriorBases(useArr);
-
-				if (int_choice < ext_bases_temp.A() * external.T()) {
-
-					crit.picked[1] = temp->thisComplex;
-					crit.index[0] = (int) floor(int_choice / ext_bases_temp.A());
-					crit.index[1] = int_choice - crit.index[0] * ext_bases_temp.A();
-					temp = NULL;
-
-				} else {
-
-					temp = temp->next;
-					int_choice -= ext_bases_temp.A() * external.T();
-
-				}
-			}
 			continue; // We must have picked something, thus temp must be NULL and we need to exit the loop.
 		} else {
 			int_choice -= baseSum.A() * external.T();
@@ -599,29 +594,8 @@ void SComplexList::doJoinChoice(double choice) {
 
 		if (int_choice < baseSum.T() * external.A()) {
 
-			crit.picked[0] = temp->thisComplex;
-			crit.types[0] = 1;
-			crit.types[1] = 4;
-			temp = temp->next;
+			crit = findJoinNucleotides(baseT, int_choice, external, temp);
 
-			while (temp != NULL) {
-
-				BaseCounter& ext_bases_temp = temp->thisComplex->getExteriorBases(useArr);
-
-				if (int_choice < ext_bases_temp.T() * external.A()) {
-
-					crit.picked[1] = temp->thisComplex;
-					crit.index[0] = (int) floor(int_choice / ext_bases_temp.T());
-					crit.index[1] = int_choice - crit.index[0] * ext_bases_temp.T();
-					temp = NULL;
-
-				} else {
-
-					temp = temp->next;
-					int_choice -= ext_bases_temp.T() * external.A();
-
-				}
-			}
 			continue;
 		} else {
 			int_choice -= baseSum.T() * external.A();
@@ -629,29 +603,8 @@ void SComplexList::doJoinChoice(double choice) {
 
 		if (int_choice < baseSum.G() * external.C()) {
 
-			crit.picked[0] = temp->thisComplex;
-			crit.types[0] = 2;
-			crit.types[1] = 3;
-			temp = temp->next;
+			crit = findJoinNucleotides(baseG, int_choice, external, temp);
 
-			while (temp != NULL) {
-
-				BaseCounter& ext_bases_temp = temp->thisComplex->getExteriorBases(useArr);
-
-				if (int_choice < ext_bases_temp.G() * external.C()) {
-
-					crit.picked[1] = temp->thisComplex;
-					crit.index[0] = (int) floor(int_choice / ext_bases_temp.G());
-					crit.index[1] = int_choice - crit.index[0] * ext_bases_temp.G();
-					temp = NULL;
-
-				} else {
-
-					temp = temp->next;
-					int_choice -= ext_bases_temp.G() * external.C();
-
-				}
-			}
 			continue;
 		} else {
 			int_choice -= baseSum.G() * external.C();
@@ -659,28 +612,7 @@ void SComplexList::doJoinChoice(double choice) {
 
 		if (int_choice < baseSum.C() * external.G()) {
 
-			crit.picked[0] = temp->thisComplex;
-			crit.types[0] = 3;
-			crit.types[1] = 2;
-			temp = temp->next;
-			while (temp != NULL) {
-
-				BaseCounter& ext_bases_temp = temp->thisComplex->getExteriorBases(useArr);
-
-				if (int_choice < ext_bases_temp.C() * external.G()) {
-
-					crit.picked[1] = temp->thisComplex;
-					crit.index[0] = (int) floor(int_choice / ext_bases_temp.C());
-					crit.index[1] = int_choice - crit.index[0] * ext_bases_temp.C();
-					temp = NULL;
-
-				} else {
-
-					temp = temp->next;
-					int_choice -= ext_bases_temp.C() * external.G();
-
-				}
-			}
+			crit = findJoinNucleotides(baseC, int_choice, external, temp);
 			continue;
 		} else {
 			int_choice -= baseSum.C() * external.G();
