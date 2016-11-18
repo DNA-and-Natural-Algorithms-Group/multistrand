@@ -540,8 +540,6 @@ void SComplexList::doJoinChoice(double choice) {
 
 	int_choice = (int) floor(choice / eModel->applyPrefactors(eModel->getJoinRate(), loopMove, loopMove));
 
-//	cout << "Int choice=" << int_choice << "\n";
-
 	if (numentries <= 1)
 		return;
 
@@ -552,9 +550,6 @@ void SComplexList::doJoinChoice(double choice) {
 
 		temp = temp->next;
 	}
-	// post: we know the exposed bases in all complexes.
-//	cout << "External bases: " << baseSum; // << "   useArr=" << useArr;
-//	cout << "baseSum = " << baseSum << "\n";
 
 	temp = first;
 
@@ -563,129 +558,38 @@ void SComplexList::doJoinChoice(double choice) {
 		BaseCounter& external = temp->thisComplex->getExteriorBases(useArr);
 		baseSum.decrement(external);
 
-//
 		if (int_choice < baseSum.A() * external.T()) {
 
-//			findJoinNucleotides(baseA, int_choice, external, temp, crit);
-//
-			crit.picked[0] = temp->thisComplex;
-			crit.types[0] = 4;
-			crit.types[1] = 1;
-			temp = temp->next;
+			findJoinNucleotides(baseA, int_choice, external, temp, crit);
 
-			while (temp != NULL) {
-
-				BaseCounter& ext_bases_temp = temp->thisComplex->getExteriorBases(useArr);
-
-				if (int_choice < ext_bases_temp.A() * external.T()) {
-
-					crit.picked[1] = temp->thisComplex;
-					crit.index[0] = (int) floor(int_choice / ext_bases_temp.A());
-					crit.index[1] = int_choice - crit.index[0] * ext_bases_temp.A();
-					temp = NULL;
-
-				} else {
-
-					temp = temp->next;
-					int_choice -= ext_bases_temp.A() * external.T();
-
-				}
-			}
-
-			continue;	// We must have picked something, thus temp must be NULL and we need to exit the loop.
+			break;
 		} else {
 			int_choice -= baseSum.A() * external.T();
 		}
 
 		if (int_choice < baseSum.T() * external.A()) {
 
-//			findJoinNucleotides(baseT, int_choice, external, temp, crit);
+			findJoinNucleotides(baseT, int_choice, external, temp, crit);
 
-			crit.picked[0] = temp->thisComplex;
-			crit.types[0] = 1;
-			crit.types[1] = 4;
-			temp = temp->next;
-
-			while (temp != NULL) {
-
-				BaseCounter& ext_bases_temp = temp->thisComplex->getExteriorBases(useArr);
-
-				if (int_choice < ext_bases_temp.T() * external.A()) {
-
-					crit.picked[1] = temp->thisComplex;
-					crit.index[0] = (int) floor(int_choice / ext_bases_temp.T());
-					crit.index[1] = int_choice - crit.index[0] * ext_bases_temp.T();
-					temp = NULL;
-
-				} else {
-
-					temp = temp->next;
-					int_choice -= ext_bases_temp.T() * external.A();
-
-				}
-			}
-			continue;
+			break;
 		} else {
 			int_choice -= baseSum.T() * external.A();
 		}
 
 		if (int_choice < baseSum.G() * external.C()) {
 
-//			findJoinNucleotides(baseG, int_choice, external, temp, crit);
+			findJoinNucleotides(baseG, int_choice, external, temp, crit);
 
-			crit.picked[0] = temp->thisComplex;
-			crit.types[0] = 2;
-			crit.types[1] = 3;
-			temp = temp->next;
-
-			while (temp != NULL) {
-
-				BaseCounter& ext_bases_temp = temp->thisComplex->getExteriorBases(useArr);
-
-				if (int_choice < ext_bases_temp.G() * external.C()) {
-
-					crit.picked[1] = temp->thisComplex;
-					crit.index[0] = (int) floor(int_choice / ext_bases_temp.G());
-					crit.index[1] = int_choice - crit.index[0] * ext_bases_temp.G();
-					temp = NULL;
-
-				} else {
-
-					temp = temp->next;
-					int_choice -= ext_bases_temp.G() * external.C();
-
-				}
-			}
-			continue;
+			break;
 		} else {
 			int_choice -= baseSum.G() * external.C();
 		}
 
 		if (int_choice < baseSum.C() * external.G()) {
 
-			crit.picked[0] = temp->thisComplex;
-			crit.types[0] = 3;
-			crit.types[1] = 2;
-			temp = temp->next;
-			while (temp != NULL) {
+			findJoinNucleotides(baseC, int_choice, external, temp, crit);
 
-				BaseCounter& ext_bases_temp = temp->thisComplex->getExteriorBases(useArr);
-
-				if (int_choice < ext_bases_temp.C() * external.G()) {
-
-					crit.picked[1] = temp->thisComplex;
-					crit.index[0] = (int) floor(int_choice / ext_bases_temp.C());
-					crit.index[1] = int_choice - crit.index[0] * ext_bases_temp.C();
-					temp = NULL;
-
-				} else {
-
-					temp = temp->next;
-					int_choice -= ext_bases_temp.C() * external.G();
-
-				}
-			}
-			continue;
+			break;
 		} else {
 			int_choice -= baseSum.C() * external.G();
 		}
