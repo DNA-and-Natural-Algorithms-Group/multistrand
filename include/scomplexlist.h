@@ -16,7 +16,6 @@
 using std::cout;
 
 class SComplexListEntry;
-//class ComplexItem;
 
 class SComplexList {
 public:
@@ -38,17 +37,17 @@ public:
 	SComplexListEntry *getFirst(void);
 	int doBasicChoice(double choice, double newtime);
 	void doJoinChoice(double choice);
-	JoinCriterea findJoinNucleotides(BaseType, int, BaseCounter&, SComplexListEntry*);
 	bool checkStopComplexList(class complexItem *stoplist);
 	string toString(void);
 	void updateLocalContext(void);
+
 
 	// contains the external nucleotide transitions
 	TransitionList arrExtern;
 
 private:
-	bool checkStopComplexList_Bound(complexItem* stoplist);
-	bool checkStopComplexList_Structure_Disassoc(complexItem* stoplist);
+	bool checkStopComplexList_Bound(class complexItem *stoplist);
+	bool checkStopComplexList_Structure_Disassoc(class complexItem *stoplist);
 	bool checkLooseStructure(char *our_struc, char *stop_struc, int count);
 	bool checkCountStructure(char *our_struc, char *stop_struc, int count);
 	int numentries;
