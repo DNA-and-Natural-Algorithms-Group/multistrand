@@ -9,6 +9,9 @@
 using std::vector;
 using std::string;
 
+class StrandComplex;
+
+
 enum MoveType {
 	endMove, loopMove, stackMove, stackStackMove, loopEndMove, stackEndMove, stackLoopMove, MOVETYPE_SIZE
 };
@@ -31,6 +34,50 @@ QuartContext getContext(char input);
 int typeMult(MoveType left, MoveType right);
 
 }
+
+// UTILITY STRUCTS
+
+struct JoinCriterea {
+
+	JoinCriterea();
+	friend std::ostream& operator<<(std::ostream&, JoinCriterea&);
+
+	StrandComplex* picked[2] = { NULL, NULL };
+	char types[2] = { 0, 0 };
+	int index[2] = { 0, 0 };
+
+};
+
+struct HalfContext {
+
+	HalfContext(char base);
+
+	friend std::ostream& operator<<(std::ostream&, HalfContext&);
+
+	BaseType base;
+	QuartContext left = endC;
+	QuartContext right = endC;
+
+};
+
+// This struct contains info computed
+// at-time-of-creation for the OpenLoop object.
+
+struct OpenInfo {
+
+public:
+	friend std::ostream& operator<<(std::ostream&, OpenInfo&);
+	void clear(void);
+	void push(vector<HalfContext>&);
+
+	vector<vector<HalfContext>> context;
+	vector<int> exposedInternalNucl = { 0, 0, 0, 0, 0 };
+	int numExposedInternal;
+	int numExposed;
+
+};
+
+// UTILITY CLASSES
 
 // general-purpose class that describes transitions and a
 // general-purpose transition container class TransitionList
@@ -63,37 +110,6 @@ public:
 
 private:
 	vector<Transition> list;
-
-};
-
-struct HalfContext {
-
-	HalfContext(char base);
-
-//public:
-
-	friend std::ostream& operator<<(std::ostream&, HalfContext&);
-
-	BaseType base;
-	QuartContext left = endC;
-	QuartContext right = endC;
-
-};
-
-// This struct contains info computed
-// at-time-of-creation for the OpenLoop object.
-
-struct OpenInfo {
-
-public:
-	friend std::ostream& operator<<(std::ostream&, OpenInfo&);
-	void clear(void);
-	void push(vector<HalfContext>&);
-
-	vector<vector<HalfContext>> context;
-	vector<int> exposedInternalNucl = { 0, 0, 0, 0, 0 };
-	int numExposedInternal;
-	int numExposed;
 
 };
 

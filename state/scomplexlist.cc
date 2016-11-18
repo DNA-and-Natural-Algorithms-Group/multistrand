@@ -484,6 +484,43 @@ int SComplexList::doBasicChoice(double choice, double newtime) {
 
 }
 
+// helper function, non-classed for now.
+
+//bool checkIfSelected(int& int_choice, BaseCounter& baseSum, BaseCounter& external) {
+//
+//	if (int_choice < baseSum.A() * external.T()) {
+//
+//		picked[0] = temp->thisComplex;
+//		types[0] = 4;
+//		types[1] = 1;
+//		temp = temp->next;
+//
+//		while (temp != NULL) {
+//
+//			BaseCounter& ext_bases_temp = temp->thisComplex->getExteriorBases(useArr);
+//
+//			if (int_choice < ext_bases_temp.A() * external.T()) {
+//
+//				picked[1] = temp->thisComplex;
+//				index[0] = (int) floor(int_choice / ext_bases_temp.A());
+//				index[1] = int_choice - index[0] * ext_bases_temp.A();
+//				temp = NULL;
+//
+//			} else {
+//
+//				temp = temp->next;
+//				int_choice -= ext_bases_temp.A() * external.T();
+//
+//			}
+//		}
+////	continue; // We must have picked something, thus temp must be NULL and we need to exit the loop.
+//		return true;
+//	} else {
+//		int_choice -= baseSum.A() * external.T();
+//		return false;
+//	}
+//}
+
 /*
  SComplexList::doJoinChoice( double choice )
  */
@@ -496,9 +533,12 @@ void SComplexList::doJoinChoice(double choice) {
 	bool useArr = eModel->useArrhenius();
 
 	StrandComplex *deleted;
-	StrandComplex *picked[2] = { NULL, NULL };
-	char types[2] = { 0, 0 };
-	int index[2] = { 0, 0 };
+
+	JoinCriterea crit = JoinCriterea();
+
+//	StrandComplex *picked[2] = { NULL, NULL };
+//	char types[2] = { 0, 0 };
+//	int index[2] = { 0, 0 };
 	int int_choice;
 	int total_move_count = 0;
 
@@ -529,9 +569,9 @@ void SComplexList::doJoinChoice(double choice) {
 
 		if (int_choice < baseSum.A() * external.T()) {
 
-			picked[0] = temp->thisComplex;
-			types[0] = 4;
-			types[1] = 1;
+			crit.picked[0] = temp->thisComplex;
+			crit.types[0] = 4;
+			crit.types[1] = 1;
 			temp = temp->next;
 
 			while (temp != NULL) {
@@ -540,9 +580,9 @@ void SComplexList::doJoinChoice(double choice) {
 
 				if (int_choice < ext_bases_temp.A() * external.T()) {
 
-					picked[1] = temp->thisComplex;
-					index[0] = (int) floor(int_choice / ext_bases_temp.A());
-					index[1] = int_choice - index[0] * ext_bases_temp.A();
+					crit.picked[1] = temp->thisComplex;
+					crit.index[0] = (int) floor(int_choice / ext_bases_temp.A());
+					crit.index[1] = int_choice - crit.index[0] * ext_bases_temp.A();
 					temp = NULL;
 
 				} else {
@@ -559,9 +599,9 @@ void SComplexList::doJoinChoice(double choice) {
 
 		if (int_choice < baseSum.T() * external.A()) {
 
-			picked[0] = temp->thisComplex;
-			types[0] = 1;
-			types[1] = 4;
+			crit.picked[0] = temp->thisComplex;
+			crit.types[0] = 1;
+			crit.types[1] = 4;
 			temp = temp->next;
 
 			while (temp != NULL) {
@@ -570,9 +610,9 @@ void SComplexList::doJoinChoice(double choice) {
 
 				if (int_choice < ext_bases_temp.T() * external.A()) {
 
-					picked[1] = temp->thisComplex;
-					index[0] = (int) floor(int_choice / ext_bases_temp.T());
-					index[1] = int_choice - index[0] * ext_bases_temp.T();
+					crit.picked[1] = temp->thisComplex;
+					crit.index[0] = (int) floor(int_choice / ext_bases_temp.T());
+					crit.index[1] = int_choice - crit.index[0] * ext_bases_temp.T();
 					temp = NULL;
 
 				} else {
@@ -589,9 +629,9 @@ void SComplexList::doJoinChoice(double choice) {
 
 		if (int_choice < baseSum.G() * external.C()) {
 
-			picked[0] = temp->thisComplex;
-			types[0] = 2;
-			types[1] = 3;
+			crit.picked[0] = temp->thisComplex;
+			crit.types[0] = 2;
+			crit.types[1] = 3;
 			temp = temp->next;
 
 			while (temp != NULL) {
@@ -600,9 +640,9 @@ void SComplexList::doJoinChoice(double choice) {
 
 				if (int_choice < ext_bases_temp.G() * external.C()) {
 
-					picked[1] = temp->thisComplex;
-					index[0] = (int) floor(int_choice / ext_bases_temp.G());
-					index[1] = int_choice - index[0] * ext_bases_temp.G();
+					crit.picked[1] = temp->thisComplex;
+					crit.index[0] = (int) floor(int_choice / ext_bases_temp.G());
+					crit.index[1] = int_choice - crit.index[0] * ext_bases_temp.G();
 					temp = NULL;
 
 				} else {
@@ -618,21 +658,20 @@ void SComplexList::doJoinChoice(double choice) {
 		}
 
 		if (int_choice < baseSum.C() * external.G()) {
-			picked[0] = temp->thisComplex;
-			types[0] = 3;
-			types[1] = 2;
+
+			crit.picked[0] = temp->thisComplex;
+			crit.types[0] = 3;
+			crit.types[1] = 2;
 			temp = temp->next;
 			while (temp != NULL) {
 
 				BaseCounter& ext_bases_temp = temp->thisComplex->getExteriorBases(useArr);
 
-//				cout << "Exterior bases are " << ext_bases_temp;
-
 				if (int_choice < ext_bases_temp.C() * external.G()) {
 
-					picked[1] = temp->thisComplex;
-					index[0] = (int) floor(int_choice / ext_bases_temp.C());
-					index[1] = int_choice - index[0] * ext_bases_temp.C();
+					crit.picked[1] = temp->thisComplex;
+					crit.index[0] = (int) floor(int_choice / ext_bases_temp.C());
+					crit.index[1] = int_choice - crit.index[0] * ext_bases_temp.C();
 					temp = NULL;
 
 				} else {
@@ -650,17 +689,12 @@ void SComplexList::doJoinChoice(double choice) {
 		if (temp != NULL)
 			temp = temp->next;
 	}
-//
 
-	deleted = StrandComplex::performComplexJoin(picked, types, index, useArr);
-
-//	cout << "Picked indexes are: " << index[0] << ", " << index[1] << "\n";
-//	cout << "moveCount" << total_move_count << "\n";
-//	cout.flush();
+	deleted = StrandComplex::performComplexJoin(crit.picked, crit.types, crit.index, useArr);
 
 	for (temp = first; temp != NULL; temp = temp->next) {
 
-		if (temp->thisComplex == picked[0]) {
+		if (temp->thisComplex == crit.picked[0]) {
 			temp->fillData(eModel);
 		}
 

@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <scomplex.h>
 
 using std::vector;
 using std::cout;
@@ -82,6 +83,20 @@ void OpenInfo::push(vector<HalfContext>& input) {
 HalfContext::HalfContext(char input) {
 
 	base = BaseType(input);
+
+}
+
+JoinCriterea::JoinCriterea() {
+
+	// empty constructor
+
+}
+
+std::ostream& operator<<(std::ostream &ss, JoinCriterea& m) {
+
+	ss << "Types = " << m.types[0] << " " << m.types[1];
+
+	return ss;
 
 }
 
@@ -216,7 +231,6 @@ void TransitionList::push(double rate, char nucleotides) {
 	list.push_back(trans);
 
 }
-
 
 void TransitionList::clear() {
 
