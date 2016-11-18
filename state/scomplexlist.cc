@@ -583,6 +583,21 @@ void SComplexList::doJoinChoice(double choice) {
 		BaseCounter& external = temp->thisComplex->getExteriorBases(useArr);
 		baseSum.decrement(external);
 
+//		for (BaseType base : { baseA }) {
+//
+//			int combinations = baseSum.count[base] * external.count[5 - base];
+//
+//			if (int_choice < combinations) {
+//
+//				crit = findJoinNucleotides(base, int_choice, external, temp);
+//
+//				continue; // We must have picked something, thus temp must be NULL and we need to exit the loop.
+//			} else {
+//				int_choice -= combinations;
+//			}
+//
+//		}
+
 		if (int_choice < baseSum.A() * external.T()) {
 
 			crit = findJoinNucleotides(baseA, int_choice, external, temp);
