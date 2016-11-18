@@ -36,11 +36,11 @@ public:
 	void printComplexList();
 	SComplexListEntry *getFirst(void);
 	int doBasicChoice(double choice, double newtime);
+	void findJoinNucleotides(BaseType, int, BaseCounter&, SComplexListEntry*, JoinCriterea&);
 	void doJoinChoice(double choice);
 	bool checkStopComplexList(class complexItem *stoplist);
 	string toString(void);
 	void updateLocalContext(void);
-
 
 	// contains the external nucleotide transitions
 	TransitionList arrExtern;

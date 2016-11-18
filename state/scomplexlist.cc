@@ -486,40 +486,39 @@ int SComplexList::doBasicChoice(double choice, double newtime) {
 
 // helper function, non-classed for now.
 
-//bool checkIfSelected(int& int_choice, BaseCounter& baseSum, BaseCounter& external) {
-//
-//	if (int_choice < baseSum.A() * external.T()) {
-//
-//		picked[0] = temp->thisComplex;
-//		types[0] = 4;
-//		types[1] = 1;
-//		temp = temp->next;
-//
-//		while (temp != NULL) {
-//
-//			BaseCounter& ext_bases_temp = temp->thisComplex->getExteriorBases(useArr);
-//
-//			if (int_choice < ext_bases_temp.A() * external.T()) {
-//
-//				picked[1] = temp->thisComplex;
-//				index[0] = (int) floor(int_choice / ext_bases_temp.A());
-//				index[1] = int_choice - index[0] * ext_bases_temp.A();
-//				temp = NULL;
-//
-//			} else {
-//
-//				temp = temp->next;
-//				int_choice -= ext_bases_temp.A() * external.T();
-//
-//			}
-//		}
-////	continue; // We must have picked something, thus temp must be NULL and we need to exit the loop.
-//		return true;
-//	} else {
-//		int_choice -= baseSum.A() * external.T();
-//		return false;
-//	}
-//}
+// FD: crit is an export variable, but the bool return signifies if a pair has been selected or not.
+void SComplexList::findJoinNucleotides(BaseType base, int choice, BaseCounter& external, SComplexListEntry* temp, JoinCriterea& crit) {
+
+	int otherBase = 5 - (int) base;
+
+	crit.picked[0] = temp->thisComplex;
+	crit.types[0] = otherBase;
+	crit.types[1] = base;
+
+	temp = temp->next;
+
+	bool useArr = eModel->useArrhenius();
+
+	while (temp != NULL) {
+
+		BaseCounter& externOther = temp->thisComplex->getExteriorBases(useArr);
+
+		if (choice < externOther.count[base] * external.count[otherBase]) {
+
+			crit.picked[1] = temp->thisComplex;
+			crit.index[0] = (int) floor(choice / externOther.count[base]);
+			crit.index[1] = choice - crit.index[0] * externOther.count[base];
+			temp = NULL;
+
+		} else {
+
+			temp = temp->next;
+			choice -= externOther.count[base] * external.count[otherBase];
+
+		}
+	}
+
+}
 
 /*
  SComplexList::doJoinChoice( double choice )
@@ -536,9 +535,6 @@ void SComplexList::doJoinChoice(double choice) {
 
 	JoinCriterea crit = JoinCriterea();
 
-//	StrandComplex *picked[2] = { NULL, NULL };
-//	char types[2] = { 0, 0 };
-//	int index[2] = { 0, 0 };
 	int int_choice;
 	int total_move_count = 0;
 
@@ -567,8 +563,11 @@ void SComplexList::doJoinChoice(double choice) {
 		BaseCounter& external = temp->thisComplex->getExteriorBases(useArr);
 		baseSum.decrement(external);
 
+//
 		if (int_choice < baseSum.A() * external.T()) {
 
+//			findJoinNucleotides(baseA, int_choice, external, temp, crit);
+//
 			crit.picked[0] = temp->thisComplex;
 			crit.types[0] = 4;
 			crit.types[1] = 1;
@@ -592,12 +591,15 @@ void SComplexList::doJoinChoice(double choice) {
 
 				}
 			}
-			continue; // We must have picked something, thus temp must be NULL and we need to exit the loop.
+
+			continue;	// We must have picked something, thus temp must be NULL and we need to exit the loop.
 		} else {
 			int_choice -= baseSum.A() * external.T();
 		}
 
 		if (int_choice < baseSum.T() * external.A()) {
+
+//			findJoinNucleotides(baseT, int_choice, external, temp, crit);
 
 			crit.picked[0] = temp->thisComplex;
 			crit.types[0] = 1;
@@ -628,6 +630,8 @@ void SComplexList::doJoinChoice(double choice) {
 		}
 
 		if (int_choice < baseSum.G() * external.C()) {
+
+//			findJoinNucleotides(baseG, int_choice, external, temp, crit);
 
 			crit.picked[0] = temp->thisComplex;
 			crit.types[0] = 2;
