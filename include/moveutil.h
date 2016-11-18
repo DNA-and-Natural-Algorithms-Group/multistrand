@@ -4,13 +4,14 @@
 
 #include <string>
 #include <vector>
+#include <set>
 #include <sequtil.h>
 
 using std::vector;
 using std::string;
+using std::set;
 
 class StrandComplex;
-
 
 enum MoveType {
 	endMove, loopMove, stackMove, stackStackMove, loopEndMove, stackEndMove, stackLoopMove, MOVETYPE_SIZE
@@ -50,11 +51,22 @@ struct JoinCriterea {
 
 struct HalfContext {
 
-	HalfContext(char base);
-
+	HalfContext();
 	friend std::ostream& operator<<(std::ostream&, HalfContext&);
 
+	QuartContext left = endC;
+	QuartContext right = endC;
+
+};
+
+struct LocalContext {
+
+	LocalContext(char base);
+
+	friend std::ostream& operator<<(std::ostream&, LocalContext&);
+
 	BaseType base;
+	HalfContext half;
 	QuartContext left = endC;
 	QuartContext right = endC;
 
@@ -68,12 +80,20 @@ struct OpenInfo {
 public:
 	friend std::ostream& operator<<(std::ostream&, OpenInfo&);
 	void clear(void);
-	void push(vector<HalfContext>&);
+	void push(vector<LocalContext>&);
 
-	vector<vector<HalfContext>> context;
+	vector<vector<LocalContext>> context;
 	vector<int> exposedInternalNucl = { 0, 0, 0, 0, 0 };
 	int numExposedInternal;
 	int numExposed;
+
+};
+
+class ContextList {
+
+	// contains a BaseCount for each possible half-context.
+//	vector<HalfContext>;
+	set<LocalContext, int> mySet;
 
 };
 
@@ -84,6 +104,7 @@ public:
 // FD: these are very similar to the MoveContainer, MoveList, and Move classes,
 // FD: except that for this class, we do not include any program logic.
 // FD: They only store rates and pointers to actual data.
+// FD: Nov 18 2016: these will be depreciated soon.
 class Transition {
 
 public:

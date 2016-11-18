@@ -235,7 +235,7 @@ public:
 	// and information is copied out by the calling function.) Could also make it a private data
 	// member that's just returned.  Not completed currently.
 	// FD: 2016-11-14 the above is now implemented.
-	BaseCounter& getFreeBases(bool);
+	BaseCount& getFreeBases(bool);
 	void setFreeBasesInternal(void);
 
 	char *getBase(char type, int index, bool);
@@ -254,7 +254,7 @@ public:
 	// non-private because we trust each other;
 	// so: only the loop itself is allowed to set these.
 	OpenInfo context;
-	BaseCounter exposedBases  = BaseCounter();
+	BaseCount exposedBases  = BaseCount();
 	bool updatedContext = false;
 	bool updatedContext2 = false;
 

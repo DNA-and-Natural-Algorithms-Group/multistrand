@@ -70,7 +70,7 @@ public:
 	int getStrandCount(void);
 
 	// updates and returns the current exterior base count.
-	BaseCounter& getExteriorBases(bool);
+	BaseCount& getExteriorBases(bool);
 	void updateLocalContext();
 	string toString(void);
 
@@ -82,7 +82,11 @@ public:
 private:
 	char *seq, *struc, *strandnames;
 	int count;
-	BaseCounter total_exterior_bases;
+	BaseCount exteriorBases;
+
+	// similar to BaseCounter, we tally the half-contexts and bases for this strand ordering.
+	// To be used to generate bimolecular rates.
+	ContextList contextList;
 
 };
 

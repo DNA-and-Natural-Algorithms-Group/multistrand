@@ -5367,7 +5367,7 @@ char *OpenLoop::getBase(char type, int index, bool useArr) {
 //}
 
 // if using Arr, do not count the external bases.
-BaseCounter& OpenLoop::getFreeBases(bool useArr) {
+BaseCount& OpenLoop::getFreeBases(bool useArr) {
 
 	// do nothing if already computed last time
 	if (updatedContext2) {
@@ -5620,21 +5620,21 @@ void OpenLoop::parseLocalContext(int index) {
 
 	}
 
-	vector<HalfContext> newContext;
+	vector<LocalContext> newContext;
 
 	if (size > 0) {
 
-		HalfContext qContext = HalfContext(mySeq[1]);
+		LocalContext qContext = LocalContext(mySeq[1]);
 
-		qContext.left = moveutil::getContext(mySeq[0]);
+		qContext.half.left = moveutil::getContext(mySeq[0]);
 
 		if (size == 1) { // exactly one nucleotide
 
-			qContext.right = moveutil::getContext(mySeq[2]);
+			qContext.half.right = moveutil::getContext(mySeq[2]);
 
 		} else {
 
-			qContext.right = strandC;
+			qContext.half.right = strandC;
 		}
 
 		newContext.push_back(qContext);
@@ -5643,10 +5643,10 @@ void OpenLoop::parseLocalContext(int index) {
 // also record the second external nucleotide, if it exists
 	if (size > 1) {
 
-		HalfContext qContext = HalfContext(mySeq[size]);
+		LocalContext qContext = LocalContext(mySeq[size]);
 
-		qContext.left = strandC;
-		qContext.right = moveutil::getContext(mySeq[size + 1]);
+		qContext.half.left = strandC;
+		qContext.half.right = moveutil::getContext(mySeq[size + 1]);
 
 		newContext.push_back(qContext);
 

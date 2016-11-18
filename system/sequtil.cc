@@ -7,14 +7,14 @@
 //using std::cout;
 
 // base constructor
-BaseCounter::BaseCounter() {
+BaseCount::BaseCount() {
 
 	// empty
 
 }
 
 // compatibility constructor
-BaseCounter::BaseCounter(int* input) {
+BaseCount::BaseCount(int* input) {
 
 	count[1] = input[1];
 	count[2] = input[2];
@@ -23,7 +23,7 @@ BaseCounter::BaseCounter(int* input) {
 
 }
 
-std::ostream& operator<<(std::ostream& ss, BaseCounter& input) {
+std::ostream& operator<<(std::ostream& ss, BaseCount& input) {
 
 	ss << "ACGT=";
 
@@ -40,27 +40,27 @@ std::ostream& operator<<(std::ostream& ss, BaseCounter& input) {
 
 }
 
-void BaseCounter::clear(void) {
+void BaseCount::clear(void) {
 
 	count = {0,0,0,0,0};
 
 }
 
-void BaseCounter::increment(BaseCounter& other) {
+void BaseCount::increment(BaseCount& other) {
 
 	for (int i : { baseA, baseC, baseG, baseT }) {
 		count[i] += other.count[i];
 	}
 }
 
-void BaseCounter::decrement(BaseCounter& other) {
+void BaseCount::decrement(BaseCount& other) {
 
 	for (int i : { baseA, baseC, baseG, baseT }) {
 		count[i] -= other.count[i];
 	}
 }
 
-int BaseCounter::multiCount(BaseCounter& other) {
+int BaseCount::multiCount(BaseCount& other) {
 
 	int output = 0;
 
@@ -73,7 +73,7 @@ int BaseCounter::multiCount(BaseCounter& other) {
 
 }
 
-int BaseCounter::countFromChar(char c) {
+int BaseCount::countFromChar(char c) {
 
 	BaseType type = BaseType(c);
 
@@ -81,25 +81,25 @@ int BaseCounter::countFromChar(char c) {
 
 }
 
-int BaseCounter::A(void) {
+int BaseCount::A(void) {
 
 	return count[baseA];
 
 }
 
-int BaseCounter::T(void) {
+int BaseCount::T(void) {
 
 	return count[baseT];
 
 }
 
-int BaseCounter::G(void) {
+int BaseCount::G(void) {
 
 	return count[baseG];
 
 }
 
-int BaseCounter::C(void) {
+int BaseCount::C(void) {
 
 	return count[baseC];
 

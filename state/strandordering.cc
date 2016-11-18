@@ -17,6 +17,8 @@ using std::cout;
 orderinglist::orderinglist(int insize, int n_id, char *inTag, char *inSeq, char *inCodeSeq, char* inStruct) {
 	size = insize;
 	uid = n_id;
+
+	// ???
 	thisTag = new char[strlen(inTag) + 1];
 	thisSeq = new char[size + 1];
 	thisCodeSeq = new char[size + 1];
@@ -88,7 +90,6 @@ void StrandOrdering::cleanup(void) {
 StrandOrdering::StrandOrdering(void) {
 	first = last = NULL;
 	count = 0;
-//	total_exterior_bases.A = total_exterior_bases.T = total_exterior_bases.C = total_exterior_bases.G = -1;
 	seq = struc = strandnames = NULL;
 }
 
@@ -97,7 +98,7 @@ StrandOrdering::StrandOrdering(orderinglist *beginning, orderinglist *ending, in
 	last = ending;
 	count = numitems;
 	seq = struc = strandnames = NULL;
-//	total_exterior_bases.A = total_exterior_bases.T = total_exterior_bases.C = total_exterior_bases.G = -1;
+
 }
 
 // Note that in_cseq is the code sequence (ie, not printable) and in_seq is the printable version.
@@ -105,7 +106,6 @@ StrandOrdering::StrandOrdering(char *in_seq, char *in_structure, char *in_cseq) 
 	char def_tag[] = "default";
 
 	first = last = NULL;
-//	total_exterior_bases.A = total_exterior_bases.T = total_exterior_bases.C = total_exterior_bases.G = -1;
 	seq = struc = strandnames = NULL;
 
 	// count the number of strands, verify balanced parentheses and connectedness.
@@ -178,7 +178,6 @@ StrandOrdering::StrandOrdering(char *in_seq, char *in_structure, char *in_cseq) 
 
 StrandOrdering::StrandOrdering(char *in_seq, char *in_structure, char *in_cseq, class identList *strandids) {
 	first = last = NULL;
-//	total_exterior_bases.A = total_exterior_bases.T = total_exterior_bases.C = total_exterior_bases.G = -1;
 	seq = struc = strandnames = NULL;
 	class identList *traverse = strandids;
 
@@ -478,6 +477,7 @@ OpenLoop *StrandOrdering::getIndex(char type, int *index, char **location, bool 
 	orderinglist *traverse;
 
 	for (traverse = first; traverse != NULL; traverse = traverse->next) {
+
 		assert(traverse->thisLoop != NULL);
 
 		vector<int>& free_bases = traverse->thisLoop->getFreeBases(useArr).count;
@@ -693,22 +693,22 @@ void StrandOrdering::replaceOpenLoop(Loop *oldLoop, Loop *newLoop) {
 	assert(0); // no loop matched, that's bad.
 }
 
-BaseCounter& StrandOrdering::getExteriorBases(bool useArr) {
+BaseCount& StrandOrdering::getExteriorBases(bool useArr) {
 	orderinglist *traverse = NULL;
 
-	total_exterior_bases.clear();
+	exteriorBases.clear();
 
 	for (traverse = first; traverse != NULL; traverse = traverse->next) {
 
 		assert(traverse->thisLoop != NULL);
 
-		BaseCounter& free_bases = traverse->thisLoop->getFreeBases(useArr);
+		BaseCount& free_bases = traverse->thisLoop->getFreeBases(useArr);
 
-		total_exterior_bases.increment(free_bases);
+		exteriorBases.increment(free_bases);
 
 	}
 
-	return total_exterior_bases;
+	return exteriorBases;
 }
 
 void StrandOrdering::updateLocalContext(void) {
@@ -745,10 +745,12 @@ string StrandOrdering::toString(void) {
 }
 
 void StrandOrdering::addBasepair(char *first_bp, char *second_bp) {
+
 	char *id[2] = { NULL, NULL };
 	char *temp;
 	orderinglist *traverse = NULL;
 	int iflag = 0;
+
 	for (traverse = first; traverse != NULL; traverse = traverse->next, iflag = 0) {
 		if (((first_bp - traverse->thisCodeSeq) < traverse->size) && ((first_bp - traverse->thisCodeSeq) >= 0)) {
 			if (id[0] == NULL)
@@ -814,10 +816,9 @@ void StrandOrdering::breakBasepair(char *first_bp, char *second_bp) {
 			}
 		}
 	}
-	//  printf("%c, %c\n",*id[0],*id[1]);
-	// FD: These now point to the characters in thisStruct that will change from ( and ) to . and .
+
+	// FD: id points to the characters in thisStruct that will change from ( and ) to . and .
 	assert((*id[0] == '(' && *id[1] == ')'));
-	// || (*id[0] == '(' && *id[1] == '(' ) || (*id[0] == ')' && *id[1] == ')' ) );
 	*id[0] = '.';
 	*id[1] = '.';
 	if (seq != NULL) {

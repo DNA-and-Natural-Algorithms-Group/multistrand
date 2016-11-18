@@ -30,21 +30,21 @@ enum BaseType {
 const string baseTypeString[BASETYPE_SIZE] = { "·", "A", "C", "G", "T" };
 
 // structure containing information about bases exterior to the complex, IE bases that could pair with other complexes. First incarnation of such.a structure, prolly will change as I work out multiple-complex issues.
-struct BaseCounter {
+struct BaseCount {
 
 	// Constructor to help interface with existing code
 	// This also helps in refactoring
 	// also declare base constructor because auto constructor has been voided
-	BaseCounter();
-	BaseCounter(int*);	 // second friendly constructor for refactoring
+	BaseCount();
+	BaseCount(int*);	 // second friendly constructor for refactoring
 
 	void clear(void);
 
-	friend std::ostream& operator<<(std::ostream&, BaseCounter&);
+	friend std::ostream& operator<<(std::ostream&, BaseCount&);
 
-	void increment(BaseCounter& other);
-	void decrement(BaseCounter& other);
-	int multiCount(BaseCounter& other);
+	void increment(BaseCount& other);
+	void decrement(BaseCount& other);
+	int multiCount(BaseCount& other);
 
 	int countFromChar(char c);
 

@@ -204,7 +204,7 @@ double SComplexList::getJoinFlux(void) {
 
 	double output = 0.0;
 	bool useArr = eModel->useArrhenius();
-	BaseCounter total_bases;
+	BaseCount total_bases;
 	int moveCount = 0;
 
 	SComplexListEntry *temp = first;
@@ -214,7 +214,7 @@ double SComplexList::getJoinFlux(void) {
 
 	while (temp != NULL) {
 
-		BaseCounter& ext_bases = temp->thisComplex->getExteriorBases(useArr);
+		BaseCount& ext_bases = temp->thisComplex->getExteriorBases(useArr);
 		total_bases.increment(ext_bases);
 
 		temp = temp->next;
@@ -223,7 +223,7 @@ double SComplexList::getJoinFlux(void) {
 	temp = first;
 	while (temp != NULL) {
 
-		BaseCounter& ext_bases = temp->thisComplex->getExteriorBases(useArr);
+		BaseCount& ext_bases = temp->thisComplex->getExteriorBases(useArr);
 		total_bases.decrement(ext_bases);
 
 		moveCount += total_bases.multiCount(ext_bases);
@@ -341,13 +341,13 @@ void SComplexList::computeCrossRateArr(OpenLoop* open1, OpenLoop* open2) {
 
 	//FD: quadruple unfolding of the data structures ..
 
-	for (vector<HalfContext>& vec1 : context1.context) {
+	for (vector<LocalContext>& vec1 : context1.context) {
 
-		for (vector<HalfContext>& vec2 : context2.context) {
+		for (vector<LocalContext>& vec2 : context2.context) {
 
-			for (HalfContext& con1 : vec1) {
+			for (LocalContext& con1 : vec1) {
 
-				for (HalfContext& con2 : vec2) {
+				for (LocalContext& con2 : vec2) {
 
 					addExtRate(con1, con2);
 
@@ -361,14 +361,14 @@ void SComplexList::computeCrossRateArr(OpenLoop* open1, OpenLoop* open2) {
 
 }
 
-void SComplexList::addExtRate(HalfContext& con1, HalfContext& con2) {
+void SComplexList::addExtRate(LocalContext& con1, LocalContext& con2) {
 
 	//FD: pair left with right and right with left.
 
 	if (moveutil::isPair(con1.base, con2.base)) {
 
-		MoveType one = moveutil::combine(con1.left, con2.right);
-		MoveType two = moveutil::combine(con2.left, con1.right);
+		MoveType one = moveutil::combine(con1.half.left, con2.half.right);
+		MoveType two = moveutil::combine(con2.half.left, con1.half.right);
 
 		double rate = eModel->applyPrefactors(eModel->getJoinRate(), one, two);
 
@@ -487,7 +487,7 @@ int SComplexList::doBasicChoice(double choice, double newtime) {
 // helper function, non-classed for now.
 
 // FD: crit is an export variable, but the bool return signifies if a pair has been selected or not.
-void SComplexList::findJoinNucleotides(BaseType base, int choice, BaseCounter& external, SComplexListEntry* temp, JoinCriterea& crit) {
+void SComplexList::findJoinNucleotides(BaseType base, int choice, BaseCount& external, SComplexListEntry* temp, JoinCriterea& crit) {
 
 	int otherBase = 5 - (int) base;
 
@@ -501,7 +501,7 @@ void SComplexList::findJoinNucleotides(BaseType base, int choice, BaseCounter& e
 
 	while (temp != NULL) {
 
-		BaseCounter& externOther = temp->thisComplex->getExteriorBases(useArr);
+		BaseCount& externOther = temp->thisComplex->getExteriorBases(useArr);
 
 		if (choice < externOther.count[base] * external.count[otherBase]) {
 
@@ -528,7 +528,7 @@ void SComplexList::doJoinChoice(double choice) {
 
 	SComplexListEntry *temp = first, *temp2 = NULL;
 
-	BaseCounter baseSum;
+	BaseCount baseSum;
 	bool useArr = eModel->useArrhenius();
 
 	StrandComplex *deleted;
@@ -545,7 +545,7 @@ void SComplexList::doJoinChoice(double choice) {
 
 	while (temp != NULL) {
 
-		BaseCounter& ext_bases = temp->thisComplex->getExteriorBases(useArr);
+		BaseCount& ext_bases = temp->thisComplex->getExteriorBases(useArr);
 		baseSum.increment(ext_bases);
 
 		temp = temp->next;
@@ -555,48 +555,34 @@ void SComplexList::doJoinChoice(double choice) {
 
 	while (temp != NULL) {
 
-		BaseCounter& external = temp->thisComplex->getExteriorBases(useArr);
+		BaseCount& external = temp->thisComplex->getExteriorBases(useArr);
 		baseSum.decrement(external);
 
-		if (int_choice < baseSum.A() * external.T()) {
+		for (BaseType base : { baseA, baseT, baseG, baseC }) {
 
-			findJoinNucleotides(baseA, int_choice, external, temp, crit);
+			int choices = baseSum.count[base] * external.count[5 - base];
 
-			break;
-		} else {
-			int_choice -= baseSum.A() * external.T();
-		}
+			if (int_choice < choices) {
 
-		if (int_choice < baseSum.T() * external.A()) {
+				findJoinNucleotides(base, int_choice, external, temp, crit);
 
-			findJoinNucleotides(baseT, int_choice, external, temp, crit);
+				// break both loops, because the right bases are identified.
+				goto endWhileAndForLoops;
 
-			break;
-		} else {
-			int_choice -= baseSum.T() * external.A();
-		}
+			} else {
+				int_choice -= choices;
+			}
 
-		if (int_choice < baseSum.G() * external.C()) {
-
-			findJoinNucleotides(baseG, int_choice, external, temp, crit);
-
-			break;
-		} else {
-			int_choice -= baseSum.G() * external.C();
-		}
-
-		if (int_choice < baseSum.C() * external.G()) {
-
-			findJoinNucleotides(baseC, int_choice, external, temp, crit);
-
-			break;
-		} else {
-			int_choice -= baseSum.C() * external.G();
 		}
 
 		if (temp != NULL)
 			temp = temp->next;
 	}
+
+	// Exit for the goto.
+	// FD: This isn't much different from replacing GOTO with a return
+	// FD: and spliting off a function
+	endWhileAndForLoops:
 
 	deleted = StrandComplex::performComplexJoin(crit.picked, crit.types, crit.index, useArr);
 

@@ -30,13 +30,13 @@ public:
 	void computeArrBiRate(SComplexListEntry*);
 	void cycleCrossRateArr(StrandOrdering*, StrandOrdering*);
 	void computeCrossRateArr(OpenLoop*, OpenLoop*);
-	void addExtRate(HalfContext&, HalfContext&);
+	void addExtRate(LocalContext&, LocalContext&);
 	int getCount(void);
 	double *getEnergy(int volume_flag);
 	void printComplexList();
 	SComplexListEntry *getFirst(void);
 	int doBasicChoice(double choice, double newtime);
-	void findJoinNucleotides(BaseType, int, BaseCounter&, SComplexListEntry*, JoinCriterea&);
+	void findJoinNucleotides(BaseType, int, BaseCount&, SComplexListEntry*, JoinCriterea&);
 	void doJoinChoice(double choice);
 	bool checkStopComplexList(class complexItem *stoplist);
 	string toString(void);

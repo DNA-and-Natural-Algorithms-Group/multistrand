@@ -34,8 +34,8 @@ QuartContext moveutil::getContext(char input) {
 std::ostream& operator<<(std::ostream &ss, OpenInfo& m) {
 
 	// prints vector<halfContext>
-	for (vector<HalfContext> & value : m.context) {
-		for (HalfContext& context : value) {
+	for (vector<LocalContext> & value : m.context) {
+		for (LocalContext& context : value) {
 			ss << context << ", ";
 		}
 		ss << " \n";	// prints empty line for empty interior sequences
@@ -73,14 +73,14 @@ void OpenInfo::clear(void) {
 }
 
 // simply store the vector of halfContext onto the list we already have
-void OpenInfo::push(vector<HalfContext>& input) {
+void OpenInfo::push(vector<LocalContext>& input) {
 
 	context.push_back(input);
 
 }
 
 // constructor assigns the base
-HalfContext::HalfContext(char input) {
+LocalContext::LocalContext(char input) {
 
 	base = BaseType(input);
 
@@ -183,11 +183,25 @@ bool moveutil::isPair(BaseType one, BaseType two) {
 
 }
 
+// constructor assigns the base
+HalfContext::HalfContext() {
+
+}
+
 std::ostream& operator<<(std::ostream &os, HalfContext& m) {
 
 	os << "(" << quartContextString[m.left] << ", ";
-	os << m.base << ", ";
 	os << quartContextString[m.right] << ") ";
+
+	return os;
+
+}
+
+std::ostream& operator<<(std::ostream &os, LocalContext& m) {
+
+	os << "(" << quartContextString[m.half.left] << ", ";
+	os << m.base << ", ";
+	os << quartContextString[m.half.right] << ") ";
 
 	return os;
 
