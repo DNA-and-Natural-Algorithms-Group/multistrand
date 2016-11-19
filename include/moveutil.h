@@ -52,7 +52,9 @@ struct JoinCriterea {
 struct HalfContext {
 
 	HalfContext();
+	HalfContext(QuartContext, QuartContext);
 	friend std::ostream& operator<<(std::ostream&, HalfContext&);
+	bool operator<(const HalfContext&) const;
 
 	QuartContext left = endC;
 	QuartContext right = endC;
@@ -80,10 +82,10 @@ struct OpenInfo {
 public:
 	friend std::ostream& operator<<(std::ostream&, OpenInfo&);
 	void clear(void);
-	void push(vector<LocalContext>&);
+	void increment(QuartContext, char, QuartContext);
 
-	vector<vector<LocalContext>> context;
-	vector<int> exposedInternalNucl = { 0, 0, 0, 0, 0 };
+	map<HalfContext, BaseCount> tally;
+
 	int numExposedInternal;
 	int numExposed;
 
@@ -94,7 +96,6 @@ class ContextList {
 	ContextList();
 	void increment();
 	void clear(void);
-
 
 	// contains a BaseCount for each possible half-context.
 	map<HalfContext, BaseCount> tally;

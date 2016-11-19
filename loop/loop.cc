@@ -5417,24 +5417,24 @@ BaseCount& OpenLoop::getFreeBases(bool useArr) {
 	return exposedBases;
 }
 
-// FD: in c99 and beyond, int[5] will initialize to {0, 0, 0, 0,0}
-// FD: Declaring ints in the loop itself is not evil because they are
-// FD: already exist in the stack. nov 8 2016
-// This function exist to help with the arrhenius rates.
-// Here we return the count of internal nucleotides in the open loop.
-void OpenLoop::setFreeBasesInternal() {
-
-	for (int loop = 0; loop <= numAdjacent; loop++) {
-		for (int loop2 = 2; loop2 <= sidelen[loop] - 1; loop2++) {
-
-			// removing checks because I'd like to software to fail if
-			// errors in the sequence exist.
-			context.exposedInternalNucl[seqs[loop][loop2]]++;
-
-		}
-	}
-
-}
+//// FD: in c99 and beyond, int[5] will initialize to {0, 0, 0, 0,0}
+//// FD: Declaring ints in the loop itself is not evil because they are
+//// FD: already exist in the stack. nov 8 2016
+//// This function exist to help with the arrhenius rates.
+//// Here we return the count of internal nucleotides in the open loop.
+//void OpenLoop::setFreeBasesInternal() {
+//
+//	for (int loop = 0; loop <= numAdjacent; loop++) {
+//		for (int loop2 = 2; loop2 <= sidelen[loop] - 1; loop2++) {
+//
+//			// removing checks because I'd like to software to fail if
+//			// errors in the sequence exist.
+//			context.exposedInternalNucl[seqs[loop][loop2]]++;
+//
+//		}
+//	}
+//
+//}
 
 /*
  OpenLoop::performComplexJoin
@@ -5620,43 +5620,41 @@ void OpenLoop::parseLocalContext(int index) {
 
 	}
 
-	vector<LocalContext> newContext;
-
 	if (size > 0) {
 
-		LocalContext qContext = LocalContext(mySeq[1]);
+		char base = mySeq[1];
 
-		qContext.half.left = moveutil::getContext(mySeq[0]);
+		QuartContext left = moveutil::getContext(mySeq[0]);
+		QuartContext right;
 
 		if (size == 1) { // exactly one nucleotide
 
-			qContext.half.right = moveutil::getContext(mySeq[2]);
+			right = moveutil::getContext(mySeq[2]);
 
 		} else {
 
-			qContext.half.right = strandC;
+			right = strandC;
 		}
 
-		newContext.push_back(qContext);
+		context.increment(left, base, right);
+
 	}
 
 // also record the second external nucleotide, if it exists
 	if (size > 1) {
 
-		LocalContext qContext = LocalContext(mySeq[size]);
+		int base = mySeq[size];
 
-		qContext.half.left = strandC;
-		qContext.half.right = moveutil::getContext(mySeq[size + 1]);
+		QuartContext left = strandC;
+		QuartContext right = moveutil::getContext(mySeq[size + 1]);
 
-		newContext.push_back(qContext);
+		context.increment(left, base, right);
 
 	}
-
-	context.push(newContext);
 
 // now update the internal exposed toeholds:
 // the rates for these are easier to compute because they are
 // loop by loop local contexts.
-	setFreeBasesInternal();
+//	setFreeBasesInternal();
 
 }

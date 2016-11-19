@@ -336,47 +336,47 @@ void SComplexList::cycleCrossRateArr(StrandOrdering* input1, StrandOrdering* inp
 
 void SComplexList::computeCrossRateArr(OpenLoop* open1, OpenLoop* open2) {
 
-	OpenInfo& context1 = open1->context;
-	OpenInfo& context2 = open2->context;
-
-	//FD: quadruple unfolding of the data structures ..
-
-	for (vector<LocalContext>& vec1 : context1.context) {
-
-		for (vector<LocalContext>& vec2 : context2.context) {
-
-			for (LocalContext& con1 : vec1) {
-
-				for (LocalContext& con2 : vec2) {
-
-					addExtRate(con1, con2);
-
-				}
-
-			}
-
-		}
-
-	}
-
-}
-
-void SComplexList::addExtRate(LocalContext& con1, LocalContext& con2) {
-
-	//FD: pair left with right and right with left.
-
-	if (moveutil::isPair(con1.base, con2.base)) {
-
-		MoveType one = moveutil::combine(con1.half.left, con2.half.right);
-		MoveType two = moveutil::combine(con2.half.left, con1.half.right);
-
-		double rate = eModel->applyPrefactors(eModel->getJoinRate(), one, two);
-
-		arrExtern.push(rate, (char) con1.base);
-
-	}
+//	OpenInfo& context1 = open1->context;
+//	OpenInfo& context2 = open2->context;
+//
+//	//FD: quadruple unfolding of the data structures ..
+//
+//	for (vector<LocalContext>& vec1 : context1.context) {
+//
+//		for (vector<LocalContext>& vec2 : context2.context) {
+//
+//			for (LocalContext& con1 : vec1) {
+//
+//				for (LocalContext& con2 : vec2) {
+//
+//					addExtRate(con1, con2);
+//
+//				}
+//
+//			}
+//
+//		}
+//
+//	}
 
 }
+
+//void SComplexList::addExtRate(LocalContext& con1, LocalContext& con2) {
+//
+//	//FD: pair left with right and right with left.
+//
+//	if (moveutil::isPair(con1.base, con2.base)) {
+//
+//		MoveType one = moveutil::combine(con1.half.left, con2.half.right);
+//		MoveType two = moveutil::combine(con2.half.left, con1.half.right);
+//
+//		double rate = eModel->applyPrefactors(eModel->getJoinRate(), one, two);
+//
+//		arrExtern.push(rate, (char) con1.base);
+//
+//	}
+//
+//}
 
 /*
  SComplexList::getEnergy( int volume_flag )

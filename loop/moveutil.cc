@@ -3,10 +3,12 @@
 #include <assert.h>
 #include <string>
 #include <vector>
+#include <map>
 #include <iostream>
 #include <scomplex.h>
 
 using std::vector;
+using std::map;
 using std::cout;
 
 std::string quartContextString[HALFCONTEXT_SIZE] = { "end", "loop", "stack" };
@@ -33,29 +35,16 @@ QuartContext moveutil::getContext(char input) {
 
 std::ostream& operator<<(std::ostream &ss, OpenInfo& m) {
 
-	// prints vector<halfContext>
-	for (vector<LocalContext> & value : m.context) {
-		for (LocalContext& context : value) {
-			ss << context << ", ";
-		}
-		ss << " \n";	// prints empty line for empty interior sequences
+	for (std::pair<HalfContext, BaseCount> value : m.tally) {
+
+		ss << value.first << "  ";
+		ss << value.second;
+		ss << "\n";
+
 	}
 
 	ss << "Exposed, Intern/Total = " << m.numExposedInternal << " / ";
 	ss << m.numExposed << "	\n";
-
-	ss << "·ACGT" << "            ";
-
-	for (int i : { 0, 1, 2, 3, 4 }) {
-
-//		ss << baseTypeString[i] << ": " << m.exposedInternalNucl[i] << " ";
-		ss << m.exposedInternalNucl[i];
-
-		if (i != 4) {
-			ss << " / ";
-		}
-
-	}
 
 	ss << "\n";
 
@@ -65,17 +54,28 @@ std::ostream& operator<<(std::ostream &ss, OpenInfo& m) {
 
 void OpenInfo::clear(void) {
 
-	context.clear();
-	exposedInternalNucl = {0,0,0,0,0};
+	tally.clear();
 	numExposedInternal = 0;
 	numExposed = 0;
 
 }
 
 // simply store the vector of halfContext onto the list we already have
-void OpenInfo::push(vector<LocalContext>& input) {
+void OpenInfo::increment(QuartContext left, char base, QuartContext right) {
 
-	context.push_back(input);
+	HalfContext con = HalfContext(left, right);
+
+	if (tally.count(con) > 0) { // if count > 1 then proceed
+
+		tally.find(con)->second.count[base]++;
+
+	} else {
+
+		BaseCount count = BaseCount();
+		count.count[base]++;
+		tally.insert(std::pair<HalfContext, BaseCount>(con, count));
+
+	}
 
 }
 
@@ -188,12 +188,27 @@ HalfContext::HalfContext() {
 
 }
 
+HalfContext::HalfContext(QuartContext in1, QuartContext in2) {
+
+	left = in1;
+	right = in2;
+
+}
+
 std::ostream& operator<<(std::ostream &os, HalfContext& m) {
 
 	os << "(" << quartContextString[m.left] << ", ";
 	os << quartContextString[m.right] << ") ";
 
 	return os;
+
+}
+
+
+// c++ expects partial ordering instead of equality for mapping
+bool HalfContext::operator<(const HalfContext& other) const {
+
+	return (left < other.left) || (left == other.left && right < other.right);
 
 }
 
