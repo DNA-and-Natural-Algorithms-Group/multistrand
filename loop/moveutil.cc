@@ -207,6 +207,22 @@ std::ostream& operator<<(std::ostream &os, LocalContext& m) {
 
 }
 
+ContextList::ContextList() {
+
+}
+
+void ContextList::increment(void) {
+
+	//TODO
+
+}
+
+void ContextList::clear() {
+
+	tally.clear();
+
+}
+
 Transition::Transition(double rateIn, char pairTypeIn) {
 
 	rate = rateIn;

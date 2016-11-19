@@ -79,14 +79,15 @@ public:
 
 	// moving first, last to public because we cycle over two of them for Arr bimolecular rates
 	orderinglist *first, *last;
+
+//	// similar to BaseCounter, we tally the half-contexts and bases for this strand ordering.
+//	// To be used to generate bimolecular rates.
+//	ContextList contextList;
+
 private:
 	char *seq, *struc, *strandnames;
 	int count;
 	BaseCount exteriorBases;
-
-	// similar to BaseCounter, we tally the half-contexts and bases for this strand ordering.
-	// To be used to generate bimolecular rates.
-	ContextList contextList;
 
 };
 

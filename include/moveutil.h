@@ -4,12 +4,12 @@
 
 #include <string>
 #include <vector>
-#include <set>
+#include <map>
 #include <sequtil.h>
 
 using std::vector;
 using std::string;
-using std::set;
+using std::map;
 
 class StrandComplex;
 
@@ -91,9 +91,13 @@ public:
 
 class ContextList {
 
+	ContextList();
+	void increment();
+	void clear(void);
+
+
 	// contains a BaseCount for each possible half-context.
-//	vector<HalfContext>;
-	set<LocalContext, int> mySet;
+	map<HalfContext, BaseCount> tally;
 
 };
 
@@ -121,7 +125,6 @@ private:
 class TransitionList {
 
 public:
-//	void push(double, BaseType, BaseType);
 	void push(double, char);
 	void clear(void);
 
