@@ -711,6 +711,30 @@ BaseCount& StrandOrdering::getExteriorBases(bool useArr) {
 	return exteriorBases;
 }
 
+
+
+
+ContextList& StrandOrdering::getContextList() {
+//	orderinglist *traverse = NULL;
+//
+//	exteriorBases.clear();
+//
+//	for (traverse = first; traverse != NULL; traverse = traverse->next) {
+//
+//		assert(traverse->thisLoop != NULL);
+//
+//		BaseCount& free_bases = traverse->thisLoop->getFreeBases(useArr);
+//
+//		exteriorBases.increment(free_bases);
+//
+//	}
+//
+//	return exteriorBases;
+
+		return contextList;
+
+}
+
 void StrandOrdering::updateLocalContext(void) {
 
 	orderinglist *traverse = NULL;

@@ -60,7 +60,7 @@ StrandComplex::StrandComplex(StrandOrdering *newOrdering) {
 	ordering = newOrdering;
 	beginLoop = ordering->getLoop();
 	kineticMoves = NULL;
-	totalFlux = 0.0;
+
 }
 
 StrandComplex::~StrandComplex(void) {

@@ -58,7 +58,8 @@ private:
 	StrandOrdering *ordering;
 	Loop *beginLoop;
 	MoveTree *kineticMoves;
-	double totalFlux; // Total flux contained within this complex.
+
+	double totalFlux = 0.0; // Total flux contained within this complex.
 
 };
 
