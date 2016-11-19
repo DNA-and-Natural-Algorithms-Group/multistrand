@@ -262,7 +262,7 @@ double SComplexList::getJoinFlux(void) {
 double SComplexList::getJoinFluxArr(void) {
 
 // there are 4x6x6 options, so these rates we have to tally and then sum.
-	arrExtern.clear();
+//	arrExtern.clear();
 
 	SComplexListEntry* temp = first;
 
@@ -280,9 +280,9 @@ double SComplexList::getJoinFluxArr(void) {
 
 	// We created the rate library. for now, print it.
 
-	cout << arrExtern;
+//	cout << arrExtern;
 
-	return arrExtern.rateSum;
+//	return arrExtern.rateSum;
 
 }
 

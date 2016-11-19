@@ -61,7 +61,6 @@ struct HalfContext {
 
 };
 
-
 // This struct contains info computed
 // at-time-of-creation for the OpenLoop object.
 
@@ -72,6 +71,7 @@ public:
 	void clear(void);
 	void increment(QuartContext, char, QuartContext);
 	void increment(HalfContext, BaseCount&);
+	void increment(OpenInfo&);
 
 	map<HalfContext, BaseCount> tally;
 
@@ -80,16 +80,16 @@ public:
 
 };
 
-class ContextList {
-
-	ContextList();
-	void increment();
-	void clear(void);
-
-	// contains a BaseCount for each possible half-context.
-	map<HalfContext, BaseCount> tally;
-
-};
+//class ContextList {
+//
+//	ContextList();
+//	void increment(OpenInfo&);
+//	void clear(void);
+//
+//	// contains a BaseCount for each possible half-context.
+//	map<HalfContext, BaseCount> tally;
+//
+//};
 
 // UTILITY CLASSES
 
@@ -99,32 +99,32 @@ class ContextList {
 // FD: except that for this class, we do not include any program logic.
 // FD: They only store rates and pointers to actual data.
 // FD: Nov 18 2016: these will be depreciated soon.
-class Transition {
-
-public:
-
-	Transition(double, char);
-	friend std::ostream& operator<<(std::ostream&, Transition&);
-
-private:
-	double rate = 0.0;
-	char pairType;	 // a 2-set of which nucleotides are binding in this move
-
-};
-
-class TransitionList {
-
-public:
-	void push(double, char);
-	void clear(void);
-
-	friend std::ostream& operator<<(std::ostream&, TransitionList&);
-
-	double rateSum = 0.0;
-
-private:
-	vector<Transition> list;
-
-};
+//class Transition {
+//
+//public:
+//
+//	Transition(double, char);
+//	friend std::ostream& operator<<(std::ostream&, Transition&);
+//
+//private:
+//	double rate = 0.0;
+//	char pairType;	 // a 2-set of which nucleotides are binding in this move
+//
+//};
+//
+//class TransitionList {
+//
+//public:
+//	void push(double, char);
+//	void clear(void);
+//
+//	friend std::ostream& operator<<(std::ostream&, TransitionList&);
+//
+//	double rateSum = 0.0;
+//
+//private:
+//	vector<Transition> list;
+//
+//};
 
 #endif

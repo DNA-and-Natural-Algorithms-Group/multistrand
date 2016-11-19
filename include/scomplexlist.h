@@ -42,7 +42,7 @@ public:
 	void updateLocalContext(void);
 
 	// contains the external nucleotide transitions
-	TransitionList arrExtern;
+//	TransitionList arrExtern;
 
 private:
 	bool checkStopComplexList_Bound(class complexItem *stoplist);

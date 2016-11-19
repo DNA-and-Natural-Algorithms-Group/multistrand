@@ -71,7 +71,7 @@ public:
 
 	// updates and returns the current exterior base count.
 	BaseCount& getExteriorBases(bool);
-	ContextList& getContextList();
+	OpenInfo& getOpenInfo();
 	void updateLocalContext();
 	string toString(void);
 
@@ -83,12 +83,14 @@ public:
 
 //	// similar to BaseCounter, we tally the half-contexts and bases for this strand ordering.
 //	// To be used to generate bimolecular rates.
-	ContextList contextList;
+	OpenInfo myInfo;
 
 private:
 	char *seq, *struc, *strandnames;
 	int count;
 	BaseCount exteriorBases;
+
+	bool pleaseUpdateOpenInfo = true;
 
 };
 

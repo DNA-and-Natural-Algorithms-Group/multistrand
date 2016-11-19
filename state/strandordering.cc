@@ -711,27 +711,27 @@ BaseCount& StrandOrdering::getExteriorBases(bool useArr) {
 	return exteriorBases;
 }
 
+OpenInfo& StrandOrdering::getOpenInfo(void) {
 
+	if (pleaseUpdateOpenInfo) {
 
+		pleaseUpdateOpenInfo = false;
 
-ContextList& StrandOrdering::getContextList() {
-//	orderinglist *traverse = NULL;
-//
-//	exteriorBases.clear();
-//
-//	for (traverse = first; traverse != NULL; traverse = traverse->next) {
-//
-//		assert(traverse->thisLoop != NULL);
-//
-//		BaseCount& free_bases = traverse->thisLoop->getFreeBases(useArr);
-//
-//		exteriorBases.increment(free_bases);
-//
-//	}
-//
-//	return exteriorBases;
+		orderinglist *traverse = NULL;
 
-		return contextList;
+		for (traverse = first; traverse != NULL; traverse = traverse->next) {
+
+			assert(traverse->thisLoop != NULL);
+
+			OpenInfo info = traverse->thisLoop->getOpenInfo();
+
+			myInfo.increment(info);
+
+		}
+
+	}
+
+	return myInfo;
 
 }
 
@@ -739,7 +739,7 @@ void StrandOrdering::updateLocalContext(void) {
 
 	orderinglist *traverse = NULL;
 	for (traverse = first; traverse != NULL; traverse = traverse->next) {
-		traverse->thisLoop->updateLocalContext();
+		traverse->thisLoop->getOpenInfo();
 	}
 
 }

@@ -14,7 +14,6 @@
 #include "move.h"
 #include "moveutil.h"
 
-
 using std::vector;
 
 class EnergyOptions;
@@ -236,7 +235,8 @@ public:
 	// member that's just returned.  Not completed currently.
 	// FD: 2016-11-14 the above is now implemented.
 	BaseCount& getFreeBases(bool);
-//	void setFreeBasesInternal(void);
+	OpenInfo getOpenInfo(void);
+
 
 	char *getBase(char type, int index, bool);
 
@@ -248,22 +248,19 @@ public:
 	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);
 	static void performComplexJoin(OpenLoop **oldLoops, OpenLoop **newLoops, char *types, int *index, bool);
 	string typeInternalsToString(void);
-	void updateLocalContext(void);
 	void parseLocalContext(int);
 
 	// non-private because we trust each other;
 	// so: only the loop itself is allowed to set these.
-	OpenInfo context;
-	BaseCount exposedBases  = BaseCount();
+	BaseCount exposedBases = BaseCount();
 	bool updatedContext = false;
 	bool updatedContext2 = false;
 
 private:
+	OpenInfo context;
 	int *pairtype;
 	int *sidelen;
 	char **seqs;
-
-
 
 };
 

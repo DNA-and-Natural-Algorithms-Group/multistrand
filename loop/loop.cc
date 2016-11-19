@@ -5582,12 +5582,12 @@ char *OpenLoop::verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop 
 		return NULL;
 }
 
-void OpenLoop::updateLocalContext() {
+OpenInfo OpenLoop::getOpenInfo() {
 
 // do nothing if not required
 	if (updatedContext) {
 
-		return;
+		return context;
 
 	}
 
@@ -5600,6 +5600,8 @@ void OpenLoop::updateLocalContext() {
 	}
 
 	updatedContext = true;
+
+	return context;
 
 }
 
