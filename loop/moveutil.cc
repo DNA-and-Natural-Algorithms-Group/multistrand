@@ -95,13 +95,6 @@ void OpenInfo::increment(HalfContext con, BaseCount& count) {
 
 }
 
-// constructor assigns the base
-LocalContext::LocalContext(char input) {
-
-	base = BaseType(input);
-
-}
-
 JoinCriterea::JoinCriterea() {
 
 	// empty constructor
@@ -224,16 +217,6 @@ std::ostream& operator<<(std::ostream &os, HalfContext& m) {
 bool HalfContext::operator<(const HalfContext& other) const {
 
 	return (left < other.left) || (left == other.left && right < other.right);
-
-}
-
-std::ostream& operator<<(std::ostream &os, LocalContext& m) {
-
-	os << "(" << quartContextString[m.half.left] << ", ";
-	os << m.base << ", ";
-	os << quartContextString[m.half.right] << ") ";
-
-	return os;
 
 }
 

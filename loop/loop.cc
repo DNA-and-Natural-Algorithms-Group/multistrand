@@ -5668,7 +5668,6 @@ void OpenLoop::parseLocalContext(int index) {
 
 		}
 
-//	cout << "INCREMENTING LOOP LOOP  " << myCount << "\n";
 		context.increment(HalfContext(strandC, strandC), myCount);
 	}
 

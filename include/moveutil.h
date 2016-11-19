@@ -61,18 +61,6 @@ struct HalfContext {
 
 };
 
-struct LocalContext {
-
-	LocalContext(char base);
-
-	friend std::ostream& operator<<(std::ostream&, LocalContext&);
-
-	BaseType base;
-	HalfContext half;
-	QuartContext left = endC;
-	QuartContext right = endC;
-
-};
 
 // This struct contains info computed
 // at-time-of-creation for the OpenLoop object.
