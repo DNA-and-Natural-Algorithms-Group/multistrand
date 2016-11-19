@@ -37,9 +37,8 @@ std::ostream& operator<<(std::ostream &ss, OpenInfo& m) {
 
 	for (std::pair<HalfContext, BaseCount> value : m.tally) {
 
-		ss << value.first << "  ";
-		ss << value.second;
-		ss << "\n";
+		ss << value.first << " ";
+		ss << value.second << "   --   ";
 
 	}
 
@@ -61,11 +60,11 @@ void OpenInfo::clear(void) {
 }
 
 // simply store the vector of halfContext onto the list we already have
-void OpenInfo::increment(QuartContext left, char base, QuartContext right) {
 
+void OpenInfo::increment(QuartContext left, char base, QuartContext right) {
 	HalfContext con = HalfContext(left, right);
 
-	if (tally.count(con) > 0) { // if count > 1 then proceed
+	if (tally.count(con)) { // if count > 0 then proceed
 
 		tally.find(con)->second.count[base]++;
 
@@ -74,6 +73,22 @@ void OpenInfo::increment(QuartContext left, char base, QuartContext right) {
 		BaseCount count = BaseCount();
 		count.count[base]++;
 		tally.insert(std::pair<HalfContext, BaseCount>(con, count));
+
+	}
+
+}
+
+void OpenInfo::increment(HalfContext con, BaseCount& count) {
+
+	if (tally.count(con)) {
+
+		tally.find(con)->second.increment(count);
+
+	} else {
+
+		BaseCount countNew = BaseCount();
+		countNew.increment(count);
+		tally.insert(std::pair<HalfContext, BaseCount>(con, countNew));
 
 	}
 
@@ -203,7 +218,6 @@ std::ostream& operator<<(std::ostream &os, HalfContext& m) {
 	return os;
 
 }
-
 
 // c++ expects partial ordering instead of equality for mapping
 bool HalfContext::operator<(const HalfContext& other) const {

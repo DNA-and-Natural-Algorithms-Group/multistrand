@@ -83,6 +83,7 @@ public:
 	friend std::ostream& operator<<(std::ostream&, OpenInfo&);
 	void clear(void);
 	void increment(QuartContext, char, QuartContext);
+	void increment(HalfContext, BaseCount&);
 
 	map<HalfContext, BaseCount> tally;
 

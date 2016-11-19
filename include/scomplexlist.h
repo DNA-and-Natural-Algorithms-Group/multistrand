@@ -30,7 +30,6 @@ public:
 	void computeArrBiRate(SComplexListEntry*);
 	void cycleCrossRateArr(StrandOrdering*, StrandOrdering*);
 	void computeCrossRateArr(OpenLoop*, OpenLoop*);
-//	void addExtRate(LocalContext&, LocalContext&);
 	int getCount(void);
 	double *getEnergy(int volume_flag);
 	void printComplexList();
