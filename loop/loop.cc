@@ -5656,18 +5656,20 @@ void OpenLoop::parseLocalContext(int index) {
 // the rates for these are easier to compute because they are
 // loop by loop local contexts.
 
-	BaseCount myCount = BaseCount();
+	if (context.numExposedInternal > 0) {
 
-	for (int loop = 0; loop <= numAdjacent; loop++) {
-		for (int loop2 = 2; loop2 <= sidelen[loop] - 1; loop2++) {
+		BaseCount myCount = BaseCount();
+
+		for (int loop2 = 2; loop2 <= sidelen[index] - 1; loop2++) {
 
 			// removing checks because I'd like to software to fail if
 			// errors in the sequence exist.
-			myCount.count[seqs[loop][loop2]]++;
+			myCount.count[seqs[index][loop2]]++;
 
 		}
-	}
 
-	context.increment(HalfContext(strandC, strandC), myCount);
+//	cout << "INCREMENTING LOOP LOOP  " << myCount << "\n";
+		context.increment(HalfContext(strandC, strandC), myCount);
+	}
 
 }

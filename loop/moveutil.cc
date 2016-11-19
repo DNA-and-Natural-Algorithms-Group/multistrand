@@ -88,6 +88,7 @@ void OpenInfo::increment(HalfContext con, BaseCount& count) {
 
 		BaseCount countNew = BaseCount();
 		countNew.increment(count);
+
 		tally.insert(std::pair<HalfContext, BaseCount>(con, countNew));
 
 	}
