@@ -5585,11 +5585,11 @@ char *OpenLoop::verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop 
 OpenInfo OpenLoop::getOpenInfo() {
 
 // do nothing if not required
-	if (updatedContext) {
+	if (context.upToDate) {
 
 		return context;
 
-	}
+	} // else
 
 	context.clear();
 
@@ -5598,8 +5598,6 @@ OpenInfo OpenLoop::getOpenInfo() {
 		parseLocalContext(i);
 
 	}
-
-	updatedContext = true;
 
 	return context;
 

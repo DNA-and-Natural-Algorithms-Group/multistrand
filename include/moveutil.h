@@ -78,6 +78,8 @@ public:
 	int numExposedInternal;
 	int numExposed;
 
+	bool upToDate = false;
+
 };
 
 //class ContextList {

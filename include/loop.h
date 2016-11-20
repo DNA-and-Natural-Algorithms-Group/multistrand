@@ -237,7 +237,6 @@ public:
 	BaseCount& getFreeBases(bool);
 	OpenInfo getOpenInfo(void);
 
-
 	char *getBase(char type, int index, bool);
 
 	OpenLoop(void);
@@ -253,7 +252,7 @@ public:
 	// non-private because we trust each other;
 	// so: only the loop itself is allowed to set these.
 	BaseCount exposedBases = BaseCount();
-	bool updatedContext = false;
+//	bool updatedContext = false;
 	bool updatedContext2 = false;
 
 private:
