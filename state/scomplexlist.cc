@@ -303,7 +303,7 @@ double SComplexList::computeArrBiRate(SComplexListEntry* input) {
 		StrandOrdering* otherOrder = temp->thisComplex->getOrdering();
 		output += cycleCrossRateArr(orderIn, otherOrder);
 
-		cout << "Output is now " << output << "\n";
+//		cout << "Output is now " << output << "\n";
 
 		temp = temp->next;
 	}
@@ -319,8 +319,8 @@ double SComplexList::cycleCrossRateArr(StrandOrdering* input1, StrandOrdering* i
 	OpenInfo& info1 = input1->getOpenInfo();
 	OpenInfo& info2 = input2->getOpenInfo();
 
-	cout << "info1 = " << info1 << "\n";
-	cout << "info2 = " << info2 << "\n";
+//	cout << "info1 = " << info1 << "\n";
+//	cout << "info2 = " << info2 << "\n";
 
 	return info1.crossRate(info2, *eModel);
 
