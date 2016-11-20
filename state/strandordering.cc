@@ -89,7 +89,6 @@ void StrandOrdering::cleanup(void) {
 
 StrandOrdering::StrandOrdering(void) {
 	first = last = NULL;
-	count = 0;
 	seq = struc = strandnames = NULL;
 }
 
@@ -113,7 +112,6 @@ StrandOrdering::StrandOrdering(char *in_seq, char *in_structure, char *in_cseq) 
 	int index = 0;
 	orderinglist *new_elem = NULL;
 
-	count = 0;
 	for (index = 0; index < strlen(in_cseq); index++) {
 		switch (in_structure[index]) {
 		case '(':
@@ -186,7 +184,6 @@ StrandOrdering::StrandOrdering(char *in_seq, char *in_structure, char *in_cseq, 
 	int index = 0;
 	orderinglist *new_elem = NULL;
 
-	count = 0;
 	for (index = 0; index < strlen(in_cseq); index++) {
 		switch (in_structure[index]) {
 		case '(':

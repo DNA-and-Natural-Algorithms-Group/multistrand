@@ -86,7 +86,7 @@ public:
 
 private:
 	char *seq, *struc, *strandnames;
-	int count;
+	int count = 0;
 	BaseCount exteriorBases;
 
 };
