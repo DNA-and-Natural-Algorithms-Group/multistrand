@@ -4701,7 +4701,7 @@ string OpenLoop::typeInternalsToString(void) {
 
 	ss << " \n";
 
-	ss << context;
+	ss << openInfo;
 
 	return ss.str();
 
@@ -5585,13 +5585,13 @@ char *OpenLoop::verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop 
 OpenInfo OpenLoop::getOpenInfo() {
 
 // do nothing if not required
-	if (context.upToDate) {
+	if (openInfo.upToDate) {
 
-		return context;
+		return openInfo;
 
 	} // else
 
-	context.clear();
+	openInfo.clear();
 
 	for (int i = 0; i < numAdjacent + 1; i++) {
 
@@ -5599,7 +5599,7 @@ OpenInfo OpenLoop::getOpenInfo() {
 
 	}
 
-	return context;
+	return openInfo;
 
 }
 
@@ -5612,11 +5612,11 @@ void OpenLoop::parseLocalContext(int index) {
 	char* mySeq = seqs[index];
 	int size = sidelen[index];
 
-	context.numExposed += size;
+	openInfo.numExposed += size;
 
 	if (size > 2) {	 // there are internal nucleotides
 
-		context.numExposedInternal += size - 2;
+		openInfo.numExposedInternal += size - 2;
 
 	}
 
@@ -5636,7 +5636,7 @@ void OpenLoop::parseLocalContext(int index) {
 			right = strandC;
 		}
 
-		context.increment(left, base, right);
+		openInfo.increment(left, base, right);
 
 	}
 
@@ -5648,7 +5648,7 @@ void OpenLoop::parseLocalContext(int index) {
 		QuartContext left = strandC;
 		QuartContext right = moveutil::getContext(mySeq[size + 1]);
 
-		context.increment(left, base, right);
+		openInfo.increment(left, base, right);
 
 	}
 
@@ -5656,7 +5656,7 @@ void OpenLoop::parseLocalContext(int index) {
 // the rates for these are easier to compute because they are
 // loop by loop local contexts.
 
-	if (context.numExposedInternal > 0) {
+	if (openInfo.numExposedInternal > 0) {
 
 		BaseCount myCount = BaseCount();
 
@@ -5668,7 +5668,7 @@ void OpenLoop::parseLocalContext(int index) {
 
 		}
 
-		context.increment(HalfContext(strandC, strandC), myCount);
+		openInfo.increment(HalfContext(strandC, strandC), myCount);
 	}
 
 }

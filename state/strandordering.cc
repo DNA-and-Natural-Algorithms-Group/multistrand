@@ -713,36 +713,37 @@ BaseCount& StrandOrdering::getExteriorBases(bool useArr) {
 
 OpenInfo& StrandOrdering::getOpenInfo(void) {
 
-	if (pleaseUpdateOpenInfo) {
+	if (openInfo.upToDate) {
 
-		pleaseUpdateOpenInfo = false;
+		return openInfo;
 
-		orderinglist *traverse = NULL;
-
-		for (traverse = first; traverse != NULL; traverse = traverse->next) {
-
-			assert(traverse->thisLoop != NULL);
-
-			OpenInfo info = traverse->thisLoop->getOpenInfo();
-
-			myInfo.increment(info);
-
-		}
-
-	}
-
-	return myInfo;
-
-}
-
-void StrandOrdering::updateLocalContext(void) {
+	} // else
 
 	orderinglist *traverse = NULL;
+
 	for (traverse = first; traverse != NULL; traverse = traverse->next) {
-		traverse->thisLoop->getOpenInfo();
+
+		assert(traverse->thisLoop != NULL);
+
+		OpenInfo info = traverse->thisLoop->getOpenInfo();
+
+		openInfo.increment(info);
+
 	}
 
+	return openInfo;
+
 }
+
+//// simply ask all open loops to update their local contexts.
+//void StrandOrdering::updateOpenInfo(void) {
+//
+//	orderinglist *traverse = NULL;
+//	for (traverse = first; traverse != NULL; traverse = traverse->next) {
+//		traverse->thisLoop->getOpenInfo();
+//	}
+//
+//}
 
 string StrandOrdering::toString(void) {
 
@@ -841,7 +842,7 @@ void StrandOrdering::breakBasepair(char *first_bp, char *second_bp) {
 		}
 	}
 
-	// FD: id points to the characters in thisStruct that will change from ( and ) to . and .
+// FD: id points to the characters in thisStruct that will change from ( and ) to . and .
 	assert((*id[0] == '(' && *id[1] == ')'));
 	*id[0] = '.';
 	*id[1] = '.';

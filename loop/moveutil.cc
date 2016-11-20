@@ -60,7 +60,6 @@ void OpenInfo::clear(void) {
 }
 
 // simply store the vector of halfContext onto the list we already have
-
 void OpenInfo::increment(QuartContext left, char base, QuartContext right) {
 	HalfContext con = HalfContext(left, right);
 
@@ -82,9 +81,11 @@ void OpenInfo::increment(HalfContext con, BaseCount& count) {
 
 	if (tally.count(con)) {
 
+		// if found, increment from the reference
+
 		tally.find(con)->second.increment(count);
 
-	} else {
+	} else { // if not found, don't store the reference, make a new object.
 
 		BaseCount countNew = BaseCount();
 		countNew.increment(count);
@@ -95,13 +96,17 @@ void OpenInfo::increment(HalfContext con, BaseCount& count) {
 
 }
 
-void OpenInfo::increment(OpenInfo& other){
+void OpenInfo::increment(OpenInfo& other) {
 
+	map<HalfContext, BaseCount> tally;
 
-	// TODO
+	for (std::pair<HalfContext, BaseCount> myPair : other.tally) {
+
+		increment(myPair.first, myPair.second);
+
+	}
 
 }
-
 
 JoinCriterea::JoinCriterea() {
 

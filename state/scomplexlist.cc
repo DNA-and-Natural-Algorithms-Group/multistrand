@@ -644,9 +644,12 @@ string SComplexList::toString() {
 void SComplexList::updateLocalContext(void) {
 
 	SComplexListEntry *temp = first;
+
 	while (temp != NULL) {
-		temp->thisComplex->updateLocalContext();
+
+		temp->thisComplex->getOpenInfo();
 		temp = temp->next;
+
 	}
 
 }

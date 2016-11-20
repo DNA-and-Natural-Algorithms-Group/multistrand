@@ -635,9 +635,9 @@ string StrandComplex::printStrandOrdering() {
 
 }
 
-void StrandComplex::updateLocalContext() {
+OpenInfo& StrandComplex::getOpenInfo() {
 
-	ordering->updateLocalContext();
+	return ordering->getOpenInfo();
 
 }
 
@@ -657,12 +657,9 @@ char *StrandComplex::getSequence(void) {
 }
 
 char *StrandComplex::getStructure(void) {
-//char *structure;
-//  structure = new char[strlen(tempseq)];
-//for( int loop = 0; loop < strlen(structure); loop++)
-//  structure[loop] = '.';
-//beginLoop->printMove(NULL,structure,getSequence());
+
 	return ordering->getStructure();
+
 }
 
 char *StrandComplex::getStrandNames(void) {

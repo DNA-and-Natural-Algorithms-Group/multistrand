@@ -49,7 +49,7 @@ public:
 	void printAllMoves(void);
 	string toString(void);
 	string printStrandOrdering(void);
-	void updateLocalContext(void);
+	OpenInfo& getOpenInfo(void);
 
 	static StrandComplex *performComplexJoin(StrandComplex **complexes, char *types, int *index, bool);
 	StrandOrdering* getOrdering();

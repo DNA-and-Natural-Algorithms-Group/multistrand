@@ -252,11 +252,10 @@ public:
 	// non-private because we trust each other;
 	// so: only the loop itself is allowed to set these.
 	BaseCount exposedBases = BaseCount();
-//	bool updatedContext = false;
-	bool updatedContext2 = false;
+	bool updatedContext2 = false; // this is the update toggle for exposedBases.
 
 private:
-	OpenInfo context;
+	OpenInfo openInfo;
 	int *pairtype;
 	int *sidelen;
 	char **seqs;
