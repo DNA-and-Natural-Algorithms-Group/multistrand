@@ -212,6 +212,13 @@ double SComplexList::getJoinFlux(void) {
 
 	SComplexListEntry *temp = first;
 
+	// We now compute the exterior nucleotide moves.
+	if (useArr) {
+
+		return getJoinFluxArr();
+
+	}
+
 	if (numentries <= 1)
 		return 0.0;
 
@@ -242,15 +249,15 @@ double SComplexList::getJoinFlux(void) {
 
 	}
 
-	// We now compute the exterior nucleotide moves.
-	if (useArr) {
-
-		// avoid adding the rates for now.
-		getJoinFluxArr();
-
+//	// We now compute the exterior nucleotide moves.
+//	if (useArr) {
+//
+//		// avoid adding the rates for now.
+////		getJoinFluxArr();
+//
 //		output += getJoinFluxArr();
-
-	}
+//
+//	}
 
 	return output;
 
@@ -282,6 +289,8 @@ double SComplexList::getJoinFluxArr(void) {
 
 double SComplexList::computeArrBiRate(SComplexListEntry* input) {
 
+	double output = 0.0;
+
 	SComplexListEntry* temp = input->next;
 	// post: temp is pointing to the next entry
 
@@ -291,10 +300,12 @@ double SComplexList::computeArrBiRate(SComplexListEntry* input) {
 	while (temp != NULL) {
 
 		StrandOrdering* otherOrder = temp->thisComplex->getOrdering();
-		cycleCrossRateArr(orderIn, otherOrder);
+		output += cycleCrossRateArr(orderIn, otherOrder);
 
 		temp = temp->next;
 	}
+
+	return output;
 
 }
 
@@ -305,7 +316,7 @@ double SComplexList::cycleCrossRateArr(StrandOrdering* input1, StrandOrdering* i
 	OpenInfo& info1 = input1->getOpenInfo();
 	OpenInfo& info2 = input2->getOpenInfo();
 
-	return info1.crossRate(info2);
+	return info1.crossRate(info2, *eModel);
 
 //	orderinglist* temp1 = input1->first;
 //	orderinglist* temp2 = input2->first;

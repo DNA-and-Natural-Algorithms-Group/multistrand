@@ -7,6 +7,7 @@
 #include <iostream>
 #include <scomplex.h>
 
+
 using std::vector;
 using std::map;
 using std::cout;
@@ -114,7 +115,7 @@ void OpenInfo::increment(OpenInfo& other) {
 
 // simply compute the crossed-rate between these exposed nucleotides.
 
-double OpenInfo::crossRate(OpenInfo& other) {
+double OpenInfo::crossRate(OpenInfo& other, EnergyModel& eModel) {
 
 	double output = 0.0;
 
@@ -131,7 +132,7 @@ double OpenInfo::crossRate(OpenInfo& other) {
 			MoveType left = moveutil::combineBi(top.left, bot.right);
 			MoveType right = moveutil::combineBi(top.right, bot.left);
 
-			output += 0.0;
+			output += eModel.applyPrefactors(eModel.getJoinRate(), left, right);
 
 		}
 

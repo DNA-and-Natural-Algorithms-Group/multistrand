@@ -12,6 +12,7 @@ using std::string;
 using std::map;
 
 class StrandComplex;
+class EnergyModel;
 
 enum MoveType {
 	endMove, loopMove, stackMove, stackStackMove, loopEndMove, stackEndMove, stackLoopMove, MOVETYPE_SIZE
@@ -73,7 +74,7 @@ public:
 	void increment(HalfContext, BaseCount&);
 	void increment(OpenInfo&);
 
-	double crossRate(OpenInfo&);
+	double crossRate(OpenInfo&, EnergyModel&);
 
 	map<HalfContext, BaseCount> tally;
 

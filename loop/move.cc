@@ -71,7 +71,7 @@ string RateEnv::toString(bool useArr) {
 
 	if (useArr) {
 
-		ss << this;
+		ss << *this;
 
 	} else {
 
@@ -234,9 +234,11 @@ string Move::toString(bool useArr) {
 	// FD: print even if the rate equals 0
 
 	ss << utility::moveType(type) << " ";
+
 	if (affected[0] != NULL) {
 		ss << affected[0]->toStringShort() << " ";
 	}
+
 	if (affected[1] != NULL) {
 		ss << affected[1]->toStringShort();
 	}
