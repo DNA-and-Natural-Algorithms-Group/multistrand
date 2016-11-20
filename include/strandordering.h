@@ -15,11 +15,11 @@
 
 class OpenLoop;
 
-class orderinglist {
+class orderingList {
 public:
-	orderinglist(int insize, int in_id, char *inTag, char *inSeq, char *inCodeSeq, char* inStruct);
-	~orderinglist(void);
-	orderinglist *next, *prev;
+	orderingList(int insize, int in_id, char *inTag, char *inSeq, char *inCodeSeq, char* inStruct);
+	~orderingList(void);
+	orderingList *next, *prev;
 	char *thisTag, *thisSeq, *thisCodeSeq, *thisStruct;
 	OpenLoop *thisLoop; // corresponds to the OpenLoop to the 'left' of this strand
 	int size;
@@ -30,7 +30,7 @@ class StrandOrdering {
 public:
 	StrandOrdering(void);
 	StrandOrdering(char *in_seq, char *in_struc, char *in_cseq);
-	StrandOrdering(orderinglist *beginning, orderinglist *ending, int numitems);
+	StrandOrdering(orderingList *beginning, orderingList *ending, int numitems);
 	StrandOrdering(char *in_seq, char *in_structure, char *in_cseq, class identList *strandids);
 	~StrandOrdering(void);
 	void cleanup(void);
@@ -78,14 +78,18 @@ public:
 	void replaceOpenLoop(Loop *oldLoop, Loop *newLoop);
 
 	// moving first, last to public because we cycle over two of them for Arr bimolecular rates
-	orderinglist *first, *last;
+	orderingList* first = NULL;
+	orderingList* last = NULL;
 
 //	// similar to BaseCounter, we tally the half-contexts and bases for this strand ordering.
 //	// To be used to generate bimolecular rates.
 	OpenInfo openInfo;
 
 private:
-	char *seq, *struc, *strandnames;
+	char* seq = NULL;
+	char* struc = NULL;
+	char* strandnames = NULL;
+
 	int count = 0;
 	BaseCount exteriorBases;
 
