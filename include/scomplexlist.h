@@ -39,6 +39,7 @@ public:
 	int doBasicChoice(double choice, double newtime);
 	void findJoinNucleotides(BaseType, int, BaseCount&, SComplexListEntry*, JoinCriterea&);
 	void doJoinChoice(double choice);
+	void doJoinChoiceArr(double choice);
 	bool checkStopComplexList(class complexItem *stoplist);
 	string toString(void);
 	void updateOpenInfo(void);

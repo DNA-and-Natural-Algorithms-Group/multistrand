@@ -207,11 +207,11 @@ double SComplexList::getJoinFlux(void) {
 
 	bool useArr = eModel->useArrhenius();
 
-	if (useArr) {
-
-		return getJoinFluxArr();
-
-	}
+//	if (useArr) {
+//
+//		return getJoinFluxArr();
+//
+//	}
 
 	double output = 0.0;
 	BaseCount total_bases;
@@ -536,14 +536,22 @@ void SComplexList::findJoinNucleotides(BaseType base, int choice, BaseCount& ext
 
 void SComplexList::doJoinChoice(double choice) {
 
-	SComplexListEntry *temp = first, *temp2 = NULL;
+//	if (eModel->useArrhenius()) {
+//
+//		doJoinChoiceArr(choice);
+//		return;
+//
+//	}
+
+	SComplexListEntry *temp = first;
+	SComplexListEntry *temp2 = NULL;
 
 	BaseCount baseSum;
 	bool useArr = eModel->useArrhenius();
 
 	StrandComplex *deleted;
 
-	JoinCriterea crit = JoinCriterea();
+	JoinCriterea crit;
 
 	int int_choice;
 	int total_move_count = 0;
@@ -553,12 +561,11 @@ void SComplexList::doJoinChoice(double choice) {
 	if (numentries <= 1)
 		return;
 
-	while (temp != NULL) {
+	for (SComplexListEntry* it = first; it != NULL; it = it->next) {
 
-		BaseCount& ext_bases = temp->thisComplex->getExteriorBases(useArr);
+		BaseCount& ext_bases = it->thisComplex->getExteriorBases(useArr);
 		baseSum.increment(ext_bases);
 
-		temp = temp->next;
 	}
 
 	temp = first;
@@ -585,8 +592,9 @@ void SComplexList::doJoinChoice(double choice) {
 
 		}
 
-		if (temp != NULL)
+		if (temp != NULL) {
 			temp = temp->next;
+		}
 	}
 
 	// Exit for the goto.
@@ -625,6 +633,10 @@ void SComplexList::doJoinChoice(double choice) {
 	numentries--;
 
 	return;
+}
+
+void SComplexList::doJoinChoiceArr(double choice) {
+
 }
 
 /*

@@ -68,7 +68,7 @@ private:
 
 	void printAllMoves(void);
 
-	EnergyModel *energyModel;
+	EnergyModel* energyModel;
 
 	StrandComplex *startState;
 	SComplexList *complexList;
