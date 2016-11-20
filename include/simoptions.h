@@ -44,7 +44,7 @@ public:
 	long getStopCount(void);
 	double getMaxSimTime(void);
 
-	void setPrimeRates(bool);
+//	void setPrimeRates(bool);
 	bool usingArrhenius(void);
 
 	// Virtual methods
@@ -67,12 +67,7 @@ public:
 	vector<complex_input>* myComplexes;
 	EnergyOptions* energyOptions;
 
-	// non-protected because we trust other programmers
-	bool usePrimeRates = false;
 	const static bool countStates = false;
-
-
-
 
 protected:
 	long simulation_mode;

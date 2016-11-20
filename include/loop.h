@@ -69,8 +69,6 @@ public:
 	static Loop *performDeleteMove(Move *move);
 	static void performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);
 
-	static void setPrimeRates(bool);
-
 	// FD functions
 	string toString(void);
 	string toStringShort(void);

@@ -38,6 +38,8 @@ public:
 
 	friend std::ostream& operator<<(std::ostream&, RateEnv&);
 
+	string toString(bool);
+
 	double rate;
 	int arrType = -444;
 

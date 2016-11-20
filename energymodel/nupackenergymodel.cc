@@ -1,7 +1,7 @@
 /*
  Copyright (c) 2007-2016 Caltech. All rights reserved.
  Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
- 	 	   Frits Dannenberg (fdann@caltech.edu)
+ Frits Dannenberg (fdann@caltech.edu)
  */
 
 #include <string.h>
@@ -35,10 +35,6 @@ NupackEnergyModel::~NupackEnergyModel(void) {
 }
 
 double NupackEnergyModel::returnRate(double start_energy, double end_energy, int enth_entr_toggle) {
-
-	if (simOptions->usePrimeRates) {
-		return 1.0;
-	}
 
 	double dE = end_energy - start_energy;
 
@@ -83,7 +79,6 @@ void NupackEnergyModel::eStackEnergy(int type1, int type2, energyS *energy) {
 	energy->nTdS = stack_37_dG[type1][basepair_sw[type2]] - energy->dH;
 
 }
-
 
 // non entropy/enthalpy energy functions
 double NupackEnergyModel::StackEnergy(int i, int j, int p, int q) {
@@ -337,7 +332,6 @@ NupackEnergyModel::NupackEnergyModel(PyObject* energy_options) :
 		computeArrheniusRates(current_temp);
 		printPrecomputedArrRates();
 
-
 	}
 
 }
@@ -386,7 +380,6 @@ void NupackEnergyModel::processOptions() {
 
 	if (myEnergyOptions->compareSubstrateType(SUBSTRATE_INVALID)) {
 		PyObject *tmpStr = NULL;
-
 
 		char* tmp = NULL;
 		myEnergyOptions->getParameterFile(tmp, tmpStr);
@@ -950,8 +943,7 @@ void NupackEnergyModel::internal_set_interior_1_1_energies(FILE *fp, char *buffe
 				internal_1_1_37_dG[loop][loop2][0][loop3] = 0;
 			}
 			for (loop3 = 1; loop3 < NUM_BASES; loop3++)
-				cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &internal_1_1_37_dG[loop][loop2][loop3][1],
-				NUM_BASES - 1);
+				cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &internal_1_1_37_dG[loop][loop2][loop3][1], NUM_BASES - 1);
 
 		}
 }
@@ -975,8 +967,7 @@ void NupackEnergyModel::internal_set_interior_1_1_enthalpies(FILE *fp, char *buf
 				internal_1_1_37_dG[loop][loop2][0][loop3] = 0;
 			}
 			for (loop3 = 1; loop3 < NUM_BASES; loop3++)
-				cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &internal_1_1_37_dH[loop][loop2][loop3][1],
-				NUM_BASES - 1);
+				cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &internal_1_1_37_dH[loop][loop2][loop3][1], NUM_BASES - 1);
 
 		}
 }
@@ -1040,7 +1031,7 @@ void NupackEnergyModel::internal_set_interior_2_2_energies(FILE *fp, char *buffe
 				for (loop4 = 1; loop4 < NUM_BASES; loop4++) {
 					for (loop5 = 1; loop5 < NUM_BASES; loop5++) {
 						cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &internal_2_2_37_dG[loop][loop2][loop3][loop4][loop5][1],
-						NUM_BASES - 1);
+								NUM_BASES - 1);
 					}
 				}
 			}
@@ -1065,7 +1056,7 @@ void NupackEnergyModel::internal_set_interior_2_2_enthalpies(FILE *fp, char *buf
 				for (loop4 = 1; loop4 < NUM_BASES; loop4++) {
 					for (loop5 = 1; loop5 < NUM_BASES; loop5++) {
 						cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &internal_2_2_37_dH[loop][loop2][loop3][loop4][loop5][1],
-						NUM_BASES - 1);
+								NUM_BASES - 1);
 					}
 				}
 			}
@@ -1328,8 +1319,7 @@ void NupackEnergyModel::internal_set_hairpin_mismatch_energies(FILE *fp, char *b
 				hairpin_mismatch_37_dG[loop][loop2][loop3] = 0;
 
 	for (loop = 0; loop < (NUM_BASES - 1) * (NUM_BASES - 1); loop++) {
-		cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &temp[0],
-		NUM_BASEPAIRS_NUPACK);
+		cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &temp[0], NUM_BASEPAIRS_NUPACK);
 		loop3 = (loop - (loop % (NUM_BASES - 1))) / (NUM_BASES - 1);
 		for (loop2 = 0; loop2 < NUM_BASEPAIRS_NUPACK; loop2++)
 			hairpin_mismatch_37_dG[loop2][loop3 + 1][(loop % (NUM_BASES - 1)) + 1] = temp[loop2];
@@ -1351,8 +1341,7 @@ void NupackEnergyModel::internal_set_hairpin_mismatch_enthalpies(FILE *fp, char 
 				hairpin_mismatch_37_dH[loop][loop2][loop3] = 0;
 
 	for (loop = 0; loop < (NUM_BASES - 1) * (NUM_BASES - 1); loop++) {
-		cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &temp[0],
-		NUM_BASEPAIRS_NUPACK);
+		cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &temp[0], NUM_BASEPAIRS_NUPACK);
 		loop3 = (loop - (loop % (NUM_BASES - 1))) / (NUM_BASES - 1);
 		for (loop2 = 0; loop2 < NUM_BASEPAIRS_NUPACK; loop2++)
 			hairpin_mismatch_37_dH[loop2][loop3 + 1][(loop % (NUM_BASES - 1)) + 1] = temp[loop2];
@@ -1374,8 +1363,7 @@ void NupackEnergyModel::internal_set_interior_loop_mismatch_energies(FILE *fp, c
 
 	for (loop = 1; loop < NUM_BASES; loop++)
 		for (loop2 = 1; loop2 < NUM_BASES; loop2++) {
-			cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &internal_mismatch_37_dG[loop][loop2][0],
-			NUM_BASEPAIRS_NUPACK);
+			cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &internal_mismatch_37_dG[loop][loop2][0], NUM_BASEPAIRS_NUPACK);
 		}
 
 }
@@ -1394,8 +1382,7 @@ void NupackEnergyModel::internal_set_interior_loop_mismatch_enthalpies(FILE *fp,
 
 	for (loop = 1; loop < NUM_BASES; loop++)
 		for (loop2 = 1; loop2 < NUM_BASES; loop2++) {
-			cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &internal_mismatch_37_dH[loop][loop2][0],
-			NUM_BASEPAIRS_NUPACK);
+			cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &internal_mismatch_37_dH[loop][loop2][0], NUM_BASEPAIRS_NUPACK);
 		}
 }
 

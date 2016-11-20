@@ -181,18 +181,11 @@ double SimOptions::getMaxSimTime(void) {
 
 }
 
-void SimOptions::setPrimeRates(bool input) {
-
-	usePrimeRates = input;
-
-}
-
-bool SimOptions::usingArrhenius(void){
+bool SimOptions::usingArrhenius(void) {
 
 	return energyOptions->usingArrhenius();
 
 }
-
 
 PyObject* PSimOptions::getPythonSettings() {
 
@@ -388,10 +381,6 @@ void CSimOptions::generateComplexes(PyObject *alternate_start, long current_seed
 
 	return;
 }
-
-
-
-
 
 stopComplexes* CSimOptions::getStopComplexes(int) {
 

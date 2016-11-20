@@ -277,11 +277,11 @@ string identityToString(char loop) {
 	return "Could not identify loop";
 }
 
-void Loop::setPrimeRates(bool input) {
-
-	energyModel->simOptions->setPrimeRates(input);
-
-}
+//void Loop::setPrimeRates(bool input) {
+//
+//	energyModel->simOptions->setPrimeRates(input);
+//
+//}
 
 string Loop::toString() {
 
@@ -319,7 +319,8 @@ void Loop::printAllMoves(Loop* from) {
 	std::cout << toStringShort();
 	std::cout << "\n";
 
-	moves->printAllMoves(energyModel->simOptions->usePrimeRates);
+//	moves->printAllMoves(energyModel->simOptions->usePrimeRates);
+	moves->printAllMoves(energyModel->useArrhenius());
 
 	for (int i = 0; i < numAdjacent; i++) {
 

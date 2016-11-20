@@ -138,11 +138,11 @@ void EnergyModel::printPrecomputedArrRates(void) {
 
 double EnergyModel::applyPrefactors(double tempRate, MoveType left, MoveType right) {
 
-	if (simOptions->usePrimeRates) {
-
-		return moveutil::valuesPrime[left] * moveutil::valuesPrime[right];
-
-	}
+//	if (simOptions->usePrimeRates) {
+//
+//		return moveutil::valuesPrime[left] * moveutil::valuesPrime[right];
+//
+//	}
 
 	if(useArrhenius()){
 

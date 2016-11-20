@@ -902,6 +902,8 @@ void SimulationSystem::InitialInfo(void) {
 
 	printAllMoves();
 
+//	Loop::setPrimeRates();
+
 //	if (simOptions->usingArrhenius()) {
 //
 //		cout << " ** \n ** \n ** \n";

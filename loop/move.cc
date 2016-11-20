@@ -65,6 +65,23 @@ std::ostream& operator<<(std::ostream& ss, RateEnv& env) {
 
 }
 
+string RateEnv::toString(bool useArr) {
+
+	stringstream ss;
+
+	if (useArr) {
+
+		ss << this;
+
+	} else {
+
+		ss << "  " << rate << "   ";
+
+	}
+	return ss.str();
+
+}
+
 Move::Move(void) {
 
 	type = 0;
@@ -210,13 +227,11 @@ string Move::rateToString(bool usePrime) {
 
 }
 
-string Move::toString(bool usePrime) {
+string Move::toString(bool useArr) {
 
 	std::stringstream ss;
 
-	// FD: only print the move if the rate is > 0
-
-//	if (rate.rate > 0) {
+	// FD: print even if the rate equals 0
 
 	ss << utility::moveType(type) << " ";
 	if (affected[0] != NULL) {
@@ -228,11 +243,7 @@ string Move::toString(bool usePrime) {
 	ss << ", ";
 	ss << "(" << index[0] << ", " << index[1] << ", " << index[2] << ", " << index[3] << "),  ";
 
-//		ss << " \n";
-	ss << rate << "\n";
-//		ss << this->rateToString(usePrime);
-
-//	} else
+	ss << rate.toString(useArr) << "\n";
 
 	string output = ss.str();
 
@@ -317,19 +328,19 @@ void MoveList::resetDeleteMoves(void) {
 	del_moves_index = 0;
 }
 
-void MoveList::printAllMoves(bool usePrime) {
+void MoveList::printAllMoves(bool useArr) {
 
 	for (int i = 0; i < moves_index; i++) {
 
 		cout << "Move" << i << " ";
-		cout << moves[i]->toString(usePrime);
+		cout << moves[i]->toString(useArr);
 
 	}
 
 	for (int i = 0; i < del_moves_index; i++) {
 
 		cout << "Move" << i + moves_index << " ";
-		cout << del_moves[i]->toString(usePrime);
+		cout << del_moves[i]->toString(useArr);
 
 	}
 
