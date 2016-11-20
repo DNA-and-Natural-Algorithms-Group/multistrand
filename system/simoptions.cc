@@ -25,20 +25,6 @@ SimOptions::SimOptions(void) {
 
 // empty constructor
 
-	simulation_mode = NULL;
-	simulation_count = NULL;
-	o_interval = NULL;
-	o_time = NULL;
-	stop_options = NULL;
-	stop_count = NULL;
-	max_sim_time = NULL;
-	seed = NULL;
-	myStopComplexes = NULL;
-	fixedRandomSeed = false;
-
-	energyOptions = NULL;
-	myComplexes = NULL;
-
 }
 
 SimOptions::~SimOptions(void) {

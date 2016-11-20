@@ -44,7 +44,6 @@ public:
 	long getStopCount(void);
 	double getMaxSimTime(void);
 
-//	void setPrimeRates(bool);
 	bool usingArrhenius(void);
 
 	// Virtual methods
@@ -64,22 +63,23 @@ public:
 	string toString(void);
 
 	// actual option values
-	vector<complex_input>* myComplexes;
-	EnergyOptions* energyOptions;
+	vector<complex_input>* myComplexes = NULL;
+	EnergyOptions* energyOptions = NULL;
 
 	const static bool countStates = false;
 
 protected:
-	long simulation_mode;
-	long simulation_count;
-	long o_interval;
-	double o_time;
-	long stop_options;
-	long stop_count;
-	double max_sim_time;
-	long seed;
+
+	long simulation_mode = NULL;
+	long simulation_count = NULL;
+	long o_interval = NULL;
+	double o_time = NULL;
+	long stop_options = NULL;
+	long stop_count = NULL;
+	double max_sim_time = NULL;
+	long seed = NULL;
 	stopComplexes* myStopComplexes = NULL;
-	bool fixedRandomSeed;
+	bool fixedRandomSeed = false;
 
 };
 
