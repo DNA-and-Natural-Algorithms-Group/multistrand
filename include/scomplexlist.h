@@ -68,11 +68,13 @@ public:
 	void fillData(EnergyModel *em);
 	string toString(EnergyModel *em);
 	void dumpComplexEntryToPython(int *our_id, char **names, char **sequence, char **structure, double *our_energy);
+
 	int id;
 	StrandComplex* thisComplex;
-	double energy;
 	energyS ee_energy;
+	double energy;
 	double rate;
+
 	SComplexListEntry *next;
 };
 

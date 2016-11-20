@@ -7,7 +7,6 @@
 #include <iostream>
 #include <scomplex.h>
 
-
 using std::vector;
 using std::map;
 using std::cout;
@@ -129,16 +128,23 @@ double OpenInfo::crossRate(OpenInfo& other, EnergyModel& eModel) {
 			HalfContext& bot = there.first;
 			BaseCount& countBot = there.second;
 
-			MoveType left = moveutil::combineBi(top.left, bot.right);
-			MoveType right = moveutil::combineBi(top.right, bot.left);
+			int crossings = countTop.multiCount(countBot);
 
-			output += eModel.applyPrefactors(eModel.getJoinRate(), left, right);
+			if (crossings > 0) {
+
+				MoveType left = moveutil::combineBi(top.left, bot.right);
+				MoveType right = moveutil::combineBi(top.right, bot.left);
+				double joinRate = eModel.applyPrefactors(eModel.getJoinRate(), left, right);
+
+				output += crossings * joinRate;
+
+			}
 
 		}
 
 	}
 
-	return 0.0;
+	return output;
 
 }
 

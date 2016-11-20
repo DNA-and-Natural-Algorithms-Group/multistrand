@@ -205,20 +205,21 @@ double SComplexList::getTotalFlux(void) {
 
 double SComplexList::getJoinFlux(void) {
 
-	double output = 0.0;
 	bool useArr = eModel->useArrhenius();
-	BaseCount total_bases;
-	int moveCount = 0;
 
-	SComplexListEntry *temp = first;
-
-	// We now compute the exterior nucleotide moves.
 	if (useArr) {
 
 		return getJoinFluxArr();
 
 	}
 
+	double output = 0.0;
+	BaseCount total_bases;
+	int moveCount = 0;
+
+	SComplexListEntry *temp = first;
+
+	// We now compute the exterior nucleotide moves.
 	if (numentries <= 1)
 		return 0.0;
 
@@ -302,6 +303,8 @@ double SComplexList::computeArrBiRate(SComplexListEntry* input) {
 		StrandOrdering* otherOrder = temp->thisComplex->getOrdering();
 		output += cycleCrossRateArr(orderIn, otherOrder);
 
+		cout << "Output is now " << output << "\n";
+
 		temp = temp->next;
 	}
 
@@ -315,6 +318,9 @@ double SComplexList::cycleCrossRateArr(StrandOrdering* input1, StrandOrdering* i
 
 	OpenInfo& info1 = input1->getOpenInfo();
 	OpenInfo& info2 = input2->getOpenInfo();
+
+	cout << "info1 = " << info1 << "\n";
+	cout << "info2 = " << info2 << "\n";
 
 	return info1.crossRate(info2, *eModel);
 

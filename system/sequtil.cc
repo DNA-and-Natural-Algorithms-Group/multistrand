@@ -67,9 +67,7 @@ void BaseCount::decrement(BaseCount& other) {
 
 int BaseCount::multiCount(BaseCount& other) {
 
-	int output = 0;
-
-	output += count[baseA] * other.count[baseT];
+	int output = count[baseA] * other.count[baseT];
 	output += count[baseC] * other.count[baseG];
 	output += count[baseG] * other.count[baseC];
 	output += count[baseT] * other.count[baseA];
