@@ -33,7 +33,13 @@ RateEnv::RateEnv(double mRate, EnergyModel* eModel, MoveType left, MoveType righ
 
 std::ostream& operator<<(std::ostream& ss, RateEnv& env) {
 
-	ss << "  " << env.rate << "   ";
+	ss << env.arrType << " ";
+
+	if (env.arrType < 100) {
+
+		ss << " ";
+
+	}
 
 	for (int i = 0; i < MOVETYPE_SIZE; i++) {
 
@@ -41,11 +47,11 @@ std::ostream& operator<<(std::ostream& ss, RateEnv& env) {
 
 		if ((env.arrType % myPrime) == 0) {
 
-			ss << moveutil::MoveToString[i] << ", ";
+			ss << moveutil::MoveToString[i] << moveutil::MoveToString2[i];
 
 			if ((env.arrType % (myPrime * myPrime) == 0)) {
 
-				ss << moveutil::MoveToString[i] << ", ";
+				ss << moveutil::MoveToString[i] << moveutil::MoveToString2[i];
 
 			}
 
@@ -53,7 +59,9 @@ std::ostream& operator<<(std::ostream& ss, RateEnv& env) {
 
 	}
 
-	ss << "  " << env.arrType;
+	ss << "  " << env.rate << "   ";
+
+	return ss;
 
 }
 
@@ -208,23 +216,23 @@ string Move::toString(bool usePrime) {
 
 	// FD: only print the move if the rate is > 0
 
-	if (rate.rate > 0) {
+//	if (rate.rate > 0) {
 
-		ss << utility::moveType(type) << " ";
-		if (affected[0] != NULL) {
-			ss << affected[0]->toStringShort() << " ";
-		}
-		if (affected[1] != NULL) {
-			ss << affected[1]->toStringShort();
-		}
-		ss << ", ";
-		ss << "(" << index[0] << ", " << index[1] << ", " << index[2] << ", " << index[3] << "),  ";
+	ss << utility::moveType(type) << " ";
+	if (affected[0] != NULL) {
+		ss << affected[0]->toStringShort() << " ";
+	}
+	if (affected[1] != NULL) {
+		ss << affected[1]->toStringShort();
+	}
+	ss << ", ";
+	ss << "(" << index[0] << ", " << index[1] << ", " << index[2] << ", " << index[3] << "),  ";
 
 //		ss << " \n";
-		ss << rate << "\n";
+	ss << rate << "\n";
 //		ss << this->rateToString(usePrime);
 
-	}
+//	} else
 
 	string output = ss.str();
 

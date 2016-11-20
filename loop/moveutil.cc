@@ -106,11 +106,14 @@ void OpenInfo::increment(OpenInfo& other) {
 
 	}
 
+	numExposedInternal += other.numExposedInternal;
+	numExposed += other.numExposed;
+
 }
 
 JoinCriterea::JoinCriterea() {
 
-	// empty constructor
+// empty constructor
 
 }
 
@@ -124,7 +127,7 @@ std::ostream& operator<<(std::ostream &ss, JoinCriterea& m) {
 
 MoveType moveutil::combine(QuartContext& one, QuartContext& two) {
 
-	// c++ doesn't do double variable switch
+// c++ doesn't do double variable switch
 
 	if (one == endC) {
 

@@ -902,16 +902,16 @@ void SimulationSystem::InitialInfo(void) {
 
 	printAllMoves();
 
-	if (simOptions->usingArrhenius()) {
-
-		cout << " ** \n ** \n ** \n";
-		Loop::setPrimeRates(true);
-		complexList->regenerateMoves();
-		startState->printAllMoves();
-
-		Loop::setPrimeRates(false);
-
-	}
+//	if (simOptions->usingArrhenius()) {
+//
+//		cout << " ** \n ** \n ** \n";
+//		Loop::setPrimeRates(true);
+//		complexList->regenerateMoves();
+//		startState->printAllMoves();
+//
+//		Loop::setPrimeRates(false);
+//
+//	}
 
 	// print info on bimolecular rates
 	double biRate = complexList->getJoinFlux();

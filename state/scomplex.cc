@@ -628,11 +628,11 @@ string StrandComplex::toString() {
 
 }
 
-string StrandComplex::printStrandOrdering() {
-
-	return ordering->toString();
-
-}
+//string StrandComplex::printStrandOrdering() {
+//
+//	return ordering->toString();
+//
+//}
 
 OpenInfo& StrandComplex::getOpenInfo() {
 

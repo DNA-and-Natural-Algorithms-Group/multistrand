@@ -723,13 +723,13 @@ OpenInfo& StrandOrdering::getOpenInfo(void) {
 
 	for (traverse = first; traverse != NULL; traverse = traverse->next) {
 
-		assert(traverse->thisLoop != NULL);
-
 		OpenInfo info = traverse->thisLoop->getOpenInfo();
 
 		openInfo.increment(info);
 
 	}
+
+	openInfo.upToDate = true;
 
 	return openInfo;
 
@@ -758,12 +758,16 @@ string StrandOrdering::toString(void) {
 
 		assert(traverse->thisLoop != NULL);
 
-		// now also print local Contexts
+		// now also print openInfos
 		ss << traverse->thisLoop->typeInternalsToString();
 
 	}
 
-	ss << "\n";
+//	ss << "\n";
+
+	// now print the combined openInfo
+	ss << "Summed OpenInfo: \n";
+	ss << getOpenInfo();
 
 	return ss.str();
 

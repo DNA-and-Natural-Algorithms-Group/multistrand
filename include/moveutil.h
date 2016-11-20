@@ -28,7 +28,7 @@ bool isPair(BaseType, BaseType);
 
 const static double valuesPrime[MOVETYPE_SIZE] = { 3, 5, 7, 11, 13, 17, 19 };
 const static string MoveToString[MOVETYPE_SIZE] = { "End", "Loop", "Stack", "StackStack", "LoopEnd", "StackEnd", "StackLoop" };
-const static string MoveToString2[MOVETYPE_SIZE] = { "      ", "     ", "   ", "", "  ", " ", " " };
+const static string MoveToString2[MOVETYPE_SIZE] = { "       ", "      ", "     ", "", "   ", "  ", " " };
 
 QuartContext getContext(char input);
 
@@ -75,8 +75,8 @@ public:
 
 	map<HalfContext, BaseCount> tally;
 
-	int numExposedInternal;
-	int numExposed;
+	int numExposedInternal = 0;
+	int numExposed = 0;
 
 	bool upToDate = false;
 

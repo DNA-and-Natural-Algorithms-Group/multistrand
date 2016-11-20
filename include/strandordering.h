@@ -72,7 +72,6 @@ public:
 	// updates and returns the current exterior base count.
 	BaseCount& getExteriorBases(bool);
 	OpenInfo& getOpenInfo();
-//	void updateOpenInfo();
 	string toString(void);
 
 	// replaces the first open loop in the ordering with the second.

@@ -80,7 +80,7 @@ string SComplexListEntry::toString(EnergyModel *em) {
 
 	// also print info on the openloop datastructures
 
-	ss << thisComplex->printStrandOrdering();
+	ss << thisComplex->ordering->toString();
 
 	return ss.str();
 
@@ -148,21 +148,25 @@ SComplexListEntry *SComplexList::addComplex(StrandComplex *newComplex) {
  */
 
 void SComplexList::initializeList(void) {
-	SComplexListEntry *temp = first;
-	while (temp != NULL) {
+
+	for (SComplexListEntry* temp = first; temp != NULL; temp = temp->next) {
+
 		temp->initializeComplex();
 		temp->fillData(eModel);
-		temp = temp->next;
+
 	}
+
 }
 
 void SComplexList::regenerateMoves(void) {
-	SComplexListEntry *temp = first;
-	while (temp != NULL) {
+
+	for (SComplexListEntry* temp = first; temp != NULL; temp = temp->next) {
+
 		temp->regenerateMoves();
 		temp->fillData(eModel);
-		temp = temp->next;
+
 	}
+
 }
 
 /*
@@ -420,11 +424,7 @@ SComplexListEntry *SComplexList::getFirst(void) {
 int SComplexList::getCount(void) {
 	return numentries;
 }
-/*
- SComplexListEntry *SComplexList::doBasicChoice( double choice, double newtime )
- */
 
-//SComplexListEntry *SComplexList::doBasicChoice(double choice, double newtime) {
 int SComplexList::doBasicChoice(double choice, double newtime) {
 
 	double rchoice = choice, moverate;
@@ -482,8 +482,6 @@ int SComplexList::doBasicChoice(double choice, double newtime) {
 	return tempmove->getArrType();
 
 }
-
-// helper function, non-classed for now.
 
 // FD: crit is an export variable, but the bool return signifies if a pair has been selected or not.
 void SComplexList::findJoinNucleotides(BaseType base, int choice, BaseCount& external, SComplexListEntry* temp, JoinCriterea& crit) {

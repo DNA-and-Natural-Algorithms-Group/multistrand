@@ -309,11 +309,7 @@ string Loop::toString() {
 
 string Loop::toStringShort(void) {
 
-	std::stringstream ss;
-
-	ss << identityToString(identity);
-
-	return ss.str();
+	return identityToString(identity);
 
 }
 
@@ -4692,8 +4688,6 @@ string OpenLoop::typeInternalsToString(void) {
 
 	}
 
-//	ss << "\n";
-
 	for (int i = 0; i < numAdjacent; i++) {
 
 		ss << "        pairTypes " << basepairString[pairtype[i]] << ", ";
@@ -5598,6 +5592,8 @@ OpenInfo OpenLoop::getOpenInfo() {
 		parseLocalContext(i);
 
 	}
+
+	openInfo.upToDate = true;
 
 	return openInfo;
 

@@ -48,14 +48,13 @@ public:
 
 	void printAllMoves(void);
 	string toString(void);
-	string printStrandOrdering(void);
 	OpenInfo& getOpenInfo(void);
 
 	static StrandComplex *performComplexJoin(StrandComplex **complexes, char *types, int *index, bool);
 	StrandOrdering* getOrdering();
 
+	StrandOrdering* ordering;
 private:
-	StrandOrdering *ordering;
 	Loop *beginLoop;
 	MoveTree *kineticMoves;
 
