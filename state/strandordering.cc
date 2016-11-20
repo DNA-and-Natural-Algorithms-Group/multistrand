@@ -246,6 +246,7 @@ StrandOrdering::StrandOrdering(char *in_seq, char *in_structure, char *in_cseq, 
 }
 
 StrandOrdering * StrandOrdering::joinOrdering(StrandOrdering *first, StrandOrdering *second) {
+
 	first->last->next = second->first;
 	second->first->prev = first->last;
 	first->last = second->last;
@@ -266,6 +267,9 @@ StrandOrdering * StrandOrdering::joinOrdering(StrandOrdering *first, StrandOrder
 	}
 	second->first = NULL;
 	second->last = NULL;
+
+	first->openInfo.upToDate = false;
+
 	return first;
 }
 
@@ -410,8 +414,12 @@ int StrandOrdering::checkIDBound(char *id) {
 // Note that the returned arrays are allocated here, but expected to be deallocated by the calling function.
 // Sequence seperation is indicated by a single '_' character.
 void StrandOrdering::generateFlatSequence(char **sequence, char **structure, char **code_sequence) {
+
 	int totallength = 0, index = 0, cpos = 0;
 	orderingList *traverse = first;
+
+	openInfo.upToDate = false;
+
 	for (index = 0; index < count; index++, traverse = traverse->next)
 		totallength += traverse->size;
 	totallength += count - 1;
@@ -496,6 +504,9 @@ OpenLoop *StrandOrdering::getIndex(char type, int *index, char **location, bool 
 // 
 
 void StrandOrdering::addOpenLoop(OpenLoop *newLoop, int index) {
+
+	openInfo.upToDate = false;
+
 	int cpos, cstrand;
 	orderingList *traverse;
 	for (cpos = 0, cstrand = 0, traverse = first; cstrand < count; cstrand++, traverse = traverse->next) {
@@ -517,6 +528,8 @@ void StrandOrdering::addOpenLoop(OpenLoop *newLoop, int index) {
 StrandOrdering *StrandOrdering::breakOrdering(Loop *firstOldBreak, Loop *secondOldBreak, Loop *firstNewBreak, Loop *secondNewBreak) {
 	orderingList *temp = NULL, *temp2 = NULL, *traverse, *extra = NULL;
 	StrandOrdering *newOrdering;
+
+	openInfo.upToDate = false;
 
 	int numitems = 0;
 	for (traverse = first; traverse != NULL; traverse = traverse->next) {
@@ -675,6 +688,9 @@ Loop *StrandOrdering::getLoop(void) {
 }
 
 void StrandOrdering::replaceOpenLoop(Loop *oldLoop, Loop *newLoop) {
+
+	openInfo.upToDate = false;
+
 	orderingList *traverse = NULL;
 	for (traverse = first; traverse != NULL; traverse = traverse->next) {
 		if (traverse->thisLoop == (OpenLoop *) oldLoop) {
@@ -682,6 +698,7 @@ void StrandOrdering::replaceOpenLoop(Loop *oldLoop, Loop *newLoop) {
 			return;
 		}
 	}
+
 	assert(0); // no loop matched, that's bad.
 }
 
@@ -772,6 +789,8 @@ void StrandOrdering::addBasepair(char *first_bp, char *second_bp) {
 	orderingList *traverse = NULL;
 	int iflag = 0;
 
+	openInfo.upToDate = false;
+
 	for (traverse = first; traverse != NULL; traverse = traverse->next, iflag = 0) {
 		if (((first_bp - traverse->thisCodeSeq) < traverse->size) && ((first_bp - traverse->thisCodeSeq) >= 0)) {
 			if (id[0] == NULL)
@@ -804,6 +823,7 @@ void StrandOrdering::addBasepair(char *first_bp, char *second_bp) {
 		delete[] struc;
 		struc = NULL;
 	}
+
 	return;
 }
 
@@ -814,6 +834,8 @@ void StrandOrdering::breakBasepair(char *first_bp, char *second_bp) {
 	char *temp = NULL;
 	orderingList *traverse = NULL;
 	int iflag = 0;
+
+	openInfo.upToDate = false;
 
 	for (traverse = first; traverse != NULL; traverse = traverse->next, iflag = 0) {
 
@@ -850,6 +872,7 @@ void StrandOrdering::breakBasepair(char *first_bp, char *second_bp) {
 		delete[] struc;
 		struc = NULL;
 	}
+
 	return;
 }
 
