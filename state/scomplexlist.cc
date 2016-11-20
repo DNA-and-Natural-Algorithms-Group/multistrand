@@ -264,35 +264,26 @@ double SComplexList::getJoinFlux(void) {
 // always have the same structure
 double SComplexList::getJoinFluxArr(void) {
 
-// there are 4x6x6 options, so these rates we have to tally and then sum.
-//	arrExtern.clear();
-
-	SComplexListEntry* temp = first;
-
 	// The trick is to compute all rates between the first complex,
 	// and the remaining complexes. Then, compute the rate between the second complex,
 	// and the remaining complexes (set minus first and second), and so on.
 
-	while (temp != NULL) {
+	double rate = 0.0;
 
-		computeArrBiRate(temp);
+	for (SComplexListEntry* temp = first; temp != NULL; temp = temp->next) {
 
-		temp = temp->next;
+		rate += computeArrBiRate(temp);
 
 	}
 
-	// We created the rate library. for now, print it.
-
-//	cout << arrExtern;
-
-//	return arrExtern.rateSum;
+	return rate;
 
 }
 
-void SComplexList::computeArrBiRate(SComplexListEntry* input) {
+double SComplexList::computeArrBiRate(SComplexListEntry* input) {
 
 	SComplexListEntry* temp = input->next;
-	// post: temp is pointing to the enxt entry
+	// post: temp is pointing to the next entry
 
 	StrandOrdering* orderIn = input->thisComplex->getOrdering();
 
@@ -309,31 +300,36 @@ void SComplexList::computeArrBiRate(SComplexListEntry* input) {
 
 // Given two strand orderings, compute the bimolecular rate
 // according to the arrhenius model.
-void SComplexList::cycleCrossRateArr(StrandOrdering* input1, StrandOrdering* input2) {
+double SComplexList::cycleCrossRateArr(StrandOrdering* input1, StrandOrdering* input2) {
 
-	orderinglist* temp1 = input1->first;
-	orderinglist* temp2 = input2->first;
+	OpenInfo& info1 = input1->getOpenInfo();
+	OpenInfo& info2 = input2->getOpenInfo();
 
-	while (temp1 != NULL) {
+	return info1.crossRate(info2);
 
-		OpenLoop* loop1 = temp1->thisLoop;
+//	orderinglist* temp1 = input1->first;
+//	orderinglist* temp2 = input2->first;
 
-		while (temp2 != NULL) {
-
-			OpenLoop* loop2 = temp2->thisLoop;
-
-			assert(loop1 != loop2);
-
-			computeCrossRateArr(loop1, loop2);
-
-			temp2 = temp2->next;
-
-		}
-
-		temp1 = temp1->next;
-	}
-
-	//FD:  post: we've cycled all openloops in input1 over all openloops of input2
+//	while (temp1 != NULL) {
+//
+//		OpenLoop* loop1 = temp1->thisLoop;
+//
+//		while (temp2 != NULL) {
+//
+//			OpenLoop* loop2 = temp2->thisLoop;
+//
+//			assert(loop1 != loop2);
+//
+//			computeCrossRateArr(loop1, loop2);
+//
+//			temp2 = temp2->next;
+//
+//		}
+//
+//		temp1 = temp1->next;
+//	}
+//
+//	//FD:  post: we've cycled all openloops in input1 over all openloops of input2
 
 }
 

@@ -38,7 +38,7 @@ public:
 	double getUniScale(void);
 
 	string toString(void);
-	static string primeRateToString(double);
+//	static string primeRateToString(double);
 
 	// virtual
 	virtual bool compareSubstrateType(long) =0;

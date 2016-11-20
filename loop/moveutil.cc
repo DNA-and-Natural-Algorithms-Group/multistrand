@@ -61,6 +61,7 @@ void OpenInfo::clear(void) {
 
 // simply store the vector of halfContext onto the list we already have
 void OpenInfo::increment(QuartContext left, char base, QuartContext right) {
+
 	HalfContext con = HalfContext(left, right);
 
 	if (tally.count(con)) { // if count > 0 then proceed
@@ -111,13 +112,42 @@ void OpenInfo::increment(OpenInfo& other) {
 
 }
 
+// simply compute the crossed-rate between these exposed nucleotides.
+
+double OpenInfo::crossRate(OpenInfo& other) {
+
+	double output = 0.0;
+
+	for (std::pair<HalfContext, BaseCount> here : tally) {
+
+		HalfContext& top = here.first;
+		BaseCount& countTop = here.second;
+
+		for (std::pair<HalfContext, BaseCount> there : other.tally) {
+
+			HalfContext& bot = there.first;
+			BaseCount& countBot = there.second;
+
+			MoveType left = moveutil::combineBi(top.left, bot.right);
+			MoveType right = moveutil::combineBi(top.right, bot.left);
+
+			output += 0.0;
+
+		}
+
+	}
+
+	return 0.0;
+
+}
+
 JoinCriterea::JoinCriterea() {
 
 // empty constructor
 
 }
 
-std::ostream& operator<<(std::ostream &ss, JoinCriterea& m) {
+std::ostream & operator<<(std::ostream & ss, JoinCriterea & m) {
 
 	ss << "Types = " << m.types[0] << " " << m.types[1];
 
@@ -125,9 +155,10 @@ std::ostream& operator<<(std::ostream &ss, JoinCriterea& m) {
 
 }
 
-MoveType moveutil::combine(QuartContext& one, QuartContext& two) {
+MoveType moveutil::combineBi(QuartContext & one, QuartContext & two) {
 
 // c++ doesn't do double variable switch
+// FD: This switch should ONLY be used for bimolecular rates.
 
 	if (one == endC) {
 
@@ -220,7 +251,7 @@ HalfContext::HalfContext(QuartContext in1, QuartContext in2) {
 
 }
 
-std::ostream& operator<<(std::ostream &os, HalfContext& m) {
+std::ostream & operator<<(std::ostream & os, HalfContext & m) {
 
 	os << "(" << quartContextString[m.left] << ", ";
 	os << quartContextString[m.right] << ") ";

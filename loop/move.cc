@@ -207,25 +207,25 @@ Loop *Move::doChoice(void) {
 		return NULL;
 }
 
-string Move::rateToString(bool usePrime) {
-
-	std::stringstream ss;
-
-	if (usePrime) {
-
-		ss << EnergyOptions::primeRateToString(rate.rate);
-
-	} else {
-
-		ss << std::setprecision(3) << rate.rate;
-
-	}
-
-	ss << " ";
-
-	return ss.str();
-
-}
+//string Move::rateToString(bool usePrime) {
+//
+//	std::stringstream ss;
+//
+////	if (usePrime) {
+////
+////		ss << EnergyOptions::primeRateToString(rate.rate);
+////
+////	} else {
+//
+//		ss << std::setprecision(3) << rate.rate;
+//
+////	}
+//
+//	ss << " ";
+//
+//	return ss.str();
+//
+//}
 
 string Move::toString(bool useArr) {
 

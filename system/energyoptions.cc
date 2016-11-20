@@ -110,39 +110,39 @@ string EnergyOptions::toString(void) {
 
 }
 
-string EnergyOptions::primeRateToString(double rate) {
-
-	std::stringstream ss;
-
-	if (fmod(rate, 1.0) > 0.49) {		// dealing with rate / 2 case
-
-		rate = 2 * rate;
-
-	}
-
-	int myRate = round(rate);
-
-	for (int i = 0; i < MOVETYPE_SIZE; i++) {
-
-		int myPrime = moveutil::valuesPrime[i];
-
-		if ((myRate % myPrime) == 0) {
-
-			ss << moveutil::MoveToString[i] << ", ";
-
-			if ((myRate % (myPrime * myPrime) == 0)) {
-
-				ss << moveutil::MoveToString[i] << ", ";
-
-			}
-
-		}
-
-	}
-
-	return ss.str();
-
-}
+//string EnergyOptions::primeRateToString(double rate) {
+//
+//	std::stringstream ss;
+//
+//	if (fmod(rate, 1.0) > 0.49) {		// dealing with rate / 2 case
+//
+//		rate = 2 * rate;
+//
+//	}
+//
+//	int myRate = round(rate);
+//
+//	for (int i = 0; i < MOVETYPE_SIZE; i++) {
+//
+//		int myPrime = moveutil::valuesPrime[i];
+//
+//		if ((myRate % myPrime) == 0) {
+//
+//			ss << moveutil::MoveToString[i] << ", ";
+//
+//			if ((myRate % (myPrime * myPrime) == 0)) {
+//
+//				ss << moveutil::MoveToString[i] << ", ";
+//
+//			}
+//
+//		}
+//
+//	}
+//
+//	return ss.str();
+//
+//}
 
 PEnergyOptions::PEnergyOptions(PyObject* input) :
 		EnergyOptions() {

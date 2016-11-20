@@ -29,8 +29,8 @@ public:
 	double getTotalFlux(void);
 	double getJoinFlux(void);
 	double getJoinFluxArr(void);
-	void computeArrBiRate(SComplexListEntry*);
-	void cycleCrossRateArr(StrandOrdering*, StrandOrdering*);
+	double computeArrBiRate(SComplexListEntry*);
+	double cycleCrossRateArr(StrandOrdering*, StrandOrdering*);
 	void computeCrossRateArr(OpenLoop*, OpenLoop*);
 	int getCount(void);
 	double *getEnergy(int volume_flag);
@@ -69,7 +69,7 @@ public:
 	string toString(EnergyModel *em);
 	void dumpComplexEntryToPython(int *our_id, char **names, char **sequence, char **structure, double *our_energy);
 	int id;
-	StrandComplex *thisComplex;
+	StrandComplex* thisComplex;
 	double energy;
 	energyS ee_energy;
 	double rate;

@@ -23,7 +23,7 @@ enum QuartContext {
 
 namespace moveutil {
 
-MoveType combine(QuartContext&, QuartContext&);
+MoveType combineBi(QuartContext&, QuartContext&);
 bool isPair(BaseType, BaseType);
 
 const static double valuesPrime[MOVETYPE_SIZE] = { 3, 5, 7, 11, 13, 17, 19 };
@@ -72,6 +72,8 @@ public:
 	void increment(QuartContext, char, QuartContext);
 	void increment(HalfContext, BaseCount&);
 	void increment(OpenInfo&);
+
+	double crossRate(OpenInfo&);
 
 	map<HalfContext, BaseCount> tally;
 
