@@ -885,7 +885,7 @@ void SimulationSystem::printAllMoves() {
 	complexList->initializeList();
 
 	// also generate the half contexts
-	complexList->updateLocalContext();
+	complexList->updateOpenInfo();
 
 	complexList->printComplexList();
 

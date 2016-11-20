@@ -108,11 +108,10 @@ void SComplexListEntry::dumpComplexEntryToPython(int *our_id, char **names, char
  */
 
 SComplexList::SComplexList(EnergyModel *energyModel) {
-	numentries = 0;
-	first = NULL;
+
+//	first = NULL;
 	eModel = energyModel;
-	joinRate = 0.0;
-	idcounter = 0;
+
 }
 
 SComplexList::~SComplexList(void) {
@@ -641,7 +640,7 @@ string SComplexList::toString() {
 
 }
 
-void SComplexList::updateLocalContext(void) {
+void SComplexList::updateOpenInfo(void) {
 
 	SComplexListEntry *temp = first;
 

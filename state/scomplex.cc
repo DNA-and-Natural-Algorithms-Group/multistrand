@@ -45,7 +45,6 @@ StrandComplex::StrandComplex(char *seq, char *struc, class identList *id_list) {
 	strcpy(tempstruct, struc);
 	for (int loop = 0; loop < strlen(tempcseq); loop++)
 		tempcseq[loop] = baseLookup(tempcseq[loop]);
-	//  exteriorBases.A = exteriorBases.T = exteriorBases.C = exteriorBases.G = 0;
 
 	beginLoop = NULL;
 	kineticMoves = NULL;

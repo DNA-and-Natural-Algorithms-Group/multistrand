@@ -19,8 +19,10 @@ class SComplexListEntry;
 
 class SComplexList {
 public:
+
 	SComplexList(EnergyModel *energyModel);
 	~SComplexList(void);
+
 	SComplexListEntry *addComplex(StrandComplex *newComplex);
 	void initializeList(void);
 	void regenerateMoves(void);
@@ -39,21 +41,21 @@ public:
 	void doJoinChoice(double choice);
 	bool checkStopComplexList(class complexItem *stoplist);
 	string toString(void);
-	void updateLocalContext(void);
-
-	// contains the external nucleotide transitions
-//	TransitionList arrExtern;
+	void updateOpenInfo(void);
 
 private:
 	bool checkStopComplexList_Bound(class complexItem *stoplist);
 	bool checkStopComplexList_Structure_Disassoc(class complexItem *stoplist);
 	bool checkLooseStructure(char *our_struc, char *stop_struc, int count);
 	bool checkCountStructure(char *our_struc, char *stop_struc, int count);
-	int numentries;
-	int idcounter;
-	SComplexListEntry *first;
-	EnergyModel *eModel;
-	double joinRate;
+
+	int numentries = 0;
+	int idcounter = 0;
+
+	SComplexListEntry* first = NULL;
+	EnergyModel* eModel = NULL;
+
+	double joinRate = 0.0;
 
 };
 
