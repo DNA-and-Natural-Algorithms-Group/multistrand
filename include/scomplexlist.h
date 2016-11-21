@@ -28,6 +28,7 @@ public:
 	void regenerateMoves(void);
 	double getTotalFlux(void);
 	double getJoinFlux(void);
+	BaseCount countExposedBases();
 	double getJoinFluxArr(void);
 	double computeArrBiRate(SComplexListEntry*);
 	double cycleCrossRateArr(StrandOrdering*, StrandOrdering*);
@@ -50,7 +51,7 @@ private:
 	bool checkLooseStructure(char *our_struc, char *stop_struc, int count);
 	bool checkCountStructure(char *our_struc, char *stop_struc, int count);
 
-	int numentries = 0;
+	int numOfComplexes = 0;
 	int idcounter = 0;
 
 	SComplexListEntry* first = NULL;

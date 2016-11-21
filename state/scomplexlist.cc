@@ -137,7 +137,7 @@ SComplexListEntry *SComplexList::addComplex(StrandComplex *newComplex) {
 		temp->next = first;
 		first = temp;
 	}
-	numentries++;
+	numOfComplexes++;
 	idcounter++;
 
 	return first;
@@ -191,6 +191,20 @@ double SComplexList::getTotalFlux(void) {
 	return total;
 }
 
+BaseCount SComplexList::countExposedBases() {
+
+	BaseCount output;
+
+	for (SComplexListEntry* it = first; it != NULL; it = it->next) {
+
+		BaseCount& ext_bases = it->thisComplex->getExteriorBases(eModel->useArrhenius());
+		output.increment(ext_bases);
+
+	}
+
+	return output;
+}
+
 /*
  double SComplexList::getJoinFlux( void )
 
@@ -214,51 +228,43 @@ double SComplexList::getJoinFlux(void) {
 //	}
 
 	double output = 0.0;
-	BaseCount total_bases;
 	int moveCount = 0;
 
 	SComplexListEntry *temp = first;
 
-	// We now compute the exterior nucleotide moves.
-	if (numentries <= 1)
+// We now compute the exterior nucleotide moves.
+	if (numOfComplexes <= 1) {
 		return 0.0;
-
-	while (temp != NULL) {
-
-		BaseCount& ext_bases = temp->thisComplex->getExteriorBases(useArr);
-		total_bases.increment(ext_bases);
-
-		temp = temp->next;
 	}
+
+	BaseCount totalBases = countExposedBases();
+
+//	while (temp != NULL) {
+//
+//		BaseCount& ext_bases = temp->thisComplex->getExteriorBases(useArr);
+//		totalBases.increment(ext_bases);
+//
+//		temp = temp->next;
+//	}
 
 	temp = first;
 	while (temp != NULL) {
 
 		BaseCount& ext_bases = temp->thisComplex->getExteriorBases(useArr);
-		total_bases.decrement(ext_bases);
+		totalBases.decrement(ext_bases);
 
-		moveCount += total_bases.multiCount(ext_bases);
+		moveCount += totalBases.multiCount(ext_bases);
 
 		temp = temp->next;
 	}
 
-	// There are plenty of multi-complex structures with no moves.
+// There are plenty of multi-complex structures with no moves.
 	if (moveCount > 0) {
 
 		output = (double) moveCount * eModel->getJoinRate();
 		output = eModel->applyPrefactors(output, loopMove, loopMove);
 
 	}
-
-//	// We now compute the exterior nucleotide moves.
-//	if (useArr) {
-//
-//		// avoid adding the rates for now.
-////		getJoinFluxArr();
-//
-//		output += getJoinFluxArr();
-//
-//	}
 
 	return output;
 
@@ -272,9 +278,9 @@ double SComplexList::getJoinFlux(void) {
 // always have the same structure
 double SComplexList::getJoinFluxArr(void) {
 
-	// The trick is to compute all rates between the first complex,
-	// and the remaining complexes. Then, compute the rate between the second complex,
-	// and the remaining complexes (set minus first and second), and so on.
+// The trick is to compute all rates between the first complex,
+// and the remaining complexes. Then, compute the rate between the second complex,
+// and the remaining complexes (set minus first and second), and so on.
 
 	double rate = 0.0;
 
@@ -293,11 +299,11 @@ double SComplexList::computeArrBiRate(SComplexListEntry* input) {
 	double output = 0.0;
 
 	SComplexListEntry* temp = input->next;
-	// post: temp is pointing to the next entry
+// post: temp is pointing to the next entry
 
 	StrandOrdering* orderIn = input->thisComplex->getOrdering();
 
-	// now start computing rates with the remaining entries
+// now start computing rates with the remaining entries
 	while (temp != NULL) {
 
 		StrandOrdering* otherOrder = temp->thisComplex->getOrdering();
@@ -400,7 +406,7 @@ void SComplexList::computeCrossRateArr(OpenLoop* open1, OpenLoop* open2) {
 
 double *SComplexList::getEnergy(int volume_flag) {
 	SComplexListEntry *temp = first;
-	double *energies = new double[numentries];
+	double *energies = new double[numOfComplexes];
 	int index = 0;
 	while (temp != NULL) {
 		energies[index] = temp->energy;
@@ -435,7 +441,7 @@ SComplexListEntry *SComplexList::getFirst(void) {
 }
 
 int SComplexList::getCount(void) {
-	return numentries;
+	return numOfComplexes;
 }
 
 int SComplexList::doBasicChoice(double choice, double newtime) {
@@ -474,7 +480,7 @@ int SComplexList::doBasicChoice(double choice, double newtime) {
 		}
 		temp = temp->next;
 	}
-	// POST: pickedComplex points to the complex that contains the executable move
+// POST: pickedComplex points to the complex that contains the executable move
 
 	assert(pickedComplex != NULL);
 
@@ -543,11 +549,17 @@ void SComplexList::doJoinChoice(double choice) {
 //
 //	}
 
+	bool useArr = eModel->useArrhenius();
+	BaseCount baseSum;
+	for (SComplexListEntry* it = first; it != NULL; it = it->next) {
+
+		BaseCount& ext_bases = it->thisComplex->getExteriorBases(useArr);
+		baseSum.increment(ext_bases);
+
+	}
+
 	SComplexListEntry *temp = first;
 	SComplexListEntry *temp2 = NULL;
-
-	BaseCount baseSum;
-	bool useArr = eModel->useArrhenius();
 
 	StrandComplex *deleted;
 
@@ -558,15 +570,8 @@ void SComplexList::doJoinChoice(double choice) {
 
 	int_choice = (int) floor(choice / eModel->applyPrefactors(eModel->getJoinRate(), loopMove, loopMove));
 
-	if (numentries <= 1)
+	if (numOfComplexes <= 1)
 		return;
-
-	for (SComplexListEntry* it = first; it != NULL; it = it->next) {
-
-		BaseCount& ext_bases = it->thisComplex->getExteriorBases(useArr);
-		baseSum.increment(ext_bases);
-
-	}
 
 	temp = first;
 
@@ -597,9 +602,9 @@ void SComplexList::doJoinChoice(double choice) {
 		}
 	}
 
-	// Exit for the goto.
-	// FD: This isn't much different from replacing GOTO with a return
-	// FD: and spliting off a function
+// Exit for the goto.
+// FD: This isn't much different from replacing GOTO with a return
+// FD: and spliting off a function
 	endWhileAndForLoops:
 
 	deleted = StrandComplex::performComplexJoin(crit.picked, crit.types, crit.index, useArr);
@@ -630,7 +635,7 @@ void SComplexList::doJoinChoice(double choice) {
 		delete temp2;
 
 	}
-	numentries--;
+	numOfComplexes--;
 
 	return;
 }
@@ -720,7 +725,7 @@ bool SComplexList::checkStopComplexList_Structure_Disassoc(class complexItem *st
 		max_complexes++;
 		traverse = traverse->next;
 	}
-	if (max_complexes > numentries)
+	if (max_complexes > numOfComplexes)
 		return 0; // can't match more entries than we have complexes.
 
 	traverse = stoplist;

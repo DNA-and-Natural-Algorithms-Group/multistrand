@@ -5307,7 +5307,7 @@ char *OpenLoop::getLocation(Move *move, int index) {
 //	return NULL;
 //}
 
-char *OpenLoop::getBase(char type, int index, bool useArr) {
+char* OpenLoop::getBase(char type, int index, bool useArr) {
 
 	// FD 2016-11-14
 	// adjusting this to work with arrhenius rates.

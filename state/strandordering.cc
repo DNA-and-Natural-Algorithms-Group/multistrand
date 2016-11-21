@@ -480,9 +480,9 @@ OpenLoop *StrandOrdering::getIndex(char type, int *index, char **location, bool 
 
 		assert(traverse->thisLoop != NULL);
 
-		vector<int>& free_bases = traverse->thisLoop->getFreeBases(useArr).count;
+		vector<int>& freeBases = traverse->thisLoop->getFreeBases(useArr).count;
 
-		if (*index < free_bases[type]) {
+		if (*index < freeBases[type]) {
 
 			*location = traverse->thisLoop->getBase(type, *index, useArr);
 
@@ -490,7 +490,7 @@ OpenLoop *StrandOrdering::getIndex(char type, int *index, char **location, bool 
 
 		} else {
 
-			*index = *index - free_bases[type];
+			*index = *index - freeBases[type];
 
 		}
 
