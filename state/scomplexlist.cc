@@ -230,8 +230,6 @@ double SComplexList::getJoinFlux(void) {
 	double output = 0.0;
 	int moveCount = 0;
 
-	SComplexListEntry *temp = first;
-
 // We now compute the exterior nucleotide moves.
 	if (numOfComplexes <= 1) {
 		return 0.0;
@@ -239,23 +237,13 @@ double SComplexList::getJoinFlux(void) {
 
 	BaseCount totalBases = countExposedBases();
 
-//	while (temp != NULL) {
-//
-//		BaseCount& ext_bases = temp->thisComplex->getExteriorBases(useArr);
-//		totalBases.increment(ext_bases);
-//
-//		temp = temp->next;
-//	}
-
-	temp = first;
-	while (temp != NULL) {
+	for (SComplexListEntry* temp = first; temp != NULL; temp = temp->next) {
 
 		BaseCount& ext_bases = temp->thisComplex->getExteriorBases(useArr);
 		totalBases.decrement(ext_bases);
 
 		moveCount += totalBases.multiCount(ext_bases);
 
-		temp = temp->next;
 	}
 
 // There are plenty of multi-complex structures with no moves.
