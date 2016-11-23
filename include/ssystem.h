@@ -76,8 +76,7 @@ private:
 	PyObject *system_options;
 	SimOptions *simOptions;
 
-	long current_seed;
-	bool initial_trajectory;
+	long current_seed = NULL;
 	long simulation_mode;
 	long simulation_count_remaining;
 
