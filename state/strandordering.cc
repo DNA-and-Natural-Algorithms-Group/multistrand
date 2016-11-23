@@ -744,16 +744,6 @@ OpenInfo& StrandOrdering::getOpenInfo(void) {
 
 }
 
-//// simply ask all open loops to update their local contexts.
-//void StrandOrdering::updateOpenInfo(void) {
-//
-//	orderinglist *traverse = NULL;
-//	for (traverse = first; traverse != NULL; traverse = traverse->next) {
-//		traverse->thisLoop->getOpenInfo();
-//	}
-//
-//}
-
 string StrandOrdering::toString(void) {
 
 	std::stringstream ss;
@@ -771,8 +761,6 @@ string StrandOrdering::toString(void) {
 		ss << traverse->thisLoop->typeInternalsToString();
 
 	}
-
-//	ss << "\n";
 
 	// now print the combined openInfo
 	ss << "Summed OpenInfo: \n";

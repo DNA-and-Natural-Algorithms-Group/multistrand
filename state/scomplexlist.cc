@@ -191,7 +191,7 @@ double SComplexList::getTotalFlux(void) {
 	return total;
 }
 
-BaseCount SComplexList::countExposedBases() {
+BaseCount SComplexList::getExposedBases() {
 
 	BaseCount output;
 
@@ -201,6 +201,8 @@ BaseCount SComplexList::countExposedBases() {
 		output.increment(ext_bases);
 
 	}
+
+	// FD: refactoring this to use the map data structure.
 
 	return output;
 }
@@ -235,7 +237,7 @@ double SComplexList::getJoinFlux(void) {
 		return 0.0;
 	}
 
-	BaseCount totalBases = countExposedBases();
+	BaseCount totalBases = getExposedBases();
 
 	for (SComplexListEntry* temp = first; temp != NULL; temp = temp->next) {
 
@@ -537,33 +539,21 @@ void SComplexList::doJoinChoice(double choice) {
 //
 //	}
 
-	bool useArr = eModel->useArrhenius();
-	BaseCount baseSum;
-	for (SComplexListEntry* it = first; it != NULL; it = it->next) {
-
-		BaseCount& ext_bases = it->thisComplex->getExteriorBases(useArr);
-		baseSum.increment(ext_bases);
-
-	}
-
-	SComplexListEntry *temp = first;
-	SComplexListEntry *temp2 = NULL;
-
-	StrandComplex *deleted;
-
-	JoinCriterea crit;
-
-	int int_choice;
-	int total_move_count = 0;
-
-	int_choice = (int) floor(choice / eModel->applyPrefactors(eModel->getJoinRate(), loopMove, loopMove));
-
 	if (numOfComplexes <= 1)
 		return;
 
-	temp = first;
+	bool useArr = eModel->useArrhenius();
 
-	while (temp != NULL) {
+	BaseCount baseSum = getExposedBases();
+
+	SComplexListEntry *temp2 = NULL;
+
+	JoinCriterea crit;
+	StrandComplex *deleted;
+
+	int int_choice = (int) floor(choice / eModel->applyPrefactors(eModel->getJoinRate(), loopMove, loopMove));
+
+	for (SComplexListEntry* temp = first; temp != NULL; temp = temp->next) {
 
 		BaseCount& external = temp->thisComplex->getExteriorBases(useArr);
 		baseSum.decrement(external);
@@ -585,9 +575,6 @@ void SComplexList::doJoinChoice(double choice) {
 
 		}
 
-		if (temp != NULL) {
-			temp = temp->next;
-		}
 	}
 
 // Exit for the goto.
@@ -597,7 +584,7 @@ void SComplexList::doJoinChoice(double choice) {
 
 	deleted = StrandComplex::performComplexJoin(crit.picked, crit.types, crit.index, useArr);
 
-	for (temp = first; temp != NULL; temp = temp->next) {
+	for (SComplexListEntry* temp = first; temp != NULL; temp = temp->next) {
 
 		if (temp->thisComplex == crit.picked[0]) {
 			temp->fillData(eModel);

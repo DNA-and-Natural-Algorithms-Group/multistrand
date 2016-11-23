@@ -5577,7 +5577,7 @@ char *OpenLoop::verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop 
 		return NULL;
 }
 
-OpenInfo OpenLoop::getOpenInfo() {
+OpenInfo OpenLoop::getOpenInfo(void) {
 
 // do nothing if not required
 	if (openInfo.upToDate) {

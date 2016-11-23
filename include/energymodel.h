@@ -19,7 +19,6 @@ class SimOptions;
 class Loop;
 class EnergyOptions;
 
-
 #define BASE_A 1
 #define BASE_C 2
 #define BASE_G 3
@@ -48,8 +47,6 @@ const int basepair_sw_mfold[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
 const int basepair_sw_mfold_actual[8] = { 0, 4, 3, 2, 1, 6, 5, 7 }; // Why do this? Yeah, because vienna's parameter file sucks and stores pairings in the opposite ordering. So for one of them, we need to swap basepairs to get the correct ordering, in the other one, we don't.
 extern int basepair_sw[8]; // = {0,0,0,0,0,0,0,0};
 
-
-
 int baseLookup(char base);
 
 #define INF 100000
@@ -58,8 +55,6 @@ const double gasConstant = 0.0019872041;
 enum LoopType {
 	openLoop, interiorLoop, bulgeLoop, stackLoop, hairpinLoop, multiLoop, LOOPTYPE_SIZE
 };
-
-
 
 class energyS {
 public:
@@ -113,6 +108,8 @@ public:
 	virtual void eStackEnergy(int type1, int type2, energyS *energy) = 0;
 
 	SimOptions* simOptions;
+
+
 
 protected:
 	long dangles;

@@ -28,7 +28,7 @@ public:
 	void regenerateMoves(void);
 	double getTotalFlux(void);
 	double getJoinFlux(void);
-	BaseCount countExposedBases();
+	BaseCount getExposedBases();
 	double getJoinFluxArr(void);
 	double computeArrBiRate(SComplexListEntry*);
 	double cycleCrossRateArr(StrandOrdering*, StrandOrdering*);

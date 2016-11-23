@@ -735,7 +735,6 @@ void SimulationSystem::sendTransitionStateVectorToPython(boolvector transition_s
 // we now have no references to mylist directly owned [though transition tuple has one via BuildValue]
 
 	pushTransitionInfo(system_options, transition_tuple);
-//sim_options->sendTransitionInfo(transition_tuple);
 
 // transition_tuple has been decreffed by this macro, so we no longer own any references to it
 
@@ -837,7 +836,6 @@ PyObject *SimulationSystem::calculateEnergy(PyObject *start_state, int typeflag)
 	}
 
 	values = complexList->getEnergy(typeflag); // NUPACK energy output : bimolecular penalty, no Volume term.
-// number is complexList->getCount()
 
 	retval = PyTuple_New(complexList->getCount());
 // New Reference, we return it.

@@ -15,6 +15,7 @@ bool printedRates = false;
 
 EnergyModel::EnergyModel(PyObject *options) {
 	// nothing yet
+
 }
 
 EnergyModel::EnergyModel(void) {

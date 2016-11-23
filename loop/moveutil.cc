@@ -19,6 +19,8 @@ int moveutil::typeMult(MoveType left, MoveType right) {
 
 }
 
+//moveutil::useArr = energyModel.
+
 QuartContext moveutil::getContext(char input) {
 
 	if (input > 0) { // there is a stack on the exteriour
