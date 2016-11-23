@@ -13,6 +13,7 @@ using std::map;
 
 class StrandComplex;
 class EnergyModel;
+//struct HalfContext;
 
 enum MoveType {
 	endMove, loopMove, stackMove, stackStackMove, loopEndMove, stackEndMove, stackLoopMove, MOVETYPE_SIZE
@@ -39,17 +40,6 @@ int typeMult(MoveType left, MoveType right);
 
 // UTILITY STRUCTS
 
-struct JoinCriteria {
-
-	JoinCriteria();
-	friend std::ostream& operator<<(std::ostream&, JoinCriteria&);
-
-	StrandComplex* picked[2] = { NULL, NULL };
-	char types[2] = { 0, 0 };
-	int index[2] = { 0, 0 };
-
-};
-
 struct HalfContext {
 
 	HalfContext();
@@ -59,6 +49,21 @@ struct HalfContext {
 
 	QuartContext left = endC;
 	QuartContext right = endC;
+
+};
+
+struct JoinCriteria {
+
+	JoinCriteria();
+	friend std::ostream& operator<<(std::ostream&, JoinCriteria&);
+
+	StrandComplex* picked[2] = { NULL, NULL };
+	char types[2] = { 0, 0 };
+	int index[2] = { 0, 0 };
+
+	// arrhenius rates only
+//	bool useArr = false;
+	HalfContext half[2] = { HalfContext(), HalfContext() };
 
 };
 

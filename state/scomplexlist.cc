@@ -525,6 +525,10 @@ void SComplexList::doJoinChoice(double choice) {
 //
 //	}
 
+	// before we do anything, print crit (this is for debugging!)
+
+
+
 // Exit for the goto.
 // FD: This isn't much different from replacing GOTO with a return
 // FD: and spliting off a function
@@ -573,8 +577,6 @@ JoinCriteria SComplexList::cycleForJoinChoice(double choice) {
 	int int_choice = (int) floor(choice / eModel->applyPrefactors(eModel->getJoinRate(), loopMove, loopMove));
 	BaseCount baseSum = getExposedBases();
 
-//	JoinCriterea crit;
-
 	for (SComplexListEntry* temp = first; temp != NULL; temp = temp->next) {
 
 		BaseCount& external = temp->thisComplex->getExteriorBases(eModel->useArrhenius());
@@ -586,10 +588,8 @@ JoinCriteria SComplexList::cycleForJoinChoice(double choice) {
 
 			if (int_choice < combinations) {
 
-				return findJoinNucleotides(base, int_choice, external, temp);
-
 				// break both loops, because the right bases are identified.
-//				return crit;
+				return findJoinNucleotides(base, int_choice, external, temp);
 
 			} else {
 				int_choice -= combinations;
@@ -662,11 +662,11 @@ JoinCriteria SComplexList::cycleForJoinChoiceArr(double choice) {
 					MoveType right = moveutil::combineBi(con.first.right, ton.first.left);
 					double joinRate = eModel->applyPrefactors(eModel->getJoinRate(), left, right);
 
-					double rate = eModel->applyPrefactors(0.0, left, right);
+					double rate = joinRate * combinations;
 
 					if (choice < rate) {
 
-						// we have determined the local context.
+						// we have determined the HalfContexts for the upper and lower strand.
 						int choice_int = choice / joinRate;
 
 						for (BaseType base : { baseA, baseT, baseG, baseC }) {
@@ -676,7 +676,12 @@ JoinCriteria SComplexList::cycleForJoinChoiceArr(double choice) {
 							if (choice < combinations) {
 
 								// return the joining criteria;
-								return findJoinNucleotidesArr(base, con.first, ton.first, choice_int, ton.second, temp);
+								JoinCriteria crit = findJoinNucleotides(base, choice_int, ton.second, temp);
+
+								crit.half[0] = con.first;
+								crit.half[1] = ton.first;
+
+								return crit;
 
 							} else {
 								choice_int -= combinations;
@@ -702,46 +707,47 @@ JoinCriteria SComplexList::cycleForJoinChoiceArr(double choice) {
 
 }
 
-// FD: crit is an export variable, but the bool return signifies if a pair has been selected or not.
-JoinCriteria SComplexList::findJoinNucleotidesArr(BaseType base, HalfContext top, HalfContext bot, int choice, BaseCount& external, SComplexListEntry* temp) {
-
-	JoinCriteria crit;
-
-	int otherBase = 5 - (int) base;
-
-	crit.picked[0] = temp->thisComplex;
-	crit.types[0] = otherBase;
-	crit.types[1] = base;
+//// FD: crit is an export variable, but the bool return signifies if a pair has been selected or not.
+//JoinCriteria SComplexList::findJoinNucleotidesArr(BaseType base, HalfContext top, HalfContext bot, int choice, BaseCount& externalCount,
+//		SComplexListEntry* temp) {
+//
+//	JoinCriteria crit;
+//
+//	int otherBase = 5 - (int) base;
+//
+//	crit.picked[0] = temp->thisComplex;
+//	crit.types[0] = otherBase;
+//	crit.types[1] = base;
 //
 //	temp = temp->next;
 //
 //	bool useArr = eModel->useArrhenius();
 //
 //	while (temp != NULL) {
-//
-//		BaseCount& externOther = temp->thisComplex->getExteriorBases(useArr);
-//
-//		if (choice < externOther.count[base] * external.count[otherBase]) {
-//
-//			crit.picked[1] = temp->thisComplex;
-//			crit.index[0] = (int) floor(choice / externOther.count[base]);
-//			crit.index[1] = choice - crit.index[0] * externOther.count[base];
-//			temp = NULL;
-//
+////
+////		BaseCount& externOther = temp->thisComplex->getExteriorBases(useArr);
+////
+//		if (choice < externalCount.count[base] * externalCount.count[otherBase]) {
+////
+////			crit.picked[1] = temp->thisComplex;
+////			crit.index[0] = (int) floor(choice / externOther.count[base]);
+////			crit.index[1] = choice - crit.index[0] * externOther.count[base];
+////			temp = NULL;
+////
 //		} else {
-//
+////
 //			temp = temp->next;
-//			choice -= externOther.count[base] * external.count[otherBase];
+////			choice -= externOther.count[base] * external.count[otherBase];
+////
 //
 //		}
+//
+//		return crit;
 //	}
 
-	return crit;
-}
-
-void SComplexList::doJoinChoiceArr(double choice) {
-
-}
+//	void SComplexList::doJoinChoiceArr(double choice) {
+//
+//	}
 
 /*
 
@@ -911,10 +917,10 @@ bool SComplexList::checkLooseStructure(char *our_struc, char *stop_struc, int co
 				remaining_distance--; // for position loop, which had
 									  // ),) but they were paired wrong
 				if (our_struc[stop_pairs.back()] == '(')
-					remaining_distance--;								  // for the position we were
-																		  // paired with in stop_struc,
-																		  // because it was ( in our_struc
-																		  // as well, but paired wrong
+					remaining_distance--; // for the position we were
+										  // paired with in stop_struc,
+										  // because it was ( in our_struc
+										  // as well, but paired wrong
 			}
 			our_pairs.pop_back();
 			stop_pairs.pop_back();
@@ -968,10 +974,10 @@ bool SComplexList::checkCountStructure(char *our_struc, char *stop_struc, int co
 				remaining_distance--; // for position loop, which had
 									  // ),) but they were paired wrong
 				if (our_struc[stop_pairs.back()] == '(')
-					remaining_distance--;								  // for the position we were
-																		  // paired with in stop_struc,
-																		  // because it was ( in our_struc
-																		  // as well, but paired wrong
+					remaining_distance--; // for the position we were
+										  // paired with in stop_struc,
+										  // because it was ( in our_struc
+										  // as well, but paired wrong
 			}
 			our_pairs.pop_back();
 			stop_pairs.pop_back();

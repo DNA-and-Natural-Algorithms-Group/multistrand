@@ -181,7 +181,13 @@ JoinCriteria::JoinCriteria() {
 
 std::ostream & operator<<(std::ostream & ss, JoinCriteria & m) {
 
-	ss << "Types = " << m.types[0] << " " << m.types[1];
+	ss << " criteria \n";
+
+	ss << "Types = " << m.types[0] << " " << m.types[1] << "\n";
+
+	ss << "Index = " << m.index[0] << " " << m.index[1] << " \n";
+
+	ss << "Half = " << m.half[0] << " " << m.half[1] << "\n";
 
 	return ss;
 
