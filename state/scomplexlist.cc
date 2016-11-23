@@ -532,26 +532,13 @@ void SComplexList::findJoinNucleotides(BaseType base, int choice, BaseCount& ext
 
 void SComplexList::doJoinChoice(double choice) {
 
-//	if (eModel->useArrhenius()) {
-//
-//		doJoinChoiceArr(choice);
-//		return;
-//
-//	}
-
-	if (numOfComplexes <= 1)
-		return;
+	assert(numOfComplexes > 1);
 
 	bool useArr = eModel->useArrhenius();
-
-	BaseCount baseSum = getExposedBases();
-
-	SComplexListEntry *temp2 = NULL;
-
 	JoinCriterea crit;
-	StrandComplex *deleted;
 
 	int int_choice = (int) floor(choice / eModel->applyPrefactors(eModel->getJoinRate(), loopMove, loopMove));
+	BaseCount baseSum = getExposedBases();
 
 	for (SComplexListEntry* temp = first; temp != NULL; temp = temp->next) {
 
@@ -581,6 +568,11 @@ void SComplexList::doJoinChoice(double choice) {
 // FD: This isn't much different from replacing GOTO with a return
 // FD: and spliting off a function
 	endWhileAndForLoops:
+
+	// here we actually perform the complex join, using criteria as input.
+
+	SComplexListEntry *temp2 = NULL;
+	StrandComplex *deleted;
 
 	deleted = StrandComplex::performComplexJoin(crit.picked, crit.types, crit.index, useArr);
 
