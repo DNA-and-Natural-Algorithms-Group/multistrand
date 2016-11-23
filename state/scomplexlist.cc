@@ -513,7 +513,7 @@ void SComplexList::doJoinChoice(double choice) {
 	assert(numOfComplexes > 1);
 
 	bool useArr = eModel->useArrhenius();
-	JoinCriterea crit;
+	JoinCriteria crit;
 
 //	if (!eModel->useArrhenius()) {
 
@@ -568,7 +568,7 @@ void SComplexList::doJoinChoice(double choice) {
 	return;
 }
 
-JoinCriterea SComplexList::cycleForJoinChoice(double choice) {
+JoinCriteria SComplexList::cycleForJoinChoice(double choice) {
 
 	int int_choice = (int) floor(choice / eModel->applyPrefactors(eModel->getJoinRate(), loopMove, loopMove));
 	BaseCount baseSum = getExposedBases();
@@ -600,14 +600,14 @@ JoinCriterea SComplexList::cycleForJoinChoice(double choice) {
 	}
 
 	assert(0);
-	return JoinCriterea();
+	return JoinCriteria();
 
 }
 
 // FD: crit is an export variable, but the bool return signifies if a pair has been selected or not.
-JoinCriterea SComplexList::findJoinNucleotides(BaseType base, int choice, BaseCount& external, SComplexListEntry* temp) {
+JoinCriteria SComplexList::findJoinNucleotides(BaseType base, int choice, BaseCount& external, SComplexListEntry* temp) {
 
-	JoinCriterea crit;
+	JoinCriteria crit;
 
 	int otherBase = 5 - (int) base;
 
@@ -641,11 +641,9 @@ JoinCriterea SComplexList::findJoinNucleotides(BaseType base, int choice, BaseCo
 	return crit;
 }
 
-JoinCriterea SComplexList::cycleForJoinChoiceArr(double choice) {
+JoinCriteria SComplexList::cycleForJoinChoiceArr(double choice) {
 
 	OpenInfo baseSum = getOpenInfo();
-
-//	JoinCriterea crit;
 
 	for (SComplexListEntry* temp = first; temp != NULL; temp = temp->next) {
 
@@ -677,10 +675,8 @@ JoinCriterea SComplexList::cycleForJoinChoiceArr(double choice) {
 
 							if (choice < combinations) {
 
+								// return the joining criteria;
 								return findJoinNucleotidesArr(base, con.first, ton.first, choice_int, ton.second, temp);
-
-								// break both loops, because the right bases are identified.
-//								return crit;
 
 							} else {
 								choice_int -= combinations;
@@ -702,14 +698,14 @@ JoinCriterea SComplexList::cycleForJoinChoiceArr(double choice) {
 	}
 
 	assert(0);
-	return JoinCriterea();
+	return JoinCriteria();
 
 }
 
 // FD: crit is an export variable, but the bool return signifies if a pair has been selected or not.
-JoinCriterea SComplexList::findJoinNucleotidesArr(BaseType base, HalfContext top, HalfContext bot, int choice, BaseCount& external, SComplexListEntry* temp) {
+JoinCriteria SComplexList::findJoinNucleotidesArr(BaseType base, HalfContext top, HalfContext bot, int choice, BaseCount& external, SComplexListEntry* temp) {
 
-	JoinCriterea crit;
+	JoinCriteria crit;
 
 	int otherBase = 5 - (int) base;
 

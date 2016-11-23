@@ -39,10 +39,10 @@ int typeMult(MoveType left, MoveType right);
 
 // UTILITY STRUCTS
 
-struct JoinCriterea {
+struct JoinCriteria {
 
-	JoinCriterea();
-	friend std::ostream& operator<<(std::ostream&, JoinCriterea&);
+	JoinCriteria();
+	friend std::ostream& operator<<(std::ostream&, JoinCriteria&);
 
 	StrandComplex* picked[2] = { NULL, NULL };
 	char types[2] = { 0, 0 };

@@ -42,10 +42,10 @@ public:
 	void printComplexList();
 	SComplexListEntry *getFirst(void);
 	int doBasicChoice(double choice, double newtime);
-	JoinCriterea cycleForJoinChoice(double choice);
-	JoinCriterea cycleForJoinChoiceArr(double choice);
-	JoinCriterea findJoinNucleotides(BaseType, int, BaseCount&, SComplexListEntry*);
-	JoinCriterea findJoinNucleotidesArr(BaseType, HalfContext, HalfContext, int, BaseCount&, SComplexListEntry*);
+	JoinCriteria cycleForJoinChoice(double choice);
+	JoinCriteria cycleForJoinChoiceArr(double choice);
+	JoinCriteria findJoinNucleotides(BaseType, int, BaseCount&, SComplexListEntry*);
+	JoinCriteria findJoinNucleotidesArr(BaseType, HalfContext, HalfContext, int, BaseCount&, SComplexListEntry*);
 	void doJoinChoice(double choice);
 	void doJoinChoiceArr(double choice);
 	bool checkStopComplexList(class complexItem *stoplist);

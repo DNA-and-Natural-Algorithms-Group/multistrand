@@ -173,13 +173,13 @@ double OpenInfo::crossRate(OpenInfo& other, EnergyModel& eModel) {
 
 }
 
-JoinCriterea::JoinCriterea() {
+JoinCriteria::JoinCriteria() {
 
 // empty constructor
 
 }
 
-std::ostream & operator<<(std::ostream & ss, JoinCriterea & m) {
+std::ostream & operator<<(std::ostream & ss, JoinCriteria & m) {
 
 	ss << "Types = " << m.types[0] << " " << m.types[1];
 
