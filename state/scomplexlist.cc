@@ -235,11 +235,11 @@ double SComplexList::getJoinFlux(void) {
 
 	bool useArr = eModel->useArrhenius();
 
-//	if (useArr) {
-//
-//		return getJoinFluxArr();
-//
-//	}
+	if (useArr) {
+
+		return getJoinFluxArr();
+
+	}
 
 	double output = 0.0;
 	int moveCount = 0;
@@ -515,19 +515,18 @@ void SComplexList::doJoinChoice(double choice) {
 	bool useArr = eModel->useArrhenius();
 	JoinCriteria crit;
 
-//	if (!eModel->useArrhenius()) {
+	if (!eModel->useArrhenius()) {
 
-	crit = cycleForJoinChoice(choice);
+		crit = cycleForJoinChoice(choice);
 
-//	} else {
-//
-//		crit = cycleForJoinChoiceArr(choice);
-//
-//	}
+	} else {
+
+		crit = cycleForJoinChoiceArr(choice);
+
+	}
 
 	// before we do anything, print crit (this is for debugging!)
-
-
+	cout << crit;
 
 // Exit for the goto.
 // FD: This isn't much different from replacing GOTO with a return
@@ -643,55 +642,77 @@ JoinCriteria SComplexList::findJoinNucleotides(BaseType base, int choice, BaseCo
 
 JoinCriteria SComplexList::cycleForJoinChoiceArr(double choice) {
 
+	// Like the non-arrhenius version, but this time, we have to cycle over all he
+	// possible local structures.
+
 	OpenInfo baseSum = getOpenInfo();
+
+	cout << baseSum;
 
 	for (SComplexListEntry* temp = first; temp != NULL; temp = temp->next) {
 
 		OpenInfo& external = temp->thisComplex->ordering->getOpenInfo();
+
+//		cout << external;
+
 		baseSum.decrement(external);
 
-		for (std::pair<HalfContext, BaseCount> con : baseSum.tally) {
+		if (baseSum.numExposed > 0) {
 
-			for (std::pair<HalfContext, BaseCount> ton : external.tally) {
+			for (std::pair<HalfContext, BaseCount> con : baseSum.tally) {
 
-				int combinations = con.second.multiCount(ton.second);
+				for (std::pair<HalfContext, BaseCount> ton : external.tally) {
 
-				if (combinations > 0) {
+					int combinations = con.second.multiCount(ton.second);
 
-					MoveType left = moveutil::combineBi(con.first.left, ton.first.right);
-					MoveType right = moveutil::combineBi(con.first.right, ton.first.left);
-					double joinRate = eModel->applyPrefactors(eModel->getJoinRate(), left, right);
+//					cout << combinations << "\n";
 
-					double rate = joinRate * combinations;
+					if (combinations > 0) {
 
-					if (choice < rate) {
+						MoveType left = moveutil::combineBi(con.first.left, ton.first.right);
+						MoveType right = moveutil::combineBi(con.first.right, ton.first.left);
+						double joinRate = eModel->applyPrefactors(eModel->getJoinRate(), left, right);
 
-						// we have determined the HalfContexts for the upper and lower strand.
-						int choice_int = choice / joinRate;
+						double rate = joinRate * combinations;
 
-						for (BaseType base : { baseA, baseT, baseG, baseC }) {
+//						cout << "choice  = " << choice << "\n";
+//						cout << "rate  = " << rate << "\n";
 
-							int combinations = con.second.count[base] * ton.second.count[5 - base];
+						if (choice <= rate) {
 
-							if (choice < combinations) {
+							// we have determined the HalfContexts for the upper and lower strand.
+							int choice_int = floor(choice / rate);
 
-								// return the joining criteria;
-								JoinCriteria crit = findJoinNucleotides(base, choice_int, ton.second, temp);
+//							cout << "choice_int = " << choice_int << "\n";
 
-								crit.half[0] = con.first;
-								crit.half[1] = ton.first;
+							for (BaseType base : { baseA, baseT, baseG, baseC }) {
 
-								return crit;
+								int combinations = con.second.count[base] * ton.second.count[5 - base];
 
-							} else {
-								choice_int -= combinations;
+//								cout << "combinations= " << combinations << "\n";
+
+								if (choice_int < combinations) {
+
+									// return the joining criteria;
+									JoinCriteria crit = findJoinNucleotides(base, choice_int, ton.second, temp);
+
+									crit.half[0] = con.first;
+									crit.half[1] = ton.first;
+
+									return crit;
+
+								} else {
+									choice_int -= combinations;
+								}
+
 							}
+
+						} else {
+
+							choice = choice - rate;
 
 						}
 
-					} else {
-
-						choice = choice - rate;
 					}
 
 				}
@@ -699,7 +720,6 @@ JoinCriteria SComplexList::cycleForJoinChoiceArr(double choice) {
 			}
 
 		}
-
 	}
 
 	assert(0);

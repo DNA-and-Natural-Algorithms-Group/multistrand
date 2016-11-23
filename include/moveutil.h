@@ -84,6 +84,8 @@ public:
 
 	double crossRate(OpenInfo&, EnergyModel&);
 
+
+
 	map<HalfContext, BaseCount> tally;
 
 	int numExposedInternal = 0;

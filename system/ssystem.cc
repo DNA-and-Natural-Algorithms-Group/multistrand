@@ -904,7 +904,9 @@ void SimulationSystem::InitialInfo(void) {
 	double biRate = complexList->getJoinFlux();
 
 	cout << "\n";
-	cout << "biRate is " << biRate;
+	cout << "biRate is " << biRate << "\n";
+
+	complexList->doJoinChoice(0.1 * biRate);
 
 	biRate = biRate / energyModel->applyPrefactors(energyModel->getJoinRate(), loopMove, loopMove);
 

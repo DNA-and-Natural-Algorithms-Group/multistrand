@@ -163,6 +163,8 @@ double OpenInfo::crossRate(OpenInfo& other, EnergyModel& eModel) {
 
 				double rate = crossings * joinRate;
 
+				output += rate;
+
 			}
 
 		}
@@ -183,7 +185,7 @@ std::ostream & operator<<(std::ostream & ss, JoinCriteria & m) {
 
 	ss << " criteria \n";
 
-	ss << "Types = " << m.types[0] << " " << m.types[1] << "\n";
+	ss << "Types = " << (int) m.types[0] << " " << (int) m.types[1] << "\n";
 
 	ss << "Index = " << m.index[0] << " " << m.index[1] << " \n";
 
