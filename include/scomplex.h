@@ -50,7 +50,8 @@ public:
 	string toString(void);
 	OpenInfo& getOpenInfo(void);
 
-	static StrandComplex *performComplexJoin(StrandComplex **complexes, char *types, int *index, bool);
+//	static StrandComplex *performComplexJoin(StrandComplex **complexes, char *types, int *index, bool);
+	static StrandComplex *performComplexJoin(JoinCriteria, bool);
 	StrandOrdering* getOrdering();
 
 	StrandOrdering* ordering;

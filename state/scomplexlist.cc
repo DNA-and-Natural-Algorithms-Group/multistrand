@@ -515,7 +515,7 @@ void SComplexList::doJoinChoice(double choice) {
 	bool useArr = eModel->useArrhenius();
 	JoinCriteria crit;
 
-	if (!eModel->useArrhenius()) {
+	if (!useArr) {
 
 		crit = cycleForJoinChoice(choice);
 
@@ -538,7 +538,8 @@ void SComplexList::doJoinChoice(double choice) {
 	SComplexListEntry *temp2 = NULL;
 	StrandComplex *deleted;
 
-	deleted = StrandComplex::performComplexJoin(crit.picked, crit.types, crit.index, useArr);
+//	deleted = StrandComplex::performComplexJoin(crit.picked, crit.types, crit.index, useArr);
+	deleted = StrandComplex::performComplexJoin(crit, useArr);
 
 	for (SComplexListEntry* temp = first; temp != NULL; temp = temp->next) {
 

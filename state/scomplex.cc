@@ -106,13 +106,19 @@ int StrandComplex::checkIDList(class identList *stoplist, int id_count) {
 int StrandComplex::checkIDBound(char *id) {
 	return ordering->checkIDBound(id);
 }
+// .picked, crit.types, crit.index
+//StrandComplex *StrandComplex::performComplexJoin(StrandComplex **complexes, char *types, int *index, bool useArr) {
 
-StrandComplex *StrandComplex::performComplexJoin(StrandComplex **complexes, char *types, int *index, bool useArr) {
+StrandComplex *StrandComplex::performComplexJoin(JoinCriteria crit, bool useArr) {
 
 //	std::cout << "index is " << index[0] << " " << index[1] << "\n";
 //	cout << "Types are " << (int) types[0] << "  " <<  (int) types[1];
 //	std::cout.flush();
 	// FD 2016 Nov 14: Adjusting this to ignore the exterior nucleotides if useArr= TRUE;
+
+	StrandComplex **complexes = crit.picked;
+	char *types = crit.types;
+	int *index = crit.index;
 
 	OpenLoop *loops[2];
 	OpenLoop *new_loops[2] = { NULL, NULL };
@@ -154,7 +160,7 @@ StrandComplex *StrandComplex::performComplexJoin(StrandComplex **complexes, char
 	return complexes[1];
 }
 
-StrandComplex *StrandComplex::doChoice(Move *move) {
+StrandComplex * StrandComplex::doChoice(Move * move) {
 	// TODO: fix for two affected loops being deleted, must get a 'good' starting loop for the complex still.
 	Loop *temp = NULL, *temp2 = NULL, *temp3 = NULL;
 	char id2, id3;
@@ -347,12 +353,12 @@ int StrandComplex::generateLoops(void) {
 		while (traverse != startpos && traverse < strlen(sequence)) {
 			if (sequence[traverse] == '_' || sequence[traverse] == '+') {
 				//printf("Open Loop at olflag = %d\n",traverse);
-				if (olflag != -1) // error, we shouldn't have more than one open loop specifier in a loop.
+				if (olflag != -1)			// error, we shouldn't have more than one open loop specifier in a loop.
 					printf("Multiple open loop specifiers in one loop!\n");
 
 				olflag = traverse;
 				olseqlen = seqlen;
-				seqlen--; // does not count towards sequence length
+				seqlen--;			// does not count towards sequence length
 			}
 			if (pairlist[traverse] != -1) {
 				if (pairlist[traverse] + 1 != startpos) // make sure this is not the initial pairing
@@ -387,7 +393,7 @@ int StrandComplex::generateLoops(void) {
 
 		// classification of loop type time.
 		// classification should end up with a pointer to the new loop, newLoop.
-		if (olflag != -1) // 'internal' open loop
+		if (olflag != -1)			// 'internal' open loop
 				{
 			//printf("listlength: %d\n",listlength);
 			//printf("seqlen#0,1,olsq: %d,%d, %d\n", seqlen, templist?templist->seqlen:-1,olseqlen);
@@ -634,13 +640,13 @@ string StrandComplex::toString() {
 //
 //}
 
-OpenInfo& StrandComplex::getOpenInfo() {
+OpenInfo & StrandComplex::getOpenInfo() {
 
 	return ordering->getOpenInfo();
 
 }
 
-StrandOrdering* StrandComplex::getOrdering() {
+StrandOrdering * StrandComplex::getOrdering() {
 
 	return ordering;
 
