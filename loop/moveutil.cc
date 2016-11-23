@@ -99,6 +99,14 @@ void OpenInfo::increment(HalfContext con, BaseCount& count) {
 
 }
 
+void OpenInfo::decrement(HalfContext con, BaseCount& count) {
+
+	assert(tally.count(con));
+
+	tally.find(con)->second.decrement(count);
+
+}
+
 void OpenInfo::increment(OpenInfo& other) {
 
 	map<HalfContext, BaseCount> tally;
@@ -111,6 +119,21 @@ void OpenInfo::increment(OpenInfo& other) {
 
 	numExposedInternal += other.numExposedInternal;
 	numExposed += other.numExposed;
+
+}
+
+void OpenInfo::decrement(OpenInfo& other) {
+
+	map<HalfContext, BaseCount> tally;
+
+	for (std::pair<HalfContext, BaseCount> myPair : other.tally) {
+
+		decrement(myPair.first, myPair.second);
+
+	}
+
+	numExposedInternal -= other.numExposedInternal;
+	numExposed -= other.numExposed;
 
 }
 
@@ -138,7 +161,7 @@ double OpenInfo::crossRate(OpenInfo& other, EnergyModel& eModel) {
 				MoveType right = moveutil::combineBi(top.right, bot.left);
 				double joinRate = eModel.applyPrefactors(eModel.getJoinRate(), left, right);
 
-				output += crossings * joinRate;
+				double rate = crossings * joinRate;
 
 			}
 

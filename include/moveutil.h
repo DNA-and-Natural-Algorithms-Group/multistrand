@@ -74,6 +74,9 @@ public:
 	void increment(HalfContext, BaseCount&);
 	void increment(OpenInfo&);
 
+	void decrement(HalfContext, BaseCount&);
+	void decrement(OpenInfo&);
+
 	double crossRate(OpenInfo&, EnergyModel&);
 
 	map<HalfContext, BaseCount> tally;

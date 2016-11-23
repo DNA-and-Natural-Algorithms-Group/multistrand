@@ -16,6 +16,7 @@
 using std::cout;
 
 class SComplexListEntry;
+class JoinCriterea;
 
 class SComplexList {
 public:
@@ -28,7 +29,10 @@ public:
 	void regenerateMoves(void);
 	double getTotalFlux(void);
 	double getJoinFlux(void);
+
 	BaseCount getExposedBases();
+	OpenInfo getOpenInfo();
+
 	double getJoinFluxArr(void);
 	double computeArrBiRate(SComplexListEntry*);
 	double cycleCrossRateArr(StrandOrdering*, StrandOrdering*);
@@ -38,7 +42,10 @@ public:
 	void printComplexList();
 	SComplexListEntry *getFirst(void);
 	int doBasicChoice(double choice, double newtime);
-	void findJoinNucleotides(BaseType, int, BaseCount&, SComplexListEntry*, JoinCriterea&);
+	JoinCriterea cycleForJoinChoice(double choice);
+	JoinCriterea cycleForJoinChoiceArr(double choice);
+	JoinCriterea findJoinNucleotides(BaseType, int, BaseCount&, SComplexListEntry*);
+	JoinCriterea findJoinNucleotidesArr(BaseType, HalfContext, HalfContext, int, BaseCount&, SComplexListEntry*);
 	void doJoinChoice(double choice);
 	void doJoinChoiceArr(double choice);
 	bool checkStopComplexList(class complexItem *stoplist);
@@ -59,7 +66,8 @@ private:
 
 	double joinRate = 0.0;
 
-};
+}
+;
 
 class SComplexListEntry {
 public:

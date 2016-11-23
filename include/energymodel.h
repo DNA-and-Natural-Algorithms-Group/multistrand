@@ -83,8 +83,8 @@ public:
 	virtual ~EnergyModel(void);
 
 	virtual double returnRate(double start_energy, double end_energy, int enth_entr_toggle) = 0;
-	virtual double getJoinRate(void) = 0;
 	virtual double getJoinRate_NoVolumeTerm(void) = 0;
+	virtual double getJoinRate(void) = 0;
 	virtual double getVolumeEnergy(void) =0;
 	virtual double getAssocEnergy(void) =0;
 	virtual double StackEnergy(int i, int j, int p, int q) = 0;

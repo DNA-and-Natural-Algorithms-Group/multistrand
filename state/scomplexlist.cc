@@ -202,7 +202,19 @@ BaseCount SComplexList::getExposedBases() {
 
 	}
 
-	// FD: refactoring this to use the map data structure.
+	return output;
+}
+
+OpenInfo SComplexList::getOpenInfo() {
+
+	OpenInfo output;
+
+	for (SComplexListEntry* it = first; it != NULL; it = it->next) {
+
+		OpenInfo& ext_bases = it->thisComplex->ordering->getOpenInfo();
+		output.increment(ext_bases);
+
+	}
 
 	return output;
 }
@@ -492,40 +504,6 @@ int SComplexList::doBasicChoice(double choice, double newtime) {
 
 }
 
-// FD: crit is an export variable, but the bool return signifies if a pair has been selected or not.
-void SComplexList::findJoinNucleotides(BaseType base, int choice, BaseCount& external, SComplexListEntry* temp, JoinCriterea& crit) {
-
-	int otherBase = 5 - (int) base;
-
-	crit.picked[0] = temp->thisComplex;
-	crit.types[0] = otherBase;
-	crit.types[1] = base;
-
-	temp = temp->next;
-
-	bool useArr = eModel->useArrhenius();
-
-	while (temp != NULL) {
-
-		BaseCount& externOther = temp->thisComplex->getExteriorBases(useArr);
-
-		if (choice < externOther.count[base] * external.count[otherBase]) {
-
-			crit.picked[1] = temp->thisComplex;
-			crit.index[0] = (int) floor(choice / externOther.count[base]);
-			crit.index[1] = choice - crit.index[0] * externOther.count[base];
-			temp = NULL;
-
-		} else {
-
-			temp = temp->next;
-			choice -= externOther.count[base] * external.count[otherBase];
-
-		}
-	}
-
-}
-
 /*
  SComplexList::doJoinChoice( double choice )
  */
@@ -537,39 +515,22 @@ void SComplexList::doJoinChoice(double choice) {
 	bool useArr = eModel->useArrhenius();
 	JoinCriterea crit;
 
-	int int_choice = (int) floor(choice / eModel->applyPrefactors(eModel->getJoinRate(), loopMove, loopMove));
-	BaseCount baseSum = getExposedBases();
+//	if (!eModel->useArrhenius()) {
 
-	for (SComplexListEntry* temp = first; temp != NULL; temp = temp->next) {
+	crit = cycleForJoinChoice(choice);
 
-		BaseCount& external = temp->thisComplex->getExteriorBases(useArr);
-		baseSum.decrement(external);
-
-		for (BaseType base : { baseA, baseT, baseG, baseC }) {
-
-			int choices = baseSum.count[base] * external.count[5 - base];
-
-			if (int_choice < choices) {
-
-				findJoinNucleotides(base, int_choice, external, temp, crit);
-
-				// break both loops, because the right bases are identified.
-				goto endWhileAndForLoops;
-
-			} else {
-				int_choice -= choices;
-			}
-
-		}
-
-	}
+//	} else {
+//
+//		crit = cycleForJoinChoiceArr(choice);
+//
+//	}
 
 // Exit for the goto.
 // FD: This isn't much different from replacing GOTO with a return
 // FD: and spliting off a function
-	endWhileAndForLoops:
+//	endWhileAndForLoops:
 
-	// here we actually perform the complex join, using criteria as input.
+// here we actually perform the complex join, using criteria as input.
 
 	SComplexListEntry *temp2 = NULL;
 	StrandComplex *deleted;
@@ -605,6 +566,181 @@ void SComplexList::doJoinChoice(double choice) {
 	numOfComplexes--;
 
 	return;
+}
+
+JoinCriterea SComplexList::cycleForJoinChoice(double choice) {
+
+	int int_choice = (int) floor(choice / eModel->applyPrefactors(eModel->getJoinRate(), loopMove, loopMove));
+	BaseCount baseSum = getExposedBases();
+
+//	JoinCriterea crit;
+
+	for (SComplexListEntry* temp = first; temp != NULL; temp = temp->next) {
+
+		BaseCount& external = temp->thisComplex->getExteriorBases(eModel->useArrhenius());
+		baseSum.decrement(external);
+
+		for (BaseType base : { baseA, baseT, baseG, baseC }) {
+
+			int combinations = baseSum.count[base] * external.count[5 - base];
+
+			if (int_choice < combinations) {
+
+				return findJoinNucleotides(base, int_choice, external, temp);
+
+				// break both loops, because the right bases are identified.
+//				return crit;
+
+			} else {
+				int_choice -= combinations;
+			}
+
+		}
+
+	}
+
+	assert(0);
+	return JoinCriterea();
+
+}
+
+// FD: crit is an export variable, but the bool return signifies if a pair has been selected or not.
+JoinCriterea SComplexList::findJoinNucleotides(BaseType base, int choice, BaseCount& external, SComplexListEntry* temp) {
+
+	JoinCriterea crit;
+
+	int otherBase = 5 - (int) base;
+
+	crit.picked[0] = temp->thisComplex;
+	crit.types[0] = otherBase;
+	crit.types[1] = base;
+
+	temp = temp->next;
+
+	bool useArr = eModel->useArrhenius();
+
+	while (temp != NULL) {
+
+		BaseCount& externOther = temp->thisComplex->getExteriorBases(useArr);
+
+		if (choice < externOther.count[base] * external.count[otherBase]) {
+
+			crit.picked[1] = temp->thisComplex;
+			crit.index[0] = (int) floor(choice / externOther.count[base]);
+			crit.index[1] = choice - crit.index[0] * externOther.count[base];
+			temp = NULL;
+
+		} else {
+
+			temp = temp->next;
+			choice -= externOther.count[base] * external.count[otherBase];
+
+		}
+	}
+
+	return crit;
+}
+
+JoinCriterea SComplexList::cycleForJoinChoiceArr(double choice) {
+
+	OpenInfo baseSum = getOpenInfo();
+
+//	JoinCriterea crit;
+
+	for (SComplexListEntry* temp = first; temp != NULL; temp = temp->next) {
+
+		OpenInfo& external = temp->thisComplex->ordering->getOpenInfo();
+		baseSum.decrement(external);
+
+		for (std::pair<HalfContext, BaseCount> con : baseSum.tally) {
+
+			for (std::pair<HalfContext, BaseCount> ton : external.tally) {
+
+				int combinations = con.second.multiCount(ton.second);
+
+				if (combinations > 0) {
+
+					MoveType left = moveutil::combineBi(con.first.left, ton.first.right);
+					MoveType right = moveutil::combineBi(con.first.right, ton.first.left);
+					double joinRate = eModel->applyPrefactors(eModel->getJoinRate(), left, right);
+
+					double rate = eModel->applyPrefactors(0.0, left, right);
+
+					if (choice < rate) {
+
+						// we have determined the local context.
+						int choice_int = choice / joinRate;
+
+						for (BaseType base : { baseA, baseT, baseG, baseC }) {
+
+							int combinations = con.second.count[base] * ton.second.count[5 - base];
+
+							if (choice < combinations) {
+
+								return findJoinNucleotidesArr(base, con.first, ton.first, choice_int, ton.second, temp);
+
+								// break both loops, because the right bases are identified.
+//								return crit;
+
+							} else {
+								choice_int -= combinations;
+							}
+
+						}
+
+					} else {
+
+						choice = choice - rate;
+					}
+
+				}
+
+			}
+
+		}
+
+	}
+
+	assert(0);
+	return JoinCriterea();
+
+}
+
+// FD: crit is an export variable, but the bool return signifies if a pair has been selected or not.
+JoinCriterea SComplexList::findJoinNucleotidesArr(BaseType base, HalfContext top, HalfContext bot, int choice, BaseCount& external, SComplexListEntry* temp) {
+
+	JoinCriterea crit;
+
+	int otherBase = 5 - (int) base;
+
+	crit.picked[0] = temp->thisComplex;
+	crit.types[0] = otherBase;
+	crit.types[1] = base;
+//
+//	temp = temp->next;
+//
+//	bool useArr = eModel->useArrhenius();
+//
+//	while (temp != NULL) {
+//
+//		BaseCount& externOther = temp->thisComplex->getExteriorBases(useArr);
+//
+//		if (choice < externOther.count[base] * external.count[otherBase]) {
+//
+//			crit.picked[1] = temp->thisComplex;
+//			crit.index[0] = (int) floor(choice / externOther.count[base]);
+//			crit.index[1] = choice - crit.index[0] * externOther.count[base];
+//			temp = NULL;
+//
+//		} else {
+//
+//			temp = temp->next;
+//			choice -= externOther.count[base] * external.count[otherBase];
+//
+//		}
+//	}
+
+	return crit;
 }
 
 void SComplexList::doJoinChoiceArr(double choice) {
