@@ -45,7 +45,10 @@ struct HalfContext {
 	HalfContext();
 	HalfContext(QuartContext, QuartContext);
 	friend std::ostream& operator<<(std::ostream&, HalfContext&);
+	bool operator==(const HalfContext& other) const;
 	bool operator<(const HalfContext&) const;
+
+
 
 	QuartContext left = endC;
 	QuartContext right = endC;

@@ -300,6 +300,12 @@ std::ostream & operator<<(std::ostream & os, HalfContext & m) {
 
 }
 
+bool HalfContext::operator==(const HalfContext& other) const {
+
+	return (left == other.left) && (right == other.right);
+
+}
+
 // c++ expects partial ordering instead of equality for mapping
 bool HalfContext::operator<(const HalfContext& other) const {
 

@@ -467,7 +467,7 @@ char *StrandOrdering::convertIndex(int index) {
 }
 
 // Used for delete moves to get the actual Open loop and location within which is to be joined.
-OpenLoop *StrandOrdering::getIndex(JoinCriteria& crit, int site, char **location, bool useArr) {
+OpenLoop* StrandOrdering::getIndex(JoinCriteria& crit, int site, char **location, bool useArr) {
 
 	// FD 2016 11-14: Adjusting this to work with useArr
 	// Type: this is the type of base we are looking for?
@@ -479,25 +479,59 @@ OpenLoop *StrandOrdering::getIndex(JoinCriteria& crit, int site, char **location
 	int index = crit.index[site];
 	char type = crit.types[site];
 
-	for (traverse = first; traverse != NULL; traverse = traverse->next) {
+	if (!useArr) {
 
-		assert(traverse->thisLoop != NULL);
+		for (traverse = first; traverse != NULL; traverse = traverse->next) {
 
-		vector<int>& freeBases = traverse->thisLoop->getFreeBases(useArr).count;
+			assert(traverse->thisLoop != NULL);
 
-		if (index < freeBases[type]) {
+			BaseCount& baseCount = traverse->thisLoop->getFreeBases(useArr);
 
-			*location = traverse->thisLoop->getBase(type, index, useArr);
+			if (index < baseCount.count[type]) {
 
-			return traverse->thisLoop;
+				*location = traverse->thisLoop->getBase(type, index, useArr);
 
-		} else {
+				return traverse->thisLoop;
 
-			index = index - freeBases[type];
+			} else {
+
+				index = index - baseCount.count[type];
+
+			}
+
+		}
+
+	} else {
+
+		// FD: nearly the same, but we have to call functions that consider the local context.
+		// It is possible to overlap the two code paths, if we just asign the same local context
+		// to each nucleotide, depending on a static global useArr trigger.
+
+		for (traverse = first; traverse != NULL; traverse = traverse->next) {
+
+			assert(traverse->thisLoop != NULL);
+
+			OpenInfo& openInfo = traverse->thisLoop->getOpenInfo();
+			assert(openInfo.tally.count(crit.half[site]));
+
+			BaseCount& baseCount = openInfo.tally.find(crit.half[site])->second;
+
+			if (index < baseCount.count[type]) {
+
+				*location = traverse->thisLoop->getBase(type, index, crit.half[site]);
+
+				return traverse->thisLoop;
+
+			} else {
+
+				index = index - baseCount.count[type];
+
+			}
 
 		}
 
 	}
+
 	assert(0);
 	return NULL;
 }

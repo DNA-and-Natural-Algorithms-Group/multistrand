@@ -233,9 +233,10 @@ public:
 	// member that's just returned.  Not completed currently.
 	// FD: 2016-11-14 the above is now implemented.
 	BaseCount& getFreeBases(bool);
-	OpenInfo getOpenInfo(void);
+	OpenInfo& getOpenInfo(void);
 
-	char *getBase(char type, int index, bool);
+	char* getBase(char type, int index, bool);
+	char* getBase(char type, int index, HalfContext);
 
 	OpenLoop(void);
 	OpenLoop(int branches, int *pairtypes, int *sidelengths, char **sequences);

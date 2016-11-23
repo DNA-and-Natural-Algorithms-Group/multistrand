@@ -5307,6 +5307,54 @@ char *OpenLoop::getLocation(Move *move, int index) {
 //	return NULL;
 //}
 
+char* OpenLoop::getBase(char type, int index, HalfContext half) {
+
+	for (int loop = 0; loop <= numAdjacent; loop++) {
+
+		int end = sidelen[loop] + 1;
+		char* mySeq = seqs[loop];
+
+		for (int loop2 = 1; loop2 < end; loop2++)
+
+			if (seqs[loop][loop2] == type) {
+
+				// potential match, if the halfContext matches.
+
+				// intialize for strands on both sides.
+				HalfContext thisHalf = HalfContext(strandC, strandC);
+
+				if (loop2 == 1) {
+					// left could be end or stack
+					thisHalf.left = moveutil::getContext(mySeq[0]);
+				}
+
+				if (loop2 == sidelen[loop]) {
+					// right could be end or stack;
+					thisHalf.right = moveutil::getContext(mySeq[0]);
+				}
+
+				if (half == thisHalf) {
+					// it's a match.
+
+					if (index == 0) {
+
+						return &seqs[loop][loop2];
+
+					} else {
+
+						index--;
+
+					}
+
+				}
+
+			}
+	}
+
+	assert(0);
+	return NULL;
+}
+
 char* OpenLoop::getBase(char type, int index, bool useArr) {
 
 	// FD 2016-11-14
@@ -5577,7 +5625,7 @@ char *OpenLoop::verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop 
 		return NULL;
 }
 
-OpenInfo OpenLoop::getOpenInfo(void) {
+OpenInfo& OpenLoop::getOpenInfo(void) {
 
 // do nothing if not required
 	if (openInfo.upToDate) {
