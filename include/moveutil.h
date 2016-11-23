@@ -57,7 +57,7 @@ struct JoinCriteria {
 	JoinCriteria();
 	friend std::ostream& operator<<(std::ostream&, JoinCriteria&);
 
-	StrandComplex* picked[2] = { NULL, NULL };
+	StrandComplex* complexes[2] = { NULL, NULL };
 	char types[2] = { 0, 0 };
 	int index[2] = { 0, 0 };
 

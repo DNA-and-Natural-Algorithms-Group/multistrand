@@ -528,22 +528,16 @@ void SComplexList::doJoinChoice(double choice) {
 	// before we do anything, print crit (this is for debugging!)
 //	cout << crit;
 
-// Exit for the goto.
-// FD: This isn't much different from replacing GOTO with a return
-// FD: and spliting off a function
-//	endWhileAndForLoops:
-
 // here we actually perform the complex join, using criteria as input.
 
 	SComplexListEntry *temp2 = NULL;
 	StrandComplex *deleted;
 
-//	deleted = StrandComplex::performComplexJoin(crit.picked, crit.types, crit.index, useArr);
 	deleted = StrandComplex::performComplexJoin(crit, useArr);
 
 	for (SComplexListEntry* temp = first; temp != NULL; temp = temp->next) {
 
-		if (temp->thisComplex == crit.picked[0]) {
+		if (temp->thisComplex == crit.complexes[0]) {
 			temp->fillData(eModel);
 		}
 
@@ -611,7 +605,7 @@ JoinCriteria SComplexList::findJoinNucleotides(BaseType base, int choice, BaseCo
 
 	int otherBase = 5 - (int) base;
 
-	crit.picked[0] = temp->thisComplex;
+	crit.complexes[0] = temp->thisComplex;
 	crit.types[0] = otherBase;
 	crit.types[1] = base;
 
@@ -625,7 +619,7 @@ JoinCriteria SComplexList::findJoinNucleotides(BaseType base, int choice, BaseCo
 
 		if (choice < externOther.count[base] * external.count[otherBase]) {
 
-			crit.picked[1] = temp->thisComplex;
+			crit.complexes[1] = temp->thisComplex;
 			crit.index[0] = (int) floor(choice / externOther.count[base]);
 			crit.index[1] = choice - crit.index[0] * externOther.count[base];
 			temp = NULL;

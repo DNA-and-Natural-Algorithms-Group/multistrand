@@ -116,9 +116,9 @@ StrandComplex *StrandComplex::performComplexJoin(JoinCriteria crit, bool useArr)
 //	std::cout.flush();
 	// FD 2016 Nov 14: Adjusting this to ignore the exterior nucleotides if useArr= TRUE;
 
-	StrandComplex **complexes = crit.picked;
-	char *types = crit.types;
-	int *index = crit.index;
+	StrandComplex** complexes = crit.complexes;
+	char* types = crit.types;
+	int* index = crit.index;
 
 	OpenLoop *loops[2];
 	OpenLoop *new_loops[2] = { NULL, NULL };
@@ -126,8 +126,8 @@ StrandComplex *StrandComplex::performComplexJoin(JoinCriteria crit, bool useArr)
 	char *locations[2] = { NULL, NULL };
 
 	// find the affected loops, and update indexes to be into those loops.
-	loops[0] = complexes[0]->ordering->getIndex(types[0], &index[0], &locations[0], useArr);
-	loops[1] = complexes[1]->ordering->getIndex(types[1], &index[1], &locations[1], useArr);
+	loops[0] = complexes[0]->ordering->getIndex(crit, 0, &locations[0], useArr);
+	loops[1] = complexes[1]->ordering->getIndex(crit, 1, &locations[1], useArr);
 
 	// Strand Orderings are now ready to be joined.
 	complexes[0]->ordering->reorder(loops[0]);
