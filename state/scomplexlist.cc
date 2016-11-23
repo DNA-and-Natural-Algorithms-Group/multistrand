@@ -526,7 +526,7 @@ void SComplexList::doJoinChoice(double choice) {
 	}
 
 	// before we do anything, print crit (this is for debugging!)
-	cout << crit;
+//	cout << crit;
 
 // Exit for the goto.
 // FD: This isn't much different from replacing GOTO with a return
@@ -647,7 +647,7 @@ JoinCriteria SComplexList::cycleForJoinChoiceArr(double choice) {
 
 	OpenInfo baseSum = getOpenInfo();
 
-	cout << baseSum;
+//	cout << baseSum;
 
 	for (SComplexListEntry* temp = first; temp != NULL; temp = temp->next) {
 
@@ -681,7 +681,7 @@ JoinCriteria SComplexList::cycleForJoinChoiceArr(double choice) {
 						if (choice <= rate) {
 
 							// we have determined the HalfContexts for the upper and lower strand.
-							int choice_int = floor(choice / rate);
+							int choice_int = floor(choice / joinRate);
 
 //							cout << "choice_int = " << choice_int << "\n";
 
@@ -694,6 +694,9 @@ JoinCriteria SComplexList::cycleForJoinChoiceArr(double choice) {
 								if (choice_int < combinations) {
 
 									// return the joining criteria;
+
+//									cout << "choice_int= " << choice_int << "\n";
+
 									JoinCriteria crit = findJoinNucleotides(base, choice_int, ton.second, temp);
 
 									crit.half[0] = con.first;

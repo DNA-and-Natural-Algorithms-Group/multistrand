@@ -906,7 +906,7 @@ void SimulationSystem::InitialInfo(void) {
 	cout << "\n";
 	cout << "biRate is " << biRate << "\n";
 
-	complexList->doJoinChoice(0.1 * biRate);
+	complexList->doJoinChoice(0.38 * biRate);
 
 	biRate = biRate / energyModel->applyPrefactors(energyModel->getJoinRate(), loopMove, loopMove);
 
