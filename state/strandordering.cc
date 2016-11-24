@@ -524,14 +524,13 @@ OpenLoop* StrandOrdering::getIndex(JoinCriteria& crit, int site, char **location
 //			cout << "printing baseCount \n";
 //			cout << baseCount << "\n";
 //
-//			cout << "Printing  half [site] \n";
-//			cout << "site= " << site << "\n";
-//			cout << "crit-half[site]= " << crit.half[site] << "\n";
+			cout << "Printing  half [site] \n";
+			cout << "site= " << site << "\n";
+			cout << "crit-half[site]= " << crit.half[site] << "\n";
 //
-//			cout << "generic print " << index << "\n";
-//			cout << "generic print " << baseCount.count[type] << "\n";
-//			cout << "generic print " << (int) type << "\n";
-
+			cout << "generic print " << index << "\n";
+			cout << "generic print " << baseCount.count[type] << "\n";
+			cout << "generic print " << (int) type << "\n";
 
 //			cout.flush();
 
@@ -784,9 +783,11 @@ OpenInfo& StrandOrdering::getOpenInfo(void) {
 
 	} // else
 
-	orderingList *traverse = NULL;
+	openInfo.clear();
 
-	for (traverse = first; traverse != NULL; traverse = traverse->next) {
+//	orderingList *traverse = NULL;
+
+	for (orderingList * traverse = first; traverse != NULL; traverse = traverse->next) {
 
 		OpenInfo info = traverse->thisLoop->getOpenInfo();
 

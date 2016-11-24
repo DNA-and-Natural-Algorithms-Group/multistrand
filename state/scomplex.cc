@@ -699,6 +699,8 @@ BaseCount& StrandComplex::getExteriorBases(bool useArr, HalfContext* lowerHalf) 
 
 		} else {
 
+			cout << "Could not find the exteriorBases for " << lowerHalf << "\n";
+
 			return emptyBaseCount;
 
 		}

@@ -526,10 +526,10 @@ void SComplexList::doJoinChoice(double choice) {
 	}
 
 	// before we do anything, print crit (this is for debugging!)
-//	cout << "For the current state: \n";
-//	cout << toString();
-//	cout << "Found a criteria to join: \n";
-//	cout << crit;
+	cout << "For the current state: \n";
+	cout << toString();
+	cout << "Found a criteria to join: \n";
+	cout << crit;
 
 	assert(crit.complexes[0]!=NULL);
 	assert(crit.complexes[1]!=NULL);
@@ -679,21 +679,27 @@ JoinCriteria SComplexList::cycleForJoinChoiceArr(double choice) {
 
 						MoveType left = moveutil::combineBi(con.first.left, ton.first.right);
 						MoveType right = moveutil::combineBi(con.first.right, ton.first.left);
+
 						double joinRate = eModel->applyPrefactors(eModel->getJoinRate(), left, right);
 
 						double rate = joinRate * combinations;
-
-//						cout << "trying to combine \n";
-//						cout << con.first << "\n";
-//						cout << ton.first << "\n";
 
 //						cout << "choice  = " << choice << "\n";
 //						cout << "rate  = " << rate << "\n";
 
 						if (choice < rate) {
 
+							cout << "trying to combine con - ton HalfEnv.: \n";
+							cout << con.first << "\n";
+							cout << ton.first << "\n";
+
 							// we have determined the HalfContexts for the upper and lower strand.
 							int choice_int = floor(choice / joinRate);
+
+							cout << "The baseCounts are con: \n";
+							cout << con.second << "\n";
+							cout << "The baseCounts are ton: \n";
+							cout << ton.second << "\n";
 
 //							cout << "choice_int = " << choice_int << "\n";
 
@@ -701,7 +707,8 @@ JoinCriteria SComplexList::cycleForJoinChoiceArr(double choice) {
 
 								int combinations = con.second.count[base] * ton.second.count[5 - base];
 
-//								cout << "combinations= " << combinations << "\n";
+//								cout << "For base " << baseA << " combinations= " << combinations << "\n";
+//
 
 								if (choice_int < combinations) {
 
@@ -710,6 +717,8 @@ JoinCriteria SComplexList::cycleForJoinChoiceArr(double choice) {
 //									cout << "choice_int= " << choice_int << "\n";
 
 									JoinCriteria crit = findJoinNucleotides(base, choice_int, ton.second, temp, &con.first);
+
+									cout << "Found rate contexts left: " << moveutil::MoveToString[left] << " right:" << moveutil::MoveToString[right] << "\n";
 
 //									crit.half[0] = con.first;
 //									crit.half[1] = ton.first;
