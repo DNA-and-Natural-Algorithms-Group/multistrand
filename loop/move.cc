@@ -41,23 +41,25 @@ std::ostream& operator<<(std::ostream& ss, RateEnv& env) {
 
 	}
 
-	for (int i = 0; i < MOVETYPE_SIZE; i++) {
-
-		int myPrime = moveutil::valuesPrime[i];
-
-		if ((env.arrType % myPrime) == 0) {
-
-			ss << moveutil::MoveToString[i] << moveutil::MoveToString2[i];
-
-			if ((env.arrType % (myPrime * myPrime) == 0)) {
-
-				ss << moveutil::MoveToString[i] << moveutil::MoveToString2[i];
-
-			}
-
-		}
-
-	}
+	ss << moveutil::primeToDesc(env.arrType);
+//
+//	for (int i = 0; i < MOVETYPE_SIZE; i++) {
+//
+//		int myPrime = moveutil::valuesPrime[i];
+//
+//		if ((env.arrType % myPrime) == 0) {
+//
+//			ss << moveutil::MoveToString[i] << moveutil::MoveToString2[i];
+//
+//			if ((env.arrType % (myPrime * myPrime) == 0)) {
+//
+//				ss << moveutil::MoveToString[i] << moveutil::MoveToString2[i];
+//
+//			}
+//
+//		}
+//
+//	}
 
 	ss << "  " << env.rate << "   ";
 

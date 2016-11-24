@@ -33,6 +33,7 @@ const static string MoveToString[MOVETYPE_SIZE] = { "End", "Loop", "Stack", "Sta
 const static string MoveToString2[MOVETYPE_SIZE] = { "       ", "      ", "     ", "", "   ", "  ", " " };
 
 int getPrimeCode(MoveType, MoveType);
+string primeToDesc(int);
 
 QuartContext getContext(char input);
 

@@ -923,5 +923,17 @@ void SimulationSystem::InitialInfo(void) {
 	cout << "#inner-nucleotide joins is " << biRate;
 	cout << "\n";
 
+	for (int i = 0; i < MOVETYPE_SIZE; i++) {
+
+		for (int j = 0; j < MOVETYPE_SIZE; j++) {
+
+			int primeVal = moveutil::getPrimeCode((MoveType) i, (MoveType) j);
+
+			string desc = moveutil::primeToDesc(primeVal);
+
+		}
+
+	}
+
 }
 

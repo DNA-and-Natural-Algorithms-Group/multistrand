@@ -5,11 +5,15 @@
 #include <vector>
 #include <map>
 #include <iostream>
+#include <sstream>
 #include <scomplex.h>
 
 using std::vector;
 using std::map;
 using std::cout;
+using std::stringstream;
+
+
 
 std::string quartContextString[HALFCONTEXT_SIZE] = { "end", "loop", "stack" };
 
@@ -38,6 +42,32 @@ QuartContext moveutil::getContext(char input) {
 int moveutil::getPrimeCode(MoveType left, MoveType right) {
 
 	return valuesPrime[left] * valuesPrime[right];
+
+}
+
+string moveutil::primeToDesc(int input) {
+
+	stringstream ss;
+
+	for (int i = 0; i < MOVETYPE_SIZE; i++) {
+
+		int myPrime = moveutil::valuesPrime[i];
+
+		if ((input % myPrime) == 0) {
+
+			ss << MoveToString[i] << moveutil::MoveToString2[i];
+
+			if ((input % (myPrime * myPrime) == 0)) {
+
+				ss << MoveToString[i] << moveutil::MoveToString2[i];
+
+			}
+
+		}
+
+	}
+
+	return ss.str();
 
 }
 
