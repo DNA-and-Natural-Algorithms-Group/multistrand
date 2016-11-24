@@ -931,6 +931,8 @@ void SimulationSystem::InitialInfo(void) {
 
 			string desc = moveutil::primeToDesc(primeVal);
 
+			cout << primeVal << " : \" " << desc << " \n" << " \" ," << "\n";
+
 		}
 
 	}
