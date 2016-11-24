@@ -188,7 +188,7 @@ double SComplexList::getTotalFlux(void) {
 	joinRate = getJoinFlux();
 	total += joinRate;
 
-	cout << "Joinrate (getTotalFlux)= " << joinRate << "\n";
+//	cout << "Joinrate (getTotalFlux)= " << joinRate << "\n";
 
 	return total;
 }
@@ -459,7 +459,7 @@ int SComplexList::doBasicChoice(double choice, double newtime) {
 
 	if (rchoice < joinRate) {
 
-		cout << "Triggering joinmove for rchoice " << rchoice << " and joinRate " << joinRate << "\n";
+//		cout << "Triggering joinmove for rchoice " << rchoice << " and joinRate " << joinRate << "\n";
 
 		doJoinChoice(rchoice);
 
@@ -521,9 +521,8 @@ void SComplexList::doJoinChoice(double choice) {
 	bool useArr = eModel->useArrhenius();
 	JoinCriteria crit;
 
-
-	cout << "For the current state: \n";
-	cout << toString();
+//	cout << "For the current state: \n";
+//	cout << toString();
 
 	if (!useArr) {
 
@@ -536,8 +535,8 @@ void SComplexList::doJoinChoice(double choice) {
 	}
 
 	// before we do anything, print crit (this is for debugging!)
-	cout << "Found a criteria to join: \n";
-	cout << crit;
+//	cout << "Found a criteria to join: \n";
+//	cout << crit;
 
 	assert(crit.complexes[0]!=NULL);
 	assert(crit.complexes[1]!=NULL);
@@ -659,19 +658,19 @@ JoinCriteria SComplexList::cycleForJoinChoiceArr(double choice) {
 	// Like the non-arrhenius version, but this time, we have to cycle over all he
 	// possible local structures.
 
-	cout << "Starting. choice = " << choice << " \n";
+//	cout << "Starting. choice = " << choice << " \n";
 
 	OpenInfo baseSum = getOpenInfo();
 
-	cout << "basesum = \n";
-	cout << baseSum;
+//	cout << "basesum = \n";
+//	cout << baseSum;
 
 	for (SComplexListEntry* temp = first; temp != NULL; temp = temp->next) {
 
 		OpenInfo& external = temp->thisComplex->ordering->getOpenInfo();
 
-		cout << "external= \n";
-		cout << external;
+//		cout << "external= \n";
+//		cout << external;
 
 		baseSum.decrement(external);
 
