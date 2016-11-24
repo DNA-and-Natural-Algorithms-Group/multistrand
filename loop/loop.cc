@@ -5312,7 +5312,7 @@ char* OpenLoop::getBase(char type, int index, HalfContext half) {
 	for (int loop = 0; loop <= numAdjacent; loop++) {
 
 		int end = sidelen[loop] + 1;
-		char* mySeq = seqs[loop];
+
 
 		for (int loop2 = 1; loop2 < end; loop2++)
 
@@ -5320,18 +5320,20 @@ char* OpenLoop::getBase(char type, int index, HalfContext half) {
 
 				// potential match, if the halfContext matches.
 
-				// intialize for strands on both sides.
-				HalfContext thisHalf = HalfContext(strandC, strandC);
-
-				if (loop2 == 1) {
-					// left could be end or stack
-					thisHalf.left = moveutil::getContext(mySeq[0]);
-				}
-
-				if (loop2 == sidelen[loop]) {
-					// right could be end or stack;
-					thisHalf.right = moveutil::getContext(mySeq[0]);
-				}
+				HalfContext thisHalf = getHalfContext(loop, loop2);
+//
+//				// intialize for strands on both sides.
+//				HalfContext thisHalf = HalfContext(strandC, strandC);
+//
+//				if (loop2 == 1) {
+//					// left could be end or stack
+//					thisHalf.left = moveutil::getContext(mySeq[0]);
+//				}
+//
+//				if (loop2 == sidelen[loop]) {
+//					// right could be end or stack;
+//					thisHalf.right = moveutil::getContext(mySeq[0]);
+//				}
 
 				if (half == thisHalf) {
 					// it's a match.
@@ -5654,6 +5656,25 @@ OpenInfo& OpenLoop::getOpenInfo(void) {
 	openInfo.upToDate = true;
 
 	return openInfo;
+
+}
+
+HalfContext OpenLoop::getHalfContext(int loop, int loop2) {
+
+	char* mySeq = seqs[loop];
+
+	// intialize for strands on both sides.
+	HalfContext thisHalf = HalfContext(strandC, strandC);
+
+	if (loop2 == 1) {
+		// left could be end or stack
+		thisHalf.left = moveutil::getContext(mySeq[0]);
+	}
+
+	if (loop2 == sidelen[loop]) {
+		// right could be end or stack;
+		thisHalf.right = moveutil::getContext(mySeq[0]);
+	}
 
 }
 

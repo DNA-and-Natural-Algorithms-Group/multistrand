@@ -234,6 +234,7 @@ public:
 	// FD: 2016-11-14 the above is now implemented.
 	BaseCount& getFreeBases(bool);
 	OpenInfo& getOpenInfo(void);
+	HalfContext getHalfContext(int, int);
 
 	char* getBase(char type, int index, bool);
 	char* getBase(char type, int index, HalfContext);
