@@ -5484,11 +5484,15 @@ BaseCount& OpenLoop::getFreeBases(bool useArr) {
 
  static void OpenLoop::performComplexJoin( OpenLoop **oldLoops, OpenLoop **newLoops, char *types, int *index);
 
- Joins the two open loops given in the array oldLoops (size 2) at the locations given by the the types/index arrays (size 2). Resulting open loops are placed into the newLoops array (as pointers) for the calling function to use.
+ Joins the two open loops given in the array oldLoops (size 2) at the locations given by the the types/index arrays (size 2).
+ Resulting open loops are placed into the newLoops array (as pointers) for the calling function to use.
 
  */
 
-void OpenLoop::performComplexJoin(OpenLoop **oldLoops, OpenLoop **newLoops, char *types, int *index, bool useArr) {
+void OpenLoop::performComplexJoin(OpenLoop **oldLoops, OpenLoop **newLoops, char *types, int *index, HalfContext* halfs, bool useArr) {
+
+	// FD: nov 23 2016. Need to adapt this to take into account the local context.
+
 	int seqnum[2] = { -1, -1 };
 	int seqindex[2] = { -1, -1 };
 	int sizes[2];
@@ -5500,8 +5504,12 @@ void OpenLoop::performComplexJoin(OpenLoop **oldLoops, OpenLoop **newLoops, char
 	int *sidelen;
 	char **seqs;
 
+	// FD: After this loop, SEQNUM, SEQINDEX are properly set
+
 	for (toggle = 0; toggle <= 1; toggle++) {
+
 		newindex = index[toggle];
+
 		for (loop = 0; loop <= oldLoops[toggle]->numAdjacent && newindex >= 0; loop++) {
 
 			int loop2 = 1;
@@ -5526,6 +5534,7 @@ void OpenLoop::performComplexJoin(OpenLoop **oldLoops, OpenLoop **newLoops, char
 						newindex--;
 				}
 		}
+
 	}
 
 // seqnum and seqindex now have the appropriate locations within each openloop. Time to compute the new #'s of adjacent loops.

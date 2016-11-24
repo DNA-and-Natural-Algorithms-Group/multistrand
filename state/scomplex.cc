@@ -140,7 +140,7 @@ StrandComplex *StrandComplex::performComplexJoin(JoinCriteria crit, bool useArr)
 	new_ordering = StrandOrdering::joinOrdering(complexes[0]->ordering, complexes[1]->ordering);
 
 	// Join the open loops
-	OpenLoop::performComplexJoin(loops, new_loops, types, index, useArr);
+	OpenLoop::performComplexJoin(loops, new_loops, types, index, crit.half, useArr);
 
 	// add the base pair into the output structure.
 	new_ordering->addBasepair(locations[0], locations[1]);

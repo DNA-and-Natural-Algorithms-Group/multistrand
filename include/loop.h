@@ -244,7 +244,7 @@ public:
 	friend RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end);
 	friend Loop * Loop::performDeleteMove(Move *move);
 	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);
-	static void performComplexJoin(OpenLoop **oldLoops, OpenLoop **newLoops, char *types, int *index, bool);
+	static void performComplexJoin(OpenLoop **oldLoops, OpenLoop **newLoops, char *types, int *index, HalfContext[], bool);
 	string typeInternalsToString(void);
 	void parseLocalContext(int);
 
