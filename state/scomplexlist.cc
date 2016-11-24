@@ -459,7 +459,7 @@ int SComplexList::doBasicChoice(double choice, double newtime) {
 
 		doJoinChoice(rchoice);
 
-		RateEnv env = RateEnv(1.0, eModel, loopMove, loopMove);
+		RateEnv env = RateEnv(1.0, eModel, MOVETYPE_SIZE, MOVETYPE_SIZE);
 
 		return env.arrType;
 
@@ -526,10 +526,10 @@ void SComplexList::doJoinChoice(double choice) {
 	}
 
 	// before we do anything, print crit (this is for debugging!)
-	cout << "For the current state: \n";
-	cout << toString();
-	cout << "Found a criteria to join: \n";
-	cout << crit;
+//	cout << "For the current state: \n";
+//	cout << toString();
+//	cout << "Found a criteria to join: \n";
+//	cout << crit;
 
 	assert(crit.complexes[0]!=NULL);
 	assert(crit.complexes[1]!=NULL);

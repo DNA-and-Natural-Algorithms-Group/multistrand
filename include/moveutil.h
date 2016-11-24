@@ -28,7 +28,7 @@ namespace moveutil {
 MoveType combineBi(QuartContext&, QuartContext&);
 bool isPair(BaseType, BaseType);
 
-const static double valuesPrime[MOVETYPE_SIZE] = { 3, 5, 7, 11, 13, 17, 19 };
+const static double valuesPrime[MOVETYPE_SIZE + 1] = { 3, 5, 7, 11, 13, 17, 19, 999 };
 const static string MoveToString[MOVETYPE_SIZE] = { "End", "Loop", "Stack", "StackStack", "LoopEnd", "StackEnd", "StackLoop" };
 const static string MoveToString2[MOVETYPE_SIZE] = { "       ", "      ", "     ", "", "   ", "  ", " " };
 
@@ -47,8 +47,6 @@ struct HalfContext {
 	friend std::ostream& operator<<(std::ostream&, HalfContext&);
 	bool operator==(const HalfContext& other) const;
 	bool operator<(const HalfContext&) const;
-
-
 
 	QuartContext left = endC;
 	QuartContext right = endC;
@@ -86,8 +84,6 @@ public:
 	void decrement(OpenInfo&);
 
 	double crossRate(OpenInfo&, EnergyModel&);
-
-
 
 	map<HalfContext, BaseCount> tally;
 
