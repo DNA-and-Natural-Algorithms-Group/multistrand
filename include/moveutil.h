@@ -32,6 +32,8 @@ const static double valuesPrime[MOVETYPE_SIZE + 1] = { 3, 5, 7, 11, 13, 17, 19, 
 const static string MoveToString[MOVETYPE_SIZE] = { "End", "Loop", "Stack", "StackStack", "LoopEnd", "StackEnd", "StackLoop" };
 const static string MoveToString2[MOVETYPE_SIZE] = { "       ", "      ", "     ", "", "   ", "  ", " " };
 
+int getPrimeCode(MoveType, MoveType);
+
 QuartContext getContext(char input);
 
 int typeMult(MoveType left, MoveType right);
@@ -65,6 +67,7 @@ struct JoinCriteria {
 	// arrhenius rates only
 //	bool useArr = false;
 	HalfContext half[2] = { HalfContext(), HalfContext() };
+	int arrType = 0; // used for returning the chosen movetype.
 
 };
 

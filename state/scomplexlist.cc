@@ -461,11 +461,11 @@ int SComplexList::doBasicChoice(double choice, double newtime) {
 
 //		cout << "Triggering joinmove for rchoice " << rchoice << " and joinRate " << joinRate << "\n";
 
-		doJoinChoice(rchoice);
+		return doJoinChoice(rchoice);
 
-		RateEnv env = RateEnv(1.0, eModel, MOVETYPE_SIZE, MOVETYPE_SIZE);
-
-		return env.arrType;
+//		RateEnv env = RateEnv(1.0, eModel, MOVETYPE_SIZE, MOVETYPE_SIZE);
+//
+//		return env.arrType;
 
 	} else {
 
@@ -514,7 +514,9 @@ int SComplexList::doBasicChoice(double choice, double newtime) {
  SComplexList::doJoinChoice( double choice )
  */
 
-void SComplexList::doJoinChoice(double choice) {
+int SComplexList::doJoinChoice(double choice) {
+
+	// this function will return the arrType move;
 
 	assert(numOfComplexes > 1);
 
@@ -577,7 +579,8 @@ void SComplexList::doJoinChoice(double choice) {
 	}
 	numOfComplexes--;
 
-	return;
+	return crit.arrType;
+
 }
 
 JoinCriteria SComplexList::cycleForJoinChoice(double choice) {
@@ -733,6 +736,8 @@ JoinCriteria SComplexList::cycleForJoinChoiceArr(double choice) {
 //									crit.half[1] = ton.first;
 									crit.half[0] = ton.first;
 									crit.half[1] = con.first;
+
+									crit.arrType = moveutil::getPrimeCode(left, right);
 
 									return crit;
 

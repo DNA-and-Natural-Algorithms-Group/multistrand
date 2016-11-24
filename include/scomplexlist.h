@@ -46,7 +46,7 @@ public:
 	JoinCriteria cycleForJoinChoiceArr(double choice);
 	JoinCriteria findJoinNucleotides(BaseType, int, BaseCount&, SComplexListEntry*, HalfContext* = NULL);
 //	JoinCriteria findJoinNucleotidesArr(BaseType, HalfContext, HalfContext, int, BaseCount&, SComplexListEntry*);
-	void doJoinChoice(double choice);
+	int doJoinChoice(double choice);
 	void doJoinChoiceArr(double choice);
 	bool checkStopComplexList(class complexItem *stoplist);
 	string toString(void);

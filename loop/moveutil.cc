@@ -35,6 +35,12 @@ QuartContext moveutil::getContext(char input) {
 
 }
 
+int moveutil::getPrimeCode(MoveType left, MoveType right) {
+
+	return valuesPrime[left] * valuesPrime[right];
+
+}
+
 std::ostream& operator<<(std::ostream &ss, OpenInfo& m) {
 
 	for (std::pair<HalfContext, BaseCount> value : m.tally) {
