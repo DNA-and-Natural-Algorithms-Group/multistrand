@@ -188,6 +188,8 @@ double SComplexList::getTotalFlux(void) {
 	joinRate = getJoinFlux();
 	total += joinRate;
 
+	cout << "Joinrate = " << joinRate << "\n";
+
 	return total;
 }
 
@@ -233,6 +235,11 @@ OpenInfo SComplexList::getOpenInfo() {
 
 double SComplexList::getJoinFlux(void) {
 
+// We now compute the exterior nucleotide moves.
+	if (numOfComplexes <= 1) {
+		return 0.0;
+	}
+
 	bool useArr = eModel->useArrhenius();
 
 	if (useArr) {
@@ -243,11 +250,6 @@ double SComplexList::getJoinFlux(void) {
 
 	double output = 0.0;
 	int moveCount = 0;
-
-// We now compute the exterior nucleotide moves.
-	if (numOfComplexes <= 1) {
-		return 0.0;
-	}
 
 	BaseCount totalBases = getExposedBases();
 
@@ -515,6 +517,9 @@ void SComplexList::doJoinChoice(double choice) {
 	bool useArr = eModel->useArrhenius();
 	JoinCriteria crit;
 
+	cout << "For the current state: \n";
+	cout << toString();
+
 	if (!useArr) {
 
 		crit = cycleForJoinChoice(choice);
@@ -526,8 +531,6 @@ void SComplexList::doJoinChoice(double choice) {
 	}
 
 	// before we do anything, print crit (this is for debugging!)
-//	cout << "For the current state: \n";
-//	cout << toString();
 //	cout << "Found a criteria to join: \n";
 //	cout << crit;
 
@@ -651,17 +654,19 @@ JoinCriteria SComplexList::cycleForJoinChoiceArr(double choice) {
 	// Like the non-arrhenius version, but this time, we have to cycle over all he
 	// possible local structures.
 
+	cout << "Starting. choice = " << choice << " \n";
+
 	OpenInfo baseSum = getOpenInfo();
 
-//	cout << "basesum = \n";
-//	cout << baseSum;
+	cout << "basesum = \n";
+	cout << baseSum;
 
 	for (SComplexListEntry* temp = first; temp != NULL; temp = temp->next) {
 
 		OpenInfo& external = temp->thisComplex->ordering->getOpenInfo();
 
-//		cout << "external= \n";
-//		cout << external;
+		cout << "external= \n";
+		cout << external;
 
 		baseSum.decrement(external);
 
@@ -747,6 +752,8 @@ JoinCriteria SComplexList::cycleForJoinChoiceArr(double choice) {
 
 		}
 	}
+
+	cout << "Failing. Remaining rate= " << choice << "\n";
 
 	assert(0);
 	return JoinCriteria();
