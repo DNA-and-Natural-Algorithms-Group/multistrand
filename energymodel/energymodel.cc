@@ -85,7 +85,7 @@ void EnergyModel::printPrecomputedArrRates(void) {
 
 	}
 
-	ss << setprecision(3);
+	ss << setprecision(8);
 
 	ss << "\nA         ";
 
@@ -120,6 +120,23 @@ void EnergyModel::printPrecomputedArrRates(void) {
 	ss << "     " << simOptions->energyOptions->alpha;
 
 	ss << "\n";
+	ss << " \n";
+
+	// now dumping the rate matrix too,
+
+	for (int i = 0; i < MOVETYPE_SIZE; i++) {
+
+		for (int j = 0; j < MOVETYPE_SIZE; j++) {
+
+			ss << getJoinRate() * arrheniusRates[MOVETYPE_SIZE * i + j] << "  ";
+
+		}
+
+		ss << " \n";
+
+	}
+
+	ss << " \n";
 
 	if (!printedRates) {
 

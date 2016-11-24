@@ -44,7 +44,7 @@ std::ostream& operator<<(std::ostream &ss, OpenInfo& m) {
 
 	}
 
-	ss << "Exposed, Intern/Total = " << m.numExposedInternal << " / ";
+	ss << "Intern / Total = " << m.numExposedInternal << " / ";
 	ss << m.numExposed << "	\n";
 
 	ss << "\n";
@@ -159,7 +159,17 @@ double OpenInfo::crossRate(OpenInfo& other, EnergyModel& eModel) {
 
 				MoveType left = moveutil::combineBi(top.left, bot.right);
 				MoveType right = moveutil::combineBi(top.right, bot.left);
+
+				cout << "top: " << top << "\n";
+				cout << "bot: " << bot << "\n";
+
 				double joinRate = eModel.applyPrefactors(eModel.getJoinRate(), left, right);
+
+				cout << "Found non-zero crossings: " << crossings << "\n";
+				cout << "Movetypes left, right: " << moveutil::MoveToString[left] << " " << moveutil::MoveToString[right] << "\n";
+				cout << "Non-multiplied joinRate: " << joinRate << "\n";
+				cout << "basic join rate: " << eModel.getJoinRate() << "\n";
+				cout << "\n";
 
 				double rate = crossings * joinRate;
 
@@ -212,7 +222,7 @@ MoveType moveutil::combineBi(QuartContext & one, QuartContext & two) {
 
 		}
 
-		if (strandC) {
+		if (two == strandC) {
 
 			return loopEndMove;
 
@@ -234,7 +244,7 @@ MoveType moveutil::combineBi(QuartContext & one, QuartContext & two) {
 
 		}
 
-		if (strandC) {
+		if (two == strandC) {
 
 			return loopMove;
 
@@ -256,7 +266,7 @@ MoveType moveutil::combineBi(QuartContext & one, QuartContext & two) {
 
 		}
 
-		if (strandC) {
+		if (two == strandC) {
 
 			return stackLoopMove;
 

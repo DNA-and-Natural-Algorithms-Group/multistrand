@@ -88,7 +88,8 @@ void SimulationSystem::construct(void) {
 
 void SimulationSystem::initialPrint(void) {
 
-	if (energyModel->useArrhenius() && (current_seed == 777)) {
+//	if (energyModel->useArrhenius() && (current_seed == 777)) {
+	if (energyModel->useArrhenius()) {
 
 		energyModel->printPrecomputedArrRates();
 
@@ -195,8 +196,9 @@ void SimulationSystem::StartSimulation_Standard(void) {
 void SimulationSystem::StartSimulation_Transition(void) {
 
 	while (simulation_count_remaining > 0) {
-		if (InitializeSystem() != 0)
+		if (InitializeSystem() != 0) {
 			return;
+		}
 
 		SimulationLoop_Transition();
 		finalizeRun();
@@ -207,8 +209,14 @@ void SimulationSystem::StartSimulation_Transition(void) {
 void SimulationSystem::StartSimulation_Trajectory(void) {
 
 	while (simulation_count_remaining > 0) {
-		if (InitializeSystem() != 0)
+
+//		assert (InitializeSystem()!=0);
+
+		if (InitializeSystem() != 0) {
+
+			cout << "system not initialized; returning \n";
 			return;
+		}
 
 		SimulationLoop_Trajectory();
 		finalizeRun();
@@ -396,6 +404,7 @@ void SimulationSystem::SimulationLoop_Trajectory() {
 	}
 
 	do {
+
 		rchoice = rate * drand48();
 		stime += (log(1. / (1.0 - drand48())) / rate);
 		// 1.0 - drand as drand returns in the [0.0, 1.0) range, we need a (0.0,1.0] range.
@@ -904,9 +913,9 @@ void SimulationSystem::InitialInfo(void) {
 	double biRate = complexList->getJoinFlux();
 
 	cout << "\n";
-	cout << "biRate is " << biRate << "\n";
+	cout << "JoinFlux is " << biRate << "\n";
 
-	complexList->doJoinChoice(0.98 * biRate);
+//	complexList->doJoinChoice(0.99999 * biRate);
 
 	biRate = biRate / energyModel->applyPrefactors(energyModel->getJoinRate(), loopMove, loopMove);
 

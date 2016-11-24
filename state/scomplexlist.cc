@@ -188,7 +188,7 @@ double SComplexList::getTotalFlux(void) {
 	joinRate = getJoinFlux();
 	total += joinRate;
 
-	cout << "Joinrate = " << joinRate << "\n";
+	cout << "Joinrate (getTotalFlux)= " << joinRate << "\n";
 
 	return total;
 }
@@ -459,6 +459,8 @@ int SComplexList::doBasicChoice(double choice, double newtime) {
 
 	if (rchoice < joinRate) {
 
+		cout << "Triggering joinmove for rchoice " << rchoice << " and joinRate " << joinRate << "\n";
+
 		doJoinChoice(rchoice);
 
 		RateEnv env = RateEnv(1.0, eModel, MOVETYPE_SIZE, MOVETYPE_SIZE);
@@ -466,7 +468,9 @@ int SComplexList::doBasicChoice(double choice, double newtime) {
 		return env.arrType;
 
 	} else {
+
 		rchoice -= joinRate;
+
 	}
 
 	temp = first;
@@ -517,6 +521,7 @@ void SComplexList::doJoinChoice(double choice) {
 	bool useArr = eModel->useArrhenius();
 	JoinCriteria crit;
 
+
 	cout << "For the current state: \n";
 	cout << toString();
 
@@ -531,8 +536,8 @@ void SComplexList::doJoinChoice(double choice) {
 	}
 
 	// before we do anything, print crit (this is for debugging!)
-//	cout << "Found a criteria to join: \n";
-//	cout << crit;
+	cout << "Found a criteria to join: \n";
+	cout << crit;
 
 	assert(crit.complexes[0]!=NULL);
 	assert(crit.complexes[1]!=NULL);

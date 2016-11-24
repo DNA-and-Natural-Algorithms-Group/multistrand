@@ -4692,6 +4692,7 @@ string OpenLoop::typeInternalsToString(void) {
 	for (int i = 0; i < numAdjacent; i++) {
 
 		ss << "        pairTypes " << basepairString[pairtype[i]] << ", ";
+
 	}
 
 	ss << " \n";
