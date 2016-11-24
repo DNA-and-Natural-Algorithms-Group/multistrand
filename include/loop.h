@@ -221,6 +221,7 @@ public:
 	void printMove(Loop *comefrom, char *structure_p, char *seq_p);
 	char *getLocation(Move *move, int index);
 	char *verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop *from);
+	HalfContext getHalfContext(int, int);
 
 	// OpenLoop::getFreeBases returns the base composition information for the
 	//   open loop. Return form is a pointer to an array of size 5, containing
