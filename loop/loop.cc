@@ -5512,7 +5512,7 @@ void OpenLoop::performComplexJoin(OpenLoop **oldLoops, OpenLoop **newLoops, char
 
 				HalfContext thisHalf = oldLoops[toggle]->getHalfContext(loop, loop2);
 
-				if (thisHalf == halfs[toggle]) {
+				if (useArr && (thisHalf == halfs[toggle])) {
 
 					if (oldLoops[toggle]->seqs[loop][loop2] == types[toggle]) {
 						if (newindex == 0) {
