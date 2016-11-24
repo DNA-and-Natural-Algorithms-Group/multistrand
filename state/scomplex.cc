@@ -6,11 +6,14 @@
 // Implementation of the StrandComplex object found in scomplex.h
 #include <string.h>
 #include <assert.h>
-#include "scomplex.h"
 #include <vector>
 #include <iostream>
+#include <sstream>
+#include "scomplex.h"
 
 using std::cout;
+
+BaseCount emptyBaseCount;
 
 // TODO: i'd like to optimize this lookup. It really should be just a bitwise
 //  or, and an array lookup, the extra function call annoys me.
@@ -626,19 +629,28 @@ void StrandComplex::printAllMoves(void) {
 
 string StrandComplex::toString() {
 
-	string output = "";
-	// doesn't do anything right now
-//	printMyLoops(output, beginLoop);
+//	std::stringstream ss;
+//
+//	// doesn't do anything right now
+////	printMyLoops(output, beginLoop);
+//
+//	// printing the ordering
+//	ss << ordering->toString();
 
-	return output;
+//	if (ordering != NULL) {
+//
+//		return ordering->toString();
+//
+//	} else {
+//
+//		return "ordering is NULL \n";
+//	}
+
+	return "";
+
+//	return ss.str();
 
 }
-
-//string StrandComplex::printStrandOrdering() {
-//
-//	return ordering->toString();
-//
-//}
 
 OpenInfo & StrandComplex::getOpenInfo() {
 
@@ -671,8 +683,28 @@ char *StrandComplex::getStrandNames(void) {
 	return ordering->getStrandNames();
 }
 
-BaseCount& StrandComplex::getExteriorBases(bool useArr) {
-	return ordering->getExteriorBases(useArr);
+BaseCount& StrandComplex::getExteriorBases(bool useArr, HalfContext* lowerHalf) {
+
+	if (lowerHalf == NULL) {
+
+		return ordering->getExteriorBases(useArr);
+
+	} else {
+
+		OpenInfo& info = ordering->getOpenInfo();
+
+		if (info.tally.count(*lowerHalf)) {
+
+			return info.tally.find(*lowerHalf)->second;
+
+		} else {
+
+			return emptyBaseCount;
+
+		}
+
+	}
+
 }
 
 double StrandComplex::getEnergy(void) {

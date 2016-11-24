@@ -526,7 +526,15 @@ void SComplexList::doJoinChoice(double choice) {
 	}
 
 	// before we do anything, print crit (this is for debugging!)
-//	cout << crit;
+	cout << "For the current state: \n";
+	cout << toString();
+	cout << "Found a criteria to join: \n";
+	cout << crit;
+
+	assert(crit.complexes[0]!=NULL);
+	assert(crit.complexes[1]!=NULL);
+
+//	cout << toString();
 
 // here we actually perform the complex join, using criteria as input.
 
@@ -534,7 +542,6 @@ void SComplexList::doJoinChoice(double choice) {
 	StrandComplex *deleted;
 
 	deleted = StrandComplex::performComplexJoin(crit, useArr);
-
 	for (SComplexListEntry* temp = first; temp != NULL; temp = temp->next) {
 
 		if (temp->thisComplex == crit.complexes[0]) {
@@ -599,7 +606,7 @@ JoinCriteria SComplexList::cycleForJoinChoice(double choice) {
 }
 
 // FD: crit is an export variable, but the bool return signifies if a pair has been selected or not.
-JoinCriteria SComplexList::findJoinNucleotides(BaseType base, int choice, BaseCount& external, SComplexListEntry* temp) {
+JoinCriteria SComplexList::findJoinNucleotides(BaseType base, int choice, BaseCount& external, SComplexListEntry* temp, HalfContext* lowerHalf) {
 
 	JoinCriteria crit;
 
@@ -613,16 +620,20 @@ JoinCriteria SComplexList::findJoinNucleotides(BaseType base, int choice, BaseCo
 
 	bool useArr = eModel->useArrhenius();
 
+//	cout << "Lowerhalf: " << *lowerHalf << "\n";
+
 	while (temp != NULL) {
 
-		BaseCount& externOther = temp->thisComplex->getExteriorBases(useArr);
+		BaseCount externOther = temp->thisComplex->getExteriorBases(useArr, lowerHalf);
+
+//		cout << "externOther = " << externOther << "\n";
 
 		if (choice < externOther.count[base] * external.count[otherBase]) {
 
 			crit.complexes[1] = temp->thisComplex;
 			crit.index[0] = (int) floor(choice / externOther.count[base]);
 			crit.index[1] = choice - crit.index[0] * externOther.count[base];
-			temp = NULL;
+			temp = NULL; // this exits the loop.
 
 		} else {
 
@@ -642,12 +653,14 @@ JoinCriteria SComplexList::cycleForJoinChoiceArr(double choice) {
 
 	OpenInfo baseSum = getOpenInfo();
 
+//	cout << "basesum = \n";
 //	cout << baseSum;
 
 	for (SComplexListEntry* temp = first; temp != NULL; temp = temp->next) {
 
 		OpenInfo& external = temp->thisComplex->ordering->getOpenInfo();
 
+//		cout << "external= \n";
 //		cout << external;
 
 		baseSum.decrement(external);
@@ -670,10 +683,14 @@ JoinCriteria SComplexList::cycleForJoinChoiceArr(double choice) {
 
 						double rate = joinRate * combinations;
 
+//						cout << "trying to combine \n";
+//						cout << con.first << "\n";
+//						cout << ton.first << "\n";
+
 //						cout << "choice  = " << choice << "\n";
 //						cout << "rate  = " << rate << "\n";
 
-						if (choice <= rate) {
+						if (choice < rate) {
 
 							// we have determined the HalfContexts for the upper and lower strand.
 							int choice_int = floor(choice / joinRate);
@@ -692,10 +709,12 @@ JoinCriteria SComplexList::cycleForJoinChoiceArr(double choice) {
 
 //									cout << "choice_int= " << choice_int << "\n";
 
-									JoinCriteria crit = findJoinNucleotides(base, choice_int, ton.second, temp);
+									JoinCriteria crit = findJoinNucleotides(base, choice_int, ton.second, temp, &con.first);
 
-									crit.half[0] = con.first;
-									crit.half[1] = ton.first;
+//									crit.half[0] = con.first;
+//									crit.half[1] = ton.first;
+									crit.half[0] = ton.first;
+									crit.half[1] = con.first;
 
 									return crit;
 
@@ -787,7 +806,15 @@ bool SComplexList::checkStopComplexList(class complexItem *stoplist) {
 
 string SComplexList::toString() {
 
-	return first->toString( NULL);
+	string output = "";
+
+	for (SComplexListEntry *temp = first; temp != NULL; temp = temp->next) {
+
+		output += temp->toString(eModel) + "\n";
+
+	}
+
+	return output;
 
 }
 

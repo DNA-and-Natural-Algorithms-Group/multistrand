@@ -33,7 +33,7 @@ public:
 	char *getSequence(void); // returns char representation of sequence
 	char *getStructure(void); // returns dot-paren notation structure for seq.
 	char *getStrandNames(void); // returns ordered list of strand names
-	BaseCount& getExteriorBases(bool);
+	BaseCount& getExteriorBases(bool, HalfContext* = NULL);
 	int checkIDList(class identList *stoplist, int id_count);
 	int checkIDBound(char *id);
 

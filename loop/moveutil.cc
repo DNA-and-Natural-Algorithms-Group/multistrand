@@ -191,6 +191,10 @@ std::ostream & operator<<(std::ostream & ss, JoinCriteria & m) {
 
 	ss << "Half = " << m.half[0] << " " << m.half[1] << "\n";
 
+	ss << "Complex0 = " << m.complexes[0]->ordering->toString() << "\n";
+
+	ss << "Complex1 = " << m.complexes[1]->ordering->toString() << "\n";
+
 	return ss;
 
 }

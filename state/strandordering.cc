@@ -503,6 +503,8 @@ OpenLoop* StrandOrdering::getIndex(JoinCriteria& crit, int site, char **location
 
 	} else {
 
+//		cout << crit;
+
 		// FD: nearly the same, but we have to call functions that consider the local context.
 		// It is possible to overlap the two code paths, if we just asign the same local context
 		// to each nucleotide, depending on a static global useArr trigger.
@@ -512,9 +514,26 @@ OpenLoop* StrandOrdering::getIndex(JoinCriteria& crit, int site, char **location
 			assert(traverse->thisLoop != NULL);
 
 			OpenInfo& openInfo = traverse->thisLoop->getOpenInfo();
+
+//			cout << openInfo;
+
 			assert(openInfo.tally.count(crit.half[site]));
 
 			BaseCount& baseCount = openInfo.tally.find(crit.half[site])->second;
+
+//			cout << "printing baseCount \n";
+//			cout << baseCount << "\n";
+//
+//			cout << "Printing  half [site] \n";
+//			cout << "site= " << site << "\n";
+//			cout << "crit-half[site]= " << crit.half[site] << "\n";
+//
+//			cout << "generic print " << index << "\n";
+//			cout << "generic print " << baseCount.count[type] << "\n";
+//			cout << "generic print " << (int) type << "\n";
+
+
+//			cout.flush();
 
 			if (index < baseCount.count[type]) {
 
