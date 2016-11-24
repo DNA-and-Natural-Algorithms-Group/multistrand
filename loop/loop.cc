@@ -5500,27 +5500,39 @@ void OpenLoop::performComplexJoin(OpenLoop **oldLoops, OpenLoop **newLoops, char
 
 		for (loop = 0; loop <= oldLoops[toggle]->numAdjacent && newindex >= 0; loop++) {
 
-			int loop2 = 1;
 			int end = oldLoops[toggle]->sidelen[loop] + 1;
 
-			if (useArr) {
+//			if (useArr) {
+//
+//				loop2++;
+//				end--;
+//
+//			}
 
-				loop2++;
-				end--;
+			for (int loop2 = 1; loop2 < end; loop2++) {
+
+				HalfContext thisHalf = oldLoops[toggle]->getHalfContext(loop, loop2);
+
+				if (!useArr || (thisHalf == halfs[toggle])) {
+
+					if (oldLoops[toggle]->seqs[loop][loop2] == types[toggle]) {
+
+						if (newindex == 0) {
+
+							seqnum[toggle] = loop;
+							seqindex[toggle] = loop2;
+							loop2 = oldLoops[toggle]->sidelen[loop] + 1;
+							newindex--;
+
+						} else {
+
+							newindex--;
+
+						}
+					}
+				}
 
 			}
-
-			for (; loop2 < end; loop2++)
-				if (oldLoops[toggle]->seqs[loop][loop2] == types[toggle]) {
-					if (newindex == 0) {
-						seqnum[toggle] = loop;
-						seqindex[toggle] = loop2;
-						loop2 = oldLoops[toggle]->sidelen[loop] + 1;
-						newindex--;
-						//		    loop = oldLoops[toggle]->numAdjacent+1;
-					} else
-						newindex--;
-				}
 		}
 
 	}
