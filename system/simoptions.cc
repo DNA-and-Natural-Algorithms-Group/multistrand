@@ -181,7 +181,7 @@ PyObject* PSimOptions::getPythonSettings() {
 
 void PSimOptions::generateComplexes(PyObject *alternate_start, long current_seed) {
 
-	myComplexes = new vector<complex_input>(0); // wipe the pointer to the previous object;
+	myComplexes = new vector<inputComplex>(0); // wipe the pointer to the previous object;
 
 	PyObject *py_start_state = NULL, *py_complex = NULL;
 	PyObject *py_seq = NULL, *py_struc = NULL;
@@ -189,7 +189,7 @@ void PSimOptions::generateComplexes(PyObject *alternate_start, long current_seed
 
 	if (myComplexes->size() == 0) {
 
-		complex_input *tempcomplex = NULL;
+		inputComplex *tempcomplex = NULL;
 		char *sequence, *structure;
 		class identList *id;
 		int start_count;
@@ -239,7 +239,7 @@ void PSimOptions::generateComplexes(PyObject *alternate_start, long current_seed
 
 			id = getID_list(python_settings, index, alternate_start);
 
-			complex_input myTempComplex = complex_input(sequence, structure, id);
+			inputComplex myTempComplex = inputComplex(sequence, structure, id);
 
 			// StrandComplex does make its own copy of the seq/structure, so we can now decref.
 			myComplexes->push_back(myTempComplex);
@@ -352,7 +352,7 @@ PyObject* CSimOptions::getPythonSettings() {
 
 void CSimOptions::generateComplexes(PyObject *alternate_start, long current_seed) {
 
-	myComplexes = new vector<complex_input>(0); // wipe the pointer to the previous object;
+	myComplexes = new vector<inputComplex>(0); // wipe the pointer to the previous object;
 
 	// setting default value
 	char* mySeq = "GTTAGACTCGGAGGTGGTAGCAATGGATCAG+CTGATCCATTGCTACCACCTCCGAGTCTAACCATATC+GATATGGTTAGACTCGGAGGTGGTAGCAATG";
@@ -361,7 +361,7 @@ void CSimOptions::generateComplexes(PyObject *alternate_start, long current_seed
 	identList* myIdentity2 = new identList(1338, "myID-2", myIdentity1);
 	identList* myIdentity3 = new identList(1339, "myID-3", myIdentity2);
 
-	complex_input myInput = complex_input(mySeq, myStructure, NULL);
+	inputComplex myInput = inputComplex(mySeq, myStructure, NULL);
 
 	myComplexes->push_back(myInput);
 

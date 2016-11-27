@@ -63,7 +63,7 @@ public:
 	string toString(void);
 
 	// actual option values
-	vector<complex_input>* myComplexes = NULL;
+	vector<inputComplex>* myComplexes = NULL;
 	EnergyOptions* energyOptions = NULL;
 
 	const static bool countStates = false;
