@@ -365,7 +365,6 @@ void CSimOptions::generateComplexes(PyObject *alternate_start, long current_seed
 //
 //	myComplexes->push_back(myInput);
 
-	return;
 }
 
 stopComplexes* CSimOptions::getStopComplexes(int) {

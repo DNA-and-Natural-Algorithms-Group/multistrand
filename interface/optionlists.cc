@@ -103,10 +103,7 @@ complexItem::complexItem(char *struc, class identList *strands,
 	while (strchr(structure, '_') != NULL) {
 		*strchr(structure, '_') = '+';
 	}
-	// while( strchr( structure, '+' ) != NULL )
-	//{
-	//  *strchr(structure,'+') = '.';
-	//}
+
 	strand_ids = strands;
 	next = old;
 	type = STOPTYPE_STRUCTURE;
@@ -122,10 +119,7 @@ complexItem::complexItem(char *struc, class identList *strands,
 		while (strchr(structure, '_') != NULL) {
 			*strchr(structure, '_') = '+';
 		}
-		//      while( strchr( structure, '+' ) != NULL )
-		//{
-		//  *strchr(structure,'+') = '.';
-		//}
+
 	}
 	strand_ids = strands;
 	next = old;

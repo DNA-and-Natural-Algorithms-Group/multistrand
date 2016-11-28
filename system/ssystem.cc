@@ -23,6 +23,8 @@ int timeOut = 0;
 
 SimulationSystem::SimulationSystem(PyObject *system_o) {
 
+	std::cout << "Initializing SimulationSystem w python object \n";
+
 	system_options = system_o;
 	simOptions = new PSimOptions(system_o);
 
@@ -42,16 +44,6 @@ SimulationSystem::SimulationSystem(SimOptions* options) {
 }
 
 void SimulationSystem::construct(void) {
-
-	bool hflag = false;
-#ifdef PROFILING
-	if (!IsHeapProfilerRunning())
-	{
-		HeapProfilerStart("ssystem_init.heap");
-		hflag = true;
-	}
-	ProfilerStart("ssystem_init_profile.prof");
-#endif
 
 // We no longer need the below line; we are guaranteed that options
 // will have a good reference for the lifetime of our object, as the
@@ -75,15 +67,6 @@ void SimulationSystem::construct(void) {
 	exportStatesInterval = (simOptions->getOInterval() >= 0);
 	exportStatesTime = (simOptions->getOTime() >= 0);
 
-#ifdef PROFILING
-	ProfilerStop();
-	if (hflag)
-	{
-		HeapProfilerDump("init");
-		HeapProfilerStop();
-	}
-#endif
-
 }
 
 void SimulationSystem::initialPrint(void) {
@@ -98,6 +81,9 @@ void SimulationSystem::initialPrint(void) {
 }
 
 SimulationSystem::SimulationSystem(void) {
+
+	std::cout<< "Initializing SimulationSystem \n";
+
 	simulation_mode = -1;
 	simulation_count_remaining = -1;
 
@@ -133,15 +119,6 @@ SimulationSystem::~SimulationSystem(void) {
 }
 
 void SimulationSystem::StartSimulation(void) {
-	bool hflag = false;
-#ifdef PROFILING
-	if (!IsHeapProfilerRunning())
-	{
-		HeapProfilerStart("ssystem_run.heap");
-		hflag = true;
-	}
-	ProfilerStart("ssystem_run_profile.prof");
-#endif
 
 	InitializeRNG();
 
@@ -155,15 +132,6 @@ void SimulationSystem::StartSimulation(void) {
 		StartSimulation_Standard();
 
 	finalizeSimulation();
-
-#ifdef PROFILING
-	ProfilerStop();
-	if (hflag)
-	{
-		HeapProfilerDump("final");
-		HeapProfilerStop();
-	}
-#endif
 
 }
 
@@ -209,8 +177,6 @@ void SimulationSystem::StartSimulation_Transition(void) {
 void SimulationSystem::StartSimulation_Trajectory(void) {
 
 	while (simulation_count_remaining > 0) {
-
-//		assert (InitializeSystem()!=0);
 
 		if (InitializeSystem() != 0) {
 
@@ -260,7 +226,6 @@ void SimulationSystem::SimulationLoop_Standard(void) {
 	double rchoice, rate, stime, ctime;
 	rchoice = rate = stime = ctime = 0.0;
 
-	int curcount = 0;
 	bool checkresult = false;
 	class stopComplexes *traverse = NULL, *first = NULL;
 
@@ -296,7 +261,7 @@ void SimulationSystem::SimulationLoop_Standard(void) {
 			// FD: Mathematically it is also the correct thing to do,
 			// FD: when we remember the memoryless property of the Markov chain
 
-			int myMove = complexList->doBasicChoice(rchoice, stime);
+			(void) complexList->doBasicChoice(rchoice, stime);
 
 			///Add the state to the hashmap counter
 			this->countState(complexList);

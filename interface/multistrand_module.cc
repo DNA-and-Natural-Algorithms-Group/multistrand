@@ -10,6 +10,7 @@
 #include "python2.7/Python.h"
 #include "python2.7/structmember.h"
 
+#include <iostream>
 #include "ssystem.h"
 #include "simoptions.h"
 #include "options.h"
@@ -22,15 +23,17 @@
 #endif
 
 typedef struct {
+
 	PyObject_HEAD
 	SimulationSystem *ob_system; /* Our one data member, no other attributes. */
-	PyObject *options;
+	PyObject* options;
 } SimSystemObject;
 
 //#define SimSystem_Check(v)  (Py_TYPE(v) == &SimSystem_Type)
 /* Should we want to use it later... */
 
 static PyObject *SimSystemObject_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
+
 	SimSystemObject *self;
 
 	self = (SimSystemObject *) type->tp_alloc(type, 0);

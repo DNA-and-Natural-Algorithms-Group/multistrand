@@ -11,7 +11,7 @@
 #include <time.h>
 #include "ssystem.h"
 
-#define DEBUG
+//#define DEBUG
 
 /* ------------------------------------------------------------------------
 
