@@ -114,7 +114,7 @@ Loop::Loop(void) {
 
 	adjacentLoops = NULL;
 	moves = NULL;
-	identity = NULL;
+	identity = '\0';
 
 }
 
@@ -3433,6 +3433,11 @@ void BulgeLoop::generateMoves(void) {
 	int bsize = bulgesize[0] + bulgesize[1];
 	int bside = (bulgesize[0] == 0) ? 1 : 0;
 
+
+	std::cout << "Trying to generate moves";
+	std: cout.flush();
+
+
 // Creation moves
 	if (bsize <= 3) {
 		if (moves != NULL)
@@ -3498,7 +3503,6 @@ void BulgeLoop::generateMoves(void) {
 					tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
 
 					// hairpin and multiloop, so this is loopMove and something
-//					if (energyModel->useArrhenius()) {
 
 					MoveType multiMove = stackMove; // default init value;
 
@@ -3520,7 +3524,11 @@ void BulgeLoop::generateMoves(void) {
 }
 
 void BulgeLoop::generateDeleteMoves(void) {
+
 	double temprate;
+
+//	std::cout << "Trying to generate delete moves";
+//	std: cout.flush();
 
 	assert(moves != NULL);
 

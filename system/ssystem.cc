@@ -578,20 +578,17 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 }
 
 void SimulationSystem::SimulationLoop_FirstStep(void) {
-	double rchoice, rate, stime = 0.0, ctime = 0.0;
+	double rchoice, rate, stime = 0.0;
 	bool stopFlag = false;
 	double last_trajectory_time = 0.0;
 
 	class stopComplexes *traverse = NULL, *first = NULL;
-	long trajMode;
 	double frate = 0.0;
 
 	double maxsimtime = simOptions->getMaxSimTime();
 	long stopcount = simOptions->getStopCount();
 	long stopoptions = simOptions->getStopOptions();
 	long ointerval = simOptions->getOInterval();
-	double otime = simOptions->getOTime();
-	double otime_interval = simOptions->getOInterval();
 
 	long current_state_count = 0;
 
@@ -790,7 +787,7 @@ int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
 	complexList = new SComplexList(energyModel);
 
 // FD: this is the python - C interface
-	for (int i = 0; i < simOptions->myComplexes->size(); i++) {
+	for (unsigned int i = 0; i < simOptions->myComplexes->size(); i++) {
 
 		char* tempSequence = copyToCharArray(simOptions->myComplexes->at(i).sequence);
 		char* tempStructure = copyToCharArray(simOptions->myComplexes->at(i).structure);
@@ -816,7 +813,7 @@ void SimulationSystem::InitializeRNG(void) {
 	} else {
 		if ((fp = fopen("/dev/urandom", "r")) != NULL) { // if urandom exists, use it to provide a seed
 			long deviceseed;
-			fread(&deviceseed, sizeof(long), 1, fp);
+			(void) fread(&deviceseed, sizeof(long), 1, fp);
 
 			current_seed = deviceseed;
 			fclose(fp);

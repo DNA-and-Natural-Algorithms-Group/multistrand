@@ -354,16 +354,16 @@ void CSimOptions::generateComplexes(PyObject *alternate_start, long current_seed
 
 	myComplexes = new vector<complex_input>(0); // wipe the pointer to the previous object;
 
-	// setting default value
-	char* mySeq = "GTTAGACTCGGAGGTGGTAGCAATGGATCAG+CTGATCCATTGCTACCACCTCCGAGTCTAACCATATC+GATATGGTTAGACTCGGAGGTGGTAGCAATG";
-	char* myStructure = ".........................((((((+))))))(((((((((((((((((((((((((((((((+)))))))))))))))))))))))))))))))";
-	identList* myIdentity1 = new identList(1337, "myID-1", NULL);
-	identList* myIdentity2 = new identList(1338, "myID-2", myIdentity1);
-	identList* myIdentity3 = new identList(1339, "myID-3", myIdentity2);
-
-	complex_input myInput = complex_input(mySeq, myStructure, NULL);
-
-	myComplexes->push_back(myInput);
+//	// setting default value
+//	char* mySeq = "GTTAGACTCGGAGGTGGTAGCAATGGATCAG+CTGATCCATTGCTACCACCTCCGAGTCTAACCATATC+GATATGGTTAGACTCGGAGGTGGTAGCAATG";
+//	char* myStructure = ".........................((((((+))))))(((((((((((((((((((((((((((((((+)))))))))))))))))))))))))))))))";
+//	identList* myIdentity1 = new identList(1337, "myID-1", NULL);
+//	identList* myIdentity2 = new identList(1338, "myID-2", myIdentity1);
+//	identList* myIdentity3 = new identList(1339, "myID-3", myIdentity2);
+//
+//	complex_input myInput = complex_input(mySeq, myStructure, NULL);
+//
+//	myComplexes->push_back(myInput);
 
 	return;
 }

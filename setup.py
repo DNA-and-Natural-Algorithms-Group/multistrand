@@ -116,7 +116,8 @@ def setup_ext( have_tcmalloc):
                               #                                         ('DEBUG_MACROS',None)],
                               #                                         ('Py_TRACE_REFS',None)],
                               undef_macros=['NDEBUG'],
-                              extra_compile_args = ['-O3','-g', '-w'],
+                            extra_compile_args = ['-O3','-g', '-Wall'],
+#                               extra_compile_args = ['-g', '-w'],                              
                               #                          ['-Wno-strict-prototypes','-w','-O0','-v','-fcommon', '-fno-wrapv'],   #This is 'disable all warnings compiler flag'
                               )
     return multi_ext

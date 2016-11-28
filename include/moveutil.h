@@ -13,7 +13,6 @@ using std::map;
 
 class StrandComplex;
 class EnergyModel;
-//struct HalfContext;
 
 enum MoveType {
 	endMove, loopMove, stackMove, stackStackMove, loopEndMove, stackEndMove, stackLoopMove, MOVETYPE_SIZE

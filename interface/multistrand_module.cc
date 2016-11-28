@@ -27,7 +27,7 @@ typedef struct {
 	PyObject *options;
 } SimSystemObject;
 
-#define SimSystem_Check(v)  (Py_TYPE(v) == &SimSystem_Type)
+//#define SimSystem_Check(v)  (Py_TYPE(v) == &SimSystem_Type)
 /* Should we want to use it later... */
 
 static PyObject *SimSystemObject_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
