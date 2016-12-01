@@ -3903,7 +3903,7 @@ void InteriorLoop::generateMoves(void) {
 				} else if (loop == 1 || loop2 == sizes[1]) {		// bulge
 					energies[0] = energyModel->BulgeEnergy(int_seq[0][0], int_seq[1][sizes[1] + 1], int_seq[0][loop], int_seq[1][loop2],
 							(loop - 1) + (sizes[1] - loop2));
-					leftMove = stackEndMove;
+					leftMove = stackLoopMove;
 				} else {  // interior
 					energies[0] = energyModel->InteriorEnergy(int_seq[0], &int_seq[1][loop2], loop - 1, sizes[1] - loop2);
 					leftMove = loopMove;
@@ -3915,7 +3915,7 @@ void InteriorLoop::generateMoves(void) {
 				} else if (loop == sizes[0] || loop2 == 1) { // bulge
 					energies[1] = energyModel->BulgeEnergy(int_seq[0][loop], int_seq[1][loop2], int_seq[0][sizes[0] + 1], int_seq[1][0],
 							(loop2 - 1) + (sizes[0] - loop));
-					rightMove = stackEndMove;
+					rightMove = stackLoopMove;
 				} else { // interior
 					energies[1] = energyModel->InteriorEnergy(&int_seq[0][loop], int_seq[1], sizes[0] - loop, loop2 - 1);
 					rightMove = loopMove;
