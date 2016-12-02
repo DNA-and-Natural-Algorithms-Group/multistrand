@@ -17,8 +17,8 @@
 //#define DEBUG
 #define T_scale( dG, dH, T ) ((double) ((((dG) - ((dH)/100.0)) * (T) / 310.15) + ((dH)/100.0)))
 
-#define CELSIUS37_IN_KELVIN 310.15
-#define TEMPERATURE_ZERO_CELSIUS_IN_KELVIN 273.15
+const double CELSIUS37_IN_KELVIN = 310.15;
+const double TEMPERATURE_ZERO_CELSIUS_IN_KELVIN = 273.15;
 
 extern int pairs[5];
 extern int pairtypes[5][5];
