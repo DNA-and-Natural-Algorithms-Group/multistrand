@@ -105,7 +105,7 @@ StrandOrdering::StrandOrdering(char *in_seq, char *in_structure, char *in_cseq) 
 
 	// count the number of strands, verify balanced parentheses and connectedness.
 	int total_counter = 0, strand_counter = 0, strand_size = 0, sflag = 0;
-	int index = 0;
+	unsigned int index = 0;
 	orderingList *new_elem = NULL;
 
 	for (index = 0; index < strlen(in_cseq); index++) {
@@ -176,7 +176,7 @@ StrandOrdering::StrandOrdering(char *in_seq, char *in_structure, char *in_cseq, 
 
 	// count the number of strands, verify balanced parentheses and connectedness.
 	int total_counter = 0, strand_counter = 0, strand_size = 0, sflag = 0;
-	int index = 0;
+	unsigned int index = 0;
 	orderingList *new_elem = NULL;
 
 	for (index = 0; index < strlen(in_cseq); index++) {
@@ -215,7 +215,8 @@ StrandOrdering::StrandOrdering(char *in_seq, char *in_structure, char *in_cseq, 
 			new_elem = NULL;
 			strand_counter = sflag = 0;
 			strand_size = 0;
-			while (index < strlen(in_seq) - 1 && in_seq[index + 1] == '+')
+
+			while (index < (strlen(in_seq) - 1) && in_seq[index + 1] == '+')
 				index++;
 			break;
 		}
@@ -348,7 +349,7 @@ void StrandOrdering::reorder(OpenLoop *index) {
 OpenLoop *StrandOrdering::checkIDList(class identList * stoplist, int id_count) {
 	orderingList *traverse = first;
 	class identList *id_traverse = stoplist;
-	class OpenLoop *thingtoreturn;
+	class OpenLoop* thingtoreturn = NULL;
 	int num_matched = 0;
 	if (id_count != count)
 		return NULL;
@@ -392,7 +393,7 @@ int StrandOrdering::checkIDBound(char *id) {
 	//int num_matched = 0;
 	//if( id_count != count ) return NULL;
 
-	int loop;
+	unsigned int loop;
 	int flag;
 	while (traverse != NULL) {
 		if (strcmp(traverse->thisTag, id) == 0) {
@@ -806,7 +807,6 @@ string StrandOrdering::toString(void) {
 	ss << "Ordering: ";
 
 	orderingList *traverse = NULL;
-	int *free_bases;
 
 	for (traverse = first; traverse != NULL; traverse = traverse->next) {
 

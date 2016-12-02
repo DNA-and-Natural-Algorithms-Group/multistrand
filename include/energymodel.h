@@ -19,11 +19,17 @@ class SimOptions;
 class Loop;
 class EnergyOptions;
 
-#define BASE_A 1
-#define BASE_C 2
-#define BASE_G 3
-#define BASE_T 4
-#define BASE_U 4
+const int BASE_A = 1;
+const int BASE_C = 2;
+const int BASE_G = 3;
+const int BASE_T = 4;
+const int BASE_U = 4;
+
+//#define BASE_A 1
+//#define BASE_C 2
+//#define BASE_G 3
+//#define BASE_T 4
+//#define BASE_U 4
 
 #ifndef VIENNA
 #define VIENNA 0
@@ -108,8 +114,6 @@ public:
 	virtual void eStackEnergy(int type1, int type2, energyS *energy) = 0;
 
 	SimOptions* simOptions;
-
-
 
 protected:
 	long dangles;

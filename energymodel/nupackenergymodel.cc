@@ -17,14 +17,12 @@
 //#define DEBUG
 #define T_scale( dG, dH, T ) ((double) ((((dG) - ((dH)/100.0)) * (T) / 310.15) + ((dH)/100.0)))
 
-#define CELSIUS37_IN_KELVIN 310.15
-#define TEMPERATURE_ZERO_CELSIUS_IN_KELVIN 273.15
+const double CELSIUS37_IN_KELVIN = 310.15;
+const double TEMPERATURE_ZERO_CELSIUS_IN_KELVIN = 273.15;
 
 extern int pairs[5];
 extern int pairtypes[5][5];
 extern int basepair_sw[8];
-
-extern int lookuphelper[26];
 
 // helper function to convert to numerical base format.
 extern int baseLookup(char base);
@@ -44,7 +42,9 @@ double NupackEnergyModel::returnRate(double start_energy, double end_energy, int
 	// dG_assoc, if it were included in (start_energy, end_energy), would need to be deleted here. However, it never gets added into any energies except for display purposes. So it gets used in the join move rate, but not here.
 	// OLD: dG_assoc is typically a negative number, and included as part of the complex before disassociation. Thus it must be subtracted from the dE (leading to a typically slower disassociation rate.).
 	if (kinetic_rate_method == RATE_METHOD_KAWASAKI) {  // Kawasaki
+
 		return uniscale * exp(-0.5 * dE / _RT);
+
 	} else if (kinetic_rate_method == RATE_METHOD_METROPOLIS) {
 		// Metropolis
 		if (dE < 0) {
@@ -52,7 +52,11 @@ double NupackEnergyModel::returnRate(double start_energy, double end_energy, int
 		} else {
 			return uniscale * exp(-dE / _RT);
 		}
+
 	}
+
+	return -9999.99;
+
 }
 
 double NupackEnergyModel::getJoinRate(void) {

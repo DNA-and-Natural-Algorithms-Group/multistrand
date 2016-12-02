@@ -63,23 +63,23 @@ public:
 	string toString(void);
 
 	// actual option values
-	vector<inputComplex>* myComplexes = NULL;
+	vector<complex_input>* myComplexes = NULL;
 	EnergyOptions* energyOptions = NULL;
 
 	const static bool countStates = false;
 
 protected:
 
-	long simulation_mode = NULL;
-	long simulation_count = NULL;
-	long o_interval = NULL;
-	double o_time = NULL;
-	long stop_options = NULL;
-	long stop_count = NULL;
-	double max_sim_time = NULL;
-	long seed = NULL;
-	stopComplexes* myStopComplexes = NULL;
+	long simulation_mode = 0;
+	long simulation_count = 0;
+	long o_interval = 0;
+	double o_time = 0;
+	long stop_options = 0;
+	long stop_count = 0;
+	double max_sim_time = 0;
+	long seed = 0;
 	bool fixedRandomSeed = false;
+	stopComplexes* myStopComplexes = NULL;
 
 };
 

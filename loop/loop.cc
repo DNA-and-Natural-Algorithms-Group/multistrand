@@ -19,7 +19,6 @@ EnergyModel* Loop::energyModel = NULL;
 
 struct RateArr;
 
-extern int baseLookup(char base);
 
 inline double Loop::getEnergy(void) {
 	if (energyFlag)
@@ -114,7 +113,7 @@ Loop::Loop(void) {
 
 	adjacentLoops = NULL;
 	moves = NULL;
-	identity = NULL;
+	identity = '\0';
 
 }
 
@@ -364,17 +363,14 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		StackLoop *start_ = (StackLoop *) start;
 		StackLoop *end_ = (StackLoop *) end;
-		Loop *start_extra, *end_extra;
 		int s_index = 0;
 		int e_index = 0;
 
 		for (int loop = 0; loop < 2; loop++) {
 			if (start_->adjacentLoops[loop] != end_) {
-				start_extra = start_->adjacentLoops[loop];
 				s_index = loop;
 			}
 			if (end_->adjacentLoops[loop] != start_) {
-				end_extra = end_->adjacentLoops[loop];
 				e_index = loop;
 			}
 		}
@@ -398,9 +394,10 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 	}
 
 	if ((start->identity == 'S' && end->identity == 'I') || (start->identity == 'I' && end->identity == 'S')) {
+
 		StackLoop *start_;
 		InteriorLoop *end_;
-		Loop *start_extra, *end_extra;
+
 		int s_index = 0, e_index = 0;
 
 		if (start->identity == 'S') {
@@ -413,11 +410,9 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		for (int loop = 0; loop <= 1; loop++) {
 			if (start_->adjacentLoops[loop] != end_) {
-				start_extra = start_->adjacentLoops[loop];
 				s_index = loop;
 			}
 			if (end_->adjacentLoops[loop] != start_) {
-				end_extra = end_->adjacentLoops[loop];
 				e_index = loop;
 			}
 		}
@@ -444,7 +439,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 	if ((start->identity == 'S' && end->identity == 'B') || (start->identity == 'B' && end->identity == 'S')) {
 		StackLoop *start_;
 		BulgeLoop *end_;
-		Loop *start_extra, *end_extra;
 		int s_index = 0, e_index = 0;
 
 		if (start->identity == 'S') {
@@ -457,12 +451,14 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		for (int loop = 0; loop <= 1; loop++) {
 			if (start_->adjacentLoops[loop] != end_) {
-				start_extra = start_->adjacentLoops[loop];
+
 				s_index = loop;
+
 			}
 			if (end_->adjacentLoops[loop] != start_) {
-				end_extra = end_->adjacentLoops[loop];
+
 				e_index = loop;
+
 			}
 		}
 		// resulting will be an interior loop side lengths equal to the length
@@ -1574,9 +1570,10 @@ Loop *Loop::performDeleteMove(Move *move) {
 	}
 
 	if ((start->identity == 'S' && end->identity == 'I') || (start->identity == 'I' && end->identity == 'S')) {
+
 		StackLoop *start_;
 		InteriorLoop *end_;
-		Loop *start_extra, *end_extra, *newLoop;
+		Loop* newLoop;
 		int s_index = 0, e_index = 0;
 		if (start->identity == 'S') {
 			start_ = (StackLoop *) start;
@@ -1588,11 +1585,9 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		for (int loop = 0; loop <= 1; loop++) {
 			if (start_->adjacentLoops[loop] != end_) {
-				start_extra = start_->adjacentLoops[loop];
 				s_index = loop;
 			}
 			if (end_->adjacentLoops[loop] != start_) {
-				end_extra = end_->adjacentLoops[loop];
 				e_index = loop;
 			}
 		}
@@ -1639,9 +1634,10 @@ Loop *Loop::performDeleteMove(Move *move) {
 	}
 
 	if ((start->identity == 'S' && end->identity == 'B') || (start->identity == 'B' && end->identity == 'S')) {
+
 		StackLoop *start_;
 		BulgeLoop *end_;
-		Loop *start_extra, *end_extra, *newLoop;
+		Loop* newLoop;
 		int s_index = 0, e_index = 0;
 		if (start->identity == 'S') {
 			start_ = (StackLoop *) start;
@@ -1653,11 +1649,9 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		for (int loop = 0; loop <= 1; loop++) {
 			if (start_->adjacentLoops[loop] != end_) {
-				start_extra = start_->adjacentLoops[loop];
 				s_index = loop;
 			}
 			if (end_->adjacentLoops[loop] != start_) {
-				end_extra = end_->adjacentLoops[loop];
 				e_index = loop;
 			}
 		}
@@ -1701,9 +1695,10 @@ Loop *Loop::performDeleteMove(Move *move) {
 	}
 
 	if ((start->identity == 'S' && end->identity == 'H') || (start->identity == 'H' && end->identity == 'S')) {
+
 		StackLoop *start_;
 		HairpinLoop *end_;
-		Loop *start_extra, *end_extra, *newLoop;
+		Loop* newLoop;
 		int s_index = 0, e_index = 0;
 		if (start->identity == 'S') {
 			start_ = (StackLoop *) start;
@@ -1715,7 +1710,6 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		for (int loop = 0; loop <= 1; loop++) {
 			if (start_->adjacentLoops[loop] != end_) {
-				start_extra = start_->adjacentLoops[loop];
 				s_index = loop;
 			}
 		}
@@ -3433,6 +3427,9 @@ void BulgeLoop::generateMoves(void) {
 	int bsize = bulgesize[0] + bulgesize[1];
 	int bside = (bulgesize[0] == 0) ? 1 : 0;
 
+//	std::cout << "Trying to generate moves";
+//	std: cout.flush();
+
 // Creation moves
 	if (bsize <= 3) {
 		if (moves != NULL)
@@ -3498,7 +3495,6 @@ void BulgeLoop::generateMoves(void) {
 					tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
 
 					// hairpin and multiloop, so this is loopMove and something
-//					if (energyModel->useArrhenius()) {
 
 					MoveType multiMove = stackMove; // default init value;
 
@@ -3520,7 +3516,11 @@ void BulgeLoop::generateMoves(void) {
 }
 
 void BulgeLoop::generateDeleteMoves(void) {
+
 	double temprate;
+
+//	std::cout << "Trying to generate delete moves";
+//	std: cout.flush();
 
 	assert(moves != NULL);
 
@@ -3903,7 +3903,7 @@ void InteriorLoop::generateMoves(void) {
 				} else if (loop == 1 || loop2 == sizes[1]) {		// bulge
 					energies[0] = energyModel->BulgeEnergy(int_seq[0][0], int_seq[1][sizes[1] + 1], int_seq[0][loop], int_seq[1][loop2],
 							(loop - 1) + (sizes[1] - loop2));
-					leftMove = stackEndMove;
+					leftMove = stackLoopMove;
 				} else {  // interior
 					energies[0] = energyModel->InteriorEnergy(int_seq[0], &int_seq[1][loop2], loop - 1, sizes[1] - loop2);
 					leftMove = loopMove;
@@ -3915,7 +3915,7 @@ void InteriorLoop::generateMoves(void) {
 				} else if (loop == sizes[0] || loop2 == 1) { // bulge
 					energies[1] = energyModel->BulgeEnergy(int_seq[0][loop], int_seq[1][loop2], int_seq[0][sizes[0] + 1], int_seq[1][0],
 							(loop2 - 1) + (sizes[0] - loop));
-					rightMove = stackEndMove;
+					rightMove = stackLoopMove;
 				} else { // interior
 					energies[1] = energyModel->InteriorEnergy(&int_seq[0][loop], int_seq[1], sizes[0] - loop, loop2 - 1);
 					rightMove = loopMove;
