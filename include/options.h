@@ -33,7 +33,6 @@
 /* List indexing (ref counting caller responsibility */
 #define getStringItem(list, index) PyString_AS_STRING(PyList_GET_ITEM(list, index))
 
-
 /***************************************/
 /* Helper functions / internal macros. */
 /*                                     */
@@ -104,14 +103,13 @@
 #define addResultLine_Energy( obj, energy )                    \
   _m_pushList( obj, PyFloat_FromDouble( energy ), add_result_energy)
 /* Note: if energy fails to create via PyFloat_FromDouble, it'll be
-   NULL we'll probably segfault. The only failure mode I can forsee is
-   if you don't correctly pass a double somehow, so that's a compile
-   issue rather than runtime.
+ NULL we'll probably segfault. The only failure mode I can forsee is
+ if you don't correctly pass a double somehow, so that's a compile
+ issue rather than runtime.
 
-    The ref is a new one, but we decref always in pushList, as we no
-    longer need the ref and the SetAttrString should cause the owning
-    object to have a good ref to it.*/
-
+ The ref is a new one, but we decref always in pushList, as we no
+ longer need the ref and the SetAttrString should cause the owning
+ object to have a good ref to it.*/
 
 #define printStatusLine( obj, seed, com_type, time, tag )                   \
   _m_pushList( obj, _m_prepStatusTuple( seed, com_type, time,(char *)(tag) ), add_result_status_line)
@@ -134,7 +132,6 @@
 #define pushTrajectoryInfo2( obj, arrType ) \
   setDoubleAttr( obj, add_trajectory_arrType, (double) arrType)
 
-
 // This macro DECREFs the passed obj once it's done with it.
 #define pushTransitionInfo( options_obj, obj ) \
   _m_pushList( options_obj, obj, add_transition_info )
@@ -143,14 +140,13 @@
 
 /***************************************************
 
-  Debug version of macros:
+ Debug version of macros:
 
  **************************************************/
 #ifdef DEBUG_MACROS
 
 #define _m_printPyError_withLineNumber() \
   fprintf(stderr,"ERROR: Python Interpreter error: file %s, line %d.\nERROR (Python): ", __FILE__, (int)__LINE__), PyErr_PrintEx(1)
-
 
 #define printPyError_withLineNumber()                                   \
   do {                                                                  \
@@ -204,11 +200,9 @@
     Py_XDECREF( pyo_str );                            \
   } while(0)
 
-
 // Import/instantiate
 #define newObject(mod, name) \
   _m_d_newObject( #mod, #name )
-
 
 // Getters
 // NOTE: these three use a different footprint for the _m_getAttr_DECREF, as they need to check
@@ -227,11 +221,10 @@
   else { Py_DECREF(_m_attr); }               \
   }
 
-
 /*  The following works without ref counting issues as PyList_GET_ITEM
-    borrows the references.  Since these macros must be expressions
-    and not statements, we cannot raise error conditions here easily,
-    thus it is caller's responsibility. */
+ borrows the references.  Since these macros must be expressions
+ and not statements, we cannot raise error conditions here easily,
+ thus it is caller's responsibility. */
 
 #define getLongItem(list, index) \
   (PyInt_Check(PyList_GET_ITEM(list, index))?PyInt_AS_LONG(PyList_GET_ITEM(list,index)):-1)
@@ -266,9 +259,9 @@
 #define addResultLine_Energy( obj, energy )                    \
   _m_d_pushList( obj, PyFloat_FromDouble( energy ), add_result_energy)
 /* Note: if energy fails to create via PyFloat_FromDouble, it'll be NULL and the
-    pushList error checking will catch it. The ref is a new one, but we decref always
-    in pushList, as we no longer need the ref and the SetAttrString should cause the owning
-    object to have a good ref to it.*/
+ pushList error checking will catch it. The ref is a new one, but we decref always
+ in pushList, as we no longer need the ref and the SetAttrString should cause the owning
+ object to have a good ref to it.*/
 
 #define printStatusLine( obj, seed, com_type,time, tag )                    \
   _m_d_pushList( obj, _m_prepStatusTuple( seed, com_type, time,(char *)(tag) ), add_result_status_line)
@@ -288,130 +281,125 @@
 
 #endif
 
-
 /*****************************************************
 
-Inline functions for various python macro operations.
+ Inline functions for various python macro operations.
 
-Prefixed by _m_ if used internally by macros, and by
-_m_d_ if it's a debug version for when DEBUG_MACROS is set.
+ Prefixed by _m_ if used internally by macros, and by
+ _m_d_ if it's a debug version for when DEBUG_MACROS is set.
 
-*****************************************************/
+ *****************************************************/
 
-static inline bool _m_testLongAttr( PyObject *obj, const char *attrname, const char *test, long value )
-{
- PyObject *_m_attr = PyObject_GetAttrString( obj, attrname);
- long local_val = PyInt_AS_LONG(_m_attr);
- Py_DECREF(_m_attr);
- if( test[0] == '=' )
-       return (local_val == value);
- if( test[0] == '<' )
-       return (local_val < value );
- if( test[0] == '>' )
-       return (local_val > value );
+static inline bool _m_testLongAttr(PyObject *obj, const char *attrname, const char *test, long value) {
+	PyObject *_m_attr = PyObject_GetAttrString(obj, attrname);
+	long local_val = PyInt_AS_LONG(_m_attr);
+	Py_DECREF(_m_attr);
+	if (test[0] == '=')
+		return (local_val == value);
+	if (test[0] == '<')
+		return (local_val < value);
+	if (test[0] == '>')
+		return (local_val > value);
 }
 
 #ifdef DEBUG_MACROS
 static inline bool _m_d_testLongAttr( PyObject *obj, const char *attrname, const char *test, long value )
 {
- PyObject *_m_attr = PyObject_GetAttrString( obj, attrname);
- long local_val;
- if( _m_attr == NULL && PyErr_Occurred() != NULL )
-   {
-     _m_printPyError_withLineNumber();
-     return false;
-   }
- else if (_m_attr == NULL )
-   {
-     fprintf(stderr,"WARNING: _m_d_testLongAttr: No error occurred,\
+	PyObject *_m_attr = PyObject_GetAttrString( obj, attrname);
+	long local_val;
+	if( _m_attr == NULL && PyErr_Occurred() != NULL )
+	{
+		_m_printPyError_withLineNumber();
+		return false;
+	}
+	else if (_m_attr == NULL )
+	{
+		fprintf(stderr,"WARNING: _m_d_testLongAttr: No error occurred,\
  but the returned object from GetAttrString was still NULL!\n");
-     return false;
-   }
- else
-   {
-     if( !PyInt_Check( _m_attr ) )
-       {
-         fprintf(stderr,"ERROR: _m_d_testLongAttr: Attribute name %s was not an integer type or subclass.\n", attrname );
-         Py_DECREF(_m_attr);
-         return false;
-       }
-     local_val = PyInt_AS_LONG(_m_attr);
-     Py_DECREF(_m_attr);
-     if( test[0] == '=' )
-       return (local_val == value);
-     if( test[0] == '<' )
-       return (local_val < value );
-     if( test[0] == '>' )
-       return (local_val > value );
-   }
+		return false;
+	}
+	else
+	{
+		if( !PyInt_Check( _m_attr ) )
+		{
+			fprintf(stderr,"ERROR: _m_d_testLongAttr: Attribute name %s was not an integer type or subclass.\n", attrname );
+			Py_DECREF(_m_attr);
+			return false;
+		}
+		local_val = PyInt_AS_LONG(_m_attr);
+		Py_DECREF(_m_attr);
+		if( test[0] == '=' )
+		return (local_val == value);
+		if( test[0] == '<' )
+		return (local_val < value );
+		if( test[0] == '>' )
+		return (local_val > value );
+	}
 }
 #endif
 
-static inline PyObject *_m_newObject( const char *mod, const char *name )
-{
-  PyObject *module = NULL;
-  PyObject *class_obj = NULL;
-  PyObject *new_obj = NULL;
+static inline PyObject *_m_newObject(const char *mod, const char *name) {
+	PyObject *module = NULL;
+	PyObject *class_obj = NULL;
+	PyObject *new_obj = NULL;
 
-  module = PyImport_ImportModule( mod ); // new reference
-  if(module == NULL )
-    return NULL;
+	module = PyImport_ImportModule(mod); // new reference
+	if (module == NULL)
+		return NULL;
 
-  class_obj = PyObject_GetAttrString(module, name ); // new reference
-  if (class_obj == NULL )
-    {
-      Py_DECREF(module);
-      return NULL;
-    }
+	class_obj = PyObject_GetAttrString(module, name); // new reference
+	if (class_obj == NULL) {
+		Py_DECREF(module);
+		return NULL;
+	}
 
-  new_obj = PyObject_CallObject( class_obj, NULL );
+	new_obj = PyObject_CallObject(class_obj, NULL);
 
-  Py_DECREF( module );
-  Py_DECREF( class_obj );
-  // new_obj is a new reference, which we return. Caller is responsible.
-  return new_obj;
+	Py_DECREF(module);
+	Py_DECREF(class_obj);
+	// new_obj is a new reference, which we return. Caller is responsible.
+	return new_obj;
 }
-
 
 #ifdef DEBUG_MACROS
 static inline PyObject *_m_d_newObject( const char *mod, const char *name )
 {
-  PyObject *module = NULL;
-  PyObject *class_obj = NULL;
-  PyObject *new_obj = NULL;
+	PyObject *module = NULL;
+	PyObject *class_obj = NULL;
+	PyObject *new_obj = NULL;
 
-  module = PyImport_ImportModule( mod ); // new reference
-  if (module == NULL && PyErr_Occurred() != NULL)
-    _m_printPyError_withLineNumber();
-  else if (module == NULL)
-    {
-      fprintf(stderr,"WARNING: _m_d_newObject: No error occurred,\
+	module = PyImport_ImportModule( mod ); // new reference
+	if (module == NULL && PyErr_Occurred() != NULL)
+	_m_printPyError_withLineNumber();
+	else if (module == NULL)
+	{
+		fprintf(stderr,"WARNING: _m_d_newObject: No error occurred,\
  but the returned module was still NULL!\n");
-      return NULL;
-    }
-  class_obj = PyObject_GetAttrString(module, name ); // new reference
-  if (class_obj == NULL && PyErr_Occurred() != NULL)
-    _m_printPyError_withLineNumber();
-  else if (class_obj == NULL)
-    {
-      fprintf(stderr,"WARNING: _m_d_newObject: No error occurred,\
+		return NULL;
+	}
+	class_obj = PyObject_GetAttrString(module, name ); // new reference
+	if (class_obj == NULL && PyErr_Occurred() != NULL)
+	_m_printPyError_withLineNumber();
+	else if (class_obj == NULL)
+	{
+		fprintf(stderr,"WARNING: _m_d_newObject: No error occurred,\
  but the returned class object was still NULL!\n");
-      return NULL;
-    }
+		return NULL;
+	}
 
-  new_obj = PyObject_CallObject( class_obj, NULL );
-  if (new_obj == NULL && PyErr_Occurred() != NULL)
-    _m_printPyError_withLineNumber();
-  else if (new_obj == NULL)
-    {
-      fprintf(stderr,"WARNING: _m_d_newObject: No error occurred,\
+	new_obj = PyObject_CallObject( class_obj, NULL );
+	if (new_obj == NULL && PyErr_Occurred() != NULL)
+	_m_printPyError_withLineNumber();
+	else if (new_obj == NULL)
+	{
+		fprintf(stderr,"WARNING: _m_d_newObject: No error occurred,\
  but the returned class object was still NULL!\n");
-      return NULL;
-    }
-  Py_DECREF( module );
-  Py_DECREF( class_obj );
-  // new_obj is a new reference, which we return. Caller is responsible.
-  return new_obj;
+		return NULL;
+	}
+	Py_DECREF( module );
+	Py_DECREF( class_obj );
+	// new_obj is a new reference, which we return. Caller is responsible.
+	return new_obj;
 }
 
 #endif // DEBUG_MACROS was set
@@ -420,67 +408,76 @@ static inline PyObject *_m_d_newObject( const char *mod, const char *name )
 
  Functions defined in interface/options.cc
 
-******************************************************/
+ ******************************************************/
 
 // Functions
 class identList *makeID_list(PyObject *strand_list);
 class stopComplexes *getStopComplexList(PyObject *options, int index);
 class identList *getID_list(PyObject *options, int index, PyObject *alternate_start = NULL);
 
-
-
 /*****************************************************
 
  #defines for const values used in interface/options.py
 
-******************************************************/
+ ******************************************************/
 
 /* WARNING: If you change the following defines, you must also
-            change the values in python_options._OptionsConstants.RATEMETHOD
-			in the file python_options.py.
-*/
-#define RATE_METHOD_INVALID         0x00
-#define RATE_METHOD_METROPOLIS      0x01
-#define RATE_METHOD_KAWASAKI        0x02
-#define RATE_METHOD_ENTROPYENTHALPY 0x03
+ change the values in python_options._OptionsConstants.RATEMETHOD
+ in the file python_options.py.
+ */
+const int RATE_METHOD_INVALID = 0x00;
+const int RATE_METHOD_METROPOLIS = 0x01;
+const int RATE_METHOD_KAWASAKI = 0x02;
+const int RATE_METHOD_ENTROPYENTHALPY = 0x03;
 
-
-/* WARNING: If you change the following defines, you must also
-            change the values in python_options._OptionsConstants.DANGLES
-			in the file python_options.py.
-*/
-#define DANGLES_NONE    0x00
-#define DANGLES_SOME    0x01
-#define DANGLES_ALL     0x02
+//#define RATE_METHOD_INVALID         0x00
+//#define RATE_METHOD_METROPOLIS      0x01
+//#define RATE_METHOD_KAWASAKI        0x02
+//#define RATE_METHOD_ENTROPYENTHALPY 0x03
 
 /* WARNING: If you change the following defines, you must also
-            change the values in python_options._OptionsConstants.ENERGYMODEL_TYPE
-			in the file python_options.py.
-*/
-#define ENERGYMODEL_VIENNA 0x00
-#define ENERGYMODEL_NUPACK 0x01
+ change the values in python_options._OptionsConstants.DANGLES
+ in the file python_options.py.
+ */
+const int DANGLES_NONE = 0x00;
+const int DANGLES_SOME = 0x01;
+const int DANGLES_ALL = 0x02;
+
+//#define DANGLES_NONE    0x00
+//#define DANGLES_SOME    0x01
+//#define DANGLES_ALL     0x02
 
 /* WARNING: If you change the following defines, you must also
-            change the values in python_options._OptionsConstants.SUBSTRATE_TYPE
-			in the file python_options.py.
-*/
-#define SUBSTRATE_INVALID 0x00
-#define SUBSTRATE_RNA     0x01
-#define SUBSTRATE_DNA     0x02
+ change the values in python_options._OptionsConstants.ENERGYMODEL_TYPE
+ in the file python_options.py.
+ */
+const int ENERGYMODEL_VIENNA = 0x00;
+const int ENERGYMODEL_NUPACK = 0x01;
+
+//#define ENERGYMODEL_VIENNA 0x00
+//#define ENERGYMODEL_NUPACK 0x01
 
 /* WARNING: If you change the following defines, you must also
-            change the values in python_options._OptionsConstants.SIMULATION_MODE
-			in the file python_options.py.
-*/
+ change the values in python_options._OptionsConstants.SUBSTRATE_TYPE
+ in the file python_options.py.
+ */
 
+const int SUBSTRATE_INVALID = 0x00;
+const int SUBSTRATE_RNA = 0x01;
+const int SUBSTRATE_DNA = 0x02;
 
-#define SIMULATION_MODE_NORMAL              0x0010
-#define SIMULATION_MODE_FIRST_BIMOLECULAR   0x0030
+/* WARNING: If you change the following defines, you must also
+ change the values in python_options._OptionsConstants.SIMULATION_MODE
+ in the file python_options.py.
+ */
 
-#define SIMULATION_MODE_PYTHON_NORMAL       0x0040
-#define SIMULATION_MODE_PYTHON_FIRST_BI     0x0060
+const int SIMULATION_MODE_NORMAL = 0x0010;
+const int SIMULATION_MODE_FIRST_BIMOLECULAR = 0x0030;
 
-#define SIMULATION_MODE_ENERGY_ONLY         0x0200
+const int SIMULATION_MODE_PYTHON_NORMAL = 0x0040;
+const int SIMULATION_MODE_PYTHON_FIRST_BI = 0x0060;
+
+const int SIMULATION_MODE_ENERGY_ONLY = 0x0200;
 
 
 // simulation modes are bitwise -> bit 5 is normal mode
@@ -490,29 +487,28 @@ class identList *getID_list(PyObject *options, int index, PyObject *alternate_st
 //                                          be combined with any other flags.
 // the following are the bit definitions for tests on those:
 
-#define SIMULATION_MODE_FLAG_NORMAL                    0x0010
-#define SIMULATION_MODE_FLAG_FIRST_BIMOLECULAR         0x0020
-#define SIMULATION_MODE_FLAG_PYTHON                    0x0040
-#define SIMULATION_MODE_FLAG_TRAJECTORY                0x0080
-#define SIMULATION_MODE_FLAG_TRANSITION                0x0100
+const int SIMULATION_MODE_FLAG_NORMAL = 0x0010;
+const int SIMULATION_MODE_FLAG_FIRST_BIMOLECULAR = 0x0020;
+const int SIMULATION_MODE_FLAG_PYTHON = 0x0040;
+const int SIMULATION_MODE_FLAG_TRAJECTORY = 0x0080;
+const int SIMULATION_MODE_FLAG_TRANSITION = 0x0100;
 
 // stopconditions used in ssystem.
 // TODO: clean up/add docs.
 
 // normal sim mode stop result flags.
-#define STOPRESULT_NORMAL           0x11
-#define STOPRESULT_TIME             0x12
+const int STOPRESULT_NORMAL = 0x11;
+const int STOPRESULT_TIME = 0x12;
 
 // first step mode stop result flags
-#define STOPRESULT_FORWARD          0x21
-#define STOPRESULT_FTIME            0x22
-#define STOPRESULT_REVERSE          0x24
+const int STOPRESULT_FORWARD = 0x21;
+const int STOPRESULT_FTIME = 0x22;
+const int STOPRESULT_REVERSE = 0x24;
 
 // error states
-#define STOPRESULT_ERROR            0x81
-#define STOPRESULT_NAN              0x82
-#define STOPRESULT_NOMOVES          0x84
-
+const int STOPRESULT_ERROR = 0x81;
+const int STOPRESULT_NAN = 0x82;
+const int STOPRESULT_NOMOVES = 0x84;
 
 #endif
 // #ifdef __PYTHON_OPTIONS_H__

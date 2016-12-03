@@ -15,7 +15,13 @@
 
 #undef DEBUG
 //#define DEBUG
-#define T_scale( dG, dH, T ) ((double) ((((dG) - ((dH)/100.0)) * (T) / 310.15) + ((dH)/100.0)))
+//#define T_scale( dG, dH, T ) ((double) ((((dG) - ((dH)/100.0)) * (T) / 310.15) + ((dH)/100.0)))
+
+static double T_scale(double dG, double dH, double T) {
+
+	return ((double) ((((dG) - ((dH) / 100.0)) * (T) / 310.15) + ((dH) / 100.0)));
+
+}
 
 const double CELSIUS37_IN_KELVIN = 310.15;
 const double TEMPERATURE_ZERO_CELSIUS_IN_KELVIN = 273.15;
@@ -79,6 +85,7 @@ double NupackEnergyModel::getAssocEnergy(void) {
 // entropy/enthalpy energy parameters
 
 void NupackEnergyModel::eStackEnergy(int type1, int type2, energyS *energy) {
+
 	energy->dH = stack_37_dH[type1][basepair_sw[type2]];
 	energy->nTdS = stack_37_dG[type1][basepair_sw[type2]] - energy->dH;
 
@@ -86,30 +93,43 @@ void NupackEnergyModel::eStackEnergy(int type1, int type2, energyS *energy) {
 
 // non entropy/enthalpy energy functions
 double NupackEnergyModel::StackEnergy(int i, int j, int p, int q) {
+
 	return stack_37_dG[pairtypes[i][j] - 1][pairtypes[p][q] - 1];
+
 }
 
 double NupackEnergyModel::BulgeEnergy(int i, int j, int p, int q, int bulgesize) {
-	double energy = 0;
-	if (bulgesize <= 30)
+
+	double energy = 0.0;
+
+	if (bulgesize <= 30) {
+
 		energy = bulge_37_dG[bulgesize];
-	else
+
+	} else {
+
 		energy = bulge_37_dG[30] + (log((double) bulgesize / 30.0) * log_loop_penalty / 100.0);
 
-	if (bulgesize == 1) // add stacking term for single-base bulges.
+	}
+
+	if (bulgesize == 1) { // add stacking term for single-base bulges.
+
 		energy += stack_37_dG[pairtypes[i][j] - 1][pairtypes[p][q] - 1];
-	else // AU penalty doesn't apply if they stack.
-	{
+
+	} else { // AU penalty doesn't apply if they stack.
+
 		if (pairtypes[i][j] == 1 || pairtypes[i][j] > 3) // AT penalty applies
 			energy += terminal_AU;
 		if (pairtypes[q][p] == 1 || pairtypes[q][p] > 3) // AT penalty applies
 			energy += terminal_AU;
+
 	}
 
 	return energy;
 }
 
 double NupackEnergyModel::InteriorEnergy(char *seq1, char *seq2, int size1, int size2) {
+
 	double energy, ninio;
 
 	int type1 = pairtypes[seq1[0]][seq2[size2 + 1]] - 1;
@@ -130,25 +150,30 @@ double NupackEnergyModel::InteriorEnergy(char *seq1, char *seq2, int size1, int 
 
 	// Generic case.
 
-	if (size1 + size2 <= 30)
+	if (size1 + size2 <= 30) {
 		energy = internal_37_dG[size1 + size2];
-	else
+	} else {
 		energy = internal_37_dG[30] + (log((double) (size1 + size2) / 30.0) * log_loop_penalty / 100.0);
+	}
 
 	// NINIO term...
 	int asym;
-	if (size1 < size2)
+	if (size1 < size2) {
 		asym = size1;
-	else
+	} else {
 		asym = size2;
-	if (asym > 4)
+	}
+	if (asym > 4) {
 		asym = 4;
+	}
+
 	ninio = abs(size2 - size1) * ninio_correction_37[asym - 1];
 
-	if (maximum_NINIO < ninio)
+	if (maximum_NINIO < ninio) {
 		energy += maximum_NINIO;
-	else
+	} else {
 		energy += ninio;
+	}
 
 	// TODO: derotate this in the input rather than the output. see ene.c from nupack and the parameter file for details.
 	//    energy += internal_mismatch_37_dG[type1][seq2[size2]][seq1[1]] +
@@ -158,10 +183,11 @@ double NupackEnergyModel::InteriorEnergy(char *seq1, char *seq2, int size1, int 
 	//  internal_mismatch_37_dG[basepair_sw_mfold_actual[type2+1]-1][seq2[1]][seq1[size1]];
 
 	// try gail params?
-	if (size1 == 1 || size2 == 1)
+	if (size1 == 1 || size2 == 1) {
 		energy += internal_mismatch_37_dG[1][1][type1] + internal_mismatch_37_dG[1][1][basepair_sw_mfold_actual[type2 + 1] - 1];
-	else
+	} else {
 		energy += internal_mismatch_37_dG[seq1[1]][seq2[size2]][type1] + internal_mismatch_37_dG[seq2[1]][seq1[size1]][basepair_sw_mfold_actual[type2 + 1] - 1];
+	}
 
 	// Yet another try to match the wacky parameters.
 	//energy += internal_mismatch_37_dG[seq2[size2]][seq1[1]][type1] +
@@ -173,23 +199,26 @@ double NupackEnergyModel::InteriorEnergy(char *seq1, char *seq2, int size1, int 
 }
 
 double NupackEnergyModel::HairpinEnergy(char *seq, int size) {
+
 	double energy = 0.0;
 	int lookup_index = 0;
 
-	if (size <= 30)
+	if (size <= 30) {
 		energy = hairpin_37_dG[size];
-	else
+	} else {
 		energy = hairpin_37_dG[30] + (log((double) size / 30.0) * log_loop_penalty / 100.0);
+	}
 
-	if (size == 3) // triloop bonuses
-			{
+	if (size == 3) { // triloop bonuses
+
 		// We now always do the lookup, if no entry then it is 0.0.
 		lookup_index = ((seq[0] - 1) << 8) + ((seq[1] - 1) << 6) + ((seq[2] - 1) << 4) + ((seq[3] - 1) << 2) + (seq[4] - 1);
 
 		energy += hairpin_triloop_37_dG[lookup_index];
 
-		if ((seq[0] == BASE_T) || (seq[size + 1] == BASE_T))
+		if ((seq[0] == BASE_T) || (seq[size + 1] == BASE_T)) {
 			energy += terminal_AU;
+		}
 	}
 
 	if (size == 4) {
@@ -211,6 +240,7 @@ double NupackEnergyModel::HairpinEnergy(char *seq, int size) {
 }
 
 double NupackEnergyModel::MultiloopEnergy(int size, int *sidelen, char **sequences) {
+
 	// no dangle terms yet, this is equiv to dangles = 0;
 	int totallength = 0;
 	double energy = 0.0, dangle3, dangle5;
@@ -218,54 +248,71 @@ double NupackEnergyModel::MultiloopEnergy(int size, int *sidelen, char **sequenc
 	int loopminus1 = size - 1;
 
 	for (int loop = 0; loop < size; loop++) {
+
 		totallength += sidelen[loop];
 		pt = pairtypes[sequences[loopminus1][sidelen[loopminus1] + 1]][sequences[loop][0]] - 1;
 
-		if ((pt == 0) || (pt > 2)) // AT penalty applies
+		if ((pt == 0) || (pt > 2)) { // AT penalty applies
 			energy += terminal_AU;
-		if (!gtenable && (pt > 3)) // GT penalty applies
+		}
+		if (!gtenable && (pt > 3)) { // GT penalty applies
 			energy += 100000.00;
+		}
+
 		loopminus1++;
-		if (loopminus1 == size)
+
+		if (loopminus1 == size) {
 			loopminus1 = 0;
+		}
+
 	}
 	energy += size * multiloop_internal;
 	energy += multiloop_closing;
-	if (!logml)
+
+	if (!logml) {
 		energy += multiloop_base * totallength;
-	else if (totallength <= 6)
+	} else if (totallength <= 6) {
 		energy += multiloop_base * totallength;
-	else
+	} else {
 		energy += multiloop_base * 6 + (log((double) totallength / 6.0) * log_loop_penalty / 100.0);
-	if (dangles == DANGLES_NONE)
+	}
+	if (dangles == DANGLES_NONE) {
 		return energy;
-	else {
+	} else {
+
 		loopminus1 = size - 1;
-		//      pt = pairtypes[ sequences[ ][sidelen[ ] ][ sequences[][] ] - 1;
 		pt = pairtypes[sequences[loopminus1][0]][sequences[loopminus1 - 1][sidelen[loopminus1 - 1] + 1]] - 1;
+
 		for (int loop = 0; loop < size; loop++) {
+
 			rt_pt = pairtypes[sequences[loop][0]][sequences[loopminus1][sidelen[loopminus1] + 1]] - 1;
 
 			if (!(dangles == DANGLES_SOME && sidelen[loopminus1] == 0)) {
+
 				dangle5 = dangle_5_37_dG[pt][sequences[loopminus1][1]];
 				dangle3 = dangle_3_37_dG[rt_pt][sequences[loopminus1][sidelen[loopminus1]]];
-				if (dangles == DANGLES_SOME && sidelen[loopminus1] == 1)
+
+				if (dangles == DANGLES_SOME && sidelen[loopminus1] == 1) {
 					energy += ((dangle3 < dangle5) ? dangle3 : dangle5); // minimum of two terms.
-				else
+				} else {
 					energy += dangle3 + dangle5;
+				}
 			}
 
 			loopminus1++;
-			if (loopminus1 == size)
+			if (loopminus1 == size) {
 				loopminus1 = 0;
+			}
 			pt = rt_pt;
 		}
 
 		return energy;
 	}
+
 }
 
 double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequences) {
+
 	// no dangle terms yet, this is equiv to dangles = 0;
 	double energy = 0.0;
 	int pt, loop, rt_pt;
@@ -274,14 +321,17 @@ double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequence
 		pt = pairtypes[sequences[loop][sidelen[loop] + 1]][sequences[loop + 1][0]] - 1;
 		// TODO: slight efficiency gain if we wrap this into the dangles version separately, rather than doing a double pass in the dangle case.
 
-		if ((pt == 0) || (pt > 2)) // AT penalty applies
+		if ((pt == 0) || (pt > 2)) { // AT penalty applies
 			energy += terminal_AU;
-		if (!gtenable && (pt > 3)) // GT penalty applies
+		}
+		if (!gtenable && (pt > 3)) { // GT penalty applies
 			energy += 100000.0;
+		}
 	}
-	if (dangles == DANGLES_NONE || size == 0)
+	if (dangles == DANGLES_NONE || size == 0) {
 		return energy;
-	else {
+	} else {
+
 		double dangle3 = 0.0, dangle5 = 0.0;
 
 		// 5' most sequence's dangle3 component.
@@ -295,25 +345,28 @@ double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequence
 		energy += dangle3; // added for either dangle version.
 
 		for (loop = 0; loop < size - 1; loop++) {
+
 			rt_pt = pairtypes[sequences[loop + 2][0]][sequences[loop + 1][sidelen[loop + 1] + 1]] - 1;
 			dangle5 = dangle_5_37_dG[pt][sequences[loop + 1][1]];
 			dangle3 = dangle_3_37_dG[rt_pt][sequences[loop + 1][sidelen[loop + 1]]];
-			if (dangles == DANGLES_SOME && sidelen[loop + 1] == 1)
+			if (dangles == DANGLES_SOME && sidelen[loop + 1] == 1) {
 				energy += (dangle3 < dangle5 ? dangle3 : dangle5); // minimum of the two terms.
-			else if (dangles == DANGLES_SOME && sidelen[loop + 1] == 0)
+			} else if (dangles == DANGLES_SOME && sidelen[loop + 1] == 0) {
 				energy += 0; // dangles=DANGLES_SOME has no stacking when 0 bases between.
 							 // dangles=DANGLES_ALL, however, does. Weird, eh?
-			else
+			} else {
 				energy += dangle3 + dangle5;
+			}
 
 			pt = rt_pt;
 		}
 
 		// 3' most sequence's dangle5 component.
-		if (sidelen[size] == 0)
+		if (sidelen[size] == 0){
 			dangle5 = 0.0;
-		else
+		} else {
 			dangle5 = dangle_5_37_dG[pt][sequences[size][1]];
+		}
 
 		energy += dangle5; // added for either dangle version.
 	}
@@ -323,6 +376,7 @@ double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequence
 // constructors, internal functions
 
 NupackEnergyModel::NupackEnergyModel(PyObject* energy_options) :
+
 		log_loop_penalty_37(107.856), kinetic_rate_method(
 		RATE_METHOD_KAWASAKI), bimolecular_penalty(1.96), kBoltzmann(.00198717), current_temp(310.15) // Check references for this loop penalty term.
 {
@@ -786,11 +840,11 @@ void NupackEnergyModel::processOptions() {
 						temperature);
 
 	for (loop = 0; loop < 4096; loop++)
-		*(double *) (hairpin_tetraloop_37_dG + loop) = T_scale(*(double * )(hairpin_tetraloop_37_dG + loop), *(int * )(hairpin_tetraloop_37_dH + loop),
+		*(double *) (hairpin_tetraloop_37_dG + loop) = T_scale(*(double *) (hairpin_tetraloop_37_dG + loop), *(int *) (hairpin_tetraloop_37_dH + loop),
 				temperature);
 
 	for (loop = 0; loop < 1024; loop++)
-		*(double *) (hairpin_triloop_37_dG + loop) = T_scale(*(double * )(hairpin_triloop_37_dG + loop), *(int * )(hairpin_triloop_37_dH + loop), temperature);
+		*(double *) (hairpin_triloop_37_dG + loop) = T_scale(*(double *) (hairpin_triloop_37_dG + loop), *(int *) (hairpin_triloop_37_dH + loop), temperature);
 
 	for (loop = 0; loop < 31; loop++)
 		bulge_37_dG[loop] = T_scale(bulge_37_dG[loop], bulge_37_dH[loop], temperature);
