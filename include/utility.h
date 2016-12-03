@@ -23,19 +23,19 @@ using namespace std;
 namespace utility {
 
 // Structs
-struct inputComplex {
+struct complex_input {
 
 	std::string sequence;
 	std::string structure;
 	identList* list;
 
-	inputComplex() { // empty constuctor
+	complex_input() { // empty constuctor
 		sequence = "default";
 		structure = "default";
 		list = NULL;
 	}
 
-	inputComplex(char* string1, char* string2, identList* list1) {
+	complex_input(char* string1, char* string2, identList* list1) {
 
 		char *tempseq = (char *) new char[strlen(string1) + 1];
 		char *tempstruct = (char *) new char[strlen(string2) + 1];
