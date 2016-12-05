@@ -25,18 +25,15 @@ const int BASE_G = 3;
 const int BASE_T = 4;
 const int BASE_U = 4;
 
-//#define BASE_A 1
-//#define BASE_C 2
-//#define BASE_G 3
-//#define BASE_T 4
-//#define BASE_U 4
+const int VIENNA = 0;
+const int MFOLD = 1;
 
-#ifndef VIENNA
-#define VIENNA 0
-#endif
-#ifndef MFOLD
-#define MFOLD 1
-#endif
+//#ifndef VIENNA
+//#define VIENNA 0
+//#endif
+//#ifndef MFOLD
+//#define MFOLD 1
+//#endif
 
 const int pairs_vienna[5] = { 0, 4, 3, 2, 1 };
 const int pairs_mfold[5] = { 0, 4, 3, 2, 1 };
@@ -50,7 +47,7 @@ extern int pairtypes[5][5];
 
 const int basepair_sw_vienna[8] = { 0, 2, 1, 4, 3, 6, 5, 7 };
 const int basepair_sw_mfold[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
-const int basepair_sw_mfold_actual[8] = { 0, 4, 3, 2, 1, 6, 5, 7 }; // Why do this? Yeah, because vienna's parameter file sucks and stores pairings in the opposite ordering. So for one of them, we need to swap basepairs to get the correct ordering, in the other one, we don't.
+const int basepair_sw_mfold_actual[8] = { 0, 4, 3, 2, 1, 6, 5, 7 }; // Why do this? Vienna's parameter file stores pairings in the opposite ordering. So for one of them, we need to swap basepairs to get the correct ordering, in the other one, we don't.
 extern int basepair_sw[8]; // = {0,0,0,0,0,0,0,0};
 
 int baseLookup(char base);
@@ -122,6 +119,7 @@ protected:
 };
 
 class NupackEnergyModel: public EnergyModel {
+
 public:
 	NupackEnergyModel(void);
 	NupackEnergyModel(PyObject* options);

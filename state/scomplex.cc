@@ -1,6 +1,7 @@
 /*
  Copyright (c) 2007-2008 Caltech. All rights reserved.
  Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
+ 	 	   Frits Dannenberg (fdann@caltech.edu)
  */
 
 // Implementation of the StrandComplex object found in scomplex.h
@@ -15,11 +16,12 @@ using std::cout;
 
 BaseCount emptyBaseCount;
 
-// TODO: i'd like to optimize this lookup. It really should be just a bitwise
+// JS: i'd like to optimize this lookup. It really should be just a bitwise
 //  or, and an array lookup, the extra function call annoys me.
 extern int baseLookup(char base);
 
 StrandComplex::StrandComplex(char *seq, char *struc) {
+
 	char *tempseq = (char *) new char[strlen(seq) + 1];
 	char *tempstruct = (char *) new char[strlen(struc) + 1];
 	char * tempcseq = (char *) new char[strlen(seq) + 1];
@@ -109,15 +111,10 @@ int StrandComplex::checkIDList(class identList *stoplist, int id_count) {
 int StrandComplex::checkIDBound(char *id) {
 	return ordering->checkIDBound(id);
 }
-// .picked, crit.types, crit.index
-//StrandComplex *StrandComplex::performComplexJoin(StrandComplex **complexes, char *types, int *index, bool useArr) {
 
 StrandComplex *StrandComplex::performComplexJoin(JoinCriteria crit, bool useArr) {
 
-//	std::cout << "index is " << index[0] << " " << index[1] << "\n";
-//	cout << "Types are " << (int) types[0] << "  " <<  (int) types[1];
-//	std::cout.flush();
-	// FD 2016 Nov 14: Adjusting this to ignore the exterior nucleotides if useArr= TRUE;
+// FD 2016 Nov 14: Adjusting this to ignore the exterior nucleotides if useArr= TRUE;
 
 	StrandComplex** complexes = crit.complexes;
 	char* types = crit.types;
