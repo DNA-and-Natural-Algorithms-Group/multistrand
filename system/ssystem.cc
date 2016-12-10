@@ -578,10 +578,10 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 
 	rchoice = rate * drand48();
 
-	complexList->doJoinChoice(rchoice);
+	int ArrMoveType = complexList->doJoinChoice(rchoice);
 
 	if (exportStatesInterval) {
-		exportInterval(stime, current_state_count);
+		exportInterval(stime, current_state_count, ArrMoveType);
 	}
 
 // store the forward rate used for the initial step so we can record it.
@@ -608,12 +608,12 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 			exportTime(stime, &last_trajectory_time);
 		}
 
-		complexList->doBasicChoice(rchoice, stime);
+		int ArrMoveType = complexList->doBasicChoice(rchoice, stime);
 		rate = complexList->getTotalFlux();
 		current_state_count++;
 
 		if (exportStatesInterval) {
-			exportInterval(stime, current_state_count);
+			exportInterval(stime, current_state_count, ArrMoveType);
 		}
 
 		if (stopcount > 0 && stopoptions) {
