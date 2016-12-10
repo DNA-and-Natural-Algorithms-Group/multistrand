@@ -116,7 +116,7 @@ def setup_ext( have_tcmalloc):
                               #                                         ('DEBUG_MACROS',None)],
                               #                                         ('Py_TRACE_REFS',None)],
                             undef_macros=['NDEBUG'],
-                            extra_compile_args = ['-O3','-g', '-w'],
+                            extra_compile_args = ['-O3','-g', '-w', "-std=c++11"],
 #                               extra_compile_args = ['-g', '-w'],                              
                               #                          ['-Wno-strict-prototypes','-w','-O0','-v','-fcommon', '-fno-wrapv'],   #This is 'disable all warnings compiler flag'
                               )
@@ -127,7 +127,7 @@ if __name__ == '__main__':
     tcmalloc_flag = setup_libcheck()
     multi_ext = setup_ext( have_tcmalloc=tcmalloc_flag)
     
-    setup(name="multistrand", version="2.0",
+    setup(name="multistrand", version="2.1",
           packages=['multistrand','multistrand._options','multistrand._objects','nupack'],
           url='http://www.multistrand.org',
           license='MIT',

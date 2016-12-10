@@ -85,7 +85,7 @@ $(warning Could not find a debugging python executable in your PATH. Compiling t
 endif
 
 # flag blocks for C compilation
-CFLAGS_RELEASE = -O3
+CFLAGS_RELEASE = -O3 -std=c++11
 CFLAGS_DEBUG   = -g -Wconversion -DDEBUG_MACROS -DDEBUG
 #CFLAGS_INTERFACE  = -DPYTHON_THREADS 
 
@@ -100,6 +100,7 @@ LIBRARIES= $(LIBRARYPATHS) -lpython2.7
 #LIB_INTERFACE = -shared $(BOOSTLIB)
 
 CC = g++
+#CC = clang
 COMPILE = $(CC) $(CFLAGS) $(INCLUDEPATHS)
 LINK = $(CC) $(CFLAGS) $(LIBRARIES)
 
