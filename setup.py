@@ -116,7 +116,7 @@ def setup_ext( have_tcmalloc):
                               #                                         ('DEBUG_MACROS',None)],
                               #                                         ('Py_TRACE_REFS',None)],
                             undef_macros=['NDEBUG'],
-                            extra_compile_args = ['-O3','-g', '-w', "-std=c++11"],
+                            extra_compile_args = ['-O3','-g', '-w', "-std=c++11", "-fsyntax-only" ], #FD: adding -fsyntax-only for CLANG only.
 #                               extra_compile_args = ['-g', '-w'],                              
                               #                          ['-Wno-strict-prototypes','-w','-O0','-v','-fcommon', '-fno-wrapv'],   #This is 'disable all warnings compiler flag'
                               )
