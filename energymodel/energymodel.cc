@@ -35,7 +35,7 @@ bool EnergyModel::useArrhenius(void) {
 
 double expRate(double A, double E, double temperature) {
 
-	return exp(A) * exp(-E / (gasConstant * temperature));
+	return exp(A - E / (gasConstant * temperature));
 
 }
 
