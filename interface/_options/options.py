@@ -58,6 +58,25 @@ class Options(object):
 EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value).
         """
         
+        
+        
+        # FD: Start throwing errors if not in the right format
+        # FD: This will cast the value as a float anyway.
+        
+        for key, value in kargs.items():
+            
+            if key == "simulation_time":
+                if not isinstance(value, (float)):
+                    raise Warning("Please provide simulation_time as float")
+                
+            if key == "bimolecular_scaling":
+                if not isinstance(value, (float)):
+                    raise Warning("Please provide bimolecular_scaling as float")
+                
+            if key == "unimolecular_scaling":
+                if not isinstance(value, (float)):
+                    raise Warning("Please provide unimolecular_scaling as float")
+
 
         ##################################################
         #                                                #

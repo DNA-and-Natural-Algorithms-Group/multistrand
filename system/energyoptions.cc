@@ -185,7 +185,7 @@ PEnergyOptions::PEnergyOptions(PyObject* input) :
 		getDoubleAttr(python_settings, dSC, &dSC);
 		getDoubleAttr(python_settings, dSG, &dSG);
 
-		getDoubleAttr(python_settings, alpha, &alpha);
+//		getDoubleAttr(python_settings, alpha, &alpha);
 
 		// also loading four constants for entropy of nucleotide chain
 
