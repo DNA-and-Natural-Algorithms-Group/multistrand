@@ -23,7 +23,7 @@ int timeOut = 0;
 
 SimulationSystem::SimulationSystem(PyObject *system_o) {
 
-	std::cout << "Initializing SimulationSystem w python object \n";
+//	std::cout << "Initializing SimulationSystem w python object \n";
 
 	system_options = system_o;
 	simOptions = new PSimOptions(system_o);
