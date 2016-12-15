@@ -14,13 +14,19 @@
 #include <sstream>
 #include <iomanip>
 
-
 #include "optionlists.h"
 
 using namespace std;
 
+
+
+
 // no implementation file for utilities.
 namespace utility {
+
+const bool debugTraces = false;
+
+
 
 // Structs
 struct complex_input {
