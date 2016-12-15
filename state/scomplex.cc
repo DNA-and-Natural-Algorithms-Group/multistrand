@@ -1,7 +1,7 @@
 /*
  Copyright (c) 2007-2008 Caltech. All rights reserved.
  Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
- 	 	   Frits Dannenberg (fdann@caltech.edu)
+ Frits Dannenberg (fdann@caltech.edu)
  */
 
 // Implementation of the StrandComplex object found in scomplex.h
@@ -11,6 +11,8 @@
 #include <iostream>
 #include <sstream>
 #include "scomplex.h"
+
+#include <utility.h>
 
 using std::cout;
 
@@ -115,6 +117,11 @@ int StrandComplex::checkIDBound(char *id) {
 StrandComplex *StrandComplex::performComplexJoin(JoinCriteria crit, bool useArr) {
 
 // FD 2016 Nov 14: Adjusting this to ignore the exterior nucleotides if useArr= TRUE;
+// FD 2016 Dec 15: This comment is no longer applicable (full model now implemented)
+
+	if (utility::debugTraces) {
+		cout << "Perform Complex Join 1/3 ***************" << std::endl;
+	}
 
 	StrandComplex** complexes = crit.complexes;
 	char* types = crit.types;
@@ -125,6 +132,10 @@ StrandComplex *StrandComplex::performComplexJoin(JoinCriteria crit, bool useArr)
 	StrandOrdering *new_ordering = NULL;
 	char *locations[2] = { NULL, NULL };
 
+	if (utility::debugTraces) {
+		cout << "Perform Complex Join 2/3 ***************" << std::endl;
+	}
+
 	// find the affected loops, and update indexes to be into those loops.
 	loops[0] = complexes[0]->ordering->getIndex(crit, 0, &locations[0], useArr);
 	loops[1] = complexes[1]->ordering->getIndex(crit, 1, &locations[1], useArr);
@@ -132,6 +143,10 @@ StrandComplex *StrandComplex::performComplexJoin(JoinCriteria crit, bool useArr)
 	// Strand Orderings are now ready to be joined.
 	complexes[0]->ordering->reorder(loops[0]);
 	complexes[1]->ordering->reorder(loops[1]);
+
+	if (utility::debugTraces) {
+		cout << "Perform Complex Join 3/3 ***************" << std::endl;
+	}
 
 	// Join the strand orderings.
 	new_ordering = StrandOrdering::joinOrdering(complexes[0]->ordering, complexes[1]->ordering);
@@ -186,9 +201,7 @@ StrandComplex * StrandComplex::doChoice(Move * move) {
 		ordering->breakBasepair(move->getAffected(0)->getLocation(move, 0), move->getAffected(1)->getLocation(move, 1));
 		Loop::performComplexSplit(move, &newLoop[0], &newLoop[1]);
 
-
 //		cout << "Going to break the complex!! 2/3 ********************** " << std::endl;
-
 
 		// We now have open loop pointers to the two resulting open loops.
 		// Now need to link up the new open loops correctly in the strand ordering
@@ -197,9 +210,9 @@ StrandComplex * StrandComplex::doChoice(Move * move) {
 		newOrdering = ordering->breakOrdering(temp2, temp3, newLoop[0], newLoop[1]);
 		beginLoop = ordering->getLoop();
 
-
-		cout << "Going to break the complex!! 3/3 ********************** " << std::endl;
-
+		if (utility::debugTraces) {
+			cout << "Going to break the complex!! 3/3 ********************** " << std::endl;
+		}
 
 		return (new StrandComplex(newOrdering)); // newComplex
 

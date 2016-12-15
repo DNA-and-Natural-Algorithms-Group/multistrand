@@ -11,6 +11,8 @@
 #include <sstream>
 #include <assert.h>
 #include <iostream>
+#include <utility.h>
+
 
 using std::cout;
 
@@ -512,33 +514,46 @@ OpenLoop* StrandOrdering::getIndex(JoinCriteria& crit, int site, char **location
 
 		for (traverse = first; traverse != NULL; traverse = traverse->next) {
 
-			assert(traverse->thisLoop != NULL);
+//			assert(traverse->thisLoop != NULL);
 
-			if(!openInfo.tally.count(crit.half[site])){
-
-				OpenInfo& openInfo = traverse->thisLoop->getOpenInfo();
-				cout << openInfo << " " << std::endl;
-
-			}
+//			if (!openInfo.tally.count(crit.half[site])) {
+//
+//				OpenInfo& openInfo = traverse->thisLoop->getOpenInfo();
+//				cout << openInfo << " " << std::endl;
+//
+//			}
 
 			assert(openInfo.tally.count(crit.half[site]));
 
-			BaseCount& baseCount = openInfo.tally.find(crit.half[site])->second;
+//			BaseCount& baseCount = openInfo.tally.find(crit.half[site])->second;
 
-//			cout << "printing baseCount \n";
-//			cout << baseCount << "\n";
-//
-//			cout << "Printing  half [site] \n";
-//			cout << "site= " << site << "\n";
-//			cout << "crit-half[site]= " << crit.half[site] << "\n";
-////
-//			cout << "generic print " << index << "\n";
-//			cout << "generic print " << baseCount.count[type] << "\n";
-//			cout << "generic print " << (int) type << "\n";
+			BaseCount& baseCount = traverse->thisLoop->getOpenInfo().tally.find(crit.half[site])->second;
 
-//			cout.flush();
+
+
+			if (utility::debugTraces) {
+
+				cout << "printing baseCount ************************* \n";
+				cout << baseCount << "\n";
+
+				cout << "site= " << site << "\n";
+				cout << "crit-half[site]= " << crit.half[site] << "\n";
+
+				cout << " *index               = " << *index << "\n";
+				cout << "baseCount.count[type] = " << baseCount.count[type] << "\n";
+				cout << "(int) type            = " << (int) type << std::endl;
+
+			}
+
 
 			if (*index < baseCount.count[type]) {
+
+
+				if (utility::debugTraces) {
+
+					cout << traverse->thisLoop->toString() << endl;
+
+				}
 
 				*location = traverse->thisLoop->getBase(type, *index, crit.half[site]);
 

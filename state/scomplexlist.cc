@@ -177,8 +177,6 @@ double SComplexList::getTotalFlux(void) {
 
 	double total = 0.0;
 
-//	cout << "Computing totalFlux 1/3" << endl;
-
 	SComplexListEntry *temp = first;
 	while (temp != NULL) {
 
@@ -187,14 +185,12 @@ double SComplexList::getTotalFlux(void) {
 		temp = temp->next;
 	}
 
-//	cout << "Computing totalFlux 2/3" << endl;
-
 	joinRate = getJoinFlux();
 	total += joinRate;
 
-	cout << "Computing totalFlux 3/3" << endl;
-
-//	cout << "Joinrate (getTotalFlux)= " << joinRate << "\n";
+	if (utility::debugTraces) {
+		cout << "Computing totalFlux 3/3" << endl;
+	}
 
 	return total;
 }
@@ -463,7 +459,9 @@ int SComplexList::doBasicChoice(double choice, double newtime) {
 	Move *tempmove;
 	char *struc;
 
-	cout << "Doing a basic Choice  ************" << endl;
+	if (utility::debugTraces) {
+		cout << "Doing a basic Choice  ************" << endl;
+	}
 
 	if (rchoice < joinRate) {
 
@@ -516,7 +514,9 @@ int SComplexList::doBasicChoice(double choice, double newtime) {
 
 	temp2->fillData(eModel);
 
-	cout << "Going to return the arrType in doBasicChoice!! **************** " << std::endl;
+	if (utility::debugTraces) {
+		cout << "Going to return the arrType in doBasicChoice!! **************** " << std::endl;
+	}
 
 	return tempmove->getArrType();
 
@@ -540,7 +540,6 @@ int SComplexList::doJoinChoice(double choice) {
 		cout << "For the current state: \n";
 		cout << toString();
 	}
-
 
 	if (!useArr) {
 
