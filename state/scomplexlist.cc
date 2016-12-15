@@ -177,6 +177,8 @@ double SComplexList::getTotalFlux(void) {
 
 	double total = 0.0;
 
+//	cout << "Computing totalFlux 1/3" << endl;
+
 	SComplexListEntry *temp = first;
 	while (temp != NULL) {
 
@@ -185,8 +187,12 @@ double SComplexList::getTotalFlux(void) {
 		temp = temp->next;
 	}
 
+//	cout << "Computing totalFlux 2/3" << endl;
+
 	joinRate = getJoinFlux();
 	total += joinRate;
+
+	cout << "Computing totalFlux 3/3" << endl;
 
 //	cout << "Joinrate (getTotalFlux)= " << joinRate << "\n";
 
@@ -457,9 +463,13 @@ int SComplexList::doBasicChoice(double choice, double newtime) {
 	Move *tempmove;
 	char *struc;
 
+	cout << "Doing a basic Choice  ************" << endl;
+
 	if (rchoice < joinRate) {
 
-//		cout << "Triggering joinmove for rchoice " << rchoice << " and joinRate " << joinRate << "\n";
+		if (utility::debugTraces) {
+			cout << "Triggering joinmove for rchoice " << rchoice << " and joinRate " << joinRate << endl;
+		}
 
 		return doJoinChoice(rchoice);
 
@@ -506,6 +516,8 @@ int SComplexList::doBasicChoice(double choice, double newtime) {
 
 	temp2->fillData(eModel);
 
+	cout << "Going to return the arrType in doBasicChoice!! **************** " << std::endl;
+
 	return tempmove->getArrType();
 
 }
@@ -523,8 +535,12 @@ int SComplexList::doJoinChoice(double choice) {
 	bool useArr = eModel->useArrhenius();
 	JoinCriteria crit;
 
-//	cout << "For the current state: \n";
-//	cout << toString();
+	// before we do anything, print crit (this is for debugging!)
+	if (utility::debugTraces) {
+		cout << "For the current state: \n";
+		cout << toString();
+	}
+
 
 	if (!useArr) {
 
@@ -537,8 +553,10 @@ int SComplexList::doJoinChoice(double choice) {
 	}
 
 	// before we do anything, print crit (this is for debugging!)
-//	cout << "Found a criteria to join: \n";
-//	cout << crit;
+	if (utility::debugTraces) {
+		cout << "Found a criteria to join: \n";
+		cout << crit;
+	}
 
 	assert(crit.complexes[0]!=NULL);
 	assert(crit.complexes[1]!=NULL);
@@ -730,7 +748,7 @@ JoinCriteria SComplexList::cycleForJoinChoiceArr(double choice) {
 
 									JoinCriteria crit = findJoinNucleotides(base, choice_int, ton.second, temp, &con.first);
 
-//									cout << "Found rate contexts left: " << moveutil::MoveToString[left] << " right:" << moveutil::MoveToString[right] << "\n";
+									cout << "Found rate contexts left: " << moveutil::MoveToString[left] << " right:" << moveutil::MoveToString[right] << "\n";
 
 //									crit.half[0] = con.first;
 //									crit.half[1] = ton.first;

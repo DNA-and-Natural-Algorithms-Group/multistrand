@@ -21,6 +21,8 @@
 int noInitialMoves = 0;
 int timeOut = 0;
 
+
+
 SimulationSystem::SimulationSystem(PyObject *system_o) {
 
 //	std::cout << "Initializing SimulationSystem w python object \n";
@@ -82,7 +84,7 @@ void SimulationSystem::initialPrint(void) {
 
 SimulationSystem::SimulationSystem(void) {
 
-	std::cout<< "Initializing SimulationSystem \n";
+	std::cout << "Initializing SimulationSystem \n";
 
 	simulation_mode = -1;
 	simulation_count_remaining = -1;
@@ -375,6 +377,13 @@ void SimulationSystem::SimulationLoop_Trajectory() {
 		// 1.0 - drand as drand returns in the [0.0, 1.0) range, we need a (0.0,1.0] range.
 		// see notes below in First Step mode.
 
+
+		if (debugTraces) {
+			cout << "Printing my complexlist! *************************************** \n";
+			cout << complexList->toString() << endl;
+		}
+
+
 		if (exportStatesTime) {
 			exportTime(stime, &last_trajectory_time);
 		}
@@ -478,7 +487,6 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 	do {
 
 		rchoice = rate * drand48();
-
 		stime += (log(1. / (1.0 - drand48())) / rate);
 		// 1.0 - drand as drand returns in the [0.0, 1.0) range, we need a (0.0,1.0] range.
 		// see notes below in First Step mode.
@@ -603,8 +611,10 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 		rchoice = rate * drand48();
 		stime += (log(1. / (1.0 - drand48())) / rate);
 
-		cout << "Printing my complexlist! *************************************** \n";
-		cout << complexList->toString() << endl;
+		if (debugTraces) {
+			cout << "Printing my complexlist! *************************************** \n";
+			cout << complexList->toString() << endl;
+		}
 
 		// trajectory output via outputtime option
 		if (exportStatesTime) {
@@ -620,14 +630,17 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 		}
 
 		if (stopcount > 0 && stopoptions) {
+
 			stopFlag = false;
 			first = simOptions->getStopComplexes(0);
 			traverse = first;
 			stopFlag = complexList->checkStopComplexList(traverse->citem);
+
 			while (traverse->next != NULL && !stopFlag) {
 				traverse = traverse->next;
 				stopFlag = complexList->checkStopComplexList(traverse->citem);
 			}
+
 			if (!stopFlag && first != NULL)
 				delete first;
 		}

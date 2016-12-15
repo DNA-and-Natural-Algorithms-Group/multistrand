@@ -181,13 +181,13 @@ StrandComplex * StrandComplex::doChoice(Move * move) {
 		Loop *newLoop[2] = { NULL, NULL };
 		StrandOrdering *newOrdering = NULL;
 
-		cout << "Going to break the complex!! 1/3 ********************** " << std::endl;
+//		cout << "Going to break the complex!! 1/3 ********************** " << std::endl;
 
 		ordering->breakBasepair(move->getAffected(0)->getLocation(move, 0), move->getAffected(1)->getLocation(move, 1));
 		Loop::performComplexSplit(move, &newLoop[0], &newLoop[1]);
 
 
-		cout << "Going to break the complex!! 2/3 ********************** " << std::endl;
+//		cout << "Going to break the complex!! 2/3 ********************** " << std::endl;
 
 
 		// We now have open loop pointers to the two resulting open loops.

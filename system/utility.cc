@@ -12,6 +12,9 @@
 #include "move.h"
 #include <energymodel.h>
 
+
+
+
 char* utility::copyToCharArray(string& myString) {
 
 	char* newArray = (char *) new char[myString.length() + 1];

@@ -5349,7 +5349,7 @@ char* OpenLoop::getBase(char type, int index, HalfContext half) {
 	cout << "type: " << (int) type << "\n";
 	cout << "index: " << index << "\n";
 	cout << "HalfContext: " << half << "\n";
-	cout << "This OpenLoop Info: \n" <<  openInfo << " \n";
+	cout << "This OpenLoop Info: \n" <<  openInfo << endl;
 
 	assert(0);
 	return NULL;
