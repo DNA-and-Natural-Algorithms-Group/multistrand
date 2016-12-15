@@ -747,7 +747,7 @@ JoinCriteria SComplexList::cycleForJoinChoiceArr(double choice) {
 
 									JoinCriteria crit = findJoinNucleotides(base, choice_int, ton.second, temp, &con.first);
 
-									cout << "Found rate contexts left: " << moveutil::MoveToString[left] << " right:" << moveutil::MoveToString[right] << "\n";
+//									cout << "Found rate contexts left: " << moveutil::MoveToString[left] << " right:" << moveutil::MoveToString[right] << "\n";
 
 //									crit.half[0] = con.first;
 //									crit.half[1] = ton.first;

@@ -13,7 +13,6 @@
 #include <iostream>
 #include <utility.h>
 
-
 using std::cout;
 
 orderingList::orderingList(int insize, int n_id, char *inTag, char *inSeq, char *inCodeSeq, char* inStruct) {
@@ -477,14 +476,14 @@ OpenLoop* StrandOrdering::getIndex(JoinCriteria& crit, int site, char **location
 	// location -- this is an OUTPUT variable.
 	// location is a pointer to a char in the char** seq array
 
-	orderingList *traverse;
+//	traverse;
 
 	int* index = &crit.index[site];
 	char type = crit.types[site];
 
 	if (!useArr) {
 
-		for (traverse = first; traverse != NULL; traverse = traverse->next) {
+		for (orderingList* traverse = first; traverse != NULL; traverse = traverse->next) {
 
 			assert(traverse->thisLoop != NULL);
 
@@ -512,56 +511,75 @@ OpenLoop* StrandOrdering::getIndex(JoinCriteria& crit, int site, char **location
 		// It is possible to overlap the two code paths, if we just asign the same local context
 		// to each nucleotide, depending on a static global useArr trigger.
 
-		for (traverse = first; traverse != NULL; traverse = traverse->next) {
+		for (orderingList* traverse = first; traverse != NULL; traverse = traverse->next) {
 
-//			assert(traverse->thisLoop != NULL);
+			assert(traverse->thisLoop != NULL);
 
-//			if (!openInfo.tally.count(crit.half[site])) {
+			map<HalfContext, BaseCount>& myTally = traverse->thisLoop->getOpenInfo().tally;
+
+//			if (!myTally.count(crit.half[site])) {
 //
 //				OpenInfo& openInfo = traverse->thisLoop->getOpenInfo();
-//				cout << openInfo << " " << std::endl;
+//
+//				cout << "printing myTally ************************* \n";
+////				cout << baseCount << "\n";
+//
+//				cout << "site= " << site << "\n";
+//				cout << "crit-half[site]= " << crit.half[site] << "\n";
+//
+//				cout << " *index       = " << *index << "\n";
+//				cout << " OpenInfo     = " << openInfo << " " << std::endl;
+//				cout << "(int) type    = " << (int) type << std::endl;
 //
 //			}
 
-			assert(openInfo.tally.count(crit.half[site]));
+//			assert(openInfo.tally.count(crit.half[site]));
+
+//			assert(myTally.count(crit.half[site]));
+
+//			assert(traverse->thisLoop->getOpenInfo().tally.count(crit.half[site]));
 
 //			BaseCount& baseCount = openInfo.tally.find(crit.half[site])->second;
 
-			BaseCount& baseCount = traverse->thisLoop->getOpenInfo().tally.find(crit.half[site])->second;
+			//BaseCount& baseCount = traverse->thisLoop->getOpenInfo().tally.find(crit.half[site])->second;
 
+//			if (utility::debugTraces) {
+//
+//				cout << "printing baseCount ************************* \n";
+//				cout << baseCount << "\n";
+//
+//				cout << "site= " << site << "\n";
+//				cout << "crit-half[site]= " << crit.half[site] << "\n";
+//
+//				cout << " *index               = " << *index << "\n";
+//				cout << "baseCount.count[type] = " << baseCount.count[type] << "\n";
+//				cout << "(int) type            = " << (int) type << std::endl;
+//
+//			}
 
+			if (myTally.count(crit.half[site])) { // FD: there is at least one of the correct type in this openLoop
 
-			if (utility::debugTraces) {
+				BaseCount& baseCount = myTally.find(crit.half[site])->second;
 
-				cout << "printing baseCount ************************* \n";
-				cout << baseCount << "\n";
+				if (*index < baseCount.count[type]) {
 
-				cout << "site= " << site << "\n";
-				cout << "crit-half[site]= " << crit.half[site] << "\n";
+					if (utility::debugTraces) {
 
-				cout << " *index               = " << *index << "\n";
-				cout << "baseCount.count[type] = " << baseCount.count[type] << "\n";
-				cout << "(int) type            = " << (int) type << std::endl;
+						cout << traverse->thisLoop->toString() << endl;
 
-			}
+					}
 
+					*location = traverse->thisLoop->getBase(type, *index, crit.half[site]);
 
-			if (*index < baseCount.count[type]) {
+//					cout << "Executing merging! ****" << std::endl;
 
+					return traverse->thisLoop;
 
-				if (utility::debugTraces) {
+				} else {
 
-					cout << traverse->thisLoop->toString() << endl;
+					*index = *index - baseCount.count[type];
 
 				}
-
-				*location = traverse->thisLoop->getBase(type, *index, crit.half[site]);
-
-				return traverse->thisLoop;
-
-			} else {
-
-				*index = *index - baseCount.count[type];
 
 			}
 
