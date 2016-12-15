@@ -1,6 +1,7 @@
 /*
- Copyright (c) 2007-2008 Caltech. All rights reserved.
- Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
+ Copyright (c) 2007-20016 Caltech. All rights reserved.
+ Programming: Joseph Schaeffer (schaeffer@dna.caltech.edu)
+ Frits Danennberg (fdann@dna.caltech.edu)
  */
 
 #include <stdio.h>
@@ -18,7 +19,6 @@ using std::string;
 EnergyModel* Loop::energyModel = NULL;
 
 struct RateArr;
-
 
 inline double Loop::getEnergy(void) {
 	if (energyFlag)
@@ -173,8 +173,10 @@ EnergyModel *Loop::GetEnergyModel(void) {
 
 void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen) {
 	//  return;
+
 	OpenLoop *tempLoop[2], *newLoop;
 	int index[2], sizes[2], loop, flipflop = 0, temp;
+
 	int *pairtypes = NULL;
 	int *sidelen = NULL;
 	char **seqs = NULL;
@@ -5059,7 +5061,7 @@ void OpenLoop::generateMoves(void) {
 					// if the new Arrhenius model is used, modify the existing rate based on the local context.
 					// to start, we need to learn what the local context is, AFTER the nucleotide is put in place.
 
-					// multiLoop is splitting off an hairpin. Which is loopMove, and something else
+					// OpenLoop is splitting off an hairpin. Which is loopMove, and something else
 
 					MoveType rightMove = energyModel->prefactorOpen(loop3, numAdjacent + 2, sideLengths);
 					rateEnv = RateEnv(tempRate, energyModel, loopMove, rightMove);
@@ -5339,6 +5341,15 @@ char* OpenLoop::getBase(char type, int index, HalfContext half) {
 
 			}
 	}
+
+	errno;
+
+	cout << "Failing with  \n";
+
+	cout << "type: " << (int) type << "\n";
+	cout << "index: " << index << "\n";
+	cout << "HalfContext: " << half << "\n";
+	cout << "This OpenLoop Info: \n" <<  openInfo << " \n";
 
 	assert(0);
 	return NULL;

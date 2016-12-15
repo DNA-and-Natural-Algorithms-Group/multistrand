@@ -603,6 +603,9 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 		rchoice = rate * drand48();
 		stime += (log(1. / (1.0 - drand48())) / rate);
 
+		cout << "Printing my complexlist! *************************************** \n";
+		cout << complexList->toString() << endl;
+
 		// trajectory output via outputtime option
 		if (exportStatesTime) {
 			exportTime(stime, &last_trajectory_time);

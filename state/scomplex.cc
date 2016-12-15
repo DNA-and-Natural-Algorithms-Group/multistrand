@@ -177,17 +177,32 @@ StrandComplex * StrandComplex::doChoice(Move * move) {
 		id3 = 0;
 
 	if (id2 == 'O' && id3 == 'O') { // Break the complex.
+
 		Loop *newLoop[2] = { NULL, NULL };
 		StrandOrdering *newOrdering = NULL;
+
+		cout << "Going to break the complex!! 1/3 ********************** " << std::endl;
+
 		ordering->breakBasepair(move->getAffected(0)->getLocation(move, 0), move->getAffected(1)->getLocation(move, 1));
 		Loop::performComplexSplit(move, &newLoop[0], &newLoop[1]);
+
+
+		cout << "Going to break the complex!! 2/3 ********************** " << std::endl;
+
+
 		// We now have open loop pointers to the two resulting open loops.
 		// Now need to link up the new open loops correctly in the strand ordering
 		// and then split the ordering, using one piece to build a new complex, which we then need to return to the calling function (presumably a system which can then add the new complex into the environment.
+
 		newOrdering = ordering->breakOrdering(temp2, temp3, newLoop[0], newLoop[1]);
 		beginLoop = ordering->getLoop();
 
+
+		cout << "Going to break the complex!! 3/3 ********************** " << std::endl;
+
+
 		return (new StrandComplex(newOrdering)); // newComplex
+
 	} else {
 		if (move->getType() & MOVE_CREATE)	 // FD: test if we have a create-basepair move
 			ordering->addBasepair(move->getAffected(0)->getLocation(move, 0), move->getAffected(0)->getLocation(move, 1));

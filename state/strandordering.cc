@@ -504,7 +504,7 @@ OpenLoop* StrandOrdering::getIndex(JoinCriteria& crit, int site, char **location
 
 	} else {
 
-//		cout << crit;
+//		cout << crit << std::endl;
 
 		// FD: nearly the same, but we have to call functions that consider the local context.
 		// It is possible to overlap the two code paths, if we just asign the same local context
@@ -514,9 +514,12 @@ OpenLoop* StrandOrdering::getIndex(JoinCriteria& crit, int site, char **location
 
 			assert(traverse->thisLoop != NULL);
 
-			OpenInfo& openInfo = traverse->thisLoop->getOpenInfo();
+			if(!openInfo.tally.count(crit.half[site])){
 
-//			cout << openInfo;
+				OpenInfo& openInfo = traverse->thisLoop->getOpenInfo();
+				cout << openInfo << " " << std::endl;
+
+			}
 
 			assert(openInfo.tally.count(crit.half[site]));
 
