@@ -477,7 +477,7 @@ OpenLoop* StrandOrdering::getIndex(JoinCriteria& crit, int site, char **location
 
 	orderingList *traverse;
 
-	int index = crit.index[site];
+	int* index = &crit.index[site];
 	char type = crit.types[site];
 
 	if (!useArr) {
@@ -488,15 +488,15 @@ OpenLoop* StrandOrdering::getIndex(JoinCriteria& crit, int site, char **location
 
 			BaseCount& baseCount = traverse->thisLoop->getFreeBases(useArr);
 
-			if (index < baseCount.count[type]) {
+			if (*index < baseCount.count[type]) {
 
-				*location = traverse->thisLoop->getBase(type, index, useArr);
+				*location = traverse->thisLoop->getBase(type, *index, useArr);
 
 				return traverse->thisLoop;
 
 			} else {
 
-				index = index - baseCount.count[type];
+				*index = *index - baseCount.count[type];
 
 			}
 
@@ -535,15 +535,15 @@ OpenLoop* StrandOrdering::getIndex(JoinCriteria& crit, int site, char **location
 
 //			cout.flush();
 
-			if (index < baseCount.count[type]) {
+			if (*index < baseCount.count[type]) {
 
-				*location = traverse->thisLoop->getBase(type, index, crit.half[site]);
+				*location = traverse->thisLoop->getBase(type, *index, crit.half[site]);
 
 				return traverse->thisLoop;
 
 			} else {
 
-				index = index - baseCount.count[type];
+				*index = *index - baseCount.count[type];
 
 			}
 
