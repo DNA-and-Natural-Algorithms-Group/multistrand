@@ -216,7 +216,7 @@ double NupackEnergyModel::HairpinEnergy(char *seq, int size) {
 
 		energy += hairpin_triloop_37_dG[lookup_index];
 
-		if ((seq[0] == BASE_T) || (seq[size + 1] == BASE_T)) {
+		if ((seq[0] == baseT) || (seq[size + 1] == baseT)) {
 			energy += terminal_AU;
 		}
 	}

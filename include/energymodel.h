@@ -19,11 +19,11 @@ class SimOptions;
 class Loop;
 class EnergyOptions;
 
-const int BASE_A = 1;
-const int BASE_C = 2;
-const int BASE_G = 3;
-const int BASE_T = 4;
-const int BASE_U = 4;
+//const int BASE_A = 1;
+//const int BASE_C = 2;
+//const int BASE_G = 3;
+//const int BASE_T = 4;
+//const int BASE_U = 4;
 
 const int VIENNA = 0;
 const int MFOLD = 1;

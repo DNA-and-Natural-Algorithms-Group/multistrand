@@ -281,20 +281,22 @@ double EnergyModel::ArrheniusLoopEnergy(char* seq, int size) {
 
 	double output = 0.0;
 
-	for (int i = 0; i < size; i++) {
+	for (int i = 0; i < (size - 1); i++) {
 
-		switch (seq[i]) {
+		int myMult = seq[i] * seq[i + 1];
 
-		case BASE_A:
+		switch (myMult) {
+
+		case baseA * baseA:
 			output += (simOptions->energyOptions->dSA);
 			break;
-		case BASE_C:
+		case baseC * baseC:
 			output += (simOptions->energyOptions->dSC);
 			break;
-		case BASE_G:
+		case baseG * baseG:
 			output += (simOptions->energyOptions->dSG);
 			break;
-		case BASE_T:
+		case baseT * baseT:
 			output += (simOptions->energyOptions->dST);
 			break;
 		}
@@ -304,6 +306,34 @@ double EnergyModel::ArrheniusLoopEnergy(char* seq, int size) {
 	return -output * simOptions->energyOptions->getTemperature() / 1000.0;
 
 }
+
+//double EnergyModel::ArrheniusLoopEnergy(char* seq, int size) {
+//
+//	double output = 0.0;
+//
+//	for (int i = 0; i < size; i++) {
+//
+//		switch (seq[i]) {
+//
+//		case BASE_A:
+//			output += (simOptions->energyOptions->dSA);
+//			break;
+//		case BASE_C:
+//			output += (simOptions->energyOptions->dSC);
+//			break;
+//		case BASE_G:
+//			output += (simOptions->energyOptions->dSG);
+//			break;
+//		case BASE_T:
+//			output += (simOptions->energyOptions->dST);
+//			break;
+//		}
+//
+//	}
+//
+//	return -output * simOptions->energyOptions->getTemperature() / 1000.0;
+//
+//}
 
 int pairs[5] = { 0, 0, 0, 0, 0 };
 int pairtypes[5][5] = { { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 } };
