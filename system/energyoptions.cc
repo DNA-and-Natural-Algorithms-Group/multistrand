@@ -16,11 +16,8 @@
 #include <cmath>
 
 
-
 using std::vector;
 using std::string;
-
-
 
 
 void EnergyOptions::initializeArrheniusConstants(void) {
@@ -138,25 +135,25 @@ PEnergyOptions::PEnergyOptions(PyObject* input) :
 
 //		cout << "Loading Arrhenius constants -- do not forget to set AEnd, Eend, and so on. \n";
 
-		getDoubleAttr(python_settings, AEnd, &AEnd);
+		getDoubleAttr(python_settings, lnAEnd, &AEnd);
 		AValues[endMove] = AEnd;
 
-		getDoubleAttr(python_settings, ALoop, &ALoop);
+		getDoubleAttr(python_settings, lnALoop, &ALoop);
 		AValues[loopMove] = ALoop;
 
-		getDoubleAttr(python_settings, AStack, &AStack);
+		getDoubleAttr(python_settings, lnAStack, &AStack);
 		AValues[stackMove] = AStack;
 
-		getDoubleAttr(python_settings, AStackStack, &AStackStack);
+		getDoubleAttr(python_settings, lnAStackStack, &AStackStack);
 		AValues[stackStackMove] = AStackStack;
 
-		getDoubleAttr(python_settings, ALoopEnd, &ALoopEnd);
+		getDoubleAttr(python_settings, lnALoopEnd, &ALoopEnd);
 		AValues[loopEndMove] = ALoopEnd;
 
-		getDoubleAttr(python_settings, AStackEnd, &AStackEnd);
+		getDoubleAttr(python_settings, lnAStackEnd, &AStackEnd);
 		AValues[stackEndMove] = AStackEnd;
 
-		getDoubleAttr(python_settings, AStackLoop, &AStackLoop);
+		getDoubleAttr(python_settings, lnAStackLoop, &AStackLoop);
 		AValues[stackLoopMove] = AStackLoop;
 
 		getDoubleAttr(python_settings, EEnd, &EEnd);
@@ -184,8 +181,6 @@ PEnergyOptions::PEnergyOptions(PyObject* input) :
 		getDoubleAttr(python_settings, dST, &dST);
 		getDoubleAttr(python_settings, dSC, &dSC);
 		getDoubleAttr(python_settings, dSG, &dSG);
-
-//		getDoubleAttr(python_settings, alpha, &alpha);
 
 		// also loading four constants for entropy of nucleotide chain
 

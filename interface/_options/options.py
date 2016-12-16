@@ -54,7 +54,7 @@ class Options(object):
                                         parameters.
         rate_method                  -- Whether we want 'Kawasaki' or 'Metropolis'
                                         rate method for unimolecular steps.
-        useArrRates     [type=bool]  -- if TRUE, use Arrhenius rate model. If using, please set AEnd, ALoop, AStack, AStackStack, ALoopEnd, AStackEnd, AStackLoop
+        useArrRates     [type=bool]  -- if TRUE, use Arrhenius rate model. If using, please set lnAEnd, lnALoop, lnAStack, lnAStackStack, lnALoopEnd, lnAStackEnd, lnAStackLoop
 EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value).
         """
         
@@ -340,13 +340,13 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         
         self.useArrRates = False;
         
-        self.AEnd = -0.1;
-        self.ALoop = -0.1;
-        self.AStack = -0.1;
-        self.AStackStack = -0.1;
-        self.ALoopEnd = -0.1;
-        self.AStackEnd = -0.1;
-        self.AStackLoop = -0.1;        
+        self.lnAEnd = -0.1;
+        self.lnALoop = -0.1;
+        self.lnAStack = -0.1;
+        self.lnAStackStack = -0.1;
+        self.lnALoopEnd = -0.1;
+        self.lnAStackEnd = -0.1;
+        self.lnAStackLoop = -0.1;        
         self.EEnd = -0.1;
         self.ELoop = -0.1;
         self.EStack = -0.1;
@@ -361,7 +361,6 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         self.dSC = -0.1;
         self.dSG = -0.1;
         
-        self.alpha = 1.0;
         
         
         
