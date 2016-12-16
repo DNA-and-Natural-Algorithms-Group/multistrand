@@ -23,8 +23,7 @@ sources = ["system/utility.cc",
            "state/scomplexlist.cc",
            "system/simoptions.cc",
            "system/ssystem.cc",
-           "state/strandordering.cc",
-           "energymodel/viennaenergymodel.cc"
+           "state/strandordering.cc"
            ]
 
 # setup.py for multistrand module.
