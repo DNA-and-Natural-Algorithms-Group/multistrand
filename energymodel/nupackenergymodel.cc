@@ -15,7 +15,6 @@
 
 #undef DEBUG
 //#define DEBUG
-//#define T_scale( dG, dH, T ) ((double) ((((dG) - ((dH)/100.0)) * (T) / 310.15) + ((dH)/100.0)))
 
 static double T_scale(double dG, double dH, double T) {
 
@@ -1475,7 +1474,7 @@ char *NupackEnergyModel::internal_read_array_data(FILE *fp, char *buffer, char *
 			// check to see if the value is INF
 			else if ((temp_char = strstr(cur_bufspot, "INF")) != NULL) {
 				// and if it is, set it correctly
-				read_loc[loop] = INF;
+				read_loc[loop] = nupackInfinte;
 				cur_bufspot = temp_char + 3;
 			} else if ((temp_char = strstr(cur_bufspot, "x")) != NULL) {
 				if (loop == 0) // we have an error. ERROR
@@ -1531,7 +1530,7 @@ char *NupackEnergyModel::internal_read_array_data(FILE *fp, char *buffer, char *
 			// check to see if the value is INF
 			else if ((temp_char = strstr(cur_bufspot, "INF")) != NULL) {
 				// and if it is, set it correctly
-				read_loc[loop] = INF;
+				read_loc[loop] = nupackInfinte;
 				cur_bufspot = temp_char + 3;
 			} else if ((temp_char = strstr(cur_bufspot, "x")) != NULL) {
 				if (loop == 0) { // we have an error. ERROR

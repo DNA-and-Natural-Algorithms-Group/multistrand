@@ -112,12 +112,11 @@ void EnergyModel::printPrecomputedArrRates(void) {
 	}
 
 	ss << " \n \n";
-	ss << "    dS_A     dS_T     dS_C     dS_G      alpha		\n";
+	ss << "    dS_A     dS_T     dS_C     dS_G      \n";
 	ss << "    " << simOptions->energyOptions->dSA;
 	ss << "     " << simOptions->energyOptions->dST;
 	ss << "     " << simOptions->energyOptions->dSC;
 	ss << "     " << simOptions->energyOptions->dSG;
-	ss << "     " << simOptions->energyOptions->alpha;
 
 	ss << "\n";
 	ss << " \n";

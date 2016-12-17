@@ -27,7 +27,6 @@ const int pairs_mfold[5] = { 0, 4, 3, 2, 1 };
 extern int pairs[5];
 
 const int pairtypes_vienna[5][5] = { { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 5 }, { 0, 0, 0, 1, 0 }, { 0, 0, 2, 0, 3 }, { 0, 6, 0, 4, 0 } };
-
 const int pairtypes_mfold[5][5] = { { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 1 }, { 0, 0, 0, 2, 0 }, { 0, 0, 3, 0, 5 }, { 0, 4, 0, 6, 0 } };
 
 extern int pairtypes[5][5];
@@ -39,7 +38,7 @@ extern int basepair_sw[8]; // = {0,0,0,0,0,0,0,0};
 
 int baseLookup(char base);
 
-#define INF 100000
+const double nupackInfinte =  100000.0;
 const double gasConstant = 0.0019872041;
 
 enum LoopType {
