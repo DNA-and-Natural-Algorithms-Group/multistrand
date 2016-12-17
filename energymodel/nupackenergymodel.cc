@@ -362,7 +362,7 @@ double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequence
 		}
 
 		// 3' most sequence's dangle5 component.
-		if (sidelen[size] == 0){
+		if (sidelen[size] == 0) {
 			dangle5 = 0.0;
 		} else {
 			dangle5 = dangle_5_37_dG[pt][sequences[size][1]];
@@ -377,8 +377,7 @@ double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequence
 
 NupackEnergyModel::NupackEnergyModel(PyObject* energy_options) :
 
-		log_loop_penalty_37(107.856), kinetic_rate_method(
-		RATE_METHOD_KAWASAKI), bimolecular_penalty(1.96), kBoltzmann(.00198717), current_temp(310.15) // Check references for this loop penalty term.
+		log_loop_penalty_37(107.856), kinetic_rate_method(RATE_METHOD_KAWASAKI), bimolecular_penalty(1.96), kBoltzmann(.00198717), current_temp(310.15) // Check references for this loop penalty term.
 {
 
 	simOptions = new PSimOptions(energy_options);
@@ -395,8 +394,7 @@ NupackEnergyModel::NupackEnergyModel(PyObject* energy_options) :
 }
 
 NupackEnergyModel::NupackEnergyModel(SimOptions* options) :
-		log_loop_penalty_37(107.856), kinetic_rate_method(
-		RATE_METHOD_KAWASAKI), bimolecular_penalty(1.96), kBoltzmann(.00198717), current_temp(310.15) // Check references for this loop penalty term.
+		log_loop_penalty_37(107.856), kinetic_rate_method(RATE_METHOD_KAWASAKI), bimolecular_penalty(1.96), kBoltzmann(.00198717), current_temp(310.15) // Check references for this loop penalty term.
 {
 	simOptions = options;
 	processOptions();
@@ -821,7 +819,6 @@ void NupackEnergyModel::processOptions() {
 
 	if (!((temperature < CELSIUS37_IN_KELVIN - .00001) || (temperature > CELSIUS37_IN_KELVIN + .00001))) {
 		current_temp = CELSIUS37_IN_KELVIN;
-		//setupRates(energy_options);
 		setupRates();
 		return;
 	}
@@ -903,13 +900,12 @@ void NupackEnergyModel::processOptions() {
 
 	terminal_AU = T_scale(terminal_AU, terminal_AU_dH, temperature);
 
-//bimolecular_penalty = T_scale( bimolecular_penalty, bimolecular_penalty_dH, temperature ) - kBoltzmann * temperature * log( waterdensity );
 	bimolecular_penalty = T_scale(bimolecular_penalty, bimolecular_penalty_dH, temperature);
 // need additional conversion as well
 
 	_RT = kBoltzmann * temperature;
 	current_temp = temperature;
-	//setupRates(energy_options);
+
 	setupRates();
 }
 
@@ -940,6 +936,7 @@ void NupackEnergyModel::internal_set_stack_energies(FILE *fp, char *buffer) {
 }
 
 void NupackEnergyModel::internal_set_stack_enthalpies(FILE *fp, char *buffer) {
+
 	int loop;
 	char *cur_bufspot;
 
@@ -950,6 +947,7 @@ void NupackEnergyModel::internal_set_stack_enthalpies(FILE *fp, char *buffer) {
 	for (loop = 0; loop < NUM_BASEPAIRS_NUPACK; loop++) {
 		cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &stack_37_dH[loop][0], NUM_BASEPAIRS_NUPACK);
 	}
+
 }
 
 void NupackEnergyModel::internal_set_hairpin_energies(FILE *fp, char *buffer) {
@@ -983,6 +981,7 @@ void NupackEnergyModel::internal_set_interior_loop_enthalpies(FILE *fp, char *bu
 }
 
 void NupackEnergyModel::internal_set_interior_1_1_energies(FILE *fp, char *buffer) {
+
 	int loop, loop2, loop3;
 	char *cur_bufspot;
 
@@ -1000,13 +999,16 @@ void NupackEnergyModel::internal_set_interior_1_1_energies(FILE *fp, char *buffe
 				internal_1_1_37_dG[loop][loop2][loop3][0] = 0;
 				internal_1_1_37_dG[loop][loop2][0][loop3] = 0;
 			}
-			for (loop3 = 1; loop3 < NUM_BASES; loop3++)
+
+			for (loop3 = 1; loop3 < NUM_BASES; loop3++) {
 				cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &internal_1_1_37_dG[loop][loop2][loop3][1], NUM_BASES - 1);
+			}
 
 		}
 }
 
 void NupackEnergyModel::internal_set_interior_1_1_enthalpies(FILE *fp, char *buffer) {
+
 	int loop, loop2, loop3;
 	char *cur_bufspot;
 
@@ -1017,17 +1019,22 @@ void NupackEnergyModel::internal_set_interior_1_1_enthalpies(FILE *fp, char *buf
 
 	for (loop = 0; loop < NUM_BASEPAIRS_NUPACK; loop++)
 		for (loop2 = 0; loop2 < NUM_BASEPAIRS_NUPACK; loop2++) {
-			if (buffer[0] == 'A' || buffer[0] == 'T' || buffer[0] == 'G' || buffer[0] == 'C')
+
+			if (buffer[0] == 'A' || buffer[0] == 'T' || buffer[0] == 'G' || buffer[0] == 'C') {
 				fgets(buffer, 2048, fp); // eat the lines with AT..AT, etc, just in case.
+			}
 
 			for (loop3 = 0; loop3 < NUM_BASES; loop3++) {
 				internal_1_1_37_dG[loop][loop2][loop3][0] = 0;
 				internal_1_1_37_dG[loop][loop2][0][loop3] = 0;
 			}
-			for (loop3 = 1; loop3 < NUM_BASES; loop3++)
+
+			for (loop3 = 1; loop3 < NUM_BASES; loop3++) {
 				cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &internal_1_1_37_dH[loop][loop2][loop3][1], NUM_BASES - 1);
+			}
 
 		}
+
 }
 
 void NupackEnergyModel::internal_set_interior_2_1_energies(FILE *fp, char *buffer) {
@@ -1040,12 +1047,15 @@ void NupackEnergyModel::internal_set_interior_2_1_energies(FILE *fp, char *buffe
 	cur_bufspot = buffer;
 	for (loop = 0; loop < NUM_BASEPAIRS_NUPACK; loop++) {
 		for (loop2 = 0; loop2 < NUM_BASEPAIRS_NUPACK; loop2++) {
-			if (buffer[0] == 'A' || buffer[0] == 'T' || buffer[0] == 'G' || buffer[0] == 'C')
+
+			if (buffer[0] == 'A' || buffer[0] == 'T' || buffer[0] == 'G' || buffer[0] == 'C') {
 				fgets(buffer, 2048, fp); // eat the lines with AT..AT, etc, just in case.
+			}
 
 			for (loop3 = 1; loop3 < NUM_BASES; loop3++) {
-				for (loop4 = 1; loop4 < NUM_BASES; loop4++)
+				for (loop4 = 1; loop4 < NUM_BASES; loop4++){
 					cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &internal_2_1_37_dG[loop][loop3][loop2][loop4][1], (NUM_BASES - 1));
+				}
 			}
 		}
 	}
@@ -1524,9 +1534,10 @@ char *NupackEnergyModel::internal_read_array_data(FILE *fp, char *buffer, char *
 				read_loc[loop] = INF;
 				cur_bufspot = temp_char + 3;
 			} else if ((temp_char = strstr(cur_bufspot, "x")) != NULL) {
-				if (loop == 0) // we have an error. ERROR
-					;
-				else
+				if (loop == 0) { // we have an error. ERROR
+					cout << " we have an error. ERROR" << endl;
+					abort();
+				} else
 					read_loc[loop] = read_loc[loop - 1] + (double) rint(log_loop_penalty * log(((double) loop) / ((double) (loop - 1))));
 				cur_bufspot = temp_char + 1;
 			} else // we need to check for leading characters
@@ -1583,19 +1594,15 @@ void NupackEnergyModel::setupRates() {
 //          = exp( - kT log( W / C) / kT)
 //          = exp( -log( W / C))
 //          = C / W
-
 	EnergyOptions* eOptions = simOptions->getEnergyOptions();
 
 	double joinconc, joinrate_volume;
-//	getDoubleAttr(energy_options, join_concentration, &joinconc);
 	joinconc = eOptions->getJoinConcentration();
 // the concentration is now in M units, rather than the previous mM. The input parser converts to these.
 
 	biscale = eOptions->getBiScale();
 	uniscale = eOptions->getUniScale();
 
-//	getDoubleAttr(energy_options, bimolecular_scaling, &biscale);
-//	getDoubleAttr(energy_options, unimolecular_scaling, &uniscale);
 // Two components to the join rate, the dG_assoc from mass action, and the dG_volume term which is related to the concentration. We compute each individually, following my derivation for the volume term, and the method used in Nupack for the dG_assoc term.
 
 // Please note, waterdensity is actually the Mols H2O / L, not the actual density of water (g/mol).
@@ -1603,28 +1610,14 @@ void NupackEnergyModel::setupRates() {
 // concentration units
 	dG_volume = _RT * log(1.0 / joinconc);
 
-// mole fraction units
-//dG_volume = _RT * log( waterdensity / joinconc);
-
 // concentration units
 	joinrate_volume = joinconc;
 
-// mole fraction units
-//joinrate_volume = joinconc / waterdensity;
-
-// joinrate_volume
-//              = exp( -dG_volume / _RT )
-
-// dG_volume = _RT * log( waterdensity / (.001 * joinconc));
-// joinrate_volume = .001 * joinconc / waterdensity;
-// old, for units of mM
-
 // concentration units
 	dG_assoc = bimolecular_penalty; // already computed and scaled for water density.
-// mole fraction units
-// dG_assoc = bimolecular_penalty - _RT * log( waterdensity )
 
 	joinrate = biscale * joinrate_volume;
+
 }
 
 double NupackEnergyModel::setWaterDensity(double temp) {
@@ -1639,6 +1632,7 @@ double NupackEnergyModel::setWaterDensity(double temp) {
 	values[0] = temp + values[0];
 	values[1] = temp + values[1];
 	values[3] = temp + values[3];
+
 	return values[4] * (1 - values[0] * values[0] * values[1] / values[2] / values[3]) / values[5];
 
 //  return 55.6; // default for now, in units of mols/liter.
