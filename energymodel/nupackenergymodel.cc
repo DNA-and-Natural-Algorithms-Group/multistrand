@@ -174,12 +174,6 @@ double NupackEnergyModel::InteriorEnergy(char *seq1, char *seq2, int size1, int 
 		energy += ninio;
 	}
 
-	// TODO: derotate this in the input rather than the output. see ene.c from nupack and the parameter file for details.
-	//    energy += internal_mismatch_37_dG[type1][seq2[size2]][seq1[1]] +
-	//  internal_mismatch_37_dG[basepair_sw_mfold_actual[type2+1]-1][seq1[size1]][seq2[1]];
-	// OLD VERSION:
-	//  energy += internal_mismatch_37_dG[type1][seq1[1]][seq2[size2]] +
-	//  internal_mismatch_37_dG[basepair_sw_mfold_actual[type2+1]-1][seq2[1]][seq1[size1]];
 
 	// try gail params?
 	if (size1 == 1 || size2 == 1) {
@@ -188,11 +182,6 @@ double NupackEnergyModel::InteriorEnergy(char *seq1, char *seq2, int size1, int 
 		energy += internal_mismatch_37_dG[seq1[1]][seq2[size2]][type1] + internal_mismatch_37_dG[seq2[1]][seq1[size1]][basepair_sw_mfold_actual[type2 + 1] - 1];
 	}
 
-	// Yet another try to match the wacky parameters.
-	//energy += internal_mismatch_37_dG[seq2[size2]][seq1[1]][type1] +
-	//  internal_mismatch_37_dG[seq2[1]][seq1[size1]][type2];
-	//  int type1 = pairtypes[seq1[0]][seq2[size2+1]] -1;
-	//  int type2 = pairtypes[seq1[size1+1]][seq2[0]] -1;
 
 	return energy;
 }

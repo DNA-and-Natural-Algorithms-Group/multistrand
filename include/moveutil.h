@@ -65,7 +65,6 @@ struct JoinCriteria {
 	int index[2] = { 0, 0 };
 
 	// arrhenius rates only
-//	bool useArr = false;
 	HalfContext half[2] = { HalfContext(), HalfContext() };
 	int arrType = 0; // used for returning the chosen movetype.
 

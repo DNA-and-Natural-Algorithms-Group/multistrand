@@ -487,7 +487,7 @@ OpenLoop* StrandOrdering::getIndex(JoinCriteria& crit, int site, char **location
 
 			assert(traverse->thisLoop != NULL);
 
-			BaseCount& baseCount = traverse->thisLoop->getFreeBases(useArr);
+			BaseCount& baseCount = traverse->thisLoop->getFreeBases();
 
 			if (*index < baseCount.count[type]) {
 
@@ -794,7 +794,7 @@ void StrandOrdering::replaceOpenLoop(Loop *oldLoop, Loop *newLoop) {
 	assert(0); // no loop matched, that's bad.
 }
 
-BaseCount& StrandOrdering::getExteriorBases(bool useArr) {
+BaseCount& StrandOrdering::getExteriorBases() {
 	orderingList *traverse = NULL;
 
 	exteriorBases.clear();
@@ -803,7 +803,7 @@ BaseCount& StrandOrdering::getExteriorBases(bool useArr) {
 
 		assert(traverse->thisLoop != NULL);
 
-		BaseCount& free_bases = traverse->thisLoop->getFreeBases(useArr);
+		BaseCount& free_bases = traverse->thisLoop->getFreeBases();
 
 		exteriorBases.increment(free_bases);
 

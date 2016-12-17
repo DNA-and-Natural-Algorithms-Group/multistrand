@@ -201,7 +201,7 @@ BaseCount SComplexList::getExposedBases() {
 
 	for (SComplexListEntry* it = first; it != NULL; it = it->next) {
 
-		BaseCount& ext_bases = it->thisComplex->getExteriorBases(eModel->useArrhenius());
+		BaseCount& ext_bases = it->thisComplex->getExteriorBases();
 		output.increment(ext_bases);
 
 	}
@@ -242,9 +242,7 @@ double SComplexList::getJoinFlux(void) {
 		return 0.0;
 	}
 
-	bool useArr = eModel->useArrhenius();
-
-	if (useArr) {
+	if (eModel->useArrhenius()) {
 
 		return getJoinFluxArr();
 
@@ -257,7 +255,7 @@ double SComplexList::getJoinFlux(void) {
 
 	for (SComplexListEntry* temp = first; temp != NULL; temp = temp->next) {
 
-		BaseCount& ext_bases = temp->thisComplex->getExteriorBases(useArr);
+		BaseCount& ext_bases = temp->thisComplex->getExteriorBases();
 		totalBases.decrement(ext_bases);
 
 		moveCount += totalBases.multiCount(ext_bases);
@@ -471,10 +469,6 @@ int SComplexList::doBasicChoice(double choice, double newtime) {
 
 		return doJoinChoice(rchoice);
 
-//		RateEnv env = RateEnv(1.0, eModel, MOVETYPE_SIZE, MOVETYPE_SIZE);
-//
-//		return env.arrType;
-
 	} else {
 
 		rchoice -= joinRate;
@@ -532,7 +526,6 @@ int SComplexList::doJoinChoice(double choice) {
 
 	assert(numOfComplexes > 1);
 
-	bool useArr = eModel->useArrhenius();
 	JoinCriteria crit;
 
 	// before we do anything, print crit (this is for debugging!)
@@ -541,7 +534,7 @@ int SComplexList::doJoinChoice(double choice) {
 		cout << toString();
 	}
 
-	if (!useArr) {
+	if (!eModel->useArrhenius()) {
 
 		crit = cycleForJoinChoice(choice);
 
@@ -567,7 +560,7 @@ int SComplexList::doJoinChoice(double choice) {
 	SComplexListEntry *temp2 = NULL;
 	StrandComplex *deleted;
 
-	deleted = StrandComplex::performComplexJoin(crit, useArr);
+	deleted = StrandComplex::performComplexJoin(crit, eModel->useArrhenius());
 	for (SComplexListEntry* temp = first; temp != NULL; temp = temp->next) {
 
 		if (temp->thisComplex == crit.complexes[0]) {
@@ -607,7 +600,7 @@ JoinCriteria SComplexList::cycleForJoinChoice(double choice) {
 
 	for (SComplexListEntry* temp = first; temp != NULL; temp = temp->next) {
 
-		BaseCount& external = temp->thisComplex->getExteriorBases(eModel->useArrhenius());
+		BaseCount& external = temp->thisComplex->getExteriorBases();
 		baseSum.decrement(external);
 
 		for (BaseType base : { baseA, baseT, baseG, baseC }) {
@@ -645,15 +638,10 @@ JoinCriteria SComplexList::findJoinNucleotides(BaseType base, int choice, BaseCo
 
 	temp = temp->next;
 
-	bool useArr = eModel->useArrhenius();
-
-//	cout << "Lowerhalf: " << *lowerHalf << "\n";
-
 	while (temp != NULL) {
 
-		BaseCount externOther = temp->thisComplex->getExteriorBases(useArr, lowerHalf);
+		BaseCount externOther = temp->thisComplex->getExteriorBases(lowerHalf);
 
-//		cout << "externOther = " << externOther << "\n";
 
 		if (choice < externOther.count[base] * external.count[otherBase]) {
 

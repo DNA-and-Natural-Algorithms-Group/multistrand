@@ -69,7 +69,6 @@ public:
 	double dST = 0.55;
 	double dSG = -5.99;
 
-//	double alpha = 0.045;
 
 protected:
 

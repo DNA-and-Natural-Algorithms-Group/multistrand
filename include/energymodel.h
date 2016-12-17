@@ -52,6 +52,7 @@ public:
 };
 
 class EnergyModel {
+
 public:
 	EnergyModel(void);
 	EnergyModel(PyObject *options);

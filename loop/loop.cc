@@ -5412,7 +5412,7 @@ char* OpenLoop::getBase(char type, int index, bool useArr) {
 //}
 
 // if using Arr, do not count the external bases.
-BaseCount& OpenLoop::getFreeBases(bool useArr) {
+BaseCount& OpenLoop::getFreeBases() {
 
 	// do nothing if already computed last time
 	if (updatedContext2) {
@@ -5428,7 +5428,7 @@ BaseCount& OpenLoop::getFreeBases(bool useArr) {
 			int loop2 = 1;
 			int end = sidelen[loop] + 1;
 
-			if (useArr) {
+			if (false) {
 				// avoid counting external nucleotides
 				loop2 = loop2 + 1;
 				end = end - 1;

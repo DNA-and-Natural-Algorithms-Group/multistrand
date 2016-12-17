@@ -232,7 +232,7 @@ public:
 	// and information is copied out by the calling function.) Could also make it a private data
 	// member that's just returned.  Not completed currently.
 	// FD: 2016-11-14 the above is now implemented.
-	BaseCount& getFreeBases(bool);
+	BaseCount& getFreeBases();
 	OpenInfo& getOpenInfo(void);
 	HalfContext getHalfContext(int, int);
 

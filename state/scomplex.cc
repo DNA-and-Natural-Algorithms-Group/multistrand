@@ -708,11 +708,11 @@ char *StrandComplex::getStrandNames(void) {
 	return ordering->getStrandNames();
 }
 
-BaseCount& StrandComplex::getExteriorBases(bool useArr, HalfContext* lowerHalf) {
+BaseCount& StrandComplex::getExteriorBases( HalfContext* lowerHalf) {
 
 	if (lowerHalf == NULL) {
 
-		return ordering->getExteriorBases(useArr);
+		return ordering->getExteriorBases();
 
 	} else {
 
