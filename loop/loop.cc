@@ -21,11 +21,12 @@ EnergyModel* Loop::energyModel = NULL;
 struct RateArr;
 
 inline double Loop::getEnergy(void) {
-	if (energyFlag)
+
+	if (energyComputed)
 		return energy;
 	else {
 		calculateEnergy();
-		energyFlag = 1;
+		energyComputed = true;
 		return energy;
 	}
 }
@@ -63,12 +64,12 @@ double Loop::returnEnergies(Loop *comefrom) {
 
 	for (int loop = 0; loop < curAdjacent; loop++) {
 
-//			 shouldn't happen, being careful.
-		if (adjacentLoops[loop] != comefrom && adjacentLoops[loop] != NULL){
+		if (adjacentLoops[loop] != comefrom) {
 			total = total + adjacentLoops[loop]->returnEnergies(this);
 		}
 
 		assert(adjacentLoops[loop] != NULL);
+
 	}
 	return total;
 }
@@ -109,7 +110,6 @@ Loop::Loop(void) {
 	numAdjacent = 0;
 	curAdjacent = 0;
 	energy = 0.0;
-	energyFlag = 0;
 	totalRate = 0.0;
 	add_index = 0;
 

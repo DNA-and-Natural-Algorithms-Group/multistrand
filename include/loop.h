@@ -84,7 +84,7 @@ protected:
 	Loop** adjacentLoops;
 	int curAdjacent;
 	double energy;
-	int energyFlag;
+	bool energyComputed = false;
 	double totalRate;
 	MoveContainer *moves;
 	char identity;
