@@ -93,7 +93,7 @@ double NupackEnergyModel::getAssocEnergy(void) {
 // non entropy/enthalpy energy functions
 double NupackEnergyModel::StackEnergy(int i, int j, int p, int q) {
 
-	return stack_37_dG[pairtypes[i][j] - 1][pairtypes[p][q] - 1] ;
+	return stack_37_dG[pairtypes[i][j] - 1][pairtypes[p][q] - 1];
 
 }
 
@@ -174,14 +174,12 @@ double NupackEnergyModel::InteriorEnergy(char *seq1, char *seq2, int size1, int 
 		energy += ninio;
 	}
 
-
 	// try gail params?
 	if (size1 == 1 || size2 == 1) {
 		energy += internal_mismatch_37_dG[1][1][type1] + internal_mismatch_37_dG[1][1][basepair_sw_mfold_actual[type2 + 1] - 1];
 	} else {
 		energy += internal_mismatch_37_dG[seq1[1]][seq2[size2]][type1] + internal_mismatch_37_dG[seq2[1]][seq1[size1]][basepair_sw_mfold_actual[type2 + 1] - 1];
 	}
-
 
 	return energy;
 }
@@ -811,9 +809,14 @@ void NupackEnergyModel::processOptions() {
 		return;
 	}
 
-	for (loop = 0; loop < NUM_BASEPAIRS_NUPACK; loop++)
-		for (loop2 = 0; loop2 < NUM_BASEPAIRS_NUPACK; loop2++)
+	for (loop = 0; loop < NUM_BASEPAIRS_NUPACK; loop++) {
+		for (loop2 = 0; loop2 < NUM_BASEPAIRS_NUPACK; loop2++) {
+
 			stack_37_dG[loop][loop2] = T_scale(stack_37_dG[loop][loop2], stack_37_dH[loop][loop2], temperature);
+			stack_37_dG[loop][loop2] += -temperature * saltCorrection();
+
+		}
+	}
 
 	for (loop = 0; loop < 31; loop++)
 		hairpin_37_dG[loop] = T_scale(hairpin_37_dG[loop], hairpin_37_dH[loop], temperature);
@@ -1041,7 +1044,7 @@ void NupackEnergyModel::internal_set_interior_2_1_energies(FILE *fp, char *buffe
 			}
 
 			for (loop3 = 1; loop3 < NUM_BASES; loop3++) {
-				for (loop4 = 1; loop4 < NUM_BASES; loop4++){
+				for (loop4 = 1; loop4 < NUM_BASES; loop4++) {
 					cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &internal_2_1_37_dG[loop][loop3][loop2][loop4][1], (NUM_BASES - 1));
 				}
 			}

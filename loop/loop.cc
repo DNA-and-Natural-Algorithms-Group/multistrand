@@ -79,7 +79,9 @@ double Loop::returnFlux(Loop *comefrom) {
 	double total = 0.0;
 
 	if (moves != NULL) {
+
 		total = moves->getRate();
+
 	}
 
 	for (int loop = 0; loop < curAdjacent; loop++) {
@@ -98,9 +100,13 @@ void Loop::firstGen(Loop *comefrom) {
 	generateMoves();
 
 	for (int loop = 0; loop < curAdjacent; loop++) {
-		if (adjacentLoops[loop] != comefrom && adjacentLoops[loop] != NULL)
-			// shouldn't happen, being careful.
+
+		if (adjacentLoops[loop] != comefrom) {
+
 			adjacentLoops[loop]->firstGen(this);
+
+		}
+
 		assert(adjacentLoops[loop] != NULL);
 	}
 

@@ -69,8 +69,8 @@ public:
 	double dST = -100.0;
 	double dSG = -100.0;
 
-	double sodium = 1.0;
-	double magnesium = 0.0;
+	double sodium = -99.0;
+	double magnesium = -99.0;
 
 
 protected:

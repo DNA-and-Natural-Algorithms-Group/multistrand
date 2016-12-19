@@ -186,9 +186,12 @@ PEnergyOptions::PEnergyOptions(PyObject* input) :
 		getDoubleAttr(python_settings, sodium, &sodium);
 		getDoubleAttr(python_settings, magnesium, &magnesium);
 
-		if(magnesium < 0.01 || magnesium > 0.2){
+//		cout << "Na+ Mg2+ =" << std::to_string(sodium) << "  " << std::to_string(magnesium) << endl;
 
-			cout << "Magnesium concentration (" << magnesium << " M) is out of bounds, because unparameterized. Setting sodium/magnesium to 1.0 M / 0.0 M" << endl;
+
+		if(magnesium < 0.00 || magnesium > 0.2){
+
+			cout << "Magnesium concentration (" << magnesium << " M) is out of bounds (0.0 M - 0.2 M). Setting Na+/Mg2+ to 1.0 M / 0.0 M" << endl;
 			sodium = 1.0;
 			magnesium = 0.0;
 
@@ -197,7 +200,7 @@ PEnergyOptions::PEnergyOptions(PyObject* input) :
 
 		if(sodium < 0.05 || sodium > 1.1){
 
-			cout << "Sodium concentration (" << sodium << " M) is out of bounds, because unparameterized. Setting sodium/magnesium to 1.0 M / 0.0 M" << endl;
+			cout << "Sodium concentration (" << sodium << " M) is out of bounds (0.01 M - 0.2 M). Setting Na+/Mg2+ to 1.0 M / 0.0 M" << endl;
 			sodium = 1.0;
 			magnesium = 0.0;
 

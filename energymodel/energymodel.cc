@@ -308,13 +308,13 @@ double EnergyModel::arrheniusLoopEnergy(char* seq, int size) {
 
 
 
-double EnergyModel::saltCorrection(int size){
+double EnergyModel::saltCorrection(){
 
 // FD: Nupack makes a distinction between long (>20nt) and short domains.
 // FD: For short domains, magnesium correction is not used. See computeSaltCorrection in utils/init.c for NUPACK 3.0.4.
 // FD: In multistrand we don't set this distinction.
 
-	return 0.368 * (size-1) * log(simOptions->energyOptions->sodium + 3.3 * sqrt(simOptions->energyOptions->magnesium));
+	return 0.368 * log(simOptions->energyOptions->sodium + 3.3 * sqrt(simOptions->energyOptions->magnesium));
 
 }
 
