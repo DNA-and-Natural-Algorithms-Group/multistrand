@@ -81,19 +81,19 @@ double NupackEnergyModel::getAssocEnergy(void) {
 	return dG_assoc;
 }
 
-// entropy/enthalpy energy parameters
-
-void NupackEnergyModel::eStackEnergy(int type1, int type2, energyS *energy) {
-
-	energy->dH = stack_37_dH[type1][basepair_sw[type2]];
-	energy->nTdS = stack_37_dG[type1][basepair_sw[type2]] - energy->dH;
-
-}
+//// entropy/enthalpy energy parameters
+//
+//void NupackEnergyModel::eStackEnergy(int type1, int type2, energyS *energy) {
+//
+//	energy->dH = stack_37_dH[type1][basepair_sw[type2]];
+//	energy->nTdS = stack_37_dG[type1][basepair_sw[type2]] - energy->dH;
+//
+//}
 
 // non entropy/enthalpy energy functions
 double NupackEnergyModel::StackEnergy(int i, int j, int p, int q) {
 
-	return stack_37_dG[pairtypes[i][j] - 1][pairtypes[p][q] - 1];
+	return stack_37_dG[pairtypes[i][j] - 1][pairtypes[p][q] - 1] ;
 
 }
 

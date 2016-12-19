@@ -78,6 +78,7 @@ public:
 	virtual double getJoinRate(void) = 0;
 	virtual double getVolumeEnergy(void) =0;
 	virtual double getAssocEnergy(void) =0;
+
 	virtual double StackEnergy(int i, int j, int p, int q) = 0;
 	//     This is: 5' i p 3'
 	//              3' j q 5'
@@ -96,7 +97,7 @@ public:
 
 	virtual double MultiloopEnergy(int size, int *sidelen, char **sequences) = 0;
 	virtual double OpenloopEnergy(int size, int *sidelen, char **sequences) = 0;
-	virtual void eStackEnergy(int type1, int type2, energyS *energy) = 0;
+//	virtual void eStackEnergy(int type1, int type2, energyS *energy) = 0;
 
 	SimOptions* simOptions;
 
@@ -130,7 +131,7 @@ public:
 	double MultiloopEnergy(int size, int *sidelen, char **sequences);
 	double OpenloopEnergy(int size, int *sidelen, char **sequences);
 
-	void eStackEnergy(int type1, int type2, energyS *energy);
+//	void eStackEnergy(int type1, int type2, energyS *energy);
 
 private:
 

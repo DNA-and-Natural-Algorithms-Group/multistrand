@@ -71,7 +71,8 @@ string SComplexListEntry::toString(EnergyModel *em) {
 
 	std::stringstream ss;
 
-	double energy = energy - (em->getVolumeEnergy() + em->getAssocEnergy()) * (thisComplex->getStrandCount() - 1);
+//	double energy = energy - (em->getVolumeEnergy() + em->getAssocEnergy()) * (thisComplex->getStrandCount() - 1);
+
 
 	ss << "Complex      : " << id << " \n";
 	ss << "seq, struc   : " << thisComplex->getSequence() << " - " << thisComplex->getStructure() << " \n";
@@ -177,20 +178,15 @@ double SComplexList::getTotalFlux(void) {
 
 	double total = 0.0;
 
-	SComplexListEntry *temp = first;
-	while (temp != NULL) {
+	for( SComplexListEntry *temp = first; temp != NULL; temp = temp->next){
 
 		total += temp->rate;
 
-		temp = temp->next;
 	}
 
 	joinRate = getJoinFlux();
 	total += joinRate;
 
-	if (utility::debugTraces) {
-		cout << "Computing totalFlux 3/3" << endl;
-	}
 
 	return total;
 }

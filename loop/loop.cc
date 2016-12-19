@@ -75,14 +75,18 @@ double Loop::returnEnergies(Loop *comefrom) {
 }
 
 double Loop::returnFlux(Loop *comefrom) {
+
 	double total = 0.0;
-	int loop;
-	if (moves != NULL)
+
+	if (moves != NULL) {
 		total = moves->getRate();
-	for (loop = 0; loop < curAdjacent; loop++) {
-		if (adjacentLoops[loop] != comefrom && adjacentLoops[loop] != NULL)
-			// shouldn't happen, being careful.
+	}
+
+	for (int loop = 0; loop < curAdjacent; loop++) {
+
+		if (adjacentLoops[loop] != comefrom) {
 			total = total + adjacentLoops[loop]->returnFlux(this);
+		}
 
 		assert(adjacentLoops[loop] != NULL);
 	}
@@ -2887,10 +2891,15 @@ Loop *Loop::performDeleteMove(Move *move) {
 /* StackLoop */
 
 void StackLoop::calculateEnergy(void) {
-	if (Loop::energyModel == NULL)
-		return; // we can't handle this error. I'm trying to work out a way around it, but generally if the loops try to get used before the energy model initializes, it's all over.
+
+	assert(Loop::energyModel != NULL);
+
+//	if (Loop::energyModel == NULL){
+//		return; // we can't handle this error. I'm trying to work out a way around it, but generally if the loops try to get used before the energy model initializes, it's all over.
+//	}
 
 	energy = Loop::energyModel->StackEnergy(seqs[0][0], seqs[1][1], seqs[0][1], seqs[1][0]);
+
 	return;
 }
 
