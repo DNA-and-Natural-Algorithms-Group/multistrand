@@ -178,10 +178,7 @@ PEnergyOptions::PEnergyOptions(PyObject* input) :
 		EValues[stackLoopMove] = EStackLoop;
 
 		getDoubleAttr(python_settings, dSA, &dSA);
-		getDoubleAttr(python_settings, dST, &dST);
-		getDoubleAttr(python_settings, dSC, &dSC);
-		getDoubleAttr(python_settings, dSG, &dSG);
-
+		getDoubleAttr(python_settings, dHA, &dHA);
 
 		getDoubleAttr(python_settings, sodium, &sodium);
 		getDoubleAttr(python_settings, magnesium, &magnesium);

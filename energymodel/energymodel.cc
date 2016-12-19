@@ -112,16 +112,14 @@ void EnergyModel::printPrecomputedArrRates(void) {
 	}
 
 	ss << " \n \n";
-	ss << "    dS_A     dS_T     dS_C     dS_G      \n";
+	ss << "    dS_A     dH_A		\n";
 	ss << "    " << simOptions->energyOptions->dSA;
-	ss << "     " << simOptions->energyOptions->dST;
-	ss << "     " << simOptions->energyOptions->dSC;
-	ss << "     " << simOptions->energyOptions->dSG;
+	ss << "    " << simOptions->energyOptions->dHA;
 
 	ss << "\n";
-	ss << " \n";
+	ss << "\n";
 
-	// now dumping the rate matrix too,
+	// now dumping the bimolecular rate matrix too,
 
 	for (int i = 0; i < MOVETYPE_SIZE; i++) {
 
@@ -287,28 +285,17 @@ double EnergyModel::arrheniusLoopEnergy(char* seq, int size) {
 		switch (myMult) {
 
 		case baseA * baseA:
-			output += (simOptions->energyOptions->dSA);
-			break;
-		case baseC * baseC:
-			output += (simOptions->energyOptions->dSC);
-			break;
-		case baseG * baseG:
-			output += (simOptions->energyOptions->dSG);
-			break;
-		case baseT * baseT:
-			output += (simOptions->energyOptions->dST);
+			output += (simOptions->energyOptions->dHA - simOptions->energyOptions->getTemperature() * (simOptions->energyOptions->dSA / 1000.0));
 			break;
 		}
 
 	}
 
-	return -output * simOptions->energyOptions->getTemperature() / 1000.0;
+	return output;
 
 }
 
-
-
-double EnergyModel::saltCorrection(){
+double EnergyModel::saltCorrection() {
 
 // FD: Nupack makes a distinction between long (>20nt) and short domains.
 // FD: For short domains, magnesium correction is not used. See computeSaltCorrection in utils/init.c for NUPACK 3.0.4.
@@ -317,8 +304,6 @@ double EnergyModel::saltCorrection(){
 	return 0.368 * log(simOptions->energyOptions->sodium + 3.3 * sqrt(simOptions->energyOptions->magnesium));
 
 }
-
-
 
 //double EnergyModel::ArrheniusLoopEnergy(char* seq, int size) {
 //
