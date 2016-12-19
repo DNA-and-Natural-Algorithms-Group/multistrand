@@ -59,7 +59,8 @@ public:
 
 	// Implemented methods
 	bool useArrhenius(void);
-	double ArrheniusLoopEnergy(char* seq, int size);
+	double arrheniusLoopEnergy(char* seq, int size);
+	double saltCorrection(int size);
 	void setArrheniusRate(double ratesArray[], EnergyOptions* options, double temperature, int left, int right);
 	void computeArrheniusRates(double temperature);
 	void printPrecomputedArrRates(void);

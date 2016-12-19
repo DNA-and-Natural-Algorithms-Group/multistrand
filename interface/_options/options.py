@@ -31,7 +31,7 @@ class Options(object):
                 "parameter_type":1,
                 "simulation_time":600.0,
                 "temperature":310.15,
-                "useArrRates":False          
+                "useArrRates":False        
                 }
     
     def __init__(self, *args, **kargs):
@@ -360,6 +360,9 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         self.dST = -0.1;
         self.dSC = -0.1;
         self.dSG = -0.1;
+        
+        self.sodium = 1.0;
+        self.magnesium = 0.0;
         
         
         

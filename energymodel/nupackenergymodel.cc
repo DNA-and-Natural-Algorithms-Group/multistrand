@@ -220,7 +220,7 @@ double NupackEnergyModel::HairpinEnergy(char *seq, int size) {
 
 	if (simOptions->energyOptions->usingArrhenius() && size > 5) {
 
-		energy += this->ArrheniusLoopEnergy(seq, size);
+		energy += this->arrheniusLoopEnergy(seq, size);
 
 	}
 

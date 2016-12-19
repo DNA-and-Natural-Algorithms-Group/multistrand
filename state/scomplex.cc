@@ -735,10 +735,9 @@ BaseCount& StrandComplex::getExteriorBases( HalfContext* lowerHalf) {
 }
 
 double StrandComplex::getEnergy(void) {
-// beginLoop->firstGen( NULL );
-//  return (double) beginLoop->returnEnergies( NULL ) / 100.0;
+
 	return beginLoop->returnEnergies( NULL);
-// + Loop::energyModel_Primary->getJoinEnergy();
+
 }
 
 void StrandComplex::generateMoves(void) {

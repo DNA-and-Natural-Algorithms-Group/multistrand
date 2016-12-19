@@ -433,8 +433,7 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 
 	rchoice = rate = stime = ctime = 0.0;
 
-	double maxsimtime, otime;
-	maxsimtime = otime = -1.0;
+	double maxsimtime = -1.0;
 
 	bool checkresult = false;
 	bool stopFlag = false;
@@ -442,12 +441,9 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 	long stopcount = 0;
 	class stopComplexes *traverse = NULL, *first = NULL;
 
-	long sMode = simOptions->getSimulationMode();
-	long ointerval = simOptions->getOInterval();
 	long stopoptions = simOptions->getStopOptions();
 	stopcount = simOptions->getStopCount();
 	maxsimtime = simOptions->getMaxSimTime();
-	otime = simOptions->getOTime();
 
 	if (stopcount <= 0 || !stopoptions) {
 		// this simulation mode MUST have some stop conditions set.

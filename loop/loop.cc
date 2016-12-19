@@ -58,13 +58,15 @@ void Loop::cleanupAdjacent(void) {
 }
 
 double Loop::returnEnergies(Loop *comefrom) {
-	double total;
-	int loop;
-	total = getEnergy();
-	for (loop = 0; loop < curAdjacent; loop++) {
-		if (adjacentLoops[loop] != comefrom && adjacentLoops[loop] != NULL)
-			// shouldn't happen, being careful.
+
+	double total = getEnergy();
+
+	for (int loop = 0; loop < curAdjacent; loop++) {
+
+//			 shouldn't happen, being careful.
+		if (adjacentLoops[loop] != comefrom && adjacentLoops[loop] != NULL){
 			total = total + adjacentLoops[loop]->returnEnergies(this);
+		}
 
 		assert(adjacentLoops[loop] != NULL);
 	}
