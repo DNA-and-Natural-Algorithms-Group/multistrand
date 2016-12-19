@@ -64,10 +64,10 @@ public:
 	double AValues[MOVETYPE_SIZE] = { AEnd, ALoop, AStack, AStackStack, ALoopEnd, AStackEnd, AStackLoop };
 	double EValues[MOVETYPE_SIZE] = { EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop };
 
-	double dSA = 1.02;
-	double dSC = 4.41;
-	double dST = 0.55;
-	double dSG = -5.99;
+	double dSA = -100.0;
+	double dSC = -100.0;
+	double dST = -100.0;
+	double dSG = -100.0;
 
 
 protected:

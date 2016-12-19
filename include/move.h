@@ -61,7 +61,7 @@ public:
 	Loop *getAffected(int index);
 	Loop *doChoice(void);
 	string toString(bool);
-//	string rateToString(bool);
+
 	friend class Loop;
 	friend class HairpinLoop;
 	friend class StackLoop;

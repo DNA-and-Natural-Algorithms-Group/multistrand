@@ -5428,11 +5428,11 @@ BaseCount& OpenLoop::getFreeBases() {
 			int loop2 = 1;
 			int end = sidelen[loop] + 1;
 
-			if (false) {
-				// avoid counting external nucleotides
-				loop2 = loop2 + 1;
-				end = end - 1;
-			}
+//			if (false) {
+//				// avoid counting external nucleotides
+//				loop2 = loop2 + 1;
+//				end = end - 1;
+//			}
 
 			for (; loop2 < end; loop2++) {
 
@@ -5461,25 +5461,6 @@ BaseCount& OpenLoop::getFreeBases() {
 
 	return exposedBases;
 }
-
-//// FD: in c99 and beyond, int[5] will initialize to {0, 0, 0, 0,0}
-//// FD: Declaring ints in the loop itself is not evil because they are
-//// FD: already exist in the stack. nov 8 2016
-//// This function exist to help with the arrhenius rates.
-//// Here we return the count of internal nucleotides in the open loop.
-//void OpenLoop::setFreeBasesInternal() {
-//
-//	for (int loop = 0; loop <= numAdjacent; loop++) {
-//		for (int loop2 = 2; loop2 <= sidelen[loop] - 1; loop2++) {
-//
-//			// removing checks because I'd like to software to fail if
-//			// errors in the sequence exist.
-//			context.exposedInternalNucl[seqs[loop][loop2]]++;
-//
-//		}
-//	}
-//
-//}
 
 /*
  OpenLoop::performComplexJoin
