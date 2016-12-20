@@ -112,11 +112,16 @@ void EnergyModel::printPrecomputedArrRates(void) {
 	}
 
 	ss << " \n \n";
-	ss << "    dS_A     dH_A   \n";
+	ss << "    dS_A     dH_A        biScale \n";
 	ss << "    " << simOptions->energyOptions->dSA;
 	ss << "     " << simOptions->energyOptions->dHA;
+	ss << "     " << simOptions->energyOptions->getBiScale();
 
 	ss << "\n";
+
+	ss << "Sodium    :   "  << simOptions->energyOptions->sodium		<< " M \n" ;
+	ss << "Magnesium :   "  << simOptions->energyOptions->magnesium	  	<< " M \n" ;
+
 	ss << " \n";
 
 	// now dumping the rate matrix too,
