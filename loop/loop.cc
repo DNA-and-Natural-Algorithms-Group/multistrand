@@ -2904,13 +2904,8 @@ void StackLoop::calculateEnergy(void) {
 
 	assert(Loop::energyModel != NULL);
 
-//	if (Loop::energyModel == NULL){
-//		return; // we can't handle this error. I'm trying to work out a way around it, but generally if the loops try to get used before the energy model initializes, it's all over.
-//	}
-
 	energy = Loop::energyModel->StackEnergy(seqs[0][0], seqs[1][1], seqs[0][1], seqs[1][0]);
 
-	return;
 }
 
 void StackLoop::generateMoves(void) {
@@ -3184,9 +3179,8 @@ void HairpinLoop::generateMoves(void) {
 		generateDeleteMoves();
 		return;
 	} else {
-		if (moves != NULL)
-			delete moves;
-		moves = new MoveList(1);
+
+		resetMoves(1);
 
 		// Indice 0 is the starting hairpin base. hairpinsize+1 is the ending hairpin base. Thus we want to start at hairpin indice 1, and go to hairpinsize - 3. (which could pair to indice hairpinsize)
 		for (loop = 1; loop <= hairpinsize - 4; loop++)
@@ -3449,22 +3443,19 @@ void BulgeLoop::generateMoves(void) {
 	int bsize = bulgesize[0] + bulgesize[1];
 	int bside = (bulgesize[0] == 0) ? 1 : 0;
 
-//	std::cout << "Trying to generate moves";
-//	std: cout.flush();
 
 // Creation moves
 	if (bsize <= 3) {
-		if (moves != NULL)
-			delete moves;
 
-		moves = new MoveList(0);
+		resetMoves(0);
 		totalRate = 0.0;
 		generateDeleteMoves();
 		return;
+
 	} else {
-		if (moves != NULL)
-			delete moves;
-		moves = new MoveList(bsize); // what's the optimal #?
+
+		// what's the optimal #?
+		resetMoves(bsize);
 
 		// Indice 0 is the starting bulge base. bulgesize+1 is the ending hairpin base. Thus we want to start at hairpin indice 1, and go to hairpinsize - 4. (which could pair to indice hairpinsize)
 		for (loop = 1; loop <= bsize - 4; loop++)
@@ -3541,8 +3532,6 @@ void BulgeLoop::generateDeleteMoves(void) {
 
 	double temprate;
 
-//	std::cout << "Trying to generate delete moves";
-//	std: cout.flush();
 
 	assert(moves != NULL);
 
@@ -4345,9 +4334,8 @@ void MultiLoop::generateMoves(void) {
 	RateEnv rateEnv;
 	double energies[2];
 
-	if (moves != NULL)
-		delete moves;
-	moves = new MoveList(sidelen[0] + 1);
+	resetMoves(sidelen[0] + 1);
+
 // This is almost identical to OpenLoop::generateMoves, which was written first.
 //  Several options here:
 //     #1: creation move within a side this results in a hairpin and a multi loop with 1 greater magnitude.
@@ -5022,9 +5010,9 @@ void OpenLoop::generateMoves(void) {
 	RateEnv rateEnv;
 	double energies[2];
 
-	if (moves != NULL)
-		delete moves;
-	moves = new MoveList(1);
+	resetMoves(1);
+
+
 //  Several options here:
 //     #1: creation move within a side this results in a hairpin and a open loop with 1 greater magnitude.
 //     #2a: creation move between sides resulting in a stack and open loop
