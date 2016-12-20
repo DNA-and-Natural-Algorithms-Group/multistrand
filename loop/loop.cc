@@ -79,9 +79,7 @@ double Loop::returnFlux(Loop *comefrom) {
 	double total = 0.0;
 
 	if (moves != NULL) {
-
 		total = moves->getRate();
-
 	}
 
 	for (int loop = 0; loop < curAdjacent; loop++) {
@@ -100,13 +98,9 @@ void Loop::firstGen(Loop *comefrom) {
 	generateMoves();
 
 	for (int loop = 0; loop < curAdjacent; loop++) {
-
-		if (adjacentLoops[loop] != comefrom) {
-
+		if (adjacentLoops[loop] != comefrom && adjacentLoops[loop] != NULL)
+			// shouldn't happen, being careful.
 			adjacentLoops[loop]->firstGen(this);
-
-		}
-
 		assert(adjacentLoops[loop] != NULL);
 	}
 
@@ -290,15 +284,11 @@ string identityToString(char loop) {
 	return "Could not identify loop";
 }
 
-void Loop::resetMoves(int arraySize) {
-
-	if (moves != NULL) {
-		delete moves;
-	}
-
-	moves = new MoveList(arraySize);
-
-}
+//void Loop::setPrimeRates(bool input) {
+//
+//	energyModel->simOptions->setPrimeRates(input);
+//
+//}
 
 string Loop::toString() {
 
@@ -2885,20 +2875,17 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 // start openloop
 
-	assert(!(start->identity == 'O' && end->identity == 'O'));
-
 // Control flow should never reach here, as Scomplex shortcuts O/O deletion moves (complex breaks) to a different function - performComplexSplit
-//
-//	if (start->identity == 'O' && end->identity == 'O') {
-//		fprintf(stderr, "Openloop/Openloop deletion reached via performDeleteMove, bad control flow\n");
-//		assert(0);
-//		return NULL;
-//	}
+	if (start->identity == 'O' && end->identity == 'O') {
+		fprintf(stderr, "Openloop/Openloop deletion reached via performDeleteMove, bad control flow\n");
+		assert(0);
+		return NULL;
+	}
 
 // end openloop
 
-//	else
-	return NULL;
+	else
+		return NULL;
 }
 
 /* StackLoop */
@@ -2906,8 +2893,14 @@ Loop *Loop::performDeleteMove(Move *move) {
 void StackLoop::calculateEnergy(void) {
 
 	assert(Loop::energyModel != NULL);
+
+//	if (Loop::energyModel == NULL){
+//		return; // we can't handle this error. I'm trying to work out a way around it, but generally if the loops try to get used before the energy model initializes, it's all over.
+//	}
+
 	energy = Loop::energyModel->StackEnergy(seqs[0][0], seqs[1][1], seqs[0][1], seqs[1][0]);
 
+	return;
 }
 
 void StackLoop::generateMoves(void) {
@@ -2916,8 +2909,9 @@ void StackLoop::generateMoves(void) {
 
 void StackLoop::generateDeleteMoves(void) {
 	double temprate;
-
-	resetMoves(0); // always have 2 delete moves, no shift moves and no creation moves.
+	if (moves != NULL)
+		delete moves;
+	moves = new MoveList(0); // always have 2 delete moves, no shift moves and no creation moves.
 
 	generateAndSaveDeleteMove(adjacentLoops[0], 0);
 	generateAndSaveDeleteMove(adjacentLoops[1], 1);
@@ -2942,7 +2936,6 @@ void StackLoop::printMove(Loop *comefrom, char *structure_p, char *seq_p) {
 }
 
 Move *StackLoop::getChoice(double *randomchoice, Loop *from) {
-
 	Move *stor;
 	assert(randomchoice != NULL);
 	assert(*randomchoice >= 0.0); // never should see a negative choice value.
@@ -3080,14 +3073,14 @@ string HairpinLoop::typeInternalsToString(void) {
 }
 
 void HairpinLoop::calculateEnergy(void) {
+	if (energyModel == NULL)
+		return; // we can't handle this error. I'm trying to work out a way around it, but generally if the loops try to get used before the energy model initializes, it's all over.
 
-	assert(energyModel!=NULL);
 	energy = energyModel->HairpinEnergy(hairpin_seq, hairpinsize);
-
+	return;
 }
 
 Move *HairpinLoop::getChoice(double *randomchoice, Loop *from) {
-
 	Move *stor;
 	assert(randomchoice != NULL);
 	assert(*randomchoice >= 0.0); // never should see a negative choice value.
@@ -3127,14 +3120,12 @@ double HairpinLoop::doChoice(Move *move, Loop **returnLoop) {
 			*returnLoop = newLoop[0];
 			return ((newLoop[0]->getTotalRate() + newLoop[1]->getTotalRate()) - totalRate);
 		}
-
-		if (move->type & MOVE_2) { // bulge and hairpin
-
-			if (loop == 1) {
+		if (move->type & MOVE_2) // bulge and hairpin
+				{
+			if (loop == 1)
 				newLoop[0] = new BulgeLoop(pairtype, pt, 0, (hairpinsize - loop2), &hairpin_seq[0], &hairpin_seq[loop2]);
-			} else {
+			else
 				newLoop[0] = new BulgeLoop(pairtype, pt, loop - 1, 0, &hairpin_seq[0], &hairpin_seq[loop2]);
-			}
 			newLoop[1] = new HairpinLoop(pt, loop2 - loop - 1, &hairpin_seq[loop]);
 			newLoop[0]->addAdjacent(adjacentLoops[0]);
 			adjacentLoops[0]->replaceAdjacent(this, newLoop[0]);
@@ -3146,7 +3137,6 @@ double HairpinLoop::doChoice(Move *move, Loop **returnLoop) {
 			*returnLoop = newLoop[0];
 			return ((newLoop[0]->getTotalRate() + newLoop[1]->getTotalRate()) - totalRate);
 		}
-
 		if (move->type & MOVE_3) // interior and hairpin
 				{
 			newLoop[0] = new InteriorLoop(pairtype, pt, loop - 1, hairpinsize - loop2, &hairpin_seq[0], &hairpin_seq[loop2]);
@@ -3176,16 +3166,18 @@ void HairpinLoop::generateMoves(void) {
 
 // Creation moves
 	if (hairpinsize <= 4) {
-
 		// We cannot form any creation moves in the hairpin unless it has at least 5 bases.
-		resetMoves(0);
+		if (moves != NULL)
+			delete moves;
 
+		moves = new MoveList(0);
 		totalRate = 0.0;
 		generateDeleteMoves();
 		return;
 	} else {
-
-		resetMoves(1);
+		if (moves != NULL)
+			delete moves;
+		moves = new MoveList(1);
 
 		// Indice 0 is the starting hairpin base. hairpinsize+1 is the ending hairpin base. Thus we want to start at hairpin indice 1, and go to hairpinsize - 3. (which could pair to indice hairpinsize)
 		for (loop = 1; loop <= hairpinsize - 4; loop++)
@@ -3448,18 +3440,22 @@ void BulgeLoop::generateMoves(void) {
 	int bsize = bulgesize[0] + bulgesize[1];
 	int bside = (bulgesize[0] == 0) ? 1 : 0;
 
+//	std::cout << "Trying to generate moves";
+//	std: cout.flush();
+
 // Creation moves
 	if (bsize <= 3) {
+		if (moves != NULL)
+			delete moves;
 
-		resetMoves(0);
+		moves = new MoveList(0);
 		totalRate = 0.0;
 		generateDeleteMoves();
 		return;
-
 	} else {
-
-		// what's the optimal #?
-		resetMoves(bsize);
+		if (moves != NULL)
+			delete moves;
+		moves = new MoveList(bsize); // what's the optimal #?
 
 		// Indice 0 is the starting bulge base. bulgesize+1 is the ending hairpin base. Thus we want to start at hairpin indice 1, and go to hairpinsize - 4. (which could pair to indice hairpinsize)
 		for (loop = 1; loop <= bsize - 4; loop++)
@@ -3535,6 +3531,9 @@ void BulgeLoop::generateMoves(void) {
 void BulgeLoop::generateDeleteMoves(void) {
 
 	double temprate;
+
+//	std::cout << "Trying to generate delete moves";
+//	std: cout.flush();
 
 	assert(moves != NULL);
 
@@ -3821,24 +3820,34 @@ double InteriorLoop::doChoice(Move *move, Loop **returnLoop) {
 }
 
 void InteriorLoop::generateMoves(void) {
-
 	double energies[2];
 	int pt = 0;
-
+	int loop, loop2;
 	double tempRate = 0;
 	RateEnv rateEnv;
 
-	// Creation moves
-	resetMoves((int) ((sizes[0] * sizes[1]) / 16 + 1));
+	int nummoves = sizes[0] * sizes[1];
+	if (sizes[0] > 4)
+		nummoves += sizes[0] - 4;
+	if (sizes[1] > 4)
+		nummoves += sizes[1] - 4;
+
+// this number is wrong... sigh...
+	nummoves = (int) ((sizes[0] * sizes[1]) / 16 + 1);
+
+// Creation moves
+	if (moves != NULL)
+		delete moves;
+	moves = new MoveList(nummoves);
 
 // three loops here, the first is only side 0's possible creation moves
 //                   the second is only side 1's possible creation moves
 //                   the third is only creation moves that cross 0-1.
 
 // Loop #1: Side 0 only Creation Moves
-	for (int loop = 1; loop <= sizes[0] - 4; loop++) {
+	for (loop = 1; loop <= sizes[0] - 4; loop++) {
 
-		for (int loop2 = loop + 4; loop2 <= sizes[0]; loop2++) { // each possibility will always result in a new hairpin + multiloop.
+		for (loop2 = loop + 4; loop2 <= sizes[0]; loop2++) { // each possibility will always result in a new hairpin + multiloop.
 
 			pt = pairtypes[int_seq[0][loop]][int_seq[0][loop2]];
 
@@ -3865,13 +3874,10 @@ void InteriorLoop::generateMoves(void) {
 	}
 
 // Loop #2: Side 1 only Creation Moves
-	for (int loop = 1; loop <= sizes[1] - 4; loop++)
-		for (int loop2 = loop + 4; loop2 <= sizes[1]; loop2++) { // each possibility will always result in a new hairpin + multiloop.
-
+	for (loop = 1; loop <= sizes[1] - 4; loop++)
+		for (loop2 = loop + 4; loop2 <= sizes[1]; loop2++) { // each possibility will always result in a new hairpin + multiloop.
 			pt = pairtypes[int_seq[1][loop]][int_seq[1][loop2]];
-
 			if (pt != 0) {
-
 				energies[0] = energyModel->HairpinEnergy(&int_seq[1][loop], loop2 - loop - 1);
 
 				// Multiloop energy - CHECK THIS
@@ -3894,11 +3900,10 @@ void InteriorLoop::generateMoves(void) {
 
 // Loop #3: Side 0 to Side 1 crossing moves ONLY
 
-	for (int loop = 1; loop <= sizes[0]; loop++)
-		for (int loop2 = 1; loop2 <= sizes[1]; loop2++) {
+	for (loop = 1; loop <= sizes[0]; loop++)
+		for (loop2 = 1; loop2 <= sizes[1]; loop2++) {
 
 			pt = pairtypes[int_seq[0][loop]][int_seq[1][loop2]];
-
 			if (pt != 0) {
 				// Need to check conditions for each side in order to determine what the two new loops types would be.
 				// adjacent to first pair side:
@@ -3907,21 +3912,14 @@ void InteriorLoop::generateMoves(void) {
 				MoveType rightMove = stackMove;
 
 				if (loop == 1 && loop2 == sizes[1]) {			// stack
-
 					energies[0] = energyModel->StackEnergy(int_seq[0][0], int_seq[1][sizes[1] + 1], int_seq[0][loop], int_seq[1][loop2]);
-
 				} else if (loop == 1 || loop2 == sizes[1]) {		// bulge
-
 					energies[0] = energyModel->BulgeEnergy(int_seq[0][0], int_seq[1][sizes[1] + 1], int_seq[0][loop], int_seq[1][loop2],
 							(loop - 1) + (sizes[1] - loop2));
-
 					leftMove = stackLoopMove;
-
 				} else {  // interior
-
 					energies[0] = energyModel->InteriorEnergy(int_seq[0], &int_seq[1][loop2], loop - 1, sizes[1] - loop2);
 					leftMove = loopMove;
-
 				}
 
 				// other side
@@ -4337,8 +4335,9 @@ void MultiLoop::generateMoves(void) {
 	RateEnv rateEnv;
 	double energies[2];
 
-	resetMoves(sidelen[0] + 1);
-
+	if (moves != NULL)
+		delete moves;
+	moves = new MoveList(sidelen[0] + 1);
 // This is almost identical to OpenLoop::generateMoves, which was written first.
 //  Several options here:
 //     #1: creation move within a side this results in a hairpin and a multi loop with 1 greater magnitude.
@@ -5013,8 +5012,9 @@ void OpenLoop::generateMoves(void) {
 	RateEnv rateEnv;
 	double energies[2];
 
-	resetMoves(1);
-
+	if (moves != NULL)
+		delete moves;
+	moves = new MoveList(1);
 //  Several options here:
 //     #1: creation move within a side this results in a hairpin and a open loop with 1 greater magnitude.
 //     #2a: creation move between sides resulting in a stack and open loop

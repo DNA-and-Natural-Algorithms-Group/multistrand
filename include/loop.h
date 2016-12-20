@@ -70,7 +70,6 @@ public:
 	static void performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);
 
 	// FD functions
-	void resetMoves(int);
 	string toString(void);
 	string toStringShort(void);
 	void printAllMoves(Loop*);

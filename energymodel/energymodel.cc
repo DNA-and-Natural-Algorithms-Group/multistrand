@@ -13,21 +13,6 @@
 
 bool printedRates = false;
 
-int pairs[5] = { 0, 0, 0, 0, 0 };
-int pairtypes[5][5] = { { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 } };
-int basepair_sw[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
-
-int lookuphelper[26] = { 1, 0, 2, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0 };		// A C G T    1 2 3 4
-//                      A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z
-
-// // helper function to convert to numerical base format.
-int baseLookup(char base) {
-	char temp = toupper(base);
-	if (temp < 'A' || temp > 'Z')
-		return base;
-	return lookuphelper[temp - 'A'];
-}
-
 EnergyModel::EnergyModel(PyObject *options) {
 	// nothing yet
 
@@ -48,9 +33,9 @@ bool EnergyModel::useArrhenius(void) {
 
 }
 
-double expRate(double lnA, double E, double temperature) {
+double expRate(double A, double E, double temperature) {
 
-	return exp(lnA - E / (gasConstant * temperature));
+	return exp(A - E / (gasConstant * temperature));
 
 }
 
@@ -127,14 +112,16 @@ void EnergyModel::printPrecomputedArrRates(void) {
 	}
 
 	ss << " \n \n";
-	ss << "    dS_A     dH_A		\n";
+	ss << "    dS_A     dS_T     dS_C     dS_G      \n";
 	ss << "    " << simOptions->energyOptions->dSA;
-	ss << "    " << simOptions->energyOptions->dHA;
+	ss << "     " << simOptions->energyOptions->dST;
+	ss << "     " << simOptions->energyOptions->dSC;
+	ss << "     " << simOptions->energyOptions->dSG;
 
 	ss << "\n";
-	ss << "\n";
+	ss << " \n";
 
-	// now dumping the bimolecular rate matrix too,
+	// now dumping the rate matrix too,
 
 	for (int i = 0; i < MOVETYPE_SIZE; i++) {
 
@@ -147,11 +134,6 @@ void EnergyModel::printPrecomputedArrRates(void) {
 		ss << " \n";
 
 	}
-
-	ss << "\n";
-
-	ss << "Sodium    :   "  << simOptions->energyOptions->sodium		<< " M \n" ;
-	ss << "Magnesium :   "  << simOptions->energyOptions->magnesium	  	<< " M \n" ;
 
 	ss << " \n";
 
@@ -294,48 +276,90 @@ MoveType EnergyModel::prefactorOpen(int index, int numOfSides, int sideLengths[]
 
 }
 
-double EnergyModel::singleStrandedStacking(char* sequence,  int length ) {
-
-	if (simOptions->energyOptions->usingArrhenius() && length > 4) {
-
-		return arrheniusLoopEnergy(sequence, length);
-
-	} else{
-
-		return 0.0;
-
-	}
-
-}
-
-double EnergyModel::arrheniusLoopEnergy(char* seq, int length) {
+double EnergyModel::arrheniusLoopEnergy(char* seq, int size) {
 
 	double output = 0.0;
 
-	for (int i = 0; i < (length - 1); i++) {
+	for (int i = 0; i < (size - 1); i++) {
 
 		int myMult = seq[i] * seq[i + 1];
 
 		switch (myMult) {
 
 		case baseA * baseA:
-			output += (simOptions->energyOptions->dHA - simOptions->energyOptions->getTemperature() * (simOptions->energyOptions->dSA / 1000.0));
+			output += (simOptions->energyOptions->dSA);
+			break;
+		case baseC * baseC:
+			output += (simOptions->energyOptions->dSC);
+			break;
+		case baseG * baseG:
+			output += (simOptions->energyOptions->dSG);
+			break;
+		case baseT * baseT:
+			output += (simOptions->energyOptions->dST);
 			break;
 		}
 
 	}
 
-	return output;
+	return -output * simOptions->energyOptions->getTemperature() / 1000.0;
 
 }
 
-double EnergyModel::saltCorrection() {
+
+
+double EnergyModel::saltCorrection(int size){
 
 // FD: Nupack makes a distinction between long (>20nt) and short domains.
 // FD: For short domains, magnesium correction is not used. See computeSaltCorrection in utils/init.c for NUPACK 3.0.4.
 // FD: In multistrand we don't set this distinction.
 
-	return 0.368 * log(simOptions->energyOptions->sodium + 3.3 * sqrt(simOptions->energyOptions->magnesium));
+	return 0.368 * (size-1) * log(simOptions->energyOptions->sodium + 3.3 * sqrt(simOptions->energyOptions->magnesium));
 
+}
+
+
+
+//double EnergyModel::ArrheniusLoopEnergy(char* seq, int size) {
+//
+//	double output = 0.0;
+//
+//	for (int i = 0; i < size; i++) {
+//
+//		switch (seq[i]) {
+//
+//		case BASE_A:
+//			output += (simOptions->energyOptions->dSA);
+//			break;
+//		case BASE_C:
+//			output += (simOptions->energyOptions->dSC);
+//			break;
+//		case BASE_G:
+//			output += (simOptions->energyOptions->dSG);
+//			break;
+//		case BASE_T:
+//			output += (simOptions->energyOptions->dST);
+//			break;
+//		}
+//
+//	}
+//
+//	return -output * simOptions->energyOptions->getTemperature() / 1000.0;
+//
+//}
+
+int pairs[5] = { 0, 0, 0, 0, 0 };
+int pairtypes[5][5] = { { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 } };
+int basepair_sw[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+
+int lookuphelper[26] = { 1, 0, 2, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0 };		// A C G T    1 2 3 4
+//                      A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z
+
+// // helper function to convert to numerical base format.
+int baseLookup(char base) {
+	char temp = toupper(base);
+	if (temp < 'A' || temp > 'Z')
+		return base;
+	return lookuphelper[temp - 'A'];
 }
 

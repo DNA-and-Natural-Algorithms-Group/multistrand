@@ -10,6 +10,7 @@
 #include <python2.7/Python.h>
 
 using std::string;
+//using namespace utility;
 
 /*
  strandlist::strandlist( char *newid, char *newseq, class strandlist *old = NULL )

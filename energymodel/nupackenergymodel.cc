@@ -93,7 +93,7 @@ double NupackEnergyModel::getAssocEnergy(void) {
 // non entropy/enthalpy energy functions
 double NupackEnergyModel::StackEnergy(int i, int j, int p, int q) {
 
-	return stack_37_dG[pairtypes[i][j] - 1][pairtypes[p][q] - 1];
+	return stack_37_dG[pairtypes[i][j] - 1][pairtypes[p][q] - 1] ;
 
 }
 
@@ -124,8 +124,6 @@ double NupackEnergyModel::BulgeEnergy(int i, int j, int p, int q, int bulgesize)
 
 	}
 
-	// FD: no single stranded stacking for now
-
 	return energy;
 }
 
@@ -137,21 +135,17 @@ double NupackEnergyModel::InteriorEnergy(char *seq1, char *seq2, int size1, int 
 	int type2 = pairtypes[seq1[size1 + 1]][seq2[0]] - 1;
 
 	// special case time. 1x1, 2x1 and 2x2's all get special cases.
-	if (size1 == 1 && size2 == 1){
+	if (size1 == 1 && size2 == 1)
 		return internal_1_1_37_dG[type1][type2][seq1[1]][seq2[size2]];
-	}
 	if (size1 <= 2 && size2 <= 2)
 		if (size1 == 1 || size2 == 1) {
-			if (size1 == 1){
+			if (size1 == 1)
 				return internal_2_1_37_dG[type1][seq1[1]][type2][seq2[1]][seq2[size2]];
-			} else{
+			else
 				return internal_2_1_37_dG[basepair_sw_mfold_actual[type2 + 1] - 1][seq2[1]][basepair_sw_mfold_actual[type1 + 1] - 1][seq1[1]][seq1[size1]];
-			}
 		}
-
-	if (size1 == 2 && size2 == 2){
+	if (size1 == 2 && size2 == 2)
 		return internal_2_2_37_dG[type1][type2][seq1[1]][seq1[size1]][seq2[1]][seq2[size2]];
-	}
 
 	// Generic case.
 
@@ -180,16 +174,13 @@ double NupackEnergyModel::InteriorEnergy(char *seq1, char *seq2, int size1, int 
 		energy += ninio;
 	}
 
+
 	// try gail params?
 	if (size1 == 1 || size2 == 1) {
 		energy += internal_mismatch_37_dG[1][1][type1] + internal_mismatch_37_dG[1][1][basepair_sw_mfold_actual[type2 + 1] - 1];
 	} else {
 		energy += internal_mismatch_37_dG[seq1[1]][seq2[size2]][type1] + internal_mismatch_37_dG[seq2[1]][seq1[size1]][basepair_sw_mfold_actual[type2 + 1] - 1];
 	}
-
-	// FD: adding the singlestranded stacking term.
-	energy += singleStrandedStacking(seq1, size1);
-	energy += singleStrandedStacking(seq2, size2);
 
 
 	return energy;
@@ -224,18 +215,17 @@ double NupackEnergyModel::HairpinEnergy(char *seq, int size) {
 		energy += hairpin_tetraloop_37_dG[lookup_index];
 	}
 
-	if (size >= 4){
+	if (size >= 4)
 		energy += hairpin_mismatch_37_dG[(pairtypes[seq[0]][seq[size + 1]] - 1)][seq[1]][seq[size]];
+
+	if (simOptions->energyOptions->usingArrhenius() && size > 5) {
+
+		energy += this->arrheniusLoopEnergy(seq, size);
+
 	}
-
-	// FD: single stranded stacks.
-	energy += singleStrandedStacking(seq, size);
-
 
 	return energy;
 }
-
-
 
 double NupackEnergyModel::MultiloopEnergy(int size, int *sidelen, char **sequences) {
 
@@ -263,11 +253,6 @@ double NupackEnergyModel::MultiloopEnergy(int size, int *sidelen, char **sequenc
 			loopminus1 = 0;
 		}
 
-
-		// FD: single stranded stacks.
-		energy += singleStrandedStacking(sequences[loop], sidelen[loop]);
-
-
 	}
 	energy += size * multiloop_internal;
 	energy += multiloop_closing;
@@ -279,7 +264,6 @@ double NupackEnergyModel::MultiloopEnergy(int size, int *sidelen, char **sequenc
 	} else {
 		energy += multiloop_base * 6 + (log((double) totallength / 6.0) * log_loop_penalty / 100.0);
 	}
-
 	if (dangles == DANGLES_NONE) {
 		return energy;
 	} else {
@@ -303,10 +287,6 @@ double NupackEnergyModel::MultiloopEnergy(int size, int *sidelen, char **sequenc
 				}
 			}
 
-			// FD: adding singlestranded stacking.
-			energy += singleStrandedStacking(sequences[loop], sidelen[loop]);
-
-
 			loopminus1++;
 			if (loopminus1 == size) {
 				loopminus1 = 0;
@@ -326,7 +306,6 @@ double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequence
 	int pt, loop, rt_pt;
 
 	for (loop = 0; loop < size; loop++) {
-
 		pt = pairtypes[sequences[loop][sidelen[loop] + 1]][sequences[loop + 1][0]] - 1;
 		// TODO: slight efficiency gain if we wrap this into the dangles version separately, rather than doing a double pass in the dangle case.
 
@@ -336,16 +315,9 @@ double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequence
 		if (!gtenable && (pt > 3)) { // GT penalty applies
 			energy += 100000.0;
 		}
-
-		// FD: adding singlestranded stacking.
-		energy += singleStrandedStacking(sequences[loop], sidelen[loop]);
-
-
 	}
 	if (dangles == DANGLES_NONE || size == 0) {
-
 		return energy;
-
 	} else {
 
 		double dangle3 = 0.0, dangle5 = 0.0;
@@ -365,21 +337,14 @@ double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequence
 			rt_pt = pairtypes[sequences[loop + 2][0]][sequences[loop + 1][sidelen[loop + 1] + 1]] - 1;
 			dangle5 = dangle_5_37_dG[pt][sequences[loop + 1][1]];
 			dangle3 = dangle_3_37_dG[rt_pt][sequences[loop + 1][sidelen[loop + 1]]];
-
 			if (dangles == DANGLES_SOME && sidelen[loop + 1] == 1) {
-
 				energy += (dangle3 < dangle5 ? dangle3 : dangle5); // minimum of the two terms.
-
 			} else if (dangles == DANGLES_SOME && sidelen[loop + 1] == 0) {
-
 				energy += 0; // dangles=DANGLES_SOME has no stacking when 0 bases between.
 							 // dangles=DANGLES_ALL, however, does. Weird, eh?
 			} else {
 				energy += dangle3 + dangle5;
 			}
-
-			// FD: adding singlestranded stacking.
-			energy += singleStrandedStacking(sequences[loop], sidelen[loop]);
 
 			pt = rt_pt;
 		}
@@ -424,9 +389,13 @@ NupackEnergyModel::NupackEnergyModel(SimOptions* options) :
 	computeArrheniusRates(current_temp);
 }
 
+//NupackEnergyModel::NupackEnergyModel(SimOptions* options) :
+//		log_loop_penalty_37(107.856), kinetic_rate_method(
+//				RATE_METHOD_KAWASAKI), bimolecular_penalty(1.96), kBoltzmann(
+//				.00198717), current_temp(310.15) // Check references for this loop penalty term.
+//void NupackEnergyModel::processOptions(PyObject* energy_options) {
 void NupackEnergyModel::processOptions() {
-
-	// This is the tough part, performing all read/input duties.
+// This is the tough part, performing all read/input duties.
 	char in_buffer[2048];
 	int loop, loop2, loop3, loop4, loop5, loop6;
 	double temperature;
@@ -842,14 +811,9 @@ void NupackEnergyModel::processOptions() {
 		return;
 	}
 
-	for (loop = 0; loop < NUM_BASEPAIRS_NUPACK; loop++) {
-		for (loop2 = 0; loop2 < NUM_BASEPAIRS_NUPACK; loop2++) {
-
+	for (loop = 0; loop < NUM_BASEPAIRS_NUPACK; loop++)
+		for (loop2 = 0; loop2 < NUM_BASEPAIRS_NUPACK; loop2++)
 			stack_37_dG[loop][loop2] = T_scale(stack_37_dG[loop][loop2], stack_37_dH[loop][loop2], temperature);
-			stack_37_dG[loop][loop2] += -temperature * saltCorrection();
-
-		}
-	}
 
 	for (loop = 0; loop < 31; loop++)
 		hairpin_37_dG[loop] = T_scale(hairpin_37_dG[loop], hairpin_37_dH[loop], temperature);
@@ -1077,7 +1041,7 @@ void NupackEnergyModel::internal_set_interior_2_1_energies(FILE *fp, char *buffe
 			}
 
 			for (loop3 = 1; loop3 < NUM_BASES; loop3++) {
-				for (loop4 = 1; loop4 < NUM_BASES; loop4++) {
+				for (loop4 = 1; loop4 < NUM_BASES; loop4++){
 					cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &internal_2_1_37_dG[loop][loop3][loop2][loop4][1], (NUM_BASES - 1));
 				}
 			}

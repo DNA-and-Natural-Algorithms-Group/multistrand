@@ -42,6 +42,24 @@ std::ostream& operator<<(std::ostream& ss, RateEnv& env) {
 	}
 
 	ss << moveutil::primeToDesc(env.arrType);
+//
+//	for (int i = 0; i < MOVETYPE_SIZE; i++) {
+//
+//		int myPrime = moveutil::valuesPrime[i];
+//
+//		if ((env.arrType % myPrime) == 0) {
+//
+//			ss << moveutil::MoveToString[i] << moveutil::MoveToString2[i];
+//
+//			if ((env.arrType % (myPrime * myPrime) == 0)) {
+//
+//				ss << moveutil::MoveToString[i] << moveutil::MoveToString2[i];
+//
+//			}
+//
+//		}
+//
+//	}
 
 	ss << "  " << env.rate << "   ";
 
@@ -145,6 +163,15 @@ Move::Move(int mtype, RateEnv mrate, Loop *affected_1, int *indexarray) {
 
 }
 
+//Move::Move(int mtype, double mrate, Loop *affected_1, int *indexarray) {
+//	type = mtype;
+//	rate = mrate;
+//	affected[0] = affected_1;
+//	affected[1] = NULL;
+//	for (int loop = 0; loop < 4; loop++)
+//		index[loop] = indexarray[loop];
+//
+//}
 
 Move::~Move(void) {
 	/* destruction of a move does not imply destruction of the associated loops */
@@ -182,6 +209,25 @@ Loop *Move::doChoice(void) {
 		return NULL;
 }
 
+//string Move::rateToString(bool usePrime) {
+//
+//	std::stringstream ss;
+//
+////	if (usePrime) {
+////
+////		ss << EnergyOptions::primeRateToString(rate.rate);
+////
+////	} else {
+//
+//		ss << std::setprecision(3) << rate.rate;
+//
+////	}
+//
+//	ss << " ";
+//
+//	return ss.str();
+//
+//}
 
 string Move::toString(bool useArr) {
 
@@ -305,15 +351,12 @@ void MoveList::printAllMoves(bool useArr) {
 }
 
 void MoveList::addMove(Move *newmove) {
-
 	int type = newmove->getType();
-
 	if (!(type & MOVE_DELETE)) {
 
 		moves[moves_index] = newmove;
 		totalrate += newmove->getRate();
 		moves_index++;
-
 		// next add would be an overflow.
 		if (moves_index == moves_size) {
 			Move **temp = moves;
@@ -328,9 +371,8 @@ void MoveList::addMove(Move *newmove) {
 			moves_size = moves_size * 2;
 			delete[] temp;
 		}
-
-	} else { // if type is delete move
-
+	} else // if type is delete move
+	{
 		totalrate += newmove->getRate();
 		if (del_moves == NULL) {
 			del_moves = new Move *[2];
@@ -367,38 +409,29 @@ Move *MoveList::getMove(Move *iterator) {
 	return moves[int_index++];
 }
 
-Move *MoveList::getChoice(double* rnd) {
+Move *MoveList::getChoice(double *rnd) {
 
 	double tmp;
 
-	for (int index = 0; index < (moves_index + del_moves_index); index++) {
+	for (int index = 0; index < moves_index + del_moves_index; index++) {
 
 		if (index < moves_index) {
-
 			tmp = moves[index]->getRate();
-
 		} else {
-
 			tmp = del_moves[index - moves_index]->getRate();
-
 		}
-
 		if (*rnd < tmp && index < moves_index) {
-
 			return moves[index];
-
 		} else if (*rnd < tmp) {
-
+//			// TODO
+//			cout << "Returning delete move!! \n ";
+//			cout << del_moves[index - moves_index]->toString(true);
+//			cout.flush();
 			return del_moves[index - moves_index];
-
 		} else {
-
 			*rnd -= tmp;
-
-
 		}
 	}
-
 	assert(*rnd > 0);
 	assert(0); // should never call for a move from a container unless it will get one.
 	return NULL;
