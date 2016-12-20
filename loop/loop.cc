@@ -2885,17 +2885,20 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 // start openloop
 
+	assert(!(start->identity == 'O' && end->identity == 'O'));
+
 // Control flow should never reach here, as Scomplex shortcuts O/O deletion moves (complex breaks) to a different function - performComplexSplit
-	if (start->identity == 'O' && end->identity == 'O') {
-		fprintf(stderr, "Openloop/Openloop deletion reached via performDeleteMove, bad control flow\n");
-		assert(0);
-		return NULL;
-	}
+//
+//	if (start->identity == 'O' && end->identity == 'O') {
+//		fprintf(stderr, "Openloop/Openloop deletion reached via performDeleteMove, bad control flow\n");
+//		assert(0);
+//		return NULL;
+//	}
 
 // end openloop
 
-	else
-		return NULL;
+//	else
+	return NULL;
 }
 
 /* StackLoop */
@@ -2903,7 +2906,6 @@ Loop *Loop::performDeleteMove(Move *move) {
 void StackLoop::calculateEnergy(void) {
 
 	assert(Loop::energyModel != NULL);
-
 	energy = Loop::energyModel->StackEnergy(seqs[0][0], seqs[1][1], seqs[0][1], seqs[1][0]);
 
 }
@@ -2940,6 +2942,7 @@ void StackLoop::printMove(Loop *comefrom, char *structure_p, char *seq_p) {
 }
 
 Move *StackLoop::getChoice(double *randomchoice, Loop *from) {
+
 	Move *stor;
 	assert(randomchoice != NULL);
 	assert(*randomchoice >= 0.0); // never should see a negative choice value.
@@ -3077,14 +3080,14 @@ string HairpinLoop::typeInternalsToString(void) {
 }
 
 void HairpinLoop::calculateEnergy(void) {
-	if (energyModel == NULL)
-		return; // we can't handle this error. I'm trying to work out a way around it, but generally if the loops try to get used before the energy model initializes, it's all over.
 
+	assert(energyModel!=NULL);
 	energy = energyModel->HairpinEnergy(hairpin_seq, hairpinsize);
-	return;
+
 }
 
 Move *HairpinLoop::getChoice(double *randomchoice, Loop *from) {
+
 	Move *stor;
 	assert(randomchoice != NULL);
 	assert(*randomchoice >= 0.0); // never should see a negative choice value.
@@ -3124,12 +3127,14 @@ double HairpinLoop::doChoice(Move *move, Loop **returnLoop) {
 			*returnLoop = newLoop[0];
 			return ((newLoop[0]->getTotalRate() + newLoop[1]->getTotalRate()) - totalRate);
 		}
-		if (move->type & MOVE_2) // bulge and hairpin
-				{
-			if (loop == 1)
+
+		if (move->type & MOVE_2) { // bulge and hairpin
+
+			if (loop == 1) {
 				newLoop[0] = new BulgeLoop(pairtype, pt, 0, (hairpinsize - loop2), &hairpin_seq[0], &hairpin_seq[loop2]);
-			else
+			} else {
 				newLoop[0] = new BulgeLoop(pairtype, pt, loop - 1, 0, &hairpin_seq[0], &hairpin_seq[loop2]);
+			}
 			newLoop[1] = new HairpinLoop(pt, loop2 - loop - 1, &hairpin_seq[loop]);
 			newLoop[0]->addAdjacent(adjacentLoops[0]);
 			adjacentLoops[0]->replaceAdjacent(this, newLoop[0]);
@@ -3141,6 +3146,7 @@ double HairpinLoop::doChoice(Move *move, Loop **returnLoop) {
 			*returnLoop = newLoop[0];
 			return ((newLoop[0]->getTotalRate() + newLoop[1]->getTotalRate()) - totalRate);
 		}
+
 		if (move->type & MOVE_3) // interior and hairpin
 				{
 			newLoop[0] = new InteriorLoop(pairtype, pt, loop - 1, hairpinsize - loop2, &hairpin_seq[0], &hairpin_seq[loop2]);
@@ -3173,7 +3179,6 @@ void HairpinLoop::generateMoves(void) {
 
 		// We cannot form any creation moves in the hairpin unless it has at least 5 bases.
 		resetMoves(0);
-
 
 		totalRate = 0.0;
 		generateDeleteMoves();
@@ -3443,7 +3448,6 @@ void BulgeLoop::generateMoves(void) {
 	int bsize = bulgesize[0] + bulgesize[1];
 	int bside = (bulgesize[0] == 0) ? 1 : 0;
 
-
 // Creation moves
 	if (bsize <= 3) {
 
@@ -3531,7 +3535,6 @@ void BulgeLoop::generateMoves(void) {
 void BulgeLoop::generateDeleteMoves(void) {
 
 	double temprate;
-
 
 	assert(moves != NULL);
 
@@ -5011,7 +5014,6 @@ void OpenLoop::generateMoves(void) {
 	double energies[2];
 
 	resetMoves(1);
-
 
 //  Several options here:
 //     #1: creation move within a side this results in a hairpin and a open loop with 1 greater magnitude.
