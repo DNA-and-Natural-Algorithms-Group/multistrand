@@ -356,10 +356,9 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         self.EStackLoop = -0.1; 
         
         
-        self.dSA = -0.1;
-        self.dST = -0.1;
-        self.dSC = -0.1;
-        self.dSG = -0.1;
+        self.dSA = -0.0;
+        self.dHA = -0.0;
+
         
         self.sodium = 1.0;
         self.magnesium = 0.0;
