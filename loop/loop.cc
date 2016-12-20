@@ -290,11 +290,15 @@ string identityToString(char loop) {
 	return "Could not identify loop";
 }
 
-//void Loop::setPrimeRates(bool input) {
-//
-//	energyModel->simOptions->setPrimeRates(input);
-//
-//}
+void Loop::resetMoves(int arraySize) {
+
+	if (moves != NULL) {
+		delete moves;
+	}
+
+	moves = new MoveList(arraySize);
+
+}
 
 string Loop::toString() {
 
@@ -2915,9 +2919,8 @@ void StackLoop::generateMoves(void) {
 
 void StackLoop::generateDeleteMoves(void) {
 	double temprate;
-	if (moves != NULL)
-		delete moves;
-	moves = new MoveList(0); // always have 2 delete moves, no shift moves and no creation moves.
+
+	resetMoves(0); // always have 2 delete moves, no shift moves and no creation moves.
 
 	generateAndSaveDeleteMove(adjacentLoops[0], 0);
 	generateAndSaveDeleteMove(adjacentLoops[1], 1);
@@ -3172,11 +3175,11 @@ void HairpinLoop::generateMoves(void) {
 
 // Creation moves
 	if (hairpinsize <= 4) {
-		// We cannot form any creation moves in the hairpin unless it has at least 5 bases.
-		if (moves != NULL)
-			delete moves;
 
-		moves = new MoveList(0);
+		// We cannot form any creation moves in the hairpin unless it has at least 5 bases.
+		resetMoves(0);
+
+
 		totalRate = 0.0;
 		generateDeleteMoves();
 		return;
@@ -3833,14 +3836,8 @@ void InteriorLoop::generateMoves(void) {
 	double tempRate = 0;
 	RateEnv rateEnv;
 
-	int nummoves = (int) ((sizes[0] * sizes[1]) / 16 + 1);
-
-// Creation moves
-	if (moves != NULL){
-		delete moves;
-	}
-
-	moves = new MoveList(nummoves);
+	// Creation moves
+	resetMoves((int) ((sizes[0] * sizes[1]) / 16 + 1));
 
 // three loops here, the first is only side 0's possible creation moves
 //                   the second is only side 1's possible creation moves
