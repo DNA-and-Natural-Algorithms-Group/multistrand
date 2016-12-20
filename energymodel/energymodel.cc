@@ -13,6 +13,21 @@
 
 bool printedRates = false;
 
+int pairs[5] = { 0, 0, 0, 0, 0 };
+int pairtypes[5][5] = { { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 } };
+int basepair_sw[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+
+int lookuphelper[26] = { 1, 0, 2, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0 };		// A C G T    1 2 3 4
+//                      A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z
+
+// // helper function to convert to numerical base format.
+int baseLookup(char base) {
+	char temp = toupper(base);
+	if (temp < 'A' || temp > 'Z')
+		return base;
+	return lookuphelper[temp - 'A'];
+}
+
 EnergyModel::EnergyModel(PyObject *options) {
 	// nothing yet
 
@@ -274,11 +289,25 @@ MoveType EnergyModel::prefactorOpen(int index, int numOfSides, int sideLengths[]
 
 }
 
-double EnergyModel::arrheniusLoopEnergy(char* seq, int size) {
+double EnergyModel::singleStrandedStacking(char* sequence,  int length ) {
+
+	if (simOptions->energyOptions->usingArrhenius() && length > 4) {
+
+		return arrheniusLoopEnergy(sequence, length);
+
+	} else{
+
+		return 0.0;
+
+	}
+
+}
+
+double EnergyModel::arrheniusLoopEnergy(char* seq, int length) {
 
 	double output = 0.0;
 
-	for (int i = 0; i < (size - 1); i++) {
+	for (int i = 0; i < (length - 1); i++) {
 
 		int myMult = seq[i] * seq[i + 1];
 
@@ -303,48 +332,5 @@ double EnergyModel::saltCorrection() {
 
 	return 0.368 * log(simOptions->energyOptions->sodium + 3.3 * sqrt(simOptions->energyOptions->magnesium));
 
-}
-
-//double EnergyModel::ArrheniusLoopEnergy(char* seq, int size) {
-//
-//	double output = 0.0;
-//
-//	for (int i = 0; i < size; i++) {
-//
-//		switch (seq[i]) {
-//
-//		case BASE_A:
-//			output += (simOptions->energyOptions->dSA);
-//			break;
-//		case BASE_C:
-//			output += (simOptions->energyOptions->dSC);
-//			break;
-//		case BASE_G:
-//			output += (simOptions->energyOptions->dSG);
-//			break;
-//		case BASE_T:
-//			output += (simOptions->energyOptions->dST);
-//			break;
-//		}
-//
-//	}
-//
-//	return -output * simOptions->energyOptions->getTemperature() / 1000.0;
-//
-//}
-
-int pairs[5] = { 0, 0, 0, 0, 0 };
-int pairtypes[5][5] = { { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 } };
-int basepair_sw[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
-
-int lookuphelper[26] = { 1, 0, 2, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0 };		// A C G T    1 2 3 4
-//                      A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z
-
-// // helper function to convert to numerical base format.
-int baseLookup(char base) {
-	char temp = toupper(base);
-	if (temp < 'A' || temp > 'Z')
-		return base;
-	return lookuphelper[temp - 'A'];
 }
 

@@ -124,6 +124,8 @@ double NupackEnergyModel::BulgeEnergy(int i, int j, int p, int q, int bulgesize)
 
 	}
 
+	// FD: no single stranded stacking for now
+
 	return energy;
 }
 
@@ -135,17 +137,21 @@ double NupackEnergyModel::InteriorEnergy(char *seq1, char *seq2, int size1, int 
 	int type2 = pairtypes[seq1[size1 + 1]][seq2[0]] - 1;
 
 	// special case time. 1x1, 2x1 and 2x2's all get special cases.
-	if (size1 == 1 && size2 == 1)
+	if (size1 == 1 && size2 == 1){
 		return internal_1_1_37_dG[type1][type2][seq1[1]][seq2[size2]];
+	}
 	if (size1 <= 2 && size2 <= 2)
 		if (size1 == 1 || size2 == 1) {
-			if (size1 == 1)
+			if (size1 == 1){
 				return internal_2_1_37_dG[type1][seq1[1]][type2][seq2[1]][seq2[size2]];
-			else
+			} else{
 				return internal_2_1_37_dG[basepair_sw_mfold_actual[type2 + 1] - 1][seq2[1]][basepair_sw_mfold_actual[type1 + 1] - 1][seq1[1]][seq1[size1]];
+			}
 		}
-	if (size1 == 2 && size2 == 2)
+
+	if (size1 == 2 && size2 == 2){
 		return internal_2_2_37_dG[type1][type2][seq1[1]][seq1[size1]][seq2[1]][seq2[size2]];
+	}
 
 	// Generic case.
 
@@ -181,6 +187,11 @@ double NupackEnergyModel::InteriorEnergy(char *seq1, char *seq2, int size1, int 
 		energy += internal_mismatch_37_dG[seq1[1]][seq2[size2]][type1] + internal_mismatch_37_dG[seq2[1]][seq1[size1]][basepair_sw_mfold_actual[type2 + 1] - 1];
 	}
 
+	// FD: adding the singlestranded stacking term.
+	energy += singleStrandedStacking(seq1, size1);
+	energy += singleStrandedStacking(seq2, size2);
+
+
 	return energy;
 }
 
@@ -213,17 +224,18 @@ double NupackEnergyModel::HairpinEnergy(char *seq, int size) {
 		energy += hairpin_tetraloop_37_dG[lookup_index];
 	}
 
-	if (size >= 4)
+	if (size >= 4){
 		energy += hairpin_mismatch_37_dG[(pairtypes[seq[0]][seq[size + 1]] - 1)][seq[1]][seq[size]];
-
-	if (simOptions->energyOptions->usingArrhenius() && size > 5) {
-
-		energy += this->arrheniusLoopEnergy(seq, size);
-
 	}
+
+	// FD: single stranded stacks.
+	energy += singleStrandedStacking(seq, size);
+
 
 	return energy;
 }
+
+
 
 double NupackEnergyModel::MultiloopEnergy(int size, int *sidelen, char **sequences) {
 
@@ -251,6 +263,11 @@ double NupackEnergyModel::MultiloopEnergy(int size, int *sidelen, char **sequenc
 			loopminus1 = 0;
 		}
 
+
+		// FD: single stranded stacks.
+		energy += singleStrandedStacking(sequences[loop], sidelen[loop]);
+
+
 	}
 	energy += size * multiloop_internal;
 	energy += multiloop_closing;
@@ -262,6 +279,7 @@ double NupackEnergyModel::MultiloopEnergy(int size, int *sidelen, char **sequenc
 	} else {
 		energy += multiloop_base * 6 + (log((double) totallength / 6.0) * log_loop_penalty / 100.0);
 	}
+
 	if (dangles == DANGLES_NONE) {
 		return energy;
 	} else {
@@ -285,6 +303,10 @@ double NupackEnergyModel::MultiloopEnergy(int size, int *sidelen, char **sequenc
 				}
 			}
 
+			// FD: adding singlestranded stacking.
+			energy += singleStrandedStacking(sequences[loop], sidelen[loop]);
+
+
 			loopminus1++;
 			if (loopminus1 == size) {
 				loopminus1 = 0;
@@ -304,6 +326,7 @@ double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequence
 	int pt, loop, rt_pt;
 
 	for (loop = 0; loop < size; loop++) {
+
 		pt = pairtypes[sequences[loop][sidelen[loop] + 1]][sequences[loop + 1][0]] - 1;
 		// TODO: slight efficiency gain if we wrap this into the dangles version separately, rather than doing a double pass in the dangle case.
 
@@ -313,9 +336,16 @@ double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequence
 		if (!gtenable && (pt > 3)) { // GT penalty applies
 			energy += 100000.0;
 		}
+
+		// FD: adding singlestranded stacking.
+		energy += singleStrandedStacking(sequences[loop], sidelen[loop]);
+
+
 	}
 	if (dangles == DANGLES_NONE || size == 0) {
+
 		return energy;
+
 	} else {
 
 		double dangle3 = 0.0, dangle5 = 0.0;
@@ -343,6 +373,9 @@ double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequence
 			} else {
 				energy += dangle3 + dangle5;
 			}
+
+			// FD: adding singlestranded stacking.
+			energy += singleStrandedStacking(sequences[loop], sidelen[loop]);
 
 			pt = rt_pt;
 		}
