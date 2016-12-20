@@ -182,6 +182,9 @@ double NupackEnergyModel::InteriorEnergy(char *seq1, char *seq2, int size1, int 
 		energy += internal_mismatch_37_dG[seq1[1]][seq2[size2]][type1] + internal_mismatch_37_dG[seq2[1]][seq1[size1]][basepair_sw_mfold_actual[type2 + 1] - 1];
 	}
 
+	// FD: adding the singlestranded stacking term.
+	energy += singleStrandedStacking(seq1, size1);
+	energy += singleStrandedStacking(seq2, size2);
 
 	return energy;
 }
@@ -218,11 +221,9 @@ double NupackEnergyModel::HairpinEnergy(char *seq, int size) {
 	if (size >= 4)
 		energy += hairpin_mismatch_37_dG[(pairtypes[seq[0]][seq[size + 1]] - 1)][seq[1]][seq[size]];
 
-	if (simOptions->energyOptions->usingArrhenius() && size > 5) {
 
-		energy += this->arrheniusLoopEnergy(seq, size);
-
-	}
+	// FD: single stranded stacks.
+	energy += singleStrandedStacking(seq, size);
 
 	return energy;
 }
@@ -252,6 +253,10 @@ double NupackEnergyModel::MultiloopEnergy(int size, int *sidelen, char **sequenc
 		if (loopminus1 == size) {
 			loopminus1 = 0;
 		}
+
+		// FD: single stranded stacks.
+		energy += singleStrandedStacking(sequences[loop], sidelen[loop]);
+
 
 	}
 	energy += size * multiloop_internal;
@@ -287,6 +292,9 @@ double NupackEnergyModel::MultiloopEnergy(int size, int *sidelen, char **sequenc
 				}
 			}
 
+			// FD: adding singlestranded stacking.
+			energy += singleStrandedStacking(sequences[loop], sidelen[loop]);
+
 			loopminus1++;
 			if (loopminus1 == size) {
 				loopminus1 = 0;
@@ -315,6 +323,10 @@ double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequence
 		if (!gtenable && (pt > 3)) { // GT penalty applies
 			energy += 100000.0;
 		}
+
+		// FD: adding singlestranded stacking.
+		energy += singleStrandedStacking(sequences[loop], sidelen[loop]);
+
 	}
 	if (dangles == DANGLES_NONE || size == 0) {
 		return energy;
@@ -345,6 +357,10 @@ double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequence
 			} else {
 				energy += dangle3 + dangle5;
 			}
+
+			// FD: adding singlestranded stacking.
+			energy += singleStrandedStacking(sequences[loop], sidelen[loop]);
+
 
 			pt = rt_pt;
 		}

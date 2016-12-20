@@ -38,7 +38,7 @@ extern int basepair_sw[8]; // = {0,0,0,0,0,0,0,0};
 
 int baseLookup(char base);
 
-const double nupackInfinte =  100000.0;
+const double nupackInfinte = 100000.0;
 const double gasConstant = 0.0019872041;
 
 enum LoopType {
@@ -59,6 +59,7 @@ public:
 
 	// Implemented methods
 	bool useArrhenius(void);
+	double singleStrandedStacking(char* sequence, int length);
 	double arrheniusLoopEnergy(char* seq, int size);
 	double saltCorrection(int size);
 	void setArrheniusRate(double ratesArray[], EnergyOptions* options, double temperature, int left, int right);

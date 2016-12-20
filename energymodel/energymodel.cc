@@ -112,11 +112,9 @@ void EnergyModel::printPrecomputedArrRates(void) {
 	}
 
 	ss << " \n \n";
-	ss << "    dS_A     dS_T     dS_C     dS_G      \n";
+	ss << "    dS_A     dH_A   \n";
 	ss << "    " << simOptions->energyOptions->dSA;
-	ss << "     " << simOptions->energyOptions->dST;
-	ss << "     " << simOptions->energyOptions->dSC;
-	ss << "     " << simOptions->energyOptions->dSG;
+	ss << "     " << simOptions->energyOptions->dHA;
 
 	ss << "\n";
 	ss << " \n";
@@ -276,36 +274,45 @@ MoveType EnergyModel::prefactorOpen(int index, int numOfSides, int sideLengths[]
 
 }
 
-double EnergyModel::arrheniusLoopEnergy(char* seq, int size) {
+
+
+
+
+
+double EnergyModel::singleStrandedStacking(char* sequence,  int length ) {
+
+	if (simOptions->energyOptions->usingArrhenius() && length > 4) {
+
+		return arrheniusLoopEnergy(sequence, length);
+
+	} else{
+
+		return 0.0;
+
+	}
+
+}
+
+double EnergyModel::arrheniusLoopEnergy(char* seq, int length) {
 
 	double output = 0.0;
 
-	for (int i = 0; i < (size - 1); i++) {
+	for (int i = 0; i < (length - 1); i++) {
 
 		int myMult = seq[i] * seq[i + 1];
 
 		switch (myMult) {
 
 		case baseA * baseA:
-			output += (simOptions->energyOptions->dSA);
-			break;
-		case baseC * baseC:
-			output += (simOptions->energyOptions->dSC);
-			break;
-		case baseG * baseG:
-			output += (simOptions->energyOptions->dSG);
-			break;
-		case baseT * baseT:
-			output += (simOptions->energyOptions->dST);
+			output += (simOptions->energyOptions->dHA - simOptions->energyOptions->getTemperature() * (simOptions->energyOptions->dSA / 1000.0));
 			break;
 		}
 
 	}
 
-	return -output * simOptions->energyOptions->getTemperature() / 1000.0;
+	return output;
 
 }
-
 
 
 double EnergyModel::saltCorrection(int size){

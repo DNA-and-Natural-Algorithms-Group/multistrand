@@ -64,10 +64,8 @@ public:
 	double AValues[MOVETYPE_SIZE] = { AEnd, ALoop, AStack, AStackStack, ALoopEnd, AStackEnd, AStackLoop };
 	double EValues[MOVETYPE_SIZE] = { EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop };
 
-	double dSA = -100.0;
-	double dSC = -100.0;
-	double dST = -100.0;
-	double dSG = -100.0;
+	double dSA = 0.0;
+	double dHA = 0.0;
 
 	double sodium = 1.0;
 	double magnesium = 0.0;
