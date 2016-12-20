@@ -365,9 +365,13 @@ double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequence
 			rt_pt = pairtypes[sequences[loop + 2][0]][sequences[loop + 1][sidelen[loop + 1] + 1]] - 1;
 			dangle5 = dangle_5_37_dG[pt][sequences[loop + 1][1]];
 			dangle3 = dangle_3_37_dG[rt_pt][sequences[loop + 1][sidelen[loop + 1]]];
+
 			if (dangles == DANGLES_SOME && sidelen[loop + 1] == 1) {
+
 				energy += (dangle3 < dangle5 ? dangle3 : dangle5); // minimum of the two terms.
+
 			} else if (dangles == DANGLES_SOME && sidelen[loop + 1] == 0) {
+
 				energy += 0; // dangles=DANGLES_SOME has no stacking when 0 bases between.
 							 // dangles=DANGLES_ALL, however, does. Weird, eh?
 			} else {
@@ -420,13 +424,9 @@ NupackEnergyModel::NupackEnergyModel(SimOptions* options) :
 	computeArrheniusRates(current_temp);
 }
 
-//NupackEnergyModel::NupackEnergyModel(SimOptions* options) :
-//		log_loop_penalty_37(107.856), kinetic_rate_method(
-//				RATE_METHOD_KAWASAKI), bimolecular_penalty(1.96), kBoltzmann(
-//				.00198717), current_temp(310.15) // Check references for this loop penalty term.
-//void NupackEnergyModel::processOptions(PyObject* energy_options) {
 void NupackEnergyModel::processOptions() {
-// This is the tough part, performing all read/input duties.
+
+	// This is the tough part, performing all read/input duties.
 	char in_buffer[2048];
 	int loop, loop2, loop3, loop4, loop5, loop6;
 	double temperature;

@@ -48,9 +48,9 @@ bool EnergyModel::useArrhenius(void) {
 
 }
 
-double expRate(double A, double E, double temperature) {
+double expRate(double lnA, double E, double temperature) {
 
-	return exp(A - E / (gasConstant * temperature));
+	return exp(lnA - E / (gasConstant * temperature));
 
 }
 
@@ -147,6 +147,11 @@ void EnergyModel::printPrecomputedArrRates(void) {
 		ss << " \n";
 
 	}
+
+	ss << "\n";
+
+	ss << "Sodium    :   "  << simOptions->energyOptions->sodium		<< " M \n" ;
+	ss << "Magnesium :   "  << simOptions->energyOptions->magnesium	  	<< " M \n" ;
 
 	ss << " \n";
 

@@ -3826,24 +3826,20 @@ double InteriorLoop::doChoice(Move *move, Loop **returnLoop) {
 }
 
 void InteriorLoop::generateMoves(void) {
+
 	double energies[2];
 	int pt = 0;
-	int loop, loop2;
+
 	double tempRate = 0;
 	RateEnv rateEnv;
 
-	int nummoves = sizes[0] * sizes[1];
-	if (sizes[0] > 4)
-		nummoves += sizes[0] - 4;
-	if (sizes[1] > 4)
-		nummoves += sizes[1] - 4;
-
-// this number is wrong... sigh...
-	nummoves = (int) ((sizes[0] * sizes[1]) / 16 + 1);
+	int nummoves = (int) ((sizes[0] * sizes[1]) / 16 + 1);
 
 // Creation moves
-	if (moves != NULL)
+	if (moves != NULL){
 		delete moves;
+	}
+
 	moves = new MoveList(nummoves);
 
 // three loops here, the first is only side 0's possible creation moves
@@ -3851,9 +3847,9 @@ void InteriorLoop::generateMoves(void) {
 //                   the third is only creation moves that cross 0-1.
 
 // Loop #1: Side 0 only Creation Moves
-	for (loop = 1; loop <= sizes[0] - 4; loop++) {
+	for (int loop = 1; loop <= sizes[0] - 4; loop++) {
 
-		for (loop2 = loop + 4; loop2 <= sizes[0]; loop2++) { // each possibility will always result in a new hairpin + multiloop.
+		for (int loop2 = loop + 4; loop2 <= sizes[0]; loop2++) { // each possibility will always result in a new hairpin + multiloop.
 
 			pt = pairtypes[int_seq[0][loop]][int_seq[0][loop2]];
 
@@ -3880,10 +3876,13 @@ void InteriorLoop::generateMoves(void) {
 	}
 
 // Loop #2: Side 1 only Creation Moves
-	for (loop = 1; loop <= sizes[1] - 4; loop++)
-		for (loop2 = loop + 4; loop2 <= sizes[1]; loop2++) { // each possibility will always result in a new hairpin + multiloop.
+	for (int loop = 1; loop <= sizes[1] - 4; loop++)
+		for (int loop2 = loop + 4; loop2 <= sizes[1]; loop2++) { // each possibility will always result in a new hairpin + multiloop.
+
 			pt = pairtypes[int_seq[1][loop]][int_seq[1][loop2]];
+
 			if (pt != 0) {
+
 				energies[0] = energyModel->HairpinEnergy(&int_seq[1][loop], loop2 - loop - 1);
 
 				// Multiloop energy - CHECK THIS
@@ -3906,10 +3905,11 @@ void InteriorLoop::generateMoves(void) {
 
 // Loop #3: Side 0 to Side 1 crossing moves ONLY
 
-	for (loop = 1; loop <= sizes[0]; loop++)
-		for (loop2 = 1; loop2 <= sizes[1]; loop2++) {
+	for (int loop = 1; loop <= sizes[0]; loop++)
+		for (int loop2 = 1; loop2 <= sizes[1]; loop2++) {
 
 			pt = pairtypes[int_seq[0][loop]][int_seq[1][loop2]];
+
 			if (pt != 0) {
 				// Need to check conditions for each side in order to determine what the two new loops types would be.
 				// adjacent to first pair side:
@@ -3918,14 +3918,21 @@ void InteriorLoop::generateMoves(void) {
 				MoveType rightMove = stackMove;
 
 				if (loop == 1 && loop2 == sizes[1]) {			// stack
+
 					energies[0] = energyModel->StackEnergy(int_seq[0][0], int_seq[1][sizes[1] + 1], int_seq[0][loop], int_seq[1][loop2]);
+
 				} else if (loop == 1 || loop2 == sizes[1]) {		// bulge
+
 					energies[0] = energyModel->BulgeEnergy(int_seq[0][0], int_seq[1][sizes[1] + 1], int_seq[0][loop], int_seq[1][loop2],
 							(loop - 1) + (sizes[1] - loop2));
+
 					leftMove = stackLoopMove;
+
 				} else {  // interior
+
 					energies[0] = energyModel->InteriorEnergy(int_seq[0], &int_seq[1][loop2], loop - 1, sizes[1] - loop2);
 					leftMove = loopMove;
+
 				}
 
 				// other side
