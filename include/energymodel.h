@@ -64,11 +64,13 @@ public:
 	double saltCorrection(int size);
 	void setArrheniusRate(double ratesArray[], EnergyOptions* options, double temperature, int left, int right);
 	void computeArrheniusRates(double temperature);
-	void printPrecomputedArrRates(void);
 	double applyPrefactors(double tempRate, MoveType left, MoveType right);
 	MoveType getPrefactorsMulti(int, int, int[]);
 	MoveType prefactorOpen(int, int, int[]);
 	MoveType prefactorInternal(int, int);
+
+	void printPrecomputedArrRates(void);
+	void printkBikUni(void);
 
 	// Virtual methods
 

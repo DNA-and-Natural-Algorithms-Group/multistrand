@@ -73,10 +73,14 @@ void SimulationSystem::construct(void) {
 
 void SimulationSystem::initialPrint(void) {
 
-//	if (energyModel->useArrhenius() && (current_seed == 777)) {
 	if (energyModel->useArrhenius()) {
 
 		energyModel->printPrecomputedArrRates();
+
+	} else {
+
+		energyModel->printkBikUni();
+
 
 	}
 

@@ -70,6 +70,43 @@ void EnergyModel::computeArrheniusRates(double temperature) {
 
 }
 
+
+
+void EnergyModel::printkBikUni(void){
+
+	// print some initial info on the standard model
+
+	std::stringstream ss;
+
+
+	ss << "    biScale     kUni    \n";
+	ss << "     " << simOptions->energyOptions->getBiScale();
+	ss << "     " << simOptions->energyOptions->getUniScale();
+
+	ss << "\n";
+
+	ss << "Sodium    :   "  << simOptions->energyOptions->sodium		<< " M \n" ;
+	ss << "Magnesium :   "  << simOptions->energyOptions->magnesium	  	<< " M \n" ;
+
+	ss << " \n";
+
+	if (!printedRates) {
+
+		ofstream myfile;
+		myfile.open("usedConstants.txt");
+
+		myfile << ss.str();
+
+		myfile.close();
+
+		printedRates = true;
+
+	}
+
+
+}
+
+
 void EnergyModel::printPrecomputedArrRates(void) {
 
 	// print some initial info on the Arrhenius model
@@ -112,10 +149,13 @@ void EnergyModel::printPrecomputedArrRates(void) {
 	}
 
 	ss << " \n \n";
-	ss << "    dS_A     dH_A        biScale \n";
+	ss << "    dS_A     dH_A        biScale     kUni    \n";
 	ss << "    " << simOptions->energyOptions->dSA;
 	ss << "     " << simOptions->energyOptions->dHA;
 	ss << "     " << simOptions->energyOptions->getBiScale();
+	ss << "     " << simOptions->energyOptions->getUniScale();
+
+
 
 	ss << "\n";
 
