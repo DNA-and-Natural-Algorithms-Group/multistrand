@@ -15,10 +15,8 @@
 #include <sstream>
 #include <cmath>
 
-
 using std::vector;
 using std::string;
-
 
 void EnergyOptions::initializeArrheniusConstants(void) {
 
@@ -107,7 +105,6 @@ string EnergyOptions::toString(void) {
 
 }
 
-
 PEnergyOptions::PEnergyOptions(PyObject* input) :
 		EnergyOptions() {
 
@@ -180,33 +177,28 @@ PEnergyOptions::PEnergyOptions(PyObject* input) :
 		getDoubleAttr(python_settings, dSA, &dSA);
 		getDoubleAttr(python_settings, dHA, &dHA);
 
-		getDoubleAttr(python_settings, sodium, &sodium);
-		getDoubleAttr(python_settings, magnesium, &magnesium);
-
-
-		if(magnesium < 0.00 || magnesium > 0.2){
-
-			cout << "Magnesium concentration (" << magnesium << " M) is out of bounds (0.0 M - 0.2 M). Setting Na+/Mg2+ to 1.0 M / 0.0 M" << endl;
-			sodium = 1.0;
-			magnesium = 0.0;
-
-		}
-
-
-		if(sodium < 0.05 || sodium > 1.1){
-
-			cout << "Sodium concentration (" << sodium << " M) is out of bounds (0.01 M - 0.2 M). Setting Na+/Mg2+ to 1.0 M / 0.0 M" << endl;
-			sodium = 1.0;
-			magnesium = 0.0;
-
-		}
-
-
-
-
-
-
 		// also loading four constants for entropy of nucleotide chain
+
+	}
+
+	// ionic conditions
+
+	getDoubleAttr(python_settings, sodium, &sodium);
+	getDoubleAttr(python_settings, magnesium, &magnesium);
+
+	if (magnesium < 0.00 || magnesium > 0.2) {
+
+		cout << "Magnesium concentration (" << magnesium << " M) is out of bounds (0.0 M - 0.2 M). Setting Na+/Mg2+ to 1.0 M / 0.0 M" << endl;
+		sodium = 1.0;
+		magnesium = 0.0;
+
+	}
+
+	if (sodium < 0.05 || sodium > 1.1) {
+
+		cout << "Sodium concentration (" << sodium << " M) is out of bounds (0.01 M - 0.2 M). Setting Na+/Mg2+ to 1.0 M / 0.0 M" << endl;
+		sodium = 1.0;
+		magnesium = 0.0;
 
 	}
 
