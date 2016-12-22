@@ -160,7 +160,7 @@ void EnergyModel::printPrecomputedArrRates(void) {
 
 
 
-	if(OLD_LOOP_ADJUSMENTS_NASIM){
+	if(OLD_LOOP_ADJUSTMENT_NASIM){
 
 		ss << " \n \n";
 		ss << "OLD_LOOP_ADJUSMENTS_NASIM = TRUE";
@@ -349,7 +349,7 @@ double EnergyModel::arrheniusLoopEnergy(char* seq, int length) {
 
 	double output = 0.0;
 
-	if (OLD_LOOP_ADJUSMENTS_NASIM) {
+	if (OLD_LOOP_ADJUSTMENT_NASIM) {
 
 		for (int i = 0; i < length; i++) {
 
