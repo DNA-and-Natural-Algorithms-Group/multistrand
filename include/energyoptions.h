@@ -67,6 +67,14 @@ public:
 	double dSA = 0.0;
 	double dHA = 0.0;
 
+
+	// nasim old loop model only
+
+	double dSC = 0.0;
+	double dSG = 0.0;
+	double dST = 0.0;
+
+
 	double sodium = 1.0;
 	double magnesium = 0.0;
 

@@ -8,6 +8,9 @@
 using std::string;
 using std::vector;
 
+const bool OLD_LOOP_ADJUSMENTS_NASIM = false;
+
+
 // Vienna: 0 is invalid, then CG, GC, GU, UG, AU, UA, and Special are 1-7
 // MFold/Nupack:  0 is AT, then CG, GC, TA, GT, TG
 // 0 is invalid, then A, C, G, U

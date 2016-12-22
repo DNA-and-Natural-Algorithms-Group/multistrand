@@ -8,6 +8,7 @@
 #include "options.h"	 	// python options helper
 #include "energyoptions.h"
 #include "moveutil.h"
+#include "sequtil.h"
 
 #include <vector>
 #include <iostream>
@@ -178,6 +179,14 @@ PEnergyOptions::PEnergyOptions(PyObject* input) :
 		getDoubleAttr(python_settings, dHA, &dHA);
 
 		// also loading four constants for entropy of nucleotide chain
+
+		if (OLD_LOOP_ADJUSMENTS_NASIM) {
+
+			getDoubleAttr(python_settings, dSC, &dSC);
+			getDoubleAttr(python_settings, dSG, &dSG);
+			getDoubleAttr(python_settings, dST, &dST);
+
+		}
 
 	}
 

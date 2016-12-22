@@ -7,6 +7,7 @@
 #include "simoptions.h"
 #include "loop.h"
 #include "moveutil.h"
+#include "sequtil.h"
 
 #include <iostream>
 #include <fstream>
@@ -70,14 +71,11 @@ void EnergyModel::computeArrheniusRates(double temperature) {
 
 }
 
-
-
-void EnergyModel::printkBikUni(void){
+void EnergyModel::printkBikUni(void) {
 
 	// print some initial info on the standard model
 
 	std::stringstream ss;
-
 
 	ss << "    biScale     kUni    \n";
 	ss << "     " << simOptions->energyOptions->getBiScale();
@@ -85,8 +83,8 @@ void EnergyModel::printkBikUni(void){
 
 	ss << "\n";
 
-	ss << "Sodium    :   "  << simOptions->energyOptions->sodium		<< " M \n" ;
-	ss << "Magnesium :   "  << simOptions->energyOptions->magnesium	  	<< " M \n" ;
+	ss << "Sodium    :   " << simOptions->energyOptions->sodium << " M \n";
+	ss << "Magnesium :   " << simOptions->energyOptions->magnesium << " M \n";
 
 	ss << " \n";
 
@@ -103,9 +101,7 @@ void EnergyModel::printkBikUni(void){
 
 	}
 
-
 }
-
 
 void EnergyModel::printPrecomputedArrRates(void) {
 
@@ -155,14 +151,30 @@ void EnergyModel::printPrecomputedArrRates(void) {
 	ss << "     " << simOptions->energyOptions->getBiScale();
 	ss << "     " << simOptions->energyOptions->getUniScale();
 
-
-
 	ss << "\n";
 
-	ss << "Sodium    :   "  << simOptions->energyOptions->sodium		<< " M \n" ;
-	ss << "Magnesium :   "  << simOptions->energyOptions->magnesium	  	<< " M \n" ;
+	ss << "Sodium    :   " << simOptions->energyOptions->sodium << " M \n";
+	ss << "Magnesium :   " << simOptions->energyOptions->magnesium << " M \n";
 
 	ss << " \n";
+
+
+
+	if(OLD_LOOP_ADJUSMENTS_NASIM){
+
+		ss << " \n \n";
+		ss << "OLD_LOOP_ADJUSMENTS_NASIM = TRUE";
+		ss << "    dS_A     dS_C     dS_G     dS_T         \n";
+		ss << "    " << simOptions->energyOptions->dSA;
+		ss << "    " << simOptions->energyOptions->dSC;
+		ss << "    " << simOptions->energyOptions->dSG;
+		ss << "    " << simOptions->energyOptions->dST;
+
+		ss << "\n";
+
+
+	}
+
 
 	// now dumping the rate matrix too,
 
@@ -319,18 +331,13 @@ MoveType EnergyModel::prefactorOpen(int index, int numOfSides, int sideLengths[]
 
 }
 
-
-
-
-
-
-double EnergyModel::singleStrandedStacking(char* sequence,  int length ) {
+double EnergyModel::singleStrandedStacking(char* sequence, int length) {
 
 	if (simOptions->energyOptions->usingArrhenius() && length > 4) {
 
 		return arrheniusLoopEnergy(sequence, length);
 
-	} else{
+	} else {
 
 		return 0.0;
 
@@ -341,6 +348,32 @@ double EnergyModel::singleStrandedStacking(char* sequence,  int length ) {
 double EnergyModel::arrheniusLoopEnergy(char* seq, int length) {
 
 	double output = 0.0;
+
+	if (OLD_LOOP_ADJUSMENTS_NASIM) {
+
+		for (int i = 0; i < length; i++) {
+
+			switch ((int) seq[i]) {
+
+			case baseA:
+				output += (simOptions->energyOptions->dSA);
+				break;
+			case baseC:
+				output += (simOptions->energyOptions->dSC);
+				break;
+			case baseG:
+				output += (simOptions->energyOptions->dSG);
+				break;
+			case baseT:
+				output += (simOptions->energyOptions->dST);
+				break;
+			}
+
+		}
+
+		return -output * simOptions->energyOptions->getTemperature() / 1000.0;
+
+	}
 
 	for (int i = 0; i < (length - 1); i++) {
 
@@ -359,18 +392,15 @@ double EnergyModel::arrheniusLoopEnergy(char* seq, int length) {
 
 }
 
-
-double EnergyModel::saltCorrection(int size){
+double EnergyModel::saltCorrection(int size) {
 
 // FD: Nupack makes a distinction between long (>20nt) and short domains.
 // FD: For short domains, magnesium correction is not used. See computeSaltCorrection in utils/init.c for NUPACK 3.0.4.
 // FD: In multistrand we don't set this distinction.
 
-	return 0.368 * (size-1) * log(simOptions->energyOptions->sodium + 3.3 * sqrt(simOptions->energyOptions->magnesium));
+	return 0.368 * (size - 1) * log(simOptions->energyOptions->sodium + 3.3 * sqrt(simOptions->energyOptions->magnesium));
 
 }
-
-
 
 //double EnergyModel::ArrheniusLoopEnergy(char* seq, int size) {
 //
