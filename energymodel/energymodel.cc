@@ -88,6 +88,9 @@ void EnergyModel::printkBikUni(void) {
 
 	ss << " \n";
 
+	ss << "Temperatur:   " <<  simOptions->energyOptions->getTemperature() << "\n";
+
+
 	if (!printedRates) {
 
 		ofstream myfile;
@@ -156,7 +159,6 @@ void EnergyModel::printPrecomputedArrRates(void) {
 	ss << "Sodium    :   " << simOptions->energyOptions->sodium << " M \n";
 	ss << "Magnesium :   " << simOptions->energyOptions->magnesium << " M \n";
 
-	ss << " \n";
 
 
 
@@ -175,6 +177,7 @@ void EnergyModel::printPrecomputedArrRates(void) {
 
 	}
 
+	ss << " \n";
 
 	// now dumping the rate matrix too,
 
@@ -191,6 +194,13 @@ void EnergyModel::printPrecomputedArrRates(void) {
 	}
 
 	ss << " \n";
+
+
+	ss << " \n";
+
+	ss << "Temperatur:   " <<  simOptions->energyOptions->getTemperature() << "\n";
+
+
 
 	if (!printedRates) {
 
