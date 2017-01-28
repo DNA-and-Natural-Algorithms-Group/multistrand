@@ -203,9 +203,9 @@ PEnergyOptions::PEnergyOptions(PyObject* input) :
 
 	}
 
-	if (sodium < 0.05 || sodium > 1.1) {
+	if (sodium < 0.01 || sodium > 1.3) {
 
-		cout << "Sodium concentration (" << sodium << " M) is out of bounds (0.01 M - 0.2 M). Setting Na+/Mg2+ to 1.0 M / 0.0 M" << endl;
+		cout << "Sodium concentration (" << sodium << " M) is out of bounds (0.01 M - 1.3 M). Setting Na+/Mg2+ to 1.0 M / 0.0 M" << endl;
 		sodium = 1.0;
 		magnesium = 0.0;
 
