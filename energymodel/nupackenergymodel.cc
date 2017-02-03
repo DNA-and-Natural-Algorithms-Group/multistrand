@@ -839,7 +839,7 @@ void NupackEnergyModel::processOptions() {
 			// now adjusting for a single salt correction term.
 
 			stack_37_dG[loop][loop2] += saltCorrection(2)* -temperature / 1000.0;
-			cout << "Setting dG [ " << loop << ", " << loop2 << "] = " << stack_37_dG[loop][loop2] << " \n";
+//			cout << "Setting dG [ " << loop << ", " << loop2 << "] = " << stack_37_dG[loop][loop2] << " \n";
 		}
 	}
 
@@ -923,7 +923,7 @@ void NupackEnergyModel::processOptions() {
 	_RT = kBoltzmann * temperature;
 	current_temp = temperature;
 
-	cout << "Current Temperature is " << current_temp << "\n";
+//	cout << "Current Temperature is " << current_temp << "\n";
 
 	setupRates();
 }
