@@ -826,15 +826,23 @@ void NupackEnergyModel::processOptions() {
 	_RT = kBoltzmann * current_temp;
 	log_loop_penalty = 100.0 * 1.75 * kBoltzmann * current_temp;
 
-	if (!((temperature < CELSIUS37_IN_KELVIN - .00001) || (temperature > CELSIUS37_IN_KELVIN + .00001))) {
+	if (!  ((temperature < CELSIUS37_IN_KELVIN - .00001) || (temperature > CELSIUS37_IN_KELVIN + .00001))   ) {
 		current_temp = CELSIUS37_IN_KELVIN;
 		setupRates();
 		return;
 	}
 
-	for (loop = 0; loop < NUM_BASEPAIRS_NUPACK; loop++)
-		for (loop2 = 0; loop2 < NUM_BASEPAIRS_NUPACK; loop2++)
+	for (loop = 0; loop < NUM_BASEPAIRS_NUPACK; loop++){
+		for (loop2 = 0; loop2 < NUM_BASEPAIRS_NUPACK; loop2++){
 			stack_37_dG[loop][loop2] = T_scale(stack_37_dG[loop][loop2], stack_37_dH[loop][loop2], temperature);
+
+			// now adjusting for a single salt correction term.
+
+			stack_37_dG[loop][loop2] += saltCorrection(2)* -temperature / 1000.0;
+			cout << "Setting dG [ " << loop << ", " << loop2 << "] = " << stack_37_dG[loop][loop2] << " \n";
+		}
+	}
+
 
 	for (loop = 0; loop < 31; loop++)
 		hairpin_37_dG[loop] = T_scale(hairpin_37_dG[loop], hairpin_37_dH[loop], temperature);
@@ -914,6 +922,8 @@ void NupackEnergyModel::processOptions() {
 
 	_RT = kBoltzmann * temperature;
 	current_temp = temperature;
+
+	cout << "Current Temperature is " << current_temp << "\n";
 
 	setupRates();
 }
