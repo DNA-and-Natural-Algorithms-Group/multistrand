@@ -612,23 +612,23 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		}
 		// note e_index has different meaning now for openloops.
 
-		int *pairtypes = new int[end_->numAdjacent];
+//		int *pairtypes = new int[end_->numAdjacent];
 		int *sidelens = new int[end_->numAdjacent + 1];
 		char **seqs = new char *[end_->numAdjacent + 1];
 
 		for (int loop = 0; loop < end_->numAdjacent + 1; loop++) {
 			if (loop == e_index) {
-				pairtypes[loop] = start_->pairtype[s_index];
+//				pairtypes[loop] = start_->pairtype[s_index];
 				sidelens[loop] = end_->sidelen[loop] + 1;
 				seqs[loop] = end_->seqs[loop];
 			} else if (loop == e_index + 1) {
-				if (loop < end_->numAdjacent)
-					pairtypes[loop] = end_->pairtype[loop];
+//				if (loop < end_->numAdjacent)
+//					pairtypes[loop] = end_->pairtype[loop];
 				sidelens[loop] = end_->sidelen[loop] + 1;
 				seqs[loop] = start_->seqs[s_index];
 			} else {
-				if (loop < end_->numAdjacent)
-					pairtypes[loop] = end_->pairtype[loop];
+//				if (loop < end_->numAdjacent)
+//					pairtypes[loop] = end_->pairtype[loop];
 				sidelens[loop] = end_->sidelen[loop];
 				seqs[loop] = end_->seqs[loop];
 			}
@@ -644,7 +644,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		left = energyModel->prefactorOpen(e_index, (end_->numAdjacent + 1), end_->sidelen);
 		right = stackMove;
 
-		delete[] pairtypes;
+//		delete[] pairtypes;
 		delete[] sidelens;
 		delete[] seqs;
 
@@ -1841,14 +1841,24 @@ Loop *Loop::performDeleteMove(Move *move) {
 		}
 
 		for (int loop = 0; (loop < end_->numAdjacent) || (loop < 2); loop++) {
-			if (loop <= 1)
-				if (start_->adjacentLoops[loop] != end_) {
+
+
+			if (loop <= 1 && start_->adjacentLoops[loop] != end_ ){
+//				if (start_->adjacentLoops[loop] != end_) {
 					s_index = loop;
 				}
-			if (loop < end_->numAdjacent)
-				if (end_->adjacentLoops[loop] == start_) {
+			if (loop < end_->numAdjacent  && end_->adjacentLoops[loop] == start_) {
 					e_index = loop;
 				}
+
+//			if (loop <= 1)
+//				if (start_->adjacentLoops[loop] != end_) {
+//					s_index = loop;
+//				}
+//			if (loop < end_->numAdjacent)
+//				if (end_->adjacentLoops[loop] == start_) {
+//					e_index = loop;
+//				}
 		}
 
 		// note e_index has different meaning now for openloops.

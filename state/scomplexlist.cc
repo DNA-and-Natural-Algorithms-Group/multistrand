@@ -67,12 +67,7 @@ void SComplexListEntry::fillData(EnergyModel *em) {
 
 string SComplexListEntry::toString(EnergyModel *em) {
 
-	// print types are depreciated.
-
 	std::stringstream ss;
-
-//	double energy = energy - (em->getVolumeEnergy() + em->getAssocEnergy()) * (thisComplex->getStrandCount() - 1);
-
 
 	ss << "Complex      : " << id << " \n";
 	ss << "seq, struc   : " << thisComplex->getSequence() << " - " << thisComplex->getStructure() << " \n";
@@ -80,7 +75,6 @@ string SComplexListEntry::toString(EnergyModel *em) {
 	ss << "\n";
 
 	// also print info on the openloop datastructures
-
 	ss << thisComplex->ordering->toString();
 
 	return ss.str();

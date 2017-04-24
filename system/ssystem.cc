@@ -355,6 +355,9 @@ void SimulationSystem::SimulationLoop_Trajectory() {
 	complexList->initializeList();
 	rate = complexList->getTotalFlux();
 
+
+	cout << "rate is "  << (rate) << endl;
+
 // We start at the beginning of time.
 	stime = 0.0;
 
@@ -381,6 +384,7 @@ void SimulationSystem::SimulationLoop_Trajectory() {
 		// 1.0 - drand as drand returns in the [0.0, 1.0) range, we need a (0.0,1.0] range.
 		// see notes below in First Step mode.
 
+//		cout << "rate is "  << (rate) << endl;
 
 		if (debugTraces) {
 			cout << "Printing my complexlist! *************************************** \n";
@@ -606,6 +610,8 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 
 // Begin normal steps.
 	rate = complexList->getTotalFlux();
+
+
 	do {
 
 		rchoice = rate * drand48();
