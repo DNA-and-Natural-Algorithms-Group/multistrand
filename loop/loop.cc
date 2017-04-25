@@ -381,6 +381,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 				e_index = loop;
 			}
 		}
+
 		// resulting will be an interior loop with sidelengths 1 and 1.
 		// we must get the mismatches correct for this to come out right
 		// as they are special cases in the energy model, for 1,1.
@@ -550,13 +551,11 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		// FD: e_index is the index of the attached loop for multiloop end_
 		// FD: s_index is the index of the attached loop for stackloop start_
 
-		int *pairtypes = new int[end_->numAdjacent];
 		int *sidelens = new int[end_->numAdjacent];
 		char **seqs = new char *[end_->numAdjacent];
 
 		for (int loop = 0; loop < end_->numAdjacent; loop++) {
 			if (loop != e_index) {
-				pairtypes[loop] = end_->pairtype[loop];
 				if ((loop != e_index - 1 && e_index != 0) || (loop != end_->numAdjacent - 1 && e_index == 0)) {
 					sidelens[loop] = end_->sidelen[loop];
 				} else {
@@ -564,7 +563,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 				}
 				seqs[loop] = end_->seqs[loop];
 			} else {
-				pairtypes[loop] = start_->pairtype[s_index];
 				sidelens[loop] = end_->sidelen[loop] + 1;
 				seqs[loop] = start_->seqs[s_index];
 			}
@@ -578,7 +576,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		left = stackMove;
 		right = energyModel->getPrefactorsMulti(e_index, end_->numAdjacent, end_->sidelen);
 
-		delete[] pairtypes;
 		delete[] sidelens;
 		delete[] seqs;
 
@@ -783,20 +780,17 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		}
 		// note e_index has different meaning now for multiloops.
 
-		int *pairtypes = new int[end_->numAdjacent];
 		int *sidelens = new int[end_->numAdjacent];
 		char **seqs = new char *[end_->numAdjacent];
 
 		for (int loop = 0; loop < end_->numAdjacent; loop++) {
 			if (loop != e_index) {
-				pairtypes[loop] = end_->pairtype[loop];
 				if ((loop != e_index - 1 && e_index != 0) || (loop != end_->numAdjacent - 1 && e_index == 0))
 					sidelens[loop] = end_->sidelen[loop];
 				else
 					sidelens[loop] = end_->sidelen[loop] + start_->sizes[1 - s_index] + 1;
 				seqs[loop] = end_->seqs[loop];
 			} else {
-				pairtypes[loop] = start_->pairtype[s_index];
 				sidelens[loop] = end_->sidelen[loop] + start_->sizes[s_index] + 1;
 				seqs[loop] = start_->int_seq[s_index];
 			}
@@ -812,7 +806,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		left = energyModel->getPrefactorsMulti(e_index, end_->numAdjacent, end_->sidelen);
 		right = loopMove;
 
-		delete[] pairtypes;
 		delete[] sidelens;
 		delete[] seqs;
 
@@ -845,23 +838,17 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		}
 		// note e_index has different meaning now for openloops.
 
-		int *pairtypes = new int[end_->numAdjacent];
 		int *sidelens = new int[end_->numAdjacent + 1];
 		char **seqs = new char *[end_->numAdjacent + 1];
 
 		for (int loop = 0; loop < end_->numAdjacent + 1; loop++) {
 			if (loop == e_index) {
-				pairtypes[loop] = start_->pairtype[s_index];
 				sidelens[loop] = end_->sidelen[loop] + 1 + start_->sizes[1 - s_index];
 				seqs[loop] = end_->seqs[loop];
 			} else if (loop == e_index + 1) {
-				if (loop < end_->numAdjacent)
-					pairtypes[loop] = end_->pairtype[loop];
 				sidelens[loop] = end_->sidelen[loop] + 1 + start_->sizes[s_index];
 				seqs[loop] = start_->int_seq[s_index];
 			} else {
-				if (loop < end_->numAdjacent)
-					pairtypes[loop] = end_->pairtype[loop];
 				sidelens[loop] = end_->sidelen[loop];
 				seqs[loop] = end_->seqs[loop];
 			}
@@ -880,7 +867,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		}
 
-		delete[] pairtypes;
 		delete[] sidelens;
 		delete[] seqs;
 
@@ -1384,7 +1370,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		}
 		// note e_index has different meaning now for multiloops.
 
-		int *pairtypes = new int[end_->numAdjacent + start_->numAdjacent - 2];
 		int *sidelens = new int[end_->numAdjacent + start_->numAdjacent - 1];
 		char **seqs = new char *[end_->numAdjacent + start_->numAdjacent - 1];
 
@@ -1393,15 +1378,13 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 			if (loop == s_index + 1) {
 				int temp = (e_index + end_->numAdjacent - 1) % end_->numAdjacent;
 
-				if (loop < start_->numAdjacent)
-					pairtypes[index] = start_->pairtype[loop];
+
 				sidelens[index] = start_->sidelen[loop] + end_->sidelen[temp] + 1;
 				seqs[index] = end_->seqs[temp];
 				if (loop < start_->numAdjacent)
 					index++;
 			} else if (loop != s_index) {
-				if (loop < start_->numAdjacent)
-					pairtypes[index] = start_->pairtype[loop];
+
 				sidelens[index] = start_->sidelen[loop];
 				seqs[index] = start_->seqs[loop];
 				if (loop < start_->numAdjacent)
@@ -1411,7 +1394,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 					int temp = (e_index + loop2) % end_->numAdjacent;
 					int temp2 = (e_index + loop2 - 1) % end_->numAdjacent;
 
-					pairtypes[index] = end_->pairtype[temp];
 					if (loop2 == 1) {
 						sidelens[index] = end_->sidelen[e_index] + start_->sidelen[s_index] + 1;
 						seqs[index] = start_->seqs[s_index];
@@ -1438,7 +1420,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		}
 
-		delete[] pairtypes;
 		delete[] sidelens;
 		delete[] seqs;
 
