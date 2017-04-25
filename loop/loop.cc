@@ -324,7 +324,6 @@ void Loop::printAllMoves(Loop* from) {
 	std::cout << toStringShort();
 	std::cout << "\n";
 
-//	moves->printAllMoves(energyModel->simOptions->usePrimeRates);
 	moves->printAllMoves(energyModel->useArrhenius());
 
 	for (int i = 0; i < numAdjacent; i++) {
@@ -373,14 +372,8 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		StackLoop *start_ = (StackLoop *) start;
 		StackLoop *end_ = (StackLoop *) end;
 
-		for (int loop = 0; loop < 2; loop++) {
-			if (start_->adjacentLoops[loop] != end_) {
-				s_index = loop;
-			}
-			if (end_->adjacentLoops[loop] != start_) {
-				e_index = loop;
-			}
-		}
+		tie(s_index, e_index) = findExternalAdjacent(start_, end_);
+
 
 		// resulting will be an interior loop with sidelengths 1 and 1.
 		// we must get the mismatches correct for this to come out right
@@ -415,7 +408,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 			end_ = (InteriorLoop *) start;
 		}
 
-		for (int loop = 0; loop <= 1; loop++) {
+		for (int loop = 0; loop < 2; loop++) {
 			if (start_->adjacentLoops[loop] != end_) {
 				s_index = loop;
 			}
@@ -877,16 +870,14 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 	if( identify(start, end, 'B', 'B')){
 
-		BulgeLoop *end_ = (BulgeLoop *) end, *start_ = (BulgeLoop *) start;
-		Loop *start_extra, *end_extra;
+		BulgeLoop *end_ = (BulgeLoop *) end;
+		BulgeLoop *start_ = (BulgeLoop *) start;
 
 		for (int loop = 0; loop <= 1; loop++) {
 			if (start_->adjacentLoops[loop] != end_) {
-				start_extra = start_->adjacentLoops[loop];
 				s_index = loop;
 			}
 			if (end_->adjacentLoops[loop] != start_) {
-				end_extra = end_->adjacentLoops[loop];
 				e_index = loop;
 			}
 		}
@@ -965,20 +956,17 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		}
 		// note e_index has different meaning now for multiloops.
 
-		int *pairtypes = new int[end_->numAdjacent];
 		int *sidelens = new int[end_->numAdjacent];
 		char **seqs = new char *[end_->numAdjacent];
 
 		for (int loop = 0; loop < end_->numAdjacent; loop++) {
 			if (loop != e_index) {
-				pairtypes[loop] = end_->pairtype[loop];
 				if ((loop != e_index - 1 && e_index != 0) || (loop != end_->numAdjacent - 1 && e_index == 0))
 					sidelens[loop] = end_->sidelen[loop];
 				else
 					sidelens[loop] = end_->sidelen[loop] + start_->bulgesize[1 - s_index] + 1;
 				seqs[loop] = end_->seqs[loop];
 			} else {
-				pairtypes[loop] = start_->pairtype[s_index];
 				sidelens[loop] = end_->sidelen[loop] + start_->bulgesize[s_index] + 1;
 				seqs[loop] = start_->bulge_seq[s_index];
 			}
@@ -997,7 +985,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		}
 
-		delete[] pairtypes;
 		delete[] sidelens;
 		delete[] seqs;
 		return RateArr(tempRate / 2.0, left, right);
@@ -1029,23 +1016,17 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		}
 		// note e_index has different meaning now for openloops.
 
-		int *pairtypes = new int[end_->numAdjacent];
 		int *sidelens = new int[end_->numAdjacent + 1];
 		char **seqs = new char *[end_->numAdjacent + 1];
 
 		for (int loop = 0; loop < end_->numAdjacent + 1; loop++) {
 			if (loop == e_index) {
-				pairtypes[loop] = start_->pairtype[s_index];
 				sidelens[loop] = end_->sidelen[loop] + 1 + start_->bulgesize[1 - s_index];
 				seqs[loop] = end_->seqs[loop];
 			} else if (loop == e_index + 1) {
-				if (loop < end_->numAdjacent)
-					pairtypes[loop] = end_->pairtype[loop];
 				sidelens[loop] = end_->sidelen[loop] + 1 + start_->bulgesize[s_index];
 				seqs[loop] = start_->bulge_seq[s_index];
 			} else {
-				if (loop < end_->numAdjacent)
-					pairtypes[loop] = end_->pairtype[loop];
 				sidelens[loop] = end_->sidelen[loop];
 				seqs[loop] = end_->seqs[loop];
 			}
@@ -1063,7 +1044,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		}
 
-		delete[] pairtypes;
 		delete[] sidelens;
 		delete[] seqs;
 
@@ -1156,14 +1136,12 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		else if (end_->numAdjacent > 3)  // multiloop case
 				{
-			int *pairtypes = new int[end_->numAdjacent - 1];
 			int *sidelens = new int[end_->numAdjacent - 1];
 			char **seqs = new char *[end_->numAdjacent - 1];
 
 			for (int loop = 0; loop < end_->numAdjacent; loop++) {
 				if (loop != e_index) {
 					if (loop < e_index) {
-						pairtypes[loop] = end_->pairtype[loop];
 						if ((loop != e_index - 1 && e_index != 0) || (loop != end_->numAdjacent - 1 && e_index == 0))
 							sidelens[loop] = end_->sidelen[loop];
 						else
@@ -1171,7 +1149,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 						seqs[loop] = end_->seqs[loop];
 					}
 					if (loop > e_index) {
-						pairtypes[loop - 1] = end_->pairtype[loop];
 						if ((loop != e_index - 1 && e_index != 0) || (loop != end_->numAdjacent - 1 && e_index == 0))
 							sidelens[loop - 1] = end_->sidelen[loop];
 						else
@@ -1195,7 +1172,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 			}
 
-			delete[] pairtypes;
 			delete[] sidelens;
 			delete[] seqs;
 
@@ -1222,23 +1198,17 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		}
 		// note e_index has different meaning now for openloops.
 
-		int *pairtypes = new int[end_->numAdjacent - 1];
 		int *sidelens = new int[end_->numAdjacent];
 		char **seqs = new char *[end_->numAdjacent];
 
 		for (int loop = 0; loop < end_->numAdjacent + 1; loop++) {
 			if (loop < e_index) {
-				pairtypes[loop] = end_->pairtype[loop];
 				sidelens[loop] = end_->sidelen[loop];
 				seqs[loop] = end_->seqs[loop];
 			} else if (loop == e_index) {
-				if (loop < end_->numAdjacent - 1)
-					pairtypes[loop] = end_->pairtype[loop + 1];
 				sidelens[loop] = end_->sidelen[loop] + 2 + end_->sidelen[loop + 1] + start_->hairpinsize;
 				seqs[loop] = end_->seqs[loop];
 			} else if (loop > e_index + 1) {
-				if (loop < end_->numAdjacent)
-					pairtypes[loop - 1] = end_->pairtype[loop];
 				sidelens[loop - 1] = end_->sidelen[loop];
 				seqs[loop - 1] = end_->seqs[loop];
 			}
@@ -1258,7 +1228,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		}
 
-		delete[] pairtypes;
 		delete[] sidelens;
 		delete[] seqs;
 		return RateArr(tempRate / 2.0, left, right);
@@ -1290,14 +1259,12 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		}
 		// note e_index has different meaning now for multiloops.
 
-		int *pairtypes = new int[end_->numAdjacent + start_->numAdjacent - 2];
 		int *sidelens = new int[end_->numAdjacent + start_->numAdjacent - 2];
 		char **seqs = new char *[end_->numAdjacent + start_->numAdjacent - 2];
 
 		index = 0;
 		for (int loop = 0; loop < start_->numAdjacent; loop++) {
 			if (loop != s_index) {
-				pairtypes[index] = start_->pairtype[loop];
 				if ((loop != s_index - 1 && s_index != 0) || (loop != start_->numAdjacent - 1 && s_index == 0))
 					sidelens[index] = start_->sidelen[loop];
 				else
@@ -1308,7 +1275,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 				for (int loop2 = 1; loop2 < end_->numAdjacent; loop2++) {
 					int temp = (e_index + loop2) % end_->numAdjacent;
 
-					pairtypes[index] = end_->pairtype[temp];
 					if ((temp != e_index - 1 && e_index != 0) || (temp != end_->numAdjacent - 1 && e_index == 0))
 						sidelens[index] = end_->sidelen[temp];
 					else
@@ -1333,7 +1299,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		}
 
-		delete[] pairtypes;
 		delete[] sidelens;
 		delete[] seqs;
 
@@ -1436,7 +1401,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		OpenLoop *tempLoop[2];
 		double new_energies[2] = { 0.0, 0.0 };
 		int index[2], sizes[2], loop, flipflop = 0, temp;
-		int *pairtypes = NULL;
+
 		int *sidelen = NULL;
 		char **seqs = NULL;
 
