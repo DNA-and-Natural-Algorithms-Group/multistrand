@@ -2008,17 +2008,13 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 	if (identify(start, end, 'I', 'O')) {
 
-		InteriorLoop *start_;
-		OpenLoop *end_;
+		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'I');
+
+		InteriorLoop* start_ = (InteriorLoop*) ordered.first;
+		OpenLoop* end_ = (OpenLoop*) ordered.second;
+
 		int temp = 0;
 
-		if (start->identity == 'I') {
-			start_ = (InteriorLoop *) start;
-			end_ = (OpenLoop *) end;
-		} else {
-			start_ = (InteriorLoop *) end;
-			end_ = (OpenLoop *) start;
-		}
 
 		for (int loop = 0; (loop < end_->numAdjacent) || (loop < 2); loop++) {
 			if (loop <= 1)
@@ -2136,17 +2132,11 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 	if (identify(start, end, 'B', 'H')) {
 
-		BulgeLoop *start_;
-		HairpinLoop *end_;
+		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'B');
 
+		BulgeLoop* start_ = (BulgeLoop*) ordered.first;
+		HairpinLoop* end_ = (HairpinLoop*) ordered.second;
 
-		if (start->identity == 'B') {
-			start_ = (BulgeLoop *) start;
-			end_ = (HairpinLoop *) end;
-		} else {
-			start_ = (BulgeLoop *) end;
-			end_ = (HairpinLoop *) start;
-		}
 
 		for (int loop = 0; loop <= 1; loop++) {
 			if (start_->adjacentLoops[loop] != end_) {
@@ -2177,17 +2167,13 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 	else if (identify(start, end, 'B', 'M')) {
 
-		BulgeLoop *start_;
-		MultiLoop *end_;
 		int temp = 0;
 
-		if (start->identity == 'B') {
-			start_ = (BulgeLoop *) start;
-			end_ = (MultiLoop *) end;
-		} else {
-			start_ = (BulgeLoop *) end;
-			end_ = (MultiLoop *) start;
-		}
+		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'B');
+
+		BulgeLoop* start_ = (BulgeLoop*) ordered.first;
+		MultiLoop* end_ = (MultiLoop*) ordered.second;
+
 
 		for (int loop = 0; loop < end_->numAdjacent; loop++) {
 			if (loop <= 1)
@@ -2250,17 +2236,13 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 	if (identify(start, end, 'B', 'O')){
 
-		BulgeLoop *start_;
-		OpenLoop *end_;
 		int temp = 0;
 
-		if (start->identity == 'B') {
-			start_ = (BulgeLoop *) start;
-			end_ = (OpenLoop *) end;
-		} else {
-			start_ = (BulgeLoop *) end;
-			end_ = (OpenLoop *) start;
-		}
+		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'B');
+
+		BulgeLoop* start_ = (BulgeLoop*) ordered.first;
+		OpenLoop* end_ = (OpenLoop*) ordered.second;
+
 
 		for (int loop = 0; (loop < end_->numAdjacent) || (loop < 2); loop++) {
 			if (loop <= 1)
@@ -2338,17 +2320,11 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 	if (identify(start, end, 'H', 'M')){
 
-		HairpinLoop *start_;
-		MultiLoop *end_;
 		int temp;
+		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'H');
 
-		if (start->identity == 'H') {
-			start_ = (HairpinLoop *) start;
-			end_ = (MultiLoop *) end;
-		} else {
-			start_ = (HairpinLoop *) end;
-			end_ = (MultiLoop *) start;
-		}
+		HairpinLoop* start_ = (HairpinLoop*) ordered.first;
+		MultiLoop* end_ = (MultiLoop*) ordered.second;
 
 		for (int loop = 0; loop < end_->numAdjacent; loop++) {
 			if (end_->adjacentLoops[loop] == start_) {
@@ -2486,17 +2462,12 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 	if (identify(start, end, 'H', 'O')){
 
-		HairpinLoop *start_;
-		OpenLoop *end_;
-		int temp;
+		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'H');
 
-		if (start->identity == 'H') {
-			start_ = (HairpinLoop *) start;
-			end_ = (OpenLoop *) end;
-		} else {
-			start_ = (HairpinLoop *) end;
-			end_ = (OpenLoop *) start;
-		}
+		HairpinLoop* start_ = (HairpinLoop*) ordered.first;
+		OpenLoop* end_ = (OpenLoop*) ordered.second;
+
+		int temp;
 
 		for (int loop = 0; (loop < end_->numAdjacent); loop++) {
 			if (end_->adjacentLoops[loop] == start_) {
@@ -2635,22 +2606,15 @@ Loop *Loop::performDeleteMove(Move *move) {
 		return newLoop;
 	}
 
-	if ((start->identity == 'M' && end->identity == 'O') || (start->identity == 'O' && end->identity == 'M')) {
 
-		OpenLoop *start_;
-		MultiLoop *end_;
+	if(identify(start, end, 'O', 'M')){
+
 		int index = 0, temp;
+		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'O');
 
-		start_ = (OpenLoop *) start;
-		end_ = (MultiLoop *) end;
+		OpenLoop* start_ = (OpenLoop*) ordered.first;
+		MultiLoop* end_ = (MultiLoop*) ordered.second;
 
-		if (start->identity == 'O') {
-			start_ = (OpenLoop *) start;
-			end_ = (MultiLoop *) end;
-		} else {
-			start_ = (OpenLoop *) end;
-			end_ = (MultiLoop *) start;
-		}
 
 		for (int loop = 0; loop < end_->numAdjacent || loop < start_->numAdjacent; loop++) {
 			if (loop < start_->numAdjacent)
