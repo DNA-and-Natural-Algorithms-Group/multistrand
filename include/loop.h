@@ -72,6 +72,7 @@ public:
 	// FD functions
     static bool identify(Loop*, Loop* , char , char );
     static std::tuple<int,int> findExternalAdjacent(Loop*, Loop*);
+    static std::pair<Loop*, Loop*> orderMyLoops(Loop*, Loop*, char);
 
 	string toString(void);
 	string toStringShort(void);

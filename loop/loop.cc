@@ -825,7 +825,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		delete[] sidelens;
 		delete[] seqs;
 
-		return RateArr(tempRate / 2.0, left, right); //		return tempRate / 2.0;
+		return RateArr(tempRate / 2.0, left, right);
 	}
 
 // start bulge
@@ -1454,6 +1454,21 @@ std::tuple<int,int> Loop::findExternalAdjacent(Loop* first, Loop* second){
 }
 
 
+//FD: If the first loop is of type, then return <first, second>, otherwise return <second, first>
+std::pair<Loop*, Loop*> Loop::orderMyLoops(Loop* first, Loop* second, char type){
+
+	if(first->identity == type){
+
+		return std::make_pair(first, second);
+
+	} else {
+
+		return std::make_pair(second, first);
+	}
+
+}
+
+
 
 Loop *Loop::performDeleteMove(Move *move) {
 
@@ -1505,17 +1520,10 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 	if (identify(start, end, 'S', 'I')) {
 
-		StackLoop *start_;
-		InteriorLoop *end_;
+		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'S');
 
-
-		if (start->identity == 'S') {
-			start_ = (StackLoop *) start;
-			end_ = (InteriorLoop *) end;
-		} else {
-			start_ = (StackLoop *) end;
-			end_ = (InteriorLoop *) start;
-		}
+		StackLoop *start_ = (StackLoop*) ordered.first;
+		InteriorLoop *end_ = (InteriorLoop*) ordered.second ;
 
 		tie(s_index,e_index) = findExternalAdjacent(start_, end_);
 
@@ -1526,6 +1534,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 		assert(!(start_->seqs[s_index] == end_->int_seq[e_index] + 1));
 
 		if (start_->seqs[s_index] < end_->int_seq[e_index]) {
+
 			newLoop = new InteriorLoop(start_->pairtype[s_index], end_->pairtype[e_index], end_->sizes[1 - e_index] + 1, end_->sizes[e_index] + 1,
 					start_->seqs[s_index], end_->int_seq[e_index]);
 
@@ -1535,7 +1544,9 @@ Loop *Loop::performDeleteMove(Move *move) {
 			newLoop->addAdjacent(end_->adjacentLoops[e_index]);
 			// TODO: fix this too! see above comment.
 			assert(end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop) > 0);
+
 		} else {
+
 			newLoop = new InteriorLoop(end_->pairtype[e_index], start_->pairtype[s_index], end_->sizes[e_index] + 1, end_->sizes[1 - e_index] + 1,
 					end_->int_seq[e_index], start_->seqs[s_index]);
 
