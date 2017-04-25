@@ -364,13 +364,14 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 	double new_energy, old_energy;
 	MoveType left = stackMove;
 	MoveType right = stackMove;
+	int s_index = 0;
+	int e_index = 0;
+
 
 	if( identify(start, end, 'S', 'S')){
 
 		StackLoop *start_ = (StackLoop *) start;
 		StackLoop *end_ = (StackLoop *) end;
-		int s_index = 0;
-		int e_index = 0;
 
 		for (int loop = 0; loop < 2; loop++) {
 			if (start_->adjacentLoops[loop] != end_) {
@@ -404,7 +405,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		StackLoop *start_;
 		InteriorLoop *end_;
 
-		int s_index = 0, e_index = 0;
 
 		if (start->identity == 'S') {
 			start_ = (StackLoop *) start;
@@ -446,7 +446,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		StackLoop *start_;
 		BulgeLoop *end_;
-		int s_index = 0, e_index = 0;
 
 		if (start->identity == 'S') {
 			start_ = (StackLoop *) start;
@@ -492,7 +491,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		StackLoop *start_;
 		HairpinLoop *end_;
-		int s_index = 0;
 
 		if (start->identity == 'S') {
 			start_ = (StackLoop *) start;
@@ -529,7 +527,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		StackLoop *start_;
 		MultiLoop *end_;
-		int s_index = 0, e_index = 0;
 
 		if (start->identity == 'S') {
 			start_ = (StackLoop *) start;
@@ -593,7 +590,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		StackLoop *start_ = (StackLoop *) end;
 		OpenLoop *end_ = (OpenLoop *) start;
 
-		int s_index = 0, e_index = 0;
 
 		if (start->identity == 'S') {
 			start_ = (StackLoop *) start;
@@ -657,7 +653,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		InteriorLoop *end_ = (InteriorLoop *) end, *start_ = (InteriorLoop *) start;
 		Loop *start_extra, *end_extra;
-		int s_index = 0, e_index = 0;
 
 		for (int loop = 0; loop <= 1; loop++) {
 			if (start_->adjacentLoops[loop] != end_) {
@@ -690,7 +685,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		InteriorLoop *start_;
 		BulgeLoop *end_;
 		Loop *start_extra, *end_extra;
-		int s_index = 0, e_index = 0;
 
 		if (start->identity == 'S') {
 			start_ = (InteriorLoop *) start;
@@ -734,7 +728,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		InteriorLoop *start_;
 		HairpinLoop *end_;
-		int s_index = 0;
 
 		if (start->identity == 'I') {
 			start_ = (InteriorLoop *) start;
@@ -770,7 +763,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		InteriorLoop *start_;
 		MultiLoop *end_;
-		int s_index = 0, e_index = 0;
 
 		if (start->identity == 'I') {
 			start_ = (InteriorLoop *) start;
@@ -832,7 +824,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		InteriorLoop *start_;
 		OpenLoop *end_;
-		int s_index = 0, e_index = 0;
 
 		if (start->identity == 'I') {
 			start_ = (InteriorLoop *) start;
@@ -902,7 +893,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		BulgeLoop *end_ = (BulgeLoop *) end, *start_ = (BulgeLoop *) start;
 		Loop *start_extra, *end_extra;
-		int s_index = 0, e_index = 0;
 
 		for (int loop = 0; loop <= 1; loop++) {
 			if (start_->adjacentLoops[loop] != end_) {
@@ -934,7 +924,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		BulgeLoop *start_;
 		HairpinLoop *end_;
-		int s_index = 0;
 
 		if (start->identity == 'B') {
 			start_ = (BulgeLoop *) start;
@@ -970,7 +959,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		BulgeLoop *start_;
 		MultiLoop *end_;
-		int s_index = 0, e_index = 0;
 
 		if (start->identity == 'B') {
 			start_ = (BulgeLoop *) start;
@@ -1034,7 +1022,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		BulgeLoop *start_;
 		OpenLoop *end_;
-		int s_index = 0, e_index = 0;
 
 		if (start->identity == 'B') {
 			start_ = (BulgeLoop *) start;
@@ -1115,7 +1102,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		HairpinLoop *start_;
 		MultiLoop *end_;
-		int e_index = 0;
 
 		if (start->identity == 'H') {
 			start_ = (HairpinLoop *) start;
@@ -1237,7 +1223,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		HairpinLoop *start_ = (HairpinLoop *) end;
 		OpenLoop *end_ = (OpenLoop *) start;
-		int e_index = 0;
 
 		if (start->identity == 'H') {
 			start_ = (HairpinLoop *) start;
@@ -1302,7 +1287,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		MultiLoop *start_;
 		MultiLoop *end_;
-		int s_index = 0, e_index = 0, index = 0;
+		int index = 0;
 
 		start_ = (MultiLoop *) start;
 		end_ = (MultiLoop *) end;
@@ -1374,7 +1359,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		OpenLoop *start_;
 		MultiLoop *end_;
-		int s_index = 0, e_index = 0, index = 0;
+		int  index = 0;
 
 		start_ = (OpenLoop *) start;
 		end_ = (MultiLoop *) end;
