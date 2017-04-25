@@ -284,12 +284,6 @@ string identityToString(char loop) {
 	return "Could not identify loop";
 }
 
-//void Loop::setPrimeRates(bool input) {
-//
-//	energyModel->simOptions->setPrimeRates(input);
-//
-//}
-
 string Loop::toString() {
 
 	std::stringstream ss;
@@ -1524,14 +1518,20 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 	return RateArr(-1.0, left, right);
 }
 
-Loop *Loop::performDeleteMove(Move *move) {
+// FD: returns TRUE if the loops are of type one and two
+bool Loop::identify(Loop* first, Loop* second, char one, char two) {
 
+	return (first->identity == one && second->identity == two) || (first->identity == two && second->identity == one);
+
+}
+
+Loop *Loop::performDeleteMove(Move *move) {
 
 	Loop* start = move->affected[0];
 	Loop* end = move->affected[1];
 
+	if (identify(start, end, 'S', 'S')) {
 
-	if (start->identity == 'S' && end->identity == 'S') {
 		StackLoop *start_, *end_;
 
 		Loop *start_extra, *end_extra, *newLoop;
@@ -1579,7 +1579,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 		return newLoop;
 	}
 
-	if ((start->identity == 'S' && end->identity == 'I') || (start->identity == 'I' && end->identity == 'S')) {
+	if (identify(start, end, 'S', 'I')) {
 
 		StackLoop *start_;
 		InteriorLoop *end_;
@@ -1643,7 +1643,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 		return newLoop;
 	}
 
-	if ((start->identity == 'S' && end->identity == 'B') || (start->identity == 'B' && end->identity == 'S')) {
+	if (identify(start, end, 'S', 'B')) {
 
 		StackLoop *start_;
 		BulgeLoop *end_;
@@ -1704,7 +1704,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 		return newLoop;
 	}
 
-	if ((start->identity == 'S' && end->identity == 'H') || (start->identity == 'H' && end->identity == 'S')) {
+	if (identify(start, end, 'S', 'H')) {
 
 		StackLoop *start_;
 		HairpinLoop *end_;
@@ -1748,7 +1748,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 		return newLoop;
 	}
 
-	if ((start->identity == 'S' && end->identity == 'M') || (start->identity == 'M' && end->identity == 'S')) {
+	if (identify(start, end, 'S', 'M')) {
 
 		StackLoop *start_;
 		MultiLoop *end_;
@@ -1793,14 +1793,6 @@ Loop *Loop::performDeleteMove(Move *move) {
 			}
 		}
 
-		//      new_energy = energyModel_Primary->MultiloopEnergy( end_->numAdjacent, pairtypes, sidelens, seqs );
-
-		//      old_energy = start->getEnergy() + end->getEnergy();
-		//      temprate = energyModel_Primary->returnRate( old_energy, new_energy, 0);
-		//      delete[] pairtypes;
-		//      delete[] sidelens;
-		//      delete[] seqs;
-
 		// resulting will be an multiloop, same# of adjacent helices, two sides longer by one base, and one pairtype possibly changed.
 		newLoop = new MultiLoop(end_->numAdjacent, pairtypes, sidelens, seqs);
 
@@ -1830,7 +1822,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 		return newLoop;
 	}
 
-	if ((start->identity == 'S' && end->identity == 'O') || (start->identity == 'O' && end->identity == 'S')) {
+	if (identify(start, end, 'S', 'O')) {
 
 		StackLoop *start_;
 		OpenLoop *end_;
@@ -1863,18 +1855,6 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		}
 
-//		for (int loop = 0; (loop < end_->numAdjacent) || (loop < 2); loop++) {
-//
-//			if (loop <= 1 && start_->adjacentLoops[loop] != end_) {
-//				s_index = loop;
-//			}
-//
-//			if (loop < end_->numAdjacent && end_->adjacentLoops[loop] == start_) {
-//				e_index = loop;
-//			}
-//
-//		}
-
 		// note e_index has different meaning now for openloops.
 
 		cout << "s_index, e_index = " << s_index << "  " << e_index << endl;
@@ -1889,32 +1869,25 @@ Loop *Loop::performDeleteMove(Move *move) {
 		int *sidelens = new int[end_->numAdjacent + 1];
 		char **seqs = new char *[end_->numAdjacent + 1];
 
-//		bool settedPair = false;
-
 		for (int loop = 0; loop < end_->numAdjacent + 1; loop++) {
 			if (loop == e_index) {
 				pairtypes[loop] = start_->pairtype[s_index];
-//				settedPair = true;
 				sidelens[loop] = end_->sidelen[loop] + 1;
 				seqs[loop] = end_->seqs[loop];
 			} else if (loop == e_index + 1) {
-				if (loop < end_->numAdjacent){
+				if (loop < end_->numAdjacent) {
 					pairtypes[loop] = end_->pairtype[loop];
-//					settedPair = true;
 				}
 				sidelens[loop] = end_->sidelen[loop] + 1;
 				seqs[loop] = start_->seqs[s_index];
 			} else {
-				if (loop < end_->numAdjacent){
+				if (loop < end_->numAdjacent) {
 					pairtypes[loop] = end_->pairtype[loop];
-//					settedPair = true;
 				}
 				sidelens[loop] = end_->sidelen[loop];
 				seqs[loop] = end_->seqs[loop];
 			}
 		}
-
-//		cout << "SettedPair is: " << settedPair << endl;
 
 		cout << "new Pairtype is CUSTOM: " << pairtypes[0] << endl;
 
@@ -1947,7 +1920,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 		return newLoop;
 	}
 
-	if (start->identity == 'I' && end->identity == 'I') {
+	if (identify(start, end, 'I', 'I')) {
+
 		InteriorLoop *start_, *end_;
 		Loop *start_extra, *end_extra, *newLoop;
 		int s_index = 0, e_index = 0;
@@ -2003,7 +1977,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 		return newLoop;
 	}
 
-	if ((start->identity == 'I' && end->identity == 'B') || (start->identity == 'B' && end->identity == 'I')) {
+	if (identify(start, end, 'I', 'B')) {
+
 		InteriorLoop *start_;
 		BulgeLoop *end_;
 		Loop *newLoop;
@@ -2064,7 +2039,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 		return newLoop;
 	}
 
-	if ((start->identity == 'I' && end->identity == 'H') || (start->identity == 'H' && end->identity == 'I')) {
+	if (identify(start, end, 'I', 'H')) {
+
 		InteriorLoop *start_;
 		HairpinLoop *end_;
 		int s_index = 0;
@@ -2105,7 +2081,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 		return newLoop;
 	}
 
-	else if ((start->identity == 'I' && end->identity == 'M') || (start->identity == 'M' && end->identity == 'I')) {
+	else if (identify(start, end, 'I', 'B')) {
+
 		InteriorLoop *start_;
 		MultiLoop *end_;
 		Loop *newLoop;
@@ -2178,7 +2155,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 		return newLoop;
 	}
 
-	if ((start->identity == 'I' && end->identity == 'O') || (start->identity == 'O' && end->identity == 'I')) {
+	if (identify(start, end, 'I', 'O')) {
+
 		InteriorLoop *start_;
 		OpenLoop *end_;
 		Loop *newLoop;
@@ -2258,7 +2236,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 // end interior
 // begin bulge
 
-	if (start->identity == 'B' && end->identity == 'B') {
+	if (identify(start, end, 'B', 'B')) {
+
 		BulgeLoop *start_, *end_;
 		Loop *start_extra, *end_extra, *newLoop;
 		int s_index = 0, e_index = 0;
@@ -2314,7 +2293,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 		return newLoop;
 	}
 
-	if ((start->identity == 'B' && end->identity == 'H') || (start->identity == 'H' && end->identity == 'B')) {
+	if (identify(start, end, 'B', 'H')) {
+
 		BulgeLoop *start_;
 		HairpinLoop *end_;
 		int s_index = 0;
@@ -2355,7 +2335,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 		return newLoop;
 	}
 
-	else if ((start->identity == 'B' && end->identity == 'M') || (start->identity == 'M' && end->identity == 'B')) {
+	else if (identify(start, end, 'B', 'M')) {
+
 		BulgeLoop *start_;
 		MultiLoop *end_;
 		Loop *newLoop;
@@ -2937,10 +2918,6 @@ void StackLoop::calculateEnergy(void) {
 
 	assert(Loop::energyModel != NULL);
 
-//	if (Loop::energyModel == NULL){
-//		return; // we can't handle this error. I'm trying to work out a way around it, but generally if the loops try to get used before the energy model initializes, it's all over.
-//	}
-
 	energy = Loop::energyModel->StackEnergy(seqs[0][0], seqs[1][1], seqs[0][1], seqs[1][0]);
 
 	return;
@@ -3048,8 +3025,6 @@ StackLoop::StackLoop(void) {
 	identity = 'S';
 }
 
-
-
 StackLoop::StackLoop(int type1, int type2, char *seq1, char *seq2, Loop *left, Loop *right) // left and right default to NULL, see header.
 		{
 
@@ -3083,7 +3058,6 @@ string StackLoop::typeInternalsToString(void) {
 	ss << "  --   ";
 	ss << basepairString[pairtype[0]] << ",   ";
 	ss << basepairString[pairtype[1]] << endl;
-
 
 	return ss.str();
 
@@ -3494,7 +3468,6 @@ void BulgeLoop::generateMoves(void) {
 	int bsize = bulgesize[0] + bulgesize[1];
 	int bside = (bulgesize[0] == 0) ? 1 : 0;
 
-
 // Creation moves
 	if (bsize <= 3) {
 		if (moves != NULL)
@@ -3583,7 +3556,6 @@ void BulgeLoop::generateMoves(void) {
 void BulgeLoop::generateDeleteMoves(void) {
 
 	double temprate;
-
 
 	assert(moves != NULL);
 
@@ -4763,7 +4735,6 @@ string OpenLoop::typeInternalsToString(void) {
 
 }
 
-
 void OpenLoop::calculateEnergy(void) {
 	if (energyModel == NULL)
 		return; // if the loops try to get used before the energy model initializes, it's all over.
@@ -5320,8 +5291,6 @@ char *OpenLoop::getLocation(Move *move, int index) {
 
 }
 
-
-
 char* OpenLoop::getBase(char type, int index, HalfContext half) {
 
 	for (int loop = 0; loop <= numAdjacent; loop++) {
@@ -5405,8 +5374,6 @@ char* OpenLoop::getBase(char type, int index, bool useArr) {
 	return NULL;
 }
 
-
-
 // if using Arr, do not count the external bases.
 BaseCount& OpenLoop::getFreeBases() {
 
@@ -5423,7 +5390,6 @@ BaseCount& OpenLoop::getFreeBases() {
 
 			int loop2 = 1;
 			int end = sidelen[loop] + 1;
-
 
 			for (; loop2 < end; loop2++) {
 
