@@ -1525,9 +1525,11 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 }
 
 Loop *Loop::performDeleteMove(Move *move) {
-	Loop *start, *end;
-	start = move->affected[0];
-	end = move->affected[1];
+
+
+	Loop* start = move->affected[0];
+	Loop* end = move->affected[1];
+
 
 	if (start->identity == 'S' && end->identity == 'S') {
 		StackLoop *start_, *end_;
@@ -1707,6 +1709,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 		StackLoop *start_;
 		HairpinLoop *end_;
 		Loop* newLoop;
+
 		int s_index = 0, e_index = 0;
 		if (start->identity == 'S') {
 			start_ = (StackLoop *) start;
@@ -1746,6 +1749,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 	}
 
 	if ((start->identity == 'S' && end->identity == 'M') || (start->identity == 'M' && end->identity == 'S')) {
+
 		StackLoop *start_;
 		MultiLoop *end_;
 		Loop *newLoop;
@@ -1827,63 +1831,92 @@ Loop *Loop::performDeleteMove(Move *move) {
 	}
 
 	if ((start->identity == 'S' && end->identity == 'O') || (start->identity == 'O' && end->identity == 'S')) {
+
 		StackLoop *start_;
 		OpenLoop *end_;
 		Loop *newLoop;
-		int s_index = 0, e_index = 0, temp = 0;
+		int s_index = 0;
+		int e_index = 0;
+		int temp = 0;
 
 		if (start->identity == 'S') {
+
 			start_ = (StackLoop *) start;
 			end_ = (OpenLoop *) end;
+
 		} else {
+
 			start_ = (StackLoop *) end;
 			end_ = (OpenLoop *) start;
+
 		}
 
 		for (int loop = 0; (loop < end_->numAdjacent) || (loop < 2); loop++) {
 
+			if (loop <= 1 && start_->adjacentLoops[loop] != end_) {
+				s_index = loop;
+			}
 
-			if (loop <= 1 && start_->adjacentLoops[loop] != end_ ){
-//				if (start_->adjacentLoops[loop] != end_) {
-					s_index = loop;
-				}
-			if (loop < end_->numAdjacent  && end_->adjacentLoops[loop] == start_) {
-					e_index = loop;
-				}
+			if (loop < end_->numAdjacent && end_->adjacentLoops[loop] == start_) {
+				e_index = loop;
+			}
 
-//			if (loop <= 1)
-//				if (start_->adjacentLoops[loop] != end_) {
-//					s_index = loop;
-//				}
-//			if (loop < end_->numAdjacent)
-//				if (end_->adjacentLoops[loop] == start_) {
-//					e_index = loop;
-//				}
 		}
 
+//		for (int loop = 0; (loop < end_->numAdjacent) || (loop < 2); loop++) {
+//
+//			if (loop <= 1 && start_->adjacentLoops[loop] != end_) {
+//				s_index = loop;
+//			}
+//
+//			if (loop < end_->numAdjacent && end_->adjacentLoops[loop] == start_) {
+//				e_index = loop;
+//			}
+//
+//		}
+
 		// note e_index has different meaning now for openloops.
+
+		cout << "s_index, e_index = " << s_index << "  " << e_index << endl;
+
+		cout << "Start is " << endl;
+		cout << (start_)->typeInternalsToString() << endl;
+
+		cout << "End is " << endl;
+		cout << end_->typeInternalsToString() << endl;
 
 		int *pairtypes = new int[end_->numAdjacent];
 		int *sidelens = new int[end_->numAdjacent + 1];
 		char **seqs = new char *[end_->numAdjacent + 1];
 
+//		bool settedPair = false;
+
 		for (int loop = 0; loop < end_->numAdjacent + 1; loop++) {
 			if (loop == e_index) {
 				pairtypes[loop] = start_->pairtype[s_index];
+//				settedPair = true;
 				sidelens[loop] = end_->sidelen[loop] + 1;
 				seqs[loop] = end_->seqs[loop];
 			} else if (loop == e_index + 1) {
-				if (loop < end_->numAdjacent)
+				if (loop < end_->numAdjacent){
 					pairtypes[loop] = end_->pairtype[loop];
+//					settedPair = true;
+				}
 				sidelens[loop] = end_->sidelen[loop] + 1;
 				seqs[loop] = start_->seqs[s_index];
 			} else {
-				if (loop < end_->numAdjacent)
+				if (loop < end_->numAdjacent){
 					pairtypes[loop] = end_->pairtype[loop];
+//					settedPair = true;
+				}
 				sidelens[loop] = end_->sidelen[loop];
 				seqs[loop] = end_->seqs[loop];
 			}
 		}
+
+//		cout << "SettedPair is: " << settedPair << endl;
+
+		cout << "new Pairtype is CUSTOM: " << pairtypes[0] << endl;
 
 		// resulting will be an open loop, same# of adjacent helices, two sides longer by one base, and one pairtype possibly changed.
 		newLoop = new OpenLoop(end_->numAdjacent, pairtypes, sidelens, seqs);
@@ -3015,10 +3048,13 @@ StackLoop::StackLoop(void) {
 	identity = 'S';
 }
 
+
+
 StackLoop::StackLoop(int type1, int type2, char *seq1, char *seq2, Loop *left, Loop *right) // left and right default to NULL, see header.
 		{
-	pairtype[0] = type1;
-	pairtype[1] = type2;
+
+//	pairtype[0] = type1;
+//	pairtype[1] = type2;
 	numAdjacent = 2;
 	adjacentLoops = new Loop *[2];
 	adjacentLoops[0] = left;
@@ -3027,6 +3063,9 @@ StackLoop::StackLoop(int type1, int type2, char *seq1, char *seq2, Loop *left, L
 	identity = 'S';
 	seqs[0] = seq1;
 	seqs[1] = seq2;
+	pairtype[0] = seqs[0][0];
+	pairtype[1] = seqs[0][1];
+
 }
 
 string StackLoop::typeInternalsToString(void) {
@@ -3040,6 +3079,11 @@ string StackLoop::typeInternalsToString(void) {
 	ss << baseTypeString[seqs[1][0]];
 
 	ss << ") \n";
+
+	ss << "  --   ";
+	ss << basepairString[pairtype[0]] << ",   ";
+	ss << basepairString[pairtype[1]] << endl;
+
 
 	return ss.str();
 
