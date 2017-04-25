@@ -655,14 +655,8 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 			end_ = (BulgeLoop *) start;
 		}
 
-		for (int loop = 0; loop <= 1; loop++) {
-			if (start_->adjacentLoops[loop] != end_) {
-				s_index = loop;
-			}
-			if (end_->adjacentLoops[loop] != start_) {
-				e_index = loop;
-			}
-		}
+		tie(s_index, e_index) = findExternalAdjacent(start_, end_);
+
 		// resulting will be an interior loop side lengths equal to the length
 		// of the 'input' bulge loop, plus one on each side (ie, one side will be B+1, the other 1.
 		//      if(s_index == e_index )
@@ -696,11 +690,10 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 			end_ = (HairpinLoop *) start;
 		}
 
-		for (int loop = 0; loop <= 1; loop++) {
-			if (start_->adjacentLoops[loop] != end_) {
-				s_index = loop;
-			}
-		}
+		// FD: not actually using e_index in this block.
+		tie(s_index, e_index) = findExternalAdjacent(start_, end_);
+
+
 		// end is the hairpin, which has no extra adjacencies.
 
 		// resulting will be a hairpin loop with previous size, plus interior loop's sizes (both) plus 2 (for the pairing that's now unpaired)
@@ -842,14 +835,8 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		BulgeLoop *end_ = (BulgeLoop *) end;
 		BulgeLoop *start_ = (BulgeLoop *) start;
 
-		for (int loop = 0; loop <= 1; loop++) {
-			if (start_->adjacentLoops[loop] != end_) {
-				s_index = loop;
-			}
-			if (end_->adjacentLoops[loop] != start_) {
-				e_index = loop;
-			}
-		}
+		tie(s_index, e_index) = findExternalAdjacent(start_, end_);
+
 
 		new_energy = energyModel->InteriorEnergy(start_->bulge_seq[s_index], end_->bulge_seq[e_index],
 				end_->bulgesize[1 - e_index] + start_->bulgesize[s_index] + 1, end_->bulgesize[e_index] + start_->bulgesize[1 - s_index] + 1);
@@ -879,11 +866,10 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 			end_ = (HairpinLoop *) start;
 		}
 
-		for (int loop = 0; loop <= 1; loop++) {
-			if (start_->adjacentLoops[loop] != end_) {
-				s_index = loop;
-			}
-		}
+		// FD: Not actually using the second output in this block.
+		tie(s_index, e_index) = findExternalAdjacent(start_, end_);
+
+
 		// end is the hairpin, which has no extra adjacencies.
 
 		// resulting will be a hairpin loop with previous size, plus interior loop's sizes (both) plus 2 (for the pairing that's now unpaired)
