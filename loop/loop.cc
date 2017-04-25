@@ -3053,8 +3053,8 @@ StackLoop::StackLoop(void) {
 StackLoop::StackLoop(int type1, int type2, char *seq1, char *seq2, Loop *left, Loop *right) // left and right default to NULL, see header.
 		{
 
-//	pairtype[0] = type1;
-//	pairtype[1] = type2;
+	pairtype[0] = type1;
+	pairtype[1] = type2;
 	numAdjacent = 2;
 	adjacentLoops = new Loop *[2];
 	adjacentLoops[0] = left;
@@ -3063,8 +3063,8 @@ StackLoop::StackLoop(int type1, int type2, char *seq1, char *seq2, Loop *left, L
 	identity = 'S';
 	seqs[0] = seq1;
 	seqs[1] = seq2;
-	pairtype[0] = seqs[0][0];
-	pairtype[1] = seqs[0][1];
+//	pairtype[0] = seqs[0][0];
+//	pairtype[1] = seqs[0][1];
 
 }
 
@@ -3494,8 +3494,6 @@ void BulgeLoop::generateMoves(void) {
 	int bsize = bulgesize[0] + bulgesize[1];
 	int bside = (bulgesize[0] == 0) ? 1 : 0;
 
-//	std::cout << "Trying to generate moves";
-//	std: cout.flush();
 
 // Creation moves
 	if (bsize <= 3) {
@@ -3586,8 +3584,6 @@ void BulgeLoop::generateDeleteMoves(void) {
 
 	double temprate;
 
-//	std::cout << "Trying to generate delete moves";
-//	std: cout.flush();
 
 	assert(moves != NULL);
 
@@ -4455,11 +4451,8 @@ void MultiLoop::generateMoves(void) {
 					tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
 
 					// multiLoop is closing, so this an loopMove and something else
-//					if (energyModel->useArrhenius()) {
-
 					MoveType rightMove = energyModel->prefactorInternal(sideLengths[loop3], sideLengths[loop3]);
 
-//					}
 					rateEnv = RateEnv(tempRate, energyModel, loopMove, rightMove);
 
 					moves->addMove(new Move(MOVE_CREATE | MOVE_1, rateEnv, this, loop, loop2, loop3));
@@ -4770,37 +4763,6 @@ string OpenLoop::typeInternalsToString(void) {
 
 }
 
-//void OpenLoop::halfContextToString(std::stringstream& ss) {
-//
-//	ss << context;
-//
-//}
-
-// if the half contexts are updated, print them
-
-//	if (updatedContext) {
-//
-//		ss << "hContext: \n";
-//
-//		for (int i = 0; i < numAdjacent + 1; i++) {
-//
-//			ss << "   c" << i << " - ";
-//
-//			for (int j = 0; j < context[i].size(); j++) {
-//
-//				ss << context[i][j];
-//
-//			}
-//
-//			ss << "  \n";
-//
-//		}
-//
-//	}
-
-//	ss << " \n";
-
-//	return ss.str();
 
 void OpenLoop::calculateEnergy(void) {
 	if (energyModel == NULL)
@@ -5358,22 +5320,7 @@ char *OpenLoop::getLocation(Move *move, int index) {
 
 }
 
-//char *OpenLoop::getBase(char type, int index) {
-//	int loop, loop2;
-//	int newindex = index;
-//	for (loop = 0; loop <= numAdjacent; loop++) {
-//		for (loop2 = 1; loop2 <= sidelen[loop]; loop2++)
-//			if (seqs[loop][loop2] == type) {
-//				if (newindex == 0)
-//					return &seqs[loop][loop2];
-//				else
-//					newindex--;
-//			}
-//	}
-//
-//	assert(0);
-//	return NULL;
-//}
+
 
 char* OpenLoop::getBase(char type, int index, HalfContext half) {
 
@@ -5458,23 +5405,7 @@ char* OpenLoop::getBase(char type, int index, bool useArr) {
 	return NULL;
 }
 
-//int *OpenLoop::getFreeBases(void) {
-//	int *results;
-//	int loop, loop2;
-//	results = new int[5];
-//	for (loop = 0; loop < 5; loop++)
-//		results[loop] = 0;
-//
-//	for (loop = 0; loop <= numAdjacent; loop++) {
-//		for (loop2 = 1; loop2 <= sidelen[loop]; loop2++) {
-//			if (seqs[loop][loop2] < 5)
-//				results[seqs[loop][loop2]]++;
-//			else
-//				results[0]++;
-//		}
-//	}
-//	return results;
-//}
+
 
 // if using Arr, do not count the external bases.
 BaseCount& OpenLoop::getFreeBases() {
@@ -5493,11 +5424,6 @@ BaseCount& OpenLoop::getFreeBases() {
 			int loop2 = 1;
 			int end = sidelen[loop] + 1;
 
-//			if (false) {
-//				// avoid counting external nucleotides
-//				loop2 = loop2 + 1;
-//				end = end - 1;
-//			}
 
 			for (; loop2 < end; loop2++) {
 
@@ -5561,13 +5487,6 @@ void OpenLoop::performComplexJoin(OpenLoop **oldLoops, OpenLoop **newLoops, char
 		for (loop = 0; loop <= oldLoops[toggle]->numAdjacent && newindex >= 0; loop++) {
 
 			int end = oldLoops[toggle]->sidelen[loop] + 1;
-
-//			if (useArr) {
-//
-//				loop2++;
-//				end--;
-//
-//			}
 
 			for (int loop2 = 1; loop2 < end; loop2++) {
 
