@@ -1525,17 +1525,24 @@ bool Loop::identify(Loop* first, Loop* second, char one, char two) {
 
 }
 
+
+
+
 Loop *Loop::performDeleteMove(Move *move) {
 
 	Loop* start = move->affected[0];
 	Loop* end = move->affected[1];
 
+	Loop* newLoop = NULL;
+
+
 	if (identify(start, end, 'S', 'S')) {
 
 		StackLoop *start_, *end_;
 
-		Loop *start_extra, *end_extra, *newLoop;
+		Loop *start_extra, *end_extra;
 		int s_index = 0, e_index = 0;
+
 		if (((StackLoop *) start)->seqs[0] > ((StackLoop *) end)->seqs[0]) {
 			start_ = (StackLoop *) end;
 			end_ = (StackLoop *) start;
@@ -1583,8 +1590,10 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		StackLoop *start_;
 		InteriorLoop *end_;
-		Loop* newLoop;
 		int s_index = 0, e_index = 0;
+
+
+
 		if (start->identity == 'S') {
 			start_ = (StackLoop *) start;
 			end_ = (InteriorLoop *) end;
@@ -1647,7 +1656,6 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		StackLoop *start_;
 		BulgeLoop *end_;
-		Loop* newLoop;
 		int s_index = 0, e_index = 0;
 		if (start->identity == 'S') {
 			start_ = (StackLoop *) start;
@@ -1708,7 +1716,6 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		StackLoop *start_;
 		HairpinLoop *end_;
-		Loop* newLoop;
 
 		int s_index = 0, e_index = 0;
 		if (start->identity == 'S') {
@@ -1752,7 +1759,6 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		StackLoop *start_;
 		MultiLoop *end_;
-		Loop *newLoop;
 		int s_index = 0, e_index = 0, temp = 0;
 
 		if (start->identity == 'S') {
@@ -1826,7 +1832,6 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		StackLoop *start_;
 		OpenLoop *end_;
-		Loop *newLoop;
 		int s_index = 0;
 		int e_index = 0;
 		int temp = 0;
@@ -1923,7 +1928,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 	if (identify(start, end, 'I', 'I')) {
 
 		InteriorLoop *start_, *end_;
-		Loop *start_extra, *end_extra, *newLoop;
+		Loop *start_extra, *end_extra;
 		int s_index = 0, e_index = 0;
 		start_ = (InteriorLoop *) start;
 		end_ = (InteriorLoop *) end;
@@ -1981,7 +1986,6 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		InteriorLoop *start_;
 		BulgeLoop *end_;
-		Loop *newLoop;
 		int s_index = 0, e_index = 0;
 
 		if (start->identity == 'S') {
@@ -2044,7 +2048,6 @@ Loop *Loop::performDeleteMove(Move *move) {
 		InteriorLoop *start_;
 		HairpinLoop *end_;
 		int s_index = 0;
-		Loop *newLoop;
 
 		if (start->identity == 'I') {
 			start_ = (InteriorLoop *) start;
@@ -2085,7 +2088,6 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		InteriorLoop *start_;
 		MultiLoop *end_;
-		Loop *newLoop;
 		int s_index = 0, e_index = 0, temp = 0;
 
 		if (start->identity == 'I') {
@@ -2159,7 +2161,6 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		InteriorLoop *start_;
 		OpenLoop *end_;
-		Loop *newLoop;
 		int s_index = 0, e_index = 0, temp = 0;
 
 		if (start->identity == 'I') {
@@ -2239,7 +2240,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 	if (identify(start, end, 'B', 'B')) {
 
 		BulgeLoop *start_, *end_;
-		Loop *start_extra, *end_extra, *newLoop;
+		Loop *start_extra, *end_extra;
 		int s_index = 0, e_index = 0;
 		start_ = (BulgeLoop *) start;
 		end_ = (BulgeLoop *) end;
@@ -2298,7 +2299,6 @@ Loop *Loop::performDeleteMove(Move *move) {
 		BulgeLoop *start_;
 		HairpinLoop *end_;
 		int s_index = 0;
-		Loop *newLoop;
 
 		if (start->identity == 'B') {
 			start_ = (BulgeLoop *) start;
@@ -2339,7 +2339,6 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		BulgeLoop *start_;
 		MultiLoop *end_;
-		Loop *newLoop;
 		int s_index = 0, e_index = 0, temp = 0;
 
 		if (start->identity == 'B') {
@@ -2413,7 +2412,6 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		BulgeLoop *start_;
 		OpenLoop *end_;
-		Loop *newLoop;
 		int s_index = 0, e_index = 0, temp = 0;
 
 		if (start->identity == 'B') {
@@ -2502,7 +2500,6 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		HairpinLoop *start_;
 		MultiLoop *end_;
-		Loop *newLoop;
 		int e_index = 0, temp;
 
 		if (start->identity == 'H') {
@@ -2651,7 +2648,6 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		HairpinLoop *start_;
 		OpenLoop *end_;
-		Loop *newLoop;
 		int e_index = 0, temp;
 
 		if (start->identity == 'H') {
@@ -2722,7 +2718,6 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		MultiLoop *start_;
 		MultiLoop *end_;
-		Loop *newLoop;
 		int s_index = 0, e_index = 0, index = 0, temp;
 
 		start_ = (MultiLoop *) start;
@@ -2801,7 +2796,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 	}
 
 	if ((start->identity == 'M' && end->identity == 'O') || (start->identity == 'O' && end->identity == 'M')) {
-		Loop *newLoop;
+
 		OpenLoop *start_;
 		MultiLoop *end_;
 		int s_index = 0, e_index = 0, index = 0, temp;
@@ -2906,14 +2901,13 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 // Control flow should never reach here, as Scomplex shortcuts O/O deletion moves (complex breaks) to a different function - performComplexSplit
 	if (identify(start, end, 'O', 'O')){
+
 		fprintf(stderr, "Openloop/Openloop deletion reached via performDeleteMove, bad control flow\n");
 		assert(0);
 		return NULL;
 	}
 
-// end openloop
 
-	else
 		return NULL;
 }
 
