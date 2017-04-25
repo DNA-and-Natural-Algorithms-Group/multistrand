@@ -365,7 +365,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 	MoveType left = stackMove;
 	MoveType right = stackMove;
 
-	if (start->identity == 'S' && end->identity == 'S') {
+	if( identify(start, end, 'S', 'S')){
 
 		StackLoop *start_ = (StackLoop *) start;
 		StackLoop *end_ = (StackLoop *) end;
@@ -399,7 +399,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		return RateArr(tempRate / 2.0, left, right);
 	}
 
-	if ((start->identity == 'S' && end->identity == 'I') || (start->identity == 'I' && end->identity == 'S')) {
+	if( identify(start, end, 'S', 'I')){
 
 		StackLoop *start_;
 		InteriorLoop *end_;
@@ -442,7 +442,8 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		return RateArr(tempRate / 2.0, left, right);
 	}
 
-	if ((start->identity == 'S' && end->identity == 'B') || (start->identity == 'B' && end->identity == 'S')) {
+	if( identify(start, end, 'S', 'B')){
+
 		StackLoop *start_;
 		BulgeLoop *end_;
 		int s_index = 0, e_index = 0;
@@ -487,7 +488,8 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		return RateArr(tempRate / 2.0, left, right);
 	}
 
-	if ((start->identity == 'S' && end->identity == 'H') || (start->identity == 'H' && end->identity == 'S')) {
+	if( identify(start, end, 'S', 'H')){
+
 		StackLoop *start_;
 		HairpinLoop *end_;
 		int s_index = 0;
@@ -523,7 +525,8 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		return RateArr(tempRate / 2.0, left, right);
 	}
 
-	if ((start->identity == 'S' && end->identity == 'M') || (start->identity == 'M' && end->identity == 'S')) {
+	if( identify(start, end, 'S', 'M')){
+
 		StackLoop *start_;
 		MultiLoop *end_;
 		int s_index = 0, e_index = 0;
@@ -585,7 +588,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		return RateArr(tempRate / 2.0, left, right);
 	}
 
-	if ((start->identity == 'S' && end->identity == 'O') || (start->identity == 'O' && end->identity == 'S')) {
+	if( identify(start, end, 'S', 'O')){
 
 		StackLoop *start_ = (StackLoop *) end;
 		OpenLoop *end_ = (OpenLoop *) start;
@@ -610,25 +613,26 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		}
 		// note e_index has different meaning now for openloops.
 
-//		int *pairtypes = new int[end_->numAdjacent];
+
 		int *sidelens = new int[end_->numAdjacent + 1];
 		char **seqs = new char *[end_->numAdjacent + 1];
 
 		for (int loop = 0; loop < end_->numAdjacent + 1; loop++) {
 			if (loop == e_index) {
-//				pairtypes[loop] = start_->pairtype[s_index];
+
 				sidelens[loop] = end_->sidelen[loop] + 1;
 				seqs[loop] = end_->seqs[loop];
+
 			} else if (loop == e_index + 1) {
-//				if (loop < end_->numAdjacent)
-//					pairtypes[loop] = end_->pairtype[loop];
+
 				sidelens[loop] = end_->sidelen[loop] + 1;
 				seqs[loop] = start_->seqs[s_index];
+
 			} else {
-//				if (loop < end_->numAdjacent)
-//					pairtypes[loop] = end_->pairtype[loop];
+
 				sidelens[loop] = end_->sidelen[loop];
 				seqs[loop] = end_->seqs[loop];
+
 			}
 		}
 
@@ -642,7 +646,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		left = energyModel->prefactorOpen(e_index, (end_->numAdjacent + 1), end_->sidelen);
 		right = stackMove;
 
-//		delete[] pairtypes;
 		delete[] sidelens;
 		delete[] seqs;
 
@@ -650,7 +653,8 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 	}
 
-	if (start->identity == 'I' && end->identity == 'I') {
+	if( identify(start, end, 'I', 'I')){
+
 		InteriorLoop *end_ = (InteriorLoop *) end, *start_ = (InteriorLoop *) start;
 		Loop *start_extra, *end_extra;
 		int s_index = 0, e_index = 0;
@@ -681,7 +685,8 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 	}
 
-	if ((start->identity == 'I' && end->identity == 'B') || (start->identity == 'B' && end->identity == 'I')) {
+	if( identify(start, end, 'I', 'B')){
+
 		InteriorLoop *start_;
 		BulgeLoop *end_;
 		Loop *start_extra, *end_extra;
@@ -725,7 +730,8 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 	}
 
-	if ((start->identity == 'I' && end->identity == 'H') || (start->identity == 'H' && end->identity == 'I')) {
+	if( identify(start, end, 'I', 'H')){
+
 		InteriorLoop *start_;
 		HairpinLoop *end_;
 		int s_index = 0;
@@ -760,7 +766,8 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 	}
 
-	if ((start->identity == 'I' && end->identity == 'M') || (start->identity == 'M' && end->identity == 'I')) {
+	if( identify(start, end, 'I', 'M')){
+
 		InteriorLoop *start_;
 		MultiLoop *end_;
 		int s_index = 0, e_index = 0;
@@ -821,7 +828,8 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 	}
 
-	if ((start->identity == 'I' && end->identity == 'O') || (start->identity == 'O' && end->identity == 'I')) {
+	if( identify(start, end, 'I', 'O')){
+
 		InteriorLoop *start_;
 		OpenLoop *end_;
 		int s_index = 0, e_index = 0;
@@ -890,7 +898,8 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 // start bulge
 
-	if (start->identity == 'B' && end->identity == 'B') {
+	if( identify(start, end, 'B', 'B')){
+
 		BulgeLoop *end_ = (BulgeLoop *) end, *start_ = (BulgeLoop *) start;
 		Loop *start_extra, *end_extra;
 		int s_index = 0, e_index = 0;
@@ -921,7 +930,8 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 	}
 
-	if ((start->identity == 'B' && end->identity == 'H') || (start->identity == 'H' && end->identity == 'B')) {
+	if( identify(start, end, 'B', 'H')){
+
 		BulgeLoop *start_;
 		HairpinLoop *end_;
 		int s_index = 0;
@@ -956,7 +966,8 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 	}
 
-	if ((start->identity == 'B' && end->identity == 'M') || (start->identity == 'M' && end->identity == 'B')) {
+	if( identify(start, end, 'B', 'M')){
+
 		BulgeLoop *start_;
 		MultiLoop *end_;
 		int s_index = 0, e_index = 0;
@@ -1019,7 +1030,8 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 	}
 
-	if ((start->identity == 'B' && end->identity == 'O') || (start->identity == 'O' && end->identity == 'B')) {
+	if( identify(start, end, 'B', 'O')){
+
 		BulgeLoop *start_;
 		OpenLoop *end_;
 		int s_index = 0, e_index = 0;
@@ -1090,14 +1102,17 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 // start hairpin
 
-	if (start->identity == 'H' && end->identity == 'H') {
+	if( identify(start, end, 'H', 'H')){
+
 		fprintf(stderr, "Hairpin/Hairpin deletion move encountered - not currently supported.\n");
 		assert(0);
 		return RateArr(-1.0, left, right);
+
 	}
 
 	// hairpin,
-	if ((start->identity == 'H' && end->identity == 'M') || (start->identity == 'M' && end->identity == 'H')) {
+	if( identify(start, end, 'H', 'M')){
+
 		HairpinLoop *start_;
 		MultiLoop *end_;
 		int e_index = 0;
@@ -1218,7 +1233,8 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 	}
 
-	if ((start->identity == 'H' && end->identity == 'O') || (start->identity == 'O' && end->identity == 'H')) {
+	if( identify(start, end, 'H', 'O')){
+
 		HairpinLoop *start_ = (HairpinLoop *) end;
 		OpenLoop *end_ = (OpenLoop *) start;
 		int e_index = 0;
@@ -1282,7 +1298,8 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 // start multiloop
 
-	if (start->identity == 'M' && end->identity == 'M') {
+	if( identify(start, end, 'M', 'M')){
+
 		MultiLoop *start_;
 		MultiLoop *end_;
 		int s_index = 0, e_index = 0, index = 0;
@@ -1353,7 +1370,8 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 	}
 
-	if ((start->identity == 'M' && end->identity == 'O') || (start->identity == 'O' && end->identity == 'M')) {
+	if( identify(start, end, 'M', 'O')){
+
 		OpenLoop *start_;
 		MultiLoop *end_;
 		int s_index = 0, e_index = 0, index = 0;
@@ -1447,7 +1465,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 // this is the DELETE MOVE function.
 // start openloop
 
-	if (start->identity == 'O' && end->identity == 'O') {
+	if( identify(start, end, 'O', 'O')){
 
 		OpenLoop *tempLoop[2];
 		double new_energies[2] = { 0.0, 0.0 };
@@ -3943,6 +3961,7 @@ void InteriorLoop::generateMoves(void) {
 }
 
 void InteriorLoop::generateDeleteMoves(void) {
+
 	double temprate;
 
 	assert(moves != NULL);
@@ -3955,6 +3974,7 @@ void InteriorLoop::generateDeleteMoves(void) {
 }
 
 char *InteriorLoop::getLocation(Move *move, int index) {
+
 	if (move->getType() & MOVE_CREATE) {
 		if (move->getType() & MOVE_1)
 			return &int_seq[0][move->index[index]];
@@ -4060,7 +4080,9 @@ string MultiLoop::typeInternalsToString(void) {
 }
 
 Move *MultiLoop::getChoice(double* randomchoice, Loop *from) {
+
 	Move *stor;
+
 	assert(randomchoice != NULL);
 	assert(*randomchoice >= 0.0); // never should see a negative choice value.
 
@@ -4087,6 +4109,7 @@ void MultiLoop::calculateEnergy(void) {
 }
 
 double MultiLoop::doChoice(Move *move, Loop **returnLoop) {
+
 	Loop *newLoop[2];
 	int pt, loop, loop2, loop3, loop4, temploop, tempindex;
 	int *ptypes;
@@ -4321,6 +4344,7 @@ double MultiLoop::doChoice(Move *move, Loop **returnLoop) {
 }
 
 void MultiLoop::generateMoves(void) {
+
 	int loop, loop2, loop3, loop4, temploop, tempindex, loops[4];
 	int pt;
 	double tempRate;
@@ -4608,6 +4632,7 @@ void MultiLoop::printMove(Loop *comefrom, char *structure_p, char *seq_p) {
 }
 
 char *MultiLoop::getLocation(Move *move, int index) {
+
 	if (move->getType() & MOVE_CREATE) {
 		if (move->getType() & MOVE_1)
 			return &seqs[move->index[2]][move->index[index]];
@@ -4698,7 +4723,6 @@ string OpenLoop::typeInternalsToString(void) {
 	}
 
 	ss << " \n";
-
 	ss << openInfo;
 
 	return ss.str();
@@ -4706,6 +4730,7 @@ string OpenLoop::typeInternalsToString(void) {
 }
 
 void OpenLoop::calculateEnergy(void) {
+
 	if (energyModel == NULL)
 		return; // if the loops try to get used before the energy model initializes, it's all over.
 
