@@ -52,9 +52,11 @@ int Loop::getNumAdjacent(void) {
 }
 
 void Loop::cleanupAdjacent(void) {
+
 	for (int loop = 0; loop < curAdjacent; loop++) {
 		adjacentLoops[loop] = NULL;
 	}
+
 	curAdjacent = 0;
 }
 
@@ -124,7 +126,9 @@ Loop::Loop(void) {
 }
 
 Loop::~Loop(void) {
+
 	int counter;
+
 	if (adjacentLoops != NULL) {
 		for (counter = 0; counter < curAdjacent; counter++) {
 			if (adjacentLoops[counter] != NULL) {
@@ -1540,7 +1544,6 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		StackLoop *start_, *end_;
 
-		Loop *start_extra, *end_extra;
 		int s_index = 0, e_index = 0;
 
 		if (((StackLoop *) start)->seqs[0] > ((StackLoop *) end)->seqs[0]) {
@@ -1553,11 +1556,9 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		for (int loop = 0; loop <= 1; loop++) {
 			if (start_->adjacentLoops[loop] != end_) {
-				start_extra = start_->adjacentLoops[loop];
 				s_index = loop;
 			}
 			if (end_->adjacentLoops[loop] != start_) {
-				end_extra = end_->adjacentLoops[loop];
 				e_index = loop;
 			}
 		}
@@ -4065,9 +4066,11 @@ MultiLoop::MultiLoop(int branches, int *pairtypes, int *sidelengths, char **sequ
 }
 
 MultiLoop::~MultiLoop(void) {
+
 	delete[] pairtype;
 	delete[] sidelen;
 	delete[] seqs;
+
 }
 
 string MultiLoop::typeInternalsToString(void) {
