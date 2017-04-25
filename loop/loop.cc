@@ -366,14 +366,12 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 	int s_index = 0;
 	int e_index = 0;
 
-
-	if( identify(start, end, 'S', 'S')){
+	if (identify(start, end, 'S', 'S')) {
 
 		StackLoop *start_ = (StackLoop *) start;
 		StackLoop *end_ = (StackLoop *) end;
 
 		tie(s_index, e_index) = findExternalAdjacent(start_, end_);
-
 
 		// resulting will be an interior loop with sidelengths 1 and 1.
 		// we must get the mismatches correct for this to come out right
@@ -394,7 +392,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		return RateArr(tempRate / 2.0, left, right);
 	}
 
-	if( identify(start, end, 'S', 'I')){
+	if (identify(start, end, 'S', 'I')) {
 
 		StackLoop *start_;
 		InteriorLoop *end_;
@@ -429,7 +427,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		return RateArr(tempRate / 2.0, left, right);
 	}
 
-	if( identify(start, end, 'S', 'B')){
+	if (identify(start, end, 'S', 'B')) {
 
 		StackLoop *start_;
 		BulgeLoop *end_;
@@ -464,7 +462,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		return RateArr(tempRate / 2.0, left, right);
 	}
 
-	if( identify(start, end, 'S', 'H')){
+	if (identify(start, end, 'S', 'H')) {
 
 		StackLoop *start_;
 		HairpinLoop *end_;
@@ -498,7 +496,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		return RateArr(tempRate / 2.0, left, right);
 	}
 
-	if( identify(start, end, 'S', 'M')){
+	if (identify(start, end, 'S', 'M')) {
 
 		StackLoop *start_;
 		MultiLoop *end_;
@@ -556,11 +554,10 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		return RateArr(tempRate / 2.0, left, right);
 	}
 
-	if( identify(start, end, 'S', 'O')){
+	if (identify(start, end, 'S', 'O')) {
 
 		StackLoop *start_ = (StackLoop *) end;
 		OpenLoop *end_ = (OpenLoop *) start;
-
 
 		if (start->identity == 'S') {
 			start_ = (StackLoop *) start;
@@ -579,7 +576,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 			}
 		}
 		// note e_index has different meaning now for openloops.
-
 
 		int *sidelens = new int[end_->numAdjacent + 1];
 		char **seqs = new char *[end_->numAdjacent + 1];
@@ -620,7 +616,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 	}
 
-	if( identify(start, end, 'I', 'I')){
+	if (identify(start, end, 'I', 'I')) {
 
 		InteriorLoop *end_ = (InteriorLoop *) end;
 		InteriorLoop *start_ = (InteriorLoop *) start;
@@ -642,7 +638,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 	}
 
-	if( identify(start, end, 'I', 'B')){
+	if (identify(start, end, 'I', 'B')) {
 
 		InteriorLoop *start_;
 		BulgeLoop *end_;
@@ -677,7 +673,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 	}
 
-	if( identify(start, end, 'I', 'H')){
+	if (identify(start, end, 'I', 'H')) {
 
 		InteriorLoop *start_;
 		HairpinLoop *end_;
@@ -692,7 +688,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		// FD: not actually using e_index in this block.
 		tie(s_index, e_index) = findExternalAdjacent(start_, end_);
-
 
 		// end is the hairpin, which has no extra adjacencies.
 
@@ -711,7 +706,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 	}
 
-	if( identify(start, end, 'I', 'M')){
+	if (identify(start, end, 'I', 'M')) {
 
 		InteriorLoop *start_;
 		MultiLoop *end_;
@@ -768,7 +763,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 	}
 
-	if( identify(start, end, 'I', 'O')){
+	if (identify(start, end, 'I', 'O')) {
 
 		InteriorLoop *start_;
 		OpenLoop *end_;
@@ -830,13 +825,12 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 // start bulge
 
-	if( identify(start, end, 'B', 'B')){
+	if (identify(start, end, 'B', 'B')) {
 
 		BulgeLoop *end_ = (BulgeLoop *) end;
 		BulgeLoop *start_ = (BulgeLoop *) start;
 
 		tie(s_index, e_index) = findExternalAdjacent(start_, end_);
-
 
 		new_energy = energyModel->InteriorEnergy(start_->bulge_seq[s_index], end_->bulge_seq[e_index],
 				end_->bulgesize[1 - e_index] + start_->bulgesize[s_index] + 1, end_->bulgesize[e_index] + start_->bulgesize[1 - s_index] + 1);
@@ -853,7 +847,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 	}
 
-	if( identify(start, end, 'B', 'H')){
+	if (identify(start, end, 'B', 'H')) {
 
 		BulgeLoop *start_;
 		HairpinLoop *end_;
@@ -868,7 +862,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		// FD: Not actually using the second output in this block.
 		tie(s_index, e_index) = findExternalAdjacent(start_, end_);
-
 
 		// end is the hairpin, which has no extra adjacencies.
 
@@ -887,7 +880,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 	}
 
-	if( identify(start, end, 'B', 'M')){
+	if (identify(start, end, 'B', 'M')) {
 
 		BulgeLoop *start_;
 		MultiLoop *end_;
@@ -946,7 +939,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 	}
 
-	if( identify(start, end, 'B', 'O')){
+	if (identify(start, end, 'B', 'O')) {
 
 		BulgeLoop *start_;
 		OpenLoop *end_;
@@ -1010,7 +1003,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 // start hairpin
 
-	if( identify(start, end, 'H', 'H')){
+	if (identify(start, end, 'H', 'H')) {
 
 		fprintf(stderr, "Hairpin/Hairpin deletion move encountered - not currently supported.\n");
 		assert(0);
@@ -1019,7 +1012,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 	}
 
 	// hairpin,
-	if( identify(start, end, 'H', 'M')){
+	if (identify(start, end, 'H', 'M')) {
 
 		HairpinLoop *start_;
 		MultiLoop *end_;
@@ -1136,7 +1129,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 	}
 
-	if( identify(start, end, 'H', 'O')){
+	if (identify(start, end, 'H', 'O')) {
 
 		HairpinLoop *start_ = (HairpinLoop *) end;
 		OpenLoop *end_ = (OpenLoop *) start;
@@ -1193,7 +1186,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 // start multiloop
 
-	if( identify(start, end, 'M', 'M')){
+	if (identify(start, end, 'M', 'M')) {
 
 		MultiLoop *start_;
 		MultiLoop *end_;
@@ -1261,11 +1254,11 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 	}
 
-	if( identify(start, end, 'M', 'O')){
+	if (identify(start, end, 'M', 'O')) {
 
 		OpenLoop *start_;
 		MultiLoop *end_;
-		int  index = 0;
+		int index = 0;
 
 		start_ = (OpenLoop *) start;
 		end_ = (MultiLoop *) end;
@@ -1297,7 +1290,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		for (int loop = 0; loop <= start_->numAdjacent; loop++) {
 			if (loop == s_index + 1) {
 				int temp = (e_index + end_->numAdjacent - 1) % end_->numAdjacent;
-
 
 				sidelens[index] = start_->sidelen[loop] + end_->sidelen[temp] + 1;
 				seqs[index] = end_->seqs[temp];
@@ -1351,7 +1343,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 // this is the DELETE MOVE function.
 // start openloop
 
-	if( identify(start, end, 'O', 'O')){
+	if (identify(start, end, 'O', 'O')) {
 
 		OpenLoop *tempLoop[2];
 		double new_energies[2] = { 0.0, 0.0 };
@@ -1433,7 +1425,7 @@ bool Loop::identify(Loop* first, Loop* second, char one, char two) {
 
 }
 
-std::tuple<int,int> Loop::findExternalAdjacent(Loop* first, Loop* second){
+std::tuple<int, int> Loop::findExternalAdjacent(Loop* first, Loop* second) {
 
 	int start, end = 0;
 
@@ -1449,15 +1441,14 @@ std::tuple<int,int> Loop::findExternalAdjacent(Loop* first, Loop* second){
 
 	}
 
-	return std::make_tuple(start,end);
+	return std::make_tuple(start, end);
 
 }
 
-
 //FD: If the first loop is of type, then return <first, second>, otherwise return <second, first>
-std::pair<Loop*, Loop*> Loop::orderMyLoops(Loop* first, Loop* second, char type){
+std::pair<Loop*, Loop*> Loop::orderMyLoops(Loop* first, Loop* second, char type) {
 
-	if(first->identity == type){
+	if (first->identity == type) {
 
 		return std::make_pair(first, second);
 
@@ -1467,8 +1458,6 @@ std::pair<Loop*, Loop*> Loop::orderMyLoops(Loop* first, Loop* second, char type)
 	}
 
 }
-
-
 
 Loop *Loop::performDeleteMove(Move *move) {
 
@@ -1492,7 +1481,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 			end_ = (StackLoop *) end;
 		}
 
-		tie(s_index,e_index) = findExternalAdjacent(start_, end_);
+		tie(s_index, e_index) = findExternalAdjacent(start_, end_);
 
 		// resulting will be an interior loop with sidelengths 1 and 1.
 		newLoop = new InteriorLoop(start_->pairtype[s_index], end_->pairtype[e_index], 1, 1, start_->seqs[s_index], end_->seqs[e_index]);
@@ -1523,10 +1512,9 @@ Loop *Loop::performDeleteMove(Move *move) {
 		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'S');
 
 		StackLoop *start_ = (StackLoop*) ordered.first;
-		InteriorLoop *end_ = (InteriorLoop*) ordered.second ;
+		InteriorLoop *end_ = (InteriorLoop*) ordered.second;
 
-		tie(s_index,e_index) = findExternalAdjacent(start_, end_);
-
+		tie(s_index, e_index) = findExternalAdjacent(start_, end_);
 
 		// resulting will be an interior loop side lengths equal to the length
 		// of the 'input' interior loop+1.
@@ -1574,18 +1562,12 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 	if (identify(start, end, 'S', 'B')) {
 
-		StackLoop *start_;
-		BulgeLoop *end_;
+		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'S');
 
-		if (start->identity == 'S') {
-			start_ = (StackLoop *) start;
-			end_ = (BulgeLoop *) end;
-		} else {
-			start_ = (StackLoop *) end;
-			end_ = (BulgeLoop *) start;
-		}
+		StackLoop *start_ = (StackLoop *) ordered.first;
+		BulgeLoop *end_ = (BulgeLoop *) ordered.second;
 
-		tie(s_index,e_index) = findExternalAdjacent(start_, end_);
+		tie(s_index, e_index) = findExternalAdjacent(start_, end_);
 
 		// resulting will be an interior loop side lengths equal to the length
 		// of the 'input' interior loop+1.
@@ -1627,16 +1609,10 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 	if (identify(start, end, 'S', 'H')) {
 
-		StackLoop *start_;
-		HairpinLoop *end_;
+		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'S');
 
-		if (start->identity == 'S') {
-			start_ = (StackLoop *) start;
-			end_ = (HairpinLoop *) end;
-		} else {
-			start_ = (StackLoop *) end;
-			end_ = (HairpinLoop *) start;
-		}
+		StackLoop *start_ = (StackLoop *) ordered.first;
+		HairpinLoop *end_ = (HairpinLoop *) ordered.second;
 
 		for (int loop = 0; loop <= 1; loop++) {
 			if (start_->adjacentLoops[loop] != end_) {
@@ -1669,17 +1645,12 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 	if (identify(start, end, 'S', 'M')) {
 
-		StackLoop *start_;
-		MultiLoop *end_;
-		int temp = 0;
+		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'S');
 
-		if (start->identity == 'S') {
-			start_ = (StackLoop *) start;
-			end_ = (MultiLoop *) end;
-		} else {
-			start_ = (StackLoop *) end;
-			end_ = (MultiLoop *) start;
-		}
+		StackLoop* start_ = (StackLoop*) ordered.first;
+		MultiLoop* end_ = (MultiLoop*) ordered.second;
+
+		int temp = 0;
 
 		for (int loop = 0; loop < end_->numAdjacent; loop++) {
 			if (loop <= 1)
@@ -1742,8 +1713,11 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 	if (identify(start, end, 'S', 'O')) {
 
-		StackLoop *start_;
-		OpenLoop *end_;
+		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'S');
+
+		StackLoop* start_ = (StackLoop*) ordered.first;
+		OpenLoop* end_ = (OpenLoop*) ordered.second;
+
 		int temp = 0;
 
 		if (start->identity == 'S') {
@@ -1842,7 +1816,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 		start_ = (InteriorLoop *) start;
 		end_ = (InteriorLoop *) end;
 
-		tie(s_index,e_index) = findExternalAdjacent(start_, end_);
+		tie(s_index, e_index) = findExternalAdjacent(start_, end_);
 
 		// resulting will be an interior loop side lengths equal to the length
 		// of the 'input' interior loop+1.
@@ -1887,7 +1861,6 @@ Loop *Loop::performDeleteMove(Move *move) {
 		InteriorLoop *start_;
 		BulgeLoop *end_;
 
-
 		if (start->identity == 'S') {
 			start_ = (InteriorLoop *) start;
 			end_ = (BulgeLoop *) end;
@@ -1896,7 +1869,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 			end_ = (BulgeLoop *) start;
 		}
 
-		tie(s_index,e_index) = findExternalAdjacent(start_, end_);
+		tie(s_index, e_index) = findExternalAdjacent(start_, end_);
 
 		// resulting will be an interior loop side lengths equal to the length
 		// of the 'input' bulge loop, plus one on each side (ie, one side will be B+1, the other 1.
@@ -2137,8 +2110,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 		start_ = (BulgeLoop *) start;
 		end_ = (BulgeLoop *) end;
 
-		tie(s_index,e_index) = findExternalAdjacent(start_, end_);
-
+		tie(s_index, e_index) = findExternalAdjacent(start_, end_);
 
 		// resulting will be an interior loop side lengths equal to the length
 		// of the 'input' interior loop+1.
@@ -2182,7 +2154,6 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		BulgeLoop *start_;
 		HairpinLoop *end_;
-
 
 		if (start->identity == 'B') {
 			start_ = (BulgeLoop *) start;
@@ -2292,7 +2263,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 		return newLoop;
 	}
 
-	if (identify(start, end, 'B', 'O')){
+	if (identify(start, end, 'B', 'O')) {
 
 		BulgeLoop *start_;
 		OpenLoop *end_;
@@ -2373,14 +2344,14 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 // start hairpin
 
-	if (identify(start, end, 'H', 'H')){
+	if (identify(start, end, 'H', 'H')) {
 
 		fprintf(stderr, "Hairpin/Hairpin deletion move encountered - not currently supported.\n");
 		assert(0);
 		return NULL;
 	}
 
-	if (identify(start, end, 'H', 'M')){
+	if (identify(start, end, 'H', 'M')) {
 
 		HairpinLoop *start_;
 		MultiLoop *end_;
@@ -2528,7 +2499,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 	}
 
-	if (identify(start, end, 'H', 'O')){
+	if (identify(start, end, 'H', 'O')) {
 
 		HairpinLoop *start_;
 		OpenLoop *end_;
@@ -2598,7 +2569,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 // start multiloop
 
-	if (identify(start, end, 'M', 'M')){
+	if (identify(start, end, 'M', 'M')) {
 
 		MultiLoop *start_;
 		MultiLoop *end_;
@@ -2784,15 +2755,14 @@ Loop *Loop::performDeleteMove(Move *move) {
 // start openloop
 
 // Control flow should never reach here, as Scomplex shortcuts O/O deletion moves (complex breaks) to a different function - performComplexSplit
-	if (identify(start, end, 'O', 'O')){
+	if (identify(start, end, 'O', 'O')) {
 
 		fprintf(stderr, "Openloop/Openloop deletion reached via performDeleteMove, bad control flow\n");
 		assert(0);
 		return NULL;
 	}
 
-
-		return NULL;
+	return NULL;
 }
 
 /* StackLoop */
