@@ -1670,14 +1670,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 			end_ = (BulgeLoop *) start;
 		}
 
-		for (int loop = 0; loop <= 1; loop++) {
-			if (start_->adjacentLoops[loop] != end_) {
-				s_index = loop;
-			}
-			if (end_->adjacentLoops[loop] != start_) {
-				e_index = loop;
-			}
-		}
+		tie(s_index,e_index) = findExternalAdjacent(start_, end_);
 
 		// resulting will be an interior loop side lengths equal to the length
 		// of the 'input' interior loop+1.
@@ -1721,7 +1714,6 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		StackLoop *start_;
 		HairpinLoop *end_;
-
 
 		if (start->identity == 'S') {
 			start_ = (StackLoop *) start;
@@ -1931,21 +1923,11 @@ Loop *Loop::performDeleteMove(Move *move) {
 	if (identify(start, end, 'I', 'I')) {
 
 		InteriorLoop *start_, *end_;
-		Loop *start_extra, *end_extra;
 
 		start_ = (InteriorLoop *) start;
 		end_ = (InteriorLoop *) end;
 
-		for (int loop = 0; loop <= 1; loop++) {
-			if (start_->adjacentLoops[loop] != end_) {
-				start_extra = start_->adjacentLoops[loop];
-				s_index = loop;
-			}
-			if (end_->adjacentLoops[loop] != start_) {
-				end_extra = end_->adjacentLoops[loop];
-				e_index = loop;
-			}
-		}
+		tie(s_index,e_index) = findExternalAdjacent(start_, end_);
 
 		// resulting will be an interior loop side lengths equal to the length
 		// of the 'input' interior loop+1.
@@ -1999,14 +1981,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 			end_ = (BulgeLoop *) start;
 		}
 
-		for (int loop = 0; loop <= 1; loop++) {
-			if (start_->adjacentLoops[loop] != end_) {
-				s_index = loop;
-			}
-			if (end_->adjacentLoops[loop] != start_) {
-				e_index = loop;
-			}
-		}
+		tie(s_index,e_index) = findExternalAdjacent(start_, end_);
+
 		// resulting will be an interior loop side lengths equal to the length
 		// of the 'input' bulge loop, plus one on each side (ie, one side will be B+1, the other 1.
 
@@ -2242,21 +2218,12 @@ Loop *Loop::performDeleteMove(Move *move) {
 	if (identify(start, end, 'B', 'B')) {
 
 		BulgeLoop *start_, *end_;
-		Loop *start_extra, *end_extra;
 
 		start_ = (BulgeLoop *) start;
 		end_ = (BulgeLoop *) end;
 
-		for (int loop = 0; loop <= 1; loop++) {
-			if (start_->adjacentLoops[loop] != end_) {
-				start_extra = start_->adjacentLoops[loop];
-				s_index = loop;
-			}
-			if (end_->adjacentLoops[loop] != start_) {
-				end_extra = end_->adjacentLoops[loop];
-				e_index = loop;
-			}
-		}
+		tie(s_index,e_index) = findExternalAdjacent(start_, end_);
+
 
 		// resulting will be an interior loop side lengths equal to the length
 		// of the 'input' interior loop+1.
