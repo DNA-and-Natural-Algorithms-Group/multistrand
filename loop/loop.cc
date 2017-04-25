@@ -2409,7 +2409,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 		return newLoop;
 	}
 
-	if ((start->identity == 'B' && end->identity == 'O') || (start->identity == 'O' && end->identity == 'B')) {
+	if (identify(start, end, 'B', 'O')){
+
 		BulgeLoop *start_;
 		OpenLoop *end_;
 		Loop *newLoop;
@@ -2490,13 +2491,15 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 // start hairpin
 
-	if (start->identity == 'H' && end->identity == 'H') {
+	if (identify(start, end, 'H', 'H')){
+
 		fprintf(stderr, "Hairpin/Hairpin deletion move encountered - not currently supported.\n");
 		assert(0);
 		return NULL;
 	}
 
-	if ((start->identity == 'H' && end->identity == 'M') || (start->identity == 'M' && end->identity == 'H')) {
+	if (identify(start, end, 'H', 'M')){
+
 		HairpinLoop *start_;
 		MultiLoop *end_;
 		Loop *newLoop;
@@ -2644,7 +2647,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 	}
 
-	if ((start->identity == 'H' && end->identity == 'O') || (start->identity == 'O' && end->identity == 'H')) {
+	if (identify(start, end, 'H', 'O')){
+
 		HairpinLoop *start_;
 		OpenLoop *end_;
 		Loop *newLoop;
@@ -2714,7 +2718,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 // start multiloop
 
-	if (start->identity == 'M' && end->identity == 'M') {
+	if (identify(start, end, 'M', 'M')){
+
 		MultiLoop *start_;
 		MultiLoop *end_;
 		Loop *newLoop;
@@ -2900,7 +2905,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 // start openloop
 
 // Control flow should never reach here, as Scomplex shortcuts O/O deletion moves (complex breaks) to a different function - performComplexSplit
-	if (start->identity == 'O' && end->identity == 'O') {
+	if (identify(start, end, 'O', 'O')){
 		fprintf(stderr, "Openloop/Openloop deletion reached via performDeleteMove, bad control flow\n");
 		assert(0);
 		return NULL;
