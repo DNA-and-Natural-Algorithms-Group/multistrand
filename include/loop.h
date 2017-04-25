@@ -71,6 +71,7 @@ public:
 
 	// FD functions
     static bool identify(Loop*, Loop* , char , char );
+    static std::tuple<int,int> findExternalAdjacent(Loop*, Loop*);
 
 	string toString(void);
 	string toStringShort(void);

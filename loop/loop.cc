@@ -1529,6 +1529,25 @@ bool Loop::identify(Loop* first, Loop* second, char one, char two) {
 
 }
 
+std::tuple<int,int> Loop::findExternalAdjacent(Loop* first, Loop* second){
+
+	int start, end = 0;
+
+	for (int loop = 0; loop < 2; loop++) {
+
+		if (first->adjacentLoops[loop] != second) {
+			start = loop;
+		}
+
+		if (second->adjacentLoops[loop] != first) {
+			end = loop;
+		}
+
+	}
+
+	return std::make_tuple(start,end);
+
+}
 
 
 
@@ -1539,12 +1558,12 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 	Loop* newLoop = NULL;
 
+	int s_index = 0;
+	int e_index = 0;
 
 	if (identify(start, end, 'S', 'S')) {
 
 		StackLoop *start_, *end_;
-
-		int s_index = 0, e_index = 0;
 
 		if (((StackLoop *) start)->seqs[0] > ((StackLoop *) end)->seqs[0]) {
 			start_ = (StackLoop *) end;
@@ -1554,14 +1573,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 			end_ = (StackLoop *) end;
 		}
 
-		for (int loop = 0; loop <= 1; loop++) {
-			if (start_->adjacentLoops[loop] != end_) {
-				s_index = loop;
-			}
-			if (end_->adjacentLoops[loop] != start_) {
-				e_index = loop;
-			}
-		}
+		tie(s_index,e_index) = findExternalAdjacent(start_, end_);
 
 		// resulting will be an interior loop with sidelengths 1 and 1.
 		newLoop = new InteriorLoop(start_->pairtype[s_index], end_->pairtype[e_index], 1, 1, start_->seqs[s_index], end_->seqs[e_index]);
@@ -1591,8 +1603,6 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		StackLoop *start_;
 		InteriorLoop *end_;
-		int s_index = 0, e_index = 0;
-
 
 
 		if (start->identity == 'S') {
@@ -1603,14 +1613,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 			end_ = (InteriorLoop *) start;
 		}
 
-		for (int loop = 0; loop <= 1; loop++) {
-			if (start_->adjacentLoops[loop] != end_) {
-				s_index = loop;
-			}
-			if (end_->adjacentLoops[loop] != start_) {
-				e_index = loop;
-			}
-		}
+		tie(s_index,e_index) = findExternalAdjacent(start_, end_);
+
 
 		// resulting will be an interior loop side lengths equal to the length
 		// of the 'input' interior loop+1.
@@ -1657,7 +1661,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		StackLoop *start_;
 		BulgeLoop *end_;
-		int s_index = 0, e_index = 0;
+
 		if (start->identity == 'S') {
 			start_ = (StackLoop *) start;
 			end_ = (BulgeLoop *) end;
@@ -1718,7 +1722,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 		StackLoop *start_;
 		HairpinLoop *end_;
 
-		int s_index = 0, e_index = 0;
+
 		if (start->identity == 'S') {
 			start_ = (StackLoop *) start;
 			end_ = (HairpinLoop *) end;
@@ -1760,7 +1764,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		StackLoop *start_;
 		MultiLoop *end_;
-		int s_index = 0, e_index = 0, temp = 0;
+		int temp = 0;
 
 		if (start->identity == 'S') {
 			start_ = (StackLoop *) start;
@@ -1833,8 +1837,6 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		StackLoop *start_;
 		OpenLoop *end_;
-		int s_index = 0;
-		int e_index = 0;
 		int temp = 0;
 
 		if (start->identity == 'S') {
@@ -1930,7 +1932,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		InteriorLoop *start_, *end_;
 		Loop *start_extra, *end_extra;
-		int s_index = 0, e_index = 0;
+
 		start_ = (InteriorLoop *) start;
 		end_ = (InteriorLoop *) end;
 
@@ -1987,7 +1989,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		InteriorLoop *start_;
 		BulgeLoop *end_;
-		int s_index = 0, e_index = 0;
+
 
 		if (start->identity == 'S') {
 			start_ = (InteriorLoop *) start;
@@ -2048,7 +2050,6 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		InteriorLoop *start_;
 		HairpinLoop *end_;
-		int s_index = 0;
 
 		if (start->identity == 'I') {
 			start_ = (InteriorLoop *) start;
@@ -2089,7 +2090,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		InteriorLoop *start_;
 		MultiLoop *end_;
-		int s_index = 0, e_index = 0, temp = 0;
+		int temp = 0;
 
 		if (start->identity == 'I') {
 			start_ = (InteriorLoop *) start;
@@ -2162,7 +2163,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		InteriorLoop *start_;
 		OpenLoop *end_;
-		int s_index = 0, e_index = 0, temp = 0;
+		int temp = 0;
 
 		if (start->identity == 'I') {
 			start_ = (InteriorLoop *) start;
@@ -2242,7 +2243,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		BulgeLoop *start_, *end_;
 		Loop *start_extra, *end_extra;
-		int s_index = 0, e_index = 0;
+
 		start_ = (BulgeLoop *) start;
 		end_ = (BulgeLoop *) end;
 
@@ -2299,7 +2300,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		BulgeLoop *start_;
 		HairpinLoop *end_;
-		int s_index = 0;
+
 
 		if (start->identity == 'B') {
 			start_ = (BulgeLoop *) start;
@@ -2340,7 +2341,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		BulgeLoop *start_;
 		MultiLoop *end_;
-		int s_index = 0, e_index = 0, temp = 0;
+		int temp = 0;
 
 		if (start->identity == 'B') {
 			start_ = (BulgeLoop *) start;
@@ -2413,7 +2414,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		BulgeLoop *start_;
 		OpenLoop *end_;
-		int s_index = 0, e_index = 0, temp = 0;
+		int temp = 0;
 
 		if (start->identity == 'B') {
 			start_ = (BulgeLoop *) start;
@@ -2501,7 +2502,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		HairpinLoop *start_;
 		MultiLoop *end_;
-		int e_index = 0, temp;
+		int temp;
 
 		if (start->identity == 'H') {
 			start_ = (HairpinLoop *) start;
@@ -2649,7 +2650,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		HairpinLoop *start_;
 		OpenLoop *end_;
-		int e_index = 0, temp;
+		int temp;
 
 		if (start->identity == 'H') {
 			start_ = (HairpinLoop *) start;
@@ -2719,7 +2720,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		MultiLoop *start_;
 		MultiLoop *end_;
-		int s_index = 0, e_index = 0, index = 0, temp;
+		int index = 0, temp;
 
 		start_ = (MultiLoop *) start;
 		end_ = (MultiLoop *) end;
@@ -2800,7 +2801,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		OpenLoop *start_;
 		MultiLoop *end_;
-		int s_index = 0, e_index = 0, index = 0, temp;
+		int index = 0, temp;
 
 		start_ = (OpenLoop *) start;
 		end_ = (MultiLoop *) end;
