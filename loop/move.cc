@@ -42,25 +42,6 @@ std::ostream& operator<<(std::ostream& ss, RateEnv& env) {
 	}
 
 	ss << moveutil::primeToDesc(env.arrType);
-//
-//	for (int i = 0; i < MOVETYPE_SIZE; i++) {
-//
-//		int myPrime = moveutil::valuesPrime[i];
-//
-//		if ((env.arrType % myPrime) == 0) {
-//
-//			ss << moveutil::MoveToString[i] << moveutil::MoveToString2[i];
-//
-//			if ((env.arrType % (myPrime * myPrime) == 0)) {
-//
-//				ss << moveutil::MoveToString[i] << moveutil::MoveToString2[i];
-//
-//			}
-//
-//		}
-//
-//	}
-
 	ss << "  " << env.rate << "   ";
 
 	return ss;
@@ -163,15 +144,6 @@ Move::Move(int mtype, RateEnv mrate, Loop *affected_1, int *indexarray) {
 
 }
 
-//Move::Move(int mtype, double mrate, Loop *affected_1, int *indexarray) {
-//	type = mtype;
-//	rate = mrate;
-//	affected[0] = affected_1;
-//	affected[1] = NULL;
-//	for (int loop = 0; loop < 4; loop++)
-//		index[loop] = indexarray[loop];
-//
-//}
 
 Move::~Move(void) {
 	/* destruction of a move does not imply destruction of the associated loops */
@@ -209,25 +181,6 @@ Loop *Move::doChoice(void) {
 		return NULL;
 }
 
-//string Move::rateToString(bool usePrime) {
-//
-//	std::stringstream ss;
-//
-////	if (usePrime) {
-////
-////		ss << EnergyOptions::primeRateToString(rate.rate);
-////
-////	} else {
-//
-//		ss << std::setprecision(3) << rate.rate;
-//
-////	}
-//
-//	ss << " ";
-//
-//	return ss.str();
-//
-//}
 
 string Move::toString(bool useArr) {
 

@@ -392,16 +392,9 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 	if( identify(start, end, 'S', 'I')){
 
-		StackLoop *start_;
-		InteriorLoop *end_;
-
-		if (start->identity == 'S') {
-			start_ = (StackLoop *) start;
-			end_ = (InteriorLoop *) end;
-		} else {
-			start_ = (StackLoop *) end;
-			end_ = (InteriorLoop *) start;
-		}
+		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'S');
+		StackLoop* start_ = (StackLoop*) ordered.first;
+		InteriorLoop* end_ = (InteriorLoop*) ordered.second;
 
 		tie(s_index, e_index) = findExternalAdjacent(start_, end_);
 
@@ -427,23 +420,15 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 	if( identify(start, end, 'S', 'B')){
 
-		StackLoop *start_;
-		BulgeLoop *end_;
-
-		if (start->identity == 'S') {
-			start_ = (StackLoop *) start;
-			end_ = (BulgeLoop *) end;
-		} else {
-			start_ = (StackLoop *) end;
-			end_ = (BulgeLoop *) start;
-		}
+		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'S');
+		StackLoop* start_ = (StackLoop*) ordered.first;
+		BulgeLoop* end_ = (BulgeLoop*) ordered.second;
 
 		tie(s_index, e_index) = findExternalAdjacent(start_, end_);
 
 		// resulting will be an interior loop side lengths equal to the length
 		// of the 'input' bulge loop, plus one on each side (ie, one side will be B+1, the other 1.
-		//      if(s_index == e_index )
-		//	fprintf(stderr, "ERROR: Misaligned loops in loop.cc generateDeleteMoveRate S/B, values: %d %d\n",s_index,e_index);
+
 
 		new_energy = energyModel->InteriorEnergy(start_->seqs[s_index], end_->bulge_seq[e_index], end_->bulgesize[1 - e_index] + 1,
 				end_->bulgesize[e_index] + 1);
@@ -462,16 +447,9 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 	if( identify(start, end, 'S', 'H')){
 
-		StackLoop *start_;
-		HairpinLoop *end_;
-
-		if (start->identity == 'S') {
-			start_ = (StackLoop *) start;
-			end_ = (HairpinLoop *) end;
-		} else {
-			start_ = (StackLoop *) end;
-			end_ = (HairpinLoop *) start;
-		}
+		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'S');
+		StackLoop* start_ = (StackLoop*) ordered.first;
+		HairpinLoop* end_ = (HairpinLoop*) ordered.second;
 
 		// FD: we are not actually using e_index here.
 		tie(s_index, e_index) = findExternalAdjacent(start_, end_);
@@ -496,16 +474,10 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 	if( identify(start, end, 'S', 'M')){
 
-		StackLoop *start_;
-		MultiLoop *end_;
+		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'S');
+		StackLoop* start_ = (StackLoop*) ordered.first;
+		MultiLoop* end_ = (MultiLoop*) ordered.second;
 
-		if (start->identity == 'S') {
-			start_ = (StackLoop *) start;
-			end_ = (MultiLoop *) end;
-		} else {
-			start_ = (StackLoop *) end;
-			end_ = (MultiLoop *) start;
-		}
 
 		for (int loop = 0; loop < end_->numAdjacent; loop++) {
 			if (loop <= 1)
@@ -554,14 +526,10 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 	if( identify(start, end, 'S', 'O')){
 
-		StackLoop *start_ = (StackLoop *) end;
-		OpenLoop *end_ = (OpenLoop *) start;
+		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'S');
+		StackLoop* start_ = (StackLoop*) ordered.first;
+		OpenLoop* end_ = (OpenLoop*) ordered.second;
 
-
-		if (start->identity == 'S') {
-			start_ = (StackLoop *) start;
-			end_ = (OpenLoop *) end;
-		}
 
 		for (int loop = 0; (loop < end_->numAdjacent) || (loop < 2); loop++) {
 
@@ -640,16 +608,9 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 	if( identify(start, end, 'I', 'B')){
 
-		InteriorLoop *start_;
-		BulgeLoop *end_;
-
-		if (start->identity == 'S') {
-			start_ = (InteriorLoop *) start;
-			end_ = (BulgeLoop *) end;
-		} else {
-			start_ = (InteriorLoop *) end;
-			end_ = (BulgeLoop *) start;
-		}
+		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'I');
+		InteriorLoop* start_ = (InteriorLoop*) ordered.first;
+		BulgeLoop* end_ = (BulgeLoop*) ordered.second;
 
 		tie(s_index, e_index) = findExternalAdjacent(start_, end_);
 
@@ -675,16 +636,9 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 	if( identify(start, end, 'I', 'H')){
 
-		InteriorLoop *start_;
-		HairpinLoop *end_;
-
-		if (start->identity == 'I') {
-			start_ = (InteriorLoop *) start;
-			end_ = (HairpinLoop *) end;
-		} else {
-			start_ = (InteriorLoop *) end;
-			end_ = (HairpinLoop *) start;
-		}
+		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'I');
+		InteriorLoop* start_ = (InteriorLoop*) ordered.first;
+		HairpinLoop* end_ = (HairpinLoop*) ordered.second;
 
 		// FD: not actually using e_index in this block.
 		tie(s_index, e_index) = findExternalAdjacent(start_, end_);
@@ -709,16 +663,9 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 	if( identify(start, end, 'I', 'M')){
 
-		InteriorLoop *start_;
-		MultiLoop *end_;
-
-		if (start->identity == 'I') {
-			start_ = (InteriorLoop *) start;
-			end_ = (MultiLoop *) end;
-		} else {
-			start_ = (InteriorLoop *) end;
-			end_ = (MultiLoop *) start;
-		}
+		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'I');
+		InteriorLoop* start_ = (InteriorLoop*) ordered.first;
+		MultiLoop* end_ = (MultiLoop*) ordered.second;
 
 		for (int loop = 0; loop < end_->numAdjacent; loop++) {
 			if (loop <= 1)
@@ -766,16 +713,9 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 	if( identify(start, end, 'I', 'O')){
 
-		InteriorLoop *start_;
-		OpenLoop *end_;
-
-		if (start->identity == 'I') {
-			start_ = (InteriorLoop *) start;
-			end_ = (OpenLoop *) end;
-		} else {
-			start_ = (InteriorLoop *) end;
-			end_ = (OpenLoop *) start;
-		}
+		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'I');
+		InteriorLoop* start_ = (InteriorLoop*) ordered.first;
+		OpenLoop* end_ = (OpenLoop*) ordered.second;
 
 		for (int loop = 0; (loop < end_->numAdjacent) || (loop < 2); loop++) {
 			if (loop <= 1)
@@ -851,16 +791,9 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 	if( identify(start, end, 'B', 'H')){
 
-		BulgeLoop *start_;
-		HairpinLoop *end_;
-
-		if (start->identity == 'B') {
-			start_ = (BulgeLoop *) start;
-			end_ = (HairpinLoop *) end;
-		} else {
-			start_ = (BulgeLoop *) end;
-			end_ = (HairpinLoop *) start;
-		}
+		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'B');
+		BulgeLoop* start_ = (BulgeLoop*) ordered.first;
+		HairpinLoop* end_ = (HairpinLoop*) ordered.second;
 
 		// FD: Not actually using the second output in this block.
 		tie(s_index, e_index) = findExternalAdjacent(start_, end_);
@@ -885,16 +818,9 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 	if( identify(start, end, 'B', 'M')){
 
-		BulgeLoop *start_;
-		MultiLoop *end_;
-
-		if (start->identity == 'B') {
-			start_ = (BulgeLoop *) start;
-			end_ = (MultiLoop *) end;
-		} else {
-			start_ = (BulgeLoop *) end;
-			end_ = (MultiLoop *) start;
-		}
+		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'B');
+		BulgeLoop* start_ = (BulgeLoop*) ordered.first;
+		MultiLoop* end_ = (MultiLoop*) ordered.second;
 
 		for (int loop = 0; loop < end_->numAdjacent; loop++) {
 			if (loop <= 1)
@@ -944,16 +870,9 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 	if( identify(start, end, 'B', 'O')){
 
-		BulgeLoop *start_;
-		OpenLoop *end_;
-
-		if (start->identity == 'B') {
-			start_ = (BulgeLoop *) start;
-			end_ = (OpenLoop *) end;
-		} else {
-			start_ = (BulgeLoop *) end;
-			end_ = (OpenLoop *) start;
-		}
+		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'B');
+		BulgeLoop* start_ = (BulgeLoop*) ordered.first;
+		OpenLoop* end_ = (OpenLoop*) ordered.second;
 
 		for (int loop = 0; (loop < end_->numAdjacent) || (loop < 2); loop++) {
 			if (loop <= 1)
@@ -1017,16 +936,9 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 	// hairpin,
 	if( identify(start, end, 'H', 'M')){
 
-		HairpinLoop *start_;
-		MultiLoop *end_;
-
-		if (start->identity == 'H') {
-			start_ = (HairpinLoop *) start;
-			end_ = (MultiLoop *) end;
-		} else {
-			start_ = (HairpinLoop *) end;
-			end_ = (MultiLoop *) start;
-		}
+		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'H');
+		HairpinLoop* start_ = (HairpinLoop*) ordered.first;
+		MultiLoop* end_ = (MultiLoop*) ordered.second;
 
 		for (int loop = 0; loop < end_->numAdjacent; loop++) {
 			if (end_->adjacentLoops[loop] == start_) {
@@ -1134,13 +1046,10 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 	if( identify(start, end, 'H', 'O')){
 
-		HairpinLoop *start_ = (HairpinLoop *) end;
-		OpenLoop *end_ = (OpenLoop *) start;
+		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'H');
+		HairpinLoop* start_ = (HairpinLoop*) ordered.first;
+		OpenLoop* end_ = (OpenLoop*) ordered.second;
 
-		if (start->identity == 'H') {
-			start_ = (HairpinLoop *) start;
-			end_ = (OpenLoop *) end;
-		}
 
 		for (int loop = 0; (loop < end_->numAdjacent); loop++) {
 			if (end_->adjacentLoops[loop] == start_) {
@@ -1257,22 +1166,13 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 	}
 
-	if( identify(start, end, 'M', 'O')){
+	if( identify(start, end, 'O', 'M')){
 
-		OpenLoop *start_;
-		MultiLoop *end_;
 		int  index = 0;
 
-		start_ = (OpenLoop *) start;
-		end_ = (MultiLoop *) end;
-
-		if (start->identity == 'O') {
-			start_ = (OpenLoop *) start;
-			end_ = (MultiLoop *) end;
-		} else {
-			start_ = (OpenLoop *) end;
-			end_ = (MultiLoop *) start;
-		}
+		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'O');
+		OpenLoop* start_ = (OpenLoop*) ordered.first;
+		MultiLoop* end_ = (MultiLoop*) ordered.second;
 
 		for (int loop = 0; loop < end_->numAdjacent || loop < start_->numAdjacent; loop++) {
 			if (loop < start_->numAdjacent)
