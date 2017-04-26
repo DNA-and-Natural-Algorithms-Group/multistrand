@@ -1275,7 +1275,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		for (flipflop = 0; flipflop < 2; flipflop++) {
 
-			// pairtypes = new int[sizes[flipflop]];
+
 			sidelen = new int[sizes[flipflop] + 1];
 			seqs = new char *[sizes[flipflop] + 1];
 
@@ -2948,10 +2948,8 @@ void HairpinLoop::generateMoves(void) {
 
 					} else // interior loop + hairpin case.
 					{
-						//		  char mismatches[4] = { hairpin_seq[1], hairpin_seq[hairpinsize], hairpin_seq[loop-1], hairpin_seq[loop2+1]};
-						energies[0] = energyModel->InteriorEnergy(hairpin_seq, &hairpin_seq[loop2], loop - 1, hairpinsize - loop2);
 
-						//pairtype, pt, loop - 1, hairpinsize - loop2, mismatches );
+						energies[0] = energyModel->InteriorEnergy(hairpin_seq, &hairpin_seq[loop2], loop - 1, hairpinsize - loop2);
 
 						// loop2 - loop - 1 is the new hairpin size.
 						energies[1] = energyModel->HairpinEnergy(&hairpin_seq[loop], loop2 - loop - 1);
@@ -3191,33 +3189,26 @@ void BulgeLoop::generateMoves(void) {
 					// it will always be a multiloop and hairpin.
 
 					// Multiloop energy - CHECK THIS/FIXME
-					int ptypes[3];
 					int sidelen[3];
 					char *sequences[3];
 
 					if (bside == 0) {
-						ptypes[0] = pairtype[0];
 						sidelen[0] = loop - 1;
 						sequences[0] = bulge_seq[0];
 
-						ptypes[1] = pt;
 						sidelen[1] = bsize - loop2;
 						sequences[1] = &bulge_seq[0][loop2];
 
-						ptypes[2] = pairtype[1];
 						sidelen[2] = 0;
 						sequences[2] = bulge_seq[1];
 
 					} else {
-						ptypes[0] = pairtype[0];
 						sidelen[0] = 0;
 						sequences[0] = bulge_seq[0];
 
-						ptypes[1] = pairtype[1];
 						sidelen[1] = loop - 1;
 						sequences[1] = bulge_seq[1];
 
-						ptypes[2] = pt;
 						sidelen[2] = bsize - loop2;
 						sequences[2] = &bulge_seq[1][loop2];
 
@@ -5262,10 +5253,12 @@ void OpenLoop::performComplexJoin(OpenLoop **oldLoops, OpenLoop **newLoops, char
 }
 
 char *OpenLoop::verifyLoop(char *incoming_sequence, Loop *from) {
+
 	char *ret_seq;
 	int call_index = -1, call_adjacent;
 	int adjacent;
 	int loop;
+
 	for (loop = 0; loop < numAdjacent; loop++) {
 		if (adjacentLoops[loop] == from) {
 			call_index = loop;
