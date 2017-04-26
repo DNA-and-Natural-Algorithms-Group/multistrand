@@ -3565,8 +3565,6 @@ void InteriorLoop::generateMoves(void) {
 				energies[0] = energyModel->HairpinEnergy(&int_seq[0][loop], loop2 - loop - 1);
 
 				// Multiloop energy
-
-				int ptypes[3] = { pairtype[0], pt, pairtype[1] };
 				int sidelen[3] = { loop - 1, sizes[0] - loop2, sizes[1] };
 				char *sequences[3] = { &int_seq[0][0], &int_seq[0][loop2], &int_seq[1][0] };
 
@@ -3591,8 +3589,6 @@ void InteriorLoop::generateMoves(void) {
 				energies[0] = energyModel->HairpinEnergy(&int_seq[1][loop], loop2 - loop - 1);
 
 				// Multiloop energy - CHECK THIS
-
-				int ptypes[3] = { pairtype[0], pairtype[1], pt };
 				int sidelen[3] = { sizes[0], loop - 1, sizes[1] - loop2 };
 				char *sequences[3] = { &int_seq[0][0], &int_seq[1][0], &int_seq[1][loop2] };
 
@@ -4066,12 +4062,10 @@ void MultiLoop::generateMoves(void) {
 // #2a-#2c can only happen for adjacent sides, #3 only happens for non-adjacent sides (and is always the case for such). We separate these into cases #2a-#2c and #3 .
 
 // these pointers are needed to set up all of the multiloop energy calls.
-	int *ptypes = NULL;
 	int *sideLengths = NULL;
 	char **sequences = NULL;
 
 // the most storage we'll need is for case #1, which will have a multiloop of 1 greater magnitude.
-	ptypes = new int[numAdjacent + 1];
 	sideLengths = new int[numAdjacent + 1];
 	sequences = new char *[numAdjacent + 1];
 
@@ -4094,10 +4088,8 @@ void MultiLoop::generateMoves(void) {
 					for (temploop = 0, tempindex = 0; temploop < numAdjacent + 1; temploop++, tempindex++) {
 						if (temploop == loop3) {
 
-							ptypes[temploop] = pairtype[temploop];
 							sideLengths[temploop] = loop - 1;
 							sequences[temploop] = seqs[temploop];
-							ptypes[temploop + 1] = pt;
 							sideLengths[temploop + 1] = sidelen[temploop] - loop2;
 							sequences[temploop + 1] = &seqs[temploop][loop2];
 
@@ -4108,7 +4100,6 @@ void MultiLoop::generateMoves(void) {
 
 						} else {
 
-							ptypes[temploop] = pairtype[tempindex];
 							sideLengths[temploop] = sidelen[tempindex];
 							sequences[temploop] = seqs[tempindex];
 
@@ -4170,15 +4161,12 @@ void MultiLoop::generateMoves(void) {
 						if (temploop == loop3) {
 							//FD: This is computing the sideLengths for the remaining loops.
 
-							ptypes[temploop] = pairtype[temploop];
 							sideLengths[temploop] = loop - 1;
 							sequences[temploop] = seqs[temploop];
 
 						} else {
 
-							ptypes[temploop] = pairtype[temploop];
 							if (temploop == loop4) {
-								ptypes[temploop] = pt;
 								sideLengths[temploop] = sidelen[temploop] - loop2;
 								sequences[temploop] = &seqs[temploop][loop2];
 							} else {
@@ -4224,21 +4212,18 @@ void MultiLoop::generateMoves(void) {
 						for (temploop = 0, tempindex = 0; temploop < (loop4 - loop3 + 1); tempindex++) // note that loop4 - loop3 is the number of pairings that got included in the multiloop. The extra closing pair makes the +1.
 								{
 							if (tempindex == loop3) {
-								ptypes[temploop] = pt;
 								sideLengths[temploop] = sidelen[tempindex] - loop;
 								sequences[temploop] = &seqs[tempindex][loop];
 								temploop++;
 							}
 
 							if (tempindex > loop3 && tempindex < loop4) {
-								ptypes[temploop] = pairtype[tempindex];
 								sideLengths[temploop] = sidelen[tempindex];
 								sequences[temploop] = seqs[tempindex];
 								temploop++;
 							}
 
 							if (tempindex == loop4) {
-								ptypes[temploop] = pairtype[tempindex];
 								sideLengths[temploop] = loop2 - 1;
 								sequences[temploop] = seqs[tempindex];
 								temploop++;
@@ -4251,17 +4236,14 @@ void MultiLoop::generateMoves(void) {
 						// Multi loop
 						for (temploop = 0, tempindex = 0; temploop < numAdjacent - (loop4 - loop3 - 1); tempindex++) {
 							if (tempindex == loop3) {
-								ptypes[temploop] = pairtype[tempindex];
 								sideLengths[temploop] = loop - 1;
 								sequences[temploop] = seqs[tempindex];
 								temploop++;
 							} else if (tempindex == loop4) {
-								ptypes[temploop] = pt;
 								sideLengths[temploop] = sidelen[tempindex] - loop2;
 								sequences[temploop] = &seqs[tempindex][loop2];
 								temploop++;
 							} else if (!((tempindex > loop3) && (tempindex < loop4))) {
-								ptypes[temploop] = pairtype[tempindex];
 								sideLengths[temploop] = sidelen[tempindex];
 								sequences[temploop] = seqs[tempindex];
 								temploop++;
@@ -4292,8 +4274,6 @@ void MultiLoop::generateMoves(void) {
 	}
 
 	totalRate = moves->getRate();
-	if (ptypes != NULL)
-		delete[] ptypes;
 	if (sideLengths != NULL)
 		delete[] sideLengths;
 	if (sequences != NULL)
