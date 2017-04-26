@@ -163,7 +163,7 @@ StrandComplex *StrandComplex::performComplexJoin(JoinCriteria crit, bool useArr)
 
 	complexes[0]->beginLoop = new_ordering->getLoop();
 
-	complexes[0]->beginLoop->verifyLoop(NULL, 0, NULL);
+	complexes[0]->beginLoop->verifyLoop(NULL,  NULL);
 
 	loops[0]->cleanupAdjacent();
 	delete loops[0];
@@ -235,7 +235,7 @@ StrandComplex * StrandComplex::doChoice(Move * move) {
 			else
 				assert(0);
 		}
-		beginLoop->verifyLoop( NULL, 0, NULL);
+		beginLoop->verifyLoop( NULL, NULL);
 	}
 	return NULL;
 }

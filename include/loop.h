@@ -50,7 +50,7 @@ public:
 	virtual Move *getChoice(double *randomchoice, Loop *from) = 0;
 	virtual double doChoice(Move *move, Loop **returnLoop) = 0;
 	virtual char *getLocation(Move *move, int index) =0;
-	virtual char *verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop *from) =0;
+	virtual char *verifyLoop(char *incoming_sequence, Loop *from) =0;
 	virtual string typeInternalsToString(void) = 0;
 	virtual void printMove(Loop *comefrom, char *structure_p, char *seq_p) = 0;
 	Loop *getAdjacent(int index);
@@ -104,7 +104,7 @@ public:
 	double doChoice(Move *move, Loop **returnLoop);
 	void printMove(Loop *comefrom, char *structure_p, char *seq_p);
 	char *getLocation(Move *move, int index);
-	char *verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop *from);
+	char *verifyLoop(char *incoming_sequence,  Loop *from);
 	friend RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end);
 	friend Loop * Loop::performDeleteMove(Move *move);
 	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);
@@ -124,10 +124,9 @@ public:
 	void generateDeleteMoves(void);
 	Move *getChoice(double *randnum, Loop *from);
 	double doChoice(Move *move, Loop **returnLoop);
-//	void moveDisplay(Loop *comefrom, char *structure_p, char *seq_p);
 	void printMove(Loop *comefrom, char *structure_p, char *seq_p);
 	char *getLocation(Move *move, int index);
-	char *verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop *from);
+	char *verifyLoop(char *incoming_sequence,  Loop *from);
 
 	HairpinLoop(void);
 	HairpinLoop(int type, int size, char *hairpin_sequence, Loop *previous = NULL);
@@ -151,7 +150,7 @@ public:
 	double doChoice(Move *move, Loop **returnLoop);
 	void printMove(Loop *comefrom, char *structure_p, char *seq_p);
 	char *getLocation(Move *move, int index);
-	char *verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop *from);
+	char *verifyLoop(char *incoming_sequence, Loop *from);
 	BulgeLoop(void);
 	BulgeLoop(int type1, int type2, int size1, int size2, char *bulge_sequence1, char *bulge_sequence2, Loop *left = NULL, Loop *right = NULL);
 	friend Loop * Loop::performDeleteMove(Move *move);
@@ -172,10 +171,9 @@ public:
 	void generateDeleteMoves(void);
 	Move *getChoice(double *randnum, Loop *from);
 	double doChoice(Move *move, Loop **returnLoop);
-//	void moveDisplay(Loop *comefrom, char *structure_p, char *seq_p);
 	void printMove(Loop *comefrom, char *structure_p, char *seq_p);
 	char *getLocation(Move *move, int index);
-	char *verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop *from);
+	char *verifyLoop(char *incoming_sequence,  Loop *from);
 	InteriorLoop(void);
 	InteriorLoop(int type1, int type2, int size1, int size2, char *int_seq1, char *int_seq2, Loop *left = NULL, Loop *right = NULL);
 
@@ -199,7 +197,7 @@ public:
 	double doChoice(Move *move, Loop **returnLoop);
 	void printMove(Loop *comefrom, char *structure_p, char *seq_p);
 	char *getLocation(Move *move, int index);
-	char *verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop *from);
+	char *verifyLoop(char *incoming_sequence, Loop *from);
 	MultiLoop(void);
 	MultiLoop(int branches, int *pairtypes, int *sidelengths, char **sequences);
 	~MultiLoop(void);
@@ -224,7 +222,7 @@ public:
 	double doChoice(Move *move, Loop **returnLoop);
 	void printMove(Loop *comefrom, char *structure_p, char *seq_p);
 	char *getLocation(Move *move, int index);
-	char *verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop *from);
+	char *verifyLoop(char *incoming_sequence,  Loop *from);
 
 	// OpenLoop::getFreeBases returns the base composition information for the
 	//   open loop. Return form is a pointer to an array of size 5, containing

@@ -2693,14 +2693,14 @@ char *StackLoop::getLocation(Move *move, int index) {
 	assert(0);
 }
 
-char *StackLoop::verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop *from) {
+char *StackLoop::verifyLoop(char *incoming_sequence,  Loop *from) {
 	char *ret_seq;
 	if (adjacentLoops[0] == from) {
 		if (incoming_sequence != seqs[0]) {
 			fprintf(stderr, "Verification Failed\n");
 			assert(incoming_sequence == seqs[0]);
 		}
-		ret_seq = adjacentLoops[1]->verifyLoop(&seqs[0][1], pairtype[1], this);
+		ret_seq = adjacentLoops[1]->verifyLoop(&seqs[0][1],  this);
 		assert(ret_seq == seqs[1]);
 		return seqs[1] + 1;
 	} else if (adjacentLoops[1] == from) {
@@ -2708,7 +2708,7 @@ char *StackLoop::verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop
 			fprintf(stderr, "Verification Failed\n");
 			assert(incoming_sequence == seqs[1]);
 		}
-		ret_seq = adjacentLoops[0]->verifyLoop(seqs[1] + 1, pairtype[0], this);
+		ret_seq = adjacentLoops[0]->verifyLoop(seqs[1] + 1,  this);
 		assert(ret_seq == seqs[0]);
 		return seqs[0] + 1;
 	} else
@@ -3008,7 +3008,7 @@ char *HairpinLoop::getLocation(Move *move, int index) {
 	assert(0);
 }
 
-char *HairpinLoop::verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop *from) {
+char *HairpinLoop::verifyLoop(char *incoming_sequence, Loop *from) {
 	char *ret_seq;
 	if (adjacentLoops[0] == from) {
 		if (incoming_sequence != hairpin_seq) {
@@ -3292,14 +3292,14 @@ char *BulgeLoop::getLocation(Move *move, int index) {
 	assert(0);
 }
 
-char *BulgeLoop::verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop *from) {
+char *BulgeLoop::verifyLoop(char *incoming_sequence,  Loop *from) {
 	char *ret_seq;
 	if (adjacentLoops[0] == from) {
 		if (incoming_sequence != bulge_seq[0]) {
 			fprintf(stderr, "Verification Failed\n");
 			assert(incoming_sequence == bulge_seq[0]);
 		}
-		ret_seq = adjacentLoops[1]->verifyLoop(bulge_seq[0] + 1 + bulgesize[0], pairtype[1], this);
+		ret_seq = adjacentLoops[1]->verifyLoop(bulge_seq[0] + 1 + bulgesize[0],  this);
 		assert(ret_seq == bulge_seq[1]);
 		return bulge_seq[1] + 1 + bulgesize[1];
 	} else if (adjacentLoops[1] == from) {
@@ -3307,7 +3307,7 @@ char *BulgeLoop::verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop
 			fprintf(stderr, "Verification Failed\n");
 			assert(incoming_sequence == bulge_seq[1]);
 		}
-		ret_seq = adjacentLoops[0]->verifyLoop(bulge_seq[1] + 1 + bulgesize[1], pairtype[0], this);
+		ret_seq = adjacentLoops[0]->verifyLoop(bulge_seq[1] + 1 + bulgesize[1],  this);
 		assert(ret_seq == bulge_seq[0]);
 		return bulge_seq[0] + 1 + bulgesize[0];
 	} else
@@ -3702,14 +3702,14 @@ char *InteriorLoop::getLocation(Move *move, int index) {
 	assert(0);
 }
 
-char *InteriorLoop::verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop *from) {
+char *InteriorLoop::verifyLoop(char *incoming_sequence, Loop *from) {
 	char *ret_seq;
 	if (adjacentLoops[0] == from) {
 		if (incoming_sequence != int_seq[0]) {
 			fprintf(stderr, "Verification Failed\n");
 			assert(incoming_sequence == int_seq[0]);
 		}
-		ret_seq = adjacentLoops[1]->verifyLoop(int_seq[0] + 1 + sizes[0], pairtype[1], this);
+		ret_seq = adjacentLoops[1]->verifyLoop(int_seq[0] + 1 + sizes[0], this);
 		assert(ret_seq == int_seq[1]);
 		return int_seq[1] + 1 + sizes[1];
 	} else if (adjacentLoops[1] == from) {
@@ -3717,7 +3717,7 @@ char *InteriorLoop::verifyLoop(char *incoming_sequence, int incoming_pairtype, L
 			fprintf(stderr, "Verification Failed\n");
 			assert(incoming_sequence == int_seq[1]);
 		}
-		ret_seq = adjacentLoops[0]->verifyLoop(int_seq[1] + 1 + sizes[1], pairtype[0], this);
+		ret_seq = adjacentLoops[0]->verifyLoop(int_seq[1] + 1 + sizes[1],  this);
 		assert(ret_seq == int_seq[0]);
 		return int_seq[0] + 1 + sizes[0];
 	} else
@@ -4359,7 +4359,7 @@ char *MultiLoop::getLocation(Move *move, int index) {
 	assert(0);
 }
 
-char *MultiLoop::verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop *from) {
+char *MultiLoop::verifyLoop(char *incoming_sequence, Loop *from) {
 	char *ret_seq;
 	int call_index, call_adjacent;
 	int adjacent;
@@ -4372,7 +4372,7 @@ char *MultiLoop::verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop
 			call_index = loop;
 			call_adjacent = adjacent;
 		} else {
-			ret_seq = adjacentLoops[loop]->verifyLoop(&seqs[adjacent][sidelen[adjacent] + 1], pairtype[loop], this);
+			ret_seq = adjacentLoops[loop]->verifyLoop(&seqs[adjacent][sidelen[adjacent] + 1],  this);
 			assert(ret_seq == seqs[loop]);
 		}
 	}
@@ -5261,7 +5261,7 @@ void OpenLoop::performComplexJoin(OpenLoop **oldLoops, OpenLoop **newLoops, char
 
 }
 
-char *OpenLoop::verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop *from) {
+char *OpenLoop::verifyLoop(char *incoming_sequence, Loop *from) {
 	char *ret_seq;
 	int call_index = -1, call_adjacent;
 	int adjacent;
@@ -5270,7 +5270,7 @@ char *OpenLoop::verifyLoop(char *incoming_sequence, int incoming_pairtype, Loop 
 		if (adjacentLoops[loop] == from) {
 			call_index = loop;
 		} else {
-			ret_seq = adjacentLoops[loop]->verifyLoop(&seqs[loop][sidelen[loop] + 1], pairtype[loop], this);
+			ret_seq = adjacentLoops[loop]->verifyLoop(&seqs[loop][sidelen[loop] + 1], this);
 			assert(ret_seq == seqs[loop + 1]);
 		}
 	}
