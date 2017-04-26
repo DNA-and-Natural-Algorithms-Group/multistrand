@@ -109,11 +109,10 @@ public:
 	friend Loop * Loop::performDeleteMove(Move *move);
 	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);
 	StackLoop(void);
-	StackLoop(int type1, int type2, char *seq1, char *seq2, Loop *left = NULL, Loop *right = NULL);
+	StackLoop(char *seq1, char *seq2, Loop *left = NULL, Loop *right = NULL);
 	string typeInternalsToString(void);
 
 private:
-	int pairtype[2];
 	char *seqs[2];
 };
 

@@ -587,7 +587,7 @@ int StrandComplex::generateLoops(void) {
 					NULL);
 		} else if (listlength == 2 && (seqlen == 0 && templist->seqlen == 0)) // Stack Loop
 				{
-			newLoop = new StackLoop(stacklist->pairtype, templist->pairtype, ordering->convertIndex(startpos - 1),
+			newLoop = new StackLoop(ordering->convertIndex(startpos - 1),
 					ordering->convertIndex(pairlist[templist->data]));
 		} else if (listlength == 2 && (seqlen == 0 || templist->seqlen == 0)) // Bulge Loop
 				// this must be after stackloop, otherwise it may catch stackloop's conditions.

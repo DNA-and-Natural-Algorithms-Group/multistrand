@@ -1391,7 +1391,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 		tie(s_index,e_index) = findExternalAdjacent(start_, end_);
 
 		// resulting will be an interior loop with sidelengths 1 and 1.
-		newLoop = new InteriorLoop(start_->pairtype[s_index], end_->pairtype[e_index], 1, 1, start_->seqs[s_index], end_->seqs[e_index]);
+		newLoop = new InteriorLoop(start_->seqs[0][s_index], end_->seqs[0][e_index], 1, 1, start_->seqs[s_index], end_->seqs[e_index]);
+//		newLoop = new InteriorLoop(start_->pairtype[s_index], end_->pairtype[e_index], 1, 1, start_->seqs[s_index], end_->seqs[e_index]);
 
 		newLoop->addAdjacent(start_->adjacentLoops[s_index]);
 		// TODO: fix this! asserts generate no code when NDEBUG is set!
@@ -1431,7 +1432,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		if (start_->seqs[s_index] < end_->int_seq[e_index]) {
 
-			newLoop = new InteriorLoop(start_->pairtype[s_index], end_->pairtype[e_index], end_->sizes[1 - e_index] + 1, end_->sizes[e_index] + 1,
+			newLoop = new InteriorLoop(start_->seqs[0][s_index], end_->pairtype[e_index], end_->sizes[1 - e_index] + 1, end_->sizes[e_index] + 1,
 					start_->seqs[s_index], end_->int_seq[e_index]);
 
 			newLoop->addAdjacent(start_->adjacentLoops[s_index]);
@@ -1443,7 +1444,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		} else {
 
-			newLoop = new InteriorLoop(end_->pairtype[e_index], start_->pairtype[s_index], end_->sizes[e_index] + 1, end_->sizes[1 - e_index] + 1,
+			newLoop = new InteriorLoop(end_->pairtype[e_index], start_->seqs[0][s_index], end_->sizes[e_index] + 1, end_->sizes[1 - e_index] + 1,
 					end_->int_seq[e_index], start_->seqs[s_index]);
 
 			newLoop->addAdjacent(end_->adjacentLoops[e_index]);
@@ -1480,7 +1481,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 		// resulting will be an interior loop side lengths equal to the length
 		// of the 'input' interior loop+1.
 		if (start_->seqs[s_index] < end_->bulge_seq[e_index]) {
-			newLoop = new InteriorLoop(start_->pairtype[s_index], end_->pairtype[e_index], end_->bulgesize[1 - e_index] + 1, end_->bulgesize[e_index] + 1,
+			newLoop = new InteriorLoop(start_->seqs[0][s_index], end_->pairtype[e_index], end_->bulgesize[1 - e_index] + 1, end_->bulgesize[e_index] + 1,
 					start_->seqs[s_index], end_->bulge_seq[e_index]);
 
 			newLoop->addAdjacent(start_->adjacentLoops[s_index]);
@@ -1490,7 +1491,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 			// TODO: fix this too! see above comment.
 			assert(end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop) > 0);
 		} else {
-			newLoop = new InteriorLoop(end_->pairtype[e_index], start_->pairtype[s_index], end_->bulgesize[e_index] + 1, end_->bulgesize[1 - e_index] + 1,
+			newLoop = new InteriorLoop(end_->pairtype[e_index], start_->seqs[0][s_index], end_->bulgesize[e_index] + 1, end_->bulgesize[1 - e_index] + 1,
 					end_->bulge_seq[e_index], start_->seqs[s_index]);
 
 			newLoop->addAdjacent(end_->adjacentLoops[e_index]);
@@ -1584,7 +1585,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 					sidelens[loop] = end_->sidelen[loop] + 1;
 				seqs[loop] = end_->seqs[loop];
 			} else {
-				pairtypes[loop] = start_->pairtype[s_index];
+				pairtypes[loop] = start_->seqs[0][s_index];
 				sidelens[loop] = end_->sidelen[loop] + 1;
 				seqs[loop] = start_->seqs[s_index];
 			}
@@ -1656,7 +1657,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		for (int loop = 0; loop < end_->numAdjacent + 1; loop++) {
 			if (loop == e_index) {
-				pairtypes[loop] = start_->pairtype[s_index];
+				pairtypes[loop] = start_->seqs[0][s_index];
 				sidelens[loop] = end_->sidelen[loop] + 1;
 				seqs[loop] = end_->seqs[loop];
 			} else if (loop == e_index + 1) {
@@ -2722,11 +2723,9 @@ StackLoop::StackLoop(void) {
 	identity = 'S';
 }
 
-StackLoop::StackLoop(int type1, int type2, char *seq1, char *seq2, Loop *left, Loop *right) // left and right default to NULL, see header.
+StackLoop::StackLoop(char *seq1, char *seq2, Loop *left, Loop *right) // left and right default to NULL, see header.
 		{
 
-	pairtype[0] = type1;
-	pairtype[1] = type2;
 	numAdjacent = 2;
 	adjacentLoops = new Loop *[2];
 	adjacentLoops[0] = left;
@@ -2735,8 +2734,7 @@ StackLoop::StackLoop(int type1, int type2, char *seq1, char *seq2, Loop *left, L
 	identity = 'S';
 	seqs[0] = seq1;
 	seqs[1] = seq2;
-//	pairtype[0] = seqs[0][0];
-//	pairtype[1] = seqs[0][1];
+
 
 }
 
@@ -2752,9 +2750,6 @@ string StackLoop::typeInternalsToString(void) {
 
 	ss << ") \n";
 
-	ss << "  --   ";
-	ss << basepairString[pairtype[0]] << ",   ";
-	ss << basepairString[pairtype[1]] << endl;
 
 	return ss.str();
 
@@ -2831,7 +2826,7 @@ double HairpinLoop::doChoice(Move *move, Loop **returnLoop) {
 		pt = pairtypes[hairpin_seq[loop]][hairpin_seq[loop2]];
 		if (move->type & MOVE_1) // stack and hairpin
 				{
-			newLoop[0] = new StackLoop(hairpin_seq[0], pt, hairpin_seq, &hairpin_seq[loop2]);
+			newLoop[0] = new StackLoop( hairpin_seq, &hairpin_seq[loop2]);
 			newLoop[1] = new HairpinLoop(hairpinsize - 2, &hairpin_seq[1]);
 			newLoop[0]->addAdjacent(adjacentLoops[0]);
 			adjacentLoops[0]->replaceAdjacent(this, newLoop[0]);
@@ -3473,7 +3468,7 @@ double InteriorLoop::doChoice(Move *move, Loop **returnLoop) {
 			// Need to check conditions for each side in order to determine what the two new loops types would be.
 			// adjacent to first pair side:
 			if (loop == 1 && loop2 == sizes[1]) // stack
-				newLoop[0] = new StackLoop(pairtype[0], pt, int_seq[0], &int_seq[1][loop2]);
+				newLoop[0] = new StackLoop(int_seq[0], &int_seq[1][loop2]);
 			else if (loop == 1 || loop2 == sizes[1]) // bulge
 				newLoop[0] = new BulgeLoop(pairtype[0], pt, (loop - 1), (sizes[1] - loop2), int_seq[0], &int_seq[1][loop2]);
 			else
@@ -3483,7 +3478,7 @@ double InteriorLoop::doChoice(Move *move, Loop **returnLoop) {
 			// other side
 			if (loop == sizes[0] && loop2 == 1) {		// stack
 
-				newLoop[1] = new StackLoop(pt, pairtype[1], &int_seq[0][loop], int_seq[1]);
+				newLoop[1] = new StackLoop(&int_seq[0][loop], int_seq[1]);
 
 			} else {
 
@@ -3900,9 +3895,9 @@ double MultiLoop::doChoice(Move *move, Loop **returnLoop) {
 			// #2a: stack
 			if (loop == sidelen[loop3] && loop2 == 1) {
 				if (loop3 < loop4)
-					newLoop[1] = new StackLoop(pt, pairtype[loop4], &seqs[loop3][loop], &seqs[loop4][loop2 - 1]);
+					newLoop[1] = new StackLoop(&seqs[loop3][loop], &seqs[loop4][loop2 - 1]);
 				else
-					newLoop[1] = new StackLoop(pairtype[loop4], pt, &seqs[loop4][loop2 - 1], &seqs[loop3][loop]);
+					newLoop[1] = new StackLoop(&seqs[loop4][loop2 - 1], &seqs[loop3][loop]);
 			}
 			// #2b: bulge
 			else if (loop == sidelen[loop3] || loop2 == 1) {
@@ -4537,7 +4532,7 @@ double OpenLoop::doChoice(Move *move, Loop **returnLoop) {
 			// three cases for which type of move:
 			// #2a: stack
 			if (loop == sidelen[loop3] && loop2 == 1) {
-				newLoop[1] = new StackLoop(pt, pairtype[loop3], &seqs[loop3][loop], &seqs[loop3 + 1][0]);
+				newLoop[1] = new StackLoop(&seqs[loop3][loop], &seqs[loop3 + 1][0]);
 			}
 			// #2b: bulge
 			else if (loop == sidelen[loop3] || loop2 == 1) {
