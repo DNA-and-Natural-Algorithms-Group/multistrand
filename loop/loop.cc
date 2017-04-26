@@ -1531,7 +1531,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		// resulting will be an hairpin loop, size+2.
 
-		newLoop = new HairpinLoop(start_->pairtype[s_index], end_->hairpinsize + 2, start_->seqs[s_index]);
+		newLoop = new HairpinLoop(end_->hairpinsize + 2, start_->seqs[s_index]);
 
 		//      printf("index: %d size: %d seqs: %s\n",s_index, end_->hairpinsize+2, start_->seqs[s_index]);
 		newLoop->addAdjacent(start_->adjacentLoops[s_index]);
@@ -1815,7 +1815,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 		// end is the hairpin, which has no extra adjacencies.
 
 		// resulting will be a hairpin loop with previous size, plus interior loop's sizes (both) plus 2 (for the pairing that's now unpaired)
-		newLoop = new HairpinLoop(start_->pairtype[s_index], end_->hairpinsize + 2 + start_->sizes[0] + start_->sizes[1], start_->int_seq[s_index]);
+		newLoop = new HairpinLoop(end_->hairpinsize + 2 + start_->sizes[0] + start_->sizes[1], start_->int_seq[s_index]);
 
 		newLoop->addAdjacent(start_->adjacentLoops[s_index]);
 		// TODO: fix this! asserts generate no code when NDEBUG is set!
@@ -2042,7 +2042,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 		// end is the hairpin, which has no extra adjacencies.
 
 		// resulting will be a hairpin loop with previous size, plus interior loop's sizes (both) plus 2 (for the pairing that's now unpaired)
-		newLoop = new HairpinLoop(start_->pairtype[s_index], end_->hairpinsize + 2 + start_->bulgesize[0] + start_->bulgesize[1], start_->bulge_seq[s_index]);
+		newLoop = new HairpinLoop( end_->hairpinsize + 2 + start_->bulgesize[0] + start_->bulgesize[1], start_->bulge_seq[s_index]);
 
 		newLoop->addAdjacent(start_->adjacentLoops[s_index]);
 		// TODO: fix this! asserts generate no code when NDEBUG is set!
@@ -2773,14 +2773,13 @@ HairpinLoop::HairpinLoop(void) {
 	identity = 'H';
 }
 
-HairpinLoop::HairpinLoop(int type, int size, char *hairpin_sequence, Loop *previous) {
+HairpinLoop::HairpinLoop(int size, char *hairpin_sequence, Loop *previous) {
 	numAdjacent = 1;
 	adjacentLoops = new Loop *[1];
 	adjacentLoops[0] = previous;
 	if (previous != NULL)
 		curAdjacent = 1;
 
-	pairtype = type;
 	hairpinsize = size;
 	hairpin_seq = hairpin_sequence;
 	identity = 'H';
@@ -2790,7 +2789,6 @@ string HairpinLoop::typeInternalsToString(void) {
 
 	std::stringstream ss;
 
-	ss << "pairType =" << pairtype << ", ";
 	ss << "seq= " << utility::sequenceToString(hairpin_seq, hairpinsize) << "\n";
 
 	return ss.str();
@@ -2833,8 +2831,8 @@ double HairpinLoop::doChoice(Move *move, Loop **returnLoop) {
 		pt = pairtypes[hairpin_seq[loop]][hairpin_seq[loop2]];
 		if (move->type & MOVE_1) // stack and hairpin
 				{
-			newLoop[0] = new StackLoop(pairtype, pt, hairpin_seq, &hairpin_seq[loop2]);
-			newLoop[1] = new HairpinLoop(pt, hairpinsize - 2, &hairpin_seq[1]);
+			newLoop[0] = new StackLoop(hairpin_seq[0], pt, hairpin_seq, &hairpin_seq[loop2]);
+			newLoop[1] = new HairpinLoop(hairpinsize - 2, &hairpin_seq[1]);
 			newLoop[0]->addAdjacent(adjacentLoops[0]);
 			adjacentLoops[0]->replaceAdjacent(this, newLoop[0]);
 			newLoop[0]->addAdjacent(newLoop[1]);
@@ -2848,10 +2846,10 @@ double HairpinLoop::doChoice(Move *move, Loop **returnLoop) {
 		if (move->type & MOVE_2) // bulge and hairpin
 				{
 			if (loop == 1)
-				newLoop[0] = new BulgeLoop(pairtype, pt, 0, (hairpinsize - loop2), &hairpin_seq[0], &hairpin_seq[loop2]);
+				newLoop[0] = new BulgeLoop(hairpin_seq[0], pt, 0, (hairpinsize - loop2), &hairpin_seq[0], &hairpin_seq[loop2]);
 			else
-				newLoop[0] = new BulgeLoop(pairtype, pt, loop - 1, 0, &hairpin_seq[0], &hairpin_seq[loop2]);
-			newLoop[1] = new HairpinLoop(pt, loop2 - loop - 1, &hairpin_seq[loop]);
+				newLoop[0] = new BulgeLoop(hairpin_seq[0], pt, loop - 1, 0, &hairpin_seq[0], &hairpin_seq[loop2]);
+			newLoop[1] = new HairpinLoop( loop2 - loop - 1, &hairpin_seq[loop]);
 			newLoop[0]->addAdjacent(adjacentLoops[0]);
 			adjacentLoops[0]->replaceAdjacent(this, newLoop[0]);
 			newLoop[0]->addAdjacent(newLoop[1]);
@@ -2864,8 +2862,8 @@ double HairpinLoop::doChoice(Move *move, Loop **returnLoop) {
 		}
 		if (move->type & MOVE_3) // interior and hairpin
 				{
-			newLoop[0] = new InteriorLoop(pairtype, pt, loop - 1, hairpinsize - loop2, &hairpin_seq[0], &hairpin_seq[loop2]);
-			newLoop[1] = new HairpinLoop(pt, loop2 - loop - 1, &hairpin_seq[loop]);
+			newLoop[0] = new InteriorLoop(hairpin_seq[0], pt, loop - 1, hairpinsize - loop2, &hairpin_seq[0], &hairpin_seq[loop2]);
+			newLoop[1] = new HairpinLoop(loop2 - loop - 1, &hairpin_seq[loop]);
 			newLoop[0]->addAdjacent(adjacentLoops[0]);
 			adjacentLoops[0]->replaceAdjacent(this, newLoop[0]);
 			newLoop[0]->addAdjacent(newLoop[1]);
@@ -3133,7 +3131,7 @@ double BulgeLoop::doChoice(Move *move, Loop **returnLoop) {
 		}
 		// creation moves in a bulge loop are always multi+hairpin
 		newLoop[0] = new MultiLoop(3, ptypes, sidelen, seqs);
-		newLoop[1] = new HairpinLoop(pt, loop2 - loop - 1, &bulge_seq[bside][loop]);
+		newLoop[1] = new HairpinLoop(loop2 - loop - 1, &bulge_seq[bside][loop]);
 		newLoop[0]->addAdjacent(adjacentLoops[0]);
 		adjacentLoops[0]->replaceAdjacent(this, newLoop[0]);
 		if (bside == 0) {
@@ -3417,7 +3415,7 @@ double InteriorLoop::doChoice(Move *move, Loop **returnLoop) {
 
 			// creation moves in a interior loop's sides are always multi+hairpin
 			newLoop[0] = new MultiLoop(3, ptypes, sidelen, seqs);
-			newLoop[1] = new HairpinLoop(pt, loop2 - loop - 1, &int_seq[0][loop]);
+			newLoop[1] = new HairpinLoop( loop2 - loop - 1, &int_seq[0][loop]);
 
 			newLoop[0]->addAdjacent(adjacentLoops[0]);
 			adjacentLoops[0]->replaceAdjacent(this, newLoop[0]);
@@ -3452,7 +3450,7 @@ double InteriorLoop::doChoice(Move *move, Loop **returnLoop) {
 
 			// creation moves in a bulge loop are always multi+hairpin
 			newLoop[0] = new MultiLoop(3, ptypes, sidelen, seqs);
-			newLoop[1] = new HairpinLoop(pt, loop2 - loop - 1, &int_seq[1][loop]);
+			newLoop[1] = new HairpinLoop(loop2 - loop - 1, &int_seq[1][loop]);
 
 			newLoop[0]->addAdjacent(adjacentLoops[0]);
 			adjacentLoops[0]->replaceAdjacent(this, newLoop[0]);
@@ -3846,7 +3844,7 @@ double MultiLoop::doChoice(Move *move, Loop **returnLoop) {
 
 			newLoop[0] = new MultiLoop(numAdjacent + 1, ptypes, sidelengths, sequences);
 
-			newLoop[1] = new HairpinLoop(pt, loop2 - loop - 1, &seqs[loop3][loop]);
+			newLoop[1] = new HairpinLoop(loop2 - loop - 1, &seqs[loop3][loop]);
 
 			for (temploop = 0; temploop < numAdjacent; temploop++) {
 				if (temploop == loop3) {
@@ -4481,7 +4479,7 @@ double OpenLoop::doChoice(Move *move, Loop **returnLoop) {
 
 			newLoop[0] = new OpenLoop(numAdjacent + 1, ptypes, sidelengths, sequences);
 
-			newLoop[1] = new HairpinLoop(pt, loop2 - loop - 1, &seqs[loop3][loop]);
+			newLoop[1] = new HairpinLoop(loop2 - loop - 1, &seqs[loop3][loop]);
 
 			for (temploop = 0; temploop < numAdjacent; temploop++) {
 				if (temploop == loop3) {

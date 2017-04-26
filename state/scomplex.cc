@@ -579,7 +579,7 @@ int StrandComplex::generateLoops(void) {
 			newLoop = new MultiLoop(listlength, ML_pairtypes, ML_sidelengths, ML_sequences);
 		} else if (listlength == 1 && seqlen >= 3) // Hairpin Loop
 				{
-			newLoop = new HairpinLoop(stacklist->pairtype, seqlen, ordering->convertIndex(stacklist->data));
+			newLoop = new HairpinLoop( seqlen, ordering->convertIndex(stacklist->data));
 		} else if (listlength == 2 && (seqlen > 0 && templist->seqlen > 0)) // Interior Loop
 				{
 			newLoop = new InteriorLoop(stacklist->pairtype, templist->pairtype, templist->seqlen, seqlen, ordering->convertIndex(startpos - 1),

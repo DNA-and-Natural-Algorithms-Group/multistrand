@@ -129,14 +129,13 @@ public:
 	char *verifyLoop(char *incoming_sequence,  Loop *from);
 
 	HairpinLoop(void);
-	HairpinLoop(int type, int size, char *hairpin_sequence, Loop *previous = NULL);
+	HairpinLoop( int size, char *hairpin_sequence, Loop *previous = NULL);
 	friend RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end);
 	friend Loop * Loop::performDeleteMove(Move *move);
 	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);
 	string typeInternalsToString(void);
 
 private:
-	int pairtype;
 	int hairpinsize;
 	char *hairpin_seq;
 };
