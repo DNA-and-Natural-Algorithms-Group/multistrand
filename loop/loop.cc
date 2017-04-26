@@ -292,9 +292,7 @@ string Loop::toString() {
 
 	std::stringstream ss;
 
-	ss << "\n** " << identityToString(identity);
-
-	ss << " adjacent ";
+	ss << "\n** " << identityToString(identity)  << " adjacent ";
 
 	for (int i = 0; i < numAdjacent; i++) {
 
@@ -303,9 +301,7 @@ string Loop::toString() {
 	}
 
 	ss << " dG=" << std::setprecision(3) << energy << "\n";
-
 	ss << "** ";
-
 	ss << this->typeInternalsToString();
 
 	return ss.str();
@@ -1746,13 +1742,13 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		// note e_index has different meaning now for openloops.
 
-		cout << "s_index, e_index = " << s_index << "  " << e_index << endl;
-
-		cout << "Start is " << endl;
-		cout << (start_)->typeInternalsToString() << endl;
-
-		cout << "End is " << endl;
-		cout << end_->typeInternalsToString() << endl;
+//		cout << "s_index, e_index = " << s_index << "  " << e_index << endl;
+//
+//		cout << "Start is " << endl;
+//		cout << (start_)->typeInternalsToString() << endl;
+//
+//		cout << "End is " << endl;
+//		cout << end_->typeInternalsToString() << endl;
 
 		int *pairtypes = new int[end_->numAdjacent];
 		int *sidelens = new int[end_->numAdjacent + 1];
@@ -1778,7 +1774,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 			}
 		}
 
-		cout << "new Pairtype is CUSTOM: " << pairtypes[0] << endl;
+//		cout << "new Pairtype is CUSTOM: " << pairtypes[0] << endl;
 
 		// resulting will be an open loop, same# of adjacent helices, two sides longer by one base, and one pairtype possibly changed.
 		newLoop = new OpenLoop(end_->numAdjacent, pairtypes, sidelens, seqs);
@@ -2236,13 +2232,11 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 	if (identify(start, end, 'B', 'O')){
 
-		int temp = 0;
-
 		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'B');
-
 		BulgeLoop* start_ = (BulgeLoop*) ordered.first;
 		OpenLoop* end_ = (OpenLoop*) ordered.second;
 
+		int temp = 0;
 
 		for (int loop = 0; (loop < end_->numAdjacent) || (loop < 2); loop++) {
 			if (loop <= 1)
