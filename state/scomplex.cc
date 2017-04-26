@@ -491,7 +491,7 @@ int StrandComplex::generateLoops(void) {
 			}
 			//for( loop = 0; loop <= listlength ; loop ++ )
 			//printf("Seq %d: %s\n Length %d: %d\n",loop,OL_sequences[loop],loop,OL_sidelengths[loop]);
-			newLoop = new OpenLoop(listlength, OL_pairtypes, OL_sidelengths, OL_sequences);
+			newLoop = new OpenLoop(listlength,  OL_sidelengths, OL_sequences);
 			newLoop->initAdjacency(-(openloopcount + 1));
 			ordering->addOpenLoop((OpenLoop *) newLoop, olflag);
 			olflag = -1;
@@ -522,14 +522,14 @@ int StrandComplex::generateLoops(void) {
 					OL_sequences[loop + 1] = ordering->convertIndex(pairlist[temp_intlist->data]);
 				}
 
-				newLoop = new OpenLoop(listlength, OL_pairtypes, OL_sidelengths, OL_sequences);
+				newLoop = new OpenLoop(listlength, OL_sidelengths, OL_sequences);
 				ordering->addOpenLoop((OpenLoop *) newLoop, stacklist->data);
 			} else {
 				OL_sidelengths = (int *) new int[listlength + 1];
 				OL_sequences = (char **) new char *[listlength + 1];
 				OL_sidelengths[0] = seqlen;
 				OL_sequences[0] = ordering->convertIndex(-1);
-				newLoop = new OpenLoop(0, NULL, OL_sidelengths, OL_sequences); // open chain
+				newLoop = new OpenLoop(0, OL_sidelengths, OL_sequences); // open chain
 				ordering->addOpenLoop((OpenLoop *) newLoop, -1);
 			}
 		} else if (listlength > 2) // MultiLoop
@@ -576,13 +576,13 @@ int StrandComplex::generateLoops(void) {
 			}
 			// end new code.
 
-			newLoop = new MultiLoop(listlength, ML_pairtypes, ML_sidelengths, ML_sequences);
+			newLoop = new MultiLoop(listlength, ML_sidelengths, ML_sequences);
 		} else if (listlength == 1 && seqlen >= 3) // Hairpin Loop
 				{
 			newLoop = new HairpinLoop( seqlen, ordering->convertIndex(stacklist->data));
 		} else if (listlength == 2 && (seqlen > 0 && templist->seqlen > 0)) // Interior Loop
 				{
-			newLoop = new InteriorLoop(stacklist->pairtype, templist->pairtype, templist->seqlen, seqlen, ordering->convertIndex(startpos - 1),
+			newLoop = new InteriorLoop( templist->seqlen, seqlen, ordering->convertIndex(startpos - 1),
 					ordering->convertIndex(pairlist[templist->data]), NULL,
 					NULL);
 		} else if (listlength == 2 && (seqlen == 0 && templist->seqlen == 0)) // Stack Loop
@@ -592,7 +592,7 @@ int StrandComplex::generateLoops(void) {
 		} else if (listlength == 2 && (seqlen == 0 || templist->seqlen == 0)) // Bulge Loop
 				// this must be after stackloop, otherwise it may catch stackloop's conditions.
 				{
-			newLoop = new BulgeLoop(stacklist->pairtype, templist->pairtype, templist->seqlen, seqlen, ordering->convertIndex(startpos - 1),
+			newLoop = new BulgeLoop( templist->seqlen, seqlen, ordering->convertIndex(startpos - 1),
 					ordering->convertIndex(pairlist[templist->data]), NULL,
 					NULL);
 		} else if (1) // Error-generating Loop

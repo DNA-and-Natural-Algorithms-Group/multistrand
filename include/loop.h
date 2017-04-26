@@ -150,14 +150,13 @@ public:
 	char *getLocation(Move *move, int index);
 	char *verifyLoop(char *incoming_sequence, Loop *from);
 	BulgeLoop(void);
-	BulgeLoop(int type1, int type2, int size1, int size2, char *bulge_sequence1, char *bulge_sequence2, Loop *left = NULL, Loop *right = NULL);
+	BulgeLoop(int size1, int size2, char *bulge_sequence1, char *bulge_sequence2, Loop *left = NULL, Loop *right = NULL);
 	friend Loop * Loop::performDeleteMove(Move *move);
 	friend RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end);
 	friend void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen);
 	string typeInternalsToString(void);
 
 private:
-	int pairtype[2];
 	int bulgesize[2];
 	char *bulge_seq[2];
 };
@@ -173,7 +172,7 @@ public:
 	char *getLocation(Move *move, int index);
 	char *verifyLoop(char *incoming_sequence,  Loop *from);
 	InteriorLoop(void);
-	InteriorLoop(int type1, int type2, int size1, int size2, char *int_seq1, char *int_seq2, Loop *left = NULL, Loop *right = NULL);
+	InteriorLoop(int size1, int size2, char *int_seq1, char *int_seq2, Loop *left = NULL, Loop *right = NULL);
 
 	friend Loop * Loop::performDeleteMove(Move *move);
 	friend RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end);
@@ -181,7 +180,6 @@ public:
 	string typeInternalsToString(void);
 
 private:
-	int pairtype[2];
 	int sizes[2];
 	char *int_seq[2];
 };
@@ -197,7 +195,7 @@ public:
 	char *getLocation(Move *move, int index);
 	char *verifyLoop(char *incoming_sequence, Loop *from);
 	MultiLoop(void);
-	MultiLoop(int branches, int *pairtypes, int *sidelengths, char **sequences);
+	MultiLoop(int branches, int *sidelengths, char **sequences);
 	~MultiLoop(void);
 
 	friend RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end);
@@ -206,7 +204,6 @@ public:
 	string typeInternalsToString(void);
 
 private:
-	int *pairtype;
 	int *sidelen;
 	char **seqs;
 };
@@ -240,7 +237,7 @@ public:
 	char* getBase(char type, int index, HalfContext);
 
 	OpenLoop(void);
-	OpenLoop(int branches, int *pairtypes, int *sidelengths, char **sequences);
+	OpenLoop(int branches,  int *sidelengths, char **sequences);
 	~OpenLoop(void);
 	friend RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end);
 	friend Loop * Loop::performDeleteMove(Move *move);
@@ -256,7 +253,6 @@ public:
 
 private:
 	OpenInfo openInfo;
-	int *pairtype;
 	int *sidelen;
 	char **seqs;
 
