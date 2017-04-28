@@ -1407,10 +1407,13 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		// resulting will be an interior loop side lengths equal to the length
 		// of the 'input' interior loop+1.
-		assert(!(start_->seqs[s_index] + 1 == end_->int_seq[e_index]));
-		assert(!(start_->seqs[s_index] == end_->int_seq[e_index] + 1));
+		// FD: this compares pointers, the execution is arbitrarly
+//		assert(!(start_->seqs[s_index] + 1 == end_->int_seq[e_index]));
+//		assert(!(start_->seqs[s_index] == end_->int_seq[e_index] + 1));
 
-		if (start_->seqs[s_index] < end_->int_seq[e_index]) {
+
+		// FD: this compares pointers, the execution is arbitrarly
+//		if (start_->seqs[s_index] < end_->int_seq[e_index]) {
 
 			newLoop = new InteriorLoop(end_->sizes[1 - e_index] + 1, end_->sizes[e_index] + 1, start_->seqs[s_index], end_->int_seq[e_index]);
 
@@ -1420,19 +1423,19 @@ Loop *Loop::performDeleteMove(Move *move) {
 			newLoop->addAdjacent(end_->adjacentLoops[e_index]);
 			// TODO: fix this too! see above comment.
 			assert(end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop) > 0);
-
-		} else {
-
-			newLoop = new InteriorLoop(end_->sizes[e_index] + 1, end_->sizes[1 - e_index] + 1, end_->int_seq[e_index], start_->seqs[s_index]);
-
-			newLoop->addAdjacent(end_->adjacentLoops[e_index]);
-			// TODO: fix this too! see above comment.
-			assert(end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop) > 0);
-			newLoop->addAdjacent(start_->adjacentLoops[s_index]);
-			// TODO: fix this! asserts generate no code when NDEBUG is set!
-			assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
-
-		}
+//
+//		} else {
+//
+//			newLoop = new InteriorLoop(end_->sizes[e_index] + 1, end_->sizes[1 - e_index] + 1, end_->int_seq[e_index], start_->seqs[s_index]);
+//
+//			newLoop->addAdjacent(end_->adjacentLoops[e_index]);
+//			// TODO: fix this too! see above comment.
+//			assert(end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop) > 0);
+//			newLoop->addAdjacent(start_->adjacentLoops[s_index]);
+//			// TODO: fix this! asserts generate no code when NDEBUG is set!
+//			assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
+//
+//		}
 		newLoop->generateMoves();
 
 		// need to re-generate the moves for the two adjacent loops.
@@ -1458,26 +1461,29 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		// resulting will be an interior loop side lengths equal to the length
 		// of the 'input' interior loop+1.
-		if (start_->seqs[s_index] < end_->bulge_seq[e_index]) {
-			newLoop = new InteriorLoop(end_->bulgesize[1 - e_index] + 1, end_->bulgesize[e_index] + 1, start_->seqs[s_index], end_->bulge_seq[e_index]);
+		// FD: this compares pointers, the execution is arbitrarly
+//		if (start_->seqs[s_index] < end_->bulge_seq[e_index]) {
 
-			newLoop->addAdjacent(start_->adjacentLoops[s_index]);
-			// TODO: fix this! asserts generate no code when NDEBUG is set!
-			assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
-			newLoop->addAdjacent(end_->adjacentLoops[e_index]);
-			// TODO: fix this too! see above comment.
-			assert(end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop) > 0);
-		} else {
-			newLoop = new InteriorLoop(end_->bulgesize[e_index] + 1, end_->bulgesize[1 - e_index] + 1, end_->bulge_seq[e_index], start_->seqs[s_index]);
+		newLoop = new InteriorLoop(end_->bulgesize[1 - e_index] + 1, end_->bulgesize[e_index] + 1, start_->seqs[s_index], end_->bulge_seq[e_index]);
 
-			newLoop->addAdjacent(end_->adjacentLoops[e_index]);
-			// TODO: fix this too! see above comment.
-			assert(end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop) > 0);
-			newLoop->addAdjacent(start_->adjacentLoops[s_index]);
-			// TODO: fix this! asserts generate no code when NDEBUG is set!
-			assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
+		newLoop->addAdjacent(start_->adjacentLoops[s_index]);
+		// TODO: fix this! asserts generate no code when NDEBUG is set!
+		assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
+		newLoop->addAdjacent(end_->adjacentLoops[e_index]);
+		// TODO: fix this too! see above comment.
+		assert(end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop) > 0);
 
-		}
+		//		} else {
+//			newLoop = new InteriorLoop(end_->bulgesize[e_index] + 1, end_->bulgesize[1 - e_index] + 1, end_->bulge_seq[e_index], start_->seqs[s_index]);
+//
+//			newLoop->addAdjacent(end_->adjacentLoops[e_index]);
+//			// TODO: fix this too! see above comment.
+//			assert(end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop) > 0);
+//			newLoop->addAdjacent(start_->adjacentLoops[s_index]);
+//			// TODO: fix this! asserts generate no code when NDEBUG is set!
+//			assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
+//
+//		}
 		newLoop->generateMoves();
 
 		// need to re-generate the moves for the two adjacent loops.
