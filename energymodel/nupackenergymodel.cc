@@ -332,6 +332,15 @@ double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequence
 
 		// FD: adding singlestranded stacking.
 		energy += singleStrandedStacking(sequences[loop], sidelen[loop]);
+		// FD April 28 2017
+		// FD: Adding initialization penalty when side length is zero, and
+		// Fd: only when there is an extension (single stranded or stack) on either side.
+		if( (sidelen[loop] == 0) && (loop > 0) && (loop<(size-1))){
+
+			// not adjusting for temperature, hardcoded for now, etc.
+			energy += 0.0;
+
+		}
 
 	}
 	if (dangles == DANGLES_NONE || size == 0) {
