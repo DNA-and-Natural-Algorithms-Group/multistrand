@@ -14,6 +14,8 @@
 
 bool printedRates = false;
 
+static double INIT_PENALITY = 2.0; //kcal / mol
+
 EnergyModel::EnergyModel(PyObject *options) {
 	// nothing yet
 
@@ -88,8 +90,7 @@ void EnergyModel::printkBikUni(void) {
 
 	ss << " \n";
 
-	ss << "Temperatur:   " <<  simOptions->energyOptions->getTemperature() << "\n";
-
+	ss << "Temperatur:   " << simOptions->energyOptions->getTemperature() << "\n";
 
 	if (!printedRates) {
 
@@ -159,10 +160,7 @@ void EnergyModel::printPrecomputedArrRates(void) {
 	ss << "Sodium    :   " << simOptions->energyOptions->sodium << " M \n";
 	ss << "Magnesium :   " << simOptions->energyOptions->magnesium << " M \n";
 
-
-
-
-	if(OLD_LOOP_ADJUSTMENT_NASIM){
+	if (OLD_LOOP_ADJUSTMENT_NASIM) {
 
 		ss << " \n \n";
 		ss << "OLD_LOOP_ADJUSMENTS_NASIM = TRUE";
@@ -173,7 +171,6 @@ void EnergyModel::printPrecomputedArrRates(void) {
 		ss << "    " << simOptions->energyOptions->dST;
 
 		ss << "\n";
-
 
 	}
 
@@ -195,12 +192,9 @@ void EnergyModel::printPrecomputedArrRates(void) {
 
 	ss << " \n";
 
-
 	ss << " \n";
 
-	ss << "Temperatur:   " <<  simOptions->energyOptions->getTemperature() << "\n";
-
-
+	ss << "Temperatur:   " << simOptions->energyOptions->getTemperature() << "\n";
 
 	if (!printedRates) {
 
@@ -352,6 +346,29 @@ double EnergyModel::singleStrandedStacking(char* sequence, int length) {
 		return 0.0;
 
 	}
+
+}
+
+// FD April 28 2017
+// FD: Adding initialization penalty when side length is zero, and
+// Fd: only when there is an extension (single stranded or stack) on either side.
+double EnergyModel::initializationPenalty(int length, int loop, int size) {
+
+	if ((loop > 0) && (loop < (size - 1))) {
+
+		// not adjusting for temperature, hardcoded for now, etc.
+
+		if (length == 0) {
+			return INIT_PENALITY;
+		}
+
+		if (length == 1) {
+			return INIT_PENALITY / 2.0;
+		}
+
+	}
+
+	return 0.0;
 
 }
 

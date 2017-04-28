@@ -60,6 +60,7 @@ public:
 	// Implemented methods
 	bool useArrhenius(void);
 	double singleStrandedStacking(char* sequence, int length);
+	double initializationPenalty(int , int , int );
 	double arrheniusLoopEnergy(char* seq, int size);
 	double saltCorrection(int size);
 	void setArrheniusRate(double ratesArray[], EnergyOptions* options, double temperature, int left, int right);
