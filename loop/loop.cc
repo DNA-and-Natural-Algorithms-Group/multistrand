@@ -1356,15 +1356,19 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 	if (identify(start, end, 'S', 'S')) {
 
-		StackLoop *start_, *end_;
+//		StackLoop *start_, *end_;
 
-		if (((StackLoop *) start)->seqs[0] > ((StackLoop *) end)->seqs[0]) {
-			start_ = (StackLoop *) end;
-			end_ = (StackLoop *) start;
-		} else {
-			start_ = (StackLoop *) start;
-			end_ = (StackLoop *) end;
-		}
+		StackLoop* start_ = (StackLoop*) end;
+		StackLoop* end_ = (StackLoop*) start;
+
+//		// FD: this compares pointers, the execution is arbitrarly
+//		if (((StackLoop *) start)->seqs[0] > ((StackLoop *) end)->seqs[0]) {
+//			start_ = (StackLoop *) end;
+//			end_ = (StackLoop *) start;
+//		} else {
+//			start_ = (StackLoop *) start;
+//			end_ = (StackLoop *) end;
+//		}
 
 		tie(s_index, e_index) = findExternalAdjacent(start_, end_);
 
@@ -2190,6 +2194,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 				/*
 				 if( end_->seqs[positions[0]] > end_->seqs[positions[1]] )
 				 {*/
+				// FD: Found 3 more in this very file.
 				newLoop = new InteriorLoop(sizes[0], sizes[1], end_->seqs[positions[1]], end_->seqs[positions[0]]);
 
 				newLoop->addAdjacent(end_->adjacentLoops[positions[1]]);
@@ -2241,8 +2246,14 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		else if (end_->numAdjacent > 3)              // multiloop case
 				{
-			int *sidelens = new int[end_->numAdjacent - 1];
-			char **seqs = new char *[end_->numAdjacent - 1];
+			int* sidelens = new int[end_->numAdjacent - 1];
+			char** seqs = new char*[end_->numAdjacent - 1];
+
+			if (utility::debugTraces){
+
+				cout << "s_index = " << s_index << endl;
+				cout << "e_index = " << e_index << endl;
+			}
 
 			for (int loop = 0; loop < end_->numAdjacent; loop++) {
 				if (loop != e_index) {
@@ -2264,6 +2275,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 				}
 			}
 
+			newLoop = new MultiLoop(end_->numAdjacent - 1,  sidelens, seqs);
 			for (int loop = 0; loop < end_->numAdjacent; loop++) {
 				if (loop != e_index) {
 					newLoop->addAdjacent(end_->adjacentLoops[loop]);

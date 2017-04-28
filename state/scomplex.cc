@@ -183,6 +183,20 @@ StrandComplex * StrandComplex::doChoice(Move * move) {
 	temp2 = move->affected[0];
 	temp3 = move->affected[1];
 
+	if (utility::debugTraces) {
+
+		cout << "Triggering move: " << endl;
+		cout << move->toString(false);
+		cout << "Affected:" << endl;
+		cout << temp2->toString() << endl;
+
+		if(temp3!=NULL){
+			cout << temp3->toString() << endl;
+		}
+
+	}
+
+
 	assert(temp2 != NULL);
 
 	id2 = temp2->getType();

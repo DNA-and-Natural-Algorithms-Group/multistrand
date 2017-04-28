@@ -77,6 +77,9 @@ string SComplexListEntry::toString(EnergyModel *em) {
 	// also print info on the openloop datastructures
 	ss << thisComplex->ordering->toString();
 
+	// also print moves components.
+//	thisComplex->printAllMoves();
+
 	return ss.str();
 
 }
@@ -448,7 +451,7 @@ int SComplexList::doBasicChoice(double choice, double newtime) {
 	char *struc;
 
 	if (utility::debugTraces) {
-		cout << "Doing a basic Choice  ************" << endl;
+		cout << "Doing a basic Choice  ***" << endl;
 	}
 
 	if (rchoice < joinRate) {
