@@ -260,7 +260,7 @@ double NupackEnergyModel::MultiloopEnergy(int size, int *sidelen, char **sequenc
 		// FD: single stranded stacks.
 		energy += singleStrandedStacking(sequences[loop], sidelen[loop]);
 		// FD: initialization of branch migration penalty.
-		energy += initializationPenalty(sidelen[loop], loop, size);
+//		energy += initializationPenalty(sidelen[loop], loop, size);
 
 
 
@@ -342,7 +342,9 @@ double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequence
 		// FD: adding singlestranded stacking.
 		energy += singleStrandedStacking(sequences[loop], sidelen[loop]);
 		// FD: initialization of branch migration penalty.
-		energy += initializationPenalty(sidelen[loop], loop, size);
+		energy +=  initializationPenalty(sidelen[loop], loop, size);
+//		energy += 100.0;
+//		cout << "Energy is now " << energy << endl;
 
 	}
 
@@ -391,6 +393,9 @@ double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequence
 
 		energy += dangle5; // added for either dangle version.
 	}
+
+	cout << "End -- Energy is now " << energy << endl;
+
 	return energy;
 }
 

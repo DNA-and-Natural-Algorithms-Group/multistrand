@@ -14,7 +14,7 @@
 
 bool printedRates = false;
 
-static double INIT_PENALTY = 9999.0; //kcal / mol
+const double INIT_PENALTY = 9999.0; //kcal / mol
 
 EnergyModel::EnergyModel(PyObject *options) {
 	// nothing yet
@@ -354,23 +354,25 @@ double EnergyModel::singleStrandedStacking(char* sequence, int length) {
 // Fd: only when there is an extension (single stranded or stack) on either side.
 double EnergyModel::initializationPenalty(int length, int loop, int size) {
 
+	double output = 0.0;
+
 	if ((loop > 0) && (loop < (size - 1))) {
 
 		// not adjusting for temperature, hardcoded for now, etc.
 
 		if (length == 0) {
 			cout << "Adding initalization penalty " <<  INIT_PENALTY <<" -- length = " << length << " --loop = " << loop << " --   size " << size << endl;
-			return INIT_PENALTY;
+			output =  INIT_PENALTY;
 		}
 
 		if (length == 1) {
 			cout << "Adding initalization penalty/2- length = " << length << " --loop = " << loop << " --   size" << size << endl;
-			return INIT_PENALTY / 2.0;
+			output  = (INIT_PENALTY / 2.0);
 		}
 
 	}
 
-	return 0.0;
+	return output;
 
 }
 

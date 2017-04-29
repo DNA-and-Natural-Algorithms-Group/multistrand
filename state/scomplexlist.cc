@@ -155,8 +155,17 @@ void SComplexList::initializeList(void) {
 	for (SComplexListEntry* temp = first; temp != NULL; temp = temp->next) {
 
 		temp->initializeComplex();
+
+		if(utility::debugTraces){
+			cout << "Done initializing a complex!" << endl;
+		}
+
 		temp->fillData(eModel);
 
+	}
+
+	if(utility::debugTraces){
+		cout << "Done initializing List!" << endl;
 	}
 
 }

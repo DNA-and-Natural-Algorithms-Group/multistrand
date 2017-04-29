@@ -21,8 +21,6 @@
 int noInitialMoves = 0;
 int timeOut = 0;
 
-
-
 SimulationSystem::SimulationSystem(PyObject *system_o) {
 
 //	std::cout << "Initializing SimulationSystem w python object \n";
@@ -80,7 +78,6 @@ void SimulationSystem::initialPrint(void) {
 	} else {
 
 		energyModel->printkBikUni();
-
 
 	}
 
@@ -355,8 +352,7 @@ void SimulationSystem::SimulationLoop_Trajectory() {
 	complexList->initializeList();
 	rate = complexList->getTotalFlux();
 
-
-	cout << "rate is "  << (rate) << endl;
+	cout << "rate is " << (rate) << endl;
 
 // We start at the beginning of time.
 	stime = 0.0;
@@ -390,7 +386,6 @@ void SimulationSystem::SimulationLoop_Trajectory() {
 			cout << "Printing my complexlist! *************************************** \n";
 			cout << complexList->toString() << endl;
 		}
-
 
 		if (exportStatesTime) {
 			exportTime(stime, &last_trajectory_time);
@@ -611,7 +606,6 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 // Begin normal steps.
 	rate = complexList->getTotalFlux();
 
-
 	do {
 
 		rchoice = rate * drand48();
@@ -761,6 +755,7 @@ void SimulationSystem::sendTrajectory_CurrentStateToPython(double current_time, 
 
 // FD: OK to have alternate_start = NULL
 int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
+
 	class StrandComplex *tempcomplex;
 	class identList *id;
 
@@ -785,6 +780,12 @@ int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
 
 		startState = tempcomplex;
 		complexList->addComplex(tempcomplex);
+
+	}
+
+	if (utility::debugTraces) {
+
+		cout << "Done initializing!" << endl;
 
 	}
 
