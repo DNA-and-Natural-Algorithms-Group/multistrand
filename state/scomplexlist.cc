@@ -71,7 +71,7 @@ string SComplexListEntry::toString(EnergyModel *em) {
 
 	ss << "Complex      : " << id << " \n";
 	ss << "seq, struc   : " << thisComplex->getSequence() << " - " << thisComplex->getStructure() << " \n";
-	ss << "energy,rate  : " << energy << " - " << rate;
+	ss << "energy,rate  : " << energy << " - " << rate   <<  "     (T=" << em->simOptions->energyOptions->getTemperature() << ")";
 	ss << "\n";
 
 	// also print info on the openloop datastructures
