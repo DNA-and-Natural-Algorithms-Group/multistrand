@@ -258,7 +258,7 @@ StrandComplex * StrandComplex::doChoice(Move * move) {
 struct intlist {
 	int data;
 	int seqlen;
-//	int pairtype;
+	int pairtype;
 	Loop *predec;
 	struct intlist *next;
 };
@@ -286,7 +286,7 @@ int StrandComplex::generateLoops(void) {
 	// ZIFNAB: completed: sequence is the code sequence, which has translated A/G/C/T but non translated special characters. get index should be returning into the code sequence.
 	ordering->generateFlatSequence(&charsequence, &structure, &sequence);
 
-//	pairlist = (int *) new int[strlen(sequence) + 1];
+	pairlist = (int *) new int[strlen(sequence) + 1];
 	newstruc = (char *) new char[strlen(sequence) + 1];
 	newseq = (char *) new char[strlen(sequence) + 1];
 
@@ -318,8 +318,8 @@ int StrandComplex::generateLoops(void) {
 		}
 	}
 
-//	if (pairlist[0] != -1)
-//		stacklist->pairtype = pairtypes[newseq[0]][newseq[pairlist[0]]];
+	if (pairlist[0] != -1)
+		stacklist->pairtype = pairtypes[newseq[0]][newseq[pairlist[0]]];
 
 	if (depth != 0) {
 		printf("Mismatched Parens in Start Structure.");
@@ -364,7 +364,7 @@ int StrandComplex::generateLoops(void) {
 					templist->seqlen = 0;
 					templist->predec = NULL;
 					templist->next = NULL;
-//					templist->pairtype = pairtypes[newseq[startpos]][newseq[pairlist[startpos]]];
+					templist->pairtype = pairtypes[newseq[startpos]][newseq[pairlist[startpos]]];
 					// CHECK to make sure startpos+1 is the right index. FIXME 5/26
 					listlength++;
 				} else // we have unpaired bases after the initiating branch
@@ -414,7 +414,7 @@ int StrandComplex::generateLoops(void) {
 						templist->seqlen = seqlen;
 						templist->predec = NULL;
 						templist->next = NULL;
-//						templist->pairtype = pairtypes[newseq[traverse]][newseq[pairlist[traverse]]];
+						templist->pairtype = pairtypes[newseq[traverse]][newseq[pairlist[traverse]]];
 						seqlen = 0;
 					} else {
 						templisttail->next = (struct intlist *) new struct intlist;
@@ -422,7 +422,7 @@ int StrandComplex::generateLoops(void) {
 						templisttail->next->seqlen = seqlen;
 						templisttail->next->predec = NULL;
 						templisttail->next->next = NULL;
-//						templisttail->next->pairtype = pairtypes[newseq[traverse]][newseq[pairlist[traverse]]];
+						templisttail->next->pairtype = pairtypes[newseq[traverse]][newseq[pairlist[traverse]]];
 						seqlen = 0;
 						templisttail = templisttail->next;
 					}
@@ -457,7 +457,7 @@ int StrandComplex::generateLoops(void) {
 				OL_sequences[0] = ordering->convertIndex(olflag); // CHANGED 01/06
 				// removed +1 in index to hopefully fix the offset problems with open loops. This may require olflag to always be the last _ before the open loop, but that seems acceptable.
 				OL_sidelengths[0] = seqlen - (olflag - stacklist->data - 1);
-//				OL_pairtypes[0] = stacklist->pairtype;
+				OL_pairtypes[0] = stacklist->pairtype;
 				OL_sequences[1] = ordering->convertIndex(stacklist->data);
 				OL_sidelengths[1] = olflag - stacklist->data - 1;
 				openloopcount = -1;
@@ -489,14 +489,14 @@ int StrandComplex::generateLoops(void) {
 						temp_intlist = templist;
 						openloopcount = -openloopcount - 1;
 
-//						OL_pairtypes[loop] = stacklist->pairtype;
+						OL_pairtypes[loop] = stacklist->pairtype;
 						if (loop != 0)
 							OL_sidelengths[loop] = seqlen;
 						OL_sequences[loop + 1] = ordering->convertIndex(stacklist->data);
 					} else {
 						if (openloopcount >= 0)
 							openloopcount++;
-//						OL_pairtypes[loop] = temp_intlist->pairtype;
+						OL_pairtypes[loop] = temp_intlist->pairtype;
 						if (loop != 0)
 							OL_sidelengths[loop] = temp_intlist->seqlen;
 						OL_sequences[loop + 1] = ordering->convertIndex(pairlist[temp_intlist->data]);
@@ -514,11 +514,11 @@ int StrandComplex::generateLoops(void) {
 		} else if (traverse > strlen(sequence) - 1) // Open Loop
 				// Will need another classifier here. (for non initiating open loops) (CHECK: This should now be covered by the above case.)
 				{
-//			int *OL_pairtypes;
+			int *OL_pairtypes;
 			int *OL_sidelengths;
 			char **OL_sequences;
 			if (listlength != 0) {
-//				OL_pairtypes = (int *) new int[listlength];
+				OL_pairtypes = (int *) new int[listlength];
 				OL_sidelengths = (int *) new int[listlength + 1];
 				OL_sequences = (char **) new char *[listlength + 1];
 				// deletion for these is handled in the OpenLoop destructor.
@@ -533,7 +533,7 @@ int StrandComplex::generateLoops(void) {
 				OL_sequences[0] = ordering->convertIndex(stacklist->data);
 				OL_sidelengths[listlength] = seqlen;
 				for (loop = 0; loop < listlength; loop++, temp_intlist = temp_intlist->next) {
-//					OL_pairtypes[loop] = temp_intlist->pairtype;
+					OL_pairtypes[loop] = temp_intlist->pairtype;
 					OL_sidelengths[loop] = temp_intlist->seqlen;
 					OL_sequences[loop + 1] = ordering->convertIndex(pairlist[temp_intlist->data]);
 				}
@@ -550,10 +550,10 @@ int StrandComplex::generateLoops(void) {
 			}
 		} else if (listlength > 2) // MultiLoop
 				{
-//			int *ML_pairtypes;
+			int *ML_pairtypes;
 			int *ML_sidelengths;
 			char **ML_sequences;
-//			ML_pairtypes = (int *) new int[listlength];
+			ML_pairtypes = (int *) new int[listlength];
 			ML_sidelengths = (int *) new int[listlength];
 			ML_sequences = (char **) new char *[listlength];
 			// deletion for these is handled in the OpenLoop destructor.
@@ -576,11 +576,11 @@ int StrandComplex::generateLoops(void) {
 			 */
 
 			// new code for pairtypes, sidelengths, seqs for multiloop, matching sequencing correctly.
-//			ML_pairtypes[0] = stacklist->pairtype;
+			ML_pairtypes[0] = stacklist->pairtype;
 			ML_sidelengths[0] = temp_intlist->seqlen;
 			ML_sequences[1] = ordering->convertIndex(pairlist[temp_intlist->data]);
 			for (loop = 1; loop < listlength; loop++) {
-//				ML_pairtypes[loop] = temp_intlist->pairtype;
+				ML_pairtypes[loop] = temp_intlist->pairtype;
 				temp_intlist = temp_intlist->next;
 				if (loop == listlength - 1) {
 					ML_sidelengths[loop] = seqlen;
