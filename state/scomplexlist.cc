@@ -69,9 +69,13 @@ string SComplexListEntry::toString(EnergyModel *em) {
 
 	std::stringstream ss;
 
+	// more comparable to NUPACK
+	double printEnergy = (energy - (em->getVolumeEnergy() + em->getAssocEnergy()) * (thisComplex->getStrandCount() - 1) );
+
+
 	ss << "Complex      : " << id << " \n";
 	ss << "seq, struc   : " << thisComplex->getSequence() << " - " << thisComplex->getStructure() << " \n";
-	ss << "energy,rate  : " << energy << " - " << rate   <<  "     (T=" << em->simOptions->energyOptions->getTemperature() << ")";
+	ss << "energy,rate  : " << printEnergy  << " - " << rate   <<  "     (T=" << em->simOptions->energyOptions->getTemperature() << ")";
 	ss << "\n";
 
 	// also print info on the openloop datastructures
