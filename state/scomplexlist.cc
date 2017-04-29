@@ -79,7 +79,8 @@ string SComplexListEntry::toString(EnergyModel *em) {
 	ss << "\n";
 
 	// also print info on the openloop datastructures
-	ss << thisComplex->ordering->toString();
+	// FD: removing this from the print because it was used for debugging mainly. (april 2017)
+	// ss << thisComplex->ordering->toString();
 
 	// also print moves components.
 //	thisComplex->printAllMoves();

@@ -345,6 +345,7 @@ double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequence
 		energy += initializationPenalty(sidelen[loop], loop, size);
 
 	}
+
 	if (dangles == DANGLES_NONE || size == 0) {
 		return energy;
 	} else {
@@ -375,8 +376,8 @@ double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequence
 				energy += dangle3 + dangle5;
 			}
 
-			// FD: adding singlestranded stacking.
-			energy += singleStrandedStacking(sequences[loop], sidelen[loop]);
+//			// FD: adding singlestranded stacking.
+//			energy += singleStrandedStacking(sequences[loop], sidelen[loop]);
 
 			pt = rt_pt;
 		}

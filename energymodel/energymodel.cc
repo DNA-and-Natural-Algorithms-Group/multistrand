@@ -14,7 +14,7 @@
 
 bool printedRates = false;
 
-static double INIT_PENALTY = 6.0; //kcal / mol
+static double INIT_PENALTY = 9999.0; //kcal / mol
 
 EnergyModel::EnergyModel(PyObject *options) {
 	// nothing yet
@@ -349,7 +349,7 @@ double EnergyModel::singleStrandedStacking(char* sequence, int length) {
 
 }
 
-// FD April 28 2017
+// FD: April 28 2017
 // FD: Adding initialization penalty when side length is zero, and
 // Fd: only when there is an extension (single stranded or stack) on either side.
 double EnergyModel::initializationPenalty(int length, int loop, int size) {

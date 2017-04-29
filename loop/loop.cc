@@ -285,7 +285,7 @@ string Loop::toString() {
 
 	std::stringstream ss;
 
-	ss << "\n** " << identityToString(identity) << " adjacent ";
+	ss << "\n ** \n" << identityToString(identity) << " adjacent ";
 
 	for (int i = 0; i < numAdjacent; i++) {
 
@@ -293,8 +293,8 @@ string Loop::toString() {
 
 	}
 
-	ss << " dG=" << std::setprecision(3) << energy << "\n";
-	ss << "** ";
+	ss << " dG=" << std::setprecision(3) << energy;
+	ss << "       ";
 	ss << this->typeInternalsToString();
 
 	return ss.str();
@@ -310,7 +310,7 @@ string Loop::toStringShort(void) {
 void Loop::printAllMoves(Loop* from) {
 
 	// Doing a short version of the print here
-	std::cout << toStringShort();
+	std::cout << toString();
 	std::cout << "\n";
 
 	moves->printAllMoves(energyModel->useArrhenius());
