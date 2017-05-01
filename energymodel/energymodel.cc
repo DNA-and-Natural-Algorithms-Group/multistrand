@@ -361,12 +361,19 @@ double EnergyModel::initializationPenalty(int length, int loop, int size) {
 		// not adjusting for temperature, hardcoded for now, etc.
 
 		if (length == 0) {
-			cout << "Adding initalization penalty " <<  INIT_PENALTY <<" -- length = " << length << " --loop = " << loop << " --   size " << size << endl;
+
+			if(debugTraces){
+				cout << "Adding initalization penalty " <<  INIT_PENALTY <<" -- length = " << length << " --loop = " << loop << " --   size " << size << endl;
+
+			}
 			output =  INIT_PENALTY;
 		}
 
 		if (length == 1) {
+
+			if(debugTraces){
 			cout << "Adding initalization penalty/2- length = " << length << " --loop = " << loop << " --   size" << size << endl;
+			}
 			output  = (INIT_PENALTY / 2.0);
 		}
 

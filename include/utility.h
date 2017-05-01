@@ -24,7 +24,7 @@ using namespace std;
 // no implementation file for utilities.
 namespace utility {
 
-const bool debugTraces = true;
+const bool debugTraces = false;
 
 
 

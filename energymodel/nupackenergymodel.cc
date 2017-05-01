@@ -394,7 +394,9 @@ double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequence
 		energy += dangle5; // added for either dangle version.
 	}
 
-	cout << "End -- Energy is now " << energy << endl;
+	if(debugTraces){
+		cout << "End -- Energy is now " << energy << endl;
+	}
 
 	return energy;
 }
