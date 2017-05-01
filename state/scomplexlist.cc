@@ -3,6 +3,10 @@
  Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
  */
 
+// FD  March 31, 2017. The following include fixes OSX compatibility issues.
+#include <Python.h>
+
+
 #include "scomplexlist.h"
 #include <assert.h>
 #include <math.h>
