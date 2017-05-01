@@ -3928,6 +3928,10 @@ double MultiLoop::doChoice(Move *move, Loop **returnLoop) {
 
 void MultiLoop::generateMoves(void) {
 
+	if(utility::debugTraces){
+			cout << "Multiloop generating moves!" << endl;
+	}
+
 	int loop, loop2, loop3, loop4, temploop, tempindex, loops[4];
 	int pt;
 	double tempRate;
@@ -4274,11 +4278,14 @@ string OpenLoop::typeInternalsToString(void) {
 
 	std::stringstream ss;
 
+
 	for (int i = 0; i < numAdjacent + 1; i++) {
 
 		ss << utility::sequenceToString(seqs[i], sidelen[i]) << "  -- ";
 
 	}
+
+	ss << "  (size =" << numAdjacent << ")" << endl;
 
 	ss << " \n";
 	ss << openInfo;
@@ -4293,6 +4300,13 @@ void OpenLoop::calculateEnergy(void) {
 		return; // if the loops try to get used before the energy model initializes, it's all over.
 
 	energy = energyModel->OpenloopEnergy(numAdjacent, sidelen, seqs);
+
+	if(utility::debugTraces){
+			cout << "Computed openloop energy \n" << endl;
+			cout << this->typeInternalsToString();
+			cout << "Energy =" <<  energy << endl;
+	}
+
 	return;
 }
 
@@ -4525,6 +4539,11 @@ double OpenLoop::doChoice(Move *move, Loop **returnLoop) {
 
 void OpenLoop::generateMoves(void) {
 
+	if(utility::debugTraces){
+			cout << "\n OpenLoop generating moves!" << endl;
+			cout << this->typeInternalsToString();
+	}
+
 	int loop, loop2, loop3, loop4, temploop, tempindex, loops[4];
 	int pairType;
 	double tempRate;
@@ -4551,6 +4570,8 @@ void OpenLoop::generateMoves(void) {
 
 	sideLengths = new int[numAdjacent + 2];
 	sequences = new char *[numAdjacent + 2];
+
+
 // Case #1: Single Side only Creation Moves
 	for (loop3 = 0; loop3 < numAdjacent + 1; loop3++) {
 

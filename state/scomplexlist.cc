@@ -50,8 +50,18 @@ SComplexListEntry::~SComplexListEntry(void) {
  */
 
 void SComplexListEntry::initializeComplex(void) {
+
 	thisComplex->generateLoops();
+	if(utility::debugTraces){
+		cout << "Done generating loops!" << endl;
+	}
+
 	thisComplex->generateMoves();
+
+	if(utility::debugTraces){
+			cout << "Done generating moves!" << endl;
+		}
+
 }
 
 void SComplexListEntry::regenerateMoves(void) {

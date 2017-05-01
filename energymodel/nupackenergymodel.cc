@@ -260,11 +260,16 @@ double NupackEnergyModel::MultiloopEnergy(int size, int *sidelen, char **sequenc
 		// FD: single stranded stacks.
 		energy += singleStrandedStacking(sequences[loop], sidelen[loop]);
 		// FD: initialization of branch migration penalty.
-//		energy += initializationPenalty(sidelen[loop], loop, size);
-
-
+		energy += initializationPenalty(sidelen[loop], loop, size);
 
 	}
+
+
+	if(debugTraces){
+		cout << "Mid MultiLoop -- Energy is now " << energy << endl;
+	}
+
+
 	energy += size * multiloop_internal;
 	energy += multiloop_closing;
 
@@ -324,6 +329,10 @@ double NupackEnergyModel::MultiloopEnergy(int size, int *sidelen, char **sequenc
 
 double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequences) {
 
+	if(debugTraces){
+		cout << "Computing OpenLoopEnergy, size = " << size << endl;
+	}
+
 	// no dangle terms yet, this is equiv to dangles = 0;
 	double energy = 0.0;
 	int pt, loop, rt_pt;
@@ -348,6 +357,10 @@ double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequence
 
 	}
 
+	if(debugTraces){
+		cout << "Mid OpenLoop -- Energy is now " << energy << endl;
+	}
+
 	if (dangles == DANGLES_NONE || size == 0) {
 		return energy;
 	} else {
@@ -364,6 +377,11 @@ double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequence
 
 		energy += dangle3; // added for either dangle version.
 
+
+		if(debugTraces){
+			cout << "Mid2 OpenLoop -- Energy is now " << energy << endl;
+		}
+
 		for (loop = 0; loop < size - 1; loop++) {
 
 			rt_pt = pairtypes[sequences[loop + 2][0]][sequences[loop + 1][sidelen[loop + 1] + 1]] - 1;
@@ -372,7 +390,7 @@ double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequence
 			if (dangles == DANGLES_SOME && sidelen[loop + 1] == 1) {
 				energy += (dangle3 < dangle5 ? dangle3 : dangle5); // minimum of the two terms.
 			} else if (dangles == DANGLES_SOME && sidelen[loop + 1] == 0) {
-				energy += 0; // dangles=DANGLES_SOME has no stacking when 0 bases between.
+				energy += 0.0; // dangles=DANGLES_SOME has no stacking when 0 bases between.
 							 // dangles=DANGLES_ALL, however, does. Weird, eh?
 			} else {
 				energy += dangle3 + dangle5;
@@ -382,6 +400,11 @@ double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequence
 //			energy += singleStrandedStacking(sequences[loop], sidelen[loop]);
 
 			pt = rt_pt;
+		}
+
+
+		if(debugTraces){
+			cout << "Mid3 OpenLoop -- Energy is now " << energy << endl;
 		}
 
 		// 3' most sequence's dangle5 component.
@@ -395,7 +418,7 @@ double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequence
 	}
 
 	if(debugTraces){
-		cout << "End -- Energy is now " << energy << endl;
+		cout << "End OpenLoop -- Energy is now " << energy << endl;
 	}
 
 	return energy;

@@ -14,7 +14,7 @@
 
 bool printedRates = false;
 
-const double INIT_PENALTY = 0.0; //kcal / mol
+const double INIT_PENALTY = 2.0; //kcal / mol
 
 EnergyModel::EnergyModel(PyObject *options) {
 	// nothing yet
@@ -356,7 +356,8 @@ double EnergyModel::initializationPenalty(int length, int loop, int size) {
 
 	double output = 0.0;
 
-	if ((loop > 0) && (loop < (size - 1))) {
+	// FD -- note that an openloop containing   -:CC:T    A:CC:A      T:CC   counts as size TWO not THREE (three sides, two joins)
+	if ((loop > 0) && (loop < size)) {
 
 		// not adjusting for temperature, hardcoded for now, etc.
 
@@ -366,7 +367,7 @@ double EnergyModel::initializationPenalty(int length, int loop, int size) {
 				cout << "Adding initalization penalty " <<  INIT_PENALTY <<" -- length = " << length << " --loop = " << loop << " --   size " << size << endl;
 
 			}
-			output =  INIT_PENALTY;
+			return INIT_PENALTY;
 		}
 
 		if (length == 1) {
@@ -374,7 +375,7 @@ double EnergyModel::initializationPenalty(int length, int loop, int size) {
 			if(debugTraces){
 			cout << "Adding initalization penalty/2- length = " << length << " --loop = " << loop << " --   size" << size << endl;
 			}
-			output  = (INIT_PENALTY / 2.0);
+			return (INIT_PENALTY / 2.0);
 		}
 
 	}

@@ -19,8 +19,6 @@
 using namespace std;
 
 
-
-
 // no implementation file for utilities.
 namespace utility {
 
