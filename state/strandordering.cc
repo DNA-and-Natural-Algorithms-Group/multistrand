@@ -4,6 +4,10 @@
  Frits Dannenberg (fdann@caltech.edu)
  */
 
+// FD  March 31, 2017. The following include fixes OSX compatibility issues.
+#include <Python.h>
+
+
 // StrandOrdering object
 // used to track sequences and structures within a complex for easy printing, etc.
 #include "scomplex.h" // implicitly includes strandordering.h, and is necessary for proper ordering. TODO: decorrelate these headers, they should be independent.
