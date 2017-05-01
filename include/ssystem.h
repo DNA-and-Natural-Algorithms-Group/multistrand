@@ -9,7 +9,7 @@
 #define __SSYSTEM_H__
 
 #include <vector>
-#include <tr1/unordered_map>
+#include <unordered_map>
 #include <iostream>
 #include <string>
 
@@ -85,7 +85,7 @@ private:
 	bool exportStatesInterval = false;
 
 	// some results objects
-	std::tr1::unordered_map<std::string, int> countMap;
+	std::unordered_map<std::string, int> countMap;
 
 };
 

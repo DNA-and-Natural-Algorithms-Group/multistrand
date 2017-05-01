@@ -4,10 +4,12 @@
  Edits by: Chris Berlind    (cberlind@dna.caltech.edu)
  */
 
+#include "Python.h"
+
 #include <string>
 #include "optionlists.h"
 #include "utility.h"
-#include <python2.7/Python.h>
+//#include <python2.7/Python.h>
 
 using std::string;
 //using namespace utility;
