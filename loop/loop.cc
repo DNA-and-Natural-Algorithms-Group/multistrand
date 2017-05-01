@@ -4,6 +4,9 @@
  Frits Danennberg (fdann@dna.caltech.edu)
  */
 
+// FD  March 31, 2017. The following include fixes OSX compatibility issues.
+#include <Python.h>
+
 #include <stdio.h>
 #include <assert.h>
 #include "loop.h"

@@ -4,7 +4,9 @@
  Edits by: Chris Berlind    (cberlind@dna.caltech.edu)
  */
 
-#include "Python.h"
+// FD  March 31, 2017. The following include fixes OSX compatibility issues.
+#include <Python.h>
+
 
 #include <string>
 #include "optionlists.h"
