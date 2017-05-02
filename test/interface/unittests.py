@@ -259,30 +259,14 @@ class SetupSuite( object ):
         self._suite.addTests(
             unittest.TestLoader().loadTestsFromTestCase(
                 MI_Options_Object_TestCase ))
-        # options object test cases.
-        self._suite.addTests(
-            unittest.TestLoader().loadTestsFromTestCase(
-                MI_System_Object_TestCase ))
-        # system object test cases.
 
-    def runTests(self,print_results=False):
+    def runTests(self):
         if hasattr(self, "_suite") and self._suite is not None:
             unittest.TextTestRunner(verbosity=2).run( self._suite )
-        if print_results:
-            self.printResults()
-    def printResults(self):
-        if hasattr( MI_System_Object_TestCase, 'str_run_system' ):
-            print("Single System Results:\n{0}".format( MI_System_Object_TestCase.str_run_system ))
-        else:
-            print("No single system results. Did you run the test cases?")
-        if hasattr( MI_System_Object_TestCase, 'str_run_system_several_times' ):
-            print("Multiple Run Results:\n{0}".format( MI_System_Object_TestCase.str_run_system_several_times ))
-        else:
-            print("No multiple system results. Did you run the test cases?")
 
         
 # if this file is being run as the main target, run our basic test suite.
 
 if __name__ == '__main__':
     suite = SetupSuite()
-    suite.runTests(True)
+    suite.runTests()
