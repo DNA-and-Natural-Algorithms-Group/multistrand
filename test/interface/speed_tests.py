@@ -1,26 +1,11 @@
-#!/opt/local/bin/python2.6
-
 import unittest
-import warnings
 import subprocess
 import timeit
-
-# for IPython, some of the IPython libs used by unittest have a
-# deprecated usage of BaseException, so we turn that specific warning
-# off.
-warnings.filterwarnings("ignore", r"BaseException[.]message has been deprecated as of Python 2[.]6", DeprecationWarning)
-
-
-
-import sys
-sys.path.append('/Users/zifnab/Projects/devbranchMultistrandPython')
 
 import multiprocessing
 from multiprocessing import Pool
 from multistrand.objects import Strand, Complex
 from multistrand.options import Options, Constants
-from multistrand.system import SimSystem
-import multistrand.utils
 
 class Results_Store( object ):
     def __init__(self):
@@ -39,6 +24,7 @@ class Speedtest_Random_Sequences( unittest.TestCase ):
         self.sequences = [i.strip('\n') for i in f.readlines()]
         self.indexed_sequences = {}
         for i in self.sequences:
+            print i
             if hasattr( self.indexed_sequences, str(len(i)) ):
                 self.indexed_sequences[len(i)].append(i)
             else:
@@ -284,8 +270,8 @@ class Speedtest_Random_Sequences( unittest.TestCase ):
         print("")
         seq = self.sequences[0]
         print("Sequence [{0}]:\n{1}".format( len(seq), seq ))
-        res = self.helper_run_k_trials_single_seq(seq , n, k, time, verbose )
-        self.helper_print_results( time, n, k, res, verbose, sequence=seq )
+        res = self.helper_run_k_trials_single_seq(seq , n, k, time )
+        self.helper_print_results( time, n, k, res, sequence=seq )
     
 
 
