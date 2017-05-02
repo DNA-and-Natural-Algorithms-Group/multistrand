@@ -1,7 +1,24 @@
-import python_options
-import multistrand
-import unittest
+import sys 
+import os.path
 
+# A fool-proof way of loading Multistrand
+if sys.path[0] == '':
+    sys.path.append(os.path.realpath('../../'))
+else:
+    sys.path.append(os.path.realpath(os.path.join(sys.path[0], '../../')))
+
+try:
+
+    from multistrand.objects import *
+    from multistrand.options import Options
+    from multistrand.system import SimSystem, initialize_energy_model, energy  # , initialInfo
+    
+except ImportError:
+    
+    print("Could not import Multistrand.")
+    raise
+
+import unittest
 import warnings
 # for IPython, some of the IPython libs used by unittest have a
 # deprecated usage of BaseException, so we turn that specific warning
@@ -31,7 +48,6 @@ class MI_Base_Objects_TestCase(unittest.TestCase):
 
         Currently, it checks to make sure domains are uniquely named after addition, but it may be useful to test other properties as well.
         """
-        from python_objects import Domain
 
         if hasattr(self,"domains"):
             del self.domains
@@ -48,7 +64,6 @@ class MI_Base_Objects_TestCase(unittest.TestCase):
         """ Test [Objects]: Create some Strand objects
 
         This test creates some strands using the default domains [created by test_domains], makes sure the strands are not duplicate names."""
-        from python_objects import Strand
 
         if not hasattr(self,"domains"):
             self.test_domains()
@@ -69,7 +84,6 @@ class MI_Base_Objects_TestCase(unittest.TestCase):
         This test creates some complexes, using the default strands - it makes three for later use as start structures and stop structures.
         Current the only 'test' implemented is making sure they have no duplicate names.
         """
-        from python_objects import Complex
 
         if not hasattr(self,"strands"):
             self.test_strands()
@@ -89,7 +103,6 @@ class MI_Base_Objects_TestCase(unittest.TestCase):
         """ Test [Objects]: Create two StopConditions [forward + reverse] 
 
         This test creates some conditions, makes sure they have no duplicate names."""
-        from python_objects import StopCondition
 
         if not hasattr(self,"complexes"):
             self.test_complexes()
@@ -114,7 +127,6 @@ class MI_Options_Object_TestCase(unittest.TestCase):
         self.complexes = []
         self.conditions = []
         
-        from python_objects import Domain, Strand, Complex, StopCondition
         
         self.domains.append( Domain("d1", "d", 5, False) )
         self.domains.append( Domain("d1p", "d", 5, True) )
@@ -136,7 +148,7 @@ class MI_Options_Object_TestCase(unittest.TestCase):
 
     def test_options(self):
         """ Test [Options]: Create an options object using some default values and start/stop states"""
-        o = python_options.MultistrandOptions()
+        o = Options()
         o.simulation_mode = 3
         o.use_stop_states = True
         o.parameter_type  = 1
@@ -160,7 +172,6 @@ class MI_System_Object_TestCase(unittest.TestCase):
         self.complexes = []
         self.conditions = []
         
-        from python_objects import Domain, Strand, Complex, StopCondition
         
         self.domains.append( Domain("d1", "d", 5, False) )
         self.domains.append( Domain("d1p", "d", 5, True) )
@@ -172,7 +183,7 @@ class MI_System_Object_TestCase(unittest.TestCase):
         self.conditions.append( StopCondition("REVERSE", [(self.complexes[0], 2, 0), (self.complexes[1], 2, 0)]))
         self.conditions.append( StopCondition("END", [(self.complexes[2], 4, 1)]))
 
-        self.options = python_options.MultistrandOptions()
+        self.options = Options()
         self.options.simulation_mode = 3
         self.options.use_stop_states = True
         self.options.parameter_type  = 1
@@ -193,7 +204,7 @@ class MI_System_Object_TestCase(unittest.TestCase):
         """ Test [System]: Create a simulation system object
 
         Yep, that's it."""
-        system = multistrand.SimSystem(self.options)
+        system = SimSystem(self.options)
 
     def test_create_system_repeated(self):
         """ Test [System]: Create three distinct system objects
@@ -202,15 +213,15 @@ class MI_System_Object_TestCase(unittest.TestCase):
         is theoretically a really bad idea - an options object should
         be tied to a system in future versions."""
         
-        system1 = multistrand.SimSystem(self.options)
-        system2 = multistrand.SimSystem(self.options)
-        system3 = multistrand.SimSystem(self.options)
+        system1 = SimSystem(self.options)
+        system2 = SimSystem(self.options)
+        system3 = SimSystem(self.options)
 
     def test_run_system(self):
         """ Test [System]: Create a system object and then run the system
 
         This test creates a SimulationSystem and then runs it, printing the options object after completion."""
-        system = multistrand.SimSystem(self.options)
+        system = SimSystem(self.options)
         system.start()
 
         MI_System_Object_TestCase.str_run_system = str(self.options.interface)
@@ -220,17 +231,17 @@ class MI_System_Object_TestCase(unittest.TestCase):
 
         We run a system several times (using the same options object, but in sequence)
         Needs changing in the future."""
-        system = multistrand.SimSystem(self.options)
+        system = SimSystem(self.options)
         system.start()
 
         MI_System_Object_TestCase.str_run_system_several_times = "First run results:\n{0}\n".format(str(self.options.interface))
         
-        system2 = multistrand.SimSystem(self.options)
+        system2 = SimSystem(self.options)
         system2.start()
 
         MI_System_Object_TestCase.str_run_system_several_times += "Second run results [different system]:\n{0}\n".format(str(self.options.interface))
 
-        system3 = multistrand.SimSystem(self.options)
+        system3 = SimSystem(self.options)
         system3.start()
         
         MI_System_Object_TestCase.str_run_system_several_times += "Third run results [yet another system]:\n{0}\n".format(str(self.options.interface))
@@ -274,57 +285,4 @@ class SetupSuite( object ):
 
 if __name__ == '__main__':
     suite = SetupSuite()
-    suite.runTests()
-
-'''
-What follows is the simple simple version of the above code [as in the original test_interface.py before the unittest update].
-
-d1  = Domain("d1", "d", 5, False)
-d1p = Domain("d1p", "d", 5, True)
-s1  = Strand("s1", "s1",  "ACTTG", [d1])
-s2  = Strand("s2", "s2",  "CAAGT", [d1p])
-c1 = Complex("c1", "c1", [s1], ".....")
-c2 = Complex("c2", "c2", [s2], ".....")
-c3 = Complex("c3", "c3", [s1, s2], "(((((+)))))")
-sc_rev = StopCondition("REVERSE", [(c1, 2, 0), (c2, 2, 0)])
-sc_for = StopCondition("END", [(c3, 4, 1)])
-
-o = python_options.MultistrandOptions()
-o.simulation_mode = 3
-o.use_stop_states = True
-o.parameter_type  = 1
-o.substrate_type  = 2
-o.num_simulations = 3
-o.simulation_time = 0.5
-o.start_state = [c1, c2]
-o.stop_conditions = [sc_rev, sc_for]
-s = multistrand.SimSystem(o)
-s.start()
-print o.interface
-'''
-
-'''
-#Strands
-s1,ACTTG
-s2,CAAGT
-#StartStructure
-s1
-.....
-s2
-.....
-#StopStructures
-s1,s2
-(((((+)))))
-TAG: END
-s1
-.....
-s2
-.....
-TAG: REVERSE
-#StopOptions=2
-#Energymodel=NUPACK_DNA_2_3
-#Temperature=37.0
-#OutputInterval=-1
-#NumSims=3
-#SimTime=.5
-'''
+    suite.runTests(True)
