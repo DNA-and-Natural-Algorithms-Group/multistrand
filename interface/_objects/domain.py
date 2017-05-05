@@ -2,7 +2,6 @@ from ..utils import generate_sequence
 from strand import Strand
 
 
-
 class Domain(object):
   """
   Represents a sequence domain, for use in defining strands and stop conditions for Multistrand.

@@ -60,28 +60,6 @@ Complex: {fieldnames[0]:>9}: '{0.name}'\n\
        [i.name for i in self.strand_list],
        fieldnames =('Name','Sequence','Structure','Strands','Boltzmann') )
 
-  def old_init( self, id, name, strand_list, structure, boltzmann_sample = False):
-    """ Initializes a Complex using a fixed argument list.
-
-    Arguments:
-    id          -- unique identifier for this complex [Should not be used].
-    name        -- name of this complex
-    strand_list -- list of Strand objects in this complex (ordered)
-    structure   -- flat dot-paren structure of this complex
-    boltzmann_sample [default=False] -- whether we should call a sampler when
-        retrieving a structure from this complex.
-    """
-    self.id = id
-    # what is this id?
-    self.name = str(name)
-    # what is this name?
-    self.strand_list = strand_list
-    self._fixed_structure = str(structure)
-    self._last_boltzmann_structure = False
-    self._boltzmann_sizehint = 1
-    self._boltzmann_queue = []
-    self.boltzmann_sample = boltzmann_sample
-
   def _init_parse_structure( self, structure ):
     strand_count = len(self.strand_list)
     base_count = sum(len(s.sequence) for s in self.strand_list)

@@ -17,8 +17,6 @@
 //#define DEBUG
 
 
-
-
 static double T_scale(double dG, double dH, double T) {
 
 	return ((double) ((((dG) - ((dH) / 100.0)) * (T) / 310.15) + ((dH) / 100.0)));
@@ -85,15 +83,6 @@ double NupackEnergyModel::getVolumeEnergy(void) {
 double NupackEnergyModel::getAssocEnergy(void) {
 	return dG_assoc;
 }
-
-//// entropy/enthalpy energy parameters
-//
-//void NupackEnergyModel::eStackEnergy(int type1, int type2, energyS *energy) {
-//
-//	energy->dH = stack_37_dH[type1][basepair_sw[type2]];
-//	energy->nTdS = stack_37_dG[type1][basepair_sw[type2]] - energy->dH;
-//
-//}
 
 // non entropy/enthalpy energy functions
 double NupackEnergyModel::StackEnergy(int i, int j, int p, int q) {
@@ -294,26 +283,22 @@ double NupackEnergyModel::MultiloopEnergy(int size, int *sidelen, char **sequenc
 
 			rt_pt = pairtypes[sequences[loop][0]][sequences[loopminus1][sidelen[loopminus1] + 1]] - 1;
 
-//			cout << "Going over loops .. "  << endl;
-
 			if (!(dangles == DANGLES_SOME && sidelen[loopminus1] == 0)) {
 
-//				cout << "5' " << ( (int) sequences[loopminus1][1]) << endl;
-//				cout << "3' " << ( (int) sequences[loopminus1][sidelen[loopminus1]]) << endl;
+
 
 				dangle5 = dangle_5_37_dG[pt][sequences[loopminus1][1]];
 				dangle3 = dangle_3_37_dG[rt_pt][sequences[loopminus1][sidelen[loopminus1]]];
 
 				if (dangles == DANGLES_SOME && sidelen[loopminus1] == 1) {
 					energy += ((dangle3 < dangle5) ? dangle3 : dangle5); // minimum of two terms.
-//					cout << "incremented energy by " << (int) ((dangle3 < dangle5) ? dangle3 : dangle5) <<  endl;
+
 				} else {
 					energy += dangle3 + dangle5;
 				}
 			}
 
-			// FD: adding singlestranded stacking.
-//			energy += singleStrandedStacking(sequences[loop], sidelen[loop]);
+
 
 			loopminus1++;
 			if (loopminus1 == size) {
@@ -352,8 +337,7 @@ double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequence
 		energy += singleStrandedStacking(sequences[loop], sidelen[loop]);
 		// FD: initialization of branch migration penalty.
 		energy +=  initializationPenalty(sidelen[loop], loop, size);
-//		energy += 100.0;
-//		cout << "Energy is now " << energy << endl;
+
 
 	}
 
@@ -396,8 +380,6 @@ double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequence
 				energy += dangle3 + dangle5;
 			}
 
-//			// FD: adding singlestranded stacking.
-//			energy += singleStrandedStacking(sequences[loop], sidelen[loop]);
 
 			pt = rt_pt;
 		}
@@ -452,11 +434,7 @@ NupackEnergyModel::NupackEnergyModel(SimOptions* options) :
 	computeArrheniusRates(current_temp);
 }
 
-//NupackEnergyModel::NupackEnergyModel(SimOptions* options) :
-//		log_loop_penalty_37(107.856), kinetic_rate_method(
-//				RATE_METHOD_KAWASAKI), bimolecular_penalty(1.96), kBoltzmann(
-//				.00198717), current_temp(310.15) // Check references for this loop penalty term.
-//void NupackEnergyModel::processOptions(PyObject* energy_options) {
+
 void NupackEnergyModel::processOptions() {
 // This is the tough part, performing all read/input duties.
 	char in_buffer[2048];
@@ -503,7 +481,7 @@ void NupackEnergyModel::processOptions() {
 			fprintf(stderr, "ERROR: Invalid substrate chosen, and no parameter file given. Try the #Energymodel option!\n");
 			exit(1);
 		}
-		//} else if (testLongAttr(energy_options, substrate_type, =, SUBSTRATE_DNA)) {
+
 	} else if (myEnergyOptions->compareSubstrateType(SUBSTRATE_DNA)) {
 		char *nupackhome;
 		char fullpath[512];
@@ -520,7 +498,6 @@ void NupackEnergyModel::processOptions() {
 			strcat(fullpath, "/parameters/dna1998.dG");
 			strcat(fullpath_dH, "/parameters/dna1998.dH");
 		}
-		//printf("fp: %s\n fpdh: %s\n",fullpath, fullpath_dH);
 
 		fp = fopen(fullpath, "rt");
 		fp2 = fopen(fullpath_dH, "rt");

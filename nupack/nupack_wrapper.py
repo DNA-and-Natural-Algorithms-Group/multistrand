@@ -123,7 +123,7 @@ def call_with_pipe(args, cmd_input):
   output_lines = output.split('\n')
   return (output_lines, error)
     
-def pfunc(sequences, ordering = None, material = 'rna',
+def pfunc(sequences, ordering = None, material = 'dna',
           dangles = 'some', T = 37, multi = True, pseudo = False,
           sodium = 1.0, magnesium = 0.0):
   """Calls NUPACK's pfunc on a complex consisting of the unique strands in sequences, returns dG.
