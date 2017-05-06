@@ -128,11 +128,23 @@ PEnergyOptions::PEnergyOptions(PyObject* input) :
 	getBoolAttr(python_settings, useArrRates, &useArrRates);
 
 	if(!useArrRates && biScale < 0.0){
-		throw std::runtime_error("Warning! bimolecular_scaling is unset or negative! Please use Options.bimolecular_scaling(1.6e6)");
+		cout << "Warning! bimolecular_scaling is unset or negative!" << endl;
+		cout <<	"Please set them using multistrand::utils::XPMetropolis37() or similar,"<< endl;
+		cout <<	"or set Options.bimolecular_scaling directly."<< endl;
+		cout << "Reverting to bimolecular_scaling = 5.0e6"<< endl;
+
+		biScale = 1400000.0;
+
 	}
 
 	if(!useArrRates && biScale < 0.0){
-		throw std::runtime_error("Warning! unimolecular_scaling is unset or negative! Please use Options.bimolecular_scaling(5.0e5)");
+		cout << "Warning! unimolecular_scaling is unset or negative!"<< endl;
+		cout <<	"Please set them using multistrand::utils::XPMetropolis37() or similar,"<< endl;
+		cout <<	"or set Options.bimolecular_scaling directly."<< endl;
+		cout << "Reverting to unimolecular_scaling = 5.0e6"<< endl;
+
+		uniScale = 5000000.0;
+
 	}
 
 	if (useArrRates) {
