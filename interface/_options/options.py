@@ -12,7 +12,6 @@
 from interface import Interface
 from ..objects import Strand, Complex, RestingState, StopCondition
 from constants import _OptionsConstants
-# from ..pygraphviztesting import create_graph,update_graph
 
 _OC = _OptionsConstants()
 
@@ -22,17 +21,6 @@ FILLIN = None
 
 class Options(object):
     """ The main wrapper for controlling a Multistrand simulation. Has information about the energy model, simulation options, and an interface for returning results. """
-
-    defaults = {"num_simulations":1,
-                "log_ml":False,
-                "substrate_type":2,
-                "join_concentration":1.0,
-                "simulation_mode":16,
-                "parameter_type":1,
-                "simulation_time":600.0,
-                "temperature":310.15,
-                "useArrRates":False        
-                }
     
     def __init__(self, *args, **kargs):
         """
@@ -157,14 +145,14 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         self._rate_scaling = 'Default'
         """ Where to get the following two parameters when queried. """
 
-        self._unimolecular_scaling = 1.6e6
+        self._unimolecular_scaling = -1.0 #1.6e6
         """ Rate scaling factor for unimolecular reactions.
 
         Type         Default
         double       1.6e6:
                      Unitless. Details on default in thesis."""
         
-        self._bimolecular_scaling = 0.5e6
+        self._bimolecular_scaling = -1.0 #0.5e6
         """ Rate scaling factor for bimolecular reactions.
         
         Type         Default
@@ -1107,21 +1095,6 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
             self.interface.transition_lists.append(self._current_transition_list)
             self._current_transition_list = []
 
-    def __repr__(self):
-        items_to_save = {}
-        for k in Options.defaults.keys():
-            if self.__getattribute__(k) != Options.defaults[k]:
-                items_to_save[k] = self.__getattribute__(k)
-        def prep(k, v):
-            return "{key}={value},\n".format(key=k, value=v)
-        if len(items_to_save) == 0:
-            res = "Options()\n"
-        else:
-            res = "Options( " + "".join([prep(*items_to_save.items()[0])] + 
-                                     [pad + prep(*item) for item, pad in zip(items_to_save.items()[1:], ["         "] * (len(items_to_save) - 1))])
-            res = res[:-2]
-            res = res + ")\n"
-        return res
 
     def __init_keyword_args(self, *args, **kargs):
         """ Helper subfunction. """
