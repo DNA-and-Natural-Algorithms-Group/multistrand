@@ -38,6 +38,7 @@ public:
 	double getUniScale(void);
 
 	string toString(void);
+//	static string primeRateToString(double);
 
 	// virtual
 	virtual bool compareSubstrateType(long) =0;
@@ -65,6 +66,13 @@ public:
 
 	double dSA = 0.0;
 	double dHA = 0.0;
+
+
+	// nasim old loop model only
+
+	double dSC = 0.0;
+	double dSG = 0.0;
+	double dST = 0.0;
 
 
 	double sodium = 1.0;
