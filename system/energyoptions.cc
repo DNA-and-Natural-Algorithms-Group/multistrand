@@ -139,8 +139,6 @@ PEnergyOptions::PEnergyOptions(PyObject* input) :
 
 		uniScale = 1.0;
 
-//		cout << "Loading Arrhenius constants -- do not forget to set AEnd, Eend, and so on. \n";
-
 		getDoubleAttr(python_settings, lnAEnd, &AEnd);
 		AValues[endMove] = AEnd;
 
@@ -188,13 +186,13 @@ PEnergyOptions::PEnergyOptions(PyObject* input) :
 
 		// also loading four constants for entropy of nucleotide chain
 
-		if (OLD_LOOP_ADJUSTMENT_NASIM) {
-
-			getDoubleAttr(python_settings, dSC, &dSC);
-			getDoubleAttr(python_settings, dSG, &dSG);
-			getDoubleAttr(python_settings, dST, &dST);
-
-		}
+//		if (OLD_LOOP_ADJUSTMENT_NASIM) {
+//
+//			getDoubleAttr(python_settings, dSC, &dSC);
+//			getDoubleAttr(python_settings, dSG, &dSG);
+//			getDoubleAttr(python_settings, dST, &dST);
+//
+//		}
 
 	}
 

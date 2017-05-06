@@ -8,7 +8,7 @@
 using std::string;
 using std::vector;
 
-const bool OLD_LOOP_ADJUSTMENT_NASIM = false;
+//const bool OLD_LOOP_ADJUSTMENT_NASIM = false;
 
 
 // Vienna: 0 is invalid, then CG, GC, GU, UG, AU, UA, and Special are 1-7
