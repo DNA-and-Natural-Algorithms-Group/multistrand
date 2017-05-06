@@ -1,4 +1,43 @@
 
+#FD, May 5th 2017
+# Supplying rate options for Metropolis and Kawasaki methods,
+# all using the dangles = some option. Also:  one general default,
+# and one setting for Metropolis rates derived for DNA23. 
+
+def JSDefault(options): 
+    
+    options.unimolecular_scaling =1.50e+08;
+    options.bimolecular_scaling = 1.38e+06;
+    
+
+def JSMetropolis25(options): 
+    
+    options.unimolecular_scaling = 4.4e8;
+    options.bimolecular_scaling = 1.26e6;
+
+def JSKawasaki25(options): 
+    
+    options.unimolecular_scaling = 6.1e7;
+    options.bimolecular_scaling = 1.29e6;
+
+def JSKawasaki37(options):
+    
+    options.unimolecular_scaling = 1.5e8;
+    options.bimolecular_scaling = 1.38e6; 
+
+def JSMetropolis37(options): 
+    
+    options.unimolecular_scaling = 7.3e8;
+    options.bimolecular_scaling = 1.40e6; 
+
+def DNA23Metropolis(options):
+        
+    options.unimolecular_scaling = 5.0e6;
+    options.bimolecular_scaling = 1.4e6;
+
+
+
+
 
 def generate_sequence( n, allowed_bases = ['G','C','T','A'], base_probability = None ):
     """ Generate a sequence of N base pairs.
