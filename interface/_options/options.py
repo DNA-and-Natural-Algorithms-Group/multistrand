@@ -491,28 +491,28 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
             else:
                 c.boltzmann_sample = val 
 
-    @property
-    def rate_scaling(self):
-        """ Source for rate scaling factor for unimolecular and bimolecular reactions. Allows choice of the default calibrated factors, setting the factors manually, or other specific parameter sets (such as those used for calibration).
+#     @property
+#     def rate_scaling(self):
+#         """ Source for rate scaling factor for unimolecular and bimolecular reactions. Allows choice of the default calibrated factors, setting the factors manually, or other specific parameter sets (such as those used for calibration).
+# 
+#         Type: str
+#         Values        
+#         'Default':   Use the standard calibration set as described
+#                      in the PhD thesis. (default option)
+#         'Fixed':     Use the values specified via the properties
+#                      unimolecular_scaling and bimolecular_scaling.
+# 
+#         Other values and specific parameter sets are stored in the rate_scaling_sets parameter of the multistrand.options.Constants object.
+#         """
+# 
+#         return self._rate_scaling
 
-        Type: str
-        Values        
-        'Default':   Use the standard calibration set as described
-                     in the PhD thesis. (default option)
-        'Fixed':     Use the values specified via the properties
-                     unimolecular_scaling and bimolecular_scaling.
-
-        Other values and specific parameter sets are stored in the rate_scaling_sets parameter of the multistrand.options.Constants object.
-        """
-
-        return self._rate_scaling
-
-    @rate_scaling.setter
-    def rate_scaling(self, val):
-        if val == 'Fixed' or val in _OC.rate_scaling_sets.keys():
-            self._rate_scaling = val
-        else:
-            raise ValueError("Value {0}: Should either be 'Default', 'Fixed', or one of the keys found in multistrand.options.Constants.rate_scaling_sets.".format(val))
+#     @rate_scaling.setter
+#     def rate_scaling(self, val):
+#         if val == 'Fixed' or val in _OC.rate_scaling_sets.keys():
+#             self._rate_scaling = val
+#         else:
+#             raise ValueError("Value {0}: Should either be 'Default', 'Fixed', or one of the keys found in multistrand.options.Constants.rate_scaling_sets.".format(val))
 
     @property
     def calibration_string(self):

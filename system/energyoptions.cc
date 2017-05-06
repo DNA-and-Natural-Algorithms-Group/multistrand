@@ -138,6 +138,7 @@ PEnergyOptions::PEnergyOptions(PyObject* input) :
 	if (useArrRates) {
 
 		uniScale = 1.0;
+		biScale = 1.0;
 
 		getDoubleAttr(python_settings, lnAEnd, &AEnd);
 		AValues[endMove] = AEnd;
