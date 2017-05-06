@@ -70,8 +70,10 @@ public:
 	MoveType prefactorOpen(int, int, int[]);
 	MoveType prefactorInternal(int, int);
 
-	void printPrecomputedArrRates(void);
-	void printkBikUni(void);
+	void writeConstantsToFile(void);
+
+//	void printPrecomputedArrRates(void);
+//	void printkBikUni(void);
 
 	// Virtual methods
 

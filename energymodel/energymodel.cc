@@ -12,7 +12,7 @@
 #include <iostream>
 #include <fstream>
 
-bool printedRates = false;
+bool printedRates = false; // to print the constants file once
 
 const double INIT_PENALTY = 2.0; //kcal / mol
 
@@ -73,137 +73,98 @@ void EnergyModel::computeArrheniusRates(double temperature) {
 
 }
 
-void EnergyModel::printkBikUni(void) {
+void EnergyModel::writeConstantsToFile() {
 
-	// print some initial info on the standard model
-
-	std::stringstream ss;
-
-	ss << "    biScale     kUni    \n";
-	ss << "     " << simOptions->energyOptions->getBiScale();
-	ss << "     " << simOptions->energyOptions->getUniScale();
-
-	ss << "\n";
-
-	ss << "Sodium    :   " << simOptions->energyOptions->sodium << " M \n";
-	ss << "Magnesium :   " << simOptions->energyOptions->magnesium << " M \n";
-
-	ss << " \n";
-
-	ss << "Temperatur:   " << simOptions->energyOptions->getTemperature() << "\n";
-
-	if (!printedRates) {
-
-		ofstream myfile;
-		myfile.open("usedConstants.txt");
-
-		myfile << ss.str();
-
-		myfile.close();
-
-		printedRates = true;
-
-	}
-
-}
-
-void EnergyModel::printPrecomputedArrRates(void) {
-
-	// print some initial info on the Arrhenius model
+	// Print constants to file.
 
 	std::stringstream ss;
 
-	ss << "type      ";
+	ss << "Sodium      :  " << simOptions->energyOptions->sodium << " M \n";
+	ss << "Magnesium   :  " << simOptions->energyOptions->magnesium << " M \n";
+	ss << "Temperature :  " << simOptions->energyOptions->getTemperature() << endl;
+	ss << "useArr      :  " << simOptions->energyOptions->usingArrhenius() << endl;
 
-	for (int i = 0; i < MOVETYPE_SIZE; i++) {
+	if (!simOptions->energyOptions->usingArrhenius()) {
 
-		ss << moveutil::MoveToString[i];
-		ss << moveutil::MoveToString2[i] << " ";
-
-	}
-
-	ss << setprecision(8);
-
-	ss << "\nA         ";
-
-	for (int i = 0; i < MOVETYPE_SIZE; i++) {
-
-		ss << simOptions->energyOptions->AValues[i] << "      ";
-
-	}
-
-	ss << "\nE         ";
-
-	for (int i = 0; i < MOVETYPE_SIZE; i++) {
-
-		ss << simOptions->energyOptions->EValues[i] << "      ";
-
-	}
-
-	ss << "\nR         ";
-
-	for (int i = 0; i < MOVETYPE_SIZE; i++) {
-
-		ss << arrheniusRates[MOVETYPE_SIZE * i + i] << "  ";
-
-	}
-
-	ss << " \n \n";
-	ss << "    dS_A     dH_A        biScale     kUni    \n";
-	ss << "    " << simOptions->energyOptions->dSA;
-	ss << "     " << simOptions->energyOptions->dHA;
-	ss << "     " << simOptions->energyOptions->getBiScale();
-	ss << "     " << simOptions->energyOptions->getUniScale();
-
-	ss << "\n";
-
-	ss << "Sodium    :   " << simOptions->energyOptions->sodium << " M \n";
-	ss << "Magnesium :   " << simOptions->energyOptions->magnesium << " M \n";
-
-	if (OLD_LOOP_ADJUSTMENT_NASIM) {
-
-		ss << " \n \n";
-		ss << "OLD_LOOP_ADJUSMENTS_NASIM = TRUE";
-		ss << "    dS_A     dS_C     dS_G     dS_T         \n";
-		ss << "    " << simOptions->energyOptions->dSA;
-		ss << "    " << simOptions->energyOptions->dSC;
-		ss << "    " << simOptions->energyOptions->dSG;
-		ss << "    " << simOptions->energyOptions->dST;
+		ss << "    biScale     kUni    \n";
+		ss << "     " << simOptions->energyOptions->getBiScale();
+		ss << "     " << simOptions->energyOptions->getUniScale();
 
 		ss << "\n";
 
-	}
+	} else {
 
-	ss << " \n";
+		ss << "type      ";
 
-	// now dumping the rate matrix too,
+		for (int i = 0; i < MOVETYPE_SIZE; i++) {
 
-	for (int i = 0; i < MOVETYPE_SIZE; i++) {
-
-		for (int j = 0; j < MOVETYPE_SIZE; j++) {
-
-			ss << getJoinRate() * arrheniusRates[MOVETYPE_SIZE * i + j] << "  ";
+			ss << moveutil::MoveToString[i];
+			ss << moveutil::MoveToString2[i] << " ";
 
 		}
 
-		ss << " \n";
+		ss << setprecision(8);
+
+		ss << "\nA         ";
+
+		for (int i = 0; i < MOVETYPE_SIZE; i++) {
+
+			ss << simOptions->energyOptions->AValues[i] << "      ";
+
+		}
+
+		ss << "\nE         ";
+
+		for (int i = 0; i < MOVETYPE_SIZE; i++) {
+
+			ss << simOptions->energyOptions->EValues[i] << "      ";
+
+		}
+
+		ss << "\nR         ";
+
+		for (int i = 0; i < MOVETYPE_SIZE; i++) {
+
+			ss << arrheniusRates[MOVETYPE_SIZE * i + i] << "  ";
+
+		}
+
+		ss << " \n \n";
+		ss << "    dS_A     dH_A        biScale     kUni    \n";
+		ss << "    " << simOptions->energyOptions->dSA;
+		ss << "     " << simOptions->energyOptions->dHA;
+		ss << "     " << simOptions->energyOptions->getBiScale();
+		ss << "     " << simOptions->energyOptions->getUniScale();
+
+		ss << "\n";
+
+		// now dumping the rate matrix too,
+
+		for (int i = 0; i < MOVETYPE_SIZE; i++) {
+
+			for (int j = 0; j < MOVETYPE_SIZE; j++) {
+
+				ss << getJoinRate() * arrheniusRates[MOVETYPE_SIZE * i + j] << "  ";
+
+			}
+
+			ss << " \n";
+
+		}
 
 	}
 
-	ss << " \n";
-
-	ss << " \n";
-
-	ss << "Temperatur:   " << simOptions->energyOptions->getTemperature() << "\n";
 
 	if (!printedRates) {
 
 		ofstream myfile;
-		myfile.open("computedRates.txt");
+		myfile.open("multistrandRun.log");
 
 		myfile << ss.str();
 
 		myfile.close();
+
+		cout << "Wrote constants to multistrandRun.log" << endl;
 
 		printedRates = true;
 
@@ -363,8 +324,8 @@ double EnergyModel::initializationPenalty(int length, int loop, int size) {
 
 		if (length == 0) {
 
-			if(debugTraces){
-				cout << "Adding initalization penalty " <<  INIT_PENALTY <<" -- length = " << length << " --loop = " << loop << " --   size " << size << endl;
+			if (debugTraces) {
+				cout << "Adding initalization penalty " << INIT_PENALTY << " -- length = " << length << " --loop = " << loop << " --   size " << size << endl;
 
 			}
 			return INIT_PENALTY;
@@ -372,8 +333,8 @@ double EnergyModel::initializationPenalty(int length, int loop, int size) {
 
 		if (length == 1) {
 
-			if(debugTraces){
-			cout << "Adding initalization penalty/2- length = " << length << " --loop = " << loop << " --   size" << size << endl;
+			if (debugTraces) {
+				cout << "Adding initalization penalty/2- length = " << length << " --loop = " << loop << " --   size" << size << endl;
 			}
 			return (INIT_PENALTY / 2.0);
 		}
@@ -387,32 +348,6 @@ double EnergyModel::initializationPenalty(int length, int loop, int size) {
 double EnergyModel::arrheniusLoopEnergy(char* seq, int length) {
 
 	double output = 0.0;
-
-	if (OLD_LOOP_ADJUSTMENT_NASIM) {
-
-		for (int i = 0; i < length; i++) {
-
-			switch ((int) seq[i]) {
-
-			case baseA:
-				output += (simOptions->energyOptions->dSA);
-				break;
-			case baseC:
-				output += (simOptions->energyOptions->dSC);
-				break;
-			case baseG:
-				output += (simOptions->energyOptions->dSG);
-				break;
-			case baseT:
-				output += (simOptions->energyOptions->dST);
-				break;
-			}
-
-		}
-
-		return -output * simOptions->energyOptions->getTemperature() / 1000.0;
-
-	}
 
 	for (int i = 0; i < (length - 1); i++) {
 

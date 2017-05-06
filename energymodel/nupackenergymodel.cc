@@ -420,7 +420,7 @@ NupackEnergyModel::NupackEnergyModel(PyObject* energy_options) :
 	if (simOptions->energyOptions->usingArrhenius()) {
 
 		computeArrheniusRates(current_temp);
-		printPrecomputedArrRates();
+//		printPrecomputedArrRates();
 
 	}
 

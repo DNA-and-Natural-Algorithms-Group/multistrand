@@ -71,15 +71,15 @@ void SimulationSystem::construct(void) {
 
 void SimulationSystem::initialPrint(void) {
 
-	if (energyModel->useArrhenius()) {
+//	if (energyModel->useArrhenius()) {
 
-		energyModel->printPrecomputedArrRates();
+	energyModel->writeConstantsToFile();
 
-	} else {
-
-		energyModel->printkBikUni();
-
-	}
+//	} else {
+//
+//		energyModel->printkBikUni();
+//
+//	}
 
 }
 

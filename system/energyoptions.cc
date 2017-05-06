@@ -186,14 +186,6 @@ PEnergyOptions::PEnergyOptions(PyObject* input) :
 
 		// also loading four constants for entropy of nucleotide chain
 
-//		if (OLD_LOOP_ADJUSTMENT_NASIM) {
-//
-//			getDoubleAttr(python_settings, dSC, &dSC);
-//			getDoubleAttr(python_settings, dSG, &dSG);
-//			getDoubleAttr(python_settings, dST, &dST);
-//
-//		}
-
 	}
 
 	// ionic conditions
