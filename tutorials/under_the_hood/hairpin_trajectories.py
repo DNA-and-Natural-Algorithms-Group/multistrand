@@ -48,11 +48,13 @@ c = Complex( strands=[Strand(name="hairpin", sequence="GTTCGGGCAAAAGCCCGAAC")], 
 # WARNING!  Unfortunately, Multistrand currently does not test to check that the requested structure is valid.
 # Providing an invalid structure is likely to lead to a core dump or segmentation fault.
 
-o = Options(temperature=25, dangles='Some', start_state = [c], 
+o = Options(temperature=25.0, 
+            dangles='Some', 
+            start_state = [c], 
             simulation_time = 0.0000001,  # 0.1 microseconds
             num_simulations = 1,  # don't play it again, Sam
             output_interval = 1,  # record every single step
-            rate_method = 'Metropolis', # the default is 'Kawasaki' (numerically, these are 1 and 2 respectively)
+            rate_method = Options.metropolis, # the default is 'Kawasaki' (numerically, these are 1 and 2 respectively)
             rate_scaling = 'Calibrated', # this is the same as 'Default'.  'Unitary' gives values 1.0 to both.  
             simulation_mode = 'Trajectory')  # numerically 128.  See interface/_options/constants.py for more info about all this.
 

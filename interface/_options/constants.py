@@ -15,13 +15,13 @@ class OptionsConstants( object ):
         self.ZERO_C_IN_K = 273.15
         pass
     
-    @property
-    def RATEMETHOD(self):
-        return {"Invalid" :0, "Metropolis":1,  "Kawasaki":2}
-    @property
-    def RATEMETHOD_inv(self):
-        return {0:"Invalid",  1:"Metropolis",   2:"Kawasaki"}
-        
+#     @property
+#     def RATEMETHOD(self):
+#         return {"Invalid" :0, "Metropolis":1,  "Kawasaki":2}
+#     @property
+#     def RATEMETHOD_inv(self):
+#         return {0:"Invalid",  1:"Metropolis",   2:"Kawasaki"}
+#         
     @property
     def DANGLES(self):
         return {"None":  0, "Some" : 1, \

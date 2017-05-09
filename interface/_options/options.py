@@ -1,7 +1,7 @@
 ################################################################################
 #                                                                              #
 # Python implementation of the options object.                                 #
-# Copyright 2010-2017 Caltech                                                       #
+# Copyright 2010-2017 Caltech                                                  #
 # Written by:  Joseph Schaeffer.                                               #
 # Some stuff written by:  Chris Berlind, Frits Dannenberg                      #
 #                                                                              #
@@ -18,8 +18,26 @@ _OC = OptionsConstants()
 
 import copy
 
+
+
+## FD: Some options constants, to be used in options constructor
+
+
+
+
 class Options(object):
-    """ The main wrapper for controlling a Multistrand simulation. Has information about the energy model, simulation options, and an interface for returning results. """
+    """ The main wrapper for controlling a Multistrand simulation. Has an interface for returning results. """
+       
+    
+    '''Constants:'''
+    # rate_method
+    metropolis = 1;
+    kawasaki = 2;
+
+
+
+
+    
     
     def __init__(self, *args, **kargs):
         """
@@ -105,32 +123,25 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         
         self.gt_enable = False
         """ Allow GT base pairs? If not, penalize by 10000 kcal/mol.
-        
-        Type         Default
-        int          False (0) : Do not allow GT base pairs.
+            False (0) : Do not allow GT base pairs.
         """
 
         self.log_ml = False
         """ Use logarithm to compute multiloop energy contributions?
-        
-        Type         Default
         int          False (0): Do not use the logarithm.
 
-        If True, uses log to compute one component of the multiloop
-        energy, for loops of length > 6. Otherwise, uses the usual
-        linear approximation. Using the log formula is slightly more
-        expensive as it makes computation time for a multiloop scale
+        If True, uses log to compute one component of the multiloop energy, for loops of length > 6. Otherwise, uses the usual
+        linear approximation. Using the log formula is slightly more expensive as it makes computation time for a multiloop scale
         with the number of adjoining helices.
         """
         
         self.join_concentration = 1.0
-        """ conc for V calcs
+        """ concentration for V calcs
         
         Type         Default
         double       1.0 (M)
 
-        Units are in M (molar), and represent the concentration of a
-        single unique strand in the system. The volume simulated is
+        Units are in M (molar), and represent the concentration of a single unique strand in the system. The volume simulated is
         then chosen using this parameter.
         """
 
@@ -142,33 +153,17 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         self._temperature_kelvin = 310.15
 
         self.rate_scaling = None
-        """ Where to get the following two parameters when queried. """
+        """ This is a legacy option that sets unimolecular and bimolecular scaling automatically if set"""
 
-        self.unimolecular_scaling = -1.0 #1.6e6
-        """ Rate scaling factor for unimolecular reactions.
-
-        Type         Default
-        double       1.6e6:
-                     Unitless. Details on default in thesis."""
+        self.unimolecular_scaling = -1.0 
+        """ Rate scaling factor for unimolecular reactions."""
         
-        self.bimolecular_scaling = -1.0 #0.5e6
-        """ Rate scaling factor for bimolecular reactions.
-        
-        Type         Default
-        double       0.5e6:
-                     Unitless. Details on default in thesis."""
+        self.bimolecular_scaling = -1.0 
+        """ Rate scaling factor for bimolecular reactions."""
 
 
-        self.rate_method = _OC.RATEMETHOD['Kawasaki']
-        """ Choice of methods for determining forward/reverse rates.
-        
-        Type         Default
-        int          2: Kawasaki
-
-        Should use the values in the _OC.RATEMETHOD dictionary rather
-        than the numbers directly, as those should be consistent with
-        that used in the energymodel.h headers.
-        """
+        self.rate_method = self.kawasaki
+        """ Choice of methods for determining forward/reverse rates. """
 
         self._dangles = _OC.DANGLES['NupackDefault']
         """ Dangles options for the energy model.
@@ -424,16 +419,16 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
                     
         warningmsg = "Warning! rate_scaling is set, enabling support for legacy 2.0 code. Now setting rate defaults for "
                 
-        if (self.temperature == 298.15) & (self.rate_method == _OC.RATEMETHOD['Kawasaki']) :
+        if (self.temperature == 298.15) & (self.rate_method == self.kawasaki) :
             warningmsg +=  "Kawasaki 25 C"
             JSKawasaki25(self)
-        elif (self.temperature == 310.15) & (self.rate_method ==  _OC.RATEMETHOD['Kawasaki']) :
+        elif (self.temperature == 310.15) & (self.rate_method ==  self.kawasaki) :
             warningmsg +=  "Kawasaki 37 C"
             JSKawasaki37(self)
-        elif (self.temperature == 298.15) & (self.rate_method ==  _OC.RATEMETHOD['Metropolis']) :
+        elif (self.temperature == 298.15) & (self.rate_method ==  self.metropolis) :
             warningmsg +=  "Metropolis 25 C"
             JSMetropolis25(self)
-        elif (self.temperature == 310.15) & (self.rate_method ==  _OC.RATEMETHOD['Metropolis']) :
+        elif (self.temperature == 310.15) & (self.rate_method ==  self.metropolis) :
             warningmsg +=  "Metropolis 37 C"
             JSMetropolis37(self)
         else:
@@ -521,40 +516,40 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
             else:
                 c.boltzmann_sample = val 
 
-    @property
-    def calibration_string(self):
-        """ Descriptive string for current unimolecular and bimolecular parameter set, including actual values for current model choices."""
-
-        model_data = (_OC.SUBSTRATE_TYPE_inv[self.substrate_type],
-                      _OC.ENERGYMODEL_TYPE_inv[self.parameter_type],
-                      _OC.DANGLES_inv[self.dangles],
-                      _OC.RATEMETHOD_inv[self.rate_method],
-                      self.temperature)
-
-        if self._rate_scaling == 'Fixed':
-            return "User-defined scaling rates: Unimolecular: {0}\n                            Bimolecular: {1}\nEnergy Model Parameters: Concentration: {3:.2e}M Temperature: {2[4]:.2f}K\n Model: [{2[1]}] Substrate: [{2[0]}] Dangles: [{2[2]}] Rate Method: [{2[3]}]\n".format(self.unimolecular_scaling, self.bimolecular_scaling, model_data , self.join_concentration)
-        else:
-            return _OC.rate_scaling_sets[self._rate_scaling]['description'].format(self.unimolecular_scaling, self.bimolecular_scaling, model_data, self.join_concentration)
-
-    @property
-    def calibration_data(self):
-        """ Returns a tuple containing the current calibration data.
-            Note: text versions of any numerical choice, e.g. 'None'
-                  rather than 0 for dangles.
-            Tuple is:
-            (self.substrate_type, self.parameter_type, self.dangles,
-             self.rate_method, self.temperature, self.join_concentration,
-             self.unimolecular_scaling, self.bimolecular_scaling,self.rate_scaling)
-        """
-        return (_OC.SUBSTRATE_TYPE_inv[self.substrate_type],
-                _OC.ENERGYMODEL_TYPE_inv[self.parameter_type],
-                _OC.DANGLES_inv[self.dangles],
-                _OC.RATEMETHOD_inv[self.rate_method],
-                self.temperature,
-                self.join_concentration,
-                self.unimolecular_scaling,
-                self.bimolecular_scaling,
-                self.rate_scaling)
+#     @property
+#     def calibration_string(self):
+#         """ Descriptive string for current unimolecular and bimolecular parameter set, including actual values for current model choices."""
+# 
+#         model_data = (_OC.SUBSTRATE_TYPE_inv[self.substrate_type],
+#                       _OC.ENERGYMODEL_TYPE_inv[self.parameter_type],
+#                       _OC.DANGLES_inv[self.dangles],
+#                       _OC.RATEMETHOD_inv[self.rate_method],
+#                       self.temperature)
+# 
+#         if self._rate_scaling == 'Fixed':
+#             return "User-defined scaling rates: Unimolecular: {0}\n                            Bimolecular: {1}\nEnergy Model Parameters: Concentration: {3:.2e}M Temperature: {2[4]:.2f}K\n Model: [{2[1]}] Substrate: [{2[0]}] Dangles: [{2[2]}] Rate Method: [{2[3]}]\n".format(self.unimolecular_scaling, self.bimolecular_scaling, model_data , self.join_concentration)
+#         else:
+#             return _OC.rate_scaling_sets[self._rate_scaling]['description'].format(self.unimolecular_scaling, self.bimolecular_scaling, model_data, self.join_concentration)
+# 
+#     @property
+#     def calibration_data(self):
+#         """ Returns a tuple containing the current calibration data.
+#             Note: text versions of any numerical choice, e.g. 'None'
+#                   rather than 0 for dangles.
+#             Tuple is:
+#             (self.substrate_type, self.parameter_type, self.dangles,
+#              self.rate_method, self.temperature, self.join_concentration,
+#              self.unimolecular_scaling, self.bimolecular_scaling,self.rate_scaling)
+#         """
+#         return (_OC.SUBSTRATE_TYPE_inv[self.substrate_type],
+#                 _OC.ENERGYMODEL_TYPE_inv[self.parameter_type],
+#                 _OC.DANGLES_inv[self.dangles],
+#                 _OC.RATEMETHOD_inv[self.rate_method],
+#                 self.temperature,
+#                 self.join_concentration,
+#                 self.unimolecular_scaling,
+#                 self.bimolecular_scaling,
+#                 self.rate_scaling)
         
         
 #     @property
@@ -1137,7 +1132,6 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
             'dangles': lambda x: self.__setattr__('dangles', _OC.DANGLES[x]),
             'parameter_type': lambda x: self.__setattr__('parameter_type', _OC.ENERGYMODEL_TYPE[x]),
             'substrate_type': lambda x: self.__setattr__('substrate_type', _OC.SUBSTRATE_TYPE[x]),
-            'rate_method': lambda x: self.__setattr__('rate_method', _OC.RATEMETHOD[x]),
             'biscale': lambda x: self.__setattr__('bimolecular_scaling', x),
             'uniscale': lambda x: self.__setattr__('unimolecular_scaling', x),
             'num_sims': lambda x: self.__setattr__('num_simulations', x),
