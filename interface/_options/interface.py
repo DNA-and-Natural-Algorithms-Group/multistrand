@@ -1,6 +1,6 @@
-from constants import _OptionsConstants
+from constants import OptionsConstants
 
-Constants = _OptionsConstants()
+Constants = OptionsConstants()
 
 class Interface(object):
     def __init__(self):

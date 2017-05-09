@@ -1,7 +1,7 @@
 ################################################################################
 #                                                                              #
 # Python implementation of the options object.                                 #
-# Copyright 2010 Caltech                                                       #
+# Copyright 2010-2017 Caltech                                                       #
 # Written by:  Joseph Schaeffer.                                               #
 # Some stuff written by:  Chris Berlind, Frits Dannenberg                      #
 #                                                                              #
@@ -11,10 +11,10 @@
 
 from interface import Interface
 from ..objects import Strand, Complex, RestingState, StopCondition
-from constants import _OptionsConstants
+from constants import OptionsConstants
 from ..utils import JSKawasaki25, JSKawasaki37, JSMetropolis25, JSMetropolis37, JSDefault     # this is for 2.0 support only
 
-_OC = _OptionsConstants()
+_OC = OptionsConstants()
 
 import copy
 

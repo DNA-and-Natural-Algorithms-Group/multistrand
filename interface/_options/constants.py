@@ -1,15 +1,16 @@
 ################################################################################
 #                                                                              #
 # Important Constants for Multistrand.                                         #
-# Copyright 2010 Caltech                                                       #
-# Written by:  Joseph Schaeffer.                                               #
+# Copyright 2010-217 Caltech                                                   #
+# Written by:  Joseph Schaeffer.  Frits Dannenberg                             #
 #                                                                              #
 #                                                                              #
 #                                                                              #
 ################################################################################
 
 
-class _OptionsConstants( object ):
+
+class OptionsConstants( object ):
     def __init__(self):
         self.ZERO_C_IN_K = 273.15
         pass
@@ -99,4 +100,7 @@ class _OptionsConstants( object ):
     def __delattr__(self, *args, **kargs):
         pass
 
-Constants = _OptionsConstants()
+
+
+
+Constants = OptionsConstants()
