@@ -832,9 +832,10 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         except KeyError:
             # if it isn't, assume int and let any exception go upwards
             self._substrate_type = int(value)
-            if len(self._start_state) > 0:
-                for c, s in self._start_state:
-                    c.set_boltzmann_parameters(_OC.DANGLES_inv[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius)
+            self.updateBoltzmannSamples
+#             if len(self._start_state) > 0:
+#                 for c, s in self._start_state:
+#                     c.set_boltzmann_parameters(_OC.DANGLES_inv[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius)
 
 
 
@@ -864,9 +865,10 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         except KeyError:
             # if it isn't, just pretend it's an int. If that fails, let the exception go upwards.
             self._dangles = int(value)
-            if len(self._start_state) > 0:
-                for c, s in self._start_state:
-                    c.set_boltzmann_parameters(_OC.DANGLES_inv[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius)
+            self.updateBoltzmannSamples
+#             if len(self._start_state) > 0:
+#                 for c, s in self._start_state:
+#                     c.set_boltzmann_parameters(_OC.DANGLES_inv[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius)
     
     @property
     def temperature(self):
@@ -916,24 +918,27 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         if 273.0 < val < 373.0:
             self._temperature_kelvin = val
             self._temperature_celsius = val - _OC.ZERO_C_IN_K
-            if len(self._start_state) > 0:
-                for c, s in self._start_state:
-                    c.set_boltzmann_parameters(_OC.DANGLES_inv[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius)
+            self.updateBoltzmannSamples
+#             if len(self._start_state) > 0:
+#                 for c, s in self._start_state:
+#                     c.set_boltzmann_parameters(_OC.DANGLES_inv[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius)
 
         elif 0.0 < val < 100.0:
             self._temperature_celsius = val
             self._temperature_kelvin = val + _OC.ZERO_C_IN_K
-            if len(self._start_state) > 0:
-                for c, s in self._start_state:
-                    c.set_boltzmann_parameters(_OC.DANGLES_inv[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius)
+            self.updateBoltzmannSamples
+#             if len(self._start_state) > 0:
+#                 for c, s in self._start_state:
+#                     c.set_boltzmann_parameters(_OC.DANGLES_inv[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius)
             self.errorlog.append("Warning: Temperature was set at the value [{0}]. We expected a value in Kelvin, or with appropriate units.\n         Temperature was automatically converted to [{1}] degrees Kelvin.\n".format(val, self._temperature_kelvin))
 
         else:
             self._temperature_kelvin = val
             self._temperature_celsius = val - _OC.ZERO_C_IN_K
-            if len(self._start_state) > 0:
-                for c, s in self._start_state:
-                    c.set_boltzmann_parameters(_OC.DANGLES_inv[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius)
+            self.updateBoltzmannSamples
+#             if len(self._start_state) > 0:
+#                 for c, s in self._start_state:
+#                     c.set_boltzmann_parameters(_OC.DANGLES_inv[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius)
             self.errorlog.append("Warning: Temperature was set at the value [{0}]. This is outside the normal range of temperatures we expect, so it was assumed to be in Kelvin.\n".format(val))
             raise Warning("Temperature did not fall in the usual expected ranges. Temperatures should be in units Kelvin, though the range [0,100] is assumed to mean units of Celsius.")
         
