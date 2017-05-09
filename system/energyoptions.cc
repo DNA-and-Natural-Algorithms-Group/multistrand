@@ -137,7 +137,7 @@ PEnergyOptions::PEnergyOptions(PyObject* input) :
 
 	}
 
-	if(!useArrRates && biScale < 0.0){
+	if(!useArrRates && uniScale < 0.0){
 		cout << "Warning! unimolecular_scaling is unset or negative!"<< endl;
 		cout <<	"Please set them using multistrand::utils::XPMetropolis37() or similar,"<< endl;
 		cout <<	"or set Options.bimolecular_scaling directly."<< endl;
