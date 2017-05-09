@@ -12,6 +12,7 @@
 from interface import Interface
 from ..objects import Strand, Complex, RestingState, StopCondition
 from constants import _OptionsConstants
+from ..utils import JSKawasaki25, JSKawasaki37, JSMetropolis25, JSMetropolis37, JSDefault     # this is for 2.0 support only
 
 _OC = _OptionsConstants()
 
@@ -142,17 +143,17 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         self._temperature_celsius = 37.0
         self._temperature_kelvin = 310.15
 
-        self._rate_scaling = 'Default'
+        self.rate_scaling = None
         """ Where to get the following two parameters when queried. """
 
-        self._unimolecular_scaling = -1.0 #1.6e6
+        self.unimolecular_scaling = -1.0 #1.6e6
         """ Rate scaling factor for unimolecular reactions.
 
         Type         Default
         double       1.6e6:
                      Unitless. Details on default in thesis."""
         
-        self._bimolecular_scaling = -1.0 #0.5e6
+        self.bimolecular_scaling = -1.0 #0.5e6
         """ Rate scaling factor for bimolecular reactions.
         
         Type         Default
@@ -446,6 +447,63 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
 
         self.__init_keyword_args(self, *args, **kargs)
 
+
+    def legacyRates(self):
+                    
+        warningmsg = "Warning! rate_scaling is set, enabling support for legacy 2.0 code. Now setting rate defaults for "
+                
+        if (self.temperature == 298.15) & (self.rate_method == _OC.RATEMETHOD['Kawasaki']) :
+            warningmsg +=  "Kawasaki 25 C"
+            JSKawasaki25(self)
+        elif (self.temperature == 310.15) & (self.rate_method ==  _OC.RATEMETHOD['Kawasaki']) :
+            warningmsg +=  "Kawasaki 37 C"
+            JSKawasaki37(self)
+        elif (self.temperature == 298.15) & (self.rate_method ==  _OC.RATEMETHOD['Metropolis']) :
+            warningmsg +=  "Metropolis 25 C"
+            JSMetropolis25(self)
+        elif (self.temperature == 310.15) & (self.rate_method ==  _OC.RATEMETHOD['Metropolis']) :
+            warningmsg +=  "Metropolis 37 C"
+            JSMetropolis37(self)
+        else:
+            warningmsg +=  "JS-Default"
+            JSDefault(self)
+            
+        print warningmsg 
+        self.rate_scaling = None        
+        
+        
+#     FD: We are using shadow variables for biscale, uniscale only because we want to 
+#     flag a warning when rate_scaling is used
+    
+    @property
+    def bimolecular_scaling(self):
+
+        if self.rate_scaling != None :
+            self.legacyRates()
+         
+        return self._bimolecular_scaling
+ 
+    @bimolecular_scaling.setter
+    def bimolecular_scaling(self, val):
+                  
+        self._bimolecular_scaling = float(val)
+ 
+ 
+    @property
+    def unimolecular_scaling(self):
+         
+        if self.rate_scaling != None :
+            self.legacyRates()
+         
+        return self._unimolecular_scaling  
+    
+    @unimolecular_scaling.setter
+    def unimolecular_scaling(self, val):
+                  
+        self._unimolecular_scaling = float(val)
+
+
+
     @property
     def verbosity(self):
         """ Indicates how much output will be generated for each trajectory run.
@@ -492,29 +550,6 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
                 c.boltzmann_sample = val 
 
     @property
-    def rate_scaling(self):
-        """ Source for rate scaling factor for unimolecular and bimolecular reactions. Allows choice of the default calibrated factors, setting the factors manually, or other specific parameter sets (such as those used for calibration).
-
-        Type: str
-        Values        
-        'Default':   Use the standard calibration set as described
-                     in the PhD thesis. (default option)
-        'Fixed':     Use the values specified via the properties
-                     unimolecular_scaling and bimolecular_scaling.
-
-        Other values and specific parameter sets are stored in the rate_scaling_sets parameter of the multistrand.options.Constants object.
-        """
-
-        return self._rate_scaling
-
-    @rate_scaling.setter
-    def rate_scaling(self, val):
-        if val == 'Fixed' or val in _OC.rate_scaling_sets.keys():
-            self._rate_scaling = val
-        else:
-            raise ValueError("Value {0}: Should either be 'Default', 'Fixed', or one of the keys found in multistrand.options.Constants.rate_scaling_sets.".format(val))
-
-    @property
     def calibration_string(self):
         """ Descriptive string for current unimolecular and bimolecular parameter set, including actual values for current model choices."""
 
@@ -550,84 +585,84 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
                 self.rate_scaling)
         
         
-    @property
-    def unimolecular_scaling(self):
-        """ Rate scaling factor for unimolecular reactions.
-
-        Type         Default
-        double       1.6e6:
-                     Unitless. Details on calibration sets in thesis. WARNING: this default value is ONLY used if the combination of model choices is not found in the appropriate calibration set."""
-
-        model_string = "{0}:{1}:{2}:{3}".format(
-            _OC.SUBSTRATE_TYPE_inv[self.substrate_type],
-            _OC.ENERGYMODEL_TYPE_inv[self.parameter_type],
-            _OC.DANGLES_inv[self.dangles],
-            _OC.RATEMETHOD_inv[self.rate_method])
-        temperature_string = ":{0}".format(self.temperature)
-        
-        if self._rate_scaling == 'Fixed':
-            return self._unimolecular_scaling
-        else:
-            try:
-                return _OC.rate_scaling_sets[self._rate_scaling][model_string + temperature_string]['uni']
-            except KeyError:
-                try:
-                    return _OC.rate_scaling_sets[self._rate_scaling][model_string]['uni']
-                except KeyError:
-                    # import warnings
-                    # warnings.warn("Unimolecular Scaling had to use a default value as the model string [{0}] was not found in the rate scaling set.".format(model_string))
-                    return _OC.rate_scaling_sets[self._rate_scaling]['default']['uni']
-
-                
-
-    @unimolecular_scaling.setter
-    def unimolecular_scaling(self, val):
-        if not (self._rate_scaling == 'Fixed' or self._rate_scaling == 'Default'):
-            import warnings
-            warnings.warn("Options.rate_scaling changed from a 'Default' or 'Fixed' option to a specific calibration set, but then Options.unimolecular_scaling was set directly.")
-            
-        self._unimolecular_scaling = float(val)
-        self._rate_scaling = 'Fixed'
-
-
-
-        
-    @property
-    def bimolecular_scaling(self):
-        """ Rate scaling factor for bimolecular reactions.
-        double       0.5e6:
-                     Unitless. Details on calibration sets in thesis. WARNING: this default value is ONLY used if the combination of model choices is not found in the appropriate calibration set."""
-
-        model_string = "{0}:{1}:{2}:{3}".format(
-            _OC.SUBSTRATE_TYPE_inv[self.substrate_type],
-            _OC.ENERGYMODEL_TYPE_inv[self.parameter_type],
-            _OC.DANGLES_inv[self.dangles],
-            _OC.RATEMETHOD_inv[self.rate_method])
-        temperature_string = ":{0}".format(self.temperature)
-        
-        if self._rate_scaling == 'Fixed':
-            return self._bimolecular_scaling        
-        else:
-            try:
-                return _OC.rate_scaling_sets[self._rate_scaling][model_string + temperature_string]['bi']
-            except KeyError:
-                try:
-                    return _OC.rate_scaling_sets[self._rate_scaling][model_string]['bi']
-                except KeyError:
-                    # import warnings
-                    # warnings.warn("Bimolecular Scaling had to use a default value as the model string [{0}] was not found in the rate scaling set.".format(model_string))
-                    return _OC.rate_scaling_sets[self._rate_scaling]['default']['bi']
-
-
-
-    @bimolecular_scaling.setter
-    def bimolecular_scaling(self, val):
-        if not (self._rate_scaling == 'Fixed' or self._rate_scaling == 'Default'):
-            import warnings
-            warnings.warn("Options.rate_scaling changed from a 'Default' or 'Fixed' option to a specific calibration set, but then Options.bimolecular_scaling was set directly.")
-            
-        self._bimolecular_scaling = float(val)
-        self._rate_scaling = 'Fixed'
+#     @property
+#     def unimolecular_scaling(self):
+#         """ Rate scaling factor for unimolecular reactions.
+# 
+#         Type         Default
+#         double       1.6e6:
+#                      Unitless. Details on calibration sets in thesis. WARNING: this default value is ONLY used if the combination of model choices is not found in the appropriate calibration set."""
+# 
+#         model_string = "{0}:{1}:{2}:{3}".format(
+#             _OC.SUBSTRATE_TYPE_inv[self.substrate_type],
+#             _OC.ENERGYMODEL_TYPE_inv[self.parameter_type],
+#             _OC.DANGLES_inv[self.dangles],
+#             _OC.RATEMETHOD_inv[self.rate_method])
+#         temperature_string = ":{0}".format(self.temperature)
+#         
+#         if self._rate_scaling == 'Fixed':
+#             return self._unimolecular_scaling
+#         else:
+#             try:
+#                 return _OC.rate_scaling_sets[self._rate_scaling][model_string + temperature_string]['uni']
+#             except KeyError:
+#                 try:
+#                     return _OC.rate_scaling_sets[self._rate_scaling][model_string]['uni']
+#                 except KeyError:
+#                     # import warnings
+#                     # warnings.warn("Unimolecular Scaling had to use a default value as the model string [{0}] was not found in the rate scaling set.".format(model_string))
+#                     return _OC.rate_scaling_sets[self._rate_scaling]['default']['uni']
+# 
+#                 
+# 
+#     @unimolecular_scaling.setter
+#     def unimolecular_scaling(self, val):
+#         if not (self._rate_scaling == 'Fixed' or self._rate_scaling == 'Default'):
+#             import warnings
+#             warnings.warn("Options.rate_scaling changed from a 'Default' or 'Fixed' option to a specific calibration set, but then Options.unimolecular_scaling was set directly.")
+#             
+#         self._unimolecular_scaling = float(val)
+#         self._rate_scaling = 'Fixed'
+# 
+# 
+# 
+#         
+#     @property
+#     def bimolecular_scaling(self):
+#         """ Rate scaling factor for bimolecular reactions.
+#         double       0.5e6:
+#                      Unitless. Details on calibration sets in thesis. WARNING: this default value is ONLY used if the combination of model choices is not found in the appropriate calibration set."""
+# 
+#         model_string = "{0}:{1}:{2}:{3}".format(
+#             _OC.SUBSTRATE_TYPE_inv[self.substrate_type],
+#             _OC.ENERGYMODEL_TYPE_inv[self.parameter_type],
+#             _OC.DANGLES_inv[self.dangles],
+#             _OC.RATEMETHOD_inv[self.rate_method])
+#         temperature_string = ":{0}".format(self.temperature)
+#         
+#         if self._rate_scaling == 'Fixed':
+#             return self._bimolecular_scaling        
+#         else:
+#             try:
+#                 return _OC.rate_scaling_sets[self._rate_scaling][model_string + temperature_string]['bi']
+#             except KeyError:
+#                 try:
+#                     return _OC.rate_scaling_sets[self._rate_scaling][model_string]['bi']
+#                 except KeyError:
+#                     # import warnings
+#                     # warnings.warn("Bimolecular Scaling had to use a default value as the model string [{0}] was not found in the rate scaling set.".format(model_string))
+#                     return _OC.rate_scaling_sets[self._rate_scaling]['default']['bi']
+# 
+# 
+# 
+#     @bimolecular_scaling.setter
+#     def bimolecular_scaling(self, val):
+#         if not (self._rate_scaling == 'Fixed' or self._rate_scaling == 'Default'):
+#             import warnings
+#             warnings.warn("Options.rate_scaling changed from a 'Default' or 'Fixed' option to a specific calibration set, but then Options.bimolecular_scaling was set directly.")
+#             
+#         self._bimolecular_scaling = float(val)
+#         self._rate_scaling = 'Fixed'
 
     
     @property
