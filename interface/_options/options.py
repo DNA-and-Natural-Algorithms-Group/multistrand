@@ -18,8 +18,6 @@ _OC = _OptionsConstants()
 
 import copy
 
-FILLIN = None
-
 class Options(object):
     """ The main wrapper for controlling a Multistrand simulation. Has information about the energy model, simulation options, and an interface for returning results. """
     
@@ -239,21 +237,6 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         #
         ####################
         
-        self.inputfilename = FILLIN
-        """ deprecated """
-        # #char
-
-
-        self.logfilename = FILLIN
-        """ filename to send log entries to """
-        # #char
-
-
-        self.trajectoryfilename = FILLIN
-        """ filename to send trajectory entries to """
-        # #char
-
-
         self.simulation_mode = _OC.SIMULATION_MODE['Normal']
         """ The simulation mode: how we want the simulation system to
         perform the main loop.
