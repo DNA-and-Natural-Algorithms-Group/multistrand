@@ -16,12 +16,10 @@ class _OptionsConstants( object ):
     
     @property
     def RATEMETHOD(self):
-        return {"Invalid" :0, "Metropolis"    :1, \
-                "Kawasaki":2, "EntropyEnthalpy":3}
+        return {"Invalid" :0, "Metropolis":1,  "Kawasaki":2}
     @property
     def RATEMETHOD_inv(self):
-        return {0:"Invalid",1:"Metropolis", \
-                2:"Kawasaki",3:"EntropyEnthalpy"}
+        return {0:"Invalid",  1:"Metropolis",   2:"Kawasaki"}
         
     @property
     def DANGLES(self):
@@ -35,13 +33,11 @@ class _OptionsConstants( object ):
 
     @property
     def ENERGYMODEL_TYPE(self):
-        return {"Vienna":0, "Nupack":1, \
-                "Others?":2}
+        return {"Vienna":0, "Nupack":1}
     
     @property
     def ENERGYMODEL_TYPE_inv(self):
-        return {0:"Vienna", 1:"Nupack", \
-                2:"Others?"}
+        return {0:"Vienna", 1:"Nupack"}
 
     @property
     def energy_type( self ):

@@ -428,12 +428,7 @@ class identList *getID_list(PyObject *options, int index, PyObject *alternate_st
 const int RATE_METHOD_INVALID = 0x00;
 const int RATE_METHOD_METROPOLIS = 0x01;
 const int RATE_METHOD_KAWASAKI = 0x02;
-const int RATE_METHOD_ENTROPYENTHALPY = 0x03;
 
-//#define RATE_METHOD_INVALID         0x00
-//#define RATE_METHOD_METROPOLIS      0x01
-//#define RATE_METHOD_KAWASAKI        0x02
-//#define RATE_METHOD_ENTROPYENTHALPY 0x03
 
 /* WARNING: If you change the following defines, you must also
  change the values in python_options._OptionsConstants.DANGLES
@@ -443,9 +438,6 @@ const int DANGLES_NONE = 0x00;
 const int DANGLES_SOME = 0x01;
 const int DANGLES_ALL = 0x02;
 
-//#define DANGLES_NONE    0x00
-//#define DANGLES_SOME    0x01
-//#define DANGLES_ALL     0x02
 
 /* WARNING: If you change the following defines, you must also
  change the values in python_options._OptionsConstants.ENERGYMODEL_TYPE
@@ -454,8 +446,6 @@ const int DANGLES_ALL = 0x02;
 const int ENERGYMODEL_VIENNA = 0x00;
 const int ENERGYMODEL_NUPACK = 0x01;
 
-//#define ENERGYMODEL_VIENNA 0x00
-//#define ENERGYMODEL_NUPACK 0x01
 
 /* WARNING: If you change the following defines, you must also
  change the values in python_options._OptionsConstants.SUBSTRATE_TYPE
