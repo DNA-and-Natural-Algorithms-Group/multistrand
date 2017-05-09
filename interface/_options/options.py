@@ -145,14 +145,14 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         self._rate_scaling = 'Default'
         """ Where to get the following two parameters when queried. """
 
-        self._unimolecular_scaling = -1.0 #1.6e6
+        self.unimolecular_scaling = -1.0 #1.6e6
         """ Rate scaling factor for unimolecular reactions.
 
         Type         Default
         double       1.6e6:
                      Unitless. Details on default in thesis."""
         
-        self._bimolecular_scaling = -1.0 #0.5e6
+        self.bimolecular_scaling = -1.0 #0.5e6
         """ Rate scaling factor for bimolecular reactions.
         
         Type         Default
@@ -491,28 +491,28 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
             else:
                 c.boltzmann_sample = val 
 
-    @property
-    def rate_scaling(self):
-        """ Source for rate scaling factor for unimolecular and bimolecular reactions. Allows choice of the default calibrated factors, setting the factors manually, or other specific parameter sets (such as those used for calibration).
-
-        Type: str
-        Values        
-        'Default':   Use the standard calibration set as described
-                     in the PhD thesis. (default option)
-        'Fixed':     Use the values specified via the properties
-                     unimolecular_scaling and bimolecular_scaling.
-
-        Other values and specific parameter sets are stored in the rate_scaling_sets parameter of the multistrand.options.Constants object.
-        """
-
-        return self._rate_scaling
-
-    @rate_scaling.setter
-    def rate_scaling(self, val):
-        if val == 'Fixed' or val in _OC.rate_scaling_sets.keys():
-            self._rate_scaling = val
-        else:
-            raise ValueError("Value {0}: Should either be 'Default', 'Fixed', or one of the keys found in multistrand.options.Constants.rate_scaling_sets.".format(val))
+#     @property
+#     def rate_scaling(self):
+#         """ Source for rate scaling factor for unimolecular and bimolecular reactions. Allows choice of the default calibrated factors, setting the factors manually, or other specific parameter sets (such as those used for calibration).
+# 
+#         Type: str
+#         Values        
+#         'Default':   Use the standard calibration set as described
+#                      in the PhD thesis. (default option)
+#         'Fixed':     Use the values specified via the properties
+#                      unimolecular_scaling and bimolecular_scaling.
+# 
+#         Other values and specific parameter sets are stored in the rate_scaling_sets parameter of the multistrand.options.Constants object.
+#         """
+# 
+#         return self._rate_scaling
+# 
+#     @rate_scaling.setter
+#     def rate_scaling(self, val):
+#         if val == 'Fixed' or val in _OC.rate_scaling_sets.keys():
+#             self._rate_scaling = val
+#         else:
+#             raise ValueError("Value {0}: Should either be 'Default', 'Fixed', or one of the keys found in multistrand.options.Constants.rate_scaling_sets.".format(val))
 
     @property
     def calibration_string(self):
@@ -1034,27 +1034,7 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
     def add_trajectory_arrType(self, val):
         self.full_trajectory_arrType.append(val)
 
-#         if self.trajectory_state_count % 10 == 0:
-#             print "Count: {0} Time: {1}".format(self.trajectory_state_count, self.trajectory_current_time)
 
-
-        # if self.current_graph == None:
-        #     self.current_graph = create_graph( val[3], val[4], 0 )
-        #     print "hi"
-        #     try:
-
-        #     except:
-        #         print "Error"
-        #     self.trajectory_count = 1
-        #     self.current_graph.draw('test0000.png')
-        # for state in self.trajectory_complexes:
-        #     new_graph = update_graph( self.current_graph, self.basepairlist, state[4] )
-        #     self.current_graph = new_graph
-        #     self.current_graph.draw('test{0:04d}.png'.format(self.trajectory_count))
-            
-        #     print( "{2}, {1:3e}(s): [{0[1]}] '{0[2]}' Energy (kcal/mol): {0[5]} \n{0[3]}\n{0[4]}\n".format( state, val, self.trajectory_count ))
-        # from IPython.Debugger import Pdb; Pdb().set_trace()
-        
     @property
     def interface_current_seed(self):
         """ This is the current random number seed for the trajectory currently being
