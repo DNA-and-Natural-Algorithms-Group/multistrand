@@ -29,6 +29,7 @@ class Options(object):
     # rate_method
     metropolis = 1
     kawasaki = 2
+    RateMethodToString = [ "None", "Metropolis", "Kawasaki"]
 
     # Nupack dangle options
     none =  0
@@ -1156,7 +1157,13 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
             }
         
         for k in kargs.keys():
+            
             if k in arg_lookup_table:
-                arg_lookup_table[k](kargs[k])
+                arg_lookup_table[k](kargs[k])          
+            # Do some additional parsing for legacy support
+            elif k == 'rate_method':
+                if isinstance(kargs[k],basestring):
+                    self.rate_method = self.RateMethodToString.index(kargs[k])
+
             else:
                 self.__setattr__(k, kargs[k])
