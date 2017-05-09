@@ -73,14 +73,14 @@ class _OptionsConstants( object ):
                 "Trajectory":               0x0080,
                 "First Passage Time":       0x0010}
 
-    @property
-    def SIMULATION_MODE_FLAG(self):
-        return {"Normal":                   0x0010,
-                "First Bimolecular":        0x0020,
-                "Python Module":            0x0040,
-                "Trajectory":               0x0080,
-                "Transition":               0x0100,
-                "First Passage Time":       0x0010}
+#     @property
+#     def SIMULATION_MODE_FLAG(self):
+#         return {"Normal":                   0x0010,
+#                 "First Bimolecular":        0x0020,
+#                 "Python Module":            0x0040,
+#                 "Trajectory":               0x0080,
+#                 "Transition":               0x0100,
+#                 "First Passage Time":       0x0010}
 
     @property
     def STOPRESULT(self):
@@ -104,107 +104,107 @@ class _OptionsConstants( object ):
                 0x0082:                      "NaN",
                 0x0084:                 "No Moves"}
 
-    @property
-    def rate_scaling_sets(self):
-        return {"Bimolecular_Calibrate": ## WETMUR unimolecular parameters
-                {"description":   "Calibration data set for determining bimolecular parameters. Uses the Wetmur unimolecular calibration.\n Unimolecular: {0}  Bimolecular: {1}. Concentration: {3:e}M\n Model: [{2[1]}] Substrate: [{2[0]}] Dangles: [{2[2]}] Rate Method: [{2[3]}]\n",
-                 "DNA:Nupack:None:Kawasaki"  :    {"uni": 2.1e8,
-                                                   "bi": 1.0e3},
-                 "DNA:Nupack:Some:Kawasaki"  :    {"uni": 1.5e8,
-                                                   "bi": 1.0e3},
-                 "DNA:Nupack:All:Kawasaki"   :    {"uni": 1.5e8,
-                                                   "bi": 1.0e3},
-                 "DNA:Nupack:None:Metropolis":    {"uni": 6.8e8,
-                                                   "bi": 1.0e3},
-                 "DNA:Nupack:Some:Metropolis":    {"uni": 7.3e8,
-                                                   "bi":  1.0e3},
-                 "DNA:Nupack:All:Metropolis" :    {"uni": 7.3e8,
-                                                   "bi": 1.0e3},
-                 "DNA:Nupack:None:Kawasaki:298.15"  :    {"uni": 9.5e7,
-                                                   "bi": 1.0e3},
-                 "DNA:Nupack:Some:Kawasaki:298.15"  :    {"uni": 6.1e7,
-                                                   "bi": 1.0e3},
-                 "DNA:Nupack:All:Kawasaki:298.15"   :    {"uni": 6.1e7,
-                                                   "bi": 1.0e3},
-                 "DNA:Nupack:None:Metropolis:298.15":    {"uni": 4.2e8,
-                                                   "bi": 1.0e3},
-                 "DNA:Nupack:Some:Metropolis:298.15":    {"uni": 4.4e8,
-                                                   "bi":  1.0e3},
-                 "DNA:Nupack:All:Metropolis:298.15" :    {"uni": 4.4e8,
-                                                   "bi": 1.0e3},
-
-                 "default": {"uni": 7.3e8,
-                             "bi": 1.0e3}
-                 },
-        "Default": ## Calibrated via Wetmur/Morrison  # should be same as "Calibrated"
-                {"description":   "Calibrated parameters. Uses the Wetmur unimolecular calibration.\n Unimolecular: {0}  Bimolecular: {1}. Concentration: {3:e}M\n Model: [{2[1]}] Substrate: [{2[0]}] Dangles: [{2[2]}] Rate Method: [{2[3]}] Temperature: [{2[4]:.2f}K]\n",
-                 "DNA:Nupack:None:Kawasaki"  :    {"uni": 2.1e8,
-                                                   "bi":  8.07e5},
-                 "DNA:Nupack:Some:Kawasaki"  :    {"uni": 1.5e8,
-                                                   "bi": 1.38e6},
-                 "DNA:Nupack:All:Kawasaki"   :    {"uni": 1.5e8,
-                                                   "bi": 1.38e6},
-                 "DNA:Nupack:None:Metropolis":    {"uni": 6.8e8,
-                                                   "bi": 8.18e5},
-                 "DNA:Nupack:Some:Metropolis":    {"uni": 7.3e8,
-                                                   "bi":  1.40e6},
-                 "DNA:Nupack:All:Metropolis" :    {"uni": 7.3e8,
-                                                   "bi":  1.41e6},
-                 "DNA:Nupack:None:Kawasaki:298.15"  :    {"uni": 9.5e7,
-                                                   "bi": 6.07e5},
-                 "DNA:Nupack:Some:Kawasaki:298.15"  :    {"uni": 6.1e7,
-                                                   "bi": 1.29e6},
-                 "DNA:Nupack:All:Kawasaki:298.15"   :    {"uni": 6.1e7,
-                                                   "bi": 1.28e6},
-                 "DNA:Nupack:None:Metropolis:298.15":    {"uni": 4.2e8,
-                                                   "bi": 6.02e5},
-                 "DNA:Nupack:Some:Metropolis:298.15":    {"uni": 4.4e8,
-                                                   "bi": 1.26e6},
-                 "DNA:Nupack:All:Metropolis:298.15" :    {"uni": 4.4e8,
-                                                   "bi": 1.29e6},
-
-                 "default": {"uni": 1.5e8,
-                             "bi": 1.38e6}
-                 },
-        "Calibrated": ## Calibrated via Wetmur/Morrison  
-                {"description":   "Calibrated parameters. Uses the Wetmur unimolecular calibration.\n Unimolecular: {0}  Bimolecular: {1}. Concentration: {3:e}M\n Model: [{2[1]}] Substrate: [{2[0]}] Dangles: [{2[2]}] Rate Method: [{2[3]}] Temperature: [{2[4]:.2f}K]\n",
-                 "DNA:Nupack:None:Kawasaki"  :    {"uni": 2.1e8,
-                                                   "bi":  8.07e5},
-                 "DNA:Nupack:Some:Kawasaki"  :    {"uni": 1.5e8,
-                                                   "bi": 1.38e6},
-                 "DNA:Nupack:All:Kawasaki"   :    {"uni": 1.5e8,
-                                                   "bi": 1.38e6},
-                 "DNA:Nupack:None:Metropolis":    {"uni": 6.8e8,
-                                                   "bi": 8.18e5},
-                 "DNA:Nupack:Some:Metropolis":    {"uni": 7.3e8,
-                                                   "bi":  1.40e6},
-                 "DNA:Nupack:All:Metropolis" :    {"uni": 7.3e8,
-                                                   "bi":  1.41e6},
-                 "DNA:Nupack:None:Kawasaki:298.15"  :    {"uni": 9.5e7,
-                                                   "bi": 6.07e5},
-                 "DNA:Nupack:Some:Kawasaki:298.15"  :    {"uni": 6.1e7,
-                                                   "bi": 1.29e6},
-                 "DNA:Nupack:All:Kawasaki:298.15"   :    {"uni": 6.1e7,
-                                                   "bi": 1.28e6},
-                 "DNA:Nupack:None:Metropolis:298.15":    {"uni": 4.2e8,
-                                                   "bi": 6.02e5},
-                 "DNA:Nupack:Some:Metropolis:298.15":    {"uni": 4.4e8,
-                                                   "bi": 1.26e6},
-                 "DNA:Nupack:All:Metropolis:298.15" :    {"uni": 4.4e8,
-                                                   "bi": 1.29e6},
-
-                 "default": {"uni": 1.5e8,
-                             "bi": 1.38e6}
-                 },
-
-
-
-            "Unitary":
-                {"description": "Default 1.0/1.0.",
-                 "default": {"uni":1.0,
-                             "bi":1.0}
-                }
-            }
+#     @property
+#     def rate_scaling_sets(self):
+#         return {"Bimolecular_Calibrate": ## WETMUR unimolecular parameters
+#                 {"description":   "Calibration data set for determining bimolecular parameters. Uses the Wetmur unimolecular calibration.\n Unimolecular: {0}  Bimolecular: {1}. Concentration: {3:e}M\n Model: [{2[1]}] Substrate: [{2[0]}] Dangles: [{2[2]}] Rate Method: [{2[3]}]\n",
+#                  "DNA:Nupack:None:Kawasaki"  :    {"uni": 2.1e8,
+#                                                    "bi": 1.0e3},
+#                  "DNA:Nupack:Some:Kawasaki"  :    {"uni": 1.5e8,
+#                                                    "bi": 1.0e3},
+#                  "DNA:Nupack:All:Kawasaki"   :    {"uni": 1.5e8,
+#                                                    "bi": 1.0e3},
+#                  "DNA:Nupack:None:Metropolis":    {"uni": 6.8e8,
+#                                                    "bi": 1.0e3},
+#                  "DNA:Nupack:Some:Metropolis":    {"uni": 7.3e8,
+#                                                    "bi":  1.0e3},
+#                  "DNA:Nupack:All:Metropolis" :    {"uni": 7.3e8,
+#                                                    "bi": 1.0e3},
+#                  "DNA:Nupack:None:Kawasaki:298.15"  :    {"uni": 9.5e7,
+#                                                    "bi": 1.0e3},
+#                  "DNA:Nupack:Some:Kawasaki:298.15"  :    {"uni": 6.1e7,
+#                                                    "bi": 1.0e3},
+#                  "DNA:Nupack:All:Kawasaki:298.15"   :    {"uni": 6.1e7,
+#                                                    "bi": 1.0e3},
+#                  "DNA:Nupack:None:Metropolis:298.15":    {"uni": 4.2e8,
+#                                                    "bi": 1.0e3},
+#                  "DNA:Nupack:Some:Metropolis:298.15":    {"uni": 4.4e8,
+#                                                    "bi":  1.0e3},
+#                  "DNA:Nupack:All:Metropolis:298.15" :    {"uni": 4.4e8,
+#                                                    "bi": 1.0e3},
+# 
+#                  "default": {"uni": 7.3e8,
+#                              "bi": 1.0e3}
+#                  },
+#         "Default": ## Calibrated via Wetmur/Morrison  # should be same as "Calibrated"
+#                 {"description":   "Calibrated parameters. Uses the Wetmur unimolecular calibration.\n Unimolecular: {0}  Bimolecular: {1}. Concentration: {3:e}M\n Model: [{2[1]}] Substrate: [{2[0]}] Dangles: [{2[2]}] Rate Method: [{2[3]}] Temperature: [{2[4]:.2f}K]\n",
+#                  "DNA:Nupack:None:Kawasaki"  :    {"uni": 2.1e8,
+#                                                    "bi":  8.07e5},
+#                  "DNA:Nupack:Some:Kawasaki"  :    {"uni": 1.5e8,
+#                                                    "bi": 1.38e6},
+#                  "DNA:Nupack:All:Kawasaki"   :    {"uni": 1.5e8,
+#                                                    "bi": 1.38e6},
+#                  "DNA:Nupack:None:Metropolis":    {"uni": 6.8e8,
+#                                                    "bi": 8.18e5},
+#                  "DNA:Nupack:Some:Metropolis":    {"uni": 7.3e8,
+#                                                    "bi":  1.40e6},
+#                  "DNA:Nupack:All:Metropolis" :    {"uni": 7.3e8,
+#                                                    "bi":  1.41e6},
+#                  "DNA:Nupack:None:Kawasaki:298.15"  :    {"uni": 9.5e7,
+#                                                    "bi": 6.07e5},
+#                  "DNA:Nupack:Some:Kawasaki:298.15"  :    {"uni": 6.1e7,
+#                                                    "bi": 1.29e6},
+#                  "DNA:Nupack:All:Kawasaki:298.15"   :    {"uni": 6.1e7,
+#                                                    "bi": 1.28e6},
+#                  "DNA:Nupack:None:Metropolis:298.15":    {"uni": 4.2e8,
+#                                                    "bi": 6.02e5},
+#                  "DNA:Nupack:Some:Metropolis:298.15":    {"uni": 4.4e8,
+#                                                    "bi": 1.26e6},
+#                  "DNA:Nupack:All:Metropolis:298.15" :    {"uni": 4.4e8,
+#                                                    "bi": 1.29e6},
+# 
+#                  "default": {"uni": 1.5e8,
+#                              "bi": 1.38e6}
+#                  },
+#         "Calibrated": ## Calibrated via Wetmur/Morrison  
+#                 {"description":   "Calibrated parameters. Uses the Wetmur unimolecular calibration.\n Unimolecular: {0}  Bimolecular: {1}. Concentration: {3:e}M\n Model: [{2[1]}] Substrate: [{2[0]}] Dangles: [{2[2]}] Rate Method: [{2[3]}] Temperature: [{2[4]:.2f}K]\n",
+#                  "DNA:Nupack:None:Kawasaki"  :    {"uni": 2.1e8,
+#                                                    "bi":  8.07e5},
+#                  "DNA:Nupack:Some:Kawasaki"  :    {"uni": 1.5e8,
+#                                                    "bi": 1.38e6},
+#                  "DNA:Nupack:All:Kawasaki"   :    {"uni": 1.5e8,
+#                                                    "bi": 1.38e6},
+#                  "DNA:Nupack:None:Metropolis":    {"uni": 6.8e8,
+#                                                    "bi": 8.18e5},
+#                  "DNA:Nupack:Some:Metropolis":    {"uni": 7.3e8,
+#                                                    "bi":  1.40e6},
+#                  "DNA:Nupack:All:Metropolis" :    {"uni": 7.3e8,
+#                                                    "bi":  1.41e6},
+#                  "DNA:Nupack:None:Kawasaki:298.15"  :    {"uni": 9.5e7,
+#                                                    "bi": 6.07e5},
+#                  "DNA:Nupack:Some:Kawasaki:298.15"  :    {"uni": 6.1e7,
+#                                                    "bi": 1.29e6},
+#                  "DNA:Nupack:All:Kawasaki:298.15"   :    {"uni": 6.1e7,
+#                                                    "bi": 1.28e6},
+#                  "DNA:Nupack:None:Metropolis:298.15":    {"uni": 4.2e8,
+#                                                    "bi": 6.02e5},
+#                  "DNA:Nupack:Some:Metropolis:298.15":    {"uni": 4.4e8,
+#                                                    "bi": 1.26e6},
+#                  "DNA:Nupack:All:Metropolis:298.15" :    {"uni": 4.4e8,
+#                                                    "bi": 1.29e6},
+# 
+#                  "default": {"uni": 1.5e8,
+#                              "bi": 1.38e6}
+#                  },
+# 
+# 
+# 
+#             "Unitary":
+#                 {"description": "Default 1.0/1.0.",
+#                  "default": {"uni":1.0,
+#                              "bi":1.0}
+#                 }
+#             }
 
     def __setattr__(self, name, value):
         if hasattr(self, name):

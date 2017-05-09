@@ -254,16 +254,6 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         # #char
 
 
-        # self.trajectory_type = 0
-        # """ The type of trajectory data we are concerned with.
-        
-        # Type         Default
-        # int          0: Normal
-        
-        # Normal          [0]: First passage time only.
-        # Transition time [1]: Transition time data kept for some set of states.
-        # """
-
         self.simulation_mode = _OC.SIMULATION_MODE['Normal']
         """ The simulation mode: how we want the simulation system to
         perform the main loop.
@@ -351,8 +341,7 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         
         self.sodium = 1.0;
         self.magnesium = 0.0;
-        
-        
+              
         
         
         
