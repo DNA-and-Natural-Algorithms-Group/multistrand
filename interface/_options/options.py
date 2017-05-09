@@ -30,9 +30,22 @@ class Options(object):
     metropolis = 1
     kawasaki = 2
 
-    # 
+    # Nupack dangle options
+    none =  0
+    some =  1
+    all = 2
+    dangleToString = [ "None", "Some", "All"]
 
 
+
+
+# FD: We are implementing an observer pattern. 
+# FD: After temperature, substrate (RNA/DNA) or danlges is updated, we attempt to update boltzmann samples.
+    def updateBoltzmannSamples(self):
+
+        if len(self._start_state) > 0:
+            for c, s in self._start_state:
+                c.set_boltzmann_parameters(self.dangleToString[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius)
 
 
     
