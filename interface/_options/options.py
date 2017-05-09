@@ -20,19 +20,17 @@ import copy
 
 
 
-## FD: Some options constants, to be used in options constructor
-
-
-
-
 class Options(object):
     """ The main wrapper for controlling a Multistrand simulation. Has an interface for returning results. """
        
     
     '''Constants:'''
+
     # rate_method
-    metropolis = 1;
-    kawasaki = 2;
+    metropolis = 1
+    kawasaki = 2
+
+    # 
 
 
 
