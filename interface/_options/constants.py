@@ -62,7 +62,6 @@ class _OptionsConstants( object ):
     def SIMULATION_MODE(self):
         return {"Normal":                   0x0010,
                 "First Step":               0x0030,
-                "Energy Only":              0x0200,
                 "Transition":               0x0100,
                 "Trajectory":               0x0080,
                 "First Passage Time":       0x0010}
@@ -70,8 +69,8 @@ class _OptionsConstants( object ):
 
     @property
     def STOPRESULT(self):
-        return {"Normal":                   0x0011,
-                "Time":                     0x0012,
+        return {"Normal":                   0x0011,  # 17
+                "Time":                     0x0012,  # 18
                 "Forward":                  0x0021,
                 "Time (First Step)":        0x0022,
                 "Reverse":                  0x0024,
