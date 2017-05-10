@@ -22,7 +22,6 @@ import copy
 class Options(object):
     """ The main wrapper for controlling a Multistrand simulation. Has an interface for returning results. """
        
-    
     '''Constants:'''
 
     # rate_method
@@ -36,7 +35,10 @@ class Options(object):
     all = 2
     dangleToString = [ "None", "Some", "All"]
 
-    
+    # Parameter type. Vienna is depreciated.
+    viennaModel = 0 
+    nupackModel = 1 
+    parameterTypeToString = [ "Vienna", "Nupack" ]
 
 
 
@@ -191,19 +193,12 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         All  [2]: Include all dangles terms, including odd overlapping ones.
         """
 
-        self.parameter_type = _OC.ENERGYMODEL_TYPE['Nupack']
+        self.parameter_type = self.nupackModel
         """ Which type of energy model parameter file to use.
-        
-        Type         Default
-        int          1: Nupack
 
         Vienna [0]: No longer well tested. Recommend not using.
         Nupack [1]: Includes some multi-complex parameters, otherwise
                     nearly the same as mfold style files.
-
-        Should use the values in the _OC.ENERGYMODEL_TYPE dictionary rather
-        than the numbers directly, as those should be consistent with
-        the ones defined in the options_python.h headers.
         """
 
         self._substrate_type = _OC.SUBSTRATE_TYPE['DNA']
@@ -253,15 +248,6 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
                             especially on the statistics gathered by
                             this mode.
                             
-        'Python Module'   : The simulator is compiled as a python
-                            module.  This means the main loop is
-                            outside the simulator, and it should
-                            provide feedback to the controlling
-                            process by way of this options object.
-                            
-        'Python Module:First Step'   : Python module, running in first
-                                       step mode. (see above)
-
         'Energy Only'     : Compute the energy of start structure only,
                             printing the result and finishing.
                             
@@ -974,7 +960,6 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         More to come!"""
         arg_lookup_table = {
             'simulation_mode': lambda x: self.__setattr__('simulation_mode', _OC.SIMULATION_MODE[x]),
-            'parameter_type': lambda x: self.__setattr__('parameter_type', _OC.ENERGYMODEL_TYPE[x]),
             'substrate_type': lambda x: self.__setattr__('substrate_type', _OC.SUBSTRATE_TYPE[x]),
             'biscale': lambda x: self.__setattr__('bimolecular_scaling', x),
             'uniscale': lambda x: self.__setattr__('unimolecular_scaling', x),
@@ -990,7 +975,8 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
                 arg_lookup_table[k](kargs[k])          
                 
                 
-            #FD:  do some additional parsing for legacy support            
+            #FD: Do some additional parsing for legacy support            
+            #FD: This code simply translates the string calls to the numerical constants 
             elif k == 'rate_method':
                 if isinstance(kargs[k],basestring):
                     self.rate_method = self.RateMethodToString.index(kargs[k])
@@ -998,6 +984,10 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
             elif k == 'dangles':
                 if isinstance(kargs[k],basestring):
                     self.dangles = self.dangleToString.index(kargs[k])
+
+            elif k == 'parameter_type':
+                if isinstance(kargs[k],basestring):
+                    self.parameter_type = self.parameterTypeToString.index(kargs[k])
 
             else:
                 self.__setattr__(k, kargs[k])

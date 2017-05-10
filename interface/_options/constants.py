@@ -32,13 +32,13 @@ class OptionsConstants( object ):
 #         return {0:"None", 1:"Some", \
 #                 2:"All" }
 
-    @property
-    def ENERGYMODEL_TYPE(self):
-        return {"Vienna":0, "Nupack":1}
-    
-    @property
-    def ENERGYMODEL_TYPE_inv(self):
-        return {0:"Vienna", 1:"Nupack"}
+#     @property
+#     def ENERGYMODEL_TYPE(self):
+#         return {"Vienna":0, "Nupack":1}
+#     
+#     @property
+#     def ENERGYMODEL_TYPE_inv(self):
+#         return {0:"Vienna", 1:"Nupack"}
 
     @property
     def energy_type( self ):
