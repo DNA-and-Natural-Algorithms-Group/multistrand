@@ -23,13 +23,11 @@ int timeOut = 0;
 
 SimulationSystem::SimulationSystem(PyObject *system_o) {
 
-//	std::cout << "Initializing SimulationSystem w python object \n";
-
 	system_options = system_o;
 	simOptions = new PSimOptions(system_o);
 
 	construct();
-	initialPrint();
+	energyModel->writeConstantsToFile();
 
 }
 
@@ -39,7 +37,7 @@ SimulationSystem::SimulationSystem(SimOptions* options) {
 	simOptions = options;
 
 	construct();
-	initialPrint();
+	energyModel->writeConstantsToFile();
 
 }
 
@@ -69,19 +67,7 @@ void SimulationSystem::construct(void) {
 
 }
 
-void SimulationSystem::initialPrint(void) {
 
-//	if (energyModel->useArrhenius()) {
-
-	energyModel->writeConstantsToFile();
-
-//	} else {
-//
-//		energyModel->printkBikUni();
-//
-//	}
-
-}
 
 SimulationSystem::SimulationSystem(void) {
 

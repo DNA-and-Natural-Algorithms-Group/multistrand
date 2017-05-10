@@ -186,7 +186,7 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
                     nearly the same as mfold style files.
         """
 
-        self._substrate_type = self.substrateDNA
+        self.substrate_type = self.substrateDNA
         """ What substrate's parameter files to use. 
 
         Invalid [0]: Indicates we should not auto-search for a param file.
@@ -288,7 +288,7 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         self.dSA = -0.0;
         self.dHA = -0.0;
 
-        
+        # Buffer conditions
         self.sodium = 1.0;
         self.magnesium = 0.0;
               

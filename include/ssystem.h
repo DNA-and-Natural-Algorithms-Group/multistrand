@@ -1,6 +1,7 @@
 /*
- Copyright (c) 2007-2008 Caltech. All rights reserved.
+ Copyright (c) 2007-20017 Caltech. All rights reserved.
  Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
+ 	 	   Frits Dannenberg (fdann@caltech.edu)
  */
 
 /* SimulationSystem class header. This is the main object which controls the entire simulated system. */
@@ -27,7 +28,6 @@ public:
 
 	// helper method for constructors
 	void construct(void);
-	void initialPrint(void);
 
 	~SimulationSystem(void);
 

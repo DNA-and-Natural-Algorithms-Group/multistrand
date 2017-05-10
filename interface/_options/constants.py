@@ -9,7 +9,6 @@
 ################################################################################
 
 
-
 class OptionsConstants( object ):
     def __init__(self):
         self.ZERO_C_IN_K = 273.15
