@@ -123,7 +123,12 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         self.trajectory_current_time = 0.0
         self.current_graph = None
 
-        self._verbosity = 1
+        self.verbosity = 1
+        """ Indicates how much output will be generated for each trajectory run.
+        Value  = 0:  no end state reporting
+        Value >= 1:  end state reports to stdout
+        """
+        
         
         #############################################
         #                                           #
@@ -334,8 +339,7 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         self.sodium = 1.0;
         self.magnesium = 0.0;
               
-        
-        
+    
         
         ####################
         #
@@ -483,7 +487,6 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         self._unimolecular_scaling = float(val)
         
 # FD: Shadow variables for danlges only because we need to observe changes (and update boltzmann samples accordingly)
-
     @property
     def dangles(self):
          
@@ -496,23 +499,23 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         self.updateBoltzmannSamples
         
 
-    @property
-    def verbosity(self):
-        """ Indicates how much output will be generated for each trajectory run.
-
-        Type         Default
-        int          1
-
-        Currently of limited use:
-        Value  = 0:  no end state reporting
-        Value >= 1:  end state reports to stdout
-        """
-        return self._verbosity
-
-    @verbosity.setter
-    def verbosity(self, val):
-        self._verbosity = int(val)
-        
+#     @property
+#     def verbosity(self):
+#         """ Indicates how much output will be generated for each trajectory run.
+# 
+#         Type         Default
+#         int          1
+# 
+#         Currently of limited use:
+#         Value  = 0:  no end state reporting
+#         Value >= 1:  end state reports to stdout
+#         """
+#         return self._verbosity
+# 
+#     @verbosity.setter
+#     def verbosity(self, val):
+#         self._verbosity = int(val)
+#         
     
     @property
     def boltzmann_sample(self):
