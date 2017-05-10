@@ -366,7 +366,6 @@ void SimulationSystem::SimulationLoop_Trajectory() {
 		// 1.0 - drand as drand returns in the [0.0, 1.0) range, we need a (0.0,1.0] range.
 		// see notes below in First Step mode.
 
-//		cout << "rate is "  << (rate) << endl;
 
 		if (debugTraces) {
 			cout << "Printing my complexlist! *************************************** \n";
