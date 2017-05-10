@@ -19,7 +19,6 @@ _OC = OptionsConstants()
 import copy
 
 
-
 class Options(object):
     """ The main wrapper for controlling a Multistrand simulation. Has an interface for returning results. """
        
@@ -184,20 +183,12 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         self.rate_method = self.kawasaki
         """ Choice of methods for determining forward/reverse rates. """
 
-        self._dangles = _OC.DANGLES['NupackDefault']
+        self.dangles = self.some
         """ Dangles options for the energy model.
         
-        Type         Default
-        int          1: NupackDefault
-
         None [0]: Do not include any dangles terms in the energy model.
         Some [1]: Some dangles terms.  (Nupack Default)
         All  [2]: Include all dangles terms, including odd overlapping ones.
-
-        See notes elsewhere re: what each term does.
-        Should use the values in the _OC.DANGLES dictionary rather
-        than the numbers directly, as those should be consistent with
-        that used in the energymodel.h headers.
         """
 
         self.parameter_type = _OC.ENERGYMODEL_TYPE['Nupack']
@@ -489,33 +480,14 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
 # FD: Shadow variables for danlges only because we need to observe changes (and update boltzmann samples accordingly)
     @property
     def dangles(self):
-         
         return self._dangles
     
     @dangles.setter
     def dangles(self, val):
-                  
-        self._dangles = float(val)
+        self._dangles = int(val)
         self.updateBoltzmannSamples
         
 
-#     @property
-#     def verbosity(self):
-#         """ Indicates how much output will be generated for each trajectory run.
-# 
-#         Type         Default
-#         int          1
-# 
-#         Currently of limited use:
-#         Value  = 0:  no end state reporting
-#         Value >= 1:  end state reports to stdout
-#         """
-#         return self._verbosity
-# 
-#     @verbosity.setter
-#     def verbosity(self, val):
-#         self._verbosity = int(val)
-#         
     
     @property
     def boltzmann_sample(self):
@@ -604,14 +576,14 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
     def _add_start_complex(self, item):
         if isinstance(item, Complex):
             self._start_state.append((item, None))
-            item.set_boltzmann_parameters(_OC.DANGLES_inv[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius)
+            item.set_boltzmann_parameters(self.dangleToString[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius)
         else:
             self._start_state.append((item[0], item))
             # JS 8/30/2014 Not entirely sure about this one. If I remember right, resting states may have more than one
             # component, so setting only the first to have proper Boltzmann sampling might be an error.
             # 
             # If so, it should probably be 'for i in item: i.set_boltzmann_parameters'... {etc}
-            item[0].set_boltzmann_parameters(_OC.DANGLES_inv[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius)
+            item[0].set_boltzmann_parameters(self.dangleToString[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius)
 
     @property
     def initial_seed_flag(self):
@@ -734,43 +706,8 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
             # if it isn't, assume int and let any exception go upwards
             self._substrate_type = int(value)
             self.updateBoltzmannSamples
-#             if len(self._start_state) > 0:
-#                 for c, s in self._start_state:
-#                     c.set_boltzmann_parameters(_OC.DANGLES_inv[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius)
 
 
-
-    @property
-    def dangles(self):
-        """ Dangles options for the energy model.
-        
-        Type         Default
-        int          1: NupackDefault
-
-        None [0]: Do not include any dangles terms in the energy model.
-        Some [1]: Some dangles terms.  (Nupack Default)
-        All  [2]: Include all dangles terms, including odd overlapping ones.
-
-        See notes elsewhere re: what each term does.
-        Should use the values in the _OC.DANGLES dictionary rather
-        than the numbers directly, as those should be consistent with
-        that used in the energymodel.h headers.
-        """
-        return self._dangles
-
-    @dangles.setter
-    def dangles(self, value):
-        # See if it's a valid key for the dangles dictionary
-        try:
-            self._dangles = _OC.DANGLES[value]
-        except KeyError:
-            # if it isn't, just pretend it's an int. If that fails, let the exception go upwards.
-            self._dangles = int(value)
-            self.updateBoltzmannSamples
-#             if len(self._start_state) > 0:
-#                 for c, s in self._start_state:
-#                     c.set_boltzmann_parameters(_OC.DANGLES_inv[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius)
-    
     @property
     def temperature(self):
         """
@@ -820,26 +757,17 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
             self._temperature_kelvin = val
             self._temperature_celsius = val - _OC.ZERO_C_IN_K
             self.updateBoltzmannSamples
-#             if len(self._start_state) > 0:
-#                 for c, s in self._start_state:
-#                     c.set_boltzmann_parameters(_OC.DANGLES_inv[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius)
 
         elif 0.0 < val < 100.0:
             self._temperature_celsius = val
             self._temperature_kelvin = val + _OC.ZERO_C_IN_K
             self.updateBoltzmannSamples
-#             if len(self._start_state) > 0:
-#                 for c, s in self._start_state:
-#                     c.set_boltzmann_parameters(_OC.DANGLES_inv[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius)
             self.errorlog.append("Warning: Temperature was set at the value [{0}]. We expected a value in Kelvin, or with appropriate units.\n         Temperature was automatically converted to [{1}] degrees Kelvin.\n".format(val, self._temperature_kelvin))
 
         else:
             self._temperature_kelvin = val
             self._temperature_celsius = val - _OC.ZERO_C_IN_K
             self.updateBoltzmannSamples
-#             if len(self._start_state) > 0:
-#                 for c, s in self._start_state:
-#                     c.set_boltzmann_parameters(_OC.DANGLES_inv[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius)
             self.errorlog.append("Warning: Temperature was set at the value [{0}]. This is outside the normal range of temperatures we expect, so it was assumed to be in Kelvin.\n".format(val))
             raise Warning("Temperature did not fall in the usual expected ranges. Temperatures should be in units Kelvin, though the range [0,100] is assumed to mean units of Celsius.")
         
@@ -1046,7 +974,6 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         More to come!"""
         arg_lookup_table = {
             'simulation_mode': lambda x: self.__setattr__('simulation_mode', _OC.SIMULATION_MODE[x]),
-            'dangles': lambda x: self.__setattr__('dangles', _OC.DANGLES[x]),
             'parameter_type': lambda x: self.__setattr__('parameter_type', _OC.ENERGYMODEL_TYPE[x]),
             'substrate_type': lambda x: self.__setattr__('substrate_type', _OC.SUBSTRATE_TYPE[x]),
             'biscale': lambda x: self.__setattr__('bimolecular_scaling', x),

@@ -22,15 +22,15 @@ class OptionsConstants( object ):
 #     def RATEMETHOD_inv(self):
 #         return {0:"Invalid",  1:"Metropolis",   2:"Kawasaki"}
 #         
-    @property
-    def DANGLES(self):
-        return {"None":  0, "Some" : 1, \
-                "All" :  2, "NupackDefault": 1}
-
-    @property
-    def DANGLES_inv(self):
-        return {0:"None", 1:"Some", \
-                2:"All" }
+#     @property
+#     def DANGLES(self):
+#         return {"None":  0, "Some" : 1, \
+#                 "All" :  2, "NupackDefault": 1}
+# 
+#     @property
+#     def DANGLES_inv(self):
+#         return {0:"None", 1:"Some", \
+#                 2:"All" }
 
     @property
     def ENERGYMODEL_TYPE(self):
