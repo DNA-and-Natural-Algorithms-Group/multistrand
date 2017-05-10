@@ -12,7 +12,7 @@
 #include <iostream>
 #include <fstream>
 
-bool printedRates = false; // to print the constants file once
+bool printedRates = false; // to print the constants to file once
 
 const double INIT_PENALTY = 2.0; //kcal / mol
 
@@ -376,33 +376,6 @@ double EnergyModel::saltCorrection(int size) {
 
 }
 
-//double EnergyModel::ArrheniusLoopEnergy(char* seq, int size) {
-//
-//	double output = 0.0;
-//
-//	for (int i = 0; i < size; i++) {
-//
-//		switch (seq[i]) {
-//
-//		case BASE_A:
-//			output += (simOptions->energyOptions->dSA);
-//			break;
-//		case BASE_C:
-//			output += (simOptions->energyOptions->dSC);
-//			break;
-//		case BASE_G:
-//			output += (simOptions->energyOptions->dSG);
-//			break;
-//		case BASE_T:
-//			output += (simOptions->energyOptions->dST);
-//			break;
-//		}
-//
-//	}
-//
-//	return -output * simOptions->energyOptions->getTemperature() / 1000.0;
-//
-//}
 
 int pairs[5] = { 0, 0, 0, 0, 0 };
 int pairtypes[5][5] = { { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 } };

@@ -194,15 +194,6 @@ string stopComplexes::toString() {
 string complexItem::toString() {
 
 	string output = "";
-	// FD: This keeps giving formatting errors.
-//	if(structure != NULL){
-//	printf("The structure is");
-//	printf(structure);
-//	printf("\n");
-//	output += utility::copyToString(structure);
-////	output += ", ";
-////	output += strand_ids->toString();
-//	}
 
 	return output;
 

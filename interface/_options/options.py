@@ -46,6 +46,18 @@ class Options(object):
     substrateDNA = 2
     substrateToString = [ "Invalid", "RNA", "DNA"]    
     
+    # Simulation mode
+    firstPassageTime =  16 # 0x0010
+    firstStep =         48 # 0x0030
+    transition =        256 # 0x0100
+    trajectory =        128 # 0x0080
+    
+    # translation
+    simulationMode  ={  "Normal"    :               firstPassageTime,
+                        "First Step":               firstStep,
+                        "Transition":               transition,
+                        "Trajectory":               trajectory,
+                        "First Passage Time":       firstPassageTime}
 
     
     
@@ -213,23 +225,9 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         #
         ####################
         
-        self.simulation_mode = _OC.SIMULATION_MODE['Normal']
+        self.simulation_mode = self.firstPassageTime
         """ The simulation mode: how we want the simulation system to
         perform the main loop.
-
-        'Normal'          : Normal markov chain process.
-        'First Step'      : Markov chain where the first move chosen is
-                            always a bimolecular join step. See
-                            thesis/other docs for more info,
-                            especially on the statistics gathered by
-                            this mode.
-                            
-        'Energy Only'     : Compute the energy of start structure only,
-                            printing the result and finishing.
-                            
-        Should use the values in the _OC.SIMULATION_MODE dictionary rather
-        than the numbers directly, as those should be consistent with
-        the ones defined in the options_python.h headers.
         """
         
         self.simulation_time = 600.0
@@ -388,7 +386,7 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
 
     def legacyRates(self):
                     
-        warningmsg = "Warning! rate_scaling is set, enabling support for legacy 2.0 code. Now setting rate defaults for "
+        warningmsg = "Warning! rate_scaling is set, enabling support for legacy code. Now setting rate defaults for "
                 
         if (self.temperature == 298.15) & (self.rate_method == self.kawasaki) :
             warningmsg +=  "Kawasaki 25 C"
@@ -833,26 +831,6 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
     def add_trajectory_arrType(self, val):
         self.full_trajectory_arrType.append(val)
 
-#         if self.trajectory_state_count % 10 == 0:
-#             print "Count: {0} Time: {1}".format(self.trajectory_state_count, self.trajectory_current_time)
-
-
-        # if self.current_graph == None:
-        #     self.current_graph = create_graph( val[3], val[4], 0 )
-        #     print "hi"
-        #     try:
-
-        #     except:
-        #         print "Error"
-        #     self.trajectory_count = 1
-        #     self.current_graph.draw('test0000.png')
-        # for state in self.trajectory_complexes:
-        #     new_graph = update_graph( self.current_graph, self.basepairlist, state[4] )
-        #     self.current_graph = new_graph
-        #     self.current_graph.draw('test{0:04d}.png'.format(self.trajectory_count))
-            
-        #     print( "{2}, {1:3e}(s): [{0[1]}] '{0[2]}' Energy (kcal/mol): {0[5]} \n{0[3]}\n{0[4]}\n".format( state, val, self.trajectory_count ))
-        # from IPython.Debugger import Pdb; Pdb().set_trace()
         
     @property
     def interface_current_seed(self):
@@ -925,7 +903,6 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         ...
         More to come!"""
         arg_lookup_table = {
-            'simulation_mode': lambda x: self.__setattr__('simulation_mode', _OC.SIMULATION_MODE[x]),
             'biscale': lambda x: self.__setattr__('bimolecular_scaling', x),
             'uniscale': lambda x: self.__setattr__('unimolecular_scaling', x),
             'num_sims': lambda x: self.__setattr__('num_simulations', x),
@@ -957,7 +934,10 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
             elif k == 'substrate_type':
                 if isinstance(kargs[k],basestring):
                     self.substrate_type = self.substrateToString.index(kargs[k])
-
+                    
+            elif k == 'simulation_mode':
+                if isinstance(kargs[k],basestring):
+                    self.simulation_mode = self.simulationMode[kargs[k]]
 
             else:
                 self.__setattr__(k, kargs[k])
