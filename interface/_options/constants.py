@@ -14,14 +14,6 @@ class OptionsConstants( object ):
         self.ZERO_C_IN_K = 273.15
         pass
  
-#     @property
-#     def SIMULATION_MODE(self):
-#         return {"Normal":                   0x0010,
-#                 "First Step":               0x0030,
-#                 "Transition":               0x0100,
-#                 "Trajectory":               0x0080,
-#                 "First Passage Time":       0x0010}
-
 
     @property
     def STOPRESULT(self):
@@ -54,7 +46,6 @@ class OptionsConstants( object ):
     
     def __delattr__(self, *args, **kargs):
         pass
-
 
 
 

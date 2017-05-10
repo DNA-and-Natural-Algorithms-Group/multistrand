@@ -84,24 +84,7 @@ class Options(object):
         useArrRates     [type=bool]  -- if TRUE, use Arrhenius rate model. If using, please set lnAEnd, lnALoop, lnAStack, lnAStackStack, lnALoopEnd, lnAStackEnd, lnAStackLoop
 EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value).
         """
-        
-        
-        # FD: Start throwing errors if not in the right format
-        # FD: This will cast the value as a float anyway.
-        for key, value in kargs.items():
             
-            if key == "simulation_time":
-                if not isinstance(value, (float)):
-                    raise Warning("Please provide simulation_time as float")
-                
-            if key == "bimolecular_scaling":
-                if not isinstance(value, (float)):
-                    raise Warning("Please provide bimolecular_scaling as float")
-                
-            if key == "unimolecular_scaling":
-                if not isinstance(value, (float)):
-                    raise Warning("Please provide unimolecular_scaling as float")
-
 
         ##################################################
         #                                                #
@@ -170,7 +153,7 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         self._temperature_kelvin = 310.15
 
         self.rate_scaling = None
-        """ This is a legacy option that sets unimolecular and bimolecular scaling automatically if set"""
+        """FD: This is a legacy option that sets unimolecular and bimolecular scaling automatically if set"""
 
         self.unimolecular_scaling = -1.0 
         """ Rate scaling factor for unimolecular reactions."""
@@ -239,19 +222,11 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         
         self.num_simulations = 1
         """ Total number of trajectories to run. 
-        
-        Type         Default
-        int          1
         """
         
         self.initial_seed = None
         """ Initial random number seed to use.
-        
-        Type         Default
-        long         None
-        
-        If None when simulation starts, a seed will be chosen by the RNG however
-        it feels like.
+        If None when simulation starts, a random seed will be chosen
         """
         
         self.name_dict = {}
@@ -910,12 +885,33 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
             'concentration': lambda x: self.__setattr__('join_concentration', x)
             }
         
+                
+        
+        # FD: Start throwing errors if not in the right format
+        # FD: This does not prevent the user to set them to ints after options 
+        # FD: initialization (could use overloading via @property to prevent this).
+        for key, value in kargs.items():
+            
+            if key == "simulation_time":
+                if not isinstance(value, (float)):
+                    raise Warning("Please provide simulation_time as float")
+                
+            if key == "bimolecular_scaling":
+                if not isinstance(value, (float)):
+                    raise Warning("Please provide bimolecular_scaling as float")
+                
+            if key == "unimolecular_scaling":
+                if not isinstance(value, (float)):
+                    raise Warning("Please provide unimolecular_scaling as float")
+
+        
         
         for k in kargs.keys():
             
             if k in arg_lookup_table:
                 arg_lookup_table[k](kargs[k])          
-                
+            
+            
                 
             #FD: Do some additional parsing for legacy support            
             #FD: This code simply translates the string calls to the numerical constants 
