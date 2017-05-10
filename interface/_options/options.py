@@ -23,7 +23,8 @@ class Options(object):
     """ The main wrapper for controlling a Multistrand simulation. Has an interface for returning results. """
        
     '''Constants:'''
-
+    # FD: these could be enums, using constants instead.
+    
     # rate_method
     metropolis = 1
     kawasaki = 2
@@ -40,18 +41,11 @@ class Options(object):
     nupackModel = 1 
     parameterTypeToString = [ "Vienna", "Nupack" ]
 
+    # Substrate type.
+    substrateRNA = 1
+    substrateDNA = 2
+    substrateToString = [ "Invalid", "RNA", "DNA"]    
     
-
-
-
-# FD: We are implementing an observer pattern. 
-# FD: After temperature, substrate (RNA/DNA) or danlges is updated, we attempt to update boltzmann samples.
-    def updateBoltzmannSamples(self):
-
-        if len(self._start_state) > 0:
-            for c, s in self._start_state:
-                c.set_boltzmann_parameters(self.dangleToString[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius)
-
 
     
     
@@ -192,23 +186,14 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
                     nearly the same as mfold style files.
         """
 
-        self._substrate_type = _OC.SUBSTRATE_TYPE['DNA']
-        """ What substrate's parameter files to use. Note that some
-        combinations of this and energymodel_type will be invalid and
-        Multistrand will complain.
-        
-        Type         Default
-        int          2: DNA
+        self._substrate_type = self.substrateDNA
+        """ What substrate's parameter files to use. 
 
         Invalid [0]: Indicates we should not auto-search for a param file.
         RNA     [1]: RNA parameters are available for Vienna and Nupack, see also
                      the comment in parameter_file_version.
         DNA     [2]: DNA parameters are publicly available via the Nupack distribution,
                      and possibly by the Vienna group upon request.
-
-        Should use the values in the _OC.SUBSTRATE_TYPE dictionary rather
-        than the numbers directly, as those should be consistent with
-        the ones defined in the options_python.h headers.
         """
         
         self.parameter_file = None
@@ -424,9 +409,19 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         print warningmsg 
         self.rate_scaling = None        
         
+
+# FD: We are implementing an observer pattern. 
+# FD: After temperature, substrate (RNA/DNA) or danlges is updated, we attempt to update boltzmann samples.
+    def updateBoltzmannSamples(self):
+
+        if len(self._start_state) > 0:
+            for c, s in self._start_state:
+                c.set_boltzmann_parameters(self.dangleToString[self.dangles], self.substrateToString[self.substrate_type], self._temperature_celsius)
+
+    
+    
 #     FD: We are using shadow variables for biscale, uniscale only because we want to 
 #     flag a warning when rate_scaling is used
-    
     @property
     def bimolecular_scaling(self):
 
@@ -464,8 +459,17 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         self._dangles = int(val)
         self.updateBoltzmannSamples
         
+#FD: shadow parameter sothat boltzmann samples can be updated when this parameter is set
+#FD: In a better control flow, complexes themselves might fetch the right constants just before evaluating their boltzmann samples 
+    @property
+    def substrate_type(self):
+        return self._substrate_type
 
-    
+    @substrate_type.setter
+    def substrate_type(self, value):
+        self._substrate_type = int(value)
+        self.updateBoltzmannSamples
+
     @property
     def boltzmann_sample(self):
         """ Indicates whether the start state will be determined by Boltzmann
@@ -553,14 +557,14 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
     def _add_start_complex(self, item):
         if isinstance(item, Complex):
             self._start_state.append((item, None))
-            item.set_boltzmann_parameters(self.dangleToString[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius)
+            item.set_boltzmann_parameters(self.dangleToString[self.dangles], self.substrateToString[self.substrate_type], self._temperature_celsius)
         else:
             self._start_state.append((item[0], item))
             # JS 8/30/2014 Not entirely sure about this one. If I remember right, resting states may have more than one
             # component, so setting only the first to have proper Boltzmann sampling might be an error.
             # 
             # If so, it should probably be 'for i in item: i.set_boltzmann_parameters'... {etc}
-            item[0].set_boltzmann_parameters(self.dangleToString[self.dangles], _OC.SUBSTRATE_TYPE_inv[self.substrate_type], self._temperature_celsius)
+            item[0].set_boltzmann_parameters(self.dangleToString[self.dangles], self.substrateToString[self.substrate_type], self._temperature_celsius)
 
     @property
     def initial_seed_flag(self):
@@ -653,36 +657,7 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         return None
 
 
-    @property
-    def substrate_type(self):
-        """ What substrate's parameter files to use. Note that some
-        combinations of this and energymodel_type will be invalid and
-        Multistrand will complain.
-        
-        Type         Default
-        int          2: DNA
 
-        Invalid [0]: Indicates we should not auto-search for a param file.
-        RNA     [1]: RNA parameters are available for Vienna and Nupack, see also
-                     the comment in parameter_file_version.
-        DNA     [2]: DNA parameters are publicly available via the Nupack distribution,
-                     and possibly by the Vienna group upon request.
-
-        Should use the values in the _OC.SUBSTRATE_TYPE dictionary rather
-        than the numbers directly, as those should be consistent with
-        the ones defined in the options_python.h headers.
-        """
-        return self._substrate_type
-
-    @substrate_type.setter
-    def substrate_type(self, value):
-        # see if it's a valid key for the dangles dictionary
-        try:
-            self._substrate_type = _OC.SUBSTRATE_TYPE[value]
-        except KeyError:
-            # if it isn't, assume int and let any exception go upwards
-            self._substrate_type = int(value)
-            self.updateBoltzmannSamples
 
 
     @property
@@ -951,7 +926,6 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         More to come!"""
         arg_lookup_table = {
             'simulation_mode': lambda x: self.__setattr__('simulation_mode', _OC.SIMULATION_MODE[x]),
-            'substrate_type': lambda x: self.__setattr__('substrate_type', _OC.SUBSTRATE_TYPE[x]),
             'biscale': lambda x: self.__setattr__('bimolecular_scaling', x),
             'uniscale': lambda x: self.__setattr__('unimolecular_scaling', x),
             'num_sims': lambda x: self.__setattr__('num_simulations', x),
@@ -979,6 +953,11 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
             elif k == 'parameter_type':
                 if isinstance(kargs[k],basestring):
                     self.parameter_type = self.parameterTypeToString.index(kargs[k])
+
+            elif k == 'substrate_type':
+                if isinstance(kargs[k],basestring):
+                    self.substrate_type = self.substrateToString.index(kargs[k])
+
 
             else:
                 self.__setattr__(k, kargs[k])

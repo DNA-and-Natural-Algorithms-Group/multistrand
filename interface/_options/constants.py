@@ -14,17 +14,7 @@ class OptionsConstants( object ):
     def __init__(self):
         self.ZERO_C_IN_K = 273.15
         pass
-    
-    @property
-    def SUBSTRATE_TYPE(self):
-        return {"Invalid":0, "RNA":1, \
-                "DNA":2}
-
-    @property
-    def SUBSTRATE_TYPE_inv(self):
-        return {0:"Invalid", 1:"RNA", \
-                2:"DNA"}
-
+ 
     @property
     def SIMULATION_MODE(self):
         return {"Normal":                   0x0010,
