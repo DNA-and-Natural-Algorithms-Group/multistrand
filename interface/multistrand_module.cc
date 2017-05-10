@@ -29,8 +29,7 @@ typedef struct {
 	PyObject* options;
 } SimSystemObject;
 
-//#define SimSystem_Check(v)  (Py_TYPE(v) == &SimSystem_Type)
-/* Should we want to use it later... */
+
 
 static PyObject *SimSystemObject_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
 
@@ -172,7 +171,6 @@ sizeof(SimSystemObject), /* tp_basicsize */
 (destructor) SimSystemObject_dealloc, /* tp_dealloc */
 0, /* tp_print [not quite the same as str] */
 0, /* tp_getattr see comment out line below. */
-/* (getattrfunc)SimSystem_getattr, /\* tp_getattr - not sure I need this if I define only methods? *\/ */
 0, /* tp_setattr */
 0, /* tp_compare */
 0, /* tp_repr */

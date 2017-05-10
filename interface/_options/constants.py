@@ -16,15 +16,6 @@ class OptionsConstants( object ):
         pass
     
     @property
-    def energy_type( self ):
-        pass
-
-    @property
-    def macrostate_type( self ):
-        pass
-    
-
-    @property
     def SUBSTRATE_TYPE(self):
         return {"Invalid":0, "RNA":1, \
                 "DNA":2}

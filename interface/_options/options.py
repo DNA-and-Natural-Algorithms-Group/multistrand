@@ -40,6 +40,7 @@ class Options(object):
     nupackModel = 1 
     parameterTypeToString = [ "Vienna", "Nupack" ]
 
+    
 
 
 
