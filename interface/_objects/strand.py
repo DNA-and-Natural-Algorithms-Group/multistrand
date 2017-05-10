@@ -155,51 +155,50 @@ Strand: {b}       Name:'{0.name}'\n\
 
 
 class ComplementaryStrand( Strand ):
-  """
-  Represents a complemented strand. This is always defined in
-  terms of an original strand, so that it reflects any change in the
-  original. It provides the same interfaces as a strand.
-  """
-
-  complement = {'G':'C',
-                'C':'G',
-                'A':'T',
-                'T':'A'}
-
-  unique_id = 0
-
-  def __init__( self, complemented_strand ):
-    self.id = ComplementaryStrand.unique_id
-    ComplementaryStrand.unique_id += 1
-    self._strand = complemented_strand
-    self._sequence = ""
-
-  @property
-  def name( self ):
-    if self._strand.name.endswith("*") or \
-       self._strand.name.endswith("'"):
-      return self._strand.name.rstrip("*'")
-    else:
-      return self._strand.name + "*"
-
-  @property
-  def sequence(self):
-    self._sequence = "".join(
-        [ComplementaryStrand.complement[i] for i in reversed(self._strand.sequence)])
-    # Note that if Strand.sequence was 0 (e.g. since one domain didn't
-    # have a sequence yet), the Strand.sequence call will raise an
-    # exception, so we never reach these later lines.
-    return self._sequence
-
-  @property
-  def domain_list(self):
-    return [d.C for d in reversed(self._strand.domain_list)]
-
-  @property
-  def C(self):
     """
-    Returns a Strand object that is complementary to this one.
+    Represents a complemented strand. This is always defined in
+    terms of an original strand, so that it reflects any change in the
+    original. It provides the same interfaces as a strand.
     """
+    
+    complement = {'G':'C',
+                  'C':'G',
+                  'A':'T',
+                  'T':'A'}
+    
+    unique_id = 0
 
-    return self._strand
+    def __init__( self, complemented_strand ):
+        self.id = ComplementaryStrand.unique_id
+        ComplementaryStrand.unique_id += 1
+        self._strand = complemented_strand
+        self._sequence = ""
+
+    @property
+    def name( self ):
+        if self._strand.name.endswith("*") or \
+            self._strand.name.endswith("'"):
+            return self._strand.name.rstrip("*'")
+        else:
+            return self._strand.name + "*"
+
+    @property
+    def sequence(self):
+        self._sequence = "".join([ComplementaryStrand.complement[i] for i in reversed(self._strand.sequence)])
+        # Note that if Strand.sequence was 0 (e.g. since one domain didn't
+        # have a sequence yet), the Strand.sequence call will raise an
+        # exception, so we never reach these later lines.
+        return self._sequence
+
+    @property
+    def domain_list(self):
+        return [d.C for d in reversed(self._strand.domain_list)]
+
+    @property
+    def C(self):
+        """
+        Returns a Strand object that is complementary to this one.
+        """
+        
+        return self._strand
 
