@@ -79,10 +79,8 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         """
         
         
-        
         # FD: Start throwing errors if not in the right format
         # FD: This will cast the value as a float anyway.
-        
         for key, value in kargs.items():
             
             if key == "simulation_time":
@@ -134,10 +132,6 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         #############################################
         #                                           #
         # Data Members: Energy Model                #
-        # ->Members needed by the energy model      #
-        #   NOTE: simple members only - custom      #
-        #         members with different accessors  #
-        #         appear after __init__.            #
         #                                           #
         #############################################
         
@@ -157,10 +151,6 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         
         self.join_concentration = 1.0
         """ concentration for V calcs
-        
-        Type         Default
-        double       1.0 (M)
-
         Units are in M (molar), and represent the concentration of a single unique strand in the system. The volume simulated is
         then chosen using this parameter.
         """

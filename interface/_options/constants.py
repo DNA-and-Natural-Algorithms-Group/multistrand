@@ -15,31 +15,6 @@ class OptionsConstants( object ):
         self.ZERO_C_IN_K = 273.15
         pass
     
-#     @property
-#     def RATEMETHOD(self):
-#         return {"Invalid" :0, "Metropolis":1,  "Kawasaki":2}
-#     @property
-#     def RATEMETHOD_inv(self):
-#         return {0:"Invalid",  1:"Metropolis",   2:"Kawasaki"}
-#         
-#     @property
-#     def DANGLES(self):
-#         return {"None":  0, "Some" : 1, \
-#                 "All" :  2, "NupackDefault": 1}
-# 
-#     @property
-#     def DANGLES_inv(self):
-#         return {0:"None", 1:"Some", \
-#                 2:"All" }
-
-#     @property
-#     def ENERGYMODEL_TYPE(self):
-#         return {"Vienna":0, "Nupack":1}
-#     
-#     @property
-#     def ENERGYMODEL_TYPE_inv(self):
-#         return {0:"Vienna", 1:"Nupack"}
-
     @property
     def energy_type( self ):
         pass
