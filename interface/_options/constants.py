@@ -10,10 +10,6 @@
 
 
 class OptionsConstants( object ):
-    def __init__(self):
-        self.ZERO_C_IN_K = 273.15
-        pass
- 
 
     @property
     def STOPRESULT(self):
@@ -47,6 +43,3 @@ class OptionsConstants( object ):
     def __delattr__(self, *args, **kargs):
         pass
 
-
-
-Constants = OptionsConstants()

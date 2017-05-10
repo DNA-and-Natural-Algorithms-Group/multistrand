@@ -11,10 +11,8 @@
 
 from interface import Interface
 from ..objects import Strand, Complex, RestingState, StopCondition
-from constants import OptionsConstants
 from ..utils import JSKawasaki25, JSKawasaki37, JSMetropolis25, JSMetropolis37, JSDefault     # this is for 2.0 support only
 
-_OC = OptionsConstants()
 
 import copy
 
@@ -23,7 +21,9 @@ class Options(object):
     """ The main wrapper for controlling a Multistrand simulation. Has an interface for returning results. """
        
     '''Constants:'''
-    # FD: these could be enums, using constants instead.
+    # FD: some could be enums, using constants instead.
+    
+    ZERO_C_IN_K = 273.15
     
     # rate_method
     metropolis = 1
@@ -680,18 +680,18 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         """
         if 273.0 < val < 373.0:
             self._temperature_kelvin = val
-            self._temperature_celsius = val - _OC.ZERO_C_IN_K
+            self._temperature_celsius = val - self.ZERO_C_IN_K
             self.updateBoltzmannSamples
 
         elif 0.0 < val < 100.0:
             self._temperature_celsius = val
-            self._temperature_kelvin = val + _OC.ZERO_C_IN_K
+            self._temperature_kelvin = val + self.ZERO_C_IN_K
             self.updateBoltzmannSamples
             self.errorlog.append("Warning: Temperature was set at the value [{0}]. We expected a value in Kelvin, or with appropriate units.\n         Temperature was automatically converted to [{1}] degrees Kelvin.\n".format(val, self._temperature_kelvin))
 
         else:
             self._temperature_kelvin = val
-            self._temperature_celsius = val - _OC.ZERO_C_IN_K
+            self._temperature_celsius = val - self.ZERO_C_IN_K
             self.updateBoltzmannSamples
             self.errorlog.append("Warning: Temperature was set at the value [{0}]. This is outside the normal range of temperatures we expect, so it was assumed to be in Kelvin.\n".format(val))
             raise Warning("Temperature did not fall in the usual expected ranges. Temperatures should be in units Kelvin, though the range [0,100] is assumed to mean units of Celsius.")

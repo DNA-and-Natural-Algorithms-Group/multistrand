@@ -8,7 +8,6 @@
 #
 
 from _options.options   import Options
-from _options.constants import Constants
 from _options.interface import Result
 
 Options.__module__ = 'multistrand.options'
