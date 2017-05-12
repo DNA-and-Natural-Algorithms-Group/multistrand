@@ -14,7 +14,7 @@
 
 bool printedRates = false; // to print the constants to file once
 
-const double INIT_PENALTY = 2.0; //kcal / mol
+const double INIT_PENALTY = 0.0; //kcal / mol
 
 EnergyModel::EnergyModel(PyObject *options) {
 	// nothing yet

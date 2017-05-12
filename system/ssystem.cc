@@ -890,8 +890,9 @@ void SimulationSystem::InitialInfo(void) {
 	biRate = biRate / energyModel->applyPrefactors(energyModel->getJoinRate(), loopMove, loopMove);
 
 	cout << "\n";
-	cout << "#inner-nucleotide joins is " << biRate;
-	cout << "\n";
+	cout << "#nucleotide joins is " << biRate << endl;
+	cout << "joinrate is " << energyModel->applyPrefactors(energyModel->getJoinRate(), loopMove, loopMove) << " /s" << endl;
+	cout << "join concentration is " << energyModel->simOptions->energyOptions->getJoinConcentration() << endl;
 
 //	for (int i = 0; i < MOVETYPE_SIZE; i++) {
 //
