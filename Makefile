@@ -1,15 +1,11 @@
+# Copyright (c) 2007-2017 Caltech. All rights reserved.
+#   
+#	Joseph Schaeffer (schaeffer@dna.caltech.edu)  
+#  	Chris Berlind (cberlind@dna.caltech.edu)
+#	Frits Dannenberg (fdann@caltech.edu)
 #
-# Copyright (c) 2007-2010 Caltech. All rights reserved.
-#   Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)   [maintainer]
-#  	             Chris Berlind (cberlind@dna.caltech.edu)
-#
-
-# A useful line for debugging dependencies:
-#    @echo Rule expansion: $@ is target, [$?] deps newer, all: [$^].
-#
-# Note that all python build deps and so on are handled by python's distutils now, this 
-#  Makefile just invokes it correctly and places the .o / built version in known locations.
-# 
+#  All python build dependencies are handled by python distutils. 
+#  This makefile invokes it and copies the built version.
 
 vpath %.h include
 INCLUDES = utility.h sequtil.h energymodel.h loop.h move.h moveutil.h optionlists.h python_options.h scomplex.h scomplexlist.h energyoptions.h simoptions.h ssystem.h strandordering.h 
@@ -23,21 +19,15 @@ SOURCES_TESTING = testingmain.cc
 
 SOURCES = $(SOURCES_LOOP) $(SOURCES_ENERGYMODEL) $(SOURCES_STATE) $(SOURCES_SYSTEM) $(SOURCES_OPTIONS) $(SOURCES_TESTING)
 
-# separate the objects to make it a bit easier on ourselves when compiling targets
-#  for the python library package.
-
 VPATH=loop state system energymodel include interface
-
 MAIN_OBJECT = testingmain.o
 OBJECTS = sequtil.o loop.o scomplex.o energymodel.o  nupackenergymodel.o move.o moveutil.o energyoptions.o  simoptions.o ssystem.o scomplexlist.o strandordering.o python_options.o optionlists.o 
 
-
-OBJPATH=obj
+OBJPATH = obj
 OBJECTS := $(OBJECTS:%=$(OBJPATH)/%)
 MAIN_OBJECT := $(MAIN_OBJECT:%=$(OBJPATH)/%)
 
 MULTISTRAND_INCLUDES := -I $(realpath ./include)
-
 PYTHON_INCLUDES 	  = -I /usr/include/python2.7
 
 ## utility function for searching a path: 
@@ -87,7 +77,6 @@ endif
 # flag blocks for C compilation
 CFLAGS_RELEASE = -O3 -std=c++11
 CFLAGS_DEBUG   = -g -Wconversion -DDEBUG_MACROS -DDEBUG
-#CFLAGS_INTERFACE  = -DPYTHON_THREADS 
 
 #CFLAGS := $(CFLAGS_DEBUG)
 CFLAGS := $(CFLAGS_RELEASE)
@@ -95,20 +84,16 @@ INCLUDEPATHS = $(MULTISTRAND_INCLUDES) $(PYTHON_INCLUDES)
 
 LIBRARIES= $(LIBRARYPATHS) -lpython2.7
 
-# note that LIB_INTERFACE stuff is now all handled by python's distutils, we don't need to
-# worry about any boost stuff, etc.
-#LIB_INTERFACE = -shared $(BOOSTLIB)
-
 CC = g++
 #CC = clang
 COMPILE = $(CC) $(CFLAGS) $(INCLUDEPATHS)
 LINK = $(CC) $(CFLAGS) $(LIBRARIES)
 
 
-
 all: package
 
 Multistrand: Multistrand-internal
+# Multistrand-internal is a dummy rule to build directories. 
 
 .PHONY: all package Multistrand
 # primary targets
@@ -125,13 +110,6 @@ Multistrand: Multistrand-internal
 .PHONY: docs
 # documentation
 
-# .PHONE: These rules MUST run their commands.  
-#
-# Note that Multistrand-internal is a phony rule used to build the
-# directories. If someone uses the target Multistrand, they get what
-# they deserve?
-# 
-
 .SUFFIXES:
 # clear out all the implicit rules that might be run.
 
@@ -141,26 +119,8 @@ clean: package-clean
 package-clean:
 	@echo Cleaning up old object files, shared libraries.
 	$(PYTHON_COMMAND) setup.py clean -b ./ -t obj/package/ --build-lib ./
-# NOTE: DO NOT USE --all IN THE ABOVE COMMAND! Perhaps later if we build binaries to ./bin
-# and libraries to ./lib it'll be possible, but right now that may
-# delete your distribution.
 	-rm -rf multistrand/
-
-package-debug-clean:
-	@echo Cleaning up old object files, shared libraries.
-	$(PYTHON_DEBUG_COMMAND) setup.py clean -b ./ -t obj/package_debug/ --build-lib ./
-# NOTE: DO NOT USE --all IN THE ABOVE COMMAND! Perhaps later if we build binaries to ./bin
-# and libraries to ./lib it'll be possible, but right now that may
-# delete your distribution.
-	-rm -rf multistrand/
-
-package-profiler-clean:
-	@echo Cleaning up old object files, shared libraries.
-	$(PYTHON_COMMAND) setup.py clean -b ./ -t obj/package_profiler/ --build-lib ./
-# NOTE: DO NOT USE --all IN THE ABOVE COMMAND! Perhaps later if we build binaries to ./bin
-# and libraries to ./lib it'll be possible, but right now that may
-# delete your distribution.
-	-rm -rf multistrand/
+	# Do not use --all here! This could delete your distribution.
 
 distclean: package-clean package-debug-clean clean
 	@echo Removing object file directories.
@@ -174,20 +134,7 @@ package:
 	@if [ -d obj/package_debug/ ]; then $(MAKE) package-debug-clean; fi
 	@if [ -d obj/package_profiler/ ]; then $(MAKE) package-profiler-clean; fi
 	$(PYTHON_COMMAND) setup.py build -b ./ -t obj/package/ --build-lib ./ --debug
-	@echo Package is now [hopefully] built, you can import it via "import multistrand" if the current directory is in your sys.path. You can install the package via 'make install' to have it installed in your Python site packages - you may need to 'sudo make install' if it complains about permissions..
-
-package-profiler:
-	@echo Building the 'multistrand' Python package.
-	@if [ -d obj/package_debug/ ]; then $(MAKE) package-debug-clean; fi
-	@if [ -d obj/package/ ]; then $(MAKE) package-clean; fi
-	$(PYTHON_COMMAND) setup.py build -b ./ -t obj/package_profiler/ --build-lib ./ --debug --use-profiler-defs
-	@echo Package is now [hopefully] built, you can import it via "import multistrand" if the current directory is in your sys.path. You can install the package via 'make install' to have it installed in your Python site packages - you may need to 'sudo make install' if it complains about permissions.
-package-debug:
-	@echo Building the 'multistrand' Python package, with debugging symbols enabled.
-	@if [ -d obj/package/ ]; then $(MAKE) package-clean; fi
-	@if [ -d obj/package_profiler/ ]; then $(MAKE) package-profiler-clean; fi
-	$(PYTHON_DEBUG_COMMAND) setup.py build -b ./ -t obj/package_debug/ --build-lib ./ --debug --use-debug-defs
-	@echo Package is now [hopefully] built, you can import it via "import multistrand" if the current directory is in your sys.path. You can install the package via 'make install' to have it installed in your Python site packages - you may need to 'sudo make install' if it complains about permissions..
+	@echo Multistrand is now built. Run 'sudo make install' to install Multistrand to your Python site packages.
 
 #documentation
 docs:
@@ -198,13 +145,6 @@ install:
 	@echo Installing the 'multistrand' Python package to your python site-packages.
 	$(PYTHON_COMMAND) setup.py install
 
-
-
-
-# targets for setting up debugging flags.
-
-debug: CFLAGS := $(CFLAGS_DEBUG) 
-debug: clean Multistrand
 
 # utilities targets
 dircheck:
@@ -219,10 +159,3 @@ $(OBJPATH)/%.o: %.cc $(INCLUDES)
 Multistrand: $(MAIN_OBJECT) $(OBJECTS)
 	rm -f Multistrand
 	$(LINK) $(CFLAGS) $(LIBRARIES) $(filter-out dircheck,$^) -o Multistrand
-
-# Indirectly more also depend on loop.h via headers: scomplex.h
-# ssystem.h strandordering.h should generate these directly via a
-# script, see note in todos.org:
-# [[id:38BF8831-172D-4BC3-8B7A-D6B2EA95FE22][Code]]
-#
-# This is true of several others as well.

@@ -1,9 +1,7 @@
-import sys,os,os.path
-import cPickle
+import sys,os
 import math
 import subprocess # for Popen to call some nupack functions
 
-### FRITS -- THIS IS THE CASE STUDY.
 
 multihome = None
 if 'MULTISTRANDHOME' in os.environ:

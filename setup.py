@@ -1,12 +1,12 @@
+# Copyright (c) 2010-2017 Caltech. All rights reserved.
+# Joseph Schaeffer (schaeffer@dna.caltech.edu)
+# Frits Dannenberg (fdann@dna.caltech.edu)
 #
-#
-# Copyright (c) 2010 Caltech. All rights reserved.
-# Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
-#
-#
-# setup the python distribution
-#
-#
+from distutils.core import setup, Extension
+import distutils.sysconfig
+import os, sys
+
+config_vars = distutils.sysconfig.get_config_vars()
 
 sources = ["system/utility.cc",
            "system/sequtil.cc",
@@ -26,17 +26,9 @@ sources = ["system/utility.cc",
            "state/strandordering.cc"
            ]
 
-# setup.py for multistrand module.
-from distutils.core import setup, Extension
 
-import distutils.sysconfig
-config_vars = distutils.sysconfig.get_config_vars()
-# config variables used in the next two functions.
-
-
+# remove -Wstrict-prototypes from our default flags for the compiler, if it's in there
 def setup_flags():
-    # remove -Wstrict-prototypes from our default flags for the compiler, if it's in there
-    # 
     opt = config_vars['OPT'].split()
     if '-Wstrict-prototypes' in opt:
         opt.remove('-Wstrict-prototypes')
@@ -50,15 +42,14 @@ def setup_flags():
         cppflags.remove('-Wstrict-prototypes')
         config_vars['CPPFLAGS'] = ' '.join( cppflags )
 
+# Find the library path [so we can check for tcmalloc].
 def setup_libcheck():
-    # Find the library path [so we can check for tcmalloc].
-    import os, os.path
     ldflags = config_vars['LDFLAGS'].split() + ['/usr/lib']
     for libpath in ldflags + os.environ.get('LIBRARY_PATH', '').split():
         if libpath.startswith('-L'):
             pathname = libpath[2:] # strip the -L from each entry
         else:
-	     pathname = libpath
+            pathname = libpath
         try:
             items = iter( os.listdir(pathname) )
         except OSError:
@@ -70,13 +61,14 @@ def setup_libcheck():
     
 
 def setup_ext( have_tcmalloc):    
-    import sys
+
     if have_tcmalloc:
         tcmalloc_optional = ['tcmalloc_minimal']
         print "Found tcmalloc, will attempt to use it."
     else:
         print "Cannot find tcmalloc, proceeding with standard memory management."
         tcmalloc_optional = []
+        
     if '--use-debug-defs' in sys.argv:
         sys.argv.remove('--use-debug-defs')
         multi_ext = Extension("multistrand.system",
@@ -111,13 +103,8 @@ def setup_ext( have_tcmalloc):
                               include_dirs=["./include"],
                               language="c++",
                               libraries=[] + tcmalloc_optional,
-                              #                          define_macros=[('DEBUG',None),
-                              #                                         ('DEBUG_MACROS',None)],
-                              #                                         ('Py_TRACE_REFS',None)],
                             undef_macros=['NDEBUG'],
-                            extra_compile_args = ['-O3','-g', '-w', "-std=c++11" ], #FD: adding -fsyntax-only for CLANG only.
-#                               extra_compile_args = ['-g', '-w'],                              
-                              #                          ['-Wno-strict-prototypes','-w','-O0','-v','-fcommon', '-fno-wrapv'],   #This is 'disable all warnings compiler flag'
+                            extra_compile_args = ['-O3','-g', '-w', "-std=c++11" ], #FD: adding c11 flag
                               )
     return multi_ext
 
@@ -135,6 +122,5 @@ if __name__ == '__main__':
           package_dir={'multistrand':'interface'},
           ext_modules=[multi_ext])
 
-#          zip_safe=False)
 
 
