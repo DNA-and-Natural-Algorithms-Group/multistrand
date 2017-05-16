@@ -26,22 +26,6 @@ sources = ["system/utility.cc",
            "state/strandordering.cc"
            ]
 
-
-# remove -Wstrict-prototypes from our default flags for the compiler, if it's in there
-def setup_flags():
-    opt = config_vars['OPT'].split()
-    if '-Wstrict-prototypes' in opt:
-        opt.remove('-Wstrict-prototypes')
-        config_vars['OPT'] = ' '.join( opt )
-    cflags = config_vars['CFLAGS'].split()
-    if '-Wstrict-prototypes' in cflags:
-        cflags.remove('-Wstrict-prototypes')
-        config_vars['CFLAGS'] = ' '.join( cflags )
-    cppflags = config_vars['CPPFLAGS'].split()
-    if '-Wstrict-prototypes' in cppflags:
-        cppflags.remove('-Wstrict-prototypes')
-        config_vars['CPPFLAGS'] = ' '.join( cppflags )
-
 # Find the library path [so we can check for tcmalloc].
 def setup_libcheck():
     ldflags = config_vars['LDFLAGS'].split() + ['/usr/lib']
@@ -109,7 +93,7 @@ def setup_ext( have_tcmalloc):
     return multi_ext
 
 if __name__ == '__main__':
-    setup_flags()
+#     setup_flags()
     tcmalloc_flag = setup_libcheck()
     multi_ext = setup_ext( have_tcmalloc=tcmalloc_flag)
     
