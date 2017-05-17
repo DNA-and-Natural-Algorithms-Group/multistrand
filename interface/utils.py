@@ -59,6 +59,22 @@ def DNA23Metropolis(options):
 
 
 
+def concentration_string(concentration):
+    """ An easy print function to format concentration in M
+    """
+    if concentration < 1e-12: 
+        return "{} fM".format(1e15 * concentration)
+    if concentration < 1e-9: 
+        return "{} pM".format(1e12 * concentration)
+    if concentration < 1e-6: 
+        return "{} nM".format(1e9 * concentration)
+    if concentration < 1e-3: 
+        return "{} uM".format(1e6 * concentration)
+    if concentration < 1: 
+        return "{} mM".format(1e3 * concentration)
+    return "{} M".format(concentration)
+
+
 def generate_sequence( n, allowed_bases = ['G','C','T','A'], base_probability = None ):
     """ Generate a sequence of N base pairs.
 
