@@ -9,6 +9,7 @@ from multistrand.objects import Complex, Domain, Strand, StopCondition
 from multistrand.options import Options
 from multistrand.system import SimSystem
 from multistrand.utils import pairType
+from multistrand.toolbox import XP_standardOptions, XP_hybridization
 
     
 ATIME_OUT = 0.0010
@@ -53,47 +54,28 @@ def printTrajectory(o):
         print tubestruct + (' t=%.4f ms, dG=%3.2f kcal/mol, uID  %s   ' % (time, dG, identities2)) 
 
 
-def showTrajectory(strandSeq, numTraj=2):
+def doSims(strandSeq, numTraj=2):    
 
-    onedomain = Domain(name="itall", sequence=strandSeq)
-    top = Strand(name="top", domains=[onedomain])
-    bot = top.C
+    o1 = XP_standardOptions()
+    
+    o1.num_simulations = numTraj
+    o1.output_interval = 1 
+    
+    XP_hybridization(o1, strandSeq)
 
-    start_complex_top = Complex(strands=[top], structure=".")
-    start_complex_bot = Complex(strands=[bot], structure=".")
-     
-    # Stop when the exact full duplex is achieved.
-    success_complex = Complex(strands=[top, bot], structure="(+)")
-    success_stop_condition = StopCondition("SUCCESS", [(success_complex, Options.exactMacrostate, 0)])
-
-    o = Options(temperature=310.15 - 5.0,
-                simulation_time=ATIME_OUT,
-                num_simulations=numTraj, 
-                output_interval=1,  # record every single step
-                rate_method= Options.metropolis, 
-                simulation_mode = Options.trajectory
-                )  
-
-    o.start_state = [start_complex_top, start_complex_bot]
-    o.stop_conditions = [success_stop_condition]
-
-    s = SimSystem(o)
+    s = SimSystem(o1)
     s.start()
-    printTrajectory(o)        
+    printTrajectory(o1)        
         
 
-        
-
-def run_sims():
-
-    showTrajectory("GCGTTTCGC", 2)
+    
 
     
 # # The actual main method
 if __name__ == '__main__':
     
     print sys.argv
-    run_sims()
+    doSims( "GCGTTTCGC",2)
          
         
         

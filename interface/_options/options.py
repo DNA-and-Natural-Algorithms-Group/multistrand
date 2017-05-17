@@ -20,6 +20,11 @@ class Options(object):
     
     ZERO_C_IN_K = 273.15
     
+    STR_ALL = "ALL"
+    STR_FAILURE = "FAILURE"
+    STR_SUCCESS = "SUCCESS"
+
+    
     # rate_method
     metropolis = 1
     kawasaki = 2
@@ -115,7 +120,7 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         self.trajectory_current_time = 0.0
         self.current_graph = None
 
-        self.verbosity = 1
+        self.verbosity = 0
         """ Indicates how much output will be generated for each trajectory run.
         Value  = 0:  no end state reporting
         Value >= 1:  end state reports to stdout

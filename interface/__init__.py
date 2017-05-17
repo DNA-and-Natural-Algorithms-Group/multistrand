@@ -10,5 +10,5 @@
 #                                                                  #
 ####################################################################
 
-__all__ = ['objects','options','system','utils']
+__all__ = ['objects','options','system','utils','toolbox']
 # defines what 'from multistrand import *' means.
