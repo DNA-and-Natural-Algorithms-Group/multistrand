@@ -1,13 +1,8 @@
-################################################################################
-#                                                                              #
-# Python implementation of the options object.                                 #
-# Copyright 2010-2017 Caltech                                                  #
-# Written by:  Joseph Schaeffer.                                               #
-# Some stuff written by:  Chris Berlind, Frits Dannenberg                      #
-#                                                                              #
-# (others add your names as you modify files)                                  #
-#                                                                              #
-################################################################################
+# Options object.                                 
+# Copyright 2010-2017 Caltech                                                  
+# Joseph Schaeffer                                                             
+# Chris Berlind                                                                
+# Frits Dannenberg                                                             
 
 from interface import Interface
 from ..objects import Strand, Complex, RestingState, StopCondition
@@ -51,16 +46,7 @@ class Options(object):
     firstStep =         48 # 0x0030
     transition =        256 # 0x0100
     trajectory =        128 # 0x0080
-    
-    
-    # for StopCondition and Macrostate definitions:
-    exactMacrostate = 0  # match a secondary structure exactly (i.e. any system state that has a complex with this exact structure)
-    boundMacrostate = 1  # match any system state in which the given strand is bound to another strand
-    dissocMacrostate = 2  # match any system state in which there exists a complex with exactly the given strands, in that order
-    looseMacrostate = 3  # match a secondary structure with "don't care"s, allowing a certain number of disagreements
-    countMacrostate = 4  # match a secondary structure, allowing a certain number of disagreements
-    # see Schaeffer's PhD thesis, chapter 7.2, for more information
-    
+      
     
     # translation
     simulationMode  ={  "Normal"    :               firstPassageTime,
@@ -70,6 +56,13 @@ class Options(object):
                         "First Passage Time":       firstPassageTime}
 
     
+    # for StopCondition and Macrostate definitions:
+    exactMacrostate = 0  # match a secondary structure exactly (i.e. any system state that has a complex with this exact structure)
+    boundMacrostate = 1  # match any system state in which the given strand is bound to another strand
+    dissocMacrostate = 2  # match any system state in which there exists a complex with exactly the given strands, in that order
+    looseMacrostate = 3  # match a secondary structure with "don't care"s, allowing a certain number of disagreements
+    countMacrostate = 4  # match a secondary structure, allowing a certain number of disagreements
+    # see Schaeffer's PhD thesis, chapter 7.2, for more information
     
     def __init__(self, *args, **kargs):
         """
@@ -941,8 +934,7 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
                 if isinstance(kargs[k],basestring):
                     self.substrate_type = self.substrateToString.index(kargs[k])
                     
-            elif k == 'simulation_mode':
-                if isinstance(kargs[k],basestring):
+            elif (k == 'simulation_mode') &  (isinstance(kargs[k],basestring)):
                     self.simulation_mode = self.simulationMode[kargs[k]]
 
             else:
