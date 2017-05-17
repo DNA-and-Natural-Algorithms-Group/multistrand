@@ -9,6 +9,9 @@ from multistrand.options import Options
 colors = ['blue', 'red', 'cyan', 'magenta', 'green', 'k', 'darkblue', 'darkred', 'darkcyan', 'darkmagenta', 'darkgreen']
 
 
+XP_goa2006_P0 = 'GTTGTCAAGATGCTACCGTTCAGAG'
+XP_goa2006_P3 = 'AGATCAGTGCGTCTGTACTAGCAGT'
+XP_goa2006_P4 = 'AGATCAGTGCGTCTGTACTAGCACA'   
 
 
 

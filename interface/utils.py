@@ -1,4 +1,5 @@
 import random
+import os
     
 #FD, May 5th 2017
 # Supplying rate options for Metropolis and Kawasaki methods,
