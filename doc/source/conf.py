@@ -189,7 +189,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Multistrand'
-copyright = u'2010, Joseph Schaeffer <schaeffer@dna.caltech.edu>'
+copyright = u'Caltech 2010-2017 <help@multistran.org>'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -366,9 +366,9 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'multistrand', u'Multistrand Documentation',
-     [u'Joseph Schaeffer <schaeffer@dna.caltech.edu>'], 1),
+     [u'Caltech <help@multistrand.org>'], 1),
     ('objects','objects', u'Objects',
-     [u'Joseph Schaeffer <schaeffer@dna.caltech.edu>'], 1)
+     [u'Caltech <help@multistrand.org>'], 1)
 ]
 
 # -- Options for PDF output --------------------------------------------------
