@@ -1,97 +1,76 @@
-Input File Format Samples
+Multistrand basics
 =========================
 
 
-Multistrand 2.0 style 'input' file
+Multistrand sample input
 ----------------------------------
 
+Our example sets up threeway branch migration and follows the threeway branch migration demo. The following sequences are used:
+:: 
+  
+    toehold_seq = "TCTCCATGTCACTTC"	
+    bm_design = "CCCTCATTCAATACCCTACG" 
+
+To start the simulation, Multistrand should know what the initial state of the simulation is. In this example, we also specify the final state, so that Multistrand knows when to stop
+the simulation. The initial state is specified as a list of complexes. Complexes, together with Strands and Domains, are multistrand-provided datastructures. We now creat the domain objects:
+::
+    toehold = Domain(name="toehold",sequence=toehold_seq[0:toehold_length])
+    branch_migration = Domain(name="bm", sequence=bm_design)
+    
+Note that toehold_seq[0:toehold_length] specifies only a prefix of the toehold. 
+After creating the two domains, we now create Strand objects by combining existing domains.  
+The modifier .C specifies the reverse complement of the domain.
+::
+    incoming = branch_migration + toehold
+    incoming.name = "incoming"
+    
+    toehold_extra = Domain(name="toehold_extra",sequence=toehold_seq[toehold_length:]) 
+    substrate = toehold_extra.C + toehold.C + branch_migration.C
+
+When a strand consists of just one domain, we have to explicitly call the Domain constructor:
+::
+    
+    incumbent = Strand(name="incumbent",domains=[branch_migration])
+
+Using the incoming strand, the incumbent strand and the substrate strand, we now construct the two complexes that form the initial state:
+::
+    # The start complex  
+    start_complex_substrate_incumbent = Complex(strands=[substrate, incumbent],structure="..(+)")
+
+    # The incoming complex. 
+    start_complex_incoming = Complex(strands=[incoming],structure="..") 
+
+The stop conditions are specified as follows:
 ::
 
-   start = [Complex("Starting Gate", ["S","Q"], ["AGTACGGACACTAGCTGGATCTGAGGATTAGT",
-                                                 "ACTAATCCTCAGATCCAGCTAGTGTC"],
-                                                ["......((((((((((((((((((((((((((",
-                                                 "))))))))))))))))))))))))))"]),
-            Complex("Input","T6","ACTAATCCTCAGATCCAGCTAGTGTCCGTACT")]
-   stop = StopCondition("Output","Q")
-   my_options = Options(sim_time=2e6,
-                        num_sims=1,
-                        parameter_type='Nupack',
-                        substrate_type='DNA',
-                        temperature=20.0,
-                        concentration=1e-6,  # 1 microM, equivalent to the
-                                             # old which was in units of mM
-                        start_structure = start,
-                        stop_conditions = [stop])  #or we can use `stop_condition=stop`
+    # creates a "succcessful displacement" complex. This is the incumbent strand forming a complex of its own which means it has been displaced.
+    complete_complex_success = Complex(strands=[incumbent],structure=".")
+    success_stop_condition = StopCondition("SUCCESS",[(complete_complex_success,Dissoc_Macrostate,0)])
 
-   run_system( my_options ) # run_system by default uses the
-                           #  standard logging/interfacing settings.
+    # A failed displacement stop condition; incumbent falls off.   
+    failed_complex = Complex(strands = [incoming], structure="..")  
+    failed_stop_condition = StopCondition("FAILURE",[(failed_complex,Dissoc_Macrostate,0)]) 
+
+The simulation itself is started as follows:
+::    
+    o = Options(simulation_mode="First Step", parameter_type="Nupack", substrate_type="DNA", 
+                rate_method = rate_method_k_or_m, num_simulations = num_traj, simulation_time=10.0,  
+                dangles = "Some", temperature = 25 + 273.15, rate_scaling = "Calibrated", verbosity = 0)
+
+    o.start_state = [start_complex_incoming, start_complex_substrate_incumbent]
+    o.stop_conditions = [success_stop_condition,failed_stop_condition]
+    return o
 
 
 Modifications
 -------------
 
-The new style is pretty easy to modify, for example we may want to do a first step simulation after our original normal mode sim, so we add this:
-
-:: 
-
-  forward = StopCondition("Forward Stop State","Q")
-  reverse = StopCondition("Reverse Stop State",start, tolerance=2)
-
-  firststep_options = my_options.copy()
-  firststep_options.stop_conditions = [forward,reverse]
-  firststep_options.simulation_mode = 'First Step'
-  run_system( firststep_options )
-
-Similarly, adding Boltzmann sampling to that is easy: ::
+To set up Boltzmann sampling for a complex <start>, we write: 
+::
 
   start[0].boltzmann_sample = True
 
-Possibly if we know we'd need a lot of samples, we should do this as well, to give the simulation a hint about how many samples may be needed: ::
-
-  start[0].boltzmann_count = 100
-
-Note that we don't have to update anything else if we want to use the same stop conditions in this case, they're already referring to the right object.
-
-This format for setting up objects is pretty flexible, we could instead do: ::
-
-  start = [Complex("Starting Gate",
-                 [['S','AGTACGGACACTAGCTGGATCTGAGGATTAGT','......(((((((((((((((((((((((((('],
-                  ['Q', 'ACTAATCCTCAGATCCAGCTAGTGTC', '))))))))))))))))))))))))))']]),
-           Complex("Input","T6","ACTAATCCTCAGATCCAGCTAGTGTCCGTACT")]
-
-Or even: ::
-
-  strand_0 = Strand('S','AGTACGGACACTAGCTGGATCTGAGGATTAGT')
-  strand_1 = Strand('Q', 'ACTAATCCTCAGATCCAGCTAGTGTC')
-  start = [Complex("Starting Gate", [strand_0, strand_1],
-                           '......((((((((((((((((((((((((((+))))))))))))))))))))))))))'),
-           Complex("Input","T6","ACTAATCCTCAGATCCAGCTAGTGTCCGTACT")]
-
-Amusingly enough, we can also create a input file straight from our interactive session, so if we happened to be messing around with stuff until we find the right set of options, we can store it for later use!
-
-  >>> print( repr(my_options) )
-  Options( join_concentration=1e-06,
-           simulation_time=2000000.0,
-           temperature=293.15,
-           start_state=<state>,
-           stop_conditions=<conditions>)
-  >>> my_options.to_file('myoptions.py')
-
-The keen eye among you may have noted that this temperature is not the
-20 degrees C we had originally stated! Cross referencing the Options
-object's :attr:`temperature <multistrand.options.Options.temperature>`, we see
-that it is always stored in degrees K internally, and if it does any
-conversion there's a message in the error log. Let's check that:
-
+The boltzmann sampling will be more efficient if we also specify how many samples are needed: 
 ::
 
-  >>> o = Options()
-  >>> o.temperature = 20.0
-  >>> print o.temperature
-  300.15
-  >>> print o.errorlog[-1]
-  Warning: Temperature was set at the value [27]. We expected a value in Kelvin, or with appropriate units.
-           Temperature was automatically converted to [300.15] degrees Kelvin.
-
-See the above link to the parameter for details on how/when it
-converts.
+  start[0].boltzmann_count = 100

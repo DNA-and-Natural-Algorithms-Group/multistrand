@@ -221,6 +221,7 @@ if __name__ == '__main__':
     s.start()
     print
     print "Running Design B"
+
     s=SimSystem(o2)
     s.start()
     # no need to update the energy model in between runs, because conditions are the same.
