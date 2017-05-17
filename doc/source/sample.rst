@@ -1,33 +1,6 @@
 Input File Format Samples
 =========================
 
-Multistrand 1.0 style input file
---------------------------------
-
-:: 
- 
-  #Strands
-  S,AGTACGGACACTAGCTGGATCTGAGGATTAGT
-  Q,ACTAATCCTCAGATCCAGCTAGTGTC
-  T6,ACTAATCCTCAGATCCAGCTAGTGTCCGTACT
-  #StartStructure
-  S,Q
-  ......((((((((((((((((((((((((((_))))))))))))))))))))))))))
-  T6
-  ................................
-  #SimTime=2000000
-  #NumSims=1
-  #OutputInterval=0
-  #StopOptions=2
-  #Energymodel=NUPACK_DNA_2_3
-  #Temperature = 20.0
-  #Concentration = .001
-  #StopStructures
-  Q
-  ..........................
-  TAG: finalstop
-  ##
-  ## end old file
 
 Multistrand 2.0 style 'input' file
 ----------------------------------
@@ -53,10 +26,6 @@ Multistrand 2.0 style 'input' file
    run_system( my_options ) # run_system by default uses the
                            #  standard logging/interfacing settings.
 
-Commentary
-----------
-
-Both of these styles are supported in 2.0, though we have yet to exactly define how a new style file would be run; it likely would be something like "multistrand newstylefile.py", which implies some things about what the 'multistrand' executable looks like that we haven't finalized in the new format.
 
 Modifications
 -------------
@@ -126,13 +95,3 @@ conversion there's a message in the error log. Let's check that:
 
 See the above link to the parameter for details on how/when it
 converts.
-
-Notes
-~~~~~
-
-1. Some of this is in the <future> - right now there's no repr for states/conditions, but it's on my list.
-#. Options that were equivalent to defaults were not shown in the 'repr' example above. So rather than the spam of every single possible option here, you get only the ones that were meaningful. There's currently on the order of 20-ish options you could have set, so printing out every one isn't usually very useful (though possible, if you want to see it).
-#. None of this new stuff is really set in stone, and it's easy to manipulate; the old style file was a pain in the neck for adding new options. The new style it's easy, and the best part is that nearly all of the error checking is actually Python's problem, rather than my trying to catch every possible syntax error.
-#. :func:`run_system <multistrand.system.run_system>` could be implicit in a python version input file, and we could easily define that style as having no variable definitions at all. Supporting that would be simple as we'd just add a dictionary off all strands, etc, created via input files and the user can just refer to them with whatever names they used.
-#. Some of the names I used were edited slightly between the two examples - the TAG, additional state names, etc. The old style had some issues with spaces in identifiers, but it's no longer a worry as they must be distinct strings anyways.
-#. Similarly, in some cases I didn't use a parameter - e.g. the stop state which is completely open; 'reasonable' defaults are used in cases like this, so when structure isn't specified for a complex, it is always completely unpaired. There's an error if you try to do so when the complex has more than one strand.

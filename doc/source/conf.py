@@ -333,7 +333,7 @@ htmlhelp_basename = 'Multistranddoc'
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
   ('index', 'Multistrand.tex', u'Multistrand Documentation',
-   u'Joseph Schaeffer \\textless{}schaeffer@dna.caltech.edu\\textgreater{}', 'manual'),
+   u'Caltech \\textless{}help@multistrand.org\\textgreater{}', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -376,8 +376,8 @@ man_pages = [
 # (source start file, target name, title, author, options).
 #
 pdf_documents = [    ('index', 'multistrand', u'Multistrand Documentation',
-                      u'Joseph Schaeffer'),
-                     ('objects','objects', u'Objects',u'Joseph Schaeffer')]
+                      u'Caltech'),
+                     ('objects','objects', u'Objects',u'Caltech')]
 
 pdf_language = "en_US"
 

@@ -6,9 +6,9 @@ Multistrand Package
 
    .. module:: multistrand
       :synopsis: Multistrand package for kinetic simulaton of DNA folding.
-   .. moduleauthor:: Joseph Schaeffer <schaeffer@dna.caltech.edu>
+   .. moduleauthor:: Caltech <help@multistrand.org>
 
-We should probably add a description here. This module is uninteresting though, mostly consisting of the following sub-modules.
+Multistrand consists of the following modules:
 
 .. .. automodule:: multistrand
       :members:

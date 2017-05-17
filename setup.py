@@ -52,44 +52,15 @@ def setup_ext( have_tcmalloc):
     else:
         print "Cannot find tcmalloc, proceeding with standard memory management."
         tcmalloc_optional = []
-#         
-#     if '--use-debug-defs' in sys.argv:
-#         sys.argv.remove('--use-debug-defs')
-#         multi_ext = Extension("multistrand.system",
-#                               sources=sources,
-#                               include_dirs=["./include"],
-#                               language="c++",
-#                               define_macros=[('DEBUG',None),
-#                                              ('DEBUG_MACROS',None),
-#                                              ('Py_TRACE_REFS',None)],
-#                               undef_macros=['NDEBUG'],
-#                               libraries=[] + tcmalloc_optional,
-#                               #This is 'disable all warnings compiler flag' [possibly shouldn't be used for debug version]:
-#                               extra_compile_args = ['-Wno-strict-prototypes','-w','-g','-O0'],
-#                               )
-#     elif '--use-profiler-defs' in sys.argv:
-#         sys.argv.remove('--use-profiler-defs')
-#         multi_ext = Extension("multistrand.system",
-#                               sources=sources,
-#                               include_dirs=["./include"],
-#                               language="c++",
-#                               define_macros=[('DEBUG',None),
-#                                              ('DEBUG_MACROS',None),
-#                                              ('PROFILING',None)],
-#                               undef_macros=['NDEBUG'],
-#                               libraries=['tcmalloc_and_profiler'],  #google perftools profiler.
-#                               extra_compile_args = ['-w','-g','-O0'],
-#                               )
-#         
-#     else:
-        multi_ext = Extension("multistrand.system",
-                              sources=sources,
-                              include_dirs=["./include"],
-                              language="c++",
-                              libraries=[] + tcmalloc_optional,
-                            undef_macros=['NDEBUG'],
-                            extra_compile_args = ['-O3','-g', '-w', "-std=c++11" ], #FD: adding c11 flag
-                              )
+
+    multi_ext = Extension("multistrand.system",
+                          sources=sources,
+                          include_dirs=["./include"],
+                          language="c++",
+                          libraries=[] + tcmalloc_optional,
+                        undef_macros=['NDEBUG'],
+                        extra_compile_args = ['-O3','-g', '-w', "-std=c++11" ], #FD: adding c11 flag
+                          )
     return multi_ext
 
 if __name__ == '__main__':

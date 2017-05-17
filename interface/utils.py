@@ -14,7 +14,7 @@ def JSDefault(options):
     
 
 def JSMetropolis25(options): 
-    """ Default rates for Metropolis at 25 °C, from Joseph Schaeffer's thesis
+    """ Default rates for Metropolis at 25 degree Celcius, from Joseph Schaeffer's thesis
     
     """
     
@@ -23,7 +23,7 @@ def JSMetropolis25(options):
     
 
 def JSKawasaki25(options): 
-    """ Default rates for Kawasaki at 25 °C, from Joseph Schaeffer's thesis
+    """ Default rates for Kawasaki at 25 degree Celcius, from Joseph Schaeffer's thesis
     
     """
     
@@ -33,7 +33,7 @@ def JSKawasaki25(options):
     
 
 def JSKawasaki37(options):
-    """ Default rates for Kawasaki at 37 °C, from Joseph Schaeffer's thesis
+    """ Default rates for Kawasaki at 37 degree Celcius, from Joseph Schaeffer's thesis
     """
     
     options.unimolecular_scaling = 1.5e8;
@@ -42,7 +42,7 @@ def JSKawasaki37(options):
      
 
 def JSMetropolis37(options): 
-    """ Default rates for Metropolis at 37 °C, from Joseph Schaeffer's thesis
+    """ Default rates for Metropolis at 37 degree Celcius, from Joseph Schaeffer's thesis
     """
     
     options.unimolecular_scaling = 7.3e8;
@@ -51,7 +51,7 @@ def JSMetropolis37(options):
      
 
 def DNA23Metropolis(options):
-    """ A default rate for Metropolis at 25 °C, from the DNA23 conference
+    """ A default rate for Metropolis at 25 degree Celcius, from the DNA23 conference
     """
         
     options.unimolecular_scaling = 5.0e6;
