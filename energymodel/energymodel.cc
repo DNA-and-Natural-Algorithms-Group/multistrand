@@ -164,7 +164,7 @@ void EnergyModel::writeConstantsToFile() {
 
 		myfile.close();
 
-		cout << "Wrote constants to multistrandRun.log" << endl;
+//		cout << "Wrote constants to multistrandRun.log" << endl;
 
 		printedRates = true;
 

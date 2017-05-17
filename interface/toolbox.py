@@ -5,6 +5,13 @@ from multistrand.objects import Complex, Domain, Strand, StopCondition
 from multistrand.options import Options
 
 
+
+colors = ['blue', 'red', 'cyan', 'magenta', 'green', 'k', 'darkblue', 'darkred', 'darkcyan', 'darkmagenta', 'darkgreen']
+
+
+
+
+
 def setBoltzmann(complexIn, trials):
     
     complexIn.boltzmann_count = trials

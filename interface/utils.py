@@ -76,6 +76,32 @@ def concentration_string(concentration):
 
 
 
+def standardFileName(SCRIPT_DIR, mySeq=None, extraTitle=None, runs=None):
+
+    fileName = str(SCRIPT_DIR)
+    
+    if not mySeq == None:
+        fileName += str("/" + mySeq + '/' + mySeq)
+    else:
+        fileName += "/"
+        
+    if not runs == None:
+        fileName += "-" + str(runs) 
+
+    if not extraTitle == None:
+        fileName += "-" + extraTitle
+        
+    if not os.path.exists(os.path.dirname(fileName)):
+        try:
+            os.makedirs(os.path.dirname(fileName))
+        except OSError as exc:  # Guard against race condition
+            if exc.errno != errno.EEXIST:
+                raise
+
+
+    return fileName
+
+
 
 # ## Pairtype util
 def pairType(ids, structs):
