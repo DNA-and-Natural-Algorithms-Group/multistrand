@@ -52,6 +52,16 @@ class Options(object):
     transition =        256 # 0x0100
     trajectory =        128 # 0x0080
     
+    
+    # for StopCondition and Macrostate definitions:
+    exactMacrostate = 0  # match a secondary structure exactly (i.e. any system state that has a complex with this exact structure)
+    boundMacrostate = 1  # match any system state in which the given strand is bound to another strand
+    dissocMacrostate = 2  # match any system state in which there exists a complex with exactly the given strands, in that order
+    looseMacrostate = 3  # match a secondary structure with "don't care"s, allowing a certain number of disagreements
+    countMacrostate = 4  # match a secondary structure, allowing a certain number of disagreements
+    # see Schaeffer's PhD thesis, chapter 7.2, for more information
+    
+    
     # translation
     simulationMode  ={  "Normal"    :               firstPassageTime,
                         "First Step":               firstStep,

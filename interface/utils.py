@@ -75,6 +75,86 @@ def concentration_string(concentration):
     return "{} M".format(concentration)
 
 
+
+
+# ## Pairtype util
+def pairType(ids, structs):
+    """Given identifiers and dot-parens for a complex, 
+        pairType returns a unique identifier for that secondary structure
+    """
+    
+    # utility function
+    def generatePairing(dotParen, size, stack, offset, output):
+    
+        index = 0
+    
+        for c in dotParen:
+            
+            if c == '(':
+                # pushing the first end of the basepair
+                stack.append(offset + index)
+            elif c == ')':
+                # popping the stack, setting two locations
+                currIndex = offset + index
+                otherIndex = stack.pop()
+                                
+                output[currIndex] = otherIndex
+                output[otherIndex] = currIndex
+                
+            elif not c == '.':
+                raise Warning('There is an error in the dot paren structure -- PairType function') 
+            
+            index += 1
+    
+    
+    
+    idList = ids.split(',')
+    dotParens = structs.split('+') 
+    
+    outputSize = sum(len(x) for x in dotParens)
+    
+
+    offset = 0;    
+    myStack = []
+    output = [0, ] * outputSize
+
+    myEnum = enumerate(idList)
+    
+    for index, val in myEnum:      
+        
+        size = len(dotParens[index])        
+        generatePairing(dotParens[index], size, myStack, offset, output)
+        
+        offset += size
+
+        
+        
+    
+    indices = sorted(range(len(idList)), key=idList.__getitem__)
+        
+    # now weave the new pairTypes in the right order.
+    
+    actualOutput = []    
+        
+    idString = ''
+    for index in indices:
+        
+        idString += idList[index]        
+        size = len(dotParens[index]) 
+        
+        offset = sum([len(dotParens[idx]) for idx in range(0, index - 1) ])  
+        
+        
+        actualOutput += output[offset : (offset + size)]
+        
+        
+     
+    
+    return  (idString, tuple(output))
+    
+
+
+
 def generate_sequence( n, allowed_bases = ['G','C','T','A'], base_probability = None ):
     """ Generate a sequence of N base pairs.
 
