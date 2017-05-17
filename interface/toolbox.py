@@ -14,6 +14,11 @@ XP_goa2006_P3 = 'AGATCAGTGCGTCTGTACTAGCAGT'
 XP_goa2006_P4 = 'AGATCAGTGCGTCTGTACTAGCACA'   
 
 
+def setSaltGao2006(o):
+    
+        o.sodium = 0.5;
+        o.magnesium = 0.0;
+
 
 def setBoltzmann(complexIn, trials):
     

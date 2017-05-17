@@ -2,15 +2,22 @@
 Frits Dannenberg, May 17th, 2017.
 This module has two parts.
 1) Given multistrand results, compute reaction rate constants. 
-2) A module for running multistrand concurrently.
+2) A module for running multistrand concurrently. Results are merged automatically
 """
+import operator
+import time, datetime, math
 
-import numpy as np
 from multistrand.options import Options
+import multiprocessing
+import numpy as np
 
+from multistrand.system import SimSystem 
 
 
 MINIMUM_RATE = 1e-18;
+
+
+## Rate-computation classes start here
 
 
 
@@ -278,7 +285,8 @@ class migrationRatePassage(basicRate):
     def kEff(self):
         
         if len(self.timeouts) > 0 :
-            print "# association trajectories did not finish =", len(self.timeouts)
+            
+            print("# association trajectories did not finish =",  str(len(self.timeouts)))
             for i in self.timeouts :
                 assert (i.type_name == 'Time')
                 assert (i.tag == None)
@@ -346,7 +354,380 @@ class bootstrap():
         return np.std(self.logEffectiveRates)
 
         
+
+
+## Concurrent classes start here
+
+
+
+class optionsFactory(object):   
+    
+    def __init__(self, funct, put0, put1, put2, put3, put4, put5, put6):
+        
+        self.myFunction = funct
+        self.input0 = put0
+        self.input1 = put1
+        self.input2 = put2
+        self.input3 = put3
+        self.input4 = put4
+        self.input5 = put5 
+        self.input6 = put6 
+        
+    
+    def new(self, inputSeed):
+        
+        output = None
+        
+        if self.input1 == None:
+            output = self.myFunction(self.input0)        
+        elif self.input2 == None:
+            output = self.myFunction(self.input0, self.input1)
+        elif self.input3 == None:
+            output = self.myFunction(self.input0, self.input1, self.input2)
+        elif self.input4 == None:
+            output = self.myFunction(self.input0, self.input1, self.input2, self.input3)
+        elif self.input5 == None:
+            output = self.myFunction(self.input0, self.input1, self.input2, self.input3, self.input4)
+        elif self.input6 == None:
+            output = self.myFunction(self.input0, self.input1, self.input2, self.input3, self.input4, self.input5)
+        else: 
+            output = self.myFunction(self.input0, self.input1, self.input2, self.input3, self.input4, self.input5, self.input6)
+            
+        output.initial_seed = inputSeed
+            
+        return output
+
+
+# hard-coded locks
+# # this is a manager.dict, that is dict, lock is multithreading.lock
+def mergeDictAdd (this, that, lock):
+    
+    with lock:    
+        for key, value in that.iteritems():
+            
+            if(this.has_key(key)):
+                this[key] += value
+            else:
+                this[key] = value
+            
+def mergeDictBinary(this, that, lock):
+    
+    # # If an entry in that is non-zero, add +1 to this using the same key
+    with lock:
+        for key, value in that.iteritems():
+            
+            if(value > 0):
+            
+                if(this.has_key(key)):
+                    this[key] += 1
+                else:
+                    this[key] = 1
+
+
+def mergeDict (this, that, lock):
+    
+    with lock:    
+        for key, value in that.iteritems():
+            
+            if not(key in this):
+        
+                this[key] = value
+
+def mergeList (this, that, lock):
+    
+    with lock:    
+        for entry in that:
+            
+            this.append(entry)
+        
+
+def mergeCount(mValue, counter, lock):
+        
+    with lock:
+        mValue.value = mValue.value + counter
+        
+
+
+
+class msSettings(object):
+    
+    debug = False
+    
+def timeStamp(inTime=None):
+    
+    if inTime == None:
+        inTime = time.time()
+    
+    return str(datetime.datetime.fromtimestamp(inTime).strftime('%Y-%m-%d %H:%M:%S'))
+
+class msMulti(object):
+
+    numOfThreads = 2
+    seed = 7713147777;
+    
+
+    def __init__(self, settings=None):
+
+        
+        self.initializationTime = time.time()
+        print(timeStamp(), "   Starting Multistrand 3.0    (c) 2008-2016 Caltech   ")
+                
+
+        self.factory = optionsFactory
+        self.aFactory = None
+        
+        if(settings == None):
+            self.settings = msSettings()
+            
+        # override to enable dynamic simulation length
+        self.terminationCriteria = None
+
+
+    def setTerminationCriteria(self, input):
+        
+        self.terminationCriteria = input
+        
+    def timeSinceStart(self):
+        
+        print("Time since creating object %.5f seconds" % (time.time() - self.initializationTime))
+#                 print("Done.  %.5f seconds" % (time.time() - startTime))
+        
+    
+    def setDebug(self, value):
+        
+        self.settings.debug = value
+        
+    
+    def setNumOfThreads(self, numOfThreads):
+        
+        self.numOfThreads = numOfThreads
+
+    def setOptionsFactory(self, optionsFactory):
+        
+        self.factory = optionsFactory
+
+    def setOptionsFactory1(self, myFun, put0):
+        
+        self.factory = optionsFactory(myFun, put0, None, None, None, None, None, None) 
+ 
+    def setOptionsFactory2(self, myFun, put0, put1):
+        
+        self.factory = optionsFactory(myFun, put0, put1, None, None, None, None, None) 
+
+    def setOptionsFactory3(self, myFun, put0, put1, put2):
+        
+        self.factory = optionsFactory(myFun, put0, put1, put2, None, None, None, None) 
+
+    def setOptionsFactory4(self, myFun, put0, put1, put2, put3):
+        
+        self.factory = optionsFactory(myFun, put0, put1, put2, put3, None, None, None)
+    
+    def setOptionsFactory5(self, myFun, put0, put1, put2, put3, put4):
+        
+        self.factory = optionsFactory(myFun, put0, put1, put2, put3, put4, None, None)  
+    
+    def setOptionsFactory6(self, myFun, put0, put1, put2, put3, put4, put5):
+        
+        self.factory = optionsFactory(myFun, put0, put1, put2, put3, put4, put5, None)
+
+    def setOptionsFactory7(self, myFun, put0, put1, put2, put3, put4, put5, put6):
+        
+        self.factory = optionsFactory(myFun, put0, put1, put2, put3, put4, put5, put6)
+
+    def setAnaylsisFactory(self, mySeq, cutOff):
+        
+        lockArray = list()
+        for i in range(16):
+            lockArray.append(multiprocessing.Lock())
          
+        self.aFactory = analysisFactory(mySeq, cutOff)
+        self.aFactory.lockArray = lockArray        
+        
+
+    def numOfSuccesTrials(self):
+        
+        count = 0
+        
+        for result in self.results:
+            if result.tag == STR_SUCCESS:
+                count += 1
+
+        return count
+
+    # reset the multithreading objects
+    def clear(self):
+        
+        if not self.aFactory == None:
+            self.aFactory.clear()
+    
+    def printTrajectories(self, myOptions):
+        # # Print all the trajectories we can find. 
+        # # Debug function primairly. 
+        
+        print("Printing trajectory and times: \n")
+        
+        
+        trajs = myOptions.full_trajectory 
+        times = myOptions.full_trajectory_times
+        
+        for t, time in zip (trajs, times):
+            
+            print (t, "  t=", time, "\n")
+        
+        0
+    
+    def initialInfo(self):
+        
+        myOptions = self.factory.new(777)
+        simSys = SimSystem(myOptions)
+        simSys.initialInfo()
+
+
+    def startSimMessage(self):
+        
+        welcomeMessage = "Computing " + str(self.numOfThreads * self.trialsPerThread) 
+        welcomeMessage += " trials,  using " + str(self.numOfThreads)  
+        welcomeMessage += " threads  .. "
+        return welcomeMessage
+#         print(welcomeMessage, end="")
+
+
+    def run(self):
+        
+        # The input0 is always trails.
+        self.trialsPerThread = int(math.ceil(float(self.factory.input0) / float(self.numOfThreads)))
+        
+        startTime = time.time()
+        
+        
+        #FD: Analysis factory is only used for the likelihood plots in the Multistrand 2.0 casestudy.
+        def doAnalysis(aFactory, myOptions):
+       
+        
+            myAnalysis = analysisFactory(aFactory.mySeq, aFactory.cutOff)
+        
+            def processAndMergeDicts(clause, myOptions, myAnalysis, analysisResult, lockArray):
+            
+                
+                traj, times, pathCount = myAnalysis.selectTrajectories(clause, myOptions.interface.results, myOptions.full_trajectory, myOptions.full_trajectory_times)
+            
+                posDict, countDict, pathProps, structDict2 = myAnalysis.analyzeTrajectory(traj, times)   
+                firstTraj = myAnalysis.parseFirstTrajectory(traj, times)
+                analysisResult.setInitialTrajectory(firstTraj, lockArray[1])
+                
+                mergeDictAdd(analysisResult.posDict, posDict, lockArray[0])
+                mergeDict(analysisResult.countDict, countDict, lockArray[2])
+                mergeDictBinary(analysisResult.binaryDict, countDict, lockArray[3])
+                
+                
+                mergeList(analysisResult.pathProps, pathProps, lockArray[4])
+                mergeCount(analysisResult.pathCount, pathCount, lockArray[5])
+                
+                for i in range(len(structDict2)):
+                    if not structDict2[i] == None:
+                        mergeDictAdd(analysisResult.structDict2[i], structDict2[i], lockArray[6])
+                    
+                
+                
+        
+            processAndMergeDicts(myAnalysis.selectors[0], myOptions, myAnalysis, aFactory.result0, aFactory.lockArray)
+            processAndMergeDicts(myAnalysis.selectors[1], myOptions, myAnalysis, aFactory.result1, aFactory.lockArray)
+            processAndMergeDicts(myAnalysis.selectors[2], myOptions, myAnalysis, aFactory.result2, aFactory.lockArray)
+        
+        
+        
+
+                        
+        def doSim(myFactory, aFactory, list0, list1, seed):
+                        
+            
+            myOptions = myFactory.new(seed)
+            myOptions.num_simulations = self.trialsPerThread
+        
+            s = SimSystem(myOptions)
+            s.start()
+            
+            for result in myOptions.interface.results:
+                
+                list0.append(result)   
+                 
+            for endState in myOptions.interface.end_states:
+                
+                list1.append(endState)
+            
+            if not(aFactory == None):
+                
+                doAnalysis(aFactory, myOptions)
+            
+            if self.settings.debug:
+                
+                self.printTrajectories(myOptions)
+                
+        
+        assert(self.numOfThreads > 0)
+        
+        manager = multiprocessing.Manager()
+        
+        self.results = manager.list()
+        self.endStates = manager.list()
+        
+        
+    
+        terminate = False
+
+        while not terminate:
+
+            print(self.startSimMessage(), "\n") 
+
+            procs = []
+            
+            for i in range(self.numOfThreads):
+                
+                instanceSeed = self.seed + i * 3 * 5 * 19 + (time.time() * 10000000) % (math.pow(2, 16) - 1)
+                
+                          
+                p = multiprocessing.Process(target=doSim, args=(self.factory, self.aFactory, self.results, self.endStates, instanceSeed))
+                procs.append(p)
+                p.start()
+            
+                
+            for i in range(self.numOfThreads):
+                procs[i].join()
+             
+            print("Done.  %.5f seconds" % (time.time() - startTime))
+            
+            
+            if self.terminationCriteria == None:
+                terminate = True
+            else: 
+                terminate = self.terminationCriteria.terminate(self.results)    
+                self.trialsPerThread = self.trialsPerThread * 2
+        
+        
+        
+        self.runTime = (time.time() - startTime)
+        
+        return 0
+
+
+# simply pipes the initial info command.
+def initialInfo(self):
+                          
+    def initialInfo(myFactory):
+                    
+        
+        myOptions = myFactory.new(777)
+        myOptions.num_simulations = self.trialsPerThread
+    
+        s = SimSystem(myOptions)
+        s.initialInfo() 
+    
+    
+    multiprocessing.Process(target=initialInfo(), args=(self.factory))
+
+
+# # The default multistrand object
+myMultistrand = msMulti()
         
         
           
