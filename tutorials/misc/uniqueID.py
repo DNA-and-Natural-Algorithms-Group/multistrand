@@ -4,6 +4,7 @@
 # This is important for hassing functions 
 
 import sys
+
 from multistrand.objects import Complex, Domain, Strand, StopCondition
 from multistrand.options import Options
 from multistrand.system import SimSystem
@@ -12,12 +13,8 @@ from multistrand.utils import pairType
     
 ATIME_OUT = 0.0010
 
-
 def printTrajectory(o):
     
-    print "in print_trajectory"
-    print o.start_state[0].structure
-    print o.start_state[1].structure
     seqstring = ""
     
     for i in range(len(o.full_trajectory)):
@@ -52,15 +49,11 @@ def printTrajectory(o):
         if not newseqstring == seqstring : 
             print newseqstring
             seqstring = newseqstring  # because strand order can change upon association of dissociation, print it when it changes        
-        
-        
 
-        print tubestruct + (' t=%11.9f microseconds, ids = %s  , dG=%6.2f kcal/mol' % (time, identities2, dG)) 
-
+        print tubestruct + (' t=%.4f ms, dG=%3.2f kcal/mol, uID  %s   ' % (time, dG, identities2)) 
 
 
 def showTrajectory(strandSeq, numTraj=2):
-
 
     onedomain = Domain(name="itall", sequence=strandSeq)
     top = Strand(name="top", domains=[onedomain])
@@ -69,19 +62,13 @@ def showTrajectory(strandSeq, numTraj=2):
     start_complex_top = Complex(strands=[top], structure=".")
     start_complex_bot = Complex(strands=[bot], structure=".")
      
-    # Turns Boltzmann sampling on for these complexes.
-    start_complex_top.boltzmann_count = numTraj
-    start_complex_bot.boltzmann_count = numTraj
-
-    start_complex_top.boltzmann_sample = True
-
     # Stop when the exact full duplex is achieved.
     success_complex = Complex(strands=[top, bot], structure="(+)")
     success_stop_condition = StopCondition("SUCCESS", [(success_complex, Options.exactMacrostate, 0)])
 
     o = Options(temperature=310.15 - 5.0,
                 simulation_time=ATIME_OUT,
-                num_simulations=numTraj,  # don't play it again, Sam
+                num_simulations=numTraj, 
                 output_interval=1,  # record every single step
                 rate_method= Options.metropolis, 
                 simulation_mode = Options.trajectory
