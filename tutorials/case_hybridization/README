@@ -9,3 +9,14 @@ Case 1: Table of Gao 2006 and the concentration-dependent rates and First Step m
 Case 2: Scatterplots of association and dissociation rates for randomized and Gao 2006 sequences
 
 Case 3: Heathmap for hybridization states
+
+
+
+To test these files, try
+
+case1.py plots 160
+case1.py slowDownStudy 1200
+case2.py generate iso-random 15 10 ir15-10
+case3.py 2 24 test2
+
+Note that these scripts are capable of spawning multiple threads

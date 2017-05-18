@@ -20,7 +20,6 @@ MINIMUM_RATE = 1e-18;
 ## Rate-computation classes start here
 
 
-
 # Shared class methods
 class basicRate(object):
     
