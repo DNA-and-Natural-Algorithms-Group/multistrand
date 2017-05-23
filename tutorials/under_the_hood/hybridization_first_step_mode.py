@@ -104,6 +104,9 @@ Dissoc_Macrostate = 2
 Loose_Macrostate = 3
 Count_Macrostate = 4
 
+# from nupack import *
+# print(str(get_nupack_exec_path('commandhere')))
+
 def concentration_string(concentration):
     if concentration < 1e-12: 
         return "{} fM".format(1e15*concentration)

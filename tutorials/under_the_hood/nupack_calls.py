@@ -48,14 +48,14 @@ dna_seqs = ['AGTCTAGGATTCGGCGTGGGTTAA',
             'AGTCTAGGATTCGGCGTGGGTTAACACGCCGAATCCTAGACTACTTTG']
 dna_struct = '((((((((((((((((((((((((+))))))))))))))))))))))))((((((((((((.(((((((((((+........................))))))))))).))))))))))))'
 
-
+print(str(get_nupack_exec_path('commandhere')))
 ## Examples with pfunc()
 # Find the partition function of this set of three DNA strands.
-pfunc(dna_seqs, material = 'dna')
+print(pfunc(dna_seqs, material = 'dna'))
 # Output: -62.66453454292297
 
 # Find the partition function of this single RNA strand, including pseudoknotted structures.
-pfunc(rna_seq, material = 'rna', multi = False, pseudo = True)
+print(pfunc(rna_seq, material = 'rna', multi = False, pseudo = True))
 # Output: -17.2786076
 
 
@@ -66,21 +66,21 @@ print(energy(dna_seqs, dna_struct, material = 'dna'))
 
 ## Example with defect()
 # Find the ensemble defect of this DNA structure.
-defect(dna_seqs, dna_struct, material = 'dna')
+print(defect(dna_seqs, dna_struct, material = 'dna'))
 # Output: 8.297
 
 # Find the mfe defect of this DNA structure.
-defect(dna_seqs, dna_struct, material = 'dna', mfe = True)
+print(defect(dna_seqs, dna_struct, material = 'dna', mfe = True))
 # Output: 2.0
 
 ## Examples with prob()
 # Find the probability of this DNA structure.
-prob(dna_seqs, dna_struct, material = 'dna')
+print(prob(dna_seqs, dna_struct, material = 'dna'))
 # Output: 7.992e-05
 
 ## Examples with sample()
 # Boltzmann sample 3 structures with these DNA strands.
-sample(dna_seqs, 3, material = 'dna')
+print(sample(dna_seqs, 3, material = 'dna'))
 # Example output:
 #  ['.(((((((((((((((((((((((+))))))))))))))))))))))).((((((((((((((((((((((((+..............(...).....))))))))))))))))))))))))',
 #   '(((((((((((((((((((((((.+.))))))))))))))))))))))).(((((.(((((((((((((((((+........................))))))))))))))))).))))).',
@@ -88,7 +88,7 @@ sample(dna_seqs, 3, material = 'dna')
 
 ## Examples with mfe()
 # Find the MFE structure of this ordering of DNA sequences (the energy is also provided).
-mfe(dna_seqs, material = 'dna')
+print(mfe(dna_seqs, material = 'dna'))
 # Output:
 #  [('((((((((((((((((((((((((+))))))))))))))))))))))))((((((((((((((((((((((((+........................))))))))))))))))))))))))',
 #   '-65.913')]
@@ -97,7 +97,7 @@ mfe(dna_seqs, material = 'dna')
 # Find the pair probabilities of the following unpseudoknotted DNA strands.
 # The output is a list of tuples of the form (i, j, p) where p is the
 # probability that the ith and jth bases are bound.
-pairs(['ACGT','GCTT'], material = 'dna')
+print(pairs(['ACGT','GCTT'], material = 'dna'))
 # Output:
 #  [(1, 7, 3.1271e-02),
 #   (1, 8, 4.9495e-02),
