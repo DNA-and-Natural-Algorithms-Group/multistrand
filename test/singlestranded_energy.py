@@ -9,7 +9,7 @@ from multistrand.utils import DNA23Metropolis
 import sys
 import nupack
 
-#magic constant
+#magic constantm, see multistrand.system.options
 Complex_Energy = 2
 
 class EnergyComparison(unittest.TestCase):
