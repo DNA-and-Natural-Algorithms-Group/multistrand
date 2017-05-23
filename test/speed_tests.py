@@ -5,7 +5,8 @@ import timeit
 import multiprocessing
 from multiprocessing import Pool
 from multistrand.objects import Strand, Complex
-from multistrand.options import Options, Constants
+from multistrand.options import Options
+from multistrand.utils import generate_sequence
 
 class Results_Store( object ):
     def __init__(self):
