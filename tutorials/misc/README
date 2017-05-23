@@ -1,3 +1,4 @@
 Frits Dannenberg May 17th 2017
 
-uniqueID ---	this simply demonstrates a function that generates a unique identifier given a complex and dot-paren.
+uniqueID.py 		Simply demonstrates a function that generates a unique identifier given a complex and dot-paren.
+inspection.py		Manual inspection of the initial state for a dozen different complexes.
