@@ -9,7 +9,7 @@ from multistrand.objects import Complex, Domain, Strand, StopCondition
 from multistrand.options import Options
 from multistrand.system import SimSystem
 from multistrand.utils import pairType
-from multistrand.toolbox import XP_standardOptions, XP_hybridization
+from multistrand.experiment import standardOptions, hybridization
 
     
 ATIME_OUT = 0.0010
@@ -56,12 +56,12 @@ def printTrajectory(o):
 
 def doSims(strandSeq, numTraj=2):    
 
-    o1 = XP_standardOptions()
+    o1 = standardOptions()
     
     o1.num_simulations = numTraj
     o1.output_interval = 1 
     
-    XP_hybridization(o1, strandSeq)
+    hybridization(o1, strandSeq)
 
     s = SimSystem(o1)
     s.start()

@@ -16,7 +16,7 @@ from multistrand.options import Options
 
 from multistrand.concurrent import myMultistrand, msMulti, position
 from multistrand.utils import standardFileName
-from multistrand.toolbox import colors, setSaltGao2006,  XP_hybridization, XP_standardOptions,  colors, XP_goa2006_P0, XP_goa2006_P3, XP_goa2006_P4
+from multistrand.experiment import colors, setSaltGao2006,  hybridization, standardOptions,  colors, goa2006_P0, goa2006_P3, goa2006_P4
 
 
 
@@ -49,9 +49,9 @@ class hybridizationSimSettings(object):
     
 def getOptions(trials , settings): #start_complex_top, start_complex_bot, success_stop_condition, failed_stop_condition
       
-    options = XP_standardOptions("First Step", TEMPERATURE, settings.trials, ATIME_OUT)
+    options = standardOptions("First Step", TEMPERATURE, settings.trials, ATIME_OUT)
 
-    XP_hybridization(options, settings.mySeq, settings.trials)
+    hybridization(options, settings.mySeq, settings.trials)
     setSaltGao2006(options)
 
     options.output_interval = 1  # print every state, ever
@@ -560,14 +560,14 @@ if __name__ == '__main__':
     if toggle == "test":
         doInference('TACCGT', "P0-test", 10, numOfPaths)  # P0
     if toggle == "test2":
-        doInference(XP_goa2006_P0, "P0-test", 10, numOfPaths)  # P0
+        doInference(goa2006_P0, "P0-test", 10, numOfPaths)  # P0
         
     if toggle == "P0":
-        doInference(XP_goa2006_P0, toggle, 14, numOfPaths)  # P0
+        doInference(goa2006_P0, toggle, 14, numOfPaths)  # P0
     if toggle == "P3":
-        doInference(XP_goa2006_P3, toggle, 14, numOfPaths)  # P3
+        doInference(goa2006_P3, toggle, 14, numOfPaths)  # P3
     if toggle == "P4":
-        doInference(XP_goa2006_P4, toggle, 14, numOfPaths)  # P4
+        doInference(goa2006_P4, toggle, 14, numOfPaths)  # P4
 
 
 

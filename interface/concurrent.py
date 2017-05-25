@@ -29,7 +29,7 @@ class basicRate(object):
 
 
 ## Migration rates for first step
-class migrationRate(basicRate):
+class FirstStepResult(basicRate):
     
     
     def __init__(self, dataset=None, concentration=None):
@@ -59,7 +59,7 @@ class migrationRate(basicRate):
     
     def terminate(self, dataset):
         
-        newRates = migrationRate(dataset=dataset, concentration=1e-99)
+        newRates = FirstStepResult(dataset=dataset, concentration=1e-99)
         
         print(str(newRates))
         
@@ -171,7 +171,7 @@ class migrationRate(basicRate):
         
         # returns a new rates object with resampled data
         
-        newRates = migrationRate(concentration=self.z)
+        newRates = FirstStepResult(concentration=self.z)
         
         N = len(self.collision_rates)
         

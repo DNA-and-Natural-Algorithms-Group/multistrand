@@ -10,9 +10,9 @@
 """
 
 from multistrand.objects import Strand
-from multistrand.toolbox import XP_standardOptions, XP_hybridization, XP_goa2006_P0, XP_goa2006_P3, XP_goa2006_P4, setSaltGao2006, colors
+from multistrand.experiment import standardOptions, hybridization, goa2006_P0, goa2006_P3, goa2006_P4, setSaltGao2006, colors
 from multistrand.utils import concentration_string, standardFileName
-from multistrand.concurrent import  migrationRate, migrationRatePassage, bootstrap, myMultistrand
+from multistrand.concurrent import  FirstStepResult, migrationRatePassage, bootstrap, myMultistrand
 
 import nupack
 
@@ -38,8 +38,8 @@ def first_step_simulation(strand_seq, trials, T=20.0):
     def getOptions(trials):
        
        
-        o = XP_standardOptions("First Step", TEMPERATURE, trials, ATIME_OUT) 
-        XP_hybridization(o, strand_seq, trials)
+        o = standardOptions("First Step", TEMPERATURE, trials, ATIME_OUT) 
+        hybridization(o, strand_seq, trials)
         setSaltGao2006(o)
                
         
@@ -51,7 +51,7 @@ def first_step_simulation(strand_seq, trials, T=20.0):
 
     
 
-    return migrationRate(dataset, 50e-9)
+    return FirstStepResult(dataset, 50e-9)
 
 
 
@@ -62,9 +62,9 @@ def first_passage_association(strand_seq, trials, concentration, T=20.0):
     def getOptions(trials):
 
            
-        o = XP_standardOptions("First Passage Time", TEMPERATURE, trials, ATIME_OUT) 
+        o = standardOptions("First Passage Time", TEMPERATURE, trials, ATIME_OUT) 
         
-        XP_hybridization(o, strand_seq, trials, True)
+        hybridization(o, strand_seq, trials, True)
         setSaltGao2006(o)
         o.join_concentration = concentration
 
@@ -300,9 +300,9 @@ def doSlowdownStudy(trials):
         return result[0]
     
     
-    result0 = computeMeanStd(XP_goa2006_P0)
-    result3 = computeMeanStd(XP_goa2006_P3)
-    result4 = computeMeanStd(XP_goa2006_P4)
+    result0 = computeMeanStd(goa2006_P0)
+    result3 = computeMeanStd(goa2006_P3)
+    result4 = computeMeanStd(goa2006_P4)
     
     print result0
     print result3

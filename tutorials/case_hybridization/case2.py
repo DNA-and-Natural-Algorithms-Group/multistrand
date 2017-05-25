@@ -13,8 +13,8 @@ generate structured-random 25 3 4 10 sr25-10
 # from msUtil import myMultistrand
 
 
-from multistrand.toolbox import XP_hybridization, XP_standardOptions, XP_goa2006_P0, XP_goa2006_P3, XP_goa2006_P4, setSaltGao2006
-from multistrand.concurrent import migrationRate, myMultistrand
+from multistrand.experiment import hybridization, standardOptions, goa2006_P0, goa2006_P3, goa2006_P4, setSaltGao2006
+from multistrand.concurrent import FirstStepResult, myMultistrand
 
 from datetime import datetime
 import random, string, pickle
@@ -43,8 +43,8 @@ TOTAL_NUM_OF_SEQ = 0;
 
 def create_setup(num_traj, strand_seq):
     
-    options = XP_standardOptions("First Step", GLOBAL_TEMPERATURE, num_traj, ATIME_OUT)
-    XP_hybridization(options, strand_seq, num_traj)    
+    options = standardOptions("First Step", GLOBAL_TEMPERATURE, num_traj, ATIME_OUT)
+    hybridization(options, strand_seq, num_traj)    
     setSaltGao2006(options)    
     
     return options
@@ -56,7 +56,7 @@ def first_step_simulation(strand_seq, num_traj, rate_method_k_or_m="Metropolis",
     myMultistrand.setOptionsFactory2(create_setup, num_traj, strand_seq)
     myMultistrand.run()
     
-    return migrationRate(myMultistrand.results, CONCENTRATION) 
+    return FirstStepResult(myMultistrand.results, CONCENTRATION) 
     
 
 def WC(seq):
@@ -228,9 +228,9 @@ if __name__ == '__main__':
         if(L == 25):  # # 25 mers        
 
             # # The first 3 sequences will always be P0, P3, P4. 
-            candidates.append(XP_goa2006_P0)
-            candidates.append(XP_goa2006_P3)
-            candidates.append(XP_goa2006_P4)
+            candidates.append(goa2006_P0)
+            candidates.append(goa2006_P3)
+            candidates.append(goa2006_P4)
             
             # adding some very slow sequences. 
             candidates.append('TGAGGGGTTAGACTGAGAACCCCTG')
@@ -337,7 +337,7 @@ if __name__ == '__main__':
             # Accumulate statistics from all the runs, until enough succesful simulations are collected.
             trials = 60
             CONCENTRATION = 50e-9
-            totalRates = migrationRate(concentration=CONCENTRATION)
+            totalRates = FirstStepResult(concentration=CONCENTRATION)
                        
             
             while ((totalRates.nForward < 25 or (totalRates.nReverse == 0)) and not timeOut[i]) :  # this is a bit wasteful, but "only" by a factor of about 1.5.  Aims for 20% error bars on k1.
