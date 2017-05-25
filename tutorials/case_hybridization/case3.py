@@ -14,7 +14,7 @@ Some routines are ommited for testing purposes, use:
 
 from multistrand.options import Options
 
-from multistrand.concurrent import myMultistrand, msMulti, position
+from multistrand.concurrent import myMultistrand, MsMulti, position
 from multistrand.utils import standardFileName
 from multistrand.experiment import colors, setSaltGao2006,  hybridization, standardOptions,  colors, goa2006_P0, goa2006_P3, goa2006_P4
 

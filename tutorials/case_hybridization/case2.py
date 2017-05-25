@@ -14,7 +14,7 @@ generate structured-random 25 3 4 10 sr25-10
 
 
 from multistrand.experiment import hybridization, standardOptions, goa2006_P0, goa2006_P3, goa2006_P4, setSaltGao2006
-from multistrand.concurrent import FirstStepResult, myMultistrand
+from multistrand.concurrent import FirstStepRate, myMultistrand
 
 from datetime import datetime
 import random, string, pickle
@@ -56,7 +56,7 @@ def first_step_simulation(strand_seq, num_traj, rate_method_k_or_m="Metropolis",
     myMultistrand.setOptionsFactory2(create_setup, num_traj, strand_seq)
     myMultistrand.run()
     
-    return FirstStepResult(myMultistrand.results, CONCENTRATION) 
+    return FirstStepRate(myMultistrand.results, CONCENTRATION) 
     
 
 def WC(seq):

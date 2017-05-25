@@ -29,7 +29,7 @@ class basicRate(object):
 
 
 ## Migration rates for first step
-class FirstStepResult(basicRate):
+class FirstStepRate(basicRate):
     
     
     def __init__(self, dataset=None, concentration=None):
@@ -59,7 +59,7 @@ class FirstStepResult(basicRate):
     
     def terminate(self, dataset):
         
-        newRates = FirstStepResult(dataset=dataset, concentration=1e-99)
+        newRates = FirstStepRate(dataset=dataset, concentration=1e-99)
         
         print(str(newRates))
         
@@ -171,7 +171,7 @@ class FirstStepResult(basicRate):
         
         # returns a new rates object with resampled data
         
-        newRates = FirstStepResult(concentration=self.z)
+        newRates = FirstStepRate(concentration=self.z)
         
         N = len(self.collision_rates)
         
@@ -232,7 +232,7 @@ class FirstStepResult(basicRate):
 
 
 # Like migrationrate, but uses data from first passage time rather than first step mode
-class migrationRatePassage(basicRate):
+class FirstPassageRate(basicRate):
     
     def __init__(self, dataset=None, concentration=None):
         
@@ -260,7 +260,7 @@ class migrationRatePassage(basicRate):
     def resample(self):
         
         # avoid resampling time-outs.
-        newRates = migrationRatePassage(concentration=self.concentration)
+        newRates = FirstPassageRate(concentration=self.concentration)
         
         N = len(self.times)
         
@@ -301,7 +301,7 @@ class migrationRatePassage(basicRate):
         return kEff
 
 
-class bootstrap():
+class Bootstrap():
     
     
     def __init__(self, myRates, concentration=None):
@@ -459,7 +459,7 @@ def timeStamp(inTime=None):
     
     return str(datetime.datetime.fromtimestamp(inTime).strftime('%Y-%m-%d %H:%M:%S'))
 
-class msMulti(object):
+class MsMulti(object):
 
     numOfThreads = 2
     seed = 7713147777;
@@ -726,7 +726,7 @@ def initialInfo(self):
 
 
 # # The default multistrand object
-myMultistrand = msMulti()
+myMultistrand = MsMulti()
         
         
           

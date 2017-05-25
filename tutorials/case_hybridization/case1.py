@@ -12,7 +12,7 @@
 from multistrand.objects import Strand
 from multistrand.experiment import standardOptions, hybridization, goa2006_P0, goa2006_P3, goa2006_P4, setSaltGao2006, colors
 from multistrand.utils import concentration_string, standardFileName
-from multistrand.concurrent import  FirstStepResult, migrationRatePassage, bootstrap, myMultistrand
+from multistrand.concurrent import  FirstStepRate, FirstPassageRate, Bootstrap, myMultistrand
 
 import nupack
 
@@ -51,7 +51,7 @@ def first_step_simulation(strand_seq, trials, T=20.0):
 
     
 
-    return FirstStepResult(dataset, 50e-9)
+    return FirstStepRate(dataset, 50e-9)
 
 
 
@@ -74,7 +74,7 @@ def first_passage_association(strand_seq, trials, concentration, T=20.0):
     myMultistrand.run()
     dataset = myMultistrand.results
         
-    return migrationRatePassage(dataset, concentration)
+    return FirstPassageRate(dataset, concentration)
 
 
 
@@ -93,7 +93,7 @@ def doFirstStepMode(seq, concentrations, T=20.0, numOfRuns=500):
     for z in concentrations:
         
         kEff = myRates.kEff(z)
-        myBootstrap = bootstrap(myRates, z)
+        myBootstrap = Bootstrap(myRates, z)
         
         low, high = myBootstrap.ninetyFivePercentiles()
         logStd = myBootstrap.logStd()
