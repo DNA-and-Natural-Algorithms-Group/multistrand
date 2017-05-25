@@ -290,6 +290,9 @@ class Complex(object):
         popen_params = [sample_exec, "-multi"] + material + dangles + temperature + ["-samples", str(count)]
         p = subprocess.Popen( popen_params,stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         
+#         print("printing popen_params")
+#         print(popen_params)
+        
         # new: NUPACK 3.0.2 takes the file name as user input
         input_str = "{0}\n{1}\n{2}\n{3}\n".format( tmp.name[:-7],
                                                    len(self.strand_list),
@@ -297,16 +300,34 @@ class Complex(object):
                                                    " ".join( [str(i+1) for i in range( len( self.strand_list ))])
                                                  )
         result = p.communicate(input_str)[0]
+        
+        
+#         from nupack import *
+#         print(str(get_nupack_exec_path('commandhere')))
+#         print("input starting \n")
+#         print(input_str)        
+#         print("result starting \n")
+#         print(result)
+#         print("result end \n")
         # note we toss the result as it's mostly just spam from the subprocess
         
         f = open(tmp.name, "rt")
         lines = f.readlines()
+        
+#         print("Lines start \n")
+#         print (lines)
         
         f.close()
         os.remove(tmp.name) # was created by us [NamedTemporaryFile] and
                             # used by the sampler, thus we need to clean it up.
         if not "NUPACK 3.0" in lines[0]:
             raise IOError("Boltzmann sample function is not up to date. NUPACK 3.0.2 or greater needed.")
+        
+#         if  ( "3.0.4" in lines[3] or "3.0.6" 
+        
+                
+#         print("Lines[14] start \n")
+#         print (lines[14:])
         
         self._boltzmann_queue = lines[14:]
         if len(self._boltzmann_queue) < 1:

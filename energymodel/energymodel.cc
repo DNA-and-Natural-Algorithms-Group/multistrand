@@ -8,9 +8,11 @@
 #include "loop.h"
 #include "moveutil.h"
 #include "sequtil.h"
+#include "options.h"
 
 #include <iostream>
 #include <fstream>
+
 
 bool printedRates = false; // to print the constants to file once
 
@@ -81,13 +83,18 @@ void EnergyModel::writeConstantsToFile() {
 
 	ss << "Sodium      :  " << simOptions->energyOptions->sodium << " M \n";
 	ss << "Magnesium   :  " << simOptions->energyOptions->magnesium << " M \n";
-	ss << "Temperature :  " << simOptions->energyOptions->getTemperature() << endl;
-	ss << "useArr      :  " << simOptions->energyOptions->usingArrhenius() << endl;
+	ss << "Temperature :  " << simOptions->energyOptions->getTemperature() << " K" << endl;
+	ss << "Rate method :  " << simOptions->energyOptions->getKineticRateMethod() << "           (0: Kawasaki, 1: Metropolis)" << endl;
+	ss << "useArr      :  " << simOptions->energyOptions->usingArrhenius()  <<  "           (0: disabled)"<< endl;
+	ss << "dangles     :  " << simOptions->energyOptions->getDangles()   <<  "           (0: none, 1: some, 2: all)" << endl;
+	ss << "substrate   :  " << simOptions->energyOptions->compareSubstrateType(SUBSTRATE_DNA) <<   "           (1: DNA)" << endl;
+	ss << "GT pairing  :  " << simOptions->energyOptions->getGtenable() << "           (0: disabled)" << endl;
+	ss << "" << endl;
 
 	if (!simOptions->energyOptions->usingArrhenius()) {
 
-		ss << "    biScale     kUni    \n";
-		ss << "     " << simOptions->energyOptions->getBiScale();
+		ss << " biScale     kUni    \n";
+		ss << " " << simOptions->energyOptions->getBiScale();
 		ss << "     " << simOptions->energyOptions->getUniScale();
 
 		ss << "\n";
