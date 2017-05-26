@@ -526,37 +526,52 @@ void NupackEnergyModel::processOptions() {
 		char fullpath_dH[512];
 
 		nupackhome = getenv("NUPACKHOME");
-		//      printf("nupackhome = %s\n",nupackhome);
+
+		// FD: updating this to the new NUPACK parameter filenames
+		std::string RNAdG =  "rna1995.dG"; // "RNA_mfold2.3.dG";
+		std::string RNAdH =  "rna1995.dH";// "RNA_mfold2.3.dH";
+
+		std::string paramPath = "/parameters/";
 
 		if (nupackhome == NULL) {
-			strcpy(fullpath, "RNA_mfold2.3.dG");
-			strcpy(fullpath_dH, "RNA_mfold2.3.dH");
+			strcpy(fullpath, RNAdG.c_str());
+			strcpy(fullpath_dH, RNAdH.c_str());
 		} else {
 			strcpy(fullpath, nupackhome);
 			strcpy(fullpath_dH, nupackhome);
-			strcat(fullpath, "/parameters/RNA_mfold2.3.dG");
-			strcat(fullpath_dH, "/parameters/RNA_mfold2.3.dH");
+			strcpy(fullpath, paramPath.c_str());
+			strcpy(fullpath_dH, paramPath.c_str());
+			strcpy(fullpath, RNAdG.c_str());
+			strcpy(fullpath_dH, RNAdH.c_str());
 		}
-		//      printf("fp: %s\n fpdh: %s\n",fullpath, fullpath_dH);
+
 
 		fp = fopen(fullpath, "rt");
 		fp2 = fopen(fullpath_dH, "rt");
 
 		if (fp == NULL) {
-			fp = fopen("RNA_mfold2.3.dG", "rt");
+			fp = fopen(RNAdG.c_str(), "rt");
 			if (fp == NULL) {
-				fprintf(stderr,
-						"ERROR: nupack/mfold parameter file not found: $NUPACKHOME/parameters/RNA_mfold2.3.dG or RNA_mfold2.3.dG in current directory.\n");
+
+				string errorm = string("ERROR: nupack parameter file not found: $NUPACKHOME");
+				errorm += paramPath + RNAdG + string(" or ") + RNAdG;
+				errorm += string(" in current directory.\n");
+				fprintf(stderr, errorm.c_str());
 				exit(0);
 			}
 
 		}
 
 		if (fp2 == NULL) {
-			fp2 = fopen("RNA_mfold2.3.dH", "rt");
+			fp2 = fopen(RNAdH.c_str(), "rt");
 			if (fp2 == NULL) {
-				fprintf(stderr,
-						"ERROR: nupack/mfold parameter file not found: $NUPACKHOME/parameters/RNA_mfold2.3.dH or RNA_mfold2.3.dH in current directory.\n");
+
+
+				string errorm = string("ERROR: nupack parameter file not found: $NUPACKHOME");
+				errorm += paramPath + RNAdH + string(" or ") + RNAdH;
+				errorm += string(" in current directory.\n");
+
+				fprintf(stderr, errorm.c_str());
 				exit(0);
 			}
 

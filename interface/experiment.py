@@ -9,9 +9,9 @@ from multistrand.options import Options
 colors = ['blue', 'red', 'cyan', 'magenta', 'green', 'k', 'darkblue', 'darkred', 'darkcyan', 'darkmagenta', 'darkgreen']
 
 
-XP_goa2006_P0 = 'GTTGTCAAGATGCTACCGTTCAGAG'
-XP_goa2006_P3 = 'AGATCAGTGCGTCTGTACTAGCAGT'
-XP_goa2006_P4 = 'AGATCAGTGCGTCTGTACTAGCACA'   
+goa2006_P0 = 'GTTGTCAAGATGCTACCGTTCAGAG'
+goa2006_P3 = 'AGATCAGTGCGTCTGTACTAGCAGT'
+goa2006_P4 = 'AGATCAGTGCGTCTGTACTAGCACA'   
 
 
 def setSaltGao2006(o):
@@ -27,7 +27,7 @@ def setBoltzmann(complexIn, trials):
 
 
 # easy handle for options creation
-def XP_standardOptions(simMode = Options.firstStep, tempIn = 25.0, trials=10, timeOut= 0.1):
+def standardOptions(simMode = Options.firstStep, tempIn = 25.0, trials=10, timeOut= 0.1):
     
     output = Options(simulation_mode=simMode,
                       rate_method=Options.metropolis,
@@ -42,7 +42,7 @@ def XP_standardOptions(simMode = Options.firstStep, tempIn = 25.0, trials=10, ti
 
 
 
-def XP_hybridization(options, mySeq, myTrials=0, doFirstPassage=False):
+def hybridization(options, mySeq, myTrials=0, doFirstPassage=False):
                 
     # Using domain representation makes it easier to write secondary structures.
     onedomain = Domain(name="itall", sequence=mySeq)
