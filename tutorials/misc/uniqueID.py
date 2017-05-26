@@ -1,7 +1,7 @@
 # FD, May 17th, 2017. 
 # This demonstrates the pair-type functionality
 # For a given complex, Pairtype returns a unique representation. 
-# This is important for hassing functions 
+# This is important for hashing functions 
 
 import sys
 
@@ -62,6 +62,7 @@ def doSims(strandSeq, numTraj=2):
     o1.output_interval = 1 
     
     hybridization(o1, strandSeq)
+    o1.initial_seed = 1777
 
     s = SimSystem(o1)
     s.start()

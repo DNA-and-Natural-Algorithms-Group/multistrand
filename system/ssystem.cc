@@ -338,7 +338,7 @@ void SimulationSystem::SimulationLoop_Trajectory() {
 	complexList->initializeList();
 	rate = complexList->getTotalFlux();
 
-	cout << "rate is " << (rate) << endl;
+//	cout << "rate is " << (rate) << endl;
 
 // We start at the beginning of time.
 	stime = 0.0;

@@ -26,13 +26,12 @@ Frits Dannenberg, May 26rd, 2017
  -  nupack 3.0.4 only*
  -  make,			4.0+
  
-The oldest NUPACK release available for download is 3.0.6 (www.nupack.org). Under 3.0.6, first step mode will not work, which relies on the sample subroutine. To make first step mode work in NUPACK 3.0.6, it is sufficient to copy sample.c from 3.0.4 into the 3.0.6 distribution and then to recompile.
+The earliest NUPACK release available for download is 3.0.6 (www.nupack.org). Under 3.0.6, first step mode will not work, which relies on the sample subroutine. To make first step mode work in NUPACK 3.0.6, it is sufficient to copy sample.c from 3.0.4 into the 3.0.6 distribution and then to recompile. First step mode will not work with 3.1.0 and 3.2.0.
 
 Some users may need to install 'make' first. You can check that make is installed by simplying calling "make" in the terminal, which should return a message similar to the below. You can similarly run "python -V" and "gcc -v" to check if python and gcc are installed. Mac users may need to install xcode in order to proceed.
 ```sh
 $ make: *** No targets specified and no makefile found.  Stop.
 ```
-
 
 Tutorial files use the 'numpy', 'matplotlib' and 'scipy' python packages (you can install these using 'pip install numpy' and so on).
 
@@ -44,7 +43,53 @@ Tutorial files use the 'numpy', 'matplotlib' and 'scipy' python packages (you ca
  - Build multistrand by running 'make' in the Multistrand directory
  - The installation can be exported as a python library to the appropriate /site-packages/ by calling 'sudo make install'.
  
- Tutorials are found in /tutorials/. For docs, use 'make docs'
+# Package tree
+
+
+.
+/energymodel
+/include
+/interface
+/loop
+/multistrand
+/nupack
+/obj
+/state
+/system
+/test
+/tutorials
+
+
+Source dirs are /energymodel, /include, /interface/, /loop, /nupack, /state, /system, /test. Build dirs are /multistrand and /obj. 
+
+Tutorial files are organized as follows. Folder /under_the_hood/ contains in depth tutorials. Jupyter versions of the /under_the_hood/ are found in /under_the_hood_notebooks/. /case_hybridization/ contains an upcomming case study into hybridization kinetics (submission pending). Additional demo files are located in /misc/.
+
+# Using Multistrand
+
+## Hybridization trajectory 
+
+A quick test to see if Multistrand is working is by running 'python tutorials/misc/sample_trace.py'. This example does not use First Step mode, and should work would with all recent versions of NUPACK (3.0.6, 3.1.0, 3.2.0). This script simulates the hybridization of two complementary strands and ends the simulation when the two strands either completely hybridize or seperate after an initial collision:  
+
+```sh
+['/home/iris/workspace/caltech/Multistrand/tutorials/misc/sample_trace.py']
+GTGAAACGC GCGTTTCAC
+......... ......... t=0.0000 ms, dG=0.00 kcal/mol  
+GTGAAACGC+GCGTTTCAC
+(........+........) t=0.0406 ms, dG=0.22 kcal/mol  
+GCGTTTCAC+GTGAAACGC
+......(.(+).)...... t=0.0465 ms, dG=1.18 kcal/mol  
+......(((+)))...... t=0.0495 ms, dG=-3.22 kcal/mol  
+......((.+.))...... t=0.0588 ms, dG=-0.63 kcal/mol  
+......(((+)))...... t=0.0725 ms, dG=-3.22 kcal/mol  
+.....((((+))))..... t=0.1901 ms, dG=-3.21 kcal/mol  
+....(((((+))))).... t=0.2732 ms, dG=-4.48 kcal/mol  
+..(.(((((+))))).).. t=0.2921 ms, dG=-4.03 kcal/mol  
+..(((((((+))))))).. t=0.2936 ms, dG=-7.97 kcal/mol  
+.((((((((+)))))))). t=0.2971 ms, dG=-10.96 kcal/mol  
+(((((((((+))))))))) t=0.3337 ms, dG=-12.38 kcal/mol  
+
+```
+
 
 
 
