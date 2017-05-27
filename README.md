@@ -1,4 +1,4 @@
-# Multistrand
+# Multistrand #
 
 Multistrand is a tool for kinetic simulations of nucleic acids, and is developed by the Winfree group at Caltech in Pasadena, CA, USA. Until 2013, development was lead by Joseph Schaeffer (now Autodesk).
 
@@ -19,7 +19,7 @@ General questions should be directed to help@multistrand.org. Also see www.multi
 Frits Dannenberg, May 26rd, 2017
 
 
-# Requirements
+## Requirements ##
 
  -  c++11,  (clang, gcc v4.8.5+) 
  -  python2, 	 	2.7.12+
@@ -36,14 +36,14 @@ $ make: *** No targets specified and no makefile found.  Stop.
 Tutorial files use the 'numpy', 'matplotlib' and 'scipy' python packages (you can install these using 'pip install numpy' and so on).
 
  
- # Installation
+## Installation ##
  
  - Clone the repository or download and unzip Multistrand into your workspace.
  - Make sure that in your enviroment (Eclipse, PyDev, bash, etc), NUPACKHOME points to the directory where nupack is installed. In the terminal, you can verify this by running 'echo $NUPACKHOME'.
  - Build multistrand by running 'make' in the Multistrand directory
  - The installation can be exported as a python library to the appropriate /site-packages/ by calling 'sudo make install'.
  
-# Package tree
+## Package tree ##
 
 
 .
@@ -64,9 +64,9 @@ Source dirs are /energymodel, /include, /interface/, /loop, /nupack, /state, /sy
 
 Tutorial files are organized as follows. Folder /under_the_hood/ contains in depth tutorials. Jupyter versions of the /under_the_hood/ are found in /under_the_hood_notebooks/. /case_hybridization/ contains an upcomming case study into hybridization kinetics (submission pending). Additional demo files are located in /misc/.
 
-# Using Multistrand
+## Using Multistrand ##
 
-## Hybridization trajectory 
+### Hybridization trajectory ###
 
 A quick test to see if Multistrand is working is by running 'python tutorials/misc/sample_trace.py'. This example does not use First Step mode, and should work would with all recent versions of NUPACK (3.0.6, 3.1.0, 3.2.0). This script simulates the hybridization of two complementary strands and ends the simulation when the two strands either completely hybridize or seperate after an initial collision:  
 
@@ -87,7 +87,6 @@ GCGTTTCAC+GTGAAACGC
 ..(((((((+))))))).. t=0.2936 ms, dG=-7.97 kcal/mol  
 .((((((((+)))))))). t=0.2971 ms, dG=-10.96 kcal/mol  
 (((((((((+))))))))) t=0.3337 ms, dG=-12.38 kcal/mol  
-
 ```
 
 

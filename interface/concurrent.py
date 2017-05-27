@@ -469,7 +469,7 @@ class MsMulti(object):
 
         
         self.initializationTime = time.time()
-        print(timeStamp(), "   Starting Multistrand 3.0    (c) 2008-2016 Caltech   ")
+        print("%s%s" % (timeStamp() ,  "  Starting Multistrand 2.1    (c) 2008-2017 Caltech  "))
                 
 
         self.factory = optionsFactory
@@ -584,9 +584,12 @@ class MsMulti(object):
 
     def startSimMessage(self):
         
-        welcomeMessage = "Computing " + str(self.numOfThreads * self.trialsPerThread) 
-        welcomeMessage += " trials,  using " + str(self.numOfThreads)  
-        welcomeMessage += " threads  .. "
+        # python2 style printing because of an compilation issue with web.py        
+        welcomeMessage = ''.join(["Computing ", str(self.numOfThreads * self.trialsPerThread) , " trials,  using " , str(self.numOfThreads), " threads .. \n" ])
+        
+#         welcomeMessage =  + 
+#         welcomeMessage +=  
+#         welcomeMessage += " threads  .. "
         return welcomeMessage
 #         print(welcomeMessage, end="")
 
@@ -676,7 +679,7 @@ class MsMulti(object):
 
         while not terminate:
 
-            print(self.startSimMessage(), "\n") 
+            print(self.startSimMessage()) 
 
             procs = []
             
