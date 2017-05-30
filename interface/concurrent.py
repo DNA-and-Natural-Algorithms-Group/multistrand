@@ -35,6 +35,12 @@ class FirstStepRate(basicRate):
     def __init__(self, dataset=None, concentration=None):
         
         
+        #some data for testing for twostateness
+        self.dTcoll_reverse = -1.0
+        self.dTfail_uni = -1.0
+        self.dTcoll_forward = -1.0
+        self.dTsuccess_uni = -1.0
+        
         if not concentration == None:        
             # empty constructor for resampling code
             self.z = np.float(concentration)
@@ -135,8 +141,8 @@ class FirstStepRate(basicRate):
         if(self.nForward == 0):
             return MINIMUM_RATE
     
-        dTsuccess_uni = np.mean(self.forward_times)
-        dTfail_uni = np.mean(self.reverse_times)
+        self.dTsuccess_uni = np.mean(self.forward_times)
+        self.dTfail_uni = np.mean(self.reverse_times)
         
         kcollision = np.mean(self.collision_rates)
         
@@ -144,27 +150,50 @@ class FirstStepRate(basicRate):
         kcollision_reverse = np.mean(self.collision_reverse)        
         
         
-        multiple = float(self.nReverse) / float(self.nForward)
+        self.multiple = float(self.nReverse) / float(self.nForward)
 
         dTcoll = np.float(1.0) / ((kcollision) * z)
 
         if(True):  # toggle if use specific collision rates or not
-            dTcoll_forward = np.float(1.0) / ((kcollision_foward) * z)
-            dTcoll_reverse = np.float(1.0) / ((kcollision_reverse) * z)
+            self.dTcoll_forward = np.float(1.0) / ((kcollision_foward) * z)
+            self.dTcoll_reverse = np.float(1.0) / ((kcollision_reverse) * z)
         else:
-            dTcoll_forward = dTcoll
-            dTcoll_reverse = dTcoll
+            self.dTcoll_forward = dTcoll
+            self.dTcoll_reverse = dTcoll
        
         
-        dTfail = dTcoll_reverse + dTfail_uni
-        dTforward = dTcoll_forward + dTsuccess_uni
+        dTfail = self.dTcoll_reverse + self.dTfail_uni
+        dTforward = self.dTcoll_forward + self.dTsuccess_uni
         
-        dTcorrect = dTfail * multiple + dTforward
+        dTcorrect = dTfail * self.multiple + dTforward
         
         kEff = (1 / dTcorrect) * (1 / z)
         
         return kEff
 
+    def testForTwoStateness(self):
+        
+        self.kEff() # generate the relevant metrics
+        
+        if(self.z == None):
+            print("Warning! Attempting to test for two-state behaviour but concentration was not set! \n")
+        
+        # Test if the failed trajectory and the success trajectory are dominated ( > 10% of total ) by the unimolecular phase
+        testFail = (self.dTcoll_reverse / self.dTfail_uni) < 9
+        testSucces = (self.dTcoll_forward / self.dTsuccess_uni) < 9
+        
+        if(testFail | testSucces):
+            
+            output = ''.join(["Warning! At the chosen concentration, ", str(self.z), " M, the reaction might violate two-state secondary order rate kinetics"])                         
+            print(output)
+            
+            output = ''.join(["Unimolecular waiting times (average):", str(self.dTfail_uni),str(self.dTsuccess_uni), "\n"])
+            output = ''.join([output, "Bimolecular waiting times (average):", str(self.dTcoll_reverse),str(self.dTcoll_forward)])
+            
+
+            
+        
+        
 
 
     def resample(self):
@@ -223,9 +252,12 @@ class FirstStepRate(basicRate):
         
         output = "nForward = " + str(self.nForward) + " \n"
         output += "nReverse = " + str(self.nReverse) + " \n"
-        output += "k1 = " + str(self.k1()) + " /M/s   \n"
-        output += "k_eff = " + str(self.kEff()) + " /M/s   \n"
-        output += ", concentration = " + str(self.z) + " M  \n "
+        
+        if(self.nForward > 0):
+            output += "k1 = " + str(self.k1()) + " /M/s   \n"
+            output += "k_eff = " + str(self.kEff()) + " /M/s   \n"
+            
+        output += "concentration = " + str(self.z) + " M  \n "
         
         return output
 
@@ -304,19 +336,21 @@ class FirstPassageRate(basicRate):
 class Bootstrap():
     
     
-    def __init__(self, myRates, concentration=None):
+    def __init__(self, myRates, concentration=None, computek1 = False):
         
         self.myRates = myRates
         
-        self.process(concentration)
+        self.process(concentration, computek1)
         
-    def process(self, concentration):
+    def process(self, concentration, computek1):
         
         # # Resample the dataset
+        # FD: This is more expensive than strictly required. 
+        # FD: Note that this computes the CI for kEff().
         
         self.effectiveRates = list()
         self.logEffectiveRates = list()
-        self.N = 1000
+        self.N = 400
         
         if not concentration == None:
             self.myRates.z = concentration
@@ -324,7 +358,12 @@ class Bootstrap():
         for i in range(self.N):
             
             sample = self.myRates.resample()
-            rate = float(sample.kEff())
+            
+            if(computek1):
+                rate = float(sample.k1())
+            else: 
+                rate = float(sample.kEff())
+                
             self.effectiveRates.append(rate)
             
             del sample
