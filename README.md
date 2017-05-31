@@ -148,7 +148,7 @@ GT pairing  :  0           (0: disabled)
  
  ### Frequently Aksed Questions ###
  
-TBD
- 
+Q: Can I simulate leak reactions using Multistrand?
+A: Yes. We have now added a preliminary tutorial, see /tutorials/leak_casestudy.
 
 
