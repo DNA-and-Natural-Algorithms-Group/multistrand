@@ -1,0 +1,21 @@
+
+
+Frits Dannenberg May 31 
+
+Release 2.1 changelog:
+
+	- Reworked c++ internals: new files, classes, structs, enums, consts and various tostrings added. Moved to the c++11 standard.
+	- Many files that were longer relevant or not working well are now removed. Depreciated support for ViennaRNA. 
+	- Tests of long-run equilibrium and equivalence of the energy model (w.r.t. NUPACK) are now working.
+	- SimSystem objects now supports .initialInfo(), which prints the internal representation of the initial state.
+	- Fixed a bug that prevented Multistrand from executing deterministically.
+	- Fixed a bug that required the user to rename parameter files when simulating RNA. 
+	- Multistrand now ships with convience classes for multithreading (interface/concurrent.py).
+	- Multistrand will now complain when the user does not explicity set the uni- and bi-molecular rate constants. Defaults are provided in multistrand.utils.
+	- Multistrand will let the user know when no initial moves are available in first step mode. 
+	
+	
+Known issues in Multistrand 2.1:
+
+	- Because multithreading is handeled outside C++ core, error messages print once for each thread.
+	 

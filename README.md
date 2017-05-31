@@ -151,4 +151,14 @@ GT pairing  :  0           (0: disabled)
 Q: Can I simulate leak reactions using Multistrand?
 A: Yes. We have now added a preliminary tutorial, see /tutorials/leak_casestudy.
 
+Q: How do I adjust the solvent salt concentrations?
+A: Like so. (units are M = mol / litre) 
+
+```python
+from multistrand.options import Options
+o1 = Options()
+o1.sodium = 0.05		# units: mol / litre
+o1.magnesium = 0.0125	# units: mol / litre
+```
+
 
