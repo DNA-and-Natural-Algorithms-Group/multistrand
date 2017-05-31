@@ -136,7 +136,7 @@ Multistrand automatically creates a logfile ("multistrandRun.log") that contains
 Sodium      :  0.5 M 
 Magnesium   :  0 M 
 Temperature :  298.15 K
-Rate method :  2           (1: Kawasaki, 2: Metropolis)
+Rate method :  1           (1: Metropolis, 2:  Kawasaki)
 dangles     :  1           (0: none, 1: some, 2: all)
 substrate   :  1           (1: DNA)
 GT pairing  :  0           (0: disabled)
