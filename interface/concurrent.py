@@ -65,7 +65,7 @@ class FirstStepRate(basicRate):
     
     def terminate(self, dataset):
         
-        newRates = FirstStepRate(dataset=dataset, concentration=1e-99)
+        newRates = FirstStepRate(dataset=dataset, concentration  = 1e-99)
         
         print(str(newRates))
         
@@ -182,14 +182,19 @@ class FirstStepRate(basicRate):
         testFail = (self.dTcoll_reverse / self.dTfail_uni) < 9
         testSucces = (self.dTcoll_forward / self.dTsuccess_uni) < 9
         
+#         print("tests are ")
+#         print(str(testFail))
+#         print(str(testSucces))
+#         
         if(testFail | testSucces):
             
             output = ''.join(["Warning! At the chosen concentration, ", str(self.z), " M, the reaction might violate two-state secondary order rate kinetics"])                         
             print(output)
+        
+            output = ''.join(["Unimolecular waiting times (average):", str(self.dTfail_uni),"  --   ",str(self.dTsuccess_uni), "\n"])
+            output = ''.join([output, "Bimolecular waiting times (average):", str(self.dTcoll_reverse),"  --   ", str(self.dTcoll_forward)])
             
-            output = ''.join(["Unimolecular waiting times (average):", str(self.dTfail_uni),str(self.dTsuccess_uni), "\n"])
-            output = ''.join([output, "Bimolecular waiting times (average):", str(self.dTcoll_reverse),str(self.dTcoll_forward)])
-            
+            print(output)
 
             
         
@@ -256,8 +261,9 @@ class FirstStepRate(basicRate):
         if(self.nForward > 0):
             output += "k1 = " + str(self.k1()) + " /M/s   \n"
             output += "k_eff = " + str(self.kEff()) + " /M/s   \n"
-            
-        output += "concentration = " + str(self.z) + " M  \n "
+        
+        if(self.z > 1e-99):
+            output += "concentration = " + str(self.z) + " M  \n "
         
         return output
 
@@ -508,7 +514,7 @@ class MsMulti(object):
 
         
         self.initializationTime = time.time()
-        print("%s%s" % (timeStamp() ,  "  Starting Multistrand 2.1    (c) 2008-2017 Caltech  "))
+        print("%s%s" % (timeStamp() ,  "  Starting Multistrand 2.1      (c) 2008-2017 Caltech      "))
                 
 
         self.factory = optionsFactory
@@ -624,13 +630,9 @@ class MsMulti(object):
     def startSimMessage(self):
         
         # python2 style printing because of an compilation issue with web.py        
-        welcomeMessage = ''.join(["Computing ", str(self.numOfThreads * self.trialsPerThread) , " trials,  using " , str(self.numOfThreads), " threads .. \n" ])
+        welcomeMessage = ''.join(["Computing ", str(self.numOfThreads * self.trialsPerThread) , " trials, using " , str(self.numOfThreads), " threads .. " ])
         
-#         welcomeMessage =  + 
-#         welcomeMessage +=  
-#         welcomeMessage += " threads  .. "
         return welcomeMessage
-#         print(welcomeMessage, end="")
 
 
     def run(self):
@@ -735,7 +737,7 @@ class MsMulti(object):
             for i in range(self.numOfThreads):
                 procs[i].join()
              
-            print("Done.  %.5f seconds" % (time.time() - startTime))
+            print("Done.  %.5f seconds \n" % (time.time() - startTime))
             
             
             if self.terminationCriteria == None:

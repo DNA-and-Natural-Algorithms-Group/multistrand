@@ -24,7 +24,7 @@ def first_step_simulation(strand_seq, trials, T=20.0, material="DNA"):
     def getOptions(trials, material):
          
          
-        o = standardOptions("First Step", tempIn=25.0, trials=200, timeOut = 0.001) 
+        o = standardOptions("First Step", tempIn=25.0, trials=200, timeOut = 0.1) 
         hybridization(o, strand_seq, trials)
         setSaltGao2006(o)
         DNA23Metropolis(o)
@@ -32,6 +32,7 @@ def first_step_simulation(strand_seq, trials, T=20.0, material="DNA"):
           
         return o
       
+    myMultistrand.setNumOfThreads(2)
     myMultistrand.setOptionsFactory2(getOptions, trials, material)
     myMultistrand.setTerminationCriteria(FirstStepRate())
     myMultistrand.run()
@@ -50,19 +51,19 @@ def compute(strand_seq):
     return "{:.2e}".format(float(rRate)), '999.0'
 
 
-def computeAndWriteToCL(strand_seq, doErrorBars):
+def computeAndWriteToCL(strand_seq, doBootstrap):
     
 
     # myRates = computeWError(mySequence)
     
     result = first_step_simulation(strand_seq, 800, T=25.0, material="DNA")
-    print("The hybridization rate of ", strand_seq, " and the reverse complement is ", "{:.2e}".format(result.kEff()), " /M /s", sep="")
+    print("The hybridization rate of ", strand_seq, " and the reverse complement is ", "{:.2e}".format(result.k1()), " /M /s", sep="")
     
 
     # check for two-stateness
     result.testForTwoStateness()
     
-    if(doErrorBars):
+    if(doBootstrap):
         
         bootstrap = Bootstrap(result, A_CONCENTRATION, computek1=True)
         bounds = bootstrap.ninetyFivePercentiles()
@@ -74,12 +75,17 @@ def computeAndWriteToCL(strand_seq, doErrorBars):
 
 if(len(sys.argv) < 2):
     print("Please provide a DNA sequence as commandline argument")
-    print("Adding an additional argument toggles errorbound computation")
-    print("Example: computeAnnealRate.py ATGCAGT bounds")
+    print("Add -bootstrap to do a boostrap ")
+    print("Example: computeAnnealRate.py ATGCAGT -boostrap")
     exit()
 
 mySequence = sys.argv[1]
-result = computeAndWriteToCL(mySequence, len(sys.argv) > 2)
+doBootstrap = False
+if(len(sys.argv) > 2):
+    if(str(sys.argv[2])=="-bootstrap"):
+        doBootstrap = True
+
+result = computeAndWriteToCL(mySequence, doBootstrap )
 
 
 

@@ -66,6 +66,9 @@ Tutorial files are organized as follows. Folder /under_the_hood/ contains in dep
 
 ## Using Multistrand ##
 
+Several tutorial files on using multistrand are found in /tutorials/under_the_hood. As a very quick primer, we discuss two small scripts below.  Multistrand also comes with documentation (run 'make docs').
+
+
 ### Hybridization trajectory ###
 
 A quick test to see if Multistrand is working is by running 'python tutorials/misc/sample_trace.py'. This example does not use First Step mode, and should work would with all recent versions of NUPACK (3.0.6, 3.1.0, 3.2.0). This script simulates the hybridization of two complementary strands and ends the simulation when the two strands either completely hybridize or seperate after an initial collision:  
@@ -89,6 +92,43 @@ GCGTTTCAC+GTGAAACGC
 (((((((((+))))))))) t=0.3337 ms, dG=-12.38 kcal/mol  
 ```
 
+### Hybridization Rates ###
 
+The following script computes a hybridization rate for a strand and its compement. The computation relies on first step mode and will only work with the appropriate version of NUPACK.
+
+```sh
+[iris@dhcp-135-182 Multistrand]$ python tutorials/misc/computeAnnealRate.py 'AGCTGA' -bootstrap
+2017-05-30 18:05:34  Starting Multistrand 2.1      (c) 2008-2017 Caltech      
+Running first step mode simulations for AGCTGA (with Boltzmann sampling)...
+Computing 800 trials, using 2 threads .. 
+Done.  0.25586 seconds 
+
+nForward = 419 
+nReverse = 381 
+k1 = 7332500.0 /M/s   
+k_eff = 7332500.0 /M/s   
+
+The hybridization rate of AGCTGA and the reverse complement is 7.33e+06 /M /s
+Estimated 95% confidence interval: [6.86e+06,7.79e+06] 
+```
+
+
+### Log files ###
+
+Multistrand automatically creates a logfile ("multistrandRun.log") that contains some information on the used model, like so:
+```sh
+Sodium      :  0.5 M 
+Magnesium   :  0 M 
+Temperature :  298.15 K
+Rate method :  2           (0: Kawasaki, 1: Metropolis)
+dangles     :  1           (0: none, 1: some, 2: all)
+substrate   :  1           (1: DNA)
+GT pairing  :  0           (0: disabled)
+
+ biScale     kUni    
+ 1.4e+06     5e+06
+```
+ 
+ 
 
 
