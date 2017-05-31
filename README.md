@@ -19,6 +19,20 @@ General questions should be directed to help@multistrand.org. Also see www.multi
 Frits Dannenberg, May 26rd, 2017
 
 
+## Licence ##
+
+Multistrand, kinetic simulator for nucleic acids.
+Copyright 2017, California Institute of Technology. All rights reserved.
+
+Using this software is permitted for academic non-commercial purposes only. All copyright is retained by Caltech. 
+
+Disclaimer: This software is provided "as is", without warrenty of any kind, express or implied, including
+but not limited to the warrenties of merchantability, fitness of a particular purpose and 
+noninfringement. In no event shall the authors or copyright holders be liable for any claim,
+damages or otehr liability, whether in an action of contract, tort or otherwise, arising from,
+out of or in connection with the software or the use or other dealings in the software.
+
+
 ## Requirements ##
 
  -  c++11,  (clang, gcc v4.8.5+) 
@@ -120,7 +134,7 @@ Multistrand automatically creates a logfile ("multistrandRun.log") that contains
 Sodium      :  0.5 M 
 Magnesium   :  0 M 
 Temperature :  298.15 K
-Rate method :  2           (0: Kawasaki, 1: Metropolis)
+Rate method :  2           (1: Kawasaki, 2: Metropolis)
 dangles     :  1           (0: none, 1: some, 2: all)
 substrate   :  1           (1: DNA)
 GT pairing  :  0           (0: disabled)

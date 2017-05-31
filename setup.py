@@ -1,7 +1,7 @@
 # Copyright (c) 2010-2017 Caltech. All rights reserved.
 # Joseph Schaeffer (schaeffer@dna.caltech.edu)
 # Frits Dannenberg (fdann@dna.caltech.edu)
-#
+
 from distutils.core import setup, Extension
 import distutils.sysconfig
 import os, sys

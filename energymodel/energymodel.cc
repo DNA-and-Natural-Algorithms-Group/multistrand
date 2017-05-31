@@ -84,7 +84,7 @@ void EnergyModel::writeConstantsToFile() {
 	ss << "Sodium      :  " << simOptions->energyOptions->sodium << " M \n";
 	ss << "Magnesium   :  " << simOptions->energyOptions->magnesium << " M \n";
 	ss << "Temperature :  " << simOptions->energyOptions->getTemperature() << " K" << endl;
-	ss << "Rate method :  " << simOptions->energyOptions->getKineticRateMethod() << "           (0: Kawasaki, 1: Metropolis)" << endl;
+	ss << "Rate method :  " << simOptions->energyOptions->getKineticRateMethod() << "           (1: Kawasaki, 2: Metropolis)" << endl;
 	ss << "useArr      :  " << simOptions->energyOptions->usingArrhenius()  <<  "           (0: disabled)"<< endl;
 	ss << "dangles     :  " << simOptions->energyOptions->getDangles()   <<  "           (0: none, 1: some, 2: all)" << endl;
 	ss << "substrate   :  " << simOptions->energyOptions->compareSubstrateType(SUBSTRATE_DNA) <<   "           (1: DNA)" << endl;
