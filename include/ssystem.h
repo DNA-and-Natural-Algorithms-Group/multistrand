@@ -1,8 +1,8 @@
 /*
- Copyright (c) 2007-20017 Caltech. All rights reserved.
- Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
- 	 	   Frits Dannenberg (fdann@caltech.edu)
- */
+Copyright (c) 2017 California Institute of Technology. All rights reserved.
+Multistrand nucleic acid kinetic simulator
+help@multistrand.org
+*/
 
 /* SimulationSystem class header. This is the main object which controls the entire simulated system. */
 

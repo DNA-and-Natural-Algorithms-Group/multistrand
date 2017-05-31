@@ -1,3 +1,9 @@
+/*
+Copyright (c) 2017 California Institute of Technology. All rights reserved.
+Multistrand nucleic acid kinetic simulator
+help@multistrand.org
+*/
+
 #include <moveutil.h>
 #include <sequtil.h>
 #include <assert.h>

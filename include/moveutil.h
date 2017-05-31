@@ -1,3 +1,9 @@
+/*
+Copyright (c) 2017 California Institute of Technology. All rights reserved.
+Multistrand nucleic acid kinetic simulator
+help@multistrand.org
+*/
+
 // Contains all move-related utility as a base-class.
 #ifndef __MOVEUTIL_H__
 #define __MOVEUTIL_H__

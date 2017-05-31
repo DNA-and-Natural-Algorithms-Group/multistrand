@@ -1,7 +1,8 @@
 /*
- Copyright (c) 2007-2010 Caltech. All rights reserved.
- Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
- */
+Copyright (c) 2017 California Institute of Technology. All rights reserved.
+Multistrand nucleic acid kinetic simulator
+help@multistrand.org
+*/
 
 #ifndef __STRANDORDERING_H__
 #define __STRANDORDERING_H__

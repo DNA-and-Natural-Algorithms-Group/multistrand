@@ -1,3 +1,9 @@
+/*
+Copyright (c) 2017 California Institute of Technology. All rights reserved.
+Multistrand nucleic acid kinetic simulator
+help@multistrand.org
+*/
+
 #ifndef __PYTHON_OPTIONS_H__
 #define __PYTHON_OPTIONS_H__
 

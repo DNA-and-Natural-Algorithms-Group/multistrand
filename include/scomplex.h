@@ -1,7 +1,8 @@
 /*
- Copyright (c) 2007-2008 Caltech. All rights reserved.
- Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
- */
+Copyright (c) 2017 California Institute of Technology. All rights reserved.
+Multistrand nucleic acid kinetic simulator
+help@multistrand.org
+*/
 
 /* StrandComplex class header. The Complex object contains information about a collection of strands, and has the loop structures contained within it. */
 #ifndef __SCOMPLEX_H__

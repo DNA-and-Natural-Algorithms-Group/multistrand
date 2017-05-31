@@ -1,5 +1,10 @@
 /*
- * simOptions.cc
+Copyright (c) 2017 California Institute of Technology. All rights reserved.
+Multistrand nucleic acid kinetic simulator
+help@multistrand.org
+*/
+
+/*
  *
  *  Created on: Jun 5, 2016
  *      Author: Frits Dannenberg

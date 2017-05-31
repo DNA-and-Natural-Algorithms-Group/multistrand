@@ -1,7 +1,8 @@
 /*
- h Copyright (c) 2007-2010 Caltech. All rights reserved.
- Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
- */
+Copyright (c) 2017 California Institute of Technology. All rights reserved.
+Multistrand nucleic acid kinetic simulator
+help@multistrand.org
+*/
 
 #include "options.h"
 #include "ssystem.h"

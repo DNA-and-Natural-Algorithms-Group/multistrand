@@ -1,5 +1,8 @@
-
-# Code contributors:  Erik Winfree, Chris Thachuk, Justin Bois, Joseph Berleant.
+"""
+ Copyright (c) 2007-20017 California Institute of Technology. All rights reserved.
+ Multistrand nucleic acid kinetic simulator.               E: help@multistrand.org
+ """
+ # Code contributors:  Erik Winfree, Chris Thachuk, Justin Bois, Joseph Berleant.
 #
 # The following functions are currently wrapped:
 #  pfunc

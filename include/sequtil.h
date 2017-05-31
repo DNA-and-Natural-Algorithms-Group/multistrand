@@ -1,3 +1,9 @@
+/*
+Copyright (c) 2017 California Institute of Technology. All rights reserved.
+Multistrand nucleic acid kinetic simulator
+help@multistrand.org
+*/
+
 #ifndef __SEQUTIL_H__
 #define __SEQUTIL_H__
 
@@ -7,8 +13,6 @@
 
 using std::string;
 using std::vector;
-
-//const bool OLD_LOOP_ADJUSTMENT_NASIM = false;
 
 
 // Vienna: 0 is invalid, then CG, GC, GU, UG, AU, UA, and Special are 1-7

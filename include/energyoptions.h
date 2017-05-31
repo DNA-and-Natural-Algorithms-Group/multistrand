@@ -1,11 +1,14 @@
 /*
- * m_options.h
- *
- *  Created on: Jun 12, 2016
- *      Author: Frits Dannenberg
- */
+Copyright (c) 2017 California Institute of Technology. All rights reserved.
+Multistrand nucleic acid kinetic simulator
+help@multistrand.org
+*/
 
-/* EnergyOption class header. This is currently a wrapper for the options set in python. */
+/*
+ *   Created on: Jun 12, 2016
+ *      Author: Frits Dannenberg
+ *
+ *       EnergyOption class header. This is currently a wrapper for the options set in python. */
 
 #ifndef __ENERGYOPTIONS_H_
 #define __ENERGYOPTIONS_H_
