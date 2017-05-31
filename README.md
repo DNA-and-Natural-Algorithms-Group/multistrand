@@ -130,7 +130,7 @@ Estimated 95% confidence interval: [6.86e+06,7.79e+06]
 ### Log files ###
 
 Multistrand automatically creates a logfile ("multistrandRun.log") that contains some information on the used model, like so:
-```sh
+```
 Sodium      :  0.5 M 
 Magnesium   :  0 M 
 Temperature :  298.15 K
