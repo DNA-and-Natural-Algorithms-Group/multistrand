@@ -6,7 +6,7 @@
 
 from interface import Interface
 from ..objects import Strand, Complex, RestingState, StopCondition
-from ..utils import JSKawasaki25, JSKawasaki37, JSMetropolis25, JSMetropolis37, JSDefault     # this is for 2.0 support only
+# from ..utils import JSKawasaki25, JSKawasaki37, JSMetropolis25, JSMetropolis37, JSDefault     # this is for 2.0 support only
 
 
 import copy
@@ -373,22 +373,81 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
                 
         if (self.temperature == 298.15) & (self.rate_method == self.kawasaki) :
             warningmsg +=  "Kawasaki 25 C"
-            JSKawasaki25(self)
+            self.JSKawasaki25()
         elif (self.temperature == 310.15) & (self.rate_method ==  self.kawasaki) :
             warningmsg +=  "Kawasaki 37 C"
-            JSKawasaki37(self)
+            self.JSKawasaki37()
         elif (self.temperature == 298.15) & (self.rate_method ==  self.metropolis) :
             warningmsg +=  "Metropolis 25 C"
-            JSMetropolis25(self)
+            self.JSMetropolis25()
         elif (self.temperature == 310.15) & (self.rate_method ==  self.metropolis) :
             warningmsg +=  "Metropolis 37 C"
-            JSMetropolis37(self)
+            self.JSMetropolis37()
         else:
             warningmsg +=  "JS-Default"
-            JSDefault(self)
+            self.JSDefault()
             
         print warningmsg 
-        self.rate_scaling = None        
+        self.rate_scaling = None       
+        
+        
+    #FD, May 5th 2017
+    # Supplying rate options for Metropolis and Kawasaki methods,
+    # all using the dangles = some option. Also:  one general default,
+    # and one setting for Metropolis rates derived for DNA23. 
+    
+    def JSDefault(self): 
+        """ Default rates from Joseph Schaeffer's thesis  """
+        
+        self.unimolecular_scaling =1.50e+08;
+        self.bimolecular_scaling = 1.38e+06;
+        
+        
+    
+    def JSMetropolis25(self): 
+        """ Default rates for Metropolis at 25 degree Celcius, from Joseph Schaeffer's thesis
+        
+        """
+        
+        self.unimolecular_scaling = 4.4e8;
+        self.bimolecular_scaling = 1.26e6;
+        
+    
+    def JSKawasaki25(self): 
+        """ Default rates for Kawasaki at 25 degree Celcius, from Joseph Schaeffer's thesis
+        
+        """
+        
+        self.unimolecular_scaling = 6.1e7;
+        self.bimolecular_scaling = 1.29e6;
+        
+        
+    
+    def JSKawasaki37(self):
+        """ Default rates for Kawasaki at 37 degree Celcius, from Joseph Schaeffer's thesis
+        """
+        
+        self.unimolecular_scaling = 1.5e8;
+        self.bimolecular_scaling = 1.38e6;
+        
+         
+    
+    def JSMetropolis37(self): 
+        """ Default rates for Metropolis at 37 degree Celcius, from Joseph Schaeffer's thesis
+        """
+        
+        self.unimolecular_scaling = 7.3e8;
+        self.bimolecular_scaling = 1.40e6;
+        
+         
+    
+    def DNA23Metropolis(self):
+        """ A default rate for Metropolis at 25 degree Celcius, from the DNA23 conference
+        """
+            
+        self.unimolecular_scaling = 5.0e6;
+        self.bimolecular_scaling = 1.4e6;
+ 
         
 
 # FD: We are implementing an observer pattern. 

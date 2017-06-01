@@ -11,7 +11,6 @@
 
 from multistrand.concurrent import myMultistrand
 from multistrand.objects import StopCondition, Domain, Complex, Strand
-from multistrand.utils import DNA23Metropolis, JSMetropolis25
 from multistrand.options import Options
 
 import numpy as np
@@ -57,8 +56,8 @@ def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
         
         
         # FD: The result of this script depend significantly on JS or DNA23 parameterization.
-        JSMetropolis25(o)
-#         DNA23Metropolis(o)
+        o.JSMetropolis25()
+#         o.DNA23Metropolis()
         
         return o
     

@@ -1,6 +1,5 @@
 
 ## Often recurring experimental setups
-from multistrand.utils import DNA23Metropolis
 from multistrand.objects import Complex, Domain, Strand, StopCondition
 from multistrand.options import Options
 
@@ -36,7 +35,7 @@ def standardOptions(simMode = Options.firstStep, tempIn = 25.0, trials=10, timeO
                       temperature=tempIn
                       )
 
-    DNA23Metropolis(output)
+    output.DNA23Metropolis()
     
     return output
 
