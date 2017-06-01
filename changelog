@@ -9,12 +9,12 @@ Release 2.1 changelog:
 	- Many files that were no longer relevant or not working are now removed. Multistrand no longer supports the ViennaRNA thermodynamic model. 
 	- Tests of long-run equilibrium and equivalence of the energy model (w.r.t. NUPACK) are now working.
 	- SimSystem objects now supports .initialInfo(), which prints the internal representation of the initial state (also see /tutorials/misc/inspection.py).
-	- Fixed a bug (pointer comparsion) that prevented Multistrand from executing deterministically.
+	- Fixed a bug (pointer comparison) that prevented deterministic execution.
 	- Fixed a bug that required the user to rename parameter files when simulating RNA.
-	- Multistrand now ships with convience classes for multithreading (interface/concurrent.py -- various demos, for example tutorials/misc/computeAnnealRate.py).
+	- Multistrand now ships with convenience classes for multithreading (interface/concurrent.py -- various demos, for example tutorials/misc/computeAnnealRate.py).
 	- Multistrand will now complain when the user does not explicity set the uni- and bi-molecular rate constants, before setting them automatically (as before). Default parameterization is provided in multistrand.utils.
 	- Multistrand now prints a warning when no initial moves are available in first step mode. 
-	- Multistrand now prints a warning when the simultation time is exeeded, but no stopping condition is met (provided they are set).
+	- Multistrand now prints a warning when the simulation time is exceeded, but no stopping condition is met (provided they are set).
 	- Multistrand now creates a logfile (multistrandRun.log) containing some of the simulation details. This file is overwritten each time a simulation is started.
 	- Now supports buffer conditions (see f.a.q.).
 	- Updated documentation.
@@ -24,10 +24,10 @@ Release 2.1 changelog:
 	- Added a case study on leak rates (tutorials/leak_casestudy).
 	- Added a function that generates a unique (hashable) value for each visited state (see tutorials/misc/uniqueID.py).
 	- Added a commandline utility (and tutorial file) to compute hybridization rates (tutorials/misc/computeAnnealRate.py).
-	- Convience functions for standard experimental setups are available in multistrand.experiment (for example multistrand.experiment.hybridization(multistrand.Options(), string:sequence) -- also see computeAnnealRate.py)
+	- Convenience functions for standard experimental setups are available in multistrand.experiment (for example multistrand.experiment.hybridization(multistrand.Options(), string:sequence) -- also see computeAnnealRate.py)
 	
 	
 	
 Known issues in Multistrand 2.1:
 
-	- Because multithreading is handeled outside the C++ core, error messages print once for each thread.
+	- Because multithreading is handled outside the C++ core, error messages print once for each thread.
