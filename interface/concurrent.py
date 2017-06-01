@@ -504,7 +504,7 @@ def timeStamp(inTime=None):
     
     return str(datetime.datetime.fromtimestamp(inTime).strftime('%Y-%m-%d %H:%M:%S'))
 
-class MsMulti(object):
+class MergeSim(object):
 
     numOfThreads = 2
     seed = 7713147777;
@@ -770,7 +770,7 @@ def initialInfo(self):
 
 
 # # The default multistrand object
-myMultistrand = MsMulti()
+myMultistrand = MergeSim()
         
         
           
