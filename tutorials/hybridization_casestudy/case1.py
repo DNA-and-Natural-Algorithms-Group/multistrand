@@ -141,7 +141,7 @@ def doFirstPassageTimeAssocation(seq, concentrations, T=20, numOfRuns=500):
         myRates = first_passage_association(seq, numOfRuns, concentration=concentration, T=T)
         keff = myRates.log10KEff()
         
-        myBootstrap = bootstrap(myRates)
+        myBootstrap = Bootstrap(myRates)
         low, high = myBootstrap.ninetyFivePercentiles()
         logStd = myBootstrap.logStd()
         
