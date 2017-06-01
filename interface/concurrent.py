@@ -643,44 +643,7 @@ class MergeSim(object):
         startTime = time.time()
         
         
-        #FD: Analysis factory is only used for the likelihood plots in the Multistrand 2.0 casestudy.
-        def doAnalysis(aFactory, myOptions):
-       
-        
-            myAnalysis = analysisFactory(aFactory.mySeq, aFactory.cutOff)
-        
-            def processAndMergeDicts(clause, myOptions, myAnalysis, analysisResult, lockArray):
-            
-                
-                traj, times, pathCount = myAnalysis.selectTrajectories(clause, myOptions.interface.results, myOptions.full_trajectory, myOptions.full_trajectory_times)
-            
-                posDict, countDict, pathProps, structDict2 = myAnalysis.analyzeTrajectory(traj, times)   
-                firstTraj = myAnalysis.parseFirstTrajectory(traj, times)
-                analysisResult.setInitialTrajectory(firstTraj, lockArray[1])
-                
-                mergeDictAdd(analysisResult.posDict, posDict, lockArray[0])
-                mergeDict(analysisResult.countDict, countDict, lockArray[2])
-                mergeDictBinary(analysisResult.binaryDict, countDict, lockArray[3])
-                
-                
-                mergeList(analysisResult.pathProps, pathProps, lockArray[4])
-                mergeCount(analysisResult.pathCount, pathCount, lockArray[5])
-                
-                for i in range(len(structDict2)):
-                    if not structDict2[i] == None:
-                        mergeDictAdd(analysisResult.structDict2[i], structDict2[i], lockArray[6])
-                    
-                
-                
-        
-            processAndMergeDicts(myAnalysis.selectors[0], myOptions, myAnalysis, aFactory.result0, aFactory.lockArray)
-            processAndMergeDicts(myAnalysis.selectors[1], myOptions, myAnalysis, aFactory.result1, aFactory.lockArray)
-            processAndMergeDicts(myAnalysis.selectors[2], myOptions, myAnalysis, aFactory.result2, aFactory.lockArray)
-        
-        
-        
 
-                        
         def doSim(myFactory, aFactory, list0, list1, seed):
                         
             
@@ -700,7 +663,8 @@ class MergeSim(object):
             
             if not(aFactory == None):
                 
-                doAnalysis(aFactory, myOptions)
+#                 doAnalysis(aFactory, myOptions)
+                aFactory.doAnalysis(myOptions)
             
             if self.settings.debug:
                 
@@ -1151,7 +1115,40 @@ class analysisFactory(object):
 
 
 
-
+    #FD: Analysis factory is only used for the likelihood plots in the Multistrand 2.0 casestudy.
+    def doAnalysis(self, myOptions):
+    
+    
+        myAnalysis = analysisFactory(self.mySeq, self.cutOff)
+    
+        def processAndMergeDicts(clause, myOptions, myAnalysis, analysisResult, lockArray):
+        
+            
+            traj, times, pathCount = myAnalysis.selectTrajectories(clause, myOptions.interface.results, myOptions.full_trajectory, myOptions.full_trajectory_times)
+        
+            posDict, countDict, pathProps, structDict2 = myAnalysis.analyzeTrajectory(traj, times)   
+            firstTraj = myAnalysis.parseFirstTrajectory(traj, times)
+            analysisResult.setInitialTrajectory(firstTraj, lockArray[1])
+            
+            mergeDictAdd(analysisResult.posDict, posDict, lockArray[0])
+            mergeDict(analysisResult.countDict, countDict, lockArray[2])
+            mergeDictBinary(analysisResult.binaryDict, countDict, lockArray[3])
+            
+            
+            mergeList(analysisResult.pathProps, pathProps, lockArray[4])
+            mergeCount(analysisResult.pathCount, pathCount, lockArray[5])
+            
+            for i in range(len(structDict2)):
+                if not structDict2[i] == None:
+                    mergeDictAdd(analysisResult.structDict2[i], structDict2[i], lockArray[6])
+                
+            
+            
+    
+        processAndMergeDicts(myAnalysis.selectors[0], myOptions, myAnalysis, self.result0, aFactory.lockArray)
+        processAndMergeDicts(myAnalysis.selectors[1], myOptions, myAnalysis, self.result1, aFactory.lockArray)
+        processAndMergeDicts(myAnalysis.selectors[2], myOptions, myAnalysis, self.result2, aFactory.lockArray)
+        
 
 
 
