@@ -1145,9 +1145,9 @@ class analysisFactory(object):
             
             
     
-        processAndMergeDicts(myAnalysis.selectors[0], myOptions, myAnalysis, self.result0, aFactory.lockArray)
-        processAndMergeDicts(myAnalysis.selectors[1], myOptions, myAnalysis, self.result1, aFactory.lockArray)
-        processAndMergeDicts(myAnalysis.selectors[2], myOptions, myAnalysis, self.result2, aFactory.lockArray)
+        processAndMergeDicts(myAnalysis.selectors[0], myOptions, myAnalysis, self.result0, self.lockArray)
+        processAndMergeDicts(myAnalysis.selectors[1], myOptions, myAnalysis, self.result1, self.lockArray)
+        processAndMergeDicts(myAnalysis.selectors[2], myOptions, myAnalysis, self.result2, self.lockArray)
         
 
 
