@@ -339,7 +339,7 @@ if __name__ == '__main__':
             # Accumulate statistics from all the runs, until enough succesful simulations are collected.
             trials = 60
             CONCENTRATION = 50e-9
-            totalRates = FirstStepResult(concentration=CONCENTRATION)
+            totalRates = FirstStepRate(concentration=CONCENTRATION)
                        
             
             while ((totalRates.nForward < 25 or (totalRates.nReverse == 0)) and not timeOut[i]) :  # this is a bit wasteful, but "only" by a factor of about 1.5.  Aims for 20% error bars on k1.
