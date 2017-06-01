@@ -13,11 +13,11 @@ Some routines are ommited for testing purposes, use:
 """
 
 from multistrand.options import Options
-from multistrand.concurrent import myMultistrand, MergeSim, position
+from multistrand.concurrent import myMultistrand, MergeSim
 from multistrand.utils import standardFileName
 from multistrand.experiment import  hybridization, standardOptions
 
-from constantsgao import goa2006_P0, goa2006_P3, goa2006_P4, setSaltGao2006, colors
+from constantsgao import goa2006_P0, goa2006_P3, goa2006_P4, setSaltGao2006, colors, position, pathProperties, analysisFactory, analysisResult
 
 
 from matplotlib.collections import LineCollection
@@ -63,9 +63,10 @@ def first_step_simulation(multistrandObject, settings):
     
     print ("Running first step mode simulations for %s (with Boltzmann sampling)..." % (settings.mySeq))
     
+    aFactory = analysisFactory(settings.mySeq, settings.cutOff)
         
     multistrandObject.setOptionsFactory2(getOptions, settings.trials, settings)
-    multistrandObject.setAnaylsisFactory(settings.mySeq, settings.cutOff)        
+    multistrandObject.setAnaylsisFactory(aFactory)        
     multistrandObject.run()  
     
     return 0
