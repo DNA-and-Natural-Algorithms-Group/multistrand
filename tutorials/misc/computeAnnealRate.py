@@ -1,9 +1,7 @@
 from __future__ import print_function
 
 from multistrand.concurrent import myMultistrand, FirstStepRate, Bootstrap
-from multistrand.experiment import setSaltGao2006, standardOptions, hybridization
-from multistrand.utils import DNA23Metropolis
-
+from multistrand.experiment import standardOptions, hybridization
 
 import sys
 
@@ -26,8 +24,7 @@ def first_step_simulation(strand_seq, trials, T=20.0, material="DNA"):
          
         o = standardOptions("First Step", tempIn=25.0, trials=200, timeOut = 0.1) 
         hybridization(o, strand_seq, trials)
-        setSaltGao2006(o)
-        DNA23Metropolis(o)
+        o.DNA23Metropolis()
         
           
         return o
