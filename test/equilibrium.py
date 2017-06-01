@@ -5,7 +5,7 @@ import math
 from multistrand.objects import Strand, Complex, Domain
 from multistrand.options import Options
 from multistrand.concurrent import myMultistrand
-from multistrand.utils import DNA23Metropolis
+
 import math
 from nupack import *
 
@@ -32,7 +32,7 @@ def setup_options(trials, seq, concentration):
     o = Options(simulation_mode="Normal", parameter_type="Nupack", substrate_type="DNA",
                 num_sims=trials, sim_time=0.008, start_state=[c])
 
-    DNA23Metropolis(o)
+    o.DNA23Metropolis()
     
 
     o.temperature = 310.15

@@ -10,9 +10,11 @@
 """
 
 from multistrand.objects import Strand
-from multistrand.experiment import standardOptions, hybridization, goa2006_P0, goa2006_P3, goa2006_P4, setSaltGao2006, colors
+from multistrand.experiment import standardOptions, hybridization
 from multistrand.utils import concentration_string, standardFileName
 from multistrand.concurrent import  FirstStepRate, FirstPassageRate, Bootstrap, myMultistrand
+
+from constantsgao import goa2006_P0, goa2006_P3, goa2006_P4, setSaltGao2006
 
 import nupack
 

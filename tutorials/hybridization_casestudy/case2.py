@@ -13,8 +13,10 @@ generate structured-random 25 3 4 10 sr25-10
 # from msUtil import myMultistrand
 
 
-from multistrand.experiment import hybridization, standardOptions, goa2006_P0, goa2006_P3, goa2006_P4, setSaltGao2006
+from multistrand.experiment import hybridization, standardOptions
 from multistrand.concurrent import FirstStepRate, myMultistrand
+
+from constantsgao import goa2006_P0, goa2006_P3, goa2006_P4, setSaltGao2006, colors
 
 from datetime import datetime
 import random, string, pickle

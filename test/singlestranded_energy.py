@@ -4,7 +4,6 @@ import unittest
 from multistrand.options import Options
 from multistrand.system import SimSystem, initialize_energy_model, energy
 from multistrand.objects import Complex, Strand
-from multistrand.utils import DNA23Metropolis
 
 import sys
 import nupack
