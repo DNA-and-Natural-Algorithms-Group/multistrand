@@ -12,7 +12,7 @@ Release 2.1 changelog:
 	- Fixed a bug (pointer comparison) that prevented deterministic execution.
 	- Fixed a bug that required the user to rename parameter files when simulating RNA.
 	- Multistrand now ships with convenience classes for multithreading (interface/concurrent.py -- various demos, for example tutorials/misc/computeAnnealRate.py).
-	- Multistrand will now complain when the user does not explicity set the uni- and bi-molecular rate constants, before setting them automatically (as before). Default parameterization is provided in multistrand.utils.
+	- Multistrand will now complain when the user does not explicitly set the uni- and bi-molecular rate constants, before setting them automatically (as before). Default parameterization is provided in multistrand.utils.
 	- Multistrand now prints a warning when no initial moves are available in first step mode. 
 	- Multistrand now prints a warning when the simulation time is exceeded, but no stopping condition is met (provided they are set).
 	- Multistrand now creates a logfile (multistrandRun.log) containing some of the simulation details. This file is overwritten each time a simulation is started.
@@ -20,7 +20,7 @@ Release 2.1 changelog:
 	- Updated documentation.
 	- Updated the installation guidelines.
 	- Removed unused code from the installation files.
-	- Added casestudy files for hybridization (tutorials/hybridization_casestudy).
+	- Added case study files for hybridization (tutorials/hybridization_casestudy).
 	- Added a case study on leak rates (tutorials/leak_casestudy).
 	- Added a function that generates a unique (hashable) value for each visited state (see tutorials/misc/uniqueID.py).
 	- Added a commandline utility (and tutorial file) to compute hybridization rates (tutorials/misc/computeAnnealRate.py).
