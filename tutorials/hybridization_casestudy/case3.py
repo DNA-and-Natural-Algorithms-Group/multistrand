@@ -13,7 +13,7 @@ Some routines are ommited for testing purposes, use:
 """
 
 from multistrand.options import Options
-from multistrand.concurrent import myMultistrand, MsMulti, position
+from multistrand.concurrent import myMultistrand, MergeSim, position
 from multistrand.utils import standardFileName
 from multistrand.experiment import colors,  hybridization, standardOptions
 
@@ -98,7 +98,7 @@ def estimateSuccessProbability(popularStructure, settings):
     # Do a quick first step simulation and see how many end up succeeding.
     # Use a new multistrand object so we don't lose the old results 
     
-    newMultistrand = msMulti()
+    newMultistrand = MergeSim()
     newMultistrand.setNumOfThreads(myMultistrand.numOfThreads)
  
     oldTrials = settings.trials
