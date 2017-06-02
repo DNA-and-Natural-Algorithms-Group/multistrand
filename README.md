@@ -13,7 +13,7 @@ Justin Bois
 Joseph Berleant
 Joseph Schaeffer
 
-General questions should be directed to help@multistrand.org. Also see www.multistrand.org
+Questions should be directed to help@multistrand.org. Also see www.multistrand.org
 
 
 Frits Dannenberg, May 26rd, 2017
