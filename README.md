@@ -65,23 +65,6 @@ Tutorial files use the 'numpy', 'matplotlib' and 'scipy' python packages (you ca
  
 ## Package tree ##
 
-
-.
-/energymodel
-/include
-/interface
-/loop
-/multistrand
-/nupack
-/obj
-/state
-/system
-/test
-/tutorials
-Makefile
-README.md
-setup.py
-
 Source dirs are /energymodel, /include, /interface/, /loop, /nupack, /state, /system, /test. Build dirs are /multistrand and /obj and buildfiles are Makefile and setup.py.
 
 Tutorial files are organized as follows. Folder /under_the_hood/ contains in depth tutorials. Jupyter versions of the /under_the_hood/ are found in /under_the_hood_notebooks/. /case_hybridization/ contains an upcomming case study into hybridization kinetics (submission pending). Additional demo files are located in /misc/.
@@ -89,7 +72,6 @@ Tutorial files are organized as follows. Folder /under_the_hood/ contains in dep
 ## Using Multistrand ##
 
 Several tutorial files on using multistrand are found in /tutorials/under_the_hood. As a very quick primer, we discuss two small scripts below.  Multistrand also comes with documentation (run 'make docs').
-
 
 ### Hybridization trajectory ###
 
