@@ -1,17 +1,23 @@
 # Multistrand #
+        ___  ___      _ _   _     _                       _ 
+        |  \/  |     | | | (_)   | |                     | |
+        | .  . |_   _| | |_ _ ___| |_ _ __ __ _ _ __   __| |
+        | |\/| | | | | | __| / __| __| '__/ _` | '_ \ / _` |
+        | |  | | |_| | | |_| \__ \ |_| | | (_| | | | | (_| |
+        \_|  |_/\__,_|_|\__|_|___/\__|_|  \__,_|_| |_|\__,_|  
 
-Multistrand is a tool for kinetic simulations of nucleic acids, and is developed by the Winfree group at Caltech in Pasadena, CA, USA. Until 2013, development was lead by Joseph Schaeffer (now Autodesk).
+Multistrand is a nucleic acids kinetic simulator, and is developed by the Winfree group at the California Institute of Technology in Pasadena, California (USA). Until 2013, development was lead by Joseph Schaeffer (now Autodesk).
 
 Contributors:
 
-Erik Winfree			winfree@caltech.edu
-Chris Thachuk
-Frits Dannenberg    	fdann@caltech.edu
-Chris Berlind
-Joshua Loving
-Justin Bois
-Joseph Berleant
-Joseph Schaeffer
+* Erik Winfree			      winfree@caltech.edu
+* Chris Thachuk
+* Frits Dannenberg    	fdann@caltech.edu
+* Chris Berlind
+* Joshua Loving
+* Justin Bois
+* Joseph Berleant
+* Joseph Schaeffer
 
 Questions should be directed to help@multistrand.org. Also see www.multistrand.org
 
@@ -149,9 +155,11 @@ GT pairing  :  0           (0: disabled)
  ### Frequently Aksed Questions ###
  
 Q: Can I simulate leak reactions using Multistrand?
+
 A: Yes. We have now added a preliminary tutorial, see /tutorials/leak_casestudy.
 
 Q: How do I adjust the solvent salt concentrations?
+
 A: Like so. (units are M = mol / litre) 
 
 ```python
