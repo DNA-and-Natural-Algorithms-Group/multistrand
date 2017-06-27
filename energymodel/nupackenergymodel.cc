@@ -505,7 +505,8 @@ void NupackEnergyModel::processOptions() {
 		if (fp == NULL) {
 			fp = fopen("dna1998.dG", "rt");
 			if (fp == NULL) {
-				fprintf(stderr, "ERROR: nupack/mfold parameter file not found: $NUPACKHOME/parameters/dna1998.dG or dna1998.dG in current directory.\n");
+				
+				fprintf(stderr, "ERROR: nupack/mfold parameter file not found: $NUPACKHOME/parameters/dna1998.dG or dna1998.dG in current directory.\nTarget path:%s\n", fullpath);
 				exit(0);
 			}
 
