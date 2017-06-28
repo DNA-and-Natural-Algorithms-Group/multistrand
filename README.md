@@ -151,4 +151,11 @@ o1.sodium = 0.05		# units: mol / litre
 o1.magnesium = 0.0125	# units: mol / litre
 ```
 
+Q: When I run tutorials/misc/computeAnnealRate.py, nForward and nReverse are both zero and the program does not terminate.
 
+A: This occurs when NUPACK returns void output for 'sample'. If you have patched NUPACK, be sure to rebuild (make clean; make) the package. If NUPACK is installed correctly, then running 
+
+``` bash
+./nupack/bin/sample -multi -T 25 -material dna -samples 100
+```
+and supplying the arguments 'test' '1' 'AGTGTGCGTAGA' '1' will result in a list of 100 non-trivial dot-paren secondary structures in the 'test.sample' file. Unpatched NUPACK 3.0.4 will return a void output. Later versions of NUPACK do not come with the sample function.
