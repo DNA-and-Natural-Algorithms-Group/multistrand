@@ -55,15 +55,22 @@ Some users may need to install 'make' first. You can check that make is installe
 $ make: *** No targets specified and no makefile found.  Stop.
 ```
 
-Tutorial files use the 'numpy', 'matplotlib' and 'scipy' python packages (you can install these using 'pip install numpy' and so on).
+Tutorial files use the 'numpy', 'matplotlib' and 'scipy' python packages. You can install these using 'pip install numpy', and so on.
 
  
 ## Installation ##
  
- - Clone the repository or download and unzip Multistrand into your workspace.
- - Make sure that in your enviroment (Eclipse, PyDev, bash, etc), NUPACKHOME points to the directory where nupack is installed. In the terminal, you can verify this by running 'echo $NUPACKHOME'.
- - Build multistrand by running 'make' in the Multistrand directory
- - The installation can be exported as a python library to the appropriate /site-packages/ by calling 'sudo make install'.
+ - Clone the repository into your workspace.
+ - In your enviroment (eclipse, bash, etc), set NUPACKHOME to point the directory where NUPACK is installed. 
+ - Build multistrand by running 'make' in the Multistrand directory.
+ - Multistrand can be exported as a python library by calling 'sudo make install'.
+
+In bash, you can verify NUPACKHOME is set correctly by running running 'echo $NUPACKHOME':
+```sh
+$ echo $NUPACKHOME
+/home/user/workspace/nupack3.2.1
+```
+
  
 ## Package tree ##
 
@@ -155,9 +162,11 @@ o1.magnesium = 0.0125	# units: mol / litre
 
 Q: When I run tutorials/misc/computeAnnealRate.py, nForward and nReverse are both zero and the program does not terminate.
 
-A: This occurs when NUPACK returns void output for 'sample'. If you have patched NUPACK, be sure to rebuild (make clean; make) the package. If NUPACK is installed correctly, then running 
+A:  This occurs when NUPACK returns void output for 'sample'. If NUPACK is installed correctly, then running 
 
 ``` bash
-./nupack/bin/sample -multi -T 25 -material dna -samples 100
+./nupack/bin/sample -multi -T 25 -material dna -samples 100	
+./nupack/build/bin/sample -multi -T 25 -material dna -samples 100			(v.3.2.1 and up)
 ```
-and supplying the arguments 'test' '1' 'AGTGTGCGTAGA' '1' will result in a list of 100 non-trivial dot-paren secondary structures in the 'test.sample' file. Unpatched NUPACK 3.0.4 will return a void output. Later versions of NUPACK do not come with the sample function.
+and supplying the arguments 'test' '1' 'AGTGTGCGTAGA' '1' will result in a list of 100 non-trivial dot-paren secondary structures in the 'test.sample' file. 
+NUPACK 3.0.4 only: if you have patched NUPACK, be sure to rebuild (make clean; make) the package. Unpatched NUPACK 3.0.4 will return a void output. Some nupack releases (3.1, 3.2) do not have the sample function included.
