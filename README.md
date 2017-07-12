@@ -157,8 +157,8 @@ A: Like so. (units are M = mol / litre)
 ```python
 from multistrand.options import Options
 o1 = Options()
-o1.sodium = 0.05		# units: mol / litre
-o1.magnesium = 0.0125	# units: mol / litre
+o1.sodium = 0.05        # units: mol / litre
+o1.magnesium = 0.0125   # units: mol / litre
 ```
 
 Q: When I run tutorials/misc/computeAnnealRate.py, nForward and nReverse are both zero and the program does not terminate.
