@@ -42,9 +42,9 @@ out of or in connection with the software or the use or other dealings in the so
 ## Requirements ##
 
  -  c++11,  (clang, gcc v4.8.5+) 
- -  python2,        2.7.12+
- -  nupack,         3.2.1+ 
- -  make,           4.0+
+ -  python  2.7.12+
+ -  nupack  3.2.1+ 
+ -  make    4.0+
  
 As of July 2017, NUPACK 3.2.1 was released, which restores the sample functionality that Multistrand depends on. Users no longer need to patch NUPACK manually in order to use First Step mode. 
 
