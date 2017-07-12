@@ -65,10 +65,11 @@ Tutorial files use the 'numpy', 'matplotlib' and 'scipy' python packages. You ca
  - Build multistrand by running 'make' in the Multistrand directory.
  - Multistrand can be exported as a python library by calling 'sudo make install'.
 
-In bash, you can verify NUPACKHOME is set correctly by running running 'echo $NUPACKHOME':
+In Fedora, add 'export NUPACKHOME=/path/to/nupack3.2.1' to ~./bashrc to make the export permanent.
+To verify that NUPACKHOME is set correctly in bash, run 'echo $NUPACKHOME':
 ```sh
 $ echo $NUPACKHOME
-/home/user/workspace/nupack3.2.1
+/home/user/path/to/nupack3.2.1
 ```
 
  
