@@ -342,7 +342,7 @@ def defect(sequences, structure, ordering = None, material = 'rna',
   
   ## Set up command-line arguments and input
   args, cmd_input = \
-    setup_nupack_input(exec_name = 'defect', sequences = sequences, ordering = ordering,
+    setup_nupack_input(exec_name = 'tubedefect', sequences = sequences, ordering = ordering,
                        structure = structure, material = material,
                        sodium = sodium, magnesium = magnesium,
                        dangles = dangles, T = T, multi = multi, pseudo = pseudo)

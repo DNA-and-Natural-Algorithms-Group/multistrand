@@ -26,6 +26,9 @@ Release 2.1 changelog:
 	- Added a commandline utility (and tutorial file) to compute hybridization rates (tutorials/misc/computeAnnealRate.py).
 	- Convenience functions for standard experimental setups are available in multistrand.experiment (for example multistrand.experiment.hybridization(multistrand.Options(), string:sequence) -- also see computeAnnealRate.py)
 	
+	As of Jul 2017:
+	- Added support for nupack 3.2.1
+	
 	
 	
 Known issues in Multistrand 2.1:
