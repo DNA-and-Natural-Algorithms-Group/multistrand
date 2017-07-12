@@ -64,13 +64,17 @@ print(pfunc(rna_seq, material = 'rna', multi = False, pseudo = True))
 print(energy(dna_seqs, dna_struct, material = 'dna'))
 # Output: -61.79270283815892
 
+
+# FD: the defect() call is no longer supported 
+# as of the switch to NUPACK 3.2.0
+
 ## Example with defect()
 # Find the ensemble defect of this DNA structure.
-print(defect(dna_seqs, dna_struct, material = 'dna'))
+#print(defect(dna_seqs, dna_struct, material = 'dna'))
 # Output: 8.297
 
 # Find the mfe defect of this DNA structure.
-print(defect(dna_seqs, dna_struct, material = 'dna', mfe = True))
+#print(defect(dna_seqs, dna_struct, material = 'dna', mfe = True))
 # Output: 2.0
 
 ## Examples with prob()

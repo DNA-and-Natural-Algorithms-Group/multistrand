@@ -39,7 +39,10 @@ def get_nupack_exec_path(exec_name):
   """ If the NUPACKHOME environment variable is set, use that as the directory
   of the NUPACK executables. Otherwise, have Python search the PATH directly. """
   if 'NUPACKHOME' in os.environ:
-    return os.environ['NUPACKHOME'] + '/bin/' + exec_name;
+    if('3.0' in os.environ['NUPACKHOME']):
+        return os.environ['NUPACKHOME'] + '/bin/' + exec_name;
+    if('3.2' in os.environ['NUPACKHOME']):
+        return os.environ['NUPACKHOME'] + '/build/bin/' + exec_name;
   else:
     return exec_name;
 
@@ -379,7 +382,7 @@ def sample(sequences, samples, ordering = None, material = 'rna',
   output = call_with_file(args, cmd_input, '.sample')
 
   # Check NUPACK version
-  if not "NUPACK 3.0" in output[0]:
+  if not ("NUPACK 3.0" in output[0] or "NUPACK 3.2" in output[0]):
     raise IOError("Boltzmann sample function is not up to date. NUPACK 3.0.2 or greater needed.")
 
   # Parse and return output

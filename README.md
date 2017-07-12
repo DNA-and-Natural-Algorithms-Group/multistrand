@@ -42,11 +42,11 @@ out of or in connection with the software or the use or other dealings in the so
 ## Requirements ##
 
  -  c++11,  (clang, gcc v4.8.5+) 
- -  python2, 	 	2.7.12+
- -  nupack 3.0.4 only*
- -  make,			4.0+
+ -  python2,        2.7.12+
+ -  nupack,         3.2.1+ 
+ -  make,           4.0+
  
-The earliest NUPACK release available for download is 3.0.6 (www.nupack.org). Under 3.0.6, first step mode will not work, which relies on the sample subroutine. To make first step mode work in NUPACK 3.0.6, it is sufficient to copy sample.c from 3.0.4 into the 3.0.6 distribution and then to recompile. First step mode will not work with 3.1.0 and 3.2.0.
+As of July 2017, NUPACK 3.2.1 was released, which restores the sample functionality that Multistrand depends on. Users no longer need to patch NUPACK manually in order to use First Step mode. 
 
 Some users may need to install 'make' first. You can check that make is installed by simplying calling "make" in the terminal, which should return a message similar to the below. You can similarly run "python -V" and "gcc -v" to check if python and gcc are installed. Mac users may need to install xcode in order to proceed.
 ```sh

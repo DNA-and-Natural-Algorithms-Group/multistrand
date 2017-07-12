@@ -245,8 +245,8 @@ class Complex(object):
         # timed a 100 count at ~ .1s and 10 and 1 counts were almost
         # always around .08s, so at least in this range there's a lot more
         # call overhead than generation time being used.
-        if self._boltzmann_sizehint > 100:
-            count = 100
+        if self._boltzmann_sizehint > 5000:
+            count = 5000
         elif self._boltzmann_sizehint >= 1:
             count = self._boltzmann_sizehint
         else:
@@ -262,7 +262,10 @@ class Complex(object):
         #    make sure that your path to the nupack 'sample' occurs before /usr/bin or it may not find it correctly.
         
         if 'NUPACKHOME' in os.environ:
-            sample_exec = os.environ['NUPACKHOME']+'/bin/sample'
+            if '3.0' in os.environ['NUPACKHOME']:
+                sample_exec = os.environ['NUPACKHOME']+'/bin/sample'
+            if '3.2' in os.environ['NUPACKHOME']:
+                sample_exec = os.environ['NUPACKHOME']+'/build/bin/sample'
         else:
             sample_exec = 'sample' 
         
@@ -302,30 +305,18 @@ class Complex(object):
         result = p.communicate(input_str)[0]
         
         
-#         from nupack import *
-#         print(str(get_nupack_exec_path('commandhere')))
-#         print("input starting \n")
-#         print(input_str)        
-#         print("result starting \n")
-#         print(result)
-#         print("result end \n")
-        # note we toss the result as it's mostly just spam from the subprocess
-        
         f = open(tmp.name, "rt")
         lines = f.readlines()
         
-#         print("Lines start \n")
-#         print (lines)
+        #print("Lines start \n")
+        #print (lines)
         
         f.close()
         os.remove(tmp.name) # was created by us [NamedTemporaryFile] and
                             # used by the sampler, thus we need to clean it up.
-        if not "NUPACK 3.0" in lines[0]:
-            raise IOError("Boltzmann sample function is not up to date. NUPACK 3.0.2 or greater needed.")
+        if not ("NUPACK 3.0" in lines[0] or 'NUPACK 3.2.0' in lines[0]):
+            raise IOError("Boltzmann sample function is not up to date. NUPACK 3.2.0 or greater needed.")
         
-#         if  ( "3.0.4" in lines[3] or "3.0.6" 
-        
-                
 #         print("Lines[14] start \n")
 #         print (lines[14:])
         
@@ -333,8 +324,8 @@ class Complex(object):
         if len(self._boltzmann_queue) < 1:
             raise IOError("Did not get any results back from the Boltzmann sample function.")
         
-        # print "This is the (length %d) queue:" % len(self._boltzmann_queue)
-        # print lines[14:]
+        #print "This is the (length %d) queue:" % len(self._boltzmann_queue)
+        #print lines[14:]
         
         self._pop_boltzmann()
     
