@@ -77,7 +77,7 @@ $ echo $NUPACKHOME
 
 Source dirs are /energymodel, /include, /interface/, /loop, /nupack, /state, /system, /test. Build dirs are /multistrand and /obj and buildfiles are Makefile and setup.py.
 
-Tutorial files are organized as follows. Folder /under_the_hood/ contains in depth tutorials. Jupyter versions of the /under_the_hood/ are found in /under_the_hood_notebooks/. /case_hybridization/ contains an upcomming case study into hybridization kinetics (submission pending). Additional demo files are located in /misc/.
+Tutorial files are organized as follows. Folder under_the_hood contains in depth tutorials. Jupyter versions are located in under_the_hood_notebooks. The folder case_hybridization contains a case study into hybridization kinetics (submission pending). Additional demo files are located in /misc/.
 
 ## Using Multistrand ##
 
@@ -167,7 +167,7 @@ A:  This occurs when NUPACK returns void output for 'sample'. If NUPACK is insta
 
 ``` bash
 ./nupack/bin/sample -multi -T 25 -material dna -samples 100	
-./nupack/build/bin/sample -multi -T 25 -material dna -samples 100			(v.3.2.1 and up)
+./nupack/build/bin/sample -multi -T 25 -material dna -samples 100      (v.3.2.1 and up)
 ```
 and supplying the arguments 'test' '1' 'AGTGTGCGTAGA' '1' will result in a list of 100 non-trivial dot-paren secondary structures in the 'test.sample' file. 
 NUPACK 3.0.4 only: if you have patched NUPACK, be sure to rebuild (make clean; make) the package. Unpatched NUPACK 3.0.4 will return a void output. Some nupack releases (3.1, 3.2) do not have the sample function included.
