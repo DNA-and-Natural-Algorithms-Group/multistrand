@@ -20,7 +20,7 @@ def printTrajectory(o):
     
     for i in range(len(o.full_trajectory)):
     
-        time = 1e6 * o.full_trajectory_times[i]
+        time = 1e3 * o.full_trajectory_times[i]
         states = o.full_trajectory[i]
         
         ids = []
@@ -45,7 +45,7 @@ def printTrajectory(o):
             print newseqstring
             seqstring = newseqstring  # because strand order can change upon association of dissociation, print it when it changes        
 
-        print tubestruct + (' t=%.4f ms, dG=%3.2f kcal/mol  ' % (time, dG)) 
+        print tubestruct + ('   t=%.6f ms,  dG=%3.2f kcal/mol  ' % (time, dG)) 
 
 
 def doSims(strandSeq, numTraj=2):    
