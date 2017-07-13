@@ -88,22 +88,21 @@ Several tutorial files on using multistrand are found in /tutorials/under_the_ho
 A quick test to see if Multistrand is working is by running 'python tutorials/misc/sample_trace.py'. This example does not use First Step mode, and should work would with all recent versions of NUPACK (3.0.6, 3.1.0, 3.2.0). This script simulates the hybridization of two complementary strands and ends the simulation when the two strands either completely hybridize or seperate after an initial collision:  
 
 ```sh
-['/home/iris/workspace/caltech/Multistrand/tutorials/misc/sample_trace.py']
 GTGAAACGC GCGTTTCAC
-......... ......... t=0.0000 ms, dG=0.00 kcal/mol  
+......... .........   t=0.000000 ms,  dG=0.00 kcal/mol  
 GTGAAACGC+GCGTTTCAC
-(........+........) t=0.0406 ms, dG=0.22 kcal/mol  
+(........+........)   t=0.000041 ms,  dG=0.22 kcal/mol  
 GCGTTTCAC+GTGAAACGC
-......(.(+).)...... t=0.0465 ms, dG=1.18 kcal/mol  
-......(((+)))...... t=0.0495 ms, dG=-3.22 kcal/mol  
-......((.+.))...... t=0.0588 ms, dG=-0.63 kcal/mol  
-......(((+)))...... t=0.0725 ms, dG=-3.22 kcal/mol  
-.....((((+))))..... t=0.1901 ms, dG=-3.21 kcal/mol  
-....(((((+))))).... t=0.2732 ms, dG=-4.48 kcal/mol  
-..(.(((((+))))).).. t=0.2921 ms, dG=-4.03 kcal/mol  
-..(((((((+))))))).. t=0.2936 ms, dG=-7.97 kcal/mol  
-.((((((((+)))))))). t=0.2971 ms, dG=-10.96 kcal/mol  
-(((((((((+))))))))) t=0.3337 ms, dG=-12.38 kcal/mol  
+......(.(+).)......   t=0.000046 ms,  dG=1.18 kcal/mol  
+......(((+)))......   t=0.000049 ms,  dG=-3.22 kcal/mol  
+......((.+.))......   t=0.000059 ms,  dG=-0.63 kcal/mol  
+......(((+)))......   t=0.000073 ms,  dG=-3.22 kcal/mol  
+.....((((+)))).....   t=0.000190 ms,  dG=-3.21 kcal/mol  
+....(((((+)))))....   t=0.000273 ms,  dG=-4.48 kcal/mol  
+..(.(((((+))))).)..   t=0.000292 ms,  dG=-4.03 kcal/mol  
+..(((((((+)))))))..   t=0.000294 ms,  dG=-7.97 kcal/mol  
+.((((((((+)))))))).   t=0.000297 ms,  dG=-10.96 kcal/mol  
+(((((((((+)))))))))   t=0.000334 ms,  dG=-12.38 kcal/mol  
 ```
 
 ### Hybridization Rates ###
