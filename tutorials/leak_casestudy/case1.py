@@ -74,8 +74,9 @@ def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
     myFSR = FirstStepRate(dataset, 50e-9)
 
 
-    print("Was success:  %i  " % np.sum(myFSR.was_success))
-    print("Was failure:  %i  " % np.sum(myFSR.was_failure))
+    print("Was success:  %i  " % myFSR.nForward)
+    print("Was failure:  %i  " % myFSR.nReverse)
+    print("Total runs :  %i  " % myFSR.nTotal)
     print("k1         :  %.2f /M /s \n " % myFSR.k1() )
 
 
@@ -98,7 +99,7 @@ def makePlots():
 
    
     for seq in seqs:
-        doFirstStepMode(seq, numOfRuns=500000)
+        doFirstStepMode(seq, numOfRuns=5000)
      
 
 

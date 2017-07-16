@@ -48,7 +48,6 @@ class FirstStepRate(basicRate):
         
         if dataset == None:
         
-            
             self.collision_rates = []
             self.was_success = []
             self.was_failure = []
@@ -85,7 +84,6 @@ class FirstStepRate(basicRate):
         
         # if there is no collision_rate set, then either something is wrong or we're not using first step mode. Default to 
         # a standard collisionrate so we can at least run the code TODO
-         
         self.collision_rates = np.array([ i.collision_rate for i in dataset])
         
         self.was_success = np.array([1 if i.tag == Options.STR_SUCCESS else 0 for i in dataset])
@@ -106,7 +104,7 @@ class FirstStepRate(basicRate):
         
         self.nForward = sum(self.was_success)
         self.nReverse = sum(self.was_failure)
-        self.nTotal = self.nForward + self.nReverse
+        self.nTotal = len(self.time)
 
     # FD: this is the concentration-independent rate
     def k1(self):
