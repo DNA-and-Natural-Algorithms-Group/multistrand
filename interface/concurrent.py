@@ -89,6 +89,8 @@ class FirstStepRate(basicRate):
         self.was_success = np.array([1 if i.tag == Options.STR_SUCCESS else 0 for i in dataset])
         self.was_failure = np.array([1 if i.tag == Options.STR_FAILURE else 0 for i in dataset])
         
+        #self.noMoves = sum (np.array([ 1 if i.type_name == "No Moves" else 0 for i in dataset  ] )) 
+        
         # save unprocessed times for re-sample
         self.time = np.array([ i.time for i in dataset])
         
@@ -104,6 +106,7 @@ class FirstStepRate(basicRate):
         
         self.nForward = sum(self.was_success)
         self.nReverse = sum(self.was_failure)
+ 
         self.nTotal = len(self.time)
 
     # FD: this is the concentration-independent rate

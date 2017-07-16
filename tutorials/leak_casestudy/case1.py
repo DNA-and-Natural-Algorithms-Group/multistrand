@@ -20,8 +20,7 @@ from multistrand._options.interface import FirstStepResult
 ATIME_OUT = 10.0  
 
 
-
-myMultistrand.setNumOfThreads(4) 
+myMultistrand.setNumOfThreads(14) 
 
 def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
 
@@ -29,7 +28,7 @@ def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
     
     # Using domain representation makes it easier to write secondary structures.
     onedomain = Domain(name="onedomain", sequence=strand_seq)
-    gdomain = Domain(name="gdomain", sequence="GCGC")
+    gdomain = Domain(name="gdomain", sequence="TTTT")
     
     top = Strand(name="top", domains=[onedomain])
     bot = top.C
@@ -41,7 +40,7 @@ def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
     
     # Declare the simulation complete if the strands become a perfect duplex.
     success_stop_condition = StopCondition(Options.STR_SUCCESS, [(duplex_invaded, Options.exactMacrostate, 0)])
-    failed_stop_condition = StopCondition(Options.STR_FAILURE, [(duplex_complex, Options.exactMacrostate, 0)])
+    failed_stop_condition = StopCondition(Options.STR_FAILURE, [(duplex_complex, Options.dissocMacrostate, 0)])
     
     for x in [duplex_complex, invader_complex]:
         
@@ -61,6 +60,7 @@ def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
         # FD: The result of this script depend significantly on JS or DNA23 parameterization.
         o.JSMetropolis25()
 #        o.DNA23Metropolis()
+#        setArrheniusConstantsDNA23(o)
         
         return o
     
@@ -68,16 +68,14 @@ def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
     myMultistrand.run()
     dataset = myMultistrand.results
 
-    # Now determine the reaction model parameters from the simulation results.  (Simplified from hybridization_first_step_mode.py.)
-#    was_success = np.array([1 if i.tag == Options.STR_SUCCESS else 0 for i in dataset])
-#    was_failure = np.array([0 if i.tag == Options.STR_SUCCESS else 1 for i in dataset])
-    myFSR = FirstStepRate(dataset, 50e-9)
+    # Now determine the reaction model parameters from the simulation results. 
+    myFSR = FirstStepRate(dataset, 5e-9)
 
 
-    print("Was success:  %i  " % myFSR.nForward)
-    print("Was failure:  %i  " % myFSR.nReverse)
-    print("Total runs :  %i  " % myFSR.nTotal)
-    print("k1         :  %.2f /M /s \n " % myFSR.k1() )
+    print("Was success :  %i  " % myFSR.nForward)
+    print("Was failure :  %i  " % myFSR.nReverse)
+    print("Total runs  :  %i  " % myFSR.nTotal)
+    print("k1          :  %.2f /M /s \n " % myFSR.k1() )
 
 
 
@@ -91,15 +89,20 @@ def makePlots():
 
     seqs = list()
 
-#    seqs.append('GTCGATGC')
-#    seqs.append('TCGAGTGA')
+#     seqs.append('GTCGATGC')
+#     seqs.append('ATCGATGC')
 
-    seqs.append('GCTCAGCTGC')
-    seqs.append('TCTCAGCTGA')
+    seqs.append('GTCACTGC')
+    seqs.append('GTCACTGA')
+
+
+
+#    seqs.append('CCTACGTCTCACTAACG')
+#    seqs.append('ACTACGTCTCACTAACG')
 
    
     for seq in seqs:
-        doFirstStepMode(seq, numOfRuns=5000)
+        doFirstStepMode(seq, numOfRuns= 50000)
      
 
 
