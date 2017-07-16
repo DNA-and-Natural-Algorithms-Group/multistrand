@@ -9,11 +9,14 @@
 # FD: This is different from the results in case1.pdf
 # FD: The results of this study heavily depend on the parameterization of the Metropolis model: JS or DNA23 (see below).
 
-from multistrand.concurrent import myMultistrand
+from multistrand.concurrent import myMultistrand, FirstStepRate
 from multistrand.objects import StopCondition, Domain, Complex, Strand
 from multistrand.options import Options
+from msArrhenius import setArrheniusConstantsDNA23
+
 
 import numpy as np
+from multistrand._options.interface import FirstStepResult
 ATIME_OUT = 10.0  
 
 
@@ -57,7 +60,7 @@ def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
         
         # FD: The result of this script depend significantly on JS or DNA23 parameterization.
         o.JSMetropolis25()
-#         o.DNA23Metropolis()
+#        o.DNA23Metropolis()
         
         return o
     
@@ -66,11 +69,14 @@ def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
     dataset = myMultistrand.results
 
     # Now determine the reaction model parameters from the simulation results.  (Simplified from hybridization_first_step_mode.py.)
-    was_success = np.array([1 if i.tag == Options.STR_SUCCESS else 0 for i in dataset])
-    was_failure = np.array([0 if i.tag == Options.STR_SUCCESS else 1 for i in dataset])
+#    was_success = np.array([1 if i.tag == Options.STR_SUCCESS else 0 for i in dataset])
+#    was_failure = np.array([0 if i.tag == Options.STR_SUCCESS else 1 for i in dataset])
+    myFSR = FirstStepRate(dataset, 50e-9)
 
-    print("Was success:", np.sum(was_success))
-    print("Was failure:", np.sum(was_failure))
+
+    print("Was success:  %i  " % np.sum(myFSR.was_success))
+    print("Was failure:  %i  " % np.sum(myFSR.was_failure))
+    print("k1         :  %.2f /M /s \n " % myFSR.k1() )
 
 
 
@@ -84,12 +90,15 @@ def makePlots():
 
     seqs = list()
 
-    seqs.append('GTCGATGC')
-    seqs.append('TCGAGTGA')
+#    seqs.append('GTCGATGC')
+#    seqs.append('TCGAGTGA')
+
+    seqs.append('GCTCAGCTGC')
+    seqs.append('TCTCAGCTGA')
 
    
     for seq in seqs:
-        doFirstStepMode(seq, numOfRuns=50000)
+        doFirstStepMode(seq, numOfRuns=500000)
      
 
 

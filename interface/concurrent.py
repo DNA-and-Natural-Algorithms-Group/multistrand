@@ -111,24 +111,33 @@ class FirstStepRate(basicRate):
     # FD: this is the concentration-independent rate
     def k1(self):
 
-        # Erik's notes:   
-        # Basic calculations from Joseph's PhD thesis.  (See also threewaybm_first_step_mode.py.)
-        # The equations there were derived for runs stating with exact microstates.
-        # Here, as we are using Boltzmann sampling, which requires that the mean collision rate 
-        # be calculated separately for forward and reverse cases, since conditioning on success
-        # might alter the distribution of secondary structures, and thus the collision rates.
-     
-        forward_kcoll = np.mean(self.collision_forward)
+        #FD: July 2017 -- redoing this
         
-        if not self.nTotal==0:
-            prob = np.float(self.nForward) / np.float(self.nTotal)
-        else:
+        if self.nTotal==0:
             return MINIMUM_RATE
-#             raise Warning("Could not find the results, nTotal = 0")
+        else:
+            return np.float(self.nForward) / np.float(self.nTotal) * np.mean(self.collision_forward)
 
-        k1 = prob * forward_kcoll  
-        
-        return k1
+# 
+# 
+#         # Erik's notes:   
+#         # Basic calculations from Joseph's PhD thesis.  (See also threewaybm_first_step_mode.py.)
+#         # The equations there were derived for runs stating with exact microstates.
+#         # Here, as we are using Boltzmann sampling, which requires that the mean collision rate 
+#         # be calculated separately for forward and reverse cases, since conditioning on success
+#         # might alter the distribution of secondary structures, and thus the collision rates.
+#      
+#         forward_kcoll = np.mean(self.collision_forward)
+#         
+#         if not self.nTotal==0:
+#             prob = np.float(self.nForward) / np.float(self.nTotal)
+#         else:
+#             return MINIMUM_RATE
+# #             raise Warning("Could not find the results, nTotal = 0")
+# 
+#         k1 = prob * forward_kcoll  
+#         
+#         return k1
     
     # FD: this is the concentration-dependent rate
     def kEff(self, concentration=None):
