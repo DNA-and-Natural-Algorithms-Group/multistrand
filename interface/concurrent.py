@@ -34,33 +34,29 @@ class FirstStepRate(basicRate):
     
     def __init__(self, dataset=None, concentration=None):
         
-        
-        #some data for testing for twostateness
-        self.dTcoll_reverse = -1.0
-        self.dTfail_uni = -1.0
-        self.dTcoll_forward = -1.0
-        self.dTsuccess_uni = -1.0
-        
         if not concentration == None:        
-            # empty constructor for resampling code
             self.z = np.float(concentration)
+        
+        if dataset == None:            
+            raise ValueError('Could not find dataset')
+        
 
-        
-        if dataset == None:
-        
-            self.collision_rates = []
-            self.was_success = []
-            self.was_failure = []
-            self.time = []
-            
-            self.generateRates()
+        self.dataset = dataset #save the dataset for re-sampling and merging results. Also needed for certain rates           
+        self.z = concentration
+        self.generateRates()
 
-        else:
+
+    def generateRates(self):
         
-            # process the result on object creation
-            self.process(dataset, concentration)
-            self.generateRates()
-      
+        # Pre-computing some metrics
+        self.nForward = sum([i.tag == Options.STR_SUCCESS  for i in self.dataset])
+        self.nReverse = sum([i.tag == Options.STR_FAILURE  for i in self.dataset])
+                         
+        self.nTotal = len(self.dataset)
+        
+
+  
+                  
     
     def terminate(self, dataset):
         
@@ -73,112 +69,53 @@ class FirstStepRate(basicRate):
         else: 
             return True
         
-        
     
-    def process(self, dataset, concentration):
-        
-        # concentration not actually used in generateRates
-        self.z = concentration
-        
-        # Now determine the reaction model parameters from the simulation results.  (Simplified from hybridization_first_step_mode.py.)    
-        
-        # if there is no collision_rate set, then either something is wrong or we're not using first step mode. Default to 
-        # a standard collisionrate so we can at least run the code TODO
-        self.collision_rates = np.array([ i.collision_rate for i in dataset])
-        
-        self.was_success = np.array([1 if i.tag == Options.STR_SUCCESS else 0 for i in dataset])
-        self.was_failure = np.array([1 if i.tag == Options.STR_FAILURE else 0 for i in dataset])
-        
-        #self.noMoves = sum (np.array([ 1 if i.type_name == "No Moves" else 0 for i in dataset  ] )) 
-        
-        # save unprocessed times for re-sample
-        self.time = np.array([ i.time for i in dataset])
-        
-
-    def generateRates(self):
-        
-        
-        self.forward_times = np.array([self.time[i] for i in range(len(self.was_success)) if self.was_success[i] == 1])
-        self.reverse_times = np.array([self.time[i] for i in range(len(self.was_failure)) if self.was_failure[i] == 1])
-       
-        self.collision_forward = np.array([self.collision_rates[i] for i in range(len(self.was_success)) if self.was_success[i] == 1])
-        self.collision_reverse = np.array([self.collision_rates[i] for i in range(len(self.was_failure)) if self.was_failure[i] == 1])
-        
-        self.nForward = sum(self.was_success)
-        self.nReverse = sum(self.was_failure)
- 
-        self.nTotal = len(self.time)
-
-    # FD: this is the concentration-independent rate
     def k1(self):
 
         #FD: July 2017 -- redoing this
-        
         if self.nTotal==0:
             return MINIMUM_RATE
         else:
-            return np.float(self.nForward) / np.float(self.nTotal) * np.mean(self.collision_forward)
-
-# 
-# 
-#         # Erik's notes:   
-#         # Basic calculations from Joseph's PhD thesis.  (See also threewaybm_first_step_mode.py.)
-#         # The equations there were derived for runs stating with exact microstates.
-#         # Here, as we are using Boltzmann sampling, which requires that the mean collision rate 
-#         # be calculated separately for forward and reverse cases, since conditioning on success
-#         # might alter the distribution of secondary structures, and thus the collision rates.
-#      
-#         forward_kcoll = np.mean(self.collision_forward)
-#         
-#         if not self.nTotal==0:
-#             prob = np.float(self.nForward) / np.float(self.nTotal)
-#         else:
-#             return MINIMUM_RATE
-# #             raise Warning("Could not find the results, nTotal = 0")
-# 
-#         k1 = prob * forward_kcoll  
-#         
-#         return k1
+            
+            sum_collision_forward = sum([i.collision_rate for i in self.dataset if i.tag  == Options.STR_SUCCESS])
+            return sum_collision_forward / np.float(len(self.dataset)) 
     
-    # FD: this is the concentration-dependent rate
     def kEff(self, concentration=None):
         
         if not concentration == None:
             z = np.float(concentration)
         else:
             z = self.z
-
+ 
         if(self.nForward == 0):
             return MINIMUM_RATE
-    
-        self.dTsuccess_uni = np.mean(self.forward_times)
-        self.dTfail_uni = np.mean(self.reverse_times)
         
-        kcollision = np.mean(self.collision_rates)
+        ## TODO this needs to be adjusted for collision rates 
+        sum_forward_times = sum([i.time for i in self.dataset if i.tag == Options.STR_SUCCESS])
+        sum_reverse_times = sum([i.time for i in self.dataset if i.tag == Options.STR_FAILURE])
         
-        kcollision_foward = np.mean(self.collision_forward)
-        kcollision_reverse = np.mean(self.collision_reverse)        
-        
-        
-        self.multiple = float(self.nReverse) / float(self.nForward)
+        sum_collision_forward = sum([i.collision_rate for i in self.dataset if i.tag  == Options.STR_SUCCESS])
+        sum_collision_reverse = sum([i.collision_rate for i in self.dataset if i.tag  == Options.STR_FAILURE])
 
-        dTcoll = np.float(1.0) / ((kcollision) * z)
-
-        if(True):  # toggle if use specific collision rates or not
-            self.dTcoll_forward = np.float(1.0) / ((kcollision_foward) * z)
-            self.dTcoll_reverse = np.float(1.0) / ((kcollision_reverse) * z)
-        else:
-            self.dTcoll_forward = dTcoll
-            self.dTcoll_reverse = dTcoll
-       
-        
-        dTfail = self.dTcoll_reverse + self.dTfail_uni
-        dTforward = self.dTcoll_forward + self.dTsuccess_uni
-        
-        dTcorrect = dTfail * self.multiple + dTforward
-        
+        dTsuccess_uni = np.float(sum_forward_times)  /  np.float(self.nForward)
+        dTfail_uni = np.float(sum_reverse_times)  /  np.float(self.nReverse)
+         
+         
+        kcollision_foward = np.float(sum_collision_forward) /  np.float(self.nForward)
+        kcollision_reverse = np.float(sum_collision_reverse) /  np.float(self.nReverse)
+         
+        multiple = float(self.nReverse) / float(self.nForward)
+ 
+        dTcoll_forward = np.float(1.0) / ((kcollision_foward) * z)
+        dTcoll_reverse = np.float(1.0) / ((kcollision_reverse) * z)
+         
+        dTfail = dTcoll_reverse + dTfail_uni
+        dTforward = dTcoll_forward + dTsuccess_uni
+         
+        dTcorrect = dTfail * multiple + dTforward
+         
         kEff = (1 / dTcorrect) * (1 / z)
-        
+         
         return kEff
 
     def testForTwoStateness(self):
@@ -189,14 +126,13 @@ class FirstStepRate(basicRate):
             print("Warning! Attempting to test for two-state behaviour but concentration was not set! \n")
         
         # Test if the failed trajectory and the success trajectory are dominated ( > 10% of total ) by the unimolecular phase
-        testFail = (self.dTcoll_reverse / self.dTfail_uni) < 9
-        testSucces = (self.dTcoll_forward / self.dTsuccess_uni) < 9
+#         testFail = (self.dTcoll_reverse / self.dTfail_uni) < 9
+#         testSucces = (self.dTcoll_forward / self.dTsuccess_uni) < 9
         
-#         print("tests are ")
-#         print(str(testFail))
-#         print(str(testSucces))
-#         
-        if(testFail | testSucces):
+        #TODO redo this
+        
+        if(False):
+#         if(testFail | testSucces):
             
             output = ''.join(["Warning! At the chosen concentration, ", str(self.z), " M, the reaction might violate two-state secondary order rate kinetics"])                         
             print(output)
@@ -205,36 +141,22 @@ class FirstStepRate(basicRate):
             output = ''.join([output, "Bimolecular waiting times (average):", str(self.dTcoll_reverse),"  --   ", str(self.dTcoll_forward)])
             
             print(output)
-
             
-        
         
 
 
     def resample(self):
-        
         # returns a new rates object with resampled data
         
-        newRates = FirstStepRate(concentration=self.z)
-        
-        N = len(self.collision_rates)
-        
-        # # generate random between 0 and N-1
+        newDataset = []
+        N = len(self.dataset)
         
         for i in range(N):
-        
+            # generate random between 0 and N-1
             index = int(np.floor(np.random.uniform(high=N)))
+            newDataset.append(self.dataset[i])
             
-            newRates.collision_rates.append(self.collision_rates[index])
-            newRates.was_success.append(self.was_success[index])
-            newRates.was_failure.append(self.was_failure[index])
-            newRates.time.append(self.time[index])
-
-        
-        newRates.castToNumpyArray()       
-        newRates.generateRates()
-        
-        return newRates
+        return FirstStepRate(newDataset, concentration=self.z)
     
 
     def castToNumpyArray(self):
@@ -243,7 +165,6 @@ class FirstStepRate(basicRate):
         self.collision_rates = np.array(self.collision_rates)
         self.was_success = np.array(self.was_success)
         self.was_failure = np.array(self.was_failure)
-        self.time = np.array(self.time)
         
 
     def merge(self, that):
@@ -252,12 +173,9 @@ class FirstStepRate(basicRate):
             print("Error! Cannot combine results from different concentrations")
             
         # Now merge the existing datastructures with the ones from the new dataset
-        self.collision_rates = np.concatenate([self.collision_rates, that.collision_rates])
-        self.was_success = np.concatenate([self.was_success, that.was_success])
-        self.was_failure = np.concatenate([self.was_failure, that.was_failure])
-        self.time = np.concatenate([self.time, that.time])
+        self.dataset.append(that.dataset)
 
-        # re-generate the rates
+        # re-generate basic metrics
         self.generateRates()
 
 

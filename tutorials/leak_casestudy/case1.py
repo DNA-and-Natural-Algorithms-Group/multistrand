@@ -58,9 +58,9 @@ def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
         
         
         # FD: The result of this script depend significantly on JS or DNA23 parameterization.
-        o.JSMetropolis25()
+#        o.JSMetropolis25()
 #        o.DNA23Metropolis()
-#        setArrheniusConstantsDNA23(o)
+        setArrheniusConstantsDNA23(o)
         
         return o
     
