@@ -209,16 +209,16 @@ string Move::toString(bool useArr) {
 
 }
 
-/* MoveTree info */
-MoveTree::~MoveTree(void) {
-	/* destruction of a move tree node does imply destruction of all subnodes */
-	if (left != NULL)
-		delete left;
-	if (right != NULL)
-		delete right;
-}
-
-/* MoveList */
+///* MoveTree info */
+//MoveTree::~MoveTree(void) {
+//	/* destruction of a move tree node does imply destruction of all subnodes */
+//	if (left != NULL)
+//		delete left;
+//	if (right != NULL)
+//		delete right;
+//}
+//
+///* MoveList */
 
 MoveList::MoveList(int initial_size) {
 	totalrate = 0.0;

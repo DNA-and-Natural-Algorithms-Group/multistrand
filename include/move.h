@@ -97,15 +97,15 @@ protected:
 
 };
 
-// not using this storage method yet... refer to the list...
-class MoveTree: public Move {
-public:
-	~MoveTree(void);
-
-private:
-	Move *left, *right; // also an uplink?
-	double totalrate;
-};
+//// not using this storage method yet... refer to the list...
+//class MoveTree: public Move {
+//public:
+//	~MoveTree(void);
+//
+//private:
+//	Move *left, *right; // also an uplink?
+//	double totalrate;
+//};
 
 class MoveList: public MoveContainer {
 public:

@@ -34,7 +34,6 @@ StrandComplex::StrandComplex(char *seq, char *struc) {
 		tempcseq[loop] = baseLookup(tempcseq[loop]);
 
 	beginLoop = NULL;
-	kineticMoves = NULL;
 	ordering = new StrandOrdering(tempseq, tempstruct, tempcseq);
 	delete[] tempseq;
 	delete[] tempstruct;
@@ -54,7 +53,6 @@ StrandComplex::StrandComplex(char *seq, char *struc, class identList *id_list) {
 		tempcseq[loop] = baseLookup(tempcseq[loop]);
 
 	beginLoop = NULL;
-	kineticMoves = NULL;
 	ordering = new StrandOrdering(tempseq, tempstruct, tempcseq, id_list);
 	delete[] tempseq;
 	delete[] tempstruct;
@@ -65,7 +63,6 @@ StrandComplex::StrandComplex(char *seq, char *struc, class identList *id_list) {
 StrandComplex::StrandComplex(StrandOrdering *newOrdering) {
 	ordering = newOrdering;
 	beginLoop = ordering->getLoop();
-	kineticMoves = NULL;
 
 }
 
@@ -706,7 +703,7 @@ StrandOrdering * StrandComplex::getOrdering() {
 }
 
 double StrandComplex::getTotalFlux(void) {
-	return totalFlux = beginLoop->returnFlux(NULL);
+	return beginLoop->returnFlux(NULL);
 }
 
 char *StrandComplex::getSequence(void) {

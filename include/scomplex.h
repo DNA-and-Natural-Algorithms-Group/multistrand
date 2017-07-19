@@ -51,16 +51,14 @@ public:
 	string toString(void);
 	OpenInfo& getOpenInfo(void);
 
-//	static StrandComplex *performComplexJoin(StrandComplex **complexes, char *types, int *index, bool);
 	static StrandComplex *performComplexJoin(JoinCriteria, bool);
 	StrandOrdering* getOrdering();
 
 	StrandOrdering* ordering;
 private:
 	Loop *beginLoop;
-	MoveTree *kineticMoves;
 
-	double totalFlux = 0.0; // Total flux contained within this complex.
+//	double totalFlux = 0.0; // Total flux contained within this complex.
 
 };
 
