@@ -133,8 +133,8 @@ class FirstStepRate(basicRate):
         # expected number of failed collisions
         multiple = self.k1Prime() / self.k1()
         
-        dTForward =  self.weightedForwardUni() +   np.float(1.0) / self.k1() 
-        dTReverse =  self.weightedReverseUni() +   np.float(1.0) / self.k1Prime() 
+        dTForward =  self.weightedForwardUni() +   np.float(1.0) / (z * self.k1() )
+        dTReverse =  self.weightedReverseUni() +   np.float(1.0) / (z * self.k1Prime() )
         
         dT = dTReverse * multiple + dTForward
         return np.float(1) / (dT * np.float(z) )
@@ -147,8 +147,8 @@ class FirstStepRate(basicRate):
         
         # Test if the failed trajectory and the success trajectory are dominated ( > 10% of total ) by the unimolecular phase
         
-        tau_bi_succ =  np.float(1) / self.k1() * self.z 
-        tau_bi_fail =  np.float(1) / self.k1Prime() * self.z
+        tau_bi_succ =  np.float(1) / (self.k1() * self.z)
+        tau_bi_fail =  np.float(1) / (self.k1Prime() * self.z)
         
         testFail =   ( tau_bi_fail / self.weightedReverseUni()  ) < 9
         testSucces = ( tau_bi_succ / self.weightedForwardUni() ) < 9
@@ -157,11 +157,12 @@ class FirstStepRate(basicRate):
         if(testFail | testSucces):
             
             print( ''.join(["Warning! At the chosen concentration, ", str(self.z), " M, the reaction might violate two-state secondary order rate kinetics"]))                         
+            print(self)
             
-            print( "k1    = %.2f" % self.k1())
-            print( "k1'   = %.2f" % self.k1Prime())
-            print( "k2    = %.2f" % self.k2())
-            print( "k2'   = %.2f" % self.k2Prime())
+#             print( "k1    = %.2f" % self.k1())
+#             print( "k1'   = %.2f" % self.k1Prime())
+#             print( "k2    = %.2f" % self.k2())
+#             print( "k2'   = %.2f" % self.k2Prime())
             
             
 
@@ -205,14 +206,25 @@ class FirstStepRate(basicRate):
     def __str__(self):
         
         output = "nForward = " + str(self.nForward) + " \n"
-        output += "nReverse = " + str(self.nReverse) + " \n"
+        output += "nReverse = " + str(self.nReverse) + " \n \n"
         
         if(self.nForward > 0):
-            output += "k1 = " + str(self.k1()) + " /M/s   \n"
-            output += "k_eff = " + str(self.kEff()) + " /M/s   \n"
+            output += "k1       = %.2e  /M /s  \n" % self.k1()
+
+        if(self.nReverse > 0):
+            output += "k1'      = %.2e /M /s \n" % self.k1Prime()
         
-        if(self.z > 1e-99):
-            output += "concentration = " + str(self.z) + " M  \n "
+        if(self.nForward > 0):
+            output += "k2       = %.2e  /M /s  \n" % self.k2()
+
+        if(self.nReverse > 0):
+            output += "k2'      = %.2e /M /s \n" % self.k2Prime()
+        
+        if(self.nForward > 0):
+            output += "\nk_eff    = %.2e  /M /s  \n   " % self.kEff()
+        
+#         if(self.z > 1e-99):
+#             output += "[Opp.strand] =  %.2e  M\n" % self.z 
         
         return output
 
