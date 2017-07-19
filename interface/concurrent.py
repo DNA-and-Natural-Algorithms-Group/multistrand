@@ -54,9 +54,6 @@ class FirstStepRate(basicRate):
                          
         self.nTotal = len(self.dataset)
         
-
-  
-                  
     
     def terminate(self, dataset):
         
@@ -68,81 +65,105 @@ class FirstStepRate(basicRate):
             return False
         else: 
             return True
+    
+    def sumCollisionForward(self):
+        return sum([i.collision_rate for i in self.dataset if i.tag  == Options.STR_SUCCESS])
+    
+    def sumCollisionReverse(self):
+        return sum([i.collision_rate for i in self.dataset if i.tag  == Options.STR_FAILURE])
+    
+    def weightedForwardUni(self):
+        
+        mean_collision_forward = np.float(self.sumCollisionForward() ) / np.float(self.nForward) 
+        weightedForwardUni = sum( [ i.collision_rate * i.time for i in self.dataset if i.tag ==  Options.STR_SUCCESS]  ) 
+        
+        return weightedForwardUni / ( mean_collision_forward * np.float(self.nForward))
+    
+    def weightedReverseUni(self):
+        
+        mean_collision_reverse = np.float(self.sumCollisionReverse() ) / np.float(self.nReverse) 
+        weightedReverseUni = sum( [i.collision_rate * i.time for i in self.dataset if i.tag ==  Options.STR_FAILURE]  ) 
+        
+        return weightedReverseUni / ( mean_collision_reverse * np.float(self.nForward))
         
     
     def k1(self):
 
         #FD: July 2017 -- redoing this
-        if self.nTotal==0:
+        if self.nForward==0:
             return MINIMUM_RATE
         else:
-            
-            sum_collision_forward = sum([i.collision_rate for i in self.dataset if i.tag  == Options.STR_SUCCESS])
-            return sum_collision_forward / np.float(len(self.dataset)) 
-    
-    def kEff(self, concentration=None):
+            return self.sumCollisionForward() / np.float(self.nTotal) 
         
-        if not concentration == None:
-            z = np.float(concentration)
+    
+    def k1Prime(self):
+        
+        if self.nForward==0:
+            return MINIMUM_RATE
         else:
+            return self.sumCollisionReverse() / np.float(self.nTotal) 
+        
+    
+    def k2(self):
+        
+        if self.nForward==0:
+            return MINIMUM_RATE
+        else:
+            return  np.float(1.0) / self.weightedForwardUni()  
+        
+            
+    def k2Prime(self):
+        
+        if self.nReverse == 0:
+            return MINIMUM_RATE
+        else:
+            return np.float(1.0) / self.weightedReverseUni()
+        
+            
+    def kEff(self, concentration = None):
+        
+        if concentration == None:
             z = self.z
- 
+        else:
+            z = np.float(concentration)
+  
         if(self.nForward == 0):
             return MINIMUM_RATE
         
-        ## TODO this needs to be adjusted for collision rates 
-        sum_forward_times = sum([i.time for i in self.dataset if i.tag == Options.STR_SUCCESS])
-        sum_reverse_times = sum([i.time for i in self.dataset if i.tag == Options.STR_FAILURE])
+        # expected number of failed collisions
+        multiple = self.k1Prime() / self.k1()
         
-        sum_collision_forward = sum([i.collision_rate for i in self.dataset if i.tag  == Options.STR_SUCCESS])
-        sum_collision_reverse = sum([i.collision_rate for i in self.dataset if i.tag  == Options.STR_FAILURE])
+        dTForward =  self.weightedForwardUni() +   np.float(1.0) / self.k1() 
+        dTReverse =  self.weightedReverseUni() +   np.float(1.0) / self.k1Prime() 
+        
+        dT = dTReverse * multiple + dTForward
+        return np.float(1) / (dT * np.float(z) )
 
-        dTsuccess_uni = np.float(sum_forward_times)  /  np.float(self.nForward)
-        dTfail_uni = np.float(sum_reverse_times)  /  np.float(self.nReverse)
-         
-         
-        kcollision_foward = np.float(sum_collision_forward) /  np.float(self.nForward)
-        kcollision_reverse = np.float(sum_collision_reverse) /  np.float(self.nReverse)
-         
-        multiple = float(self.nReverse) / float(self.nForward)
- 
-        dTcoll_forward = np.float(1.0) / ((kcollision_foward) * z)
-        dTcoll_reverse = np.float(1.0) / ((kcollision_reverse) * z)
-         
-        dTfail = dTcoll_reverse + dTfail_uni
-        dTforward = dTcoll_forward + dTsuccess_uni
-         
-        dTcorrect = dTfail * multiple + dTforward
-         
-        kEff = (1 / dTcorrect) * (1 / z)
-         
-        return kEff
 
     def testForTwoStateness(self):
-        
-        self.kEff() # generate the relevant metrics
         
         if(self.z == None):
             print("Warning! Attempting to test for two-state behaviour but concentration was not set! \n")
         
         # Test if the failed trajectory and the success trajectory are dominated ( > 10% of total ) by the unimolecular phase
-#         testFail = (self.dTcoll_reverse / self.dTfail_uni) < 9
-#         testSucces = (self.dTcoll_forward / self.dTsuccess_uni) < 9
         
-        #TODO redo this
+        tau_bi_succ =  np.float(1) / self.k1() * self.z 
+        tau_bi_fail =  np.float(1) / self.k1Prime() * self.z
         
-        if(False):
-#         if(testFail | testSucces):
+        testFail =   ( tau_bi_fail / self.weightedReverseUni()  ) < 9
+        testSucces = ( tau_bi_succ / self.weightedForwardUni() ) < 9
+        
+        
+        if(testFail | testSucces):
             
-            output = ''.join(["Warning! At the chosen concentration, ", str(self.z), " M, the reaction might violate two-state secondary order rate kinetics"])                         
-            print(output)
-        
-            output = ''.join(["Unimolecular waiting times (average):", str(self.dTfail_uni),"  --   ",str(self.dTsuccess_uni), "\n"])
-            output = ''.join([output, "Bimolecular waiting times (average):", str(self.dTcoll_reverse),"  --   ", str(self.dTcoll_forward)])
+            print( ''.join(["Warning! At the chosen concentration, ", str(self.z), " M, the reaction might violate two-state secondary order rate kinetics"]))                         
             
-            print(output)
+            print( "k1    = %.2f" % self.k1())
+            print( "k1'   = %.2f" % self.k1Prime())
+            print( "k2    = %.2f" % self.k2())
+            print( "k2'   = %.2f" % self.k2Prime())
             
-        
+            
 
 
     def resample(self):
@@ -155,7 +176,7 @@ class FirstStepRate(basicRate):
             # generate random between 0 and N-1
             index = int(np.floor(np.random.uniform(high=N)))
             newDataset.append(self.dataset[i])
-            
+        
         return FirstStepRate(newDataset, concentration=self.z)
     
 

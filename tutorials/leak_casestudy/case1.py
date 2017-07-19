@@ -20,7 +20,7 @@ from multistrand._options.interface import FirstStepResult
 ATIME_OUT = 10.0  
 
 
-myMultistrand.setNumOfThreads(14) 
+myMultistrand.setNumOfThreads(12) 
 
 def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
 
@@ -102,7 +102,7 @@ def makePlots():
 
    
     for seq in seqs:
-        doFirstStepMode(seq, numOfRuns= 50000)
+        doFirstStepMode(seq, numOfRuns= 500000)
      
 
 
