@@ -5,3 +5,4 @@ inspection.py			Manual inspection of the initial state for a dozen different com
 computeAnnealRate.py	A commandline tool for computing annealing rates for complementary strands.
 sample_trace.py			Plots a reaction trace.
 uniqueID.py				Similarly plots a reaction trace but provides a unique ID for each state.
+machinek.py				mismatches in strand displacement.

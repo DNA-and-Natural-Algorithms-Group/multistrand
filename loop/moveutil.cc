@@ -201,16 +201,8 @@ double OpenInfo::crossRate(OpenInfo& other, EnergyModel& eModel) {
 				MoveType left = moveutil::combineBi(top.left, bot.right);
 				MoveType right = moveutil::combineBi(top.right, bot.left);
 
-//				cout << "top: " << top << "\n";
-//				cout << "bot: " << bot << "\n";
 
 				double joinRate = eModel.applyPrefactors(eModel.getJoinRate(), left, right);
-
-//				cout << "Found non-zero crossings: " << crossings << "\n";
-//				cout << "Movetypes left, right: " << moveutil::MoveToString[left] << " " << moveutil::MoveToString[right] << "\n";
-//				cout << "Non-multiplied joinRate: " << joinRate << "\n";
-//				cout << "basic join rate: " << eModel.getJoinRate() << "\n";
-//				cout << "\n";
 
 				double rate = crossings * joinRate;
 

@@ -127,7 +127,6 @@ void SComplexListEntry::dumpComplexEntryToPython(int *our_id, char **names, char
 
 SComplexList::SComplexList(EnergyModel *energyModel) {
 
-//	first = NULL;
 	eModel = energyModel;
 
 }

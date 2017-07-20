@@ -856,8 +856,6 @@ void NupackEnergyModel::processOptions() {
 // Temperature change section.
 //  double getDoubleAttr(energy_options, temperature,&temperature);
 
-// Note: #define T_scale( dG, dH, T ) ((((dG) - (dH)) * (T) / 310.15) + dH)
-
 	_RT = kBoltzmann * current_temp;
 	log_loop_penalty = 100.0 * 1.75 * kBoltzmann * current_temp;
 
@@ -869,12 +867,10 @@ void NupackEnergyModel::processOptions() {
 
 	for (loop = 0; loop < NUM_BASEPAIRS_NUPACK; loop++){
 		for (loop2 = 0; loop2 < NUM_BASEPAIRS_NUPACK; loop2++){
+
 			stack_37_dG[loop][loop2] = T_scale(stack_37_dG[loop][loop2], stack_37_dH[loop][loop2], temperature);
-
 			// now adjusting for a single salt correction term.
-
 			stack_37_dG[loop][loop2] += saltCorrection(2)* -temperature / 1000.0;
-//			cout << "Setting dG [ " << loop << ", " << loop2 << "] = " << stack_37_dG[loop][loop2] << " \n";
 		}
 	}
 

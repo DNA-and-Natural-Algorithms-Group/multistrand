@@ -104,7 +104,6 @@ public:
 
 	virtual double MultiloopEnergy(int size, int *sidelen, char **sequences) = 0;
 	virtual double OpenloopEnergy(int size, int *sidelen, char **sequences) = 0;
-//	virtual void eStackEnergy(int type1, int type2, energyS *energy) = 0;
 
 	SimOptions* simOptions;
 
@@ -138,7 +137,6 @@ public:
 	double MultiloopEnergy(int size, int *sidelen, char **sequences);
 	double OpenloopEnergy(int size, int *sidelen, char **sequences);
 
-//	void eStackEnergy(int type1, int type2, energyS *energy);
 
 private:
 
