@@ -22,8 +22,19 @@ class Strand(object):
             try:    self.name = str(kargs['name'])
             except: self.name = "Automatic_" + str(Strand.unique_id)
             
-            try:    self.domain_list = kargs['domains']
-            except: self.domain_list = []
+            try:    
+                # MS: Slightly modified to accept a Strand as part of the input of the list of domains. 
+                domains = kargs['domains']
+                self.domain_list=[]
+                for x in domains:
+                    if isinstance(x, Strand):  
+                        print "Attemped to add a strand within the domain list"
+                        self.domain_list.extend(x.domain_list)
+                    else:
+                        #print "Valid domain"
+                        self.domain_list.append(x)
+            except: 
+                self.domain_list = []
 
         self.id = Strand.unique_id
         Strand.unique_id += 1
