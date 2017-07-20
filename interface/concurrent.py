@@ -14,7 +14,7 @@ import numpy as np
 from multistrand.system import SimSystem 
 
 
-MINIMUM_RATE = 1e-18;
+MINIMUM_RATE = 1e-36;
 
 
 ## Rate-computation classes start here
@@ -67,29 +67,28 @@ class FirstStepRate(basicRate):
             return True
     
     def sumCollisionForward(self):
-        return sum([i.collision_rate for i in self.dataset if i.tag  == Options.STR_SUCCESS])
+        return sum([np.float(i.collision_rate) for i in self.dataset if i.tag  == Options.STR_SUCCESS])
     
     def sumCollisionReverse(self):
-        return sum([i.collision_rate for i in self.dataset if i.tag  == Options.STR_FAILURE])
+        return sum([np.float(i.collision_rate) for i in self.dataset if i.tag  == Options.STR_FAILURE])
     
     def weightedForwardUni(self):
         
-        mean_collision_forward = np.float(self.sumCollisionForward() ) / np.float(self.nForward) 
-        weightedForwardUni = sum( [ i.collision_rate * i.time for i in self.dataset if i.tag ==  Options.STR_SUCCESS]  ) 
+        mean_collision_forward = np.float( self.sumCollisionForward() ) / np.float(self.nForward) 
+        weightedForwardUni = sum( [ np.float( i.collision_rate) * np.float( i.time) for i in self.dataset if i.tag ==  Options.STR_SUCCESS]  ) 
         
-        return weightedForwardUni / ( mean_collision_forward * np.float(self.nForward))
+        return weightedForwardUni / ( mean_collision_forward * np.float(self.nForward)   )
     
     def weightedReverseUni(self):
         
         mean_collision_reverse = np.float(self.sumCollisionReverse() ) / np.float(self.nReverse) 
-        weightedReverseUni = sum( [i.collision_rate * i.time for i in self.dataset if i.tag ==  Options.STR_FAILURE]  ) 
+        weightedReverseUni = sum( [np.float(i.collision_rate) * np.float( i.time) for i in self.dataset if i.tag ==  Options.STR_FAILURE]  ) 
         
-        return weightedReverseUni / ( mean_collision_reverse * np.float(self.nForward))
+        return weightedReverseUni / ( mean_collision_reverse * np.float(self.nReverse))
         
     
     def k1(self):
 
-        #FD: July 2017 -- redoing this
         if self.nForward==0:
             return MINIMUM_RATE
         else:
@@ -98,7 +97,7 @@ class FirstStepRate(basicRate):
     
     def k1Prime(self):
         
-        if self.nForward==0:
+        if self.nReverse==0:
             return MINIMUM_RATE
         else:
             return self.sumCollisionReverse() / np.float(self.nTotal) 
@@ -121,23 +120,31 @@ class FirstStepRate(basicRate):
         
             
     def kEff(self, concentration = None):
-        
+         
         if concentration == None:
             z = self.z
         else:
             z = np.float(concentration)
-  
+   
         if(self.nForward == 0):
             return MINIMUM_RATE
-        
+         
         # expected number of failed collisions
-        multiple = self.k1Prime() / self.k1()
+        multiple =  (self.k1Prime() / self.k1())   
         
-        dTForward =  self.weightedForwardUni() +   np.float(1.0) / (z * self.k1() )
-        dTReverse =  self.weightedReverseUni() +   np.float(1.0) / (z * self.k1Prime() )
+        # the expected collision rates for success and failed collisions respectively
+        # this is not equal to k1 k1' because those are weighted by the probability of success 
+        # netto, k1 k1' are lower
+        collForward = self.sumCollisionForward() / np.float(self.nForward)  
+        collReverse = self.sumCollisionReverse() / np.float(self.nReverse) 
         
+        dTForward =  self.weightedForwardUni() +   np.float(1.0) / ( z * collForward ) 
+        dTReverse =  self.weightedReverseUni() +   np.float(1.0) / ( z * collReverse ) 
+         
         dT = dTReverse * multiple + dTForward
-        return np.float(1) / (dT * np.float(z) )
+        
+        return (np.float(1.0) / dT) * ( np.float(1.0) / np.float(z) )
+
 
 
     def testForTwoStateness(self):
@@ -158,13 +165,6 @@ class FirstStepRate(basicRate):
             
             print( ''.join(["Warning! At the chosen concentration, ", str(self.z), " M, the reaction might violate two-state secondary order rate kinetics"]))                         
             print(self)
-            
-#             print( "k1    = %.2f" % self.k1())
-#             print( "k1'   = %.2f" % self.k1Prime())
-#             print( "k2    = %.2f" % self.k2())
-#             print( "k2'   = %.2f" % self.k2Prime())
-            
-            
 
 
     def resample(self):
