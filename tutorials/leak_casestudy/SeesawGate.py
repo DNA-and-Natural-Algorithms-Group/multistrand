@@ -1,7 +1,7 @@
 from multistrand.objects import Complex, Domain, Strand
 
 
-class NormalSeesawGate:
+class NormalSeesawGate(object):
     # S1, S2, S5, S7, T
     def __init__(self, input_domain, base_domain, output_domain, fuel_domain,
                  toehold_domain, type="normal"):
@@ -36,7 +36,57 @@ class NormalSeesawGate:
                                       len(self.output_strand.sequence))
 
 
-class MismatchedSeesawGate:
+# MS: Please note that placing mismatches in double stranded regions is
+#     currently unsupported
+class MismatchedSeesawGate(NormalSeesawGate):
+    input_mismatch = 0
+    base_mismatch = 1
+    output_mismatch = 2
+    fuel_mismatch = 3
+    toehold_mismatch = 3
+
     def __init__(self, input_domain, base_domain, output_domain, fuel_domain,
-                 toehold_domain, ):
-        print ("test")
+                 toehold_domain, mismatch_domain, mismatch_position,
+                 mismatch_type='C'):
+        # Setup intialially as a normal seesaw gate
+        super(MismatchedSeesawGate, self).__init__(input_domain, base_domain,
+                                                   output_domain, fuel_domain,
+                                                   toehold_domain)
+        
+        # Then modify for the mismatch itself
+        if(mismatch_position == MismatchedSeesawGate.input_mismatch):
+            print("Placing a mismatch within the input domain")
+        elif(mismatch_domain == MismatchedSeesawGate.base_mismatch):
+            print("It is currently unsuported to place a mismatch within")
+            print("a double stranded region. Seesaw will act as normal")
+        elif(mismatch_domain == MismatchedSeesawGate.output_mismatch):
+            print("Placing a mismatch within the input domain")
+            # Modify the output domain here
+            mismatched_domain = placeMismatch(mismatch_position,
+                                             output_domain.sequence)         
+        elif(mismatch_domain == MismatchedSeesawGate.fuel_mismatch):
+            print("Placing a mismatch within the input domain")
+        elif(mismatch_domain == MismatchedSeesawGate.toehold_mismatch):
+            print("It is currently unsupported to place a mismatch \n \
+                  within a double stranded region, seesaw gate will \n \
+                  behave as a normal gate")
+
+
+     # Utility function for placing mismatches
+    def placeMismatch(self, position, sequence):
+        length = len(sequence)
+        s = list(sequence)
+        if position > (length - 1):
+            print "Invalid mismatch position"
+        if not s[position] == 'C':
+            s[position]='C'
+            self.type = 'C'
+        else:
+            # Don't want it to turn out that 'C' doesn't result in a mismatch!
+            s[position]='G' 
+        mis= Domain(name="mismatch", sequence="C")
+        premis = Domain(name="premis", sequence=sequence[:position])
+        postmis = Domain(name="postmis", sequence=sequence[position+1:])
+        dom = premis + mis + postmis
+        compDom = postmis.C + mis + premis.C
+        return dom, compDom
