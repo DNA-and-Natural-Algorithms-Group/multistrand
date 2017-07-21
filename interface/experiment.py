@@ -2,6 +2,8 @@
 ## Often recurring experimental setups
 from multistrand.objects import Complex, Domain, Strand, StopCondition
 from multistrand.options import Options
+from setuptools.dist import sequence
+from reportlab.platypus.para import lengthSequence
 
 
 def setBoltzmann(complexIn, trials):
@@ -63,101 +65,5 @@ def hybridization(options, mySeq, myTrials=0, doFirstPassage=False):
         options.stop_conditions = [stopSuccess]         
         
         
-        
-        
-# Figure 2d has 3x12 = 36 rates plotted. 
-# Input: 0 <= selector < 36  
 
-# range 0 -11:  6 nt toehold
-# range 12-23:  7 nt toehold
-# range 24-36: 10 nt toehold
-
-# order of mismatch position:
-# perfect - 2 - 3 - 4 - 5 - 6 - 7 - 8 - 9 -10 - 12 - 14
-   
-def machinek2014(selector):
-    
-    # these are the sequences we need to build the dot-parens
-    incumbent = ""
-    target = ""
-    invader = ""
-    
-    toeholdSelect = floor(selector / 12)
-    mismatchSelect = selector % 12
-    
-    positionSelector = [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14]    
-    mismatchSelect = positionSelector[mismatchSelect]
-    
-    # decide on toehold sequence
-    toeholdSeq = "ATGTGG"       # 6 nt toehold option
-    
-    if toeholdSelect == 1 :
-        toeholdSeq = "ATGTGGA"  # 7 nt toehold option
-    if toeholdSelect == 2 :
-        toeholdSeq = "ATGTGGAGGG" # 10 nt toehold option
-
-
-    # determine the incumbent, target and invader sequences
-    # FD: copy-pasting supplementary Table 6 directly
-
-    if mismatchSelect == 0 | mismatchSelect == 2 | mismatchSelect == 12 | mismatchSelect == 14  :
-        incumbent = "TGGTGTTTGTGGGTGTGGTGAGTTTGAGGTTGA"
-        target = "CCCTCCACATTCAACCTCAAACTCACC"
-        
-        if mismatchSelect == 0: #perfect
-            invader = "GGTGAGTTTGAGGTTGA"
-
-        if mismatchSelect == 2:
-            invader = "GGTGAGTTTGAGGTTCA"
-        
-        if mismatchSelect == 12:
-            invader = "GGTGACTTTGAGGTTGA"
-            
-        if mismatchSelect == 14:
-            invader = "GGTCAGTTTGAGGTTGA"
-    
-    if mismatchSelect == 3:
-        incumbent = "TGGTGTTTGTGGGTGTGGTGAGTTTGAGGTGAT"
-        target = "CCCTCCACATATCACCTCAAACTCACC"
-        invader = "GGTGAGTTTGAGGTCAT"
-        
-    if mismatchSelect == 4:
-        incumbent = "TGGTGTTTGTGGGTGTGGTGAGTTTGAGTGAGT"
-        target = "CCCTCCACATACTCACTCAAACTCACC"
-        invader = "GGTGAGTTTGAGTCAGT"
-
-
-    if mismatchSelect == 5:
-        incumbent = "TGGTGTTTGTGGGTGTGGTGAGTTTGATGAGGT"
-        target = "CCCTCCACATACCTCATCAAACTCACC"
-        invader = "GGTGAGTTTGATCAGGT"
-
-    if mismatchSelect == 6:
-        incumbent = "TGG TGT TTG TGG GTG TGG TGA GTT TGT GAA GGT"
-        target = "CCC TCC ACA TAC CTT CAC AAA CTC ACC"
-        invader = "GGT GAG TTT GTC AAG GTA TGT GG"
-        
-    if mismatchSelect == 7:
-        incumbent = "TGG TGT TTG TGG GTG TGG TGA GTT TTG AGA GGT"
-        target = "CCC TCC ACA TAC CTC TCA AAA CTC ACC"
-        invader = "GGT GAG TTT TCA GAG GTA TGT GG"
-
-    if mismatchSelect == 8:
-        incumbent = "TGG TGT TTG TGG GTG TGG TGA GTT TGA TGA GGT"
-        target = "CCC TCC ACA TAC CTC ATC AAA CTC ACC"
-        invader = "GGT GAG TTT CAT GAG GTA TGT GG"
-        
-    if mismatchSelect == 9:
-        incumbent = "TGG TGT TTG TGG GTG TGG TGAG TT GAT TGA GGT"
-        target = "CCC TCC ACA TAC CTC AAT CAA CTC ACC"
-        invader = "GGT GAG TTC ATT GAG GTA TGT GG"
-        
-    if mismatchSelect == 10:
-        incumbent = "TGG TGT TTG TGG GTG TGG TGA GTG ATT TGA GGT"
-        target = "CCC TCC ACA TAC CTC AAA TCA CTC ACC"
-        invader = "GGT GAG TCA TTT GAG GTA TGT GG"
-       
-
-    invader = invader + toeholdSeq
-    
  

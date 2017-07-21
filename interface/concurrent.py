@@ -81,6 +81,9 @@ class FirstStepRate(basicRate):
     
     def weightedReverseUni(self):
         
+        if self.nReverse == 0:
+            return np.float(0)
+        
         mean_collision_reverse = np.float(self.sumCollisionReverse() ) / np.float(self.nReverse) 
         weightedReverseUni = sum( [np.float(i.collision_rate) * np.float( i.time) for i in self.dataset if i.tag ==  Options.STR_FAILURE]  ) 
         
@@ -135,8 +138,16 @@ class FirstStepRate(basicRate):
         # the expected collision rates for success and failed collisions respectively
         # this is not equal to k1 k1' because those are weighted by the probability of success 
         # netto, k1 k1' are lower
-        collForward = self.sumCollisionForward() / np.float(self.nForward)  
-        collReverse = self.sumCollisionReverse() / np.float(self.nReverse) 
+        
+        if self.nForward == 0:
+            return  MINIMUM_RATE
+        else:
+            collForward = self.sumCollisionForward() / np.float(self.nForward)  
+        
+        if self.nReverse == 0:
+            collReverse = MINIMUM_RATE
+        else:
+            collReverse = self.sumCollisionReverse() / np.float(self.nReverse) 
         
         dTForward =  self.weightedForwardUni() +   np.float(1.0) / ( z * collForward ) 
         dTReverse =  self.weightedReverseUni() +   np.float(1.0) / ( z * collReverse ) 
@@ -267,7 +278,6 @@ class FirstPassageRate(basicRate):
         for i in range(N):
         
             index = int(np.floor(np.random.uniform(high=N)))
-            
             newRates.times.append(self.times[index])
         
         newRates.castToNumpyArray()       
@@ -459,7 +469,7 @@ class MergeSim(object):
         
         self.numOfThreads = numOfThreads
 
-    def setOptionsFactory(self, optionsFactory):
+    def setOptionsFactory(self, optionsFactory):        # this can be re-done using an args[] obj.
         
         self.factory = optionsFactory
 
@@ -491,7 +501,13 @@ class MergeSim(object):
         
         self.factory = optionsFactory(myFun, put0, put1, put2, put3, put4, put5, put6)
 
-    def setAnaylsisFactory(self, aFactoryIn): #mySeq, cutOff):
+    # If the analysis factory is set, 
+    # then perform an threaded analysis of the returned data. 
+    # E.g. the analysis factory receives a set of locks and 
+    # the simulation will call aFactory.doAnalysis(options) 
+    # once for each thread.
+    # This is used really only for one case study, but could be reused in the future
+    def setAnaylsisFactory(self, aFactoryIn): 
         
         lockArray = list()
         for i in range(16):
@@ -576,7 +592,6 @@ class MergeSim(object):
             
             if not(aFactory == None):
                 
-#                 doAnalysis(aFactory, myOptions)
                 aFactory.doAnalysis(myOptions)
             
             if self.settings.debug:
@@ -629,21 +644,6 @@ class MergeSim(object):
         
         return 0
 
-
-# # simply pipes the initial info command.
-# def initialInfo(self):
-#                           
-#     def initialInfo(myFactory):
-#                     
-#         
-#         myOptions = myFactory.new(777)
-#         myOptions.num_simulations = self.trialsPerThread
-#     
-#         s = SimSystem(myOptions)
-#         s.initialInfo() 
-#     
-#     
-#     multiprocessing.Process(target=initialInfo(), args=(self.factory))
 
 
 # # The default multistrand object
