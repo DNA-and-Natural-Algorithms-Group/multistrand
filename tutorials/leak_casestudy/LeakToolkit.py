@@ -10,16 +10,15 @@
 import sys
 from os.path import expanduser
 
-home = expanduser("~/multistrand")
-model = expanduser("~/multistrandPy")
-sys.path.append(model)
-sys.path.append(home)
-
+HOME = expanduser("~/workspace/multistrand")
+MODEL = expanduser("~/workspace/multistrandPy")
+sys.path.append(MODEL)
+sys.path.append(HOME)
 
 from multistrand.concurrent import myMultistrand, FirstStepRate
 from multistrand.objects import StopCondition, Domain, Complex, Strand
 from multistrand.options import Options
-from msArrhenius import setArrheniusConstantsDNA23
+from multistrandPy.msArrhenius import setArrheniusConstantsDNA23
 import numpy as np
 
 
@@ -37,7 +36,6 @@ def getOptions(trials, material, complex1, complex2,
 
     o.start_state = [complex1, complex2]
     o.stop_conditions = [success_stop_condition, failed_stop_condition]
-    o.verbosity = 1
     # Using new parameters.
     setArrheniusConstantsDNA23(o)
     return o

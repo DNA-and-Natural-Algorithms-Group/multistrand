@@ -1,64 +1,111 @@
+
 import sys
 from os.path import expanduser
 
-home = expanduser("~/multistrand")
-model = expanduser("~/multistrandPy")
-sys.path.append(model)
-sys.path.append(home)
-
+# Tad dodgy, but using in non-root environments. Should work
+dirs = ["~/workspace/multistrand", "~/workspace/multistrandPy", "~/multistrand", "~/multistrandPy"]
+for x in dirs:
+    i = expanduser(x)
+    sys.path.append(i)
 
 from multistrand.objects import Domain
-from LeakToolkit import calculateBaseOutputRate, calculateGateGateLeak
+from LeakToolkit import calculateBaseOutputRate, calculateGateGateLeak, calculateBaseFuelRate, calculateGateFuelLeak
 from SeesawGate import NormalSeesawGate, MismatchedSeesawGate
 
-default_num_trials = 1000
+DEFAULT_NUM_TRIALS = 100000
 
-seq1 = "ACCTCT"
-seq2 = "TCTTTA"
-seq7 = "ACATCC"
-seq5 = "TACTAC"
-seq6 = "ACCATT"
-seqT = "CTCT"
+SEQ1 = "ACCTCT"
+SEQ2 = "TCTTTA"
+SEQ7 = "ACATCC"
+SEQ5 = "TACTAC"
+SEQ6 = "ACCATT"
+SEQT = "CTCT"
 
-S1 = Domain(name="S1", sequence=seq1)
-S2 = Domain(name="S2", sequence=seq2)
-S5 = Domain(name="S5", sequence=seq5)
-S6 = Domain(name="S6", sequence=seq6)
-S7 = Domain(name="S7", sequence=seq7)
-T = Domain(name="T", sequence=seqT)
-
-
-def setupNormalSimulations(trials, s1_sequence, s2_sequence, s5_sequence,
-                           s6_sequence, s7_sequence, toehold_sequence):
-
-    gateA = NormalSeesawGate(S1, S2, S5, S7, T)
-    gateB = NormalSeesawGate(S2, S5, S6, S7, T)
-
-    calculateGateGateLeak(gateA, gateB, trials)
-    calculateGateGateLeak(gateB, gateA, trials)
+S1 = Domain(name="S1", sequence=SEQ1)
+S2 = Domain(name="S2", sequence=SEQ2)
+S5 = Domain(name="S5", sequence=SEQ5)
+S6 = Domain(name="S6", sequence=SEQ6)
+S7 = Domain(name="S7", sequence=SEQ7)
+T = Domain(name="T", sequence=SEQT)
 
 
-def setupMismatchSimulations(trials, s1_sequence, s2_sequence, s5_sequence,
-                             s6_sequence, s7_sequence, toehold_sequence):
+def setupNormalSimulations(trials, domainListA, domainListB):
 
+    gateA = NormalSeesawGate(*domainListA)
+    gateB = NormalSeesawGate(*domainListB)
+
+    # The base rates are far, far more likely that the leak rate
+    # - why simulate them for so long?
+    print trials
+    print("Base Output")
+    calculateBaseFuelRate(gateA, trials / 100)
+    calculateBaseFuelRate(gateB, trials / 100)
+
+    print("Base Fuel")
+    calculateBaseFuelRate(gateA, trials / 100)
+    calculateBaseFuelRate(gateB, trials / 100)
+
+    print("Gate-Gate Leak")
+    calculateGateGateLeak(gateA, gateB)
+
+    print("Gate-Fuel Leak")
+    calculateGateFuelLeak(gateA)
+    calculateGateFuelLeak(gateB)
+
+
+def setupMismatchSimulations(trials, domainListA=None, domainListB=None):
     # Defaults to placing a C (unless the base their was a C before)
     # Will need to modify a second gate sequence slightly in order to
     # Ensure that the type of mismatch is always a C-C mismatch
-    gateA = MismatchedSeesawGate(S1, S2, S5, S7, T,
-                                 MismatchedSeesawGate.base_mismatch, 2)
-    print(gateA.input_strand)
+    # this is a small change
+    gateA = MismatchedSeesawGate(*domainListA)
+    gateB = MismatchedSeesawGate(*domainListA)
+
+    # Assume that it is required for a mismatch in the output of the first
+    # gate and the input of the second gate
+
+    for i in [1, 3, 5]:
+        print "Mismatch in position %d" % i
+        gateA.placeMismatchInOutput(
+            i, domainListA[2], domainListA[1], domainListA[4])
+        gateB.placeMismatchInInput(
+            i, domainListA[0], domainListA[1], domainListA[4])
+        # NB: If an upstream gate has a mismatch in its output, this implies
+        # that the relevant downstream gate should have a mismatch in its output
+        # The numbering remains the same since we are always 5' to 3' and the
+        # orientation is not changing
+        gateB = MismatchedSeesawGate(
+            S2, S5, S6, S7, T, MismatchedSeesawGate.input_mismatch, 1)
+
+        print("Base Output")
+        calculateBaseFuelRate(gateA, trials / 100)
+        calculateBaseFuelRate(gateB, trials / 100)
+
+        print("Base Fuel")
+        calculateBaseFuelRate(gateA, trials / 100)
+        calculateBaseFuelRate(gateB, trials / 100)
+
+        print("Gate-Gate Leak")
+        calculateGateGateLeak(gateA, gateB, trials)
+
+        print("Gate-Fuel Leak")
+        calculateGateFuelLeak(gateA, trials)
+        calculateGateFuelLeak(gateB, trials)
+
 
 
 # The actual main method
 if __name__ == '__main__':
-    print("Initializing Example 3")
+    print "Initializing Example 3"
     if len(sys.argv) == 2:
         # MS: Integer number of trials, I hope ...
         num_trials = int(sys.argv[1])
-        print("Trials: %d" % num_trials)
+        print "Trials: %d" % num_trials
         # sequences from qian, winfree, 2011
 
-        setupMismatchSimulations(num_trials, seq1, seq2, seq5, seq6, seq7,
-                                 seqT)
     else:
-        print("(Default) Trials: %d" % default_num_trials)
+        print "(Default) Trials: %d" % DEFAULT_NUM_TRIALS
+        domainListA = [S1, S2, S5, S7, T]
+        domainListB = [S2, S5, S6, S7, T]
+        setupNormalSimulations(DEFAULT_NUM_TRIALS, domainListA, domainListB)
+        setupMismatchSimulations(DEFAULT_NUM_TRIALS, domainListA,  domainListB)
