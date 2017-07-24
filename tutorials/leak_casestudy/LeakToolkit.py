@@ -122,7 +122,7 @@ def calculateGateGateLeak(gateA, gateB, trials=500, material="DNA"):
 def calculateGateFuelLeak(gate, trials=500, material="DNA"):
     gate_complex = gate.gate_output_complex
     fuel_complex = gate.fuel_complex
-    leak_complex = gate.gate_output_complex
+    leak_complex = gate.output_complex
     success_stop_condition = StopCondition(
         Options.STR_SUCCESS, [(leak_complex,
                                Options.dissocMacrostate, 0)])

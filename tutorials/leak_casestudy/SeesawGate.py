@@ -99,7 +99,7 @@ class MismatchedSeesawGate(NormalSeesawGate):
         compDom=postmis.C + mis + premis.C
         return dom, compDom
 
-    def placeMismatchInOutput(self, position, output_domain, base_domain, toehold_domain):
+    def placeOutputMismatchInOutput(self, position, output_domain, base_domain, toehold_domain):
         sequence=output_domain.sequence
         mismatched_domain=self.placeMismatchInStrand(position,
                                                        sequence)[0]
@@ -112,19 +112,19 @@ class MismatchedSeesawGate(NormalSeesawGate):
                                       len(self.output_strand.sequence))
 
 
-    def placeMismatchInInput(self, position, input_domain, base_domain, toehold_domain):
+    def placeInputMismatchInBase(self, position, input_domain, base_domain, toehold_domain):
         # Exact same as output domains replacement
-        sequence=input_domain.sequence
+        sequence=base_domain.sequence
         mismatched_domain=self.placeMismatchInStrand(position,
                                                        sequence)[0]
-        self.input_strand=base_domain + toehold_domain + mismatched_domain
+        self.input_strand=mismatched_domain + toehold_domain + input_domain
         self.input_partial=Domain(name="partial",
                                     sequence=mismatched_domain.sequence[:3])
         self.threshold_base=self.input_partial.C + toehold_domain.C + \
             base_domain.C
         self.gate_input_complex=Complex(strands=[self.base_strand,
                                                    self.input_strand],
-                                          structure="((.+)).")
+                                          structure="((.+)))).")
         self.input_complex=Complex(strands=[self.input_strand],
                                      structure='.' *
                                      len(self.input_strand.sequence))
