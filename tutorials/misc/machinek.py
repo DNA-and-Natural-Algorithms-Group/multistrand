@@ -21,7 +21,7 @@ from multistrand.options import Options
 from msArrhenius import setArrheniusConstantsDNA23
 
 
-myMultistrand.setNumOfThreads(10)
+myMultistrand.setNumOfThreads(8)
 
 # Figure 2d has 3x12 = 36 rates plotted. 
 # Input: 0 <= selector < 36  
@@ -34,8 +34,6 @@ myMultistrand.setNumOfThreads(10)
 # perfect - 2 - 3 - 4 - 5 - 6 - 7 - 8 - 9 -10 - 12 - 14
 
 positionSelector = [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14]   
-positionSelector = [0, 2, 3, 4, 5, 6] #, 7, 8, 9, 10, 12, 14]   
-   
 
 
 def machinek2014(options, selector, trialsIn):
@@ -229,7 +227,7 @@ def generateGraph(trials=15):
     simRates = []
     realRates = []
     
-    for select in range(0,6):
+    for select in range(0,12):
         simRates.append( np.log10(computeRate(select, trials)))
         realRates.append( np.log10(measuredRate(select)))
         

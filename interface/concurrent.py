@@ -38,7 +38,8 @@ class FirstStepRate(basicRate):
             self.z = np.float(concentration)
         
         if dataset == None:            
-            raise ValueError('Could not find dataset')
+            dataset = []
+            print "Setting dataset to empty list"
         
 
         self.dataset = dataset #save the dataset for re-sampling and merging results. Also needed for certain rates           
@@ -61,7 +62,7 @@ class FirstStepRate(basicRate):
         
         print(str(newRates))
         
-        if(newRates.nForward <= 25):
+        if(newRates.nForward <= 3):
             return False
         else: 
             return True
@@ -573,7 +574,7 @@ class MergeSim(object):
         
         
 
-        def doSim(myFactory, aFactory, list0, list1, seed):
+        def doSim(myFactory, aFactory, list0, list1, seed, lock):
                         
             
             myOptions = myFactory.new(seed)
@@ -582,22 +583,24 @@ class MergeSim(object):
             s = SimSystem(myOptions)
             s.start()
             
-            for result in myOptions.interface.results:
-                
-                list0.append(result)   
-                 
-            for endState in myOptions.interface.end_states:
-                
-                list1.append(endState)
+            with lock:
             
+                for result in myOptions.interface.results:
+                    
+                    list0.append(result)   
+                     
+                for endState in myOptions.interface.end_states:
+                    
+                    list1.append(endState)
+                                
+                if self.settings.debug:
+                    
+                    self.printTrajectories(myOptions)
+                
             if not(aFactory == None):
-                
+                 
                 aFactory.doAnalysis(myOptions)
-            
-            if self.settings.debug:
-                
-                self.printTrajectories(myOptions)
-                
+
         
         assert(self.numOfThreads > 0)
         
@@ -606,11 +609,11 @@ class MergeSim(object):
         self.results = manager.list()
         self.endStates = manager.list()
         
-        
+        resultsLock = multiprocessing.Lock()
     
         terminate = False
 
-        while not terminate:
+        while True:
 
             print(self.startSimMessage()) 
 
@@ -621,7 +624,7 @@ class MergeSim(object):
                 instanceSeed = self.seed + i * 3 * 5 * 19 + (time.time() * 10000000) % (math.pow(2, 16) - 1)
                 
                           
-                p = multiprocessing.Process(target=doSim, args=(self.factory, self.aFactory, self.results, self.endStates, instanceSeed))
+                p = multiprocessing.Process(target=doSim, args=(self.factory, self.aFactory, self.results, self.endStates, instanceSeed, resultsLock))
                 procs.append(p)
                 p.start()
             
@@ -633,12 +636,12 @@ class MergeSim(object):
             
             
             if self.terminationCriteria == None:
-                terminate = True
+                break   #exit loop.
             else: 
-                terminate = self.terminationCriteria.terminate(self.results)    
+                if self.terminationCriteria.terminate(self.results):
+                    break
                 self.trialsPerThread = self.trialsPerThread * 2
-        
-        
+       
         
         self.runTime = (time.time() - startTime)
         
