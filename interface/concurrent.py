@@ -4,7 +4,7 @@ This module has two parts.
 1) Given multistrand results, compute reaction rate constants. 
 2) A module for running multistrand concurrently. Results are merged automatically
 """
-import operator
+import operator, os
 import time, datetime, math
 
 from multistrand.options import Options
@@ -17,7 +17,7 @@ from multistrand.system import SimSystem
 MINIMUM_RATE = 1e-36;
 
 
-## Rate-computation classes start here
+# # Rate-computation classes start here
 
 
 # Shared class methods
@@ -28,7 +28,7 @@ class basicRate(object):
         return np.log10(self.kEff())
 
 
-## Migration rates for first step
+# # Migration rates for first step
 class FirstStepRate(basicRate):
     
     
@@ -42,7 +42,7 @@ class FirstStepRate(basicRate):
             print "Setting dataset to empty list"
         
 
-        self.dataset = dataset #save the dataset for re-sampling and merging results. Also needed for certain rates           
+        self.dataset = dataset  # save the dataset for re-sampling and merging results. Also needed for certain rates           
         self.z = concentration
         self.generateRates()
 
@@ -56,44 +56,46 @@ class FirstStepRate(basicRate):
         self.nTotal = len(self.dataset)
         
     
-    def terminate(self, dataset):
+    # return TRUE if enough correct trajectories have been simulated
+    def checkTermination(self, dataset, printInfo=False):
         
-        newRates = FirstStepRate(dataset=dataset, concentration  = 1e-99)
+        newRates = FirstStepRate(dataset=dataset, concentration=1e-99)
         
-        print(str(newRates))
+        if printInfo:
+            print(str(newRates))
         
-        if(newRates.nForward <= 3):
+        if newRates.nForward <= self.terminationCount:
             return False
         else: 
             return True
     
     def sumCollisionForward(self):
-        return sum([np.float(i.collision_rate) for i in self.dataset if i.tag  == Options.STR_SUCCESS])
+        return sum([np.float(i.collision_rate) for i in self.dataset if i.tag == Options.STR_SUCCESS])
     
     def sumCollisionReverse(self):
-        return sum([np.float(i.collision_rate) for i in self.dataset if i.tag  == Options.STR_FAILURE])
+        return sum([np.float(i.collision_rate) for i in self.dataset if i.tag == Options.STR_FAILURE])
     
     def weightedForwardUni(self):
         
-        mean_collision_forward = np.float( self.sumCollisionForward() ) / np.float(self.nForward) 
-        weightedForwardUni = sum( [ np.float( i.collision_rate) * np.float( i.time) for i in self.dataset if i.tag ==  Options.STR_SUCCESS]  ) 
+        mean_collision_forward = np.float(self.sumCollisionForward()) / np.float(self.nForward) 
+        weightedForwardUni = sum([ np.float(i.collision_rate) * np.float(i.time) for i in self.dataset if i.tag == Options.STR_SUCCESS]) 
         
-        return weightedForwardUni / ( mean_collision_forward * np.float(self.nForward)   )
+        return weightedForwardUni / (mean_collision_forward * np.float(self.nForward))
     
     def weightedReverseUni(self):
         
         if self.nReverse == 0:
             return np.float(0)
         
-        mean_collision_reverse = np.float(self.sumCollisionReverse() ) / np.float(self.nReverse) 
-        weightedReverseUni = sum( [np.float(i.collision_rate) * np.float( i.time) for i in self.dataset if i.tag ==  Options.STR_FAILURE]  ) 
+        mean_collision_reverse = np.float(self.sumCollisionReverse()) / np.float(self.nReverse) 
+        weightedReverseUni = sum([np.float(i.collision_rate) * np.float(i.time) for i in self.dataset if i.tag == Options.STR_FAILURE]) 
         
-        return weightedReverseUni / ( mean_collision_reverse * np.float(self.nReverse))
+        return weightedReverseUni / (mean_collision_reverse * np.float(self.nReverse))
         
     
     def k1(self):
 
-        if self.nForward==0:
+        if self.nForward == 0:
             return MINIMUM_RATE
         else:
             return self.sumCollisionForward() / np.float(self.nTotal) 
@@ -101,7 +103,7 @@ class FirstStepRate(basicRate):
     
     def k1Prime(self):
         
-        if self.nReverse==0:
+        if self.nReverse == 0:
             return MINIMUM_RATE
         else:
             return self.sumCollisionReverse() / np.float(self.nTotal) 
@@ -109,7 +111,7 @@ class FirstStepRate(basicRate):
     
     def k2(self):
         
-        if self.nForward==0:
+        if self.nForward == 0:
             return MINIMUM_RATE
         else:
             return  np.float(1.0) / self.weightedForwardUni()  
@@ -123,7 +125,7 @@ class FirstStepRate(basicRate):
             return np.float(1.0) / self.weightedReverseUni()
         
             
-    def kEff(self, concentration = None):
+    def kEff(self, concentration=None):
          
         if concentration == None:
             z = self.z
@@ -134,7 +136,7 @@ class FirstStepRate(basicRate):
             return MINIMUM_RATE
          
         # expected number of failed collisions
-        multiple =  (self.k1Prime() / self.k1())   
+        multiple = (self.k1Prime() / self.k1())   
         
         # the expected collision rates for success and failed collisions respectively
         # this is not equal to k1 k1' because those are weighted by the probability of success 
@@ -150,12 +152,12 @@ class FirstStepRate(basicRate):
         else:
             collReverse = self.sumCollisionReverse() / np.float(self.nReverse) 
         
-        dTForward =  self.weightedForwardUni() +   np.float(1.0) / ( z * collForward ) 
-        dTReverse =  self.weightedReverseUni() +   np.float(1.0) / ( z * collReverse ) 
+        dTForward = self.weightedForwardUni() + np.float(1.0) / (z * collForward) 
+        dTReverse = self.weightedReverseUni() + np.float(1.0) / (z * collReverse) 
          
         dT = dTReverse * multiple + dTForward
         
-        return (np.float(1.0) / dT) * ( np.float(1.0) / np.float(z) )
+        return (np.float(1.0) / dT) * (np.float(1.0) / np.float(z))
 
 
 
@@ -166,16 +168,16 @@ class FirstStepRate(basicRate):
         
         # Test if the failed trajectory and the success trajectory are dominated ( > 10% of total ) by the unimolecular phase
         
-        tau_bi_succ =  np.float(1) / (self.k1() * self.z)
-        tau_bi_fail =  np.float(1) / (self.k1Prime() * self.z)
+        tau_bi_succ = np.float(1) / (self.k1() * self.z)
+        tau_bi_fail = np.float(1) / (self.k1Prime() * self.z)
         
-        testFail =   ( tau_bi_fail / self.weightedReverseUni()  ) < 9
-        testSucces = ( tau_bi_succ / self.weightedForwardUni() ) < 9
+        testFail = (tau_bi_fail / self.weightedReverseUni()) < 9
+        testSucces = (tau_bi_succ / self.weightedForwardUni()) < 9
         
         
         if(testFail | testSucces):
             
-            print( ''.join(["Warning! At the chosen concentration, ", str(self.z), " M, the reaction might violate two-state secondary order rate kinetics"]))                         
+            print(''.join(["Warning! At the chosen concentration, ", str(self.z), " M, the reaction might violate two-state secondary order rate kinetics"]))                         
             print(self)
 
 
@@ -233,7 +235,7 @@ class FirstStepRate(basicRate):
             output += "k2'      = %.2e /M /s \n" % self.k2Prime()
         
         if(self.nForward > 0):
-            output += "\nk_eff    = %.2e  /M /s  \n   " % self.kEff()
+            output += "k_eff    = %.2e  /M /s  \n   " % self.kEff()
         
 #         if(self.z > 1e-99):
 #             output += "[Opp.strand] =  %.2e  M\n" % self.z 
@@ -295,7 +297,7 @@ class FirstPassageRate(basicRate):
         
         if len(self.timeouts) > 0 :
             
-            print("# association trajectories did not finish =",  str(len(self.timeouts)))
+            print("# association trajectories did not finish =", str(len(self.timeouts)))
             for i in self.timeouts :
                 assert (i.type_name == 'Time')
                 assert (i.tag == None)
@@ -314,7 +316,7 @@ class FirstPassageRate(basicRate):
 class Bootstrap():
     
     
-    def __init__(self, myRates, concentration=None, computek1 = False):
+    def __init__(self, myRates, concentration=None, computek1=False):
         
         self.myRates = myRates
         
@@ -372,7 +374,7 @@ class Bootstrap():
         
 
 
-## Concurrent classes start here
+# # Concurrent classes start here
 
 
 
@@ -438,7 +440,7 @@ class MergeSim(object):
 
         
         self.initializationTime = time.time()
-        print("%s%s" % (timeStamp() ,  "  Starting Multistrand 2.1      (c) 2008-2017 Caltech      "))
+        print("%s%s" % (timeStamp() , "  Starting Multistrand 2.1      (c) 2008-2017 Caltech      "))
                 
 
         self.factory = optionsFactory
@@ -451,9 +453,12 @@ class MergeSim(object):
         self.terminationCriteria = None
 
 
-    def setTerminationCriteria(self, input):
+    # First argument is typically a FirstStepRate(),
+    # Second argument is the count of successfull trials before stopping the simulation 
+    def setTerminationCriteria(self, input, terminationCount = 25):
         
         self.terminationCriteria = input
+        self.terminationCriteria.terminationCount = terminationCount
         
     def timeSinceStart(self):
         
@@ -470,7 +475,7 @@ class MergeSim(object):
         
         self.numOfThreads = numOfThreads
 
-    def setOptionsFactory(self, optionsFactory):        # this can be re-done using an args[] obj.
+    def setOptionsFactory(self, optionsFactory):  # this can be re-done using an args[] obj.
         
         self.factory = optionsFactory
 
@@ -567,35 +572,35 @@ class MergeSim(object):
 
     def run(self):
         
+        
         # The input0 is always trails.
         self.trialsPerThread = int(math.ceil(float(self.factory.input0) / float(self.numOfThreads)))
         
         startTime = time.time()
         
-        
 
-        def doSim(myFactory, aFactory, list0, list1, seed, lock):
-                        
+        def doSim(myFactory, aFactory, list0, list1):
             
-            myOptions = myFactory.new(seed)
+            instanceSeed = self.seed + i * 3 * 5 * 19 + (time.time() * 10000000) % (math.pow(2, 32) - 1)
+            
+            myOptions = myFactory.new(self.seed)
             myOptions.num_simulations = self.trialsPerThread
         
             s = SimSystem(myOptions)
             s.start()
             
-            with lock:
-            
-                for result in myOptions.interface.results:
-                    
-                    list0.append(result)   
-                     
-                for endState in myOptions.interface.end_states:
-                    
-                    list1.append(endState)
-                                
-                if self.settings.debug:
-                    
-                    self.printTrajectories(myOptions)
+        
+            for result in myOptions.interface.results:
+                
+                list0.append(result)   
+                 
+            for endState in myOptions.interface.end_states:
+                
+                list1.append(endState)
+                            
+            if self.settings.debug:
+                
+                self.printTrajectories(myOptions)
                 
             if not(aFactory == None):
                  
@@ -609,41 +614,50 @@ class MergeSim(object):
         self.results = manager.list()
         self.endStates = manager.list()
         
-        resultsLock = multiprocessing.Lock()
-    
-        terminate = False
 
+        def getSimulation():
+            return multiprocessing.Process(target=doSim, args=(self.factory, self.aFactory, self.results, self.endStates))
+
+        # start the initial bulk
+        print(self.startSimMessage()) 
+        procs = []
+         
+        for i in range(self.numOfThreads):
+                       
+            p = getSimulation()
+            procs.append(p)
+            p.start()
+
+        # check for stop conditions, restart sims if needed
         while True:
-
-            print(self.startSimMessage()) 
-
-            procs = []
             
-            for i in range(self.numOfThreads):
-                
-                instanceSeed = self.seed + i * 3 * 5 * 19 + (time.time() * 10000000) % (math.pow(2, 16) - 1)
-                
-                          
-                p = multiprocessing.Process(target=doSim, args=(self.factory, self.aFactory, self.results, self.endStates, instanceSeed, resultsLock))
-                procs.append(p)
-                p.start()
+            if (self.terminationCriteria == None) or self.terminationCriteria.checkTermination(self.results):
+                break 
             
-                
+            # find and re-start finished threads             
             for i in range(self.numOfThreads):
-                procs[i].join()
+                if not procs[i].is_alive():
+                    
+                    procs[i].join()
+                    procs[i].terminate()
+                    
+                    procs[i] = getSimulation()
+                    procs[i].start()
+                    
+                    self.terminationCriteria.checkTermination(self.results,  True)
+            
+            time.sleep(1) 
+        
+        # default to a printout of the stopped stats
+        if not self.terminationCriteria == None:
+            self.terminationCriteria.checkTermination(self.results, True)
              
-            print("Done.  %.5f seconds \n" % (time.time() - startTime))
-            
-            
-            if self.terminationCriteria == None:
-                break   #exit loop.
-            else: 
-                if self.terminationCriteria.terminate(self.results):
-                    break
-                self.trialsPerThread = self.trialsPerThread * 2
-       
+        # join all running threads
+        for i in range(self.numOfThreads):
+            procs[i].join()
         
         self.runTime = (time.time() - startTime)
+        print("Done.  %.5f seconds \n" % (time.time() - startTime))
         
         return 0
 

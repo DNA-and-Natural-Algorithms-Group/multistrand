@@ -102,7 +102,7 @@ def makePlots():
 
    
     for seq in seqs:
-        doFirstStepMode(seq, numOfRuns= 500000)
+        doFirstStepMode(seq, numOfRuns= 5000)
      
 
 

@@ -31,7 +31,7 @@ def first_step_simulation(strand_seq, trials, T=20.0, material="DNA"):
       
     myMultistrand.setNumOfThreads(2)
     myMultistrand.setOptionsFactory2(getOptions, trials, material)
-    myMultistrand.setTerminationCriteria(FirstStepRate())
+    myMultistrand.setTerminationCriteria(FirstStepRate(), 1000)
     myMultistrand.run()
     dataset = myMultistrand.results
 
@@ -50,7 +50,7 @@ def compute(strand_seq):
 
 def computeAndWriteToCL(strand_seq, doBootstrap):
     
-    result = first_step_simulation(strand_seq, 800, T=25.0, material="DNA")
+    result = first_step_simulation(strand_seq, 8000, T=25.0, material="DNA")
     print("The hybridization rate of ", strand_seq, " and the reverse complement is ", "{:.2e}".format(result.k1()), " /M /s", sep="")
     
     # check for two-stateness
