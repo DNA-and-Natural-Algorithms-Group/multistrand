@@ -392,11 +392,8 @@ OpenLoop *StrandOrdering::checkIDList(class identList * stoplist, int id_count) 
  */
 
 int StrandOrdering::checkIDBound(char *id) {
+
 	orderingList *traverse = first;
-	//class identlist *id_traverse = stoplist;
-	//class OpenLoop *thingtoreturn;
-	//int num_matched = 0;
-	//if( id_count != count ) return NULL;
 
 	unsigned int loop;
 	int flag;
@@ -426,10 +423,11 @@ void StrandOrdering::generateFlatSequence(char **sequence, char **structure, cha
 
 	openInfo.upToDate = false;
 
-	for (index = 0; index < count; index++, traverse = traverse->next)
+	for (index = 0; index < count; index++, traverse = traverse->next){
 		totallength += traverse->size;
+	}
+
 	totallength += count - 1;
-	//  printf("Total sequence length w/breaks: %d\n",totallength);
 
 	*sequence = new char[totallength + 1];
 	*structure = new char[totallength + 1];

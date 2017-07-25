@@ -31,7 +31,7 @@ def first_step_simulation(strand_seq, trials, T=20.0, material="DNA"):
       
     myMultistrand.setNumOfThreads(2)
     myMultistrand.setOptionsFactory2(getOptions, trials, material)
-    myMultistrand.setTerminationCriteria(FirstStepRate(dataset=[]))
+    myMultistrand.setTerminationCriteria(FirstStepRate(), 25)
     myMultistrand.run()
     dataset = myMultistrand.results
 

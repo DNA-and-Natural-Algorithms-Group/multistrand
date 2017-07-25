@@ -20,7 +20,7 @@ from multistrand._options.interface import FirstStepResult
 ATIME_OUT = 10.0  
 
 
-myMultistrand.setNumOfThreads(12) 
+myMultistrand.setNumOfThreads(14) 
 
 def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
 
@@ -47,7 +47,7 @@ def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
         x.boltzmann_count = trials
         x.boltzmann_sample = True
          
-    
+    # the first argument has to be trials.
     def getOptions(trials, material, duplex_complex, dangle, success_stop_condition, failed_stop_condition):
     
         o = Options(simulation_mode="First Step", substrate_type=material, rate_method="Metropolis", 

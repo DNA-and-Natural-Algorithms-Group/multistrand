@@ -14,11 +14,6 @@ help@multistrand.org
 #include <vector>
 #include <iostream>
 
-#ifdef PROFILING
-#include "google/profiler.h"
-#include "google/heap-profiler.h"
-#endif
-
 int noInitialMoves = 0;
 int timeOut = 0;
 

@@ -2,6 +2,8 @@
 ## Often recurring experimental setups
 from multistrand.objects import Complex, Domain, Strand, StopCondition
 from multistrand.options import Options
+from setuptools.dist import sequence
+from reportlab.platypus.para import lengthSequence
 
 
 def setBoltzmann(complexIn, trials):
@@ -61,4 +63,7 @@ def hybridization(options, mySeq, myTrials=0, doFirstPassage=False):
     else :
 
         options.stop_conditions = [stopSuccess]         
+        
+        
+
  

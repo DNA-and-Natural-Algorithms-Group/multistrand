@@ -61,7 +61,6 @@ public:
 	// one exterior base type for the complex, and returns that Openloop, as well
 	// as the updated index into that open loop only, and a char * pointing at
 	// the particular base in the open loop.
-//	OpenLoop* getIndex(char type, int *index, char **location, bool);
 	OpenLoop* getIndex(JoinCriteria&, int, char **location, bool);
 
 	// i/o routines and accessors for strandcomplex
@@ -83,8 +82,8 @@ public:
 	orderingList* first = NULL;
 	orderingList* last = NULL;
 
-//	// similar to BaseCounter, we tally the half-contexts and bases for this strand ordering.
-//	// To be used to generate bimolecular rates.
+	// similar to BaseCounter, we tally the half-contexts and bases for this strand ordering.
+	// To be used to generate bimolecular rates.
 	OpenInfo openInfo;
 
 private:
