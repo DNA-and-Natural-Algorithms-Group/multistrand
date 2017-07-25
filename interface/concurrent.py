@@ -58,18 +58,17 @@ class FirstStepRate(basicRate):
     
     # return TRUE if enough correct trajectories have been simulated
     # Second argument controls printing during the testing
-    def checkTermination(self, dataset, prettyPrint = 'None'):
+    def checkTermination(self, datasetIn, printFlag):
         
-        newRates = FirstStepRate(dataset=dataset, concentration=1e-99)
+        newRates = FirstStepRate(dataset=datasetIn, concentration=1e-99)
 
-        if prettyPrint == 'A':
-            print str(newRates)
-        if prettyPrint == 'B':
+        if printFlag:
             print newRates.shortString()
         
         if newRates.nForward <= self.terminationCount:
             return False
         else: 
+            print str(newRates)
             return True
         
     
@@ -194,7 +193,7 @@ class FirstStepRate(basicRate):
         for i in range(N):
             # generate random between 0 and N-1
             index = int(np.floor(np.random.uniform(high=N)))
-            newDataset.append(self.dataset[i])
+            newDataset.append(self.dataset[index])
         
         return FirstStepRate(newDataset, concentration=self.z)
     
@@ -629,8 +628,8 @@ class MergeSim(object):
             instanceSeed =  self.seed + i * 3 * 5 * 19 + (time.time() * 10000) % (math.pow(2, 32) - 1)
             return multiprocessing.Process(target=doSim, args=(self.factory, self.aFactory, self.results, self.endStates, instanceSeed))
         
-        def shouldTerminate():
-            return (self.terminationCriteria == None) or self.terminationCriteria.checkTermination(self.results)
+        def shouldTerminate(printFlag):
+            return (self.terminationCriteria == None) or self.terminationCriteria.checkTermination(self.results, printFlag)
         
 
         # start the initial bulk
@@ -643,31 +642,35 @@ class MergeSim(object):
             procs.append(p)
             p.start()
 
+        sleepTime = 0.3
+        printFlag = False
+
         # check for stop conditions, restart sims if needed
         while True:
             
-            if shouldTerminate():
+            if shouldTerminate(printFlag):
                 break 
+
+            printFlag = False
             
             # find and re-start finished threads             
             for i in range(self.numOfThreads):
+                 
                 if not procs[i].is_alive():
-                    
+                     
                     procs[i].join()
                     procs[i].terminate()
+                     
+                    procs[i] = getSimulation()
+                    procs[i].start()
                     
-                    if not shouldTerminate() : 
+                    printFlag = True
                     
-                        procs[i] = getSimulation()
-                        procs[i].start()
-                        
-                        self.terminationCriteria.checkTermination(self.results,  'B')
-            
-            time.sleep(1) 
-        
-        # default to a printout of the stopped stats
-        if not self.terminationCriteria == None:
-            self.terminationCriteria.checkTermination(self.results, 'A')
+             
+            time.sleep(sleepTime)
+            if(sleepTime < 6.0):
+                sleepTime = sleepTime * 1.3
+    
              
         # join all running threads
         for i in range(self.numOfThreads):
