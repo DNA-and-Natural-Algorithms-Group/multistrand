@@ -28,14 +28,14 @@ myMultistrand.setNumOfThreads(4)
 
 
 def getOptions(trials, material, complex1, complex2,
-               success_stop_condition, failed_stop_condition, T=25):
+               success_stop_conditions, failed_stop_conditions, T=25):
 
     o = Options(simulation_mode="First Step", substrate_type=material,
                 rate_method="Metropolis", num_simulations=trials,
                 simulation_time=ATIME_OUT, temperature=T)
 
     o.start_state = [complex1, complex2]
-    o.stop_conditions = [success_stop_condition, failed_stop_condition]
+    o.stop_conditions = success_stop_conditions + failed_stop_conditions
     # Using new parameters.
     setArrheniusConstantsDNA23(o)
     return o
@@ -57,8 +57,8 @@ def calculateBaseOutputRate(gate, trials=500,
 
     myMultistrand.setOptionsFactory6(getOptions, trials, material,
                                      gate_complex, input_complex,
-                                     success_stop_condition,
-                                     failed_stop_condition, )
+                                     [success_stop_condition],
+                                     [failed_stop_condition], )
 
     myMultistrand.run()
     dataset = myMultistrand.results
@@ -92,9 +92,16 @@ def calculateGateGateLeak(gateA, gateB, trials=500, material="DNA"):
     gateA_complex = gateA.gate_output_complex
     gateB_complex = gateB.gate_output_complex
     leak_complex = gateB.output_complex
+    alt_leak_complex = gateA.gate_output_complex
+
     success_stop_condition = StopCondition(
         Options.STR_SUCCESS, [(leak_complex,
                                Options.dissocMacrostate, 0)])
+
+    alt_success_stop_condition = StopCondition(
+        Options.ALT_STR_SUCCESS, [(alt_leak_complex,
+                                   Options.dissocMacrostate, 0)])
+
     failed_stop_condition = StopCondition(
         Options.STR_FAILURE, [(gateA_complex,
                                Options.dissocMacrostate, 0)])
@@ -105,7 +112,8 @@ def calculateGateGateLeak(gateA, gateB, trials=500, material="DNA"):
 
     myMultistrand.setOptionsFactory6(getOptions, trials, material,
                                      gateA_complex, gateB_complex,
-                                     success_stop_condition,
+                                     [success_stop_condition,
+                                         alt_success_stop_condition],
                                      failed_stop_condition)
 
     myMultistrand.run()
@@ -114,7 +122,7 @@ def calculateGateGateLeak(gateA, gateB, trials=500, material="DNA"):
     print("Was success :  %i  " % myFSR.nForward)
     print("Was failure :  %i  " % myFSR.nReverse)
     # print("Total runs  :  %i  " % myFSR.nTotal)
-    print("k1          :  %.2f /M /s \n " % myFSR.k1())
+    print("k1 Alt         :  %.2f /M /s \n " % myFSR.k1Alt())
     return myFSR.k1()
 
 
@@ -136,8 +144,8 @@ def calculateGateFuelLeak(gate, trials=500, material="DNA"):
 
     myMultistrand.setOptionsFactory6(getOptions, trials, material,
                                      gate_complex, fuel_complex,
-                                     success_stop_condition,
-                                     failed_stop_condition)
+                                     [success_stop_condition],
+                                     [failed_stop_condition])
 
     myMultistrand.run()
     dataset = myMultistrand.results

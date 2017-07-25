@@ -23,6 +23,7 @@ class Options(object):
     STR_ALL = "ALL"
     STR_FAILURE = "FAILURE"
     STR_SUCCESS = "SUCCESS"
+    STR_ALT_SUCCESS = "ALT_SUCCESS"
 
     
     # rate_method

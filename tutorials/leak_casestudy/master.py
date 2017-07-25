@@ -12,7 +12,7 @@ from multistrand.objects import Domain
 from LeakToolkit import calculateBaseOutputRate, calculateGateGateLeak, calculateBaseFuelRate, calculateGateFuelLeak
 from SeesawGate import NormalSeesawGate, MismatchedSeesawGate
 
-DEFAULT_NUM_TRIALS = 200000
+DEFAULT_NUM_TRIALS = 2000
 
 SEQ1 = "ACCTCT"
 SEQ2 = "TCTTTA"
@@ -107,4 +107,4 @@ if __name__ == '__main__':
         domainList_A = [S1, S2, S5, S7, T]
         domainList_B = [S2, S5, S6, S7, T]
         setupNormalSimulations(DEFAULT_NUM_TRIALS, domainList_A, domainList_B)
-        setupMismatchSimulations(DEFAULT_NUM_TRIALS, domainList_A,  domainList_B)
+        
