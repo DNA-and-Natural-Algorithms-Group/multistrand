@@ -57,17 +57,21 @@ class FirstStepRate(basicRate):
         
     
     # return TRUE if enough correct trajectories have been simulated
-    def checkTermination(self, dataset, printInfo=False):
+    # Second argument controls printing during the testing
+    def checkTermination(self, dataset, prettyPrint = 'None'):
         
         newRates = FirstStepRate(dataset=dataset, concentration=1e-99)
-        
-        if printInfo:
-            print(str(newRates))
+
+        if prettyPrint == 'A':
+            print str(newRates)
+        if prettyPrint == 'B':
+            print newRates.shortString()
         
         if newRates.nForward <= self.terminationCount:
             return False
         else: 
             return True
+        
     
     def sumCollisionForward(self):
         return sum([np.float(i.collision_rate) for i in self.dataset if i.tag == Options.STR_SUCCESS])
@@ -237,11 +241,18 @@ class FirstStepRate(basicRate):
         if(self.nForward > 0):
             output += "k_eff    = %.2e  /M /s  \n   " % self.kEff()
         
-#         if(self.z > 1e-99):
-#             output += "[Opp.strand] =  %.2e  M\n" % self.z 
         
         return output
 
+    def shortString(self):
+        
+        output = "nForward = " + str(self.nForward) + " \n"
+        output += "nReverse = " + str(self.nReverse) + " \n \n"
+        
+        if(self.nForward > 0):
+            output += "k1       = %.2e  /M /s  \n" % self.k1()
+        
+        return output
 
 
 # Like migrationrate, but uses data from first passage time rather than first step mode
@@ -575,7 +586,6 @@ class MergeSim(object):
         
         # The input0 is always trails.
         self.trialsPerThread = int(math.ceil(float(self.factory.input0) / float(self.numOfThreads)))
-        
         startTime = time.time()
         
 
@@ -617,6 +627,9 @@ class MergeSim(object):
 
         def getSimulation():
             return multiprocessing.Process(target=doSim, args=(self.factory, self.aFactory, self.results, self.endStates))
+        
+        def shouldTerminate():
+            return (self.terminationCriteria == None) or self.terminationCriteria.checkTermination(self.results)
 
         # start the initial bulk
         print(self.startSimMessage()) 
@@ -631,7 +644,7 @@ class MergeSim(object):
         # check for stop conditions, restart sims if needed
         while True:
             
-            if (self.terminationCriteria == None) or self.terminationCriteria.checkTermination(self.results):
+            if shouldTerminate():
                 break 
             
             # find and re-start finished threads             
@@ -641,16 +654,18 @@ class MergeSim(object):
                     procs[i].join()
                     procs[i].terminate()
                     
-                    procs[i] = getSimulation()
-                    procs[i].start()
+                    if not shouldTerminate() : 
                     
-                    self.terminationCriteria.checkTermination(self.results,  True)
+                        procs[i] = getSimulation()
+                        procs[i].start()
+                        
+                        self.terminationCriteria.checkTermination(self.results,  'B')
             
             time.sleep(1) 
         
         # default to a printout of the stopped stats
         if not self.terminationCriteria == None:
-            self.terminationCriteria.checkTermination(self.results, True)
+            self.terminationCriteria.checkTermination(self.results, 'A')
              
         # join all running threads
         for i in range(self.numOfThreads):
