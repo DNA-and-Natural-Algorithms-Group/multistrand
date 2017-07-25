@@ -589,11 +589,10 @@ class MergeSim(object):
         startTime = time.time()
         
 
-        def doSim(myFactory, aFactory, list0, list1):
+        def doSim(myFactory, aFactory, list0, list1, instanceSeed):
             
-            instanceSeed = self.seed + i * 3 * 5 * 19 + (time.time() * 10000000) % (math.pow(2, 32) - 1)
             
-            myOptions = myFactory.new(self.seed)
+            myOptions = myFactory.new(instanceSeed)
             myOptions.num_simulations = self.trialsPerThread
         
             s = SimSystem(myOptions)
@@ -626,10 +625,13 @@ class MergeSim(object):
         
 
         def getSimulation():
-            return multiprocessing.Process(target=doSim, args=(self.factory, self.aFactory, self.results, self.endStates))
+            
+            instanceSeed =  self.seed + i * 3 * 5 * 19 + (time.time() * 10000) % (math.pow(2, 32) - 1)
+            return multiprocessing.Process(target=doSim, args=(self.factory, self.aFactory, self.results, self.endStates, instanceSeed))
         
         def shouldTerminate():
             return (self.terminationCriteria == None) or self.terminationCriteria.checkTermination(self.results)
+        
 
         # start the initial bulk
         print(self.startSimMessage()) 
