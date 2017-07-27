@@ -258,6 +258,9 @@ class FirstStepRate(basicRate):
         output = "nForward = " + str(self.nForward) + " \n"
         output += "nReverse = " + str(self.nReverse) + " \n \n"
         
+        if self.nForwardAlt > 0 :
+            output += "nForwardAlt = " + str(self.nForwardAlt)
+        
         if(self.nForward > 0):
             output += "k1       = %.2e  /M /s  \n" % self.k1()
         
@@ -628,7 +631,7 @@ class MergeSim(object):
         
         
 
-        def doSim(myFactory, aFactory, list0, list1, instanceSeed):
+        def doSim(myFactory, aFactory, list0, list1, instanceSeed, lock):
             
             
             myOptions = myFactory.new(instanceSeed)
@@ -637,18 +640,19 @@ class MergeSim(object):
             s = SimSystem(myOptions)
             s.start()
             
-        
-            for result in myOptions.interface.results:
-                
-                list0.append(result)   
-                 
-            for endState in myOptions.interface.end_states:
-                
-                list1.append(endState)
-                            
-            if self.settings.debug:
-                
-                self.printTrajectories(myOptions)
+            with lock:
+    
+                for result in myOptions.interface.results:
+                    
+                    list0.append(result)   
+                     
+                for endState in myOptions.interface.end_states:
+                    
+                    list1.append(endState)
+                                
+                if self.settings.debug:
+                    
+                    self.printTrajectories(myOptions)
                 
             if not(aFactory == None):
                  
@@ -656,17 +660,17 @@ class MergeSim(object):
 
         
         assert(self.numOfThreads > 0)
+
+        myLock = multiprocessing.Lock()
         
-        manager = multiprocessing.Manager()
-        
-        self.results = manager.list()
-        self.endStates = manager.list()
+        self.results = []
+        self.endStates = []
         
 
         def getSimulation():
             
             instanceSeed =  self.seed + i * 3 * 5 * 19 + (time.time() * 10000) % (math.pow(2, 32) - 1)
-            return multiprocessing.Process(target=doSim, args=(self.factory, self.aFactory, self.results, self.endStates, instanceSeed))
+            return multiprocessing.Process(target=doSim, args=(self.factory, self.aFactory, self.results, self.endStates, instanceSeed, myLock))
         
         def shouldTerminate(printFlag):
             return (self.terminationCriteria == None) or self.terminationCriteria.checkTermination(self.results, printFlag)
