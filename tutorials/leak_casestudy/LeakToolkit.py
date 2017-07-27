@@ -29,7 +29,7 @@ ATIME_OUT = 10.0
 #lets see the error bars I get here....
 MINIMUM_FORWARD = 3
 A_CONCENTRATION = 50e-9
-INCREMENT_TRIALS = 100
+INCREMENT_TRIALS = 1000
 DNA = "DNA"
 
 

@@ -631,7 +631,7 @@ class MergeSim(object):
         
         
 
-        def doSim(myFactory, aFactory, list0, list1, instanceSeed, lock):
+        def doSim(myFactory, aFactory, list0, list1, instanceSeed):
             
             
             myOptions = myFactory.new(instanceSeed)
@@ -640,19 +640,18 @@ class MergeSim(object):
             s = SimSystem(myOptions)
             s.start()
             
-            with lock:
-    
-                for result in myOptions.interface.results:
-                    
-                    list0.append(result)   
-                     
-                for endState in myOptions.interface.end_states:
-                    
-                    list1.append(endState)
-                                
-                if self.settings.debug:
-                    
-                    self.printTrajectories(myOptions)
+
+            for result in myOptions.interface.results:
+                
+                list0.append(result)   
+                 
+            for endState in myOptions.interface.end_states:
+                
+                list1.append(endState)
+                            
+            if self.settings.debug:
+                
+                self.printTrajectories(myOptions)
                 
             if not(aFactory == None):
                  
@@ -661,16 +660,16 @@ class MergeSim(object):
         
         assert(self.numOfThreads > 0)
 
-        myLock = multiprocessing.Lock()
+        manager = multiprocessing.Manager()
         
-        self.results = []
-        self.endStates = []
+        self.results = manager.list()
+        self.endStates = manager.list()
         
 
         def getSimulation():
             
             instanceSeed =  self.seed + i * 3 * 5 * 19 + (time.time() * 10000) % (math.pow(2, 32) - 1)
-            return multiprocessing.Process(target=doSim, args=(self.factory, self.aFactory, self.results, self.endStates, instanceSeed, myLock))
+            return multiprocessing.Process(target=doSim, args=(self.factory, self.aFactory, self.results, self.endStates, instanceSeed))
         
         def shouldTerminate(printFlag):
             return (self.terminationCriteria == None) or self.terminationCriteria.checkTermination(self.results, printFlag)
@@ -719,6 +718,10 @@ class MergeSim(object):
         # join all running threads
         for i in range(self.numOfThreads):
             procs[i].join()
+        
+        self.results = list(self.results)
+        self.endStates = list(self.endStates)
+        
         
         self.runTime = (time.time() - startTime)
         print("Done.  %.5f seconds \n" % (time.time() - startTime))
