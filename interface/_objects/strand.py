@@ -28,7 +28,7 @@ class Strand(object):
                 self.domain_list=[]
                 for x in domains:
                     if isinstance(x, Strand):  
-                        print "Attemped to add a strand within the domain list"
+                        #print "Attemped to add a strand within the domain list"
                         self.domain_list.extend(x.domain_list)
                     else:
                         #print "Valid domain"

@@ -10,21 +10,30 @@
 import sys
 from os.path import expanduser
 
-HOME = expanduser("~/workspace/multistrand")
-MODEL = expanduser("~/workspace/multistrandPy")
-sys.path.append(MODEL)
-sys.path.append(HOME)
+dirs = ["~/workspace/multistrand", "~/workspace/multistrandPy",
+        "~/multistrand", "~/multistrandPy"]
+for x in dirs:
+    i = expanduser(x)
+    sys.path.append(i)
 
-from multistrand.concurrent import myMultistrand, FirstStepRate
-from multistrand.objects import StopCondition, Domain, Complex, Strand
+from multistrand.concurrent import myMultistrand, FirstStepRate, Bootstrap
+from multistrand.objects import StopCondition
 from multistrand.options import Options
 from multistrandPy.msArrhenius import setArrheniusConstantsDNA23
+from SeesawGate import SeesawRates
 import numpy as np
 
 
 ATIME_OUT = 10.0
+#lets see the error bars I get here....
+MINIMUM_FORWARD = 3
+A_CONCENTRATION = 50e-9
+INCREMENT_TRIALS = 500
+DNA = "DNA"
 
-myMultistrand.setNumOfThreads(4)
+
+myMultistrand.setNumOfThreads(2)
+#myMultistrand.setTerminationCriteria(FirstStepRate(), MINIMUM_FORWARD)
 
 
 def getOptions(trials, material, complex1, complex2,
@@ -35,17 +44,23 @@ def getOptions(trials, material, complex1, complex2,
                 simulation_time=ATIME_OUT, temperature=T)
 
     o.start_state = [complex1, complex2]
-    o.stop_conditions = success_stop_conditions + failed_stop_conditions
+    conds = []
+
+    for x in [success_stop_conditions, failed_stop_conditions]:
+        try:
+            # x is a list
+            conds += x
+        except TypeError:
+            # x is a single input
+            conds.append(x)
+
+    o.stop_conditions = conds
     # Using new parameters.
     setArrheniusConstantsDNA23(o)
     return o
 
 
-def calculateBaseOutputRate(gate, trials=500,
-                            material="DNA"):
-    output_complex = gate.output_complex
-    input_complex = gate.input_complex
-    gate_complex = gate.gate_output_complex
+def calculateGateInputRate(gate_complex, input_complex, output_complex, trials=INCREMENT_TRIALS,  alt_output_complex=None):
     success_stop_condition = StopCondition(
         Options.STR_SUCCESS, [(output_complex, Options.dissocMacrostate, 0)])
     failed_stop_condition = StopCondition(
@@ -55,51 +70,64 @@ def calculateBaseOutputRate(gate, trials=500,
         x.boltzmann_count = trials
         x.boltzmann_sample = True
 
-    myMultistrand.setOptionsFactory6(getOptions, trials, material,
-                                     gate_complex, input_complex,
-                                     [success_stop_condition],
-                                     [failed_stop_condition], )
+    try:
+        if alt_output_complex is None:
+            raise TypeError
+        alt_success_stop_condition = StopCondition(
+            Options.STR_ALT_SUCCESS, [(output_complex, Options.dissocMacrostate, 0)])
+        myMultistrand.setOptionsFactory6(getOptions, trials, DNA,
+                                         gate_complex, input_complex,
+                                         [success_stop_condition,
+                                             alt_success_stop_condition],
+                                         [failed_stop_condition])
+    except TypeError:
+        myMultistrand.setOptionsFactory6(getOptions, trials, DNA,
+                                         gate_complex, input_complex,
+                                         [success_stop_condition],
+                                         [failed_stop_condition])
 
     myMultistrand.run()
     dataset = myMultistrand.results
-    myFSR = FirstStepRate(dataset, 5e-9)
-    print("Was success :  %i  " % myFSR.nForward)
-    print("Was failure :  %i  " % myFSR.nReverse)
-    # print("Total runs  :  %i  " % myFSR.nTotal)
-    print("k1          :  %.2f /M /s \n " % myFSR.k1())
-    return myFSR.k1()
+    rates = SeesawRates(dataset)
+    print rates
+    return rates
 
 
-def calculateBaseFuelRate(gate, trials=500,
-                          material="DNA"):
-    # Not fully sure if this will work, but structure of the reaction
-    # is similar between the two.
-    k = calculateBaseOutputRate(gate, trials, material)
-    return k
+def calculateBaseOutputRate(gate, trials=INCREMENT_TRIALS):
+    rates = calculateGateInputRate(
+        gate.gate_output_complex, gate.input_complex, gate.output_complex, trials)
+    return rates
 
 
-def calculateBaseThresholdRate(gate, trials=500, material="DNA"):
-    # MS: Similarly to above, this needs to be tested - I am unsure as
-    #     to whether it will work
-    k = calculateBaseOutputRate(gate, trials, material)
-    return k
+def calculateBaseFuelRate(gate, trials=INCREMENT_TRIALS,
+                          ):
+    rates = calculateGateInputRate(
+        gate.gate_input_complex, gate.fuel_complex, gate.input_complex, trials)
+    return rates
 
 
-# MS: Please note that this method assume that the output strand
-#     of gateB, note gate A is released and returns that respective rate
-def calculateGateGateLeak(gateA, gateB, trials=500, material="DNA"):
+def calculateBaseThresholdRate(gate, trials=INCREMENT_TRIALS):
+    rates = calculateGateInputRate(
+        gate.threshold_complex, gate.input_complex, gate.threshold_free_waste_complex, trials)
+    return rates
+
+
+# MS: Adapted to return two rates within the rates object returned:
+#     Both the rate for one complex being released but also the other,
+#     as an alternative success condition for first step mode
+def calculateGateGateLeak(gateA, gateB, trials=INCREMENT_TRIALS, material="DNA"):
     # define stop conditions
     gateA_complex = gateA.gate_output_complex
     gateB_complex = gateB.gate_output_complex
     leak_complex = gateB.output_complex
-    alt_leak_complex = gateA.gate_output_complex
+    alt_leak_complex = gateA.output_complex
 
     success_stop_condition = StopCondition(
         Options.STR_SUCCESS, [(leak_complex,
                                Options.dissocMacrostate, 0)])
 
     alt_success_stop_condition = StopCondition(
-        Options.ALT_STR_SUCCESS, [(alt_leak_complex,
+        Options.STR_ALT_SUCCESS, [(alt_leak_complex,
                                    Options.dissocMacrostate, 0)])
 
     failed_stop_condition = StopCondition(
@@ -114,44 +142,16 @@ def calculateGateGateLeak(gateA, gateB, trials=500, material="DNA"):
                                      gateA_complex, gateB_complex,
                                      [success_stop_condition,
                                          alt_success_stop_condition],
-                                     failed_stop_condition)
-
-    myMultistrand.run()
-    dataset = myMultistrand.results
-    myFSR = FirstStepRate(dataset, 5e-9)
-    print("Was success :  %i  " % myFSR.nForward)
-    print("Was failure :  %i  " % myFSR.nReverse)
-    # print("Total runs  :  %i  " % myFSR.nTotal)
-    print("k1 Alt         :  %.2f /M /s \n " % myFSR.k1Alt())
-    return myFSR.k1()
-
-
-# MS: Calculates the leak between a gate and its fuel
-def calculateGateFuelLeak(gate, trials=500, material="DNA"):
-    gate_complex = gate.gate_output_complex
-    fuel_complex = gate.fuel_complex
-    leak_complex = gate.output_complex
-    success_stop_condition = StopCondition(
-        Options.STR_SUCCESS, [(leak_complex,
-                               Options.dissocMacrostate, 0)])
-    failed_stop_condition = StopCondition(
-        Options.STR_FAILURE, [(fuel_complex,
-                               Options.dissocMacrostate, 0)])
-
-    for x in [gate_complex, fuel_complex]:
-        x.boltzmann_count = trials
-        x.boltzmann_sample = True
-
-    myMultistrand.setOptionsFactory6(getOptions, trials, material,
-                                     gate_complex, fuel_complex,
-                                     [success_stop_condition],
                                      [failed_stop_condition])
 
     myMultistrand.run()
     dataset = myMultistrand.results
-    myFSR = FirstStepRate(dataset, 5e-9)
-    print("Was success :  %i  " % myFSR.nForward)
-    print("Was failure :  %i  " % myFSR.nReverse)
-    # print("Total runs  :  %i  " % myFSR.nTotal)
-    print("k1          :  %.2f /M /s \n " % myFSR.k1())
-    return myFSR.k1()
+    rates = SeesawRates(dataset)
+    return rates
+
+
+# MS: Calculates the leak between a gate and its fuel
+def calculateGateFuelLeak(gate, trials=INCREMENT_TRIALS, material="DNA"):
+    rates = calculateGateInputRate(
+        gate.gate_output_complex, gate.fuel_complex, gate.output_complex, trials)
+    return rates
