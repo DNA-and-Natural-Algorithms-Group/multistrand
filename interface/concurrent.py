@@ -6,6 +6,7 @@ This module has two parts.
 """
 import operator, os
 import time, datetime, math
+import traceback
 
 from multistrand.options import Options
 import multiprocessing
@@ -14,7 +15,7 @@ import numpy as np
 from multistrand.system import SimSystem 
 
 
-MINIMUM_RATE = 1e-36;
+MINIMUM_RATE = 1e-36
 
 
 # # Rate-computation classes start here
@@ -52,6 +53,7 @@ class FirstStepRate(basicRate):
         # Pre-computing some metrics
         self.nForward = sum([i.tag == Options.STR_SUCCESS  for i in self.dataset])
         self.nReverse = sum([i.tag == Options.STR_FAILURE  for i in self.dataset])
+        self.nForwardAlt = sum([i.tag == Options.STR_ALT_SUCCESS  for i in self.dataset])
                          
         self.nTotal = len(self.dataset)
         
@@ -65,7 +67,7 @@ class FirstStepRate(basicRate):
         if printFlag:
             print newRates.shortString()
         
-        if newRates.nForward <= self.terminationCount:
+        if newRates.nForward + newRates.nForwardAlt <= self.terminationCount:
             return False
         else: 
             print str(newRates)
@@ -74,6 +76,9 @@ class FirstStepRate(basicRate):
     
     def sumCollisionForward(self):
         return sum([np.float(i.collision_rate) for i in self.dataset if i.tag == Options.STR_SUCCESS])
+
+    def sumCollisionForwardAlt(self):
+        return sum([np.float(i.collision_rate) for i in self.dataset if i.tag == Options.STR_ALT_SUCCESS])
     
     def sumCollisionReverse(self):
         return sum([np.float(i.collision_rate) for i in self.dataset if i.tag == Options.STR_FAILURE])
@@ -102,7 +107,12 @@ class FirstStepRate(basicRate):
             return MINIMUM_RATE
         else:
             return self.sumCollisionForward() / np.float(self.nTotal) 
-        
+
+    def k1Alt(self):
+        if self.nForwardAlt == 0:
+            return MINIMUM_RATE
+        else:
+            return self.sumCollisionForwardAlt() / np.float(self.nTotal) 
     
     def k1Prime(self):
         
@@ -248,6 +258,9 @@ class FirstStepRate(basicRate):
         output = "nForward = " + str(self.nForward) + " \n"
         output += "nReverse = " + str(self.nReverse) + " \n \n"
         
+        if self.nForwardAlt > 0 :
+            output += "nForwardAlt = " + str(self.nForwardAlt)
+        
         if(self.nForward > 0):
             output += "k1       = %.2e  /M /s  \n" % self.k1()
         
@@ -326,19 +339,20 @@ class FirstPassageRate(basicRate):
 class Bootstrap():
     
     
-    def __init__(self, myRates, concentration=None, computek1=False):
+    def __init__(self, myRates, concentration=None, computek1=False, computek1Alt=False):
         
         self.myRates = myRates
         
-        self.process(concentration, computek1)
+        self.process(concentration, computek1, computek1Alt)
         
-    def process(self, concentration, computek1):
+    def process(self, concentration, computek1, computek1Alt):
         
         # # Resample the dataset
         # FD: This is more expensive than strictly required. 
         # FD: Note that this computes the CI for kEff().
         
         self.effectiveRates = list()
+        self.effectiveAltRates = list()
         self.logEffectiveRates = list()
         self.N = 400
         
@@ -347,19 +361,29 @@ class Bootstrap():
         
         for i in range(self.N):
             
+            # create a new sample, with replacement
             sample = self.myRates.resample()
             
+            # compute k1
             if(computek1):
                 rate = float(sample.k1())
             else: 
                 rate = float(sample.kEff())
-                
+
             self.effectiveRates.append(rate)
-            
+
+            if(computek1Alt):
+                # print "we did resample here"
+                rate = float(sample.k1Alt())
+                self.effectiveAltRates.append(rate)
+                
             del sample
                 
+        # sort for percentiles
         self.effectiveRates.sort(cmp=None, key=None, reverse=False)
-        
+        self.effectiveAltRates.sort(cmp=None, key=None, reverse=False)
+
+        # Yet to generate log alt rates
         for rate in self.effectiveRates:
             self.logEffectiveRates.append(np.log10(rate))
         
@@ -371,6 +395,17 @@ class Bootstrap():
         high = self.effectiveRates[int(0.975 * self.N)]
         
         return low, high
+
+    def ninetyFivePercentilesAlt(self):
+        
+        try:
+            low = self.effectiveAltRates[int(0.025 * self.N)]
+            high = self.effectiveAltRates[int(0.975 * self.N)]
+            return low, high
+        except Exception:
+            return 0,0
+        
+        
     
     def standardDev(self):
         
@@ -586,29 +621,38 @@ class MergeSim(object):
         # The input0 is always trails.
         self.trialsPerThread = int(math.ceil(float(self.factory.input0) / float(self.numOfThreads)))
         startTime = time.time()
+
+        
+        try:
+            for i in self.factory.new(0).stop_conditions:
+                print i
+        except Exception:
+                print "No stop conditions defined"
+        
         
 
-        def doSim(myFactory, aFactory, list0, list1, instanceSeed):
+        def doSim(myFactory, aFactory, list0, list1, instanceSeed, lock):
             
             
             myOptions = myFactory.new(instanceSeed)
             myOptions.num_simulations = self.trialsPerThread
-        
+
             s = SimSystem(myOptions)
             s.start()
             
-        
-            for result in myOptions.interface.results:
-                
-                list0.append(result)   
-                 
-            for endState in myOptions.interface.end_states:
-                
-                list1.append(endState)
-                            
-            if self.settings.debug:
-                
-                self.printTrajectories(myOptions)
+            with lock:
+    
+                for result in myOptions.interface.results:
+                    
+                    list0.append(result)   
+                     
+                for endState in myOptions.interface.end_states:
+                    
+                    list1.append(endState)
+                                
+                if self.settings.debug:
+                    
+                    self.printTrajectories(myOptions)
                 
             if not(aFactory == None):
                  
@@ -616,17 +660,17 @@ class MergeSim(object):
 
         
         assert(self.numOfThreads > 0)
+
+        myLock = multiprocessing.Lock()
         
-        manager = multiprocessing.Manager()
-        
-        self.results = manager.list()
-        self.endStates = manager.list()
+        self.results = []
+        self.endStates = []
         
 
         def getSimulation():
             
             instanceSeed =  self.seed + i * 3 * 5 * 19 + (time.time() * 10000) % (math.pow(2, 32) - 1)
-            return multiprocessing.Process(target=doSim, args=(self.factory, self.aFactory, self.results, self.endStates, instanceSeed))
+            return multiprocessing.Process(target=doSim, args=(self.factory, self.aFactory, self.results, self.endStates, instanceSeed, myLock))
         
         def shouldTerminate(printFlag):
             return (self.terminationCriteria == None) or self.terminationCriteria.checkTermination(self.results, printFlag)

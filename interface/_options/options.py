@@ -23,6 +23,7 @@ class Options(object):
     STR_ALL = "ALL"
     STR_FAILURE = "FAILURE"
     STR_SUCCESS = "SUCCESS"
+    STR_ALT_SUCCESS = "ALT_SUCCESS"
 
     
     # rate_method
@@ -101,7 +102,7 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         #                                                #
         #                                                #
         ##################################################
-
+        
         self.errorlog = []
         """ Keeps lines relating to possible errors or warnings that
         should be reported to the user. Usually issues relating to the

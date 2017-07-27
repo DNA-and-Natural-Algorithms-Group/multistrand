@@ -24,6 +24,13 @@ class StopCondition(object):
         self.tag = str(tag)
         self.complex_items = complex_items  # List of (complex, stoptype, count) tuples
 
+    def __str__(self):
+        str_ret = "Stop Condition, tag:" + self.tag
+        for i, val in enumerate(self.complex_items):
+            str_ret +=  "\nStructure %d: %s\n" % (i, val[0].structure) 
+
+        return str_ret
+
 
 class Macrostate( StopCondition ):
     pass
