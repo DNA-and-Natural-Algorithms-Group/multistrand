@@ -701,7 +701,6 @@ class MergeSim(object):
             procs.append(p)
             p.start()
 
-        sleepTime = 0.3
         printFlag = False
 
         # check for stop conditions, restart sims if needed
@@ -726,9 +725,7 @@ class MergeSim(object):
                     printFlag = True
                     
              
-            time.sleep(sleepTime)
-            if(sleepTime < 3.0):
-                sleepTime = sleepTime * 1.3
+            time.sleep(0.7)
     
              
         # join all running threads
