@@ -245,8 +245,8 @@ class Complex(object):
         # timed a 100 count at ~ .1s and 10 and 1 counts were almost
         # always around .08s, so at least in this range there's a lot more
         # call overhead than generation time being used.
-        if self._boltzmann_sizehint > 5000:
-            count = 5000
+        if self._boltzmann_sizehint > 200:
+            count = 200
         elif self._boltzmann_sizehint >= 1:
             count = self._boltzmann_sizehint
         else:
@@ -308,17 +308,11 @@ class Complex(object):
         f = open(tmp.name, "rt")
         lines = f.readlines()
         
-        #print("Lines start \n")
-        #print (lines)
-        
         f.close()
         os.remove(tmp.name) # was created by us [NamedTemporaryFile] and
                             # used by the sampler, thus we need to clean it up.
         if not ("NUPACK 3.0" in lines[0] or 'NUPACK 3.2.0' in lines[0]):
             raise IOError("Boltzmann sample function is not up to date. NUPACK 3.2.0 or greater needed.")
-        
-#         print("Lines[14] start \n")
-#         print (lines[14:])
         
         self._boltzmann_queue = lines[14:]
         if len(self._boltzmann_queue) < 1:
