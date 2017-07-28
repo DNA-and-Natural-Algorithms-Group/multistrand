@@ -12,7 +12,7 @@ for x in dirs:
 from LeakToolkit import calculateBaseOutputRate, calculateGateGateLeak, calculateBaseFuelRate, calculateGateFuelLeak
 from SeesawGate import NormalSeesawGate, MismatchedSeesawGate
 
-USE_SHORT_DOMAINS = True
+USE_SHORT_DOMAINS = False
 
 SHORT_SEQ1 = "ACCTCT"
 SHORT_SEQ2 = "TCTTTA"
@@ -54,14 +54,6 @@ def calcMetrics(gateA, gateB):
     print "Finished Rates \n"
     return rates
 
-def setupNormalSimulations(trials, domainListA, domainListB):
-
-    gateA = NormalSeesawGate(*domainListA)
-    gateB = NormalSeesawGate(*domainListB)
-
-    calculateGateGateLeak(gateA, gateB)
-
-
 def runMismatchSimulations(domainListA, domainListB):
     # 'recognition domain' sequence length
     recog_len = len(domainListA[1])
@@ -101,7 +93,8 @@ def outputRates(rates, time_taken):
     try:
         rates_measured = len(rates[0])
         param_measured = len(rates)
-        with open("data.txt", "w") as output:
+        file_name = "data{}.txt".format(str(datetime.now()))
+        with open(file_name, "w") as output:
             output.write("Dataset Created On: {}\n Took {} s\n".format(
                 str(datetime.now()), time_taken ))
             for i in range(0, rates_measured):
@@ -125,9 +118,9 @@ def outputRates(rates, time_taken):
 # The actual main method
 if __name__ == '__main__':
     print "Initializing Example 3"
-    if USE_SHORT_DOMAINS:
+    if not USE_SHORT_DOMAINS:
         start_time = time.time()
-        data = runMismatchSimulations(SHORT_GATE_A_SEQ, SHORT_GATE_B_SEQ)
+        data = runMismatchSimulations(LONG_GATE_A_SEQ, LONG_GATE_B_SEQ)
         time_taken = time.time() - start_time
         outputRates(data, time_taken)
     else:
