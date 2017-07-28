@@ -60,14 +60,20 @@ class FirstStepRate(basicRate):
     
     # return TRUE if enough correct trajectories have been simulated
     # Second argument controls printing during the testing
-    def checkTermination(self, datasetIn, printFlag):
+    def checkTermination(self, datasetIn, printFlag, nForwardIn = None):
+
+        if not nForwardIn == None:
+            if printFlag:
+                print "nForward = %i \n" % nForwardIn.value
+            
+            return nForwardIn.value >= self.terminationCount
         
         newRates = FirstStepRate(dataset=datasetIn, concentration=1e-99)
 
         if printFlag:
             print newRates.shortString()
         
-        if newRates.nForward + newRates.nForwardAlt <= self.terminationCount:
+        if newRates.nForward + newRates.nForwardAlt < self.terminationCount:
             return False
         else: 
             print str(newRates)
@@ -610,8 +616,12 @@ class MergeSim(object):
     def startSimMessage(self):
         
         # python2 style printing because of an compilation issue with web.py        
-        welcomeMessage = ''.join(["Computing ", str(self.numOfThreads * self.trialsPerThread) , " trials, using " , str(self.numOfThreads), " threads .. " ])
+        welcomeMessage = ''.join(["Computing ", str(self.numOfThreads * self.trialsPerThread) , " trials, using " , str(self.numOfThreads), " threads .. \n" ])
         
+        if not self.terminationCriteria == None:
+            
+            welcomeMessage += " .. and rolling " + str(self.trialsPerThread)
+            welcomeMessage += " trajectories per thread until " + str(self.terminationCriteria.terminationCount) + " successful trials occur. \n"                    
         return welcomeMessage
 
 
@@ -631,7 +641,7 @@ class MergeSim(object):
         
         
 
-        def doSim(myFactory, aFactory, list0, list1, instanceSeed):
+        def doSim(myFactory, aFactory, list0, list1, instanceSeed, nForwardIn):
             
             
             myOptions = myFactory.new(instanceSeed)
@@ -640,7 +650,12 @@ class MergeSim(object):
             s = SimSystem(myOptions)
             s.start()
             
-
+            
+            if myOptions.simulation_mode == Options.firstStep :
+                
+                myFSR = FirstStepRate(myOptions.interface.results)
+                nForwardIn.value +=  myFSR.nForward + myFSR.nForwardAlt
+                
             for result in myOptions.interface.results:
                 
                 list0.append(result)   
@@ -664,15 +679,16 @@ class MergeSim(object):
         
         self.results = manager.list()
         self.endStates = manager.list()
+        self.nForward = manager.Value('i',0)
         
 
         def getSimulation():
             
             instanceSeed =  self.seed + i * 3 * 5 * 19 + (time.time() * 10000) % (math.pow(2, 32) - 1)
-            return multiprocessing.Process(target=doSim, args=(self.factory, self.aFactory, self.results, self.endStates, instanceSeed))
+            return multiprocessing.Process(target=doSim, args=(self.factory, self.aFactory, self.results, self.endStates, instanceSeed, self.nForward))
         
         def shouldTerminate(printFlag):
-            return (self.terminationCriteria == None) or self.terminationCriteria.checkTermination(self.results, printFlag)
+            return (self.terminationCriteria == None) or self.terminationCriteria.checkTermination(self.results, printFlag, self.nForward)
         
 
         # start the initial bulk
@@ -711,7 +727,7 @@ class MergeSim(object):
                     
              
             time.sleep(sleepTime)
-            if(sleepTime < 6.0):
+            if(sleepTime < 3.0):
                 sleepTime = sleepTime * 1.3
     
              
@@ -722,6 +738,13 @@ class MergeSim(object):
         self.results = list(self.results)
         self.endStates = list(self.endStates)
         
+        myOptions = self.factory.new(77) #only to get concentration
+        if myOptions.join_concentration == None:
+            newRates = FirstStepRate(dataset=self.results, concentration=50e-9)
+        else:
+            newRates = FirstStepRate(dataset=self.results, concentration=myOptions.join_concentration)
+            
+        print str(newRates)
         
         self.runTime = (time.time() - startTime)
         print("Done.  %.5f seconds \n" % (time.time() - startTime))
