@@ -19,7 +19,8 @@ for x in dirs:
 from multistrand.concurrent import myMultistrand, FirstStepRate, Bootstrap
 from multistrand.objects import StopCondition
 from multistrand.options import Options
-from multistrandPy.msArrhenius import setArrheniusConstantsDNA23
+from msArrhenius import setArrheniusConstantsDNA23
+
 from SeesawGate import SeesawRates
 import numpy as np
 
@@ -28,7 +29,7 @@ ATIME_OUT = 10.0
 #lets see the error bars I get here....
 MINIMUM_FORWARD = 3
 A_CONCENTRATION = 50e-9
-INCREMENT_TRIALS = 500
+INCREMENT_TRIALS = 1000
 DNA = "DNA"
 
 

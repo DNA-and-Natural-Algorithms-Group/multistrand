@@ -1,4 +1,4 @@
-import sys
+import sys, time
 from os.path import expanduser
 from datetime import datetime
 
@@ -93,17 +93,17 @@ def runMismatchSimulations(domainListA, domainListB):
 
         mismatched_rates.append(rates)
 
-    outputRates(mismatched_rates)
+    return mismatched_rates
 
 
-def outputRates(rates):
+def outputRates(rates, time_taken):
     # this method assumes that the rates object is a 2D array
     try:
         rates_measured = len(rates[0])
         param_measured = len(rates)
         with open("data.txt", "w") as output:
-            output.write("Dataset Created On: {}\n".format(
-                str(datetime.now())))
+            output.write("Dataset Created On: {}\n Took {} s\n".format(
+                str(datetime.now()), time_taken ))
             for i in range(0, rates_measured):
                 output_str = ""
                 #output.write("writing rate " + str(i) + "\n")
@@ -127,7 +127,10 @@ if __name__ == '__main__':
     print "Initializing Example 3"
     
     if USE_SHORT_DOMAINS:
-        runMismatchSimulations(SHORT_GATE_A_SEQ, SHORT_GATE_B_SEQ)
+        start_time = time.time()
+        data = runMismatchSimulations(SHORT_GATE_A_SEQ, SHORT_GATE_B_SEQ)
+        time_taken = time.time() - start_time
+        outputRates(data, time_taken)
     else:
         gateA = MismatchedSeesawGate(*LONG_GATE_A_SEQ)
         gateB = MismatchedSeesawGate(*LONG_GATE_A_SEQ)

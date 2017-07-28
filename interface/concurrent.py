@@ -258,6 +258,9 @@ class FirstStepRate(basicRate):
         output = "nForward = " + str(self.nForward) + " \n"
         output += "nReverse = " + str(self.nReverse) + " \n \n"
         
+        if self.nForwardAlt > 0 :
+            output += "nForwardAlt = " + str(self.nForwardAlt)
+        
         if(self.nForward > 0):
             output += "k1       = %.2e  /M /s  \n" % self.k1()
         
@@ -637,7 +640,7 @@ class MergeSim(object):
             s = SimSystem(myOptions)
             s.start()
             
-        
+
             for result in myOptions.interface.results:
                 
                 list0.append(result)   
@@ -656,7 +659,7 @@ class MergeSim(object):
 
         
         assert(self.numOfThreads > 0)
-        
+
         manager = multiprocessing.Manager()
         
         self.results = manager.list()
@@ -715,6 +718,10 @@ class MergeSim(object):
         # join all running threads
         for i in range(self.numOfThreads):
             procs[i].join()
+        
+        self.results = list(self.results)
+        self.endStates = list(self.endStates)
+        
         
         self.runTime = (time.time() - startTime)
         print("Done.  %.5f seconds \n" % (time.time() - startTime))
