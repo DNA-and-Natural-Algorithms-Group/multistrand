@@ -125,6 +125,7 @@ def outputRates(rates):
 # The actual main method
 if __name__ == '__main__':
     print "Initializing Example 3"
+    
     if USE_SHORT_DOMAINS:
         runMismatchSimulations(SHORT_GATE_A_SEQ, SHORT_GATE_B_SEQ)
     else:
