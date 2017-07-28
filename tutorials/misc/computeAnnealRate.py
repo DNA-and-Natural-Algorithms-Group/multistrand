@@ -3,7 +3,7 @@ from __future__ import print_function
 from multistrand.concurrent import myMultistrand, FirstStepRate, Bootstrap
 from multistrand.experiment import standardOptions, hybridization
 
-import sys
+import sys, time
 
 A_CONCENTRATION = 50e-9;
 
@@ -31,7 +31,7 @@ def first_step_simulation(strand_seq, trials, T=20.0, material="DNA"):
       
     myMultistrand.setNumOfThreads(2)
     myMultistrand.setOptionsFactory2(getOptions, trials, material)
-    myMultistrand.setTerminationCriteria(FirstStepRate(), 25)
+    myMultistrand.setTerminationCriteria(FirstStepRate(), 80000)
     myMultistrand.run()
     dataset = myMultistrand.results
 
@@ -50,7 +50,7 @@ def compute(strand_seq):
 
 def computeAndWriteToCL(strand_seq, doBootstrap):
     
-    result = first_step_simulation(strand_seq, 800, T=25.0, material="DNA")
+    result = first_step_simulation(strand_seq, 12000, T=25.0, material="DNA")
     print("The hybridization rate of ", strand_seq, " and the reverse complement is ", "{:.2e}".format(result.k1()), " /M /s", sep="")
     
     # check for two-stateness
@@ -72,6 +72,8 @@ if(len(sys.argv) < 2):
     print("Example: computeAnnealRate.py ATGCAGT -boostrap")
     exit()
 
+start_time = time.time()
+
 mySequence = sys.argv[1]
 doBootstrap = False
 if(len(sys.argv) > 2):
@@ -80,6 +82,8 @@ if(len(sys.argv) > 2):
 
 result = computeAndWriteToCL(mySequence, doBootstrap )
 
+
+print ("Computing took %.4f s" % (time.time() - start_time))
 
 
 
