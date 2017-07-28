@@ -19,7 +19,7 @@ for x in dirs:
 from multistrand.concurrent import myMultistrand, FirstStepRate, Bootstrap
 from multistrand.objects import StopCondition
 from multistrand.options import Options
-from msArrhenius import setArrheniusConstantsDNA23
+from multistrandPy.msArrhenius import setArrheniusConstantsDNA23
 
 from SeesawGate import SeesawRates
 import numpy as np
@@ -27,14 +27,14 @@ import numpy as np
 
 ATIME_OUT = 10.0
 #lets see the error bars I get here....
-MINIMUM_FORWARD = 3
+MINIMUM_FORWARD = 2
 A_CONCENTRATION = 50e-9
-INCREMENT_TRIALS = 1000
+INCREMENT_TRIALS = 10000
 DNA = "DNA"
 
 
-myMultistrand.setNumOfThreads(2)
-#myMultistrand.setTerminationCriteria(FirstStepRate(), MINIMUM_FORWARD)
+myMultistrand.setNumOfThreads(4)
+myMultistrand.setTerminationCriteria(FirstStepRate(), MINIMUM_FORWARD)
 
 
 def getOptions(trials, material, complex1, complex2,
