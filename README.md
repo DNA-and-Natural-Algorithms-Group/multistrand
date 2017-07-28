@@ -8,8 +8,6 @@
 
 Multistrand is a nucleic acids kinetic simulator, and is developed by the Winfree group at the California Institute of Technology in Pasadena, California (USA). Until 2013, development was lead by Joseph Schaeffer (now Autodesk).
 
-FD July 25th 2017: NOTE: Release-2.1.1 is a candidate and is unstable. Use release-2.1 instead.  
-
 
 Contributors:
 
