@@ -725,7 +725,7 @@ class MergeSim(object):
                     printFlag = True
                     
              
-            time.sleep(0.7)
+            time.sleep(0.25)
     
              
         # join all running threads
