@@ -1,6 +1,8 @@
 from strand import Strand
 
 class Complex(object):
+
+    MAX_SAMPLES_AT_ONCE = 200
     """
     A representation of a single connected complex of strands.
     """
@@ -46,7 +48,8 @@ class Complex(object):
         self._dangles = None
         self._substrate_type = None
         self._temperature = None
-        
+        # Taken to be 1, unless it is EXPLICITLY stated otherwise!
+        self.boltzmann_supersample = 1
         Complex.unique_id += 1
     
     
@@ -228,7 +231,6 @@ class Complex(object):
         Return Value:
           -- None
         """
-        
         if len(self._boltzmann_queue) > 0:
             self._pop_boltzmann()
             return
@@ -245,10 +247,12 @@ class Complex(object):
         # timed a 100 count at ~ .1s and 10 and 1 counts were almost
         # always around .08s, so at least in this range there's a lot more
         # call overhead than generation time being used.
-        if self._boltzmann_sizehint > 200:
-            count = 200
+        # MAX_SAMPLES_AT_ONCE * supersample is the effective number of sample
+        # we generate per round
+        if self._boltzmann_sizehint > MAX_SAMPLES_AT_ONCE * self.boltzmann_supersample:
+            count = MAX_SAMPLES_AT_ONCE
         elif self._boltzmann_sizehint >= 1:
-            count = self._boltzmann_sizehint
+            count = (self._boltzmann_sizehint/self.boltzmann_supersample) + 1
         else:
             count = 1
         
@@ -314,7 +318,7 @@ class Complex(object):
         if not ("NUPACK 3.0" in lines[0] or 'NUPACK 3.2.0' in lines[0]):
             raise IOError("Boltzmann sample function is not up to date. NUPACK 3.2.0 or greater needed.")
         
-        self._boltzmann_queue = lines[14:]
+        self._boltzmann_queue = lines[14:] * self.boltzmann_supersample
         if len(self._boltzmann_queue) < 1:
             raise IOError("Did not get any results back from the Boltzmann sample function.")
         
