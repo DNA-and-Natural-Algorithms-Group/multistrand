@@ -19,7 +19,7 @@ for x in dirs:
 from multistrand.concurrent import myMultistrand, FirstStepRate, Bootstrap
 from multistrand.objects import StopCondition
 from multistrand.options import Options
-from multistrandPy.msArrhenius import setArrheniusConstantsDNA23
+from msArrhenius import setArrheniusConstantsDNA23
 
 from SeesawGate import SeesawRates
 import numpy as np
@@ -33,7 +33,7 @@ INCREMENT_TRIALS = 10000
 DNA = "DNA"
 
 
-myMultistrand.setNumOfThreads(4)
+myMultistrand.setNumOfThreads(8)
 myMultistrand.setTerminationCriteria(FirstStepRate(), MINIMUM_FORWARD)
 
 
@@ -70,6 +70,7 @@ def calculateGateInputRate(gate_complex, input_complex, output_complex, trials=I
     for x in [gate_complex, input_complex]:
         x.boltzmann_count = trials
         x.boltzmann_sample = True
+        x.boltzmann_supersample = 100
 
     try:
         if alt_output_complex is None:

@@ -249,8 +249,8 @@ class Complex(object):
         # call overhead than generation time being used.
         # MAX_SAMPLES_AT_ONCE * supersample is the effective number of sample
         # we generate per round
-        if self._boltzmann_sizehint > MAX_SAMPLES_AT_ONCE * self.boltzmann_supersample:
-            count = MAX_SAMPLES_AT_ONCE
+        if self._boltzmann_sizehint > self.MAX_SAMPLES_AT_ONCE * self.boltzmann_supersample:
+            count = self.MAX_SAMPLES_AT_ONCE
         elif self._boltzmann_sizehint >= 1:
             count = (self._boltzmann_sizehint/self.boltzmann_supersample) + 1
         else:
