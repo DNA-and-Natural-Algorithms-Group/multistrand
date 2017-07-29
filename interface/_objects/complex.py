@@ -245,8 +245,8 @@ class Complex(object):
         # timed a 100 count at ~ .1s and 10 and 1 counts were almost
         # always around .08s, so at least in this range there's a lot more
         # call overhead than generation time being used.
-        if self._boltzmann_sizehint > 5000:
-            count = 5000
+        if self._boltzmann_sizehint > 200:
+            count = 200
         elif self._boltzmann_sizehint >= 1:
             count = self._boltzmann_sizehint
         else:
