@@ -7,6 +7,7 @@ This module has two parts.
 import operator, os
 import time, datetime, math
 import traceback
+import copy, sys
 
 from multistrand.options import Options
 import multiprocessing
@@ -586,7 +587,7 @@ class MergeSim(object):
         return count
 
     # reset the multithreading objects
-    def clear(self):
+    def clearAnalysisFactory(self):
         
         if not self.aFactory == None:
             self.aFactory.clear()
@@ -641,9 +642,20 @@ class MergeSim(object):
                 print "No stop conditions defined"
         
         
+        assert(self.numOfThreads > 0)
+
+        manager = multiprocessing.Manager()
+        
+        self.managed_result = manager.list()
+        self.managed_endStates = manager.list()
+        self.nForward = manager.Value('i',0)
+        self.nReverse = manager.Value('i',0)
+        
+        self.results = []
+        self.endStates = []
+        
 
         def doSim(myFactory, aFactory, list0, list1, instanceSeed, nForwardIn, nReverseIn):
-            
             
             myOptions = myFactory.new(instanceSeed)
             myOptions.num_simulations = self.trialsPerThread
@@ -673,26 +685,37 @@ class MergeSim(object):
             if not(aFactory == None):
                  
                 aFactory.doAnalysis(myOptions)
-
-        
-        assert(self.numOfThreads > 0)
-
-        manager = multiprocessing.Manager()
-        
-        self.results = manager.list()
-        self.endStates = manager.list()
-        self.nForward = manager.Value('i',0)
-        self.nReverse = manager.Value('i',0)
-        
+                
 
         def getSimulation():
             
             instanceSeed =  self.seed + i * 3 * 5 * 19 + (time.time() * 10000) % (math.pow(2, 32) - 1)
-            return multiprocessing.Process(target=doSim, args=(self.factory, self.aFactory, self.results, self.endStates, instanceSeed, self.nForward, self.nReverse))
+            return multiprocessing.Process(target=doSim, args=(self.factory, self.aFactory, self.managed_result, self.managed_endStates, instanceSeed, self.nForward, self.nReverse))
+        
         
         def shouldTerminate(printFlag):
-            return (self.terminationCriteria == None) or self.terminationCriteria.checkTermination(self.results, printFlag, self.nForward, self.nReverse)
+            return (self.terminationCriteria == None) or self.terminationCriteria.checkTermination(self.managed_result, printFlag, self.nForward, self.nReverse)
         
+        # this saves the results generated so far as regular Python objects,
+        # and clears the concurrent result lists.
+        def saveResults():
+                
+            # join all running threads
+            for i in range(self.numOfThreads):
+                procs[i].join()
+                            
+            for result in self.managed_result:
+#                 print "size is " + str(sys.getsizeof(result))
+                self.results.append(copy.deepcopy(result))            
+             
+            for endState in self.managed_endStates:
+#                 print "size is " + str(sys.getsizeof(endState))
+                self.endStates.append(copy.deepcopy(endState))            
+ 
+            # reset the multiprocessing results lists.
+            self.managed_result     = manager.list()
+            self.managed_endStates  = manager.list()
+            
 
         # start the initial bulk
         print(self.startSimMessage()) 
@@ -729,15 +752,17 @@ class MergeSim(object):
                     
              
             time.sleep(0.25)
-    
-             
-        # join all running threads
-        for i in range(self.numOfThreads):
-            procs[i].join()
+   
+            #if >500 000 results have been generated, then store 
+            if (self.nForward.value + self.nReverse.value) > 500000:
+
+                saveResults()
+
+                
+         
+        saveResults()
         
-        self.results = list(self.results)
-        self.endStates = list(self.endStates)
-        
+        #now print the results to the user.
         myOptions = self.factory.new(77) #only to get concentration
         if myOptions.join_concentration == None:
             newRates = FirstStepRate(dataset=self.results, concentration=50e-9)
