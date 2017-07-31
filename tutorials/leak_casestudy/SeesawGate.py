@@ -197,8 +197,9 @@ class MismatchedSeesawGate(NormalSeesawGate):
 # Stores SeesawRates
 class SeesawRates(object):
 
-    def __init__(self, dataset, bootstrap=True, concentration=5e-9):
-        myFSR = FirstStepRate(dataset, concentration)
+    def __init__(self, myFSR, bootstrap=True, concentration=5e-9):
+        
+#         myFSR = FirstStepRate(dataset, concentration)
         self.nForward = myFSR.nForward
         self.nReverse = myFSR.nReverse
         self.nForwardAlt = myFSR.nForwardAlt

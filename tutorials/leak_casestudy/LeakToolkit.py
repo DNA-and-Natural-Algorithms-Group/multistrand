@@ -93,10 +93,10 @@ def calculateGateInputRate(gate_complex, input_complex, output_complex, trials=I
 
 
     myMultistrand.run()
-    dataset = myMultistrand.results
-    rates = SeesawRates(dataset)
+    rates = myMultistrand.results
     print rates
     return rates
+
 
 
 def calculateBaseOutputRate(gate, trials=INCREMENT_TRIALS):
@@ -152,8 +152,9 @@ def calculateGateGateLeak(gateA, gateB, trials=INCREMENT_TRIALS, material="DNA")
                                      [failed_stop_condition])
 
     myMultistrand.run()
-    dataset = myMultistrand.results
-    rates = SeesawRates(dataset)
+#     dataset = myMultistrand.results
+#     rates = SeesawRates(dataset)
+    rates = myMultistrand.results
     return rates
 
 

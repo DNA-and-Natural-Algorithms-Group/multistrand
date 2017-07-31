@@ -61,25 +61,24 @@ class FirstStepRate(basicRate):
     
     # return TRUE if enough correct trajectories have been simulated
     # Second argument controls printing during the testing
-    def checkTermination(self, datasetIn, printFlag, nForwardIn = None, nReverseIn = None):
-
-        if not nForwardIn == None:
-            if printFlag:
-                print "nForward = %i \n" % nForwardIn.value
-                print "nReverse = %i \n" % nReverseIn.value
-            
-            return nForwardIn.value >= self.terminationCount
-        
-        newRates = FirstStepRate(dataset=datasetIn, concentration=1e-99)
+    def checkTermination(self, printFlag, nForwardIn, nReverseIn):
 
         if printFlag:
-            print newRates.shortString()
+            print "nForward = %i \n" % nForwardIn.value
+            print "nReverse = %i \n" % nReverseIn.value
         
-        if newRates.nForward + newRates.nForwardAlt < self.terminationCount:
-            return False
-        else: 
-            print str(newRates)
-            return True
+        return nForwardIn.value >= self.terminationCount
+    
+#         newRates = FirstStepRate(dataset=datasetIn, concentration=1e-99)
+# 
+#         if printFlag:
+#             print newRates.shortString()
+#         
+#         if newRates.nForward + newRates.nForwardAlt < self.terminationCount:
+#             return False
+#         else: 
+#             print str(newRates)
+#             return True
         
     
     def sumCollisionForward(self):
@@ -224,16 +223,22 @@ class FirstStepRate(basicRate):
         self.was_failure = np.array(self.was_failure)
         
 
-    def merge(self, that):
+    def merge(self, that, deepCopy= False, doSummation = True):
         
         if not self.z == that.z:
             print("Error! Cannot combine results from different concentrations")
-            
+
         # Now merge the existing datastructures with the ones from the new dataset
-        self.dataset.append(that.dataset)
+        if deepCopy == True:
+            for result in that.dataset:
+                self.dataset.append(copy.deepcopy(result))  
+                
+        else:
+            self.dataset.append(that.dataset)
 
         # re-generate basic metrics
-        self.generateRates()
+        if doSummation:
+            self.generateRates()
 
 
         
@@ -474,7 +479,11 @@ class optionsFactory(object):
 
 class msSettings(object):
     
+    
+    
     debug = False
+    
+    
     
 def timeStamp(inTime=None):
     
@@ -629,19 +638,19 @@ class MergeSim(object):
 
     def run(self):
         
-        
-        # The input0 is always trails.
+        # The input0 is always trials.
         self.trialsPerThread = int(math.ceil(float(self.factory.input0) / float(self.numOfThreads)))
         startTime = time.time()
-
-        
+                
         try:
             for i in self.factory.new(0).stop_conditions:
                 print i
         except Exception:
                 print "No stop conditions defined"
         
-        
+        #save the concentration
+        concentration = self.factory.new(0).join_concentration
+
         assert(self.numOfThreads > 0)
 
         manager = multiprocessing.Manager()
@@ -651,7 +660,7 @@ class MergeSim(object):
         self.nForward = manager.Value('i',0)
         self.nReverse = manager.Value('i',0)
         
-        self.results = []
+        self.results = FirstStepRate(concentration=concentration)
         self.endStates = []
         
 
@@ -688,13 +697,12 @@ class MergeSim(object):
                 
 
         def getSimulation():
-            
             instanceSeed =  self.seed + i * 3 * 5 * 19 + (time.time() * 10000) % (math.pow(2, 32) - 1)
             return multiprocessing.Process(target=doSim, args=(self.factory, self.aFactory, self.managed_result, self.managed_endStates, instanceSeed, self.nForward, self.nReverse))
         
         
         def shouldTerminate(printFlag):
-            return (self.terminationCriteria == None) or self.terminationCriteria.checkTermination(self.managed_result, printFlag, self.nForward, self.nReverse)
+            return (self.terminationCriteria == None) or self.terminationCriteria.checkTermination(printFlag, self.nForward, self.nReverse)
         
         # this saves the results generated so far as regular Python objects,
         # and clears the concurrent result lists.
@@ -704,12 +712,10 @@ class MergeSim(object):
             for i in range(self.numOfThreads):
                 procs[i].join()
                             
-            for result in self.managed_result:
-#                 print "size is " + str(sys.getsizeof(result))
-                self.results.append(copy.deepcopy(result))            
-             
+            myFSR = FirstStepRate(self.managed_result, self.results.z)       
+            self.results.merge(myFSR, deepCopy=True, doSummation=False)
+                                         
             for endState in self.managed_endStates:
-#                 print "size is " + str(sys.getsizeof(endState))
                 self.endStates.append(copy.deepcopy(endState))            
  
             # reset the multiprocessing results lists.
@@ -755,21 +761,16 @@ class MergeSim(object):
    
             #if >500 000 results have been generated, then store 
             if (self.nForward.value + self.nReverse.value) > 500000:
-
+ 
                 saveResults()
 
                 
          
         saveResults()
         
-        #now print the results to the user.
-        myOptions = self.factory.new(77) #only to get concentration
-        if myOptions.join_concentration == None:
-            newRates = FirstStepRate(dataset=self.results, concentration=50e-9)
-        else:
-            newRates = FirstStepRate(dataset=self.results, concentration=myOptions.join_concentration)
-            
-        print str(newRates)
+        #print final results to the user
+        self.results.generateRates()
+        print str(self.results)
         
         self.runTime = (time.time() - startTime)
         print("Done.  %.5f seconds \n" % (time.time() - startTime))
