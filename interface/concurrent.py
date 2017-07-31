@@ -60,11 +60,12 @@ class FirstStepRate(basicRate):
     
     # return TRUE if enough correct trajectories have been simulated
     # Second argument controls printing during the testing
-    def checkTermination(self, datasetIn, printFlag, nForwardIn = None):
+    def checkTermination(self, datasetIn, printFlag, nForwardIn = None, nReverseIn = None):
 
         if not nForwardIn == None:
             if printFlag:
                 print "nForward = %i \n" % nForwardIn.value
+                print "nReverse = %i \n" % nReverseIn.value
             
             return nForwardIn.value >= self.terminationCount
         
@@ -641,7 +642,7 @@ class MergeSim(object):
         
         
 
-        def doSim(myFactory, aFactory, list0, list1, instanceSeed, nForwardIn):
+        def doSim(myFactory, aFactory, list0, list1, instanceSeed, nForwardIn, nReverseIn):
             
             
             myOptions = myFactory.new(instanceSeed)
@@ -655,6 +656,7 @@ class MergeSim(object):
                 
                 myFSR = FirstStepRate(myOptions.interface.results)
                 nForwardIn.value +=  myFSR.nForward + myFSR.nForwardAlt
+                nReverseIn.value += myFSR.nReverse
                 
             for result in myOptions.interface.results:
                 
@@ -680,15 +682,16 @@ class MergeSim(object):
         self.results = manager.list()
         self.endStates = manager.list()
         self.nForward = manager.Value('i',0)
+        self.nReverse = manager.Value('i',0)
         
 
         def getSimulation():
             
             instanceSeed =  self.seed + i * 3 * 5 * 19 + (time.time() * 10000) % (math.pow(2, 32) - 1)
-            return multiprocessing.Process(target=doSim, args=(self.factory, self.aFactory, self.results, self.endStates, instanceSeed, self.nForward))
+            return multiprocessing.Process(target=doSim, args=(self.factory, self.aFactory, self.results, self.endStates, instanceSeed, self.nForward, self.nReverse))
         
         def shouldTerminate(printFlag):
-            return (self.terminationCriteria == None) or self.terminationCriteria.checkTermination(self.results, printFlag, self.nForward)
+            return (self.terminationCriteria == None) or self.terminationCriteria.checkTermination(self.results, printFlag, self.nForward, self.nReverse)
         
 
         # start the initial bulk
