@@ -34,7 +34,7 @@ DNA = "DNA"
 
 
 myMultistrand.setNumOfThreads(8)
-myMultistrand.setTerminationCriteria(FirstStepRate(), MINIMUM_FORWARD)
+myMultistrand.setTerminationCriteria(MINIMUM_FORWARD)
 
 
 def getOptions(trials, material, complex1, complex2,
