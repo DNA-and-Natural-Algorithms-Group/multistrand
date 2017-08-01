@@ -429,7 +429,11 @@ class Bootstrap():
         # Returns standard deviation from the mean of log10 of the original rates
         return np.std(self.logEffectiveRates)
 
+    def __str__(self):
         
+        low, high = ninetyFivePercentiles
+        
+        print "Confidence Interval: %.4f /M /s, %.4f /M /s" %  low, high
 
 
 # # Concurrent classes start here
