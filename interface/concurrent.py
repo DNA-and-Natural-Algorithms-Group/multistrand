@@ -15,9 +15,7 @@ import numpy as np
 
 from multistrand.system import SimSystem 
 
-
 MINIMUM_RATE = 1e-36
-
 
 # # Rate-computation classes start here
 
@@ -25,10 +23,15 @@ MINIMUM_RATE = 1e-36
 # Shared class methods
 class basicRate(object):
     
+    nForward = 0
+    nReverse = 0
+    nForwardAlt = 0
+    
     def log10KEff(self):
         
         return np.log10(self.kEff())
 
+    
 
 # # Migration rates for first step
 class FirstStepRate(basicRate):
@@ -302,6 +305,9 @@ class FirstPassageRate(basicRate):
         self.times = np.array([i.time for i in dataset])
         self.timeouts = [i for i in dataset if not i.tag == Options.STR_SUCCESS]
         
+        
+        
+        
     def castToNumpyArray(self):
         
         self.times = np.array(self.times)
@@ -431,7 +437,7 @@ class Bootstrap():
 
     def __str__(self):
         
-        low, high = ninetyFivePercentiles
+        low, high = self.ninetyFivePercentiles()
         
         print "Confidence Interval: %.4f /M /s, %.4f /M /s" %  low, high
 
@@ -494,13 +500,13 @@ class msSettings(object):
 
     #Mrinank: Please implement FirstStepResultLeak
     # and update the object factory below.
-    def newResults(self, dataIn = None, conc=None):
+    def rateFactory(self, dataset = None, conc=None):
         if self.resultsType == self.RESULTTYPE1:
-            return FirstStepRate(dataset = dataIn, concentration = conc)
+            return FirstStepRate(dataset = dataset, concentration = conc)
         if self.resultsType == self.RESULTTYPE2:
-            return FirstStepRate(dataset = dataIn, concentration = conc)    
+            return FirstStepRate(dataset = dataset, concentration = conc)    
         if self.resultsType == self.RESULTTYPE3:
-            return FirstPassageRate(dataset = dataIn, concentration = conc)
+            return FirstPassageRate(dataset = dataset, concentration = conc)
         
     def shouldTerminate(self, printFlag, nForwardIn, nReverseIn):
         
@@ -676,7 +682,7 @@ class MergeSim(object):
         self.nForward = manager.Value('i',0)
         self.nReverse = manager.Value('i',0)
         
-        self.results = FirstStepRate(concentration=concentration)
+        self.results = self.settings.rateFactory(conc=concentration)
         self.endStates = []
         
 
@@ -691,7 +697,7 @@ class MergeSim(object):
             
             if myOptions.simulation_mode == Options.firstStep :
                 
-                myFSR = FirstStepRate(myOptions.interface.results)
+                myFSR = self.settings.rateFactory(dataset=myOptions.interface.results, conc=concentration)
                 nForwardIn.value +=  myFSR.nForward + myFSR.nForwardAlt
                 nReverseIn.value += myFSR.nReverse
                 
@@ -725,7 +731,7 @@ class MergeSim(object):
             for i in range(self.numOfThreads):
                 procs[i].join()
                             
-            myFSR = FirstStepRate(self.managed_result, concentration)       
+            myFSR = self.settings.rateFactory(dataset=self.managed_result, conc=concentration)       
             self.results.merge(myFSR, deepCopy=True, doSummation=False)     
 
             # save the terminal states if we are not in leak mode                                         
