@@ -134,13 +134,12 @@ def machinek2014(options, selector, trialsIn):
     initialInvader = Complex(strands=[strandInvader], structure=intialInvaderDotParen)
     successComplex = Complex(strands=[strandIncumbent], structure=successDotParen)
     
-        # Turns Boltzmann sampling on for this complex and also does sampling more efficiently by sampling 'trials' states.
+    # Turns Boltzmann sampling on for this complex and also does sampling more efficiently by sampling 'trials' states.
     if(trialsIn > 0):
         setBoltzmann(initialComplex, trialsIn)
         setBoltzmann(initialInvader, trialsIn)
-        
-        initialComplex.boltzmann_supersample = 20
-        initialInvader.boltzmann_supersample = 20
+        initialComplex.boltzmann_supersample = 25
+        initialInvader.boltzmann_supersample = 25
 
     stopSuccess = StopCondition(Options.STR_SUCCESS, [(successComplex, Options.dissocMacrostate, 0)])
     stopFailed = StopCondition(Options.STR_FAILURE, [(initialComplex, Options.dissocMacrostate, 0)])
@@ -181,9 +180,9 @@ def computeRate(select, trials):
     
     print myFSR
     
-    myBootstrap = Bootstrap(myFSR, computek1 = True)
-    
-    print myBootstrap
+#     myBootstrap = Bootstrap(myFSR, computek1 = True)
+#     
+#     print myBootstrap
     
     return myFSR.k1()
 

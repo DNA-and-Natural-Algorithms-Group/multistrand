@@ -15,9 +15,7 @@ import numpy as np
 
 from multistrand.system import SimSystem 
 
-
 MINIMUM_RATE = 1e-36
-
 
 # # Rate-computation classes start here
 
@@ -29,6 +27,7 @@ class basicRate(object):
         
         return np.log10(self.kEff())
 
+    
 
 # # Migration rates for first step
 class FirstStepRate(basicRate):
@@ -431,7 +430,7 @@ class Bootstrap():
 
     def __str__(self):
         
-        low, high = ninetyFivePercentiles
+        low, high = self.ninetyFivePercentiles()
         
         print "Confidence Interval: %.4f /M /s, %.4f /M /s" %  low, high
 
