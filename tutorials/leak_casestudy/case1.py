@@ -66,16 +66,18 @@ def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
     
     myMultistrand.setOptionsFactory6(getOptions, trials,material, duplex_complex, invader_complex, success_stop_condition, failed_stop_condition)
     myMultistrand.run()
-    dataset = myMultistrand.results
+    myFSR = myMultistrand.results
 
     # Now determine the reaction model parameters from the simulation results. 
-    myFSR = FirstStepRate(dataset, 5e-9)
+#     myFSR = FirstStepRate(dataset, 5e-9)
 
 
-    print("Was success :  %i  " % myFSR.nForward)
-    print("Was failure :  %i  " % myFSR.nReverse)
-    print("Total runs  :  %i  " % myFSR.nTotal)
-    print("k1          :  %.2f /M /s \n " % myFSR.k1() )
+    print myFSR
+
+#     print("Was success :  %i  " % myFSR.nForward)
+#     print("Was failure :  %i  " % myFSR.nReverse)
+#     print("Total runs  :  %i  " % myFSR.nTotal)
+#     print("k1          :  %.2f /M /s \n " % myFSR.k1() )
 
 
 
