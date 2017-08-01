@@ -16,10 +16,10 @@ for x in dirs:
     i = expanduser(x)
     sys.path.append(i)
 
-from multistrand.concurrent import myMultistrand, FirstStepRate, Bootstrap
+from multistrand.concurrent import myMultistrand, MergeSim, FirstStepRate, Bootstrap
 from multistrand.objects import StopCondition
 from multistrand.options import Options
-from multistrandPy.msArrhenius import setArrheniusConstantsDNA23
+from msArrhenius import setArrheniusConstantsDNA23
 
 from SeesawGate import SeesawRates
 import numpy as np
@@ -29,16 +29,17 @@ ATIME_OUT = 10.0
 #lets see the error bars I get here....
 MINIMUM_FORWARD = 2
 A_CONCENTRATION = 50e-9
-INCREMENT_TRIALS = 10000
+INCREMENT_TRIALS = 20000
 DNA = "DNA"
 
 
-myMultistrand.setNumOfThreads(4)
-myMultistrand.setTerminationCriteria(FirstStepRate(), MINIMUM_FORWARD)
+myMultistrand.setNumOfThreads(8)
+myMultistrand.setTerminationCriteria(MINIMUM_FORWARD)
 
 
 def getOptions(trials, material, complex1, complex2,
                success_stop_conditions, failed_stop_conditions, T=25):
+
 
     o = Options(simulation_mode="First Step", substrate_type=material,
                 rate_method="Metropolis", num_simulations=trials,
@@ -67,10 +68,13 @@ def calculateGateInputRate(gate_complex, input_complex, output_complex, trials=I
     failed_stop_condition = StopCondition(
         Options.STR_FAILURE, [(input_complex, Options.dissocMacrostate, 0)])
 
+    
+
     for x in [gate_complex, input_complex]:
         x.boltzmann_count = trials
         x.boltzmann_sample = True
-
+        x.boltzmann_supersample = 25
+    
     try:
         if alt_output_complex is None:
             raise TypeError
@@ -87,11 +91,12 @@ def calculateGateInputRate(gate_complex, input_complex, output_complex, trials=I
                                          [success_stop_condition],
                                          [failed_stop_condition])
 
+
     myMultistrand.run()
-    dataset = myMultistrand.results
-    rates = SeesawRates(dataset)
+    rates = myMultistrand.results
     print rates
     return rates
+
 
 
 def calculateBaseOutputRate(gate, trials=INCREMENT_TRIALS):
@@ -139,6 +144,7 @@ def calculateGateGateLeak(gateA, gateB, trials=INCREMENT_TRIALS, material="DNA")
         x.boltzmann_count = trials
         x.boltzmann_sample = True
 
+
     myMultistrand.setOptionsFactory6(getOptions, trials, material,
                                      gateA_complex, gateB_complex,
                                      [success_stop_condition,
@@ -146,8 +152,9 @@ def calculateGateGateLeak(gateA, gateB, trials=INCREMENT_TRIALS, material="DNA")
                                      [failed_stop_condition])
 
     myMultistrand.run()
-    dataset = myMultistrand.results
-    rates = SeesawRates(dataset)
+#     dataset = myMultistrand.results
+#     rates = SeesawRates(dataset)
+    rates = myMultistrand.results
     return rates
 
 

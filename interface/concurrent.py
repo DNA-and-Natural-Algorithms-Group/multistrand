@@ -7,6 +7,7 @@ This module has two parts.
 import operator, os
 import time, datetime, math
 import traceback
+import copy, sys
 
 from multistrand.options import Options
 import multiprocessing
@@ -58,27 +59,26 @@ class FirstStepRate(basicRate):
         self.nTotal = len(self.dataset)
         
     
-    # return TRUE if enough correct trajectories have been simulated
-    # Second argument controls printing during the testing
-    def checkTermination(self, datasetIn, printFlag, nForwardIn = None, nReverseIn = None):
-
-        if not nForwardIn == None:
-            if printFlag:
-                print "nForward = %i \n" % nForwardIn.value
-                print "nReverse = %i \n" % nReverseIn.value
-            
-            return nForwardIn.value >= self.terminationCount
-        
-        newRates = FirstStepRate(dataset=datasetIn, concentration=1e-99)
-
-        if printFlag:
-            print newRates.shortString()
-        
-        if newRates.nForward + newRates.nForwardAlt < self.terminationCount:
-            return False
-        else: 
-            print str(newRates)
-            return True
+#     # return TRUE if enough correct trajectories have been simulated
+#     # Second argument controls printing during the testing
+#     def checkTermination(self, printFlag, nForwardIn, nReverseIn):
+# 
+#         if printFlag:
+#             print "nForward = %i \n" % nForwardIn.value
+#             print "nReverse = %i \n" % nReverseIn.value
+#         
+#         return nForwardIn.value >= self.terminationCount
+    
+#         newRates = FirstStepRate(dataset=datasetIn, concentration=1e-99)
+# 
+#         if printFlag:
+#             print newRates.shortString()
+#         
+#         if newRates.nForward + newRates.nForwardAlt < self.terminationCount:
+#             return False
+#         else: 
+#             print str(newRates)
+#             return True
         
     
     def sumCollisionForward(self):
@@ -223,16 +223,22 @@ class FirstStepRate(basicRate):
         self.was_failure = np.array(self.was_failure)
         
 
-    def merge(self, that):
+    def merge(self, that, deepCopy= False, doSummation = True):
         
         if not self.z == that.z:
             print("Error! Cannot combine results from different concentrations")
-            
+
         # Now merge the existing datastructures with the ones from the new dataset
-        self.dataset.append(that.dataset)
+        if deepCopy == True:
+            for result in that.dataset:
+                self.dataset.append(copy.deepcopy(result))  
+                
+        else:
+            self.dataset.append(that.dataset)
 
         # re-generate basic metrics
-        self.generateRates()
+        if doSummation:
+            self.generateRates()
 
 
         
@@ -423,7 +429,11 @@ class Bootstrap():
         # Returns standard deviation from the mean of log10 of the original rates
         return np.std(self.logEffectiveRates)
 
+    def __str__(self):
         
+        low, high = ninetyFivePercentiles
+        
+        print "Confidence Interval: %.4f /M /s, %.4f /M /s" %  low, high
 
 
 # # Concurrent classes start here
@@ -473,7 +483,38 @@ class optionsFactory(object):
 
 class msSettings(object):
     
+    RESULTTYPE1 = "FirstStepRate"
+    RESULTTYPE2 = "FirstStepRateLeak"
+    RESULTTYPE3 = "FirstPassageRate"
+    
+    
     debug = False
+    resultsType = RESULTTYPE1
+    terminationCount = None
+
+    #Mrinank: Please implement FirstStepResultLeak
+    # and update the object factory below.
+    def newResults(self, dataIn = None, conc=None):
+        if self.resultsType == self.RESULTTYPE1:
+            return FirstStepRate(dataset = dataIn, concentration = conc)
+        if self.resultsType == self.RESULTTYPE2:
+            return FirstStepRate(dataset = dataIn, concentration = conc)    
+        if self.resultsType == self.RESULTTYPE3:
+            return FirstPassageRate(dataset = dataIn, concentration = conc)
+        
+    def shouldTerminate(self, printFlag, nForwardIn, nReverseIn):
+        
+        if self.terminationCount == None:
+            return True
+        else:
+            if printFlag:
+                print "nForward = %i \n" % nForwardIn.value
+                print "nReverse = %i \n" % nReverseIn.value
+        
+            return nForwardIn.value >= self.terminationCount
+    
+    
+
     
 def timeStamp(inTime=None):
     
@@ -501,25 +542,22 @@ class MergeSim(object):
         if(settings == None):
             self.settings = msSettings()
             
-        # override to enable dynamic simulation length
-        self.terminationCriteria = None
+    # The argument is the count of successfull trials before stopping the simulation 
+    def setTerminationCriteria(self, terminationCount = 25):
+        self.settings.terminationCount = terminationCount
 
+    def setLeakMode(self):
+        self.settings.resultsType = self.settings.RESULTTYPE2
 
-    # First argument is typically a FirstStepRate(),
-    # Second argument is the count of successfull trials before stopping the simulation 
-    def setTerminationCriteria(self, input, terminationCount = 25):
-        
-        self.terminationCriteria = input
-        self.terminationCriteria.terminationCount = terminationCount
-        
+    def setPassageMode(self):
+        self.settings.resultsType = self.settings.RESULTTYPE3
+
     def timeSinceStart(self):
-        
         print("Time since creating object %.5f seconds" % (time.time() - self.initializationTime))
 #                 print("Done.  %.5f seconds" % (time.time() - startTime))
         
     
     def setDebug(self, value):
-        
         self.settings.debug = value
         
     
@@ -573,20 +611,9 @@ class MergeSim(object):
          
         self.aFactory = aFactoryIn
         self.aFactory.lockArray = lockArray        
-        
-
-    def numOfSuccesTrials(self):
-        
-        count = 0
-        
-        for result in self.results:
-            if result.tag == Options.STR_SUCCESS:
-                count += 1
-
-        return count
 
     # reset the multithreading objects
-    def clear(self):
+    def clearAnalysisFactory(self):
         
         if not self.aFactory == None:
             self.aFactory.clear()
@@ -594,9 +621,7 @@ class MergeSim(object):
     def printTrajectories(self, myOptions):
         # # Print all the trajectories we can find. 
         # # Debug function primairly. 
-        
         print("Printing trajectory and times: \n")
-        
         
         trajs = myOptions.full_trajectory 
         times = myOptions.full_trajectory_times
@@ -619,31 +644,43 @@ class MergeSim(object):
         # python2 style printing because of an compilation issue with web.py        
         welcomeMessage = ''.join(["Computing ", str(self.numOfThreads * self.trialsPerThread) , " trials, using " , str(self.numOfThreads), " threads .. \n" ])
         
-        if not self.terminationCriteria == None:
+        if not self.settings.terminationCount == None:
             
             welcomeMessage += " .. and rolling " + str(self.trialsPerThread)
-            welcomeMessage += " trajectories per thread until " + str(self.terminationCriteria.terminationCount) + " successful trials occur. \n"                    
+            welcomeMessage += " trajectories per thread until " + str(self.settings.terminationCount) + " successful trials occur. \n"    
+                            
         return welcomeMessage
 
 
     def run(self):
         
-        
-        # The input0 is always trails.
+        # The input0 is always trials.
         self.trialsPerThread = int(math.ceil(float(self.factory.input0) / float(self.numOfThreads)))
         startTime = time.time()
-
-        
+                
         try:
             for i in self.factory.new(0).stop_conditions:
                 print i
         except Exception:
                 print "No stop conditions defined"
         
+        #save the concentration
+        concentration = self.factory.new(0).join_concentration
+
+        assert(self.numOfThreads > 0)
+
+        manager = multiprocessing.Manager()
+        
+        self.managed_result = manager.list()
+        self.managed_endStates = manager.list()
+        self.nForward = manager.Value('i',0)
+        self.nReverse = manager.Value('i',0)
+        
+        self.results = FirstStepRate(concentration=concentration)
+        self.endStates = []
         
 
         def doSim(myFactory, aFactory, list0, list1, instanceSeed, nForwardIn, nReverseIn):
-            
             
             myOptions = myFactory.new(instanceSeed)
             myOptions.num_simulations = self.trialsPerThread
@@ -673,26 +710,33 @@ class MergeSim(object):
             if not(aFactory == None):
                  
                 aFactory.doAnalysis(myOptions)
-
-        
-        assert(self.numOfThreads > 0)
-
-        manager = multiprocessing.Manager()
-        
-        self.results = manager.list()
-        self.endStates = manager.list()
-        self.nForward = manager.Value('i',0)
-        self.nReverse = manager.Value('i',0)
-        
+                
 
         def getSimulation():
-            
             instanceSeed =  self.seed + i * 3 * 5 * 19 + (time.time() * 10000) % (math.pow(2, 32) - 1)
-            return multiprocessing.Process(target=doSim, args=(self.factory, self.aFactory, self.results, self.endStates, instanceSeed, self.nForward, self.nReverse))
+            return multiprocessing.Process(target=doSim, args=(self.factory, self.aFactory, self.managed_result, self.managed_endStates, instanceSeed, self.nForward, self.nReverse))
         
-        def shouldTerminate(printFlag):
-            return (self.terminationCriteria == None) or self.terminationCriteria.checkTermination(self.results, printFlag, self.nForward, self.nReverse)
         
+        # this saves the results generated so far as regular Python objects,
+        # and clears the concurrent result lists.
+        def saveResults():
+                
+            # join all running threads
+            for i in range(self.numOfThreads):
+                procs[i].join()
+                            
+            myFSR = FirstStepRate(self.managed_result, concentration)       
+            self.results.merge(myFSR, deepCopy=True, doSummation=False)     
+
+            # save the terminal states if we are not in leak mode                                         
+            if self.settings.resultsType != self.settings.RESULTTYPE2:
+                for endState in self.managed_endStates:
+                    self.endStates.append(copy.deepcopy(endState))            
+ 
+            # reset the multiprocessing results lists.
+            self.managed_result     = manager.list()
+            self.managed_endStates  = manager.list()
+            
 
         # start the initial bulk
         print(self.startSimMessage()) 
@@ -709,7 +753,7 @@ class MergeSim(object):
         # check for stop conditions, restart sims if needed
         while True:
             
-            if shouldTerminate(printFlag):
+            if self.settings.shouldTerminate(printFlag, self.nForward, self.nReverse):
                 break 
 
             printFlag = False
@@ -729,22 +773,18 @@ class MergeSim(object):
                     
              
             time.sleep(0.25)
-    
-             
-        # join all running threads
-        for i in range(self.numOfThreads):
-            procs[i].join()
+   
+            #if >500 000 results have been generated, then store 
+            if (self.nForward.value + self.nReverse.value) > 500000:
+ 
+                saveResults()
+
+         
+        saveResults()
         
-        self.results = list(self.results)
-        self.endStates = list(self.endStates)
-        
-        myOptions = self.factory.new(77) #only to get concentration
-        if myOptions.join_concentration == None:
-            newRates = FirstStepRate(dataset=self.results, concentration=50e-9)
-        else:
-            newRates = FirstStepRate(dataset=self.results, concentration=myOptions.join_concentration)
-            
-        print str(newRates)
+        #print final results to the user
+        self.results.generateRates()
+        print str(self.results)
         
         self.runTime = (time.time() - startTime)
         print("Done.  %.5f seconds \n" % (time.time() - startTime))
