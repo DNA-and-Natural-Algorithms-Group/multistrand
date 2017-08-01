@@ -781,7 +781,7 @@ class MergeSim(object):
             time.sleep(0.25)
    
             #if >500 000 results have been generated, then store 
-            if (self.nForward.value + self.nReverse.value) > 500000:
+            if (self.nForward.value + self.nReverse.value) > onl500000:
  
                 saveResults()
 
