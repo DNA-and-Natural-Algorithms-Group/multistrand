@@ -19,7 +19,7 @@ for x in dirs:
 from multistrand.concurrent import myMultistrand, MergeSim, FirstStepRate, Bootstrap
 from multistrand.objects import StopCondition
 from multistrand.options import Options
-from msArrhenius import setArrheniusConstantsDNA23
+from multistrandPy.msArrhenius import setArrheniusConstantsDNA23
 
 from SeesawGate import SeesawRates
 import numpy as np
@@ -29,12 +29,13 @@ ATIME_OUT = 10.0
 #lets see the error bars I get here....
 MINIMUM_FORWARD = 2
 A_CONCENTRATION = 50e-9
-INCREMENT_TRIALS = 20000
+INCREMENT_TRIALS = 2000
 DNA = "DNA"
 
 
-myMultistrand.setNumOfThreads(8)
+myMultistrand.setNumOfThreads(2)
 myMultistrand.setTerminationCriteria(MINIMUM_FORWARD)
+myMultistrand.setLeakMode()
 
 
 def getOptions(trials, material, complex1, complex2,
@@ -94,6 +95,7 @@ def calculateGateInputRate(gate_complex, input_complex, output_complex, trials=I
 
     myMultistrand.run()
     rates = myMultistrand.results
+    rates = SeesawRates(myMultistrand.results)
     print rates
     return rates
 

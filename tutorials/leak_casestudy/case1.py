@@ -12,7 +12,7 @@
 from multistrand.concurrent import myMultistrand, FirstStepRate
 from multistrand.objects import StopCondition, Domain, Complex, Strand
 from multistrand.options import Options
-from msArrhenius import setArrheniusConstantsDNA23
+from multistrandPy.msArrhenius import setArrheniusConstantsDNA23
 
 
 import numpy as np
