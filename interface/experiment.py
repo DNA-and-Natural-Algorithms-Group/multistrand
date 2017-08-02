@@ -26,7 +26,17 @@ def standardOptions(simMode = Options.firstStep, tempIn = 25.0, trials=10, timeO
     
     return output
 
-
+def makeComplex(seq, dotparen):
+    
+    strandList = []
+    
+    for seq in seq:
+    
+        onedomain = Domain(sequence=seq)
+        onestrand = Strand(domains=[onedomain])
+        strandList.append(onestrand)
+    
+    return Complex(strands=strandList, structure=dotparen)
 
 def hybridization(options, mySeq, myTrials=0, doFirstPassage=False):
                 
