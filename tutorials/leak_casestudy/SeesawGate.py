@@ -212,6 +212,7 @@ class SeesawRates(object):
 
         if bootstrap:
             if(self.nForwardAlt != 0):
+                print "boostrapping"
                 bootstrap = Bootstrap(
                     myFSR, concentration, computek1=True, computek1Alt=True)
                 self.k1_alt_bounds = bootstrap.ninetyFivePercentilesAlt()

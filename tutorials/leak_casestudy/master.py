@@ -49,11 +49,11 @@ def calcMetrics(gateA, gateB):
     rates.append(calculateBaseFuelRate(gateB))
 
     print "\n **** Gate Leak Rates **** \n"
-    rates.append(calculateGateGateLeak(gateA, gateB))
+    #rates.append(calculateGateGateLeak(gateA, gateB))
 
     print "\n **** Fuel Leak Rate s ****\n"
-    rates.append(calculateGateFuelLeak(gateA))
-    rates.append(calculateGateFuelLeak(gateB))
+    #rates.append(calculateGateFuelLeak(gateA))
+    #rates.append(calculateGateFuelLeak(gateB))
     print "Finished Rates \n"
     return rates
 
