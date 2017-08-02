@@ -24,6 +24,7 @@ SHORT_SEQT = "CTCT"
 LONG_SEQ2 = "CCAAACAAAACCTAT"
 LONG_SEQ5 = "AACCACCAAACTTAT"
 LONG_SEQ6 = "CCTAACACAATCACT"
+
 # some ive made up, but these shouldn't make much difference
 LONG_SEQ7 = "TCATTCCAACATTCA"
 LONG_SEQ1 = "CCATTCAACTTAATC"
@@ -49,11 +50,11 @@ def calcMetrics(gateA, gateB):
     rates.append(calculateBaseFuelRate(gateB))
 
     print "\n **** Gate Leak Rates **** \n"
-    #rates.append(calculateGateGateLeak(gateA, gateB))
+    rates.append(calculateGateGateLeak(gateA, gateB))
 
     print "\n **** Fuel Leak Rate s ****\n"
-    #rates.append(calculateGateFuelLeak(gateA))
-    #rates.append(calculateGateFuelLeak(gateB))
+    rates.append(calculateGateFuelLeak(gateA))
+    rates.append(calculateGateFuelLeak(gateB))
     print "Finished Rates \n"
     return rates
 
