@@ -31,7 +31,15 @@ class basicRate(object):
         
         return np.log10(self.kEff())
 
+class FirstStepRateLeak(basicRate):
     
+    
+    def __init__(self, dataset=None, concentration=None):
+        0
+    
+    def resample(self):
+        0
+        
 
 # # Migration rates for first step
 class FirstStepRate(basicRate):
