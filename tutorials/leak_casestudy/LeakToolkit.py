@@ -19,7 +19,7 @@ for x in dirs:
 from multistrand.concurrent import myMultistrand, MergeSim, FirstStepRate, Bootstrap
 from multistrand.objects import StopCondition
 from multistrand.options import Options
-from msArrhenius import setArrheniusConstantsDNA23
+from multistrandPy.msArrhenius import setArrheniusConstantsDNA23
 
 from SeesawGate import SeesawRates
 import numpy as np
@@ -33,7 +33,7 @@ INCREMENT_TRIALS = 2000
 DNA = "DNA"
 
 
-myMultistrand.setNumOfThreads(4)
+myMultistrand.setNumOfThreads(2)
 myMultistrand.setTerminationCriteria(MINIMUM_FORWARD)
 myMultistrand.setLeakMode()
 
