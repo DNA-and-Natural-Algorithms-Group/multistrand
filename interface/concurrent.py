@@ -39,7 +39,7 @@ class basicRate(object):
     def log10KEff(self):
 
         return np.log10(self.kEff())
-
+      
 
 # # Migration rates for first step
 class FirstStepRate(basicRate):
