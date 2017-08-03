@@ -14,13 +14,15 @@ from multistrand.objects import StopCondition, Domain, Complex, Strand
 from multistrand.options import Options
 from multistrandPy.msArrhenius import setArrheniusConstantsDNA23
 
+dirs = ["~/workspace/multistrand", "~/workspace/multistrandPy",
+        "~/multistrand", "~/multistrandPy"]
 
 import numpy as np
 from multistrand._options.interface import FirstStepResult
 ATIME_OUT = 10.0  
 
 
-myMultistrand.setNumOfThreads(14) 
+myMultistrand.setNumOfThreads(4) 
 
 def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
 

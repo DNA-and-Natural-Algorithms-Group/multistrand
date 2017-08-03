@@ -787,14 +787,8 @@ class MergeSim(object):
             math.ceil(float(self.factory.input0) / float(self.numOfThreads)))
         startTime = time.time()
 
-        try:
-            for i in self.factory.new(0).stop_conditions:
-                print i
-        except Exception:
-            print "No stop conditions defined"
-
         # save the concentration
-        concentration = self.factory.new(0).join_concentration
+        #concentration = self.factory.new(0).join_concentration
 
         assert(self.numOfThreads > 0)
 
@@ -805,7 +799,7 @@ class MergeSim(object):
         self.nForward = manager.Value('i', 0)
         self.nReverse = manager.Value('i', 0)
 
-        self.results = self.settings.rateFactory(conc=concentration)
+        self.results = self.settings.rateFactory()
         self.endStates = []
 
         def doSim(myFactory, aFactory, list0, list1, instanceSeed, nForwardIn, nReverseIn):
@@ -819,7 +813,7 @@ class MergeSim(object):
             if myOptions.simulation_mode == Options.firstStep:
 
                 myFSR = self.settings.rateFactory(
-                    dataset=myOptions.interface.results, conc=concentration)
+                    dataset=myOptions.interface.results)
                 nForwardIn.value += myFSR.nForward + myFSR.nForwardAlt
                 nReverseIn.value += myFSR.nReverse
 
