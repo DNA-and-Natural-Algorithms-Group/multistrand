@@ -644,6 +644,13 @@ def timeStamp(inTime=None):
     return str(datetime.datetime.fromtimestamp(inTime).strftime('%Y-%m-%d %H:%M:%S'))
 
 
+
+""" Mrinank Sharma and Frits Dannenberg - Aug 3rd 2017
+    This class avoids instanciating Multistrand objects in the main
+    Python process. Starting two multistrand objects in the 
+    same proces can lead to unexpected behavior.
+    This class manages multiple simulations and merges their results.
+"""
 class MergeSim(object):
 
     numOfThreads = 2
@@ -779,6 +786,7 @@ class MergeSim(object):
 
         return welcomeMessage
 
+
     def run(self):
 
         # The input0 is always trials.
@@ -786,26 +794,10 @@ class MergeSim(object):
             math.ceil(float(self.factory.input0) / float(self.numOfThreads)))
         startTime = time.time()
 
-        try:
-            for i in self.factory.new(0).stop_conditions:
-                print i
-        except Exception:
-            print "No stop conditions defined"
-
-        # save the concentration
-        concentration = self.factory.new(0).join_concentration
 
         assert(self.numOfThreads > 0)
 
-        manager = multiprocessing.Manager()
 
-        self.managed_result = manager.list()
-        self.managed_endStates = manager.list()
-        self.nForward = manager.Value('i', 0)
-        self.nReverse = manager.Value('i', 0)
-
-        self.results = self.settings.rateFactory(conc=concentration)
-        self.endStates = []
 
         def doSim(myFactory, aFactory, list0, list1, instanceSeed, nForwardIn, nReverseIn):
 
@@ -843,6 +835,16 @@ class MergeSim(object):
                 (time.time() * 10000) % (math.pow(2, 32) - 1)
             return multiprocessing.Process(target=doSim, args=(self.factory, self.aFactory, self.managed_result, self.managed_endStates, instanceSeed, self.nForward, self.nReverse))
 
+        def printStopConditionsAndGetConcentration(managedFloat):
+        
+            try:
+                for i in self.factory.new(0).stop_conditions:
+                    print i
+            except Exception:
+                print "No stop conditions defined"
+    
+            managedFloat.value = self.factory.new(0).join_concentration
+
         # this saves the results generated so far as regular Python objects,
         # and clears the concurrent result lists.
         def saveResults():
@@ -869,6 +871,26 @@ class MergeSim(object):
             # reset the multiprocessing results lists.
             self.managed_result = manager.list()
             self.managed_endStates = manager.list()
+
+
+        manager = multiprocessing.Manager()
+
+        self.managed_result = manager.list()
+        self.managed_endStates = manager.list()
+        self.nForward = manager.Value('i', 0)
+        self.nReverse = manager.Value('i', 0)
+        managed_concentration = manager.Value('f', 0)
+
+        #Print the stopping states
+        myProcess = multiprocessing.Process(target=printStopConditionsAndGetConcentration, args=[managed_concentration])
+        myProcess.start()
+        myProcess.join()
+        myProcess.terminate()
+        concentration = float(managed_concentration.value)
+
+        self.results = self.settings.rateFactory(conc=concentration)
+        self.endStates = []
+
 
         # start the initial bulk
         print(self.startSimMessage())
