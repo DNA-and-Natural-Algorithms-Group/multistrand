@@ -26,7 +26,7 @@ import numpy as np
 
 
 ATIME_OUT = 10.0
-#lets see the error bars I get here....
+# lets see the error bars I get here....
 MINIMUM_FORWARD = 2
 A_CONCENTRATION = 50e-9
 INCREMENT_TRIALS = 2000
@@ -40,7 +40,6 @@ myMultistrand.setLeakMode()
 
 def getOptions(trials, material, complex1, complex2,
                success_stop_conditions, failed_stop_conditions, T=25):
-
 
     o = Options(simulation_mode="First Step", substrate_type=material,
                 rate_method="Metropolis", num_simulations=trials,
@@ -69,13 +68,11 @@ def calculateGateInputRate(gate_complex, input_complex, output_complex, trials=I
     failed_stop_condition = StopCondition(
         Options.STR_FAILURE, [(input_complex, Options.dissocMacrostate, 0)])
 
-    
-
     for x in [gate_complex, input_complex]:
         x.boltzmann_count = trials
         x.boltzmann_sample = True
         x.boltzmann_supersample = 25
-    
+
     try:
         if alt_output_complex is None:
             raise TypeError
@@ -87,18 +84,14 @@ def calculateGateInputRate(gate_complex, input_complex, output_complex, trials=I
                                              alt_success_stop_condition],
                                          [failed_stop_condition])
     except TypeError:
-        myMultistrand.setOptionsFactory6(getOptions, trials, DNA,
-                                         gate_complex, input_complex,
-                                         [success_stop_condition],
-                                         [failed_stop_condition])
-
+        myMultistrand.setOptionsFactory6(getOptions, trials, DNA, gate_complex, input_complex, [
+                                         success_stop_condition], [failed_stop_condition])
 
     myMultistrand.run()
     rates = myMultistrand.results
     rates = SeesawRates(myMultistrand.results)
     print rates
     return rates
-
 
 
 def calculateBaseOutputRate(gate, trials=INCREMENT_TRIALS):
@@ -135,8 +128,7 @@ def calculateGateGateLeak(gateA, gateB, trials=INCREMENT_TRIALS, material="DNA")
                                Options.dissocMacrostate, 0)])
 
     alt_success_stop_condition = StopCondition(
-        Options.STR_ALT_SUCCESS, [(alt_leak_complex,
-                                   Options.dissocMacrostate, 0)])
+        Options.STR_ALT_SUCCESS, [(alt_leak_complex, Options.dissocMacrostate, 0)])
 
     failed_stop_condition = StopCondition(
         Options.STR_FAILURE, [(gateA_complex,
@@ -145,7 +137,6 @@ def calculateGateGateLeak(gateA, gateB, trials=INCREMENT_TRIALS, material="DNA")
     for x in [gateA_complex, gateB_complex]:
         x.boltzmann_count = trials
         x.boltzmann_sample = True
-
 
     myMultistrand.setOptionsFactory6(getOptions, trials, material,
                                      gateA_complex, gateB_complex,
@@ -162,6 +153,5 @@ def calculateGateGateLeak(gateA, gateB, trials=INCREMENT_TRIALS, material="DNA")
 
 # MS: Calculates the leak between a gate and its fuel
 def calculateGateFuelLeak(gate, trials=INCREMENT_TRIALS, material="DNA"):
-    rates = calculateGateInputRate(
-        gate.gate_output_complex, gate.fuel_complex, gate.output_complex, trials)
+    rates = calculateGateInputRate(gate.gate_output_complex, gate.fuel_complex, gate.output_complex, trials)
     return rates

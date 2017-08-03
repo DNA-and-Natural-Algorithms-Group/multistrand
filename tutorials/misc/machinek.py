@@ -18,7 +18,7 @@ from multistrand.concurrent import myMultistrand, FirstStepRate, Bootstrap
 from multistrand.experiment import standardOptions, setBoltzmann
 from multistrand.objects import StopCondition, Domain, Complex, Strand
 from multistrand.options import Options
-from msArrhenius import setArrheniusConstantsDNA23
+from multistrandPy.msArrhenius import setArrheniusConstantsDNA23
 
 
 myMultistrand.setNumOfThreads(8)

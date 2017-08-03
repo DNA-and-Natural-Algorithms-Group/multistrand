@@ -236,6 +236,7 @@ class FirstStepRate(basicRate):
 
         # Now merge the existing datastructures with the ones from the new dataset
         if deepCopy == True:
+            
             for result in that.dataset:
                 self.dataset.append(copy.deepcopy(result))
 
@@ -384,7 +385,7 @@ class FirstStepLeakRate(basicRate):
         resample.nReverse = nReverse
         return resample
 
-    def merge(self, that, deepCopy=False, doSummation=True):
+    def merge(self, that, deepCopy=True, doSummation=True):
 
         if not self.z == that.z:
             print("Error! Cannot combine results from different concentrations")
