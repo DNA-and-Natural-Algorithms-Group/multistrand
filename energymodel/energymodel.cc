@@ -88,7 +88,7 @@ void EnergyModel::writeConstantsToFile() {
 	ss << "Rate method :  " << simOptions->energyOptions->getKineticRateMethod() << "           (1: Metropolis, 2: Kawasaki)" << endl;
 	ss << "useArr      :  " << simOptions->energyOptions->usingArrhenius()  <<  "           (0: disabled)"<< endl;
 	ss << "dangles     :  " << simOptions->energyOptions->getDangles()   <<  "           (0: none, 1: some, 2: all)" << endl;
-//	ss << "substrate   :  " << simOptions->energyOptions->compareSubstrateType(SUBSTRATE_DNA) <<   "           (1: DNA)" << endl;
+	//ss << "substrate   :  << simOptions->energyOptions->compareSubstrateType(SUBSTRATE_DNA) <<   "           (1: DNA)" << endl;
 	ss << "GT pairing  :  " << simOptions->energyOptions->getGtenable() << "           (0: disabled)" << endl;
 	ss << "" << endl;
 
