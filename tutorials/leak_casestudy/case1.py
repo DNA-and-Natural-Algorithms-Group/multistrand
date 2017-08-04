@@ -8,19 +8,38 @@
 # FD: This script is now set to use 4 threads and just 50,000 trajectories.
 # FD: This is different from the results in case1.pdf
 # FD: The results of this study heavily depend on the parameterization of the Metropolis model: JS or DNA23 (see below).
+import operator
+import os
+import time
+import datetime
+import math
+import traceback
+import copy
+import sys
+import random
 
+from collections import Counter
+from multistrand.options import Options
+import multiprocessing
+import numpy as np
+
+from multistrand.system import SimSystem
+
+MINIMUM_RATE = 1e-36
 from multistrand.concurrent import myMultistrand, FirstStepRate
 from multistrand.objects import StopCondition, Domain, Complex, Strand
 from multistrand.options import Options
 from multistrandPy.msArrhenius import setArrheniusConstantsDNA23
 
+dirs = ["~/workspace/multistrand", "~/workspace/multistrandPy",
+        "~/multistrand", "~/multistrandPy"]
 
 import numpy as np
 from multistrand._options.interface import FirstStepResult
 ATIME_OUT = 10.0  
 
 
-myMultistrand.setNumOfThreads(14) 
+myMultistrand.setNumOfThreads(4) 
 
 def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
 
@@ -59,8 +78,8 @@ def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
         
         # FD: The result of this script depend significantly on JS or DNA23 parameterization.
 #        o.JSMetropolis25()
-#        o.DNA23Metropolis()
-        setArrheniusConstantsDNA23(o)
+        o.DNA23Metropolis()
+        # setArrheniusConstantsDNA23(o)
         
         return o
     
@@ -106,8 +125,6 @@ def makePlots():
     for seq in seqs:
         doFirstStepMode(seq, numOfRuns= 500000)
      
-
-
 # The actual main method
 if __name__ == '__main__':
         

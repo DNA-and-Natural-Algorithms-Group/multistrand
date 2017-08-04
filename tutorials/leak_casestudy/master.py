@@ -24,37 +24,41 @@ SHORT_SEQT = "CTCT"
 LONG_SEQ2 = "CCAAACAAAACCTAT"
 LONG_SEQ5 = "AACCACCAAACTTAT"
 LONG_SEQ6 = "CCTAACACAATCACT"
-
 # some ive made up, but these shouldn't make much difference
 LONG_SEQ7 = "TCATTCCAACATTCA"
 LONG_SEQ1 = "CCATTCAACTTAATC"
 LONG_SEQT = SHORT_SEQT
-
-
-
-
 
 SHORT_GATE_A_SEQ = [SHORT_SEQ1, SHORT_SEQ2, SHORT_SEQ5, SHORT_SEQ7, SHORT_SEQT]
 SHORT_GATE_B_SEQ = [SHORT_SEQ2, SHORT_SEQ5, SHORT_SEQ6, SHORT_SEQ7, SHORT_SEQT]
 LONG_GATE_A_SEQ = [LONG_SEQ1, LONG_SEQ2, LONG_SEQ5, LONG_SEQ7, LONG_SEQT]
 LONG_GATE_B_SEQ = [LONG_SEQ2, LONG_SEQ5, LONG_SEQ6, LONG_SEQ7, LONG_SEQT]
 
+start_time = 0
+
 def calcMetrics(gateA, gateB):
     rates = []
     print "\n **** Base Output Rates **** \n"
     rates.append(calculateBaseOutputRate(gateA))
+    printTimeElapsed()
     rates.append(calculateBaseOutputRate(gateB))
+    printTimeElapsed()
 
     print "\n **** Base Fuel Rates **** \n"
     rates.append(calculateBaseFuelRate(gateA))
+    printTimeElapsed()
     rates.append(calculateBaseFuelRate(gateB))
+    printTimeElapsed()
 
     print "\n **** Gate Leak Rates **** \n"
     rates.append(calculateGateGateLeak(gateA, gateB))
+    printTimeElapsed()
 
     print "\n **** Fuel Leak Rate s ****\n"
     rates.append(calculateGateFuelLeak(gateA))
+    printTimeElapsed()
     rates.append(calculateGateFuelLeak(gateB))
+    printTimeElapsed()
     print "Finished Rates \n"
     return rates
 
@@ -73,6 +77,7 @@ def runMismatchSimulations(domainListA, domainListB):
         rates = []
         gateA = MismatchedSeesawGate(*domainListA)
         gateB = MismatchedSeesawGate(*domainListB)
+        
 
         # Assume that it is required for a mismatch in the output of the first
         # gate and the input of the second gate
@@ -118,6 +123,15 @@ def outputRates(rates, time_taken):
         print "Rates Input Object Invalid"
         print "No output has been printed"
 
+def printTimeElapsed():
+    curr_time = time.time()
+    elap_time = curr_time - start_time
+    if(elap_time < 1000):
+        print "Time since start: {} s\n".format(elap_time)
+    elif(elap_time < 6000):
+        print "Time since start: {} min\n".format(elap_time/60)  
+    else:
+        print "Time since start: {} hr\n".format(elap_time/3600)  
 
 # The actual main method
 if __name__ == '__main__':
@@ -130,3 +144,5 @@ if __name__ == '__main__':
     else:
         gateA = MismatchedSeesawGate(*LONG_GATE_A_SEQ)
         gateB = MismatchedSeesawGate(*LONG_GATE_A_SEQ)
+
+        
