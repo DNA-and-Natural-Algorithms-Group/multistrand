@@ -116,6 +116,8 @@ def changeComplex(options, expirement_type=NORMAL, trials=500):
 
     produce_complex = Complex(
         strands=[produce_bot, aq, ap], structure=produce_struct)
+    produce_struct = Complex(
+        strands=[ap], structure='.' * len(ap.sequence))
     helper_complex = Complex(
         strands=[helper], structure='.' * len(helper.sequence))
     leak_complex = Complex(
