@@ -3,7 +3,7 @@
 # For a given complex, Pairtype returns a unique representation. 
 # This is important for hassing functions 
 
-import sys, time
+import sys
 
 from multistrand.objects import Complex, Domain, Strand, StopCondition
 from multistrand.options import Options
@@ -12,12 +12,11 @@ from multistrand.utils import pairType
 from multistrand.experiment import standardOptions, makeComplex
 
     
-ATIME_OUT = 0.000001
+ATIME_OUT = 0.0000001
 
 def printTrajectory(o):
     
     seqstring = ""
-    print "seed =  %i" % o.initial_seed
     
     for i in range(len(o.full_trajectory)):
     
@@ -42,8 +41,6 @@ def printTrajectory(o):
         tubestruct = ' '.join(structs)  # give the dot-paren secondary structure for the whole test tube
                  
         
-        #not printing anything
-        
         if not newseqstring == seqstring : 
             print newseqstring
             seqstring = newseqstring  # because strand order can change upon association of dissociation, print it when it changes        
@@ -52,27 +49,33 @@ def printTrajectory(o):
 
 
 
-def doSims(numTraj=2):    
+def doSims(strandSeq, numTraj=2):    
 
     o1 = standardOptions()
     
-    o1.simulation_mode = Options.firstStep
+    o1.simulation_mode = Options.trajectory
     o1.num_simulations = numTraj
     o1.output_interval = 1 
     o1.simulation_time = ATIME_OUT
     
-    myComplex1 = makeComplex(["GTCACTGCTTTT"], "............")
+    myComplex1 = makeComplex("GTCACTGCTTTT", "............")
     myComplex2 = makeComplex(["GTCACTGC", "GCAGTGAC"], ".(((((((+))))))).")
-        
-    o1.start_state = [myComplex1, myComplex2]
-
-#     myComplex = makeComplex(["GTCACTGCTTTT","GTCACTGC","GCAGTGAC"], "..(.........+).((((((+))))))..")
-#     o1.start_state = [myComplex]
-
+       
     # no stop conditions, just timeout.
+    
+    options.start_state = [startTop, startBot]
 
-    o1.initial_seed = time.time() * 1000000
-#     o1. initial_seed = 1501710503137097
+    # Point the options to the right objects
+    if not doFirstPassage:
+    
+        options.stop_conditions = [stopSuccess, stopFailed]           
+    
+    else :
+
+        options.stop_conditions = [stopSuccess]    
+
+
+    o1.initial_seed = 1777
 
     s = SimSystem(o1)
     s.start()
@@ -86,13 +89,7 @@ def doSims(numTraj=2):
 if __name__ == '__main__':
     
     print sys.argv
-    
-#     doSims()
-    
-      
-    for i in range(10000):
-        time.sleep(0.000001)
-        doSims(1)
+    doSims( "GCGTTTCAC",1)
          
         
         
