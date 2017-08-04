@@ -34,7 +34,7 @@ DNA = "DNA"
 
 
 myMultistrand.setNumOfThreads(2)
-myMultistrand.setTerminationCriteria(MINIMUM_FORWARD)
+#myMultistrand.setTerminationCriteria(MINIMUM_FORWARD)
 myMultistrand.setLeakMode()
 
 
@@ -87,11 +87,7 @@ def calculateGateInputRate(gate_complex, input_complex, output_complex, trials=I
         myMultistrand.setOptionsFactory6(getOptions, trials, DNA, gate_complex, input_complex, [
                                          success_stop_condition], [failed_stop_condition])
 
-    myMultistrand.run()
-    rates = myMultistrand.results
-    rates = SeesawRates(myMultistrand.results)
-    print rates
-    return rates
+    return getRates()
 
 
 def calculateBaseOutputRate(gate, trials=INCREMENT_TRIALS):
@@ -144,10 +140,12 @@ def calculateGateGateLeak(gateA, gateB, trials=INCREMENT_TRIALS, material="DNA")
                                          alt_success_stop_condition],
                                      [failed_stop_condition])
 
+    return getRates()
+
+def getRates():
     myMultistrand.run()
-#     dataset = myMultistrand.results
-#     rates = SeesawRates(dataset)
-    rates = myMultistrand.results
+    rates = SeesawRates(myMultistrand.results)
+    print rates
     return rates
 
 

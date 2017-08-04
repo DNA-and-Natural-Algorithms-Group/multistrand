@@ -1,6 +1,6 @@
 # Mrinank Sharma, July 2017
 # Simulates Leak Reactions from a DSD oscillator and calculates the rate with bootstraping
-import sys, time
+import sys, time, os
 from os.path import expanduser
 
 # Tad dodgy, but using in non-root environments. Should work
@@ -41,10 +41,13 @@ MAGNESIUM_COL = 12
 TEMP_COL = 5
 MEASURED_RATE_COL = 7
 
+myMultistrand.setNumOfThreads(4)
 
 # i.e. setup options obiect, given the type of experiment and
 # number of trials
-def runSimulations(options, expirement_type=NORMAL, trials=500):
+
+
+def changeComplex(options, expirement_type=NORMAL, trials=500):
     # Easiest to use full dot paren here
     # See SI Document for these sequences and lengths!
     toehold_length = 7
@@ -53,7 +56,7 @@ def runSimulations(options, expirement_type=NORMAL, trials=500):
     helper = Strand(name="Helper_AAq",
                     sequence="TTTCCTAATCCCAATCAACACCTTTCCTA")
     produce_bot = Strand(name="Produce_BOT_CApAq",
-                            sequence="GTAAAGACCAGTGGTGTGAAGATAGGAAAGGTGTTGATTGGGATTAGGAAACC")
+                         sequence="GTAAAGACCAGTGGTGTGAAGATAGGAAAGGTGTTGATTGGGATTAGGAAACC")
     ap = Strand(
         name="ap", sequence="CATCACTATCAATCATACATGGTTTCCTATCTTCACACCACTGG")
     aq = Strand(
@@ -89,7 +92,7 @@ def runSimulations(options, expirement_type=NORMAL, trials=500):
             name="aq", sequence="CATCACTATCAATCATACATGGTTTCCTAATCCCAATCAACACC")
 
         # bot, aq, ap
-         # Offsets due to a) clamp domains b) one b.p. removal
+        # Offsets due to a) clamp domains b) one b.p. removal
         produce_struct = "." * toehold_length + "(" * (len(produce_bot.sequence) - toehold_length) + "+" + '.' * (toehold_length + h_length - 2) + ')' * (
             len(ap.sequence) - toehold_length - h_length + 2) + "+" + '.' * (toehold_length + h_length - 1) + ')' * (len(ap.sequence) - toehold_length - h_length + 1)
     elif expirement_type == HELPER_WITHOUT_CC:
@@ -113,7 +116,6 @@ def runSimulations(options, expirement_type=NORMAL, trials=500):
 
     produce_complex = Complex(
         strands=[produce_bot, aq, ap], structure=produce_struct)
-
     helper_complex = Complex(
         strands=[helper], structure='.' * len(helper.sequence))
     leak_complex = Complex(
@@ -132,7 +134,6 @@ def runSimulations(options, expirement_type=NORMAL, trials=500):
 
     options.start_state = [produce_complex, helper_complex]
     options.stop_conditions = [success_stop_cond, failure_stop_cond]
-    print "made options?"
 
 
 def openDocument(document):
@@ -141,27 +142,26 @@ def openDocument(document):
     return sheet
 
 
-def genOptions(trialsIn, expirement_type=NORMAL):
+def genOptions(trialsIn, experiment_type=NORMAL):
     # NB: Time out MUST be a float
     stdOptions = standardOptions(
-        Options.firstStep, trials=trialsIn, timeOut=10.0)
-    stdOptions.temperature = expTemp(expirement_type)
-    stdOptions.sodium = expSodium(expirement_type)
-    stdOptions.magnesium = expMagnesium(expirement_type)
-
-    setArrheniusConstantsDNA23(stdOptions)
-    runSimulations(stdOptions, expirement_type)
+        Options.firstStep, expTemp(experiment_type), trials=trialsIn, timeOut=0.000000000000001)
+    stdOptions.temperature = expTemp(experiment_type)
+    stdOptions.sodium = expSodium(experiment_type)
+    stdOptions.magnesium = expMagnesium(experiment_type)
+    stdOptions.DNA23Metropolis()
+    #setArrheniusConstantsDNA23(stdOptions)
+    changeComplex(stdOptions, experiment_type)
 
     return stdOptions
 
 
 def computeRate(trialsIn, experiment_type=NORMAL):
     myMultistrand.setOptionsFactory2(genOptions, trialsIn, experiment_type)
-    myMultistrand.setTerminationCriteria(MINIMUM_FORWARD)
+    # myMultistrand.setTerminationCriteria(MINIMUM_FORWARD)
     # use the new leak rates class for memory efficiency
     myMultistrand.setLeakMode()
-
-
+    # myMultistrand.initialInfo()
     myMultistrand.run()
     results = myMultistrand.results
     print results
@@ -238,8 +238,4 @@ def generateGraph(trials=50):
 
 # the main method
 if __name__ == '__main__':
-    print multistrand.__file__
-    generateGraph(1000)
-
-
-    
+    generateGraph(10)
