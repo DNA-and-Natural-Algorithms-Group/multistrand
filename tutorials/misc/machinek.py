@@ -18,7 +18,7 @@ from multistrand.concurrent import myMultistrand, FirstStepRate, Bootstrap
 from multistrand.experiment import standardOptions, setBoltzmann
 from multistrand.objects import StopCondition, Domain, Complex, Strand
 from multistrand.options import Options
-from multistrandPy.msArrhenius import setArrheniusConstantsDNA23
+from msArrhenius import setArrheniusConstantsDNA23
 
 
 myMultistrand.setNumOfThreads(8)
@@ -37,7 +37,6 @@ positionSelector = [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14]
 
 
 def machinek2014(options, selector, trialsIn):
-    print "setting up initial complex and stopping conditions"
     # we only allow first step mode at this point.
     
     # these are the sequences we need to build the dot-parens
@@ -181,9 +180,6 @@ def computeRate(select, trials):
     
     print myFSR
     
-#     myBootstrap = Bootstrap(myFSR, computek1 = True)
-#     
-#     print myBootstrap
     
     return myFSR.k1()
 
@@ -262,7 +258,7 @@ if __name__ == '__main__':
         print("No commandline arguments required. Aborting program.")
         exit()
     
-    generateGraph(400)
+    generateGraph(80)
 
 
 
