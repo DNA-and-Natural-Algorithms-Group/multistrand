@@ -252,7 +252,7 @@ class Complex(object):
         if self._boltzmann_sizehint > self.MAX_SAMPLES_AT_ONCE * self.boltzmann_supersample:
             count = self.MAX_SAMPLES_AT_ONCE
         elif self._boltzmann_sizehint >= 1:
-            count = (self._boltzmann_sizehint/self.boltzmann_supersample) + 1
+            count = (self._boltzmann_sizehint / self.MAX_SAMPLES_AT_ONCE) + 1
         else:
             count = 1
         
@@ -325,6 +325,7 @@ class Complex(object):
         #print "This is the (length %d) queue:" % len(self._boltzmann_queue)
         #print lines[14:]
         
+
         self._pop_boltzmann()
     
     def _pop_boltzmann(self):

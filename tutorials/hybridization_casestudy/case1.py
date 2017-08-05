@@ -13,6 +13,7 @@ from multistrand.objects import Strand
 from multistrand.experiment import standardOptions, hybridization
 from multistrand.utils import concentration_string, standardFileName
 from multistrand.concurrent import  FirstStepRate, FirstPassageRate, Bootstrap, myMultistrand
+from multistrand.options import Options
 
 from constantsgao import goa2006_P0, goa2006_P3, goa2006_P4, setSaltGao2006, colors
 
@@ -24,7 +25,7 @@ import time, sys
 
 SCRIPT_DIR = "Hybridization_F1"
 TEMPERATURE = 20.0
-ATIME_OUT = 10.0
+ATIME_OUT = 100.0
  
 markers = ["8", ">", "D", "s", "*", "<", "^"] 
  
@@ -40,7 +41,7 @@ def first_step_simulation(strand_seq, trials, T=20.0):
     def getOptions(trials):
        
        
-        o = standardOptions("First Step", TEMPERATURE, trials, ATIME_OUT) 
+        o = standardOptions(Options.firstStep, TEMPERATURE, trials, ATIME_OUT) 
         hybridization(o, strand_seq, trials)
         setSaltGao2006(o)
                
@@ -48,12 +49,9 @@ def first_step_simulation(strand_seq, trials, T=20.0):
         return o
     
     myMultistrand.setOptionsFactory1(getOptions, trials)
+    myMultistrand.setFirstStepMode() # ensure the right results object is set.
     myMultistrand.run()
-    dataset = myMultistrand.results
-
-    
-
-    return FirstStepRate(dataset, 50e-9)
+    return myMultistrand.results
 
 
 
@@ -64,7 +62,7 @@ def first_passage_association(strand_seq, trials, concentration, T=20.0):
     def getOptions(trials):
 
            
-        o = standardOptions("First Passage Time", TEMPERATURE, trials, ATIME_OUT) 
+        o = standardOptions(Options.firstPassageTime, TEMPERATURE, trials, ATIME_OUT) 
         
         hybridization(o, strand_seq, trials, True)
         setSaltGao2006(o)
@@ -73,11 +71,10 @@ def first_passage_association(strand_seq, trials, concentration, T=20.0):
         return o
     
     myMultistrand.setOptionsFactory1(getOptions, trials)
+    myMultistrand.setPassageMode()
     myMultistrand.run()
-    dataset = myMultistrand.results
-        
-    return FirstPassageRate(dataset, concentration)
-
+    
+    return myMultistrand.results
 
 
 def doFirstStepMode(seq, concentrations, T=20.0, numOfRuns=500):
@@ -139,9 +136,9 @@ def doFirstPassageTimeAssocation(seq, concentrations, T=20, numOfRuns=500):
     for concentration in concentrations:
         
         myRates = first_passage_association(seq, numOfRuns, concentration=concentration, T=T)
-        keff = myRates.log10KEff()
+        keff = myRates.log10KEff(concentration)
         
-        myBootstrap = Bootstrap(myRates)
+        myBootstrap = Bootstrap(myRates, concentration)
         low, high = myBootstrap.ninetyFivePercentiles()
         logStd = myBootstrap.logStd()
         

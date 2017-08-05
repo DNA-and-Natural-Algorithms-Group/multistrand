@@ -6,7 +6,7 @@ MISMATCH_TYPE = 'C'
 
 class NormalSeesawGate(object):
     Gate_Count = 1
-    
+
     # S1, S2, S5, S7, T
     def __init__(self, input_sequence, base_sequence, output_sequence, fuel_sequence,
                  toehold_sequence):
@@ -93,8 +93,6 @@ class MismatchedSeesawGate(NormalSeesawGate):
         self.output_complex = Complex(strands=[self.output_strand],
                                       structure='.' *
                                       len(self.output_strand.sequence))
-       
-
 
     def placeMismatchInInputWire(self, position):
         mismatched_strands = self.placeMismatchInDomain(
@@ -104,7 +102,7 @@ class MismatchedSeesawGate(NormalSeesawGate):
         # Place a mismatch in the input wire
         self.input_strand = mismatched_strands[0] + \
             self.toehold_domain + self.input_domain
-        #make the new base strand have a 'C-C' mismatch
+        # make the new base strand have a 'C-C' mismatch
         self.base_strand = self.toehold_domain.C + mismatched_strands[1] + self.toehold_domain.C
         # we want to keep our the gate
         self.base_domain = mismatched_strands[1].C
@@ -115,13 +113,13 @@ class MismatchedSeesawGate(NormalSeesawGate):
         self.fuel_strand = self.fuel_domain + self.toehold_domain + self.base_domain
         self.output_strand = self.output_domain + \
             self.toehold_domain + self.base_domain
-        
+
         # We do want the threshold to still act well!!
         self.threshold_base = self.input_partial.C + self.toehold_domain.C + \
             mismatched_strands[0].C
         self.base_dom_strand = Strand(
             name="base strand", domains=[mismatched_strands[0]])
-        
+
         self._redefineMismatchedComplexes()
         self.gate_input_complex = Complex(strands=[self.base_strand,
                                                    self.input_strand],
@@ -136,7 +134,7 @@ class MismatchedSeesawGate(NormalSeesawGate):
         recog_len = len(self.base_domain.sequence)
 
         self.fuel_strand = self.fuel_domain + self.toehold_domain + mismatched_strands[0]
-        #make the new base strand have a 'C-C' mismatch with the fuel
+        # make the new base strand have a 'C-C' mismatch with the fuel
         self.base_strand = self.toehold_domain.C + mismatched_strands[1] + self.toehold_domain.C
         # we want to keep our the gate - as above, the complement for the prime in most places!
         self.base_domain = mismatched_strands[1].C
@@ -147,21 +145,19 @@ class MismatchedSeesawGate(NormalSeesawGate):
         self.input_strand = self.base_domain + self.toehold_domain + self.input_domain
         self.output_strand = self.output_domain + \
             self.toehold_domain + self.base_domain
-        
+
         # We do want the threshold to still act well!!
         self.threshold_base = self.input_partial.C + self.toehold_domain.C + \
             mismatched_strands[0].C
         self.base_dom_strand = Strand(
             name="base strand", domains=[mismatched_strands[0]])
-        
+
         self._redefineMismatchedComplexes()
         self.gate_fuel_complex = Complex(strands=[self.base_strand,
-                                                   self.fuel_strand],
-                                          structure=".(.((+.)).)")
-        
+                                                  self.fuel_strand],
+                                         structure=".(.((+.)).)")
 
-
-    # This method redefines all complexes using a base domain comprised of 
+    # This method redefines all complexes using a base domain comprised of
     # three subdomains rather than just one normally. This method assumes that
     # all complexes are meant to be fully bound, which is clearly not the case given
     # that there is a mismatch in at least one of them!!
@@ -182,7 +178,7 @@ class MismatchedSeesawGate(NormalSeesawGate):
         self.threshold_complex = Complex(strands=[self.threshold_base,
                                                   self.base_dom_strand],
                                          structure="..(((+)))")
-        
+
         self.input_complex = Complex(strands=[self.input_strand],
                                      structure='.' *
                                      len(self.input_strand.sequence))
@@ -192,13 +188,14 @@ class MismatchedSeesawGate(NormalSeesawGate):
         self.output_complex = Complex(strands=[self.output_strand],
                                       structure='.' *
                                       len(self.output_strand.sequence))
-        
+
 
 # Stores SeesawRates
 class SeesawRates(object):
 
-    def __init__(self, dataset, bootstrap=True, concentration=5e-9):
-        myFSR = FirstStepRate(dataset, concentration)
+    def __init__(self, myFSR, bootstrap=True, concentration=5e-9):
+
+        #         myFSR = FirstStepRate(dataset, concentration)
         self.nForward = myFSR.nForward
         self.nReverse = myFSR.nReverse
         self.nForwardAlt = myFSR.nForwardAlt
@@ -211,6 +208,7 @@ class SeesawRates(object):
 
         if bootstrap:
             if(self.nForwardAlt != 0):
+                print "boostrapping"
                 bootstrap = Bootstrap(
                     myFSR, concentration, computek1=True, computek1Alt=True)
                 self.k1_alt_bounds = bootstrap.ninetyFivePercentilesAlt()

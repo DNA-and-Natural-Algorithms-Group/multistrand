@@ -134,10 +134,12 @@ def machinek2014(options, selector, trialsIn):
     initialInvader = Complex(strands=[strandInvader], structure=intialInvaderDotParen)
     successComplex = Complex(strands=[strandIncumbent], structure=successDotParen)
     
-        # Turns Boltzmann sampling on for this complex and also does sampling more efficiently by sampling 'trials' states.
+    # Turns Boltzmann sampling on for this complex and also does sampling more efficiently by sampling 'trials' states.
     if(trialsIn > 0):
         setBoltzmann(initialComplex, trialsIn)
         setBoltzmann(initialInvader, trialsIn)
+        initialComplex.boltzmann_supersample = 25
+        initialInvader.boltzmann_supersample = 25
 
     stopSuccess = StopCondition(Options.STR_SUCCESS, [(successComplex, Options.dissocMacrostate, 0)])
     stopFailed = StopCondition(Options.STR_FAILURE, [(initialComplex, Options.dissocMacrostate, 0)])
@@ -159,6 +161,7 @@ def genOptions(trialsIn, select):
     stdOptions = standardOptions(Options.firstStep, tempIn=23.0, trials=trialsIn, timeOut=0.1)
     stdOptions.sodium = expSodium(select)
     stdOptions.magnesium = expMagnesium(select)
+    stdOptions.join_concentration = 5e-9
     
     # set the DNA23 parameters
     setArrheniusConstantsDNA23(stdOptions)
@@ -170,12 +173,13 @@ def genOptions(trialsIn, select):
 def computeRate(select, trials):
     
     myMultistrand.setOptionsFactory2(genOptions, trials, select) 
-    myMultistrand.setTerminationCriteria(FirstStepRate(dataset=[]))
+    myMultistrand.setTerminationCriteria(5)
+    myMultistrand.setLeakMode() # the new leak object -- faster bootstrapping.
     myMultistrand.run()
     
-    myFSR = FirstStepRate(myMultistrand.results, 5e-9)  # 5 nM concentration
+    myFSR = myMultistrand.results  
+    low, high = myFSR.doBootstrap()
     
-    print myFSR
     
     return myFSR.k1()
 
@@ -211,7 +215,6 @@ def generateGraph(trials=15):
     plt.title  ("Machinek Plot" , fontsize = 24) 
     plt.ylabel ( r"$\mathregular{K(M^{-1}s^{-1})}$",  fontsize = 19)
 
-#            plt.legend( loc=4, borderaxespad=0., prop={'size':17})
 
     ax.xaxis.set_major_formatter(ScalarFormatter())
     plt.xticks([1,2,4,6,8,10,12,14,16])
@@ -254,7 +257,7 @@ if __name__ == '__main__':
         print("No commandline arguments required. Aborting program.")
         exit()
     
-    generateGraph(160)
+    generateGraph(80)
 
 
 
