@@ -36,12 +36,21 @@ class basicRate(object):
 
     dataset = []
 
-    def log10KEff(self):
-        return np.log10(self.kEff())
+    def log10KEff(self,concentration):
+        return np.log10(self.kEff(concentration))
 
     
     def testForTwoStateness(self, concentration):
         print "Test for two-stateness is not implemented for this object (type: " + type(self).__name__ + ")\n"
+
+    # Convenience. 
+    def doBootstrap(self):
+        myBootstrap = Bootstrap(self, computek1=True)
+        low, high = myBootstrap.ninetyFivePercentiles()
+        
+        print "Estimated k1 = %0.3g /M /s with 95 pct confidence interval [%0.3g, %0.3g] \n" % (self.k1(), low, high)
+        
+        return low, high
 
 
 
@@ -139,6 +148,9 @@ class FirstStepRate(basicRate):
             print "Cannot compute k_effective without concentration"
             return MINIMUM_RATE
 
+        #casting just in case
+        concentration = np.float(concentration)
+
         if self.nForward == 0:
             return MINIMUM_RATE
 
@@ -159,12 +171,12 @@ class FirstStepRate(basicRate):
         else:
             collReverse = self.sumCollisionReverse() / np.float(self.nReverse)
 
-        dTForward = self.weightedForwardUni() + np.float(1.0) / (z * collForward)
-        dTReverse = self.weightedReverseUni() + np.float(1.0) / (z * collReverse)
+        dTForward = self.weightedForwardUni() + np.float(1.0) / (concentration * collForward)
+        dTReverse = self.weightedReverseUni() + np.float(1.0) / (concentration * collReverse)
 
         dT = dTReverse * multiple + dTForward
 
-        return (np.float(1.0) / dT) * (np.float(1.0) / np.float(z))
+        return (np.float(1.0) / dT) * (np.float(1.0) / concentration)
 
     def testForTwoStateness(self, concentration=None):
 
@@ -353,24 +365,20 @@ class FirstStepLeakRate(basicRate):
 # Like migrationrate, but uses data from first passage time rather than first step mode
 class FirstPassageRate(basicRate):
 
-    def __init__(self, dataset=None, shouldPrint=False):
+    def __init__(self, dataset=None):
         
-        if shouldPrint:
-            print "First passage rate object /n"
-
         if dataset == None:
             # set up for resampling
-            self.concentration = concentration
+            self.dataset = []
             self.times = []
             self.timeouts = []
 
         else:
-            self.process(dataset, concentration)
+            self.process(dataset)
             self.generateRates()
 
-    def process(self, dataset, concentration):
+    def process(self, dataset):
 
-        self.concentration = concentration
         self.times = np.array([i.time for i in dataset])
         self.timeouts = [i for i in dataset if not i.tag == Options.STR_SUCCESS]
 
@@ -381,7 +389,7 @@ class FirstPassageRate(basicRate):
     def resample(self):
         
         # avoid resampling time-outs.
-        newRates = FirstPassageRate(concentration=self.concentration)
+        newRates = FirstPassageRate()
 
         N = len(self.times)
 
@@ -395,27 +403,49 @@ class FirstPassageRate(basicRate):
         newRates.generateRates()
 
         return newRates
+    
+    def merge(self, that, deepCopy=False):
+
+        # Now merge the existing datastructures with the ones from the new dataset
+        if deepCopy == True:
+            for time in that.times:
+                self.times.append(copy.deepcopy(time))
+            for timeout in that.timeouts:
+                self.timeouts.append(copy.deepcopy(timeout))
+
+        else:
+            self.times.append(that.times)
+            self.timeouts.append(that.timesouts)
 
     def generateRates(self):
         0
 
-    def kEff(self):
+    def kEff(self, concentration):
 
         if len(self.timeouts) > 0:
 
             print("# association trajectories did not finish =",
                   str(len(self.timeouts)))
+            
+            for timeout in self.timeouts:
+                print timeout
+            
             for i in self.timeouts:
                 assert (i.type_name == 'Time')
                 assert (i.tag == None)
                 assert (i.time >= 10.0)
 
-#         print "average completion time = %g seconds at %s" % (np.mean(self.times), concentration_string(self.concentration))
 
         mean = np.mean(self.times)
-        kEff = np.float(1.0) / (mean * self.concentration)
+        kEff = np.float(1.0) / (mean * concentration)
 
         return kEff
+
+
+    def __str__(self):
+        
+        return "kEff = %.3g \n" % self.kEff(50e9)
+            
 
 
 class Bootstrap():
@@ -433,7 +463,7 @@ class Bootstrap():
         self.logEffectiveRates = list()
         self.N = 400
         
-        print "Starting bootstrap for " +   type(myRates).__name__ + ", resampling "  + str(self.N) + " times."
+        print "Bootstrapping " +   type(myRates).__name__ + ", using "  + str(self.N) + " samples.",
 
         for i in range(self.N):
 
@@ -459,7 +489,7 @@ class Bootstrap():
         self.effectiveRates.sort(cmp=None, key=None, reverse=False)
         self.effectiveAltRates.sort(cmp=None, key=None, reverse=False)
         b_finish_time = time.time()
-        print "Finished bootstrapping. %.2f s\n"  % (b_finish_time - b_start_time)
+        print "   ..finished in %.2f sec.\n"  % (b_finish_time - b_start_time)
 
         # Yet to generate log alt rates
         for rate in self.effectiveRates:
@@ -491,7 +521,7 @@ class Bootstrap():
 
         low, high = self.ninetyFivePercentiles()
 
-        print "Confidence Interval: %.4f /M /s, %.4f /M /s" % low, high
+        print "Confidence Interval: %.3g /M /s, %.3g /M /s" % low, high
 
 
 # # Concurrent classes start here
@@ -562,7 +592,7 @@ class MergeSimSettings(object):
             return True
         else:
             if printFlag:
-                print "nForward = %i \n" % nForwardIn.value
+                print "nForward = %i " % nForwardIn.value
                 print "nReverse = %i \n" % nReverseIn.value
 
             return nForwardIn.value >= self.terminationCount
@@ -597,6 +627,9 @@ class MergeSim(object):
     def setTerminationCriteria(self, terminationCount=25):
         self.settings.terminationCount = terminationCount
 
+    def setFirstStepMode(self):
+        self.settings.resultsType = self.settings.RESULTTYPE1
+        
     def setLeakMode(self):
         self.settings.resultsType = self.settings.RESULTTYPE2
 

@@ -174,11 +174,11 @@ def computeRate(select, trials):
     
     myMultistrand.setOptionsFactory2(genOptions, trials, select) 
     myMultistrand.setTerminationCriteria(5)
+    myMultistrand.setLeakMode() # the new leak object -- faster bootstrapping.
     myMultistrand.run()
     
-    myFSR = myMultistrand.results  # 5 nM concentration
-    
-    print myFSR
+    myFSR = myMultistrand.results  
+    low, high = myFSR.doBootstrap()
     
     
     return myFSR.k1()
@@ -215,7 +215,6 @@ def generateGraph(trials=15):
     plt.title  ("Machinek Plot" , fontsize = 24) 
     plt.ylabel ( r"$\mathregular{K(M^{-1}s^{-1})}$",  fontsize = 19)
 
-#            plt.legend( loc=4, borderaxespad=0., prop={'size':17})
 
     ax.xaxis.set_major_formatter(ScalarFormatter())
     plt.xticks([1,2,4,6,8,10,12,14,16])
