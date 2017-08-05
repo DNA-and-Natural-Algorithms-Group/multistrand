@@ -68,7 +68,7 @@ def computeAndWriteToCL(strand_seq, doBootstrap):
 if(len(sys.argv) < 2):
     print("Please provide a DNA sequence as commandline argument")
     print("Add -bootstrap to do a boostrap ")
-    print("Example: computeAnnealRate.py ATGCAGT -boostrap")
+    print("Example: computeAnnealRate.py ATGCAGT -bootstrap")
     exit()
 
 start_time = time.time()
