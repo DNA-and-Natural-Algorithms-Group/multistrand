@@ -394,7 +394,7 @@ int lookuphelper[26] = { 1, 0, 2, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
 // // helper function to convert to numerical base format.
 int baseLookup(char base) {
-	char temp = toupper(base);
+	char temp = std::toupper(base);
 	if (temp < 'A' || temp > 'Z')
 		return base;
 	return lookuphelper[temp - 'A'];
