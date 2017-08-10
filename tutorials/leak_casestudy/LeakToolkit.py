@@ -19,7 +19,7 @@ for x in dirs:
 from multistrand.concurrent import myMultistrand, MergeSim, FirstStepRate, Bootstrap
 from multistrand.objects import StopCondition
 from multistrand.options import Options
-from msArrhenius import setArrheniusConstantsDNA23
+from multistrandPy.msArrhenius import setArrheniusConstantsDNA23
 
 from SeesawGate import SeesawRates
 import numpy as np
@@ -69,9 +69,10 @@ def calculateGateInputRate(gate_complex, input_complex, output_complex, trials=I
         Options.STR_FAILURE, [(input_complex, Options.dissocMacrostate, 0)])
 
     for x in [gate_complex, input_complex]:
+        x.boltzmann_supersample = 25
         x.boltzmann_count = trials
         x.boltzmann_sample = True
-        x.boltzmann_supersample = 25
+        
 
     try:
         if alt_output_complex is None:
@@ -131,8 +132,10 @@ def calculateGateGateLeak(gateA, gateB, trials=INCREMENT_TRIALS, material="DNA")
                                Options.dissocMacrostate, 0)])
 
     for x in [gateA_complex, gateB_complex]:
+        x.boltzmann_supersample = 25
         x.boltzmann_count = trials
         x.boltzmann_sample = True
+        
 
     myMultistrand.setOptionsFactory6(getOptions, trials, material,
                                      gateA_complex, gateB_complex,

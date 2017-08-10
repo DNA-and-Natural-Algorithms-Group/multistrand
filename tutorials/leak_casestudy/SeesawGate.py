@@ -3,6 +3,7 @@ from multistrand.concurrent import Bootstrap, FirstStepRate
 
 MISMATCH_TYPE = 'C'
 
+SEESAW_DELTA = 5
 
 class NormalSeesawGate(object):
     Gate_Count = 1
@@ -32,13 +33,14 @@ class NormalSeesawGate(object):
         self.output_strand = self.output_domain + \
             self.toehold_domain + self.base_domain
         self.input_partial = Domain(name="partial",
-                                    sequence=self.input_domain.sequence[:3])
+                                    sequence=self.input_domain.sequence[:SEESAW_DELTA])
         self.threshold_base = self.input_partial.C + self.toehold_domain.C + \
             self.base_domain.C
         self.base_dom_strand = Strand(
             name="base strand", domains=[self.base_domain])
         self.threshold_free_waste_complex = Complex(
             strands=[self.base_dom_strand], structure='.' * len(self.base_dom_strand.sequence))
+
         self.gate_output_complex = Complex(strands=[self.base_strand,
                                                     self.output_strand],
                                            structure=".((+.))")
@@ -84,7 +86,8 @@ class MismatchedSeesawGate(NormalSeesawGate):
         return strand, strand_prime, strand.C
 
     def placeMismatchInOutput(self, position):
-        mismatched_strands = self.placeMismatchInDomain(position, self.output_domain.sequence)
+        mismatched_strands = self.placeMismatchInDomain(
+            position, self.output_domain.sequence)
         self.output_strand = mismatched_strands[0] + \
             self.toehold_domain + self.base_domain
         self.gate_output_complex = Complex(strands=[self.base_strand,
@@ -103,7 +106,8 @@ class MismatchedSeesawGate(NormalSeesawGate):
         self.input_strand = mismatched_strands[0] + \
             self.toehold_domain + self.input_domain
         # make the new base strand have a 'C-C' mismatch
-        self.base_strand = self.toehold_domain.C + mismatched_strands[1] + self.toehold_domain.C
+        self.base_strand = self.toehold_domain.C + \
+            mismatched_strands[1] + self.toehold_domain.C
         # we want to keep our the gate
         self.base_domain = mismatched_strands[1].C
 
@@ -133,9 +137,11 @@ class MismatchedSeesawGate(NormalSeesawGate):
         # Get the standard recognition domain length
         recog_len = len(self.base_domain.sequence)
 
-        self.fuel_strand = self.fuel_domain + self.toehold_domain + mismatched_strands[0]
+        self.fuel_strand = self.fuel_domain + \
+            self.toehold_domain + mismatched_strands[0]
         # make the new base strand have a 'C-C' mismatch with the fuel
-        self.base_strand = self.toehold_domain.C + mismatched_strands[1] + self.toehold_domain.C
+        self.base_strand = self.toehold_domain.C + \
+            mismatched_strands[1] + self.toehold_domain.C
         # we want to keep our the gate - as above, the complement for the prime in most places!
         self.base_domain = mismatched_strands[1].C
 
@@ -188,6 +194,82 @@ class MismatchedSeesawGate(NormalSeesawGate):
         self.output_complex = Complex(strands=[self.output_strand],
                                       structure='.' *
                                       len(self.output_strand.sequence))
+
+
+# Does not inherit NormalSeesawGate - basically have to rewrite everything
+class ClampedSeesawGate(object):
+
+    Gate_Count = 1
+    # Note that the clamp sequence is 'CG' with length 2 by default.
+
+    def __init__(self, input_sequence, base_sequence, output_sequence, fuel_sequence,
+                 toehold_sequence, clamp_sequence="CG"):
+
+        count_str = str(ClampedSeesawGate.Gate_Count) + '_Cl '
+        self.input_domain = Domain(
+            name="input_domain_" + count_str, sequence=input_sequence)
+        self.base_domain = Domain(
+            name="base_domain_" + count_str, sequence=base_sequence)
+        self.output_domain = Domain(
+            name="output_domain_" + count_str, sequence=output_sequence)
+        self.fuel_domain = Domain(
+            name="fuel_domain_" + count_str, sequence=fuel_sequence)
+        self.toehold_domain = Domain(
+            name="toehold_domain_" + count_str, sequence=toehold_sequence)
+        self.clamp_domain = Domain(
+            name="clamp_domain_" + count_str, sequence=clamp_sequence)
+
+        # Use the convention of always adding 5' to 3'
+        # Setup stuff for this type of gate
+
+        # Clamp domain setup - add clamp domains either side of each recognition domain
+        self.input_strand = self.clamp_domain + self.base_domain + self.clamp_domain + \
+            self.toehold_domain + self.clamp_domain + self.input_domain + self.clamp_domain
+
+        self.fuel_strand = self.clamp_domain + self.fuel_domain + self.clamp_domain + \
+            self.toehold_domain + self.clamp_domain + self.base_domain + self.clamp_domain
+
+        self.base_strand = self.clamp_domain.C + self.toehold_domain.C + self.clamp_domain.C + \
+            self.base_domain.C + self.clamp_domain.C + \
+            self.toehold_domain.C + self.clamp_domain.C
+
+        self.output_strand = self.clamp_domain + self.output_domain + self.clamp_domain + \
+            self.toehold_domain + self.clamp_domain + self.base_domain + self.clamp_domain
+
+        self.input_partial = Domain(name="partial",
+                                    sequence=self.input_domain.sequence[:SEESAW_DELTA])
+
+        self.threshold_base = self.input_partial.C + self.clamp_domain.C + \
+            self.toehold_domain.C + self.clamp_domain + \
+            self.base_domain.C + self.clamp_domain
+        self.base_dom_strand = self.clamp_domain + self.base_domain + self.clamp_domain
+
+        self.threshold_free_waste_complex = Complex(
+            strands=[self.base_dom_strand], structure='.' * len(self.base_dom_strand.sequence))
+
+        # Account for the new clamp domains here!!! Wires and Bases now have 7 domains
+        self.gate_output_complex = Complex(strands=[self.base_strand,
+                                                    self.output_strand],
+                                           structure="..(((((+..)))))")
+        self.gate_fuel_complex = Complex(strands=[self.base_strand,
+                                                  self.fuel_strand],
+                                         structure="..(((((+..)))))")
+        self.gate_input_complex = Complex(strands=[self.base_strand,
+                                                   self.input_strand],
+                                          structure="(((((..+)))))..")
+        self.threshold_complex = Complex(strands=[self.threshold_base,
+                                                  self.base_dom_strand],
+                                         structure="...(((+)))")
+        self.input_complex = Complex(strands=[self.input_strand],
+                                     structure='.' *
+                                     len(self.input_strand.sequence))
+        self.fuel_complex = Complex(strands=[self.fuel_strand],
+                                    structure='.' *
+                                    len(self.fuel_strand.sequence))
+        self.output_complex = Complex(strands=[self.output_strand],
+                                      structure='.' *
+                                      len(self.output_strand.sequence))
+        ClampedSeesawGate.Gate_Count += 1
 
 
 # Stores SeesawRates

@@ -1,4 +1,5 @@
-import sys, time
+import sys
+import time
 from os.path import expanduser
 from datetime import datetime
 
@@ -10,9 +11,9 @@ for x in dirs:
     sys.path.append(i)
 
 from LeakToolkit import calculateBaseOutputRate, calculateGateGateLeak, calculateBaseFuelRate, calculateGateFuelLeak
-from SeesawGate import NormalSeesawGate, MismatchedSeesawGate
+from SeesawGate import NormalSeesawGate, MismatchedSeesawGate, ClampedSeesawGate
 
-USE_SHORT_DOMAINS = False
+USE_SHORT_DOMAINS = True
 
 SHORT_SEQ1 = "ACCTCT"
 SHORT_SEQ2 = "TCTTTA"
@@ -29,12 +30,26 @@ LONG_SEQ7 = "TCATTCCAACATTCA"
 LONG_SEQ1 = "CCATTCAACTTAATC"
 LONG_SEQT = SHORT_SEQT
 
+CL_LONG_SEQ2 = "CCAAACAAAACCTAT"
+CL_LONG_SEQ5 = "AACCACCAAACTTAT"
+CL_LONG_SEQ6 = "CCTAACACAATCACT"
+# some ive made up, but these shouldn't make much difference
+CL_LONG_SEQ7 = "TCATTCCAACATTCA"
+CL_LONG_SEQ1 = "CCATTCAACTTAATC"
+CL_LONG_SEQT = "CTCT"
+CLAMP_SEQ = "CG"
+
 SHORT_GATE_A_SEQ = [SHORT_SEQ1, SHORT_SEQ2, SHORT_SEQ5, SHORT_SEQ7, SHORT_SEQT]
 SHORT_GATE_B_SEQ = [SHORT_SEQ2, SHORT_SEQ5, SHORT_SEQ6, SHORT_SEQ7, SHORT_SEQT]
 LONG_GATE_A_SEQ = [LONG_SEQ1, LONG_SEQ2, LONG_SEQ5, LONG_SEQ7, LONG_SEQT]
 LONG_GATE_B_SEQ = [LONG_SEQ2, LONG_SEQ5, LONG_SEQ6, LONG_SEQ7, LONG_SEQT]
+CL_LONG_GATE_A_SEQ = [CL_LONG_SEQ1, CL_LONG_SEQ2,
+                      CL_LONG_SEQ5, CL_LONG_SEQ7, CL_LONG_SEQT, CLAMP_SEQ]
+CL_LONG_GATE_B_SEQ = [CL_LONG_SEQ2, CL_LONG_SEQ5,
+                      CL_LONG_SEQ6, CL_LONG_SEQ7, CL_LONG_SEQT, CLAMP_SEQ]
 
 start_time = 0
+
 
 def calcMetrics(gateA, gateB):
     rates = []
@@ -62,6 +77,7 @@ def calcMetrics(gateA, gateB):
     print "Finished Rates \n"
     return rates
 
+
 def runMismatchSimulations(domainListA, domainListB):
     # 'recognition domain' sequence length
     recog_len = len(domainListA[1])
@@ -69,15 +85,14 @@ def runMismatchSimulations(domainListA, domainListB):
     mismatched_rates = []
     gateA = NormalSeesawGate(*domainListA)
     gateB = NormalSeesawGate(*domainListB)
-    print " >>>>>> Normal Gate Rates <<<<<<<" 
+    print " >>>>>> Normal Gate Rates <<<<<<<"
     mismatched_rates.append(calcMetrics(gateA, gateB))
-    
+
     for i in range(2, recog_len, 2):
             # Not terribly efficient...
         rates = []
         gateA = MismatchedSeesawGate(*domainListA)
         gateB = MismatchedSeesawGate(*domainListB)
-        
 
         # Assume that it is required for a mismatch in the output of the first
         # gate and the input of the second gate
@@ -97,6 +112,17 @@ def runMismatchSimulations(domainListA, domainListB):
     return mismatched_rates
 
 
+def runClampedSimulations(domainListA, domainListB):
+    # 'recognition domain' sequence length
+    recog_len = len(domainListA[1])
+    # increment by twos
+    mismatched_rates = []
+    gateA = ClampedSeesawGate(*domainListA)
+    gateB = ClampedSeesawGate(*domainListB)
+    mismatched_rates.append(calcMetrics(gateA, gateB))
+    return mismatched_rates
+
+
 def outputRates(rates, time_taken):
     # this method assumes that the rates object is a 2D array
     try:
@@ -105,7 +131,7 @@ def outputRates(rates, time_taken):
         file_name = "data{}.txt".format(str(datetime.now()))
         with open(file_name, "w") as output:
             output.write("Dataset Created On: {}\n Took {} s\n".format(
-                str(datetime.now()), time_taken ))
+                str(datetime.now()), time_taken))
             for i in range(0, rates_measured):
                 output_str = ""
                 #output.write("writing rate " + str(i) + "\n")
@@ -123,26 +149,29 @@ def outputRates(rates, time_taken):
         print "Rates Input Object Invalid"
         print "No output has been printed"
 
+
 def printTimeElapsed():
     curr_time = time.time()
     elap_time = curr_time - start_time
     if(elap_time < 1000):
         print "Time since start: {} s\n".format(elap_time)
     elif(elap_time < 6000):
-        print "Time since start: {} min\n".format(elap_time/60)  
+        print "Time since start: {} min\n".format(elap_time / 60)
     else:
-        print "Time since start: {} hr\n".format(elap_time/3600)  
+        print "Time since start: {} hr\n".format(elap_time / 3600)
+
 
 # The actual main method
 if __name__ == '__main__':
     print "Initializing Example 3"
     if not USE_SHORT_DOMAINS:
         start_time = time.time()
-        data = runMismatchSimulations(LONG_GATE_A_SEQ, LONG_GATE_B_SEQ)
+        data = runMismatchSimulations(CL_LONG_GATE_A_SEQ, CL_LONG_GATE_B_SEQ)
         time_taken = time.time() - start_time
         outputRates(data, time_taken)
     else:
-        gateA = MismatchedSeesawGate(*LONG_GATE_A_SEQ)
-        gateB = MismatchedSeesawGate(*LONG_GATE_A_SEQ)
-
-        
+        gateA = ClampedSeesawGate(*LONG_GATE_A_SEQ)
+        print gateA.gate_fuel_complex
+        print gateA.gate_input_complex
+        print gateA.gate_output_complex
+        print gateA.threshold_complex
