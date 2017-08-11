@@ -4864,7 +4864,7 @@ char* OpenLoop::getBase(char type, int index, HalfContext half) {
 			}
 	}
 
-	if (utility::debugTraces) {
+//	if (utility::debugTraces) {
 
 		cout << "Failing with  \n";
 
@@ -4873,13 +4873,14 @@ char* OpenLoop::getBase(char type, int index, HalfContext half) {
 		cout << "HalfContext: " << half << "\n";
 		cout << "This OpenLoop Info: \n" << openInfo << endl;
 
-	}
+//	}
+
 
 	assert(0);
 	return NULL;
 }
 
-char* OpenLoop::getBase(char type, int index, bool useArr) {
+char* OpenLoop::getBase(char type, int index) {
 
 	// FD 2016-11-14
 	// adjusting this to work with arrhenius rates.
@@ -4888,13 +4889,6 @@ char* OpenLoop::getBase(char type, int index, bool useArr) {
 
 		int loop2 = 1;
 		int end = sidelen[loop] + 1;
-
-		if (useArr) {
-
-			loop2++;
-			end--;
-
-		}
 
 		for (; loop2 < end; loop2++)
 

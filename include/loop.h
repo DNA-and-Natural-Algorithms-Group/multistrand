@@ -233,7 +233,7 @@ public:
 	OpenInfo& getOpenInfo(void);
 	HalfContext getHalfContext(int, int);
 
-	char* getBase(char type, int index, bool);
+	char* getBase(char type, int index);
 	char* getBase(char type, int index, HalfContext);
 
 	OpenLoop(void);

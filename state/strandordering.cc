@@ -493,7 +493,7 @@ OpenLoop* StrandOrdering::getIndex(JoinCriteria& crit, int site, char **location
 
 			if (*index < baseCount.count[type]) {
 
-				*location = traverse->thisLoop->getBase(type, *index, useArr);
+				*location = traverse->thisLoop->getBase(type, *index);
 
 				return traverse->thisLoop;
 
