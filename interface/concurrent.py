@@ -22,6 +22,7 @@ import numpy as np
 from multistrand.system import SimSystem
 
 MINIMUM_RATE = 1e-36
+MAX_TRIALS = 25000000
 
 # # Rate-computation classes start here
 
@@ -583,7 +584,7 @@ class MergeSimSettings(object):
                 print "nForward = %i " % nForwardIn.value
                 print "nReverse = %i \n" % nReverseIn.value
 
-            return nForwardIn.value >= self.terminationCount
+            return (nForwardIn.value >= self.terminationCount) | (nForwardIn.value+nReverseIn.value) > MAX_TRIALS
 
 
 def timeStamp(inTime=None):

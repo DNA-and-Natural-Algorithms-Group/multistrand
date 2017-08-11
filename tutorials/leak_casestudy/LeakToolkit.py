@@ -34,7 +34,7 @@ DNA = "DNA"
 
 
 myMultistrand.setNumOfThreads(2)
-#myMultistrand.setTerminationCriteria(MINIMUM_FORWARD)
+myMultistrand.setTerminationCriteria(MINIMUM_FORWARD)
 myMultistrand.setLeakMode()
 
 
@@ -96,11 +96,27 @@ def calculateBaseOutputRate(gate, trials=INCREMENT_TRIALS):
         gate.gate_output_complex, gate.input_complex, gate.output_complex, trials)
     return rates
 
+def calculateReverseOutputRate(gate, trials=INCREMENT_TRIALS):
+    rates = calculateGateInputRate(
+        gate.gate_input, gate.output_complex, gate.input_complex, trials)
+    return rates
+
+def calculateThresholdRate(gate, trials=INCREMENT_TRIALS):
+    rates = calculateGateInputRate(
+        gate.threshold_complex , gate.input_complex, gate.threshold_free_waste_complex, trials)
+    return rates
+
 
 def calculateBaseFuelRate(gate, trials=INCREMENT_TRIALS,
                           ):
     rates = calculateGateInputRate(
         gate.gate_input_complex, gate.fuel_complex, gate.input_complex, trials)
+    return rates
+
+def calculateReverseFuelRate(gate, trials=INCREMENT_TRIALS,
+                          ):
+    rates = calculateGateInputRate(
+        gate.gate_fuel_complex, gate.input_complex, gate.fuel_complex, trials)
     return rates
 
 

@@ -10,7 +10,7 @@ for x in dirs:
     i = expanduser(x)
     sys.path.append(i)
 
-from LeakToolkit import calculateBaseOutputRate, calculateGateGateLeak, calculateBaseFuelRate, calculateGateFuelLeak
+from LeakToolkit import calculateBaseOutputRate, calculateGateGateLeak, calculateBaseFuelRate, calculateGateFuelLeak, calculateBaseThresholdRate, calculateReverseFuelRate, calculateReverseOutputRate
 from SeesawGate import NormalSeesawGate, MismatchedSeesawGate, ClampedSeesawGate
 from HiddenSeesawGate import AntiLeakSeesawGate
 
@@ -27,32 +27,34 @@ LONG_SEQ2 = "CCAAACAAAACCTAT"
 LONG_SEQ5 = "AACCACCAAACTTAT"
 LONG_SEQ6 = "CCTAACACAATCACT"
 # some ive made up, but these shouldn't make much difference
-LONG_SEQ7 = "TCATTCCAACATTCA"
-LONG_SEQ1 = "CCATTCAACTTAATC"
+LONG_SEQ7 = "CCACAAAACAAAACT"
+LONG_SEQ1 = "CATCCATTCAACTAT"
 LONG_SEQT = SHORT_SEQT
 
-CL_LONG_SEQ2 = "CCAAACAAAACCTAT"
-CL_LONG_SEQ5 = "AACCACCAAACTTAT"
-CL_LONG_SEQ6 = "CCTAACACAATCACT"
-# some ive made up, but these shouldn't make much difference
-CL_LONG_SEQ7 = "TCATTCCAACATTCA"
-CL_LONG_SEQ1 = "CCATTCAACTTAATC"
-CL_LONG_SEQT = "CTC"
-CLAMP_SEQ = "CG"
+CL_LONG_S18 = "TCTTCTAACAT"
+CL_LONG_S5 = "CCACCAAACTT"
+CL_LONG_S6 = "TAACACAATCA"
+CL_LONG_S29 = "CCAATACTCCT"
+CL_LONG_S53 = "TATCTAATCTC"
+CL_LONG_S44 = "AAACTCTCTCT"
+CL_LONG_SEQT = "TCT"
+CLAMP_SEQ = "CA"
 
 SHORT_GATE_A_SEQ = [SHORT_SEQ1, SHORT_SEQ2, SHORT_SEQ5, SHORT_SEQ7, SHORT_SEQT]
 SHORT_GATE_B_SEQ = [SHORT_SEQ2, SHORT_SEQ5, SHORT_SEQ6, SHORT_SEQ7, SHORT_SEQT]
 LONG_GATE_A_SEQ = [LONG_SEQ1, LONG_SEQ2, LONG_SEQ5, LONG_SEQ7, LONG_SEQT]
 LONG_GATE_B_SEQ = [LONG_SEQ2, LONG_SEQ5, LONG_SEQ6, LONG_SEQ7, LONG_SEQT]
-CL_LONG_GATE_A_SEQ = [CL_LONG_SEQ1, CL_LONG_SEQ2,
-                      CL_LONG_SEQ5, CL_LONG_SEQ7, CL_LONG_SEQT, CLAMP_SEQ]
-CL_LONG_GATE_B_SEQ = [CL_LONG_SEQ2, CL_LONG_SEQ5,
-                      CL_LONG_SEQ6, CL_LONG_SEQ7, CL_LONG_SEQT, CLAMP_SEQ]
+CL_LONG_GATE_A_SEQ = [CL_LONG_S44, CL_LONG_S18,
+                      CL_LONG_S5, CL_LONG_S29, CL_LONG_SEQT, CLAMP_SEQ]
+CL_LONG_GATE_B_SEQ = [CL_LONG_S53, CL_LONG_S5,
+                      CL_LONG_S6, CL_LONG_S29, CL_LONG_SEQT, CLAMP_SEQ]
 
 start_time = 0
 
 
 def calcMetrics(gateA, gateB):
+    calculateGateGateLeak(gateA, gateB)
+    
     rates = []
     print "\n **** Base Output Rates **** \n"
     rates.append(calculateBaseOutputRate(gateA))
@@ -60,10 +62,28 @@ def calcMetrics(gateA, gateB):
     rates.append(calculateBaseOutputRate(gateB))
     printTimeElapsed()
 
+    print "\n **** Reverse Output Rates **** \n"
+    rates.append(calculateReverseOutputRate(gateA))
+    printTimeElapsed()
+    rates.append(calculateReverseOutputRate(gateB))
+    printTimeElapsed()
+
     print "\n **** Base Fuel Rates **** \n"
     rates.append(calculateBaseFuelRate(gateA))
     printTimeElapsed()
     rates.append(calculateBaseFuelRate(gateB))
+    printTimeElapsed()
+
+    print "\n **** Reverse Fuel Rates **** \n"
+    rates.append(calculateReverseFuelRate(gateA))
+    printTimeElapsed()
+    rates.append(calculateReverseFuelRate(gateB))
+    printTimeElapsed()
+
+    print "\n **** Threshold Rates **** \n"
+    rates.append(calculateBaseThresholdRate(gateA))
+    printTimeElapsed()
+    rates.append(calculateBaseThresholdRate(gateB))
     printTimeElapsed()
 
     print "\n **** Gate Leak Rates **** \n"
@@ -124,6 +144,12 @@ def runClampedSimulations(domainListA, domainListB):
     return mismatched_rates
 
 
+def runAntiLeakSimulations(domainListA, domainListB):
+    gateA = AntiLeakSeesawGate(*domainListA)
+    gateB = AntiLeakSeesawGate(*domainListB)
+    return calcMetrics(gateA, gateB)
+
+
 def outputRates(rates, time_taken):
     # this method assumes that the rates object is a 2D array
     try:
@@ -171,10 +197,4 @@ if __name__ == '__main__':
         time_taken = time.time() - start_time
         outputRates(data, time_taken)
     else:
-        CL_LONG_GATE_A_SEQ.extend(['GA', 'GT'])
-        print CL_LONG_GATE_A_SEQ
-        gateA = AntiLeakSeesawGate(*CL_LONG_GATE_A_SEQ)
-        print gateA.gate_fuel_complex
-        print gateA.gate_input_complex
-        print gateA.gate_output_complex
-        print gateA.threshold_complex
+        runClampedSimulations(CL_LONG_GATE_A_SEQ, CL_LONG_GATE_B_SEQ)
