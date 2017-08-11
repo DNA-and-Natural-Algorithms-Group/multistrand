@@ -251,8 +251,8 @@ public:
 	BaseCount exposedBases = BaseCount();
 	bool updatedContext2 = false; // this is the update toggle for exposedBases.
 
-private:
 	OpenInfo openInfo;
+private:
 	int *sidelen;
 	char **seqs;
 

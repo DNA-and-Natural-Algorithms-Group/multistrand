@@ -919,6 +919,8 @@ void StrandOrdering::breakBasepair(char *first_bp, char *second_bp) {
 
 	for (traverse = first; traverse != NULL; traverse = traverse->next, iflag = 0) {
 
+		traverse->thisLoop->openInfo.upToDate  = false;
+
 		if (((first_bp - traverse->thisCodeSeq) < traverse->size) && ((first_bp - traverse->thisCodeSeq) >= 0)) {
 			if (id[0] == NULL)
 				id[0] = &traverse->thisStruct[first_bp - traverse->thisCodeSeq];
