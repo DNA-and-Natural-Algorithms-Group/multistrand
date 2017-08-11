@@ -27,6 +27,7 @@ SimulationSystem::SimulationSystem(PyObject *system_o) {
 	construct();
 	energyModel->writeConstantsToFile();
 
+//	cout << energyModel << endl;
 //	cout << simOptions->toString() << endl;
 
 
