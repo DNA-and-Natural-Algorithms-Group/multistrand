@@ -345,7 +345,7 @@ std::ostream & operator<<(std::ostream & os, HalfContext & m) {
 
 bool HalfContext::operator==(const HalfContext& other) const {
 
-	return (left == other.left) && (right == other.right);
+	return ((left == other.left) && (right == other.right)) || ((left == other.right) && (right == other.left)) ;
 
 }
 
