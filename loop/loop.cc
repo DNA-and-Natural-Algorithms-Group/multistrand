@@ -4834,13 +4834,15 @@ char *OpenLoop::getLocation(Move *move, int index) {
 
 char* OpenLoop::getBase(char type, int index, HalfContext half) {
 
+	int decrCount = 0;
+
 	for (int loop = 0; loop <= numAdjacent; loop++) {
 
 		int end = sidelen[loop] + 1;
 
-		for (int loop2 = 1; loop2 < end; loop2++)
+		for (int loop2 = 1; loop2 < end; loop2++){
 
-			if (seqs[loop][loop2] == type) {
+			if ( seqs[loop][loop2] == type) {
 
 				// potential match, if the halfContext matches.
 
@@ -4857,11 +4859,13 @@ char* OpenLoop::getBase(char type, int index, HalfContext half) {
 
 						index--;
 
+
 					}
 
 				}
 
 			}
+		}
 	}
 
 //	if (utility::debugTraces) {
@@ -4873,8 +4877,54 @@ char* OpenLoop::getBase(char type, int index, HalfContext half) {
 		cout << "HalfContext: " << half << "\n";
 		cout << "This OpenLoop Info: \n" << openInfo << endl;
 
-//	}
 
+
+		for (int loop = 0; loop <= numAdjacent; loop++) {
+
+			int end = sidelen[loop] + 1;
+			cout << "end = " <<  end  << endl;
+
+			for (int loop2 = 1; loop2 < end; loop2++){
+
+				cout << (char) seqs[loop][loop2] << endl;
+
+				if ( seqs[loop][loop2] == type) {
+
+					cout << "potential match" << endl;
+
+					// potential match, if the halfContext matches.
+
+					HalfContext thisHalf = getHalfContext(loop, loop2);
+
+					cout << "half      = " << half << endl;
+					cout << "thisHalf  = " << thisHalf << endl;
+
+					if (half == thisHalf) {
+						// it's a match.
+
+						cout << "it's a match, index = " << index << endl;
+
+						if (index == 0) {
+
+							return &seqs[loop][loop2];
+
+						} else {
+
+							index--;
+
+
+						}
+
+					}
+
+				}
+			}
+		}
+
+
+
+
+//	}
 
 	assert(0);
 	return NULL;

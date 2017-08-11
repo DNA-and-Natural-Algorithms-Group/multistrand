@@ -573,7 +573,6 @@ OpenLoop* StrandOrdering::getIndex(JoinCriteria& crit, int site, char **location
 
 					*location = traverse->thisLoop->getBase(type, *index, crit.half[site]);
 
-//					cout << "Executing merging! ****" << std::endl;
 
 					return traverse->thisLoop;
 
