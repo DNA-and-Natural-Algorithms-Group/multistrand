@@ -10,7 +10,6 @@
 vpath %.h include
 
 ## utility function for searching a path: 
-## [main idea via the make info manual] 
 ## 1st param is file to search for, 2nd is space separated list
 ##  of paths (e.g. PATH environment variable with :'s changed to spaces)
 ## Works by clever use of the wildcard function's expansion to

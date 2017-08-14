@@ -26,47 +26,20 @@ sources = ["system/utility.cc",
            "state/strandordering.cc"
            ]
 
-# Find the library path [so we can check for tcmalloc].
-def setup_libcheck():
-    ldflags = config_vars['LDFLAGS'].split() + ['/usr/lib']
-    for libpath in ldflags + os.environ.get('LIBRARY_PATH', '').split():
-        if libpath.startswith('-L'):
-            pathname = libpath[2:] # strip the -L from each entry
-        else:
-            pathname = libpath
-        try:
-            items = iter( os.listdir(pathname) )
-        except OSError:
-            continue
-        for item in items:
-            if item.startswith('libtcmalloc'):
-                return True
-    return False
-    
-
-def setup_ext( have_tcmalloc):    
-
-    if have_tcmalloc:
-        tcmalloc_optional = ['tcmalloc_minimal']
-        print "Found tcmalloc, will attempt to use it."
-    else:
-        print "Cannot find tcmalloc, proceeding with standard memory management."
-        tcmalloc_optional = []
+def setup_ext( ):    
 
     multi_ext = Extension("multistrand.system",
                           sources=sources,
                           include_dirs=["./include"],
                           language="c++",
-                          libraries=[] + tcmalloc_optional,
                         undef_macros=['NDEBUG'],
-                        extra_compile_args = ['-O3','-g', '-w', "-std=c++11" ], #FD: adding c11 flag
+                        extra_compile_args = ['-O3','-g', '-w', "-std=c++11", ], #FD: adding c11 flag
                           )
     return multi_ext
 
 if __name__ == '__main__':
 
-    tcmalloc_flag = setup_libcheck()
-    multi_ext = setup_ext( have_tcmalloc=tcmalloc_flag)
+    multi_ext = setup_ext( )
     
     setup(name="multistrand", version="2.1",
           packages=['multistrand','multistrand._options','multistrand._objects','nupack'],
