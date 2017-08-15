@@ -20,16 +20,13 @@ import numpy as np
 
 
 ATIME_OUT = 10.0
-# lets see the error bars I get here....
-MINIMUM_FORWARD = 2
 A_CONCENTRATION = 50e-9
-TRIALS = 500000
+TRIALS = 5000
 DNA = "DNA"
 
 
 myMultistrand.setNumOfThreads(8)
-myMultistrand.setTerminationCriteria(MINIMUM_FORWARD)
-myMultistrand.setLeakMode()
+
 
 
 LONG_SEQ2 = "CCAAACAAAACCTAT"
@@ -54,7 +51,7 @@ if __name__ == '__main__':
     gate_complex = Complex(strands=[base_strand, output_strand], structure = ".((+.))")
     input_complex = Complex(strands=[input_strand], structure="...")
     intermediate_complex = Complex(strands=[base_strand, output_strand, input_strand], structure = "(((+.))+.).")
-    output_complex = Complex(strands=[output_complex, structure="..."])
+    output_complex = Complex(strands=[output_strand], structure="...")
 
     success_stop_condition = StopCondition(
         Options.STR_SUCCESS, [(intermediate_complex, Options.looseMacrostate, 6)])

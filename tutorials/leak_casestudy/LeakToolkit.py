@@ -34,8 +34,8 @@ DNA = "DNA"
 
 
 myMultistrand.setNumOfThreads(2)
-myMultistrand.setTerminationCriteria(MINIMUM_FORWARD)
-myMultistrand.setLeakMode()
+# myMultistrand.setTerminationCriteria(MINIMUM_FORWARD)
+# myMultistrand.setLeakMode()
 
 
 def getOptions(trials, material, complex1, complex2,
