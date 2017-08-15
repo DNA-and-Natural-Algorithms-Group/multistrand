@@ -5,6 +5,7 @@ MISMATCH_TYPE = 'C'
 
 SEESAW_DELTA = 5
 
+
 class NormalSeesawGate(object):
     Gate_Count = 1
 

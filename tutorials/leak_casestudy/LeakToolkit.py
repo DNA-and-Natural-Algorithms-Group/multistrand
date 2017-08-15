@@ -39,7 +39,7 @@ myMultistrand.setLeakMode()
 
 
 def getOptions(trials, material, complex1, complex2,
-               success_stop_conditions, failed_stop_conditions, T=25):
+               success_stop_conditions, failed_stop_conditions, T=25, supersample=25):
 
     o = Options(simulation_mode="First Step", substrate_type=material,
                 rate_method="Metropolis", num_simulations=trials,
@@ -47,6 +47,12 @@ def getOptions(trials, material, complex1, complex2,
 
     o.start_state = [complex1, complex2]
     conds = []
+
+    for x in [complex1, complex2]:
+        x.boltzmann_supersample = supersample
+        x.boltzmann_count = trials
+        x.boltzmann_sample = True
+        
 
     for x in [success_stop_conditions, failed_stop_conditions]:
         try:
@@ -68,12 +74,7 @@ def calculateGateInputRate(gate_complex, input_complex, output_complex, trials=I
     failed_stop_condition = StopCondition(
         Options.STR_FAILURE, [(input_complex, Options.dissocMacrostate, 0)])
 
-    for x in [gate_complex, input_complex]:
-        x.boltzmann_supersample = 25
-        x.boltzmann_count = trials
-        x.boltzmann_sample = True
-        
-
+    
     try:
         if alt_output_complex is None:
             raise TypeError
@@ -95,6 +96,7 @@ def calculateBaseOutputRate(gate, trials=INCREMENT_TRIALS):
     rates = calculateGateInputRate(
         gate.gate_output_complex, gate.input_complex, gate.output_complex, trials)
     return rates
+
 
 def calculateReverseOutputRate(gate, trials=INCREMENT_TRIALS):
     rates = calculateGateInputRate(
@@ -147,12 +149,6 @@ def calculateGateGateLeak(gateA, gateB, trials=INCREMENT_TRIALS, material="DNA")
         Options.STR_FAILURE, [(gateA_complex,
                                Options.dissocMacrostate, 0)])
 
-    for x in [gateA_complex, gateB_complex]:
-        x.boltzmann_supersample = 25
-        x.boltzmann_count = trials
-        x.boltzmann_sample = True
-        
-
     myMultistrand.setOptionsFactory6(getOptions, trials, material,
                                      gateA_complex, gateB_complex,
                                      [success_stop_condition,
@@ -172,3 +168,4 @@ def getRates():
 def calculateGateFuelLeak(gate, trials=INCREMENT_TRIALS, material="DNA"):
     rates = calculateGateInputRate(gate.gate_output_complex, gate.fuel_complex, gate.output_complex, trials)
     return rates
+
