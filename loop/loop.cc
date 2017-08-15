@@ -4269,17 +4269,23 @@ OpenLoop::~OpenLoop(void) {
 }
 
 OpenLoop::OpenLoop(int branches, int *sidelengths, char **sequences) {
+
 	numAdjacent = branches;
+
 	if (branches > 0) {
+
 		adjacentLoops = new Loop *[branches];
-		for (int loop = 0; loop < branches; loop++)
+		for (int loop = 0; loop < branches; loop++){
 			adjacentLoops[loop] = NULL;
-	} else
+		}
+	} else{
 		adjacentLoops = NULL;
+	}
 
 	sidelen = sidelengths;
 	seqs = sequences;
 	identity = 'O';
+
 }
 
 string OpenLoop::typeInternalsToString(void) {

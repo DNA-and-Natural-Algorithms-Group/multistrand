@@ -398,11 +398,11 @@ int baseLookup(char base) {
 
 	char temp = std::toupper(base);
 	if (temp < 'A' || temp > 'Z'){
-		cout << "Warning! Trying to cast a non-base, value is " << ((int) base) << " and  temp is " << (int) (temp)  << endl;
+//		cout << "Warning! Trying to cast a non-base, value is " << ((int) base) << " and  temp is " << (int) (temp)  << endl;
 		return base;
 	}
 
-	cout << "Found char: " << lookuphelper[temp - 'A'] << endl;
+//	cout << "Found char: " << lookuphelper[temp - 'A'] << endl;
 
 	return lookuphelper[temp - 'A'];
 }

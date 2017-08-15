@@ -49,8 +49,9 @@ StrandComplex::StrandComplex(char *seq, char *struc, class identList *id_list) {
 	strcpy(tempseq, seq);
 	strcpy(tempcseq, seq);
 	strcpy(tempstruct, struc);
-	for (int loop = 0; loop < strlen(tempcseq); loop++)
+	for (int loop = 0; loop < strlen(tempcseq); loop++){
 		tempcseq[loop] = baseLookup(tempcseq[loop]);
+	}
 
 	beginLoop = NULL;
 	ordering = new StrandOrdering(tempseq, tempstruct, tempcseq, id_list);
