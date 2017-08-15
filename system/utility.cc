@@ -34,6 +34,19 @@ string utility::sequenceToString(char* sequence, int size) {
 
 	std::stringstream ss;
 
+	int preBase = (int) sequence[0];
+	int postBase = (int) sequence[size+1];
+
+	if( preBase < 0 || preBase > 5){
+		cout << "Warning! prebase is outside of range" << endl;
+	}
+
+	if( postBase < 0 || postBase > 5){
+		cout << "Warning! postbase is outside of range" << endl;
+	}
+
+
+
 	ss << "";
 	ss << baseTypeString[(int) sequence[0]];
 	ss << ":";
