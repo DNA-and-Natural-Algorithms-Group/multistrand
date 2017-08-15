@@ -44,14 +44,14 @@ out of or in connection with the software or the use or other dealings in the so
 
 | Dependency | Notes               | 
 | ---------- | ------              |
-| c++11      | gcc 4.8.5+ 		   |  
+| c++11      | gcc 4.8.5+ or clang/llvm 8.0.0   |  
 |  python2   |  2.7.12+       	   | 
 | NUPACK - www.nupack.org    |  **3.2.1**  | 
 |  make      |  4.0+         | 
  
 As of mid-2017, NUPACK 3.2.1 was released, which restores the sample functionality that Multistrand depends on. Users no longer need to patch nupack in order to use first step mode. 
 
-Some users may need to install 'make' first. You can check that make is installed by simplying calling "make" in the terminal, which should return a message similar to the below. You can similarly run "python -V" and "gcc -v" to check if python and gcc are installed. Mac users may need to install xcode in order to proceed.
+Some users may need to install 'make' first. You can check that make is installed by simplying calling "make" in the terminal, which should return a message similar to the below. You can similarly run "python -V",  "gcc -v" and "clang -V" to check which python, gcc and clang are installed. Mac users may need to install xcode in order to proceed. 
 ```sh
 $ make: *** No targets specified and no makefile found.  Stop.
 ```
