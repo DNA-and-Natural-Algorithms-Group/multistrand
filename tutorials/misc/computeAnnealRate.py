@@ -33,6 +33,8 @@ def first_step_simulation(strand_seq, trials, T=20.0, material="DNA"):
     myMultistrand.setOptionsFactory2(getOptions, trials, material)
     myMultistrand.setTerminationCriteria(1000)
     myMultistrand.setLeakMode()
+    
+    
     myMultistrand.run()
     
     return myMultistrand.results    # this is a first step rate object
