@@ -418,7 +418,9 @@ int StrandOrdering::checkIDBound(char *id) {
 // Sequence seperation is indicated by a single '_' character.
 void StrandOrdering::generateFlatSequence(char **sequence, char **structure, char **code_sequence) {
 
-	int totallength = 0, index = 0, cpos = 0;
+	int totallength = 0;
+	int index = 0;
+	int cpos = 0;
 	orderingList *traverse = first;
 
 	openInfo.upToDate = false;
@@ -427,11 +429,11 @@ void StrandOrdering::generateFlatSequence(char **sequence, char **structure, cha
 		totallength += traverse->size;
 	}
 
-	totallength += count - 1;
+	totallength += count;
 
-	*sequence = new char[totallength + 1];
-	*structure = new char[totallength + 1];
-	*code_sequence = new char[totallength + 1];
+	*sequence = new char[totallength];
+	*structure = new char[totallength];
+	*code_sequence = new char[totallength];
 
 	for (index = 0, cpos = 0, traverse = first; index < count; index++, traverse = traverse->next) {
 		strncpy(&((*sequence)[cpos]), traverse->thisSeq, traverse->size);
@@ -453,22 +455,49 @@ void StrandOrdering::generateFlatSequence(char **sequence, char **structure, cha
 	}
 }
 
-// char *convertIndex( int index)
-// -- converts an index into a flat char sequence returned by generateFlatSequence into an appropriate pointer into the particular strand's code sequence.
-char *StrandOrdering::convertIndex(int index) {
+
+// JS: converts an index into a flat char sequence returned by generateFlatSequence
+// into an appropriate pointer into the particular strand's code sequence.
+char* StrandOrdering::convertIndex(int index) {
+
 	int cpos, cstrand;
 	orderingList *traverse;
+
 	for (cpos = 0, cstrand = 0, traverse = first; cstrand < count; cstrand++, traverse = traverse->next) {
-		if (index < cpos + traverse->size) // index is into the current strand
+
+		if (index < cpos + traverse->size){ // index is into the current strand
 			return &traverse->thisCodeSeq[index - cpos];
-		else if (index == cpos + traverse->size)
-			; //fprintf(stderr, "Strandordering.cc, convertIndex: indexed into a strand break.\n");
+		}
 
 		cpos += traverse->size + 1;
 	}
+
 	fprintf(stderr, "strandordering.cc, convertIndex: index out of bounds.\n");
 	return NULL;
 }
+
+
+// FD: repeat the computation and flag if the index is out of bounds.
+bool StrandOrdering::convertIndexCheckBounds(int index) {
+
+	int cpos, cstrand;
+	orderingList *traverse;
+
+	for (cpos = 0, cstrand = 0, traverse = first; cstrand < count; cstrand++, traverse = traverse->next) {
+
+		if (index < cpos + traverse->size){ // index is into the current strand
+
+			return ((index - cpos) < 0);
+		}
+
+		cpos += traverse->size + 1;
+	}
+
+	fprintf(stderr, "strandordering.cc, convertIndexCheckBounds: index out of bounds.\n");
+	return NULL;
+}
+
+
 
 // Used for delete moves to get the actual Open loop and location within which is to be joined.
 OpenLoop* StrandOrdering::getIndex(JoinCriteria& crit, int site, char **location, bool useArr) {
@@ -493,7 +522,7 @@ OpenLoop* StrandOrdering::getIndex(JoinCriteria& crit, int site, char **location
 
 			if (*index < baseCount.count[type]) {
 
-				*location = traverse->thisLoop->getBase(type, *index, useArr);
+				*location = traverse->thisLoop->getBase(type, *index);
 
 				return traverse->thisLoop;
 
@@ -573,7 +602,6 @@ OpenLoop* StrandOrdering::getIndex(JoinCriteria& crit, int site, char **location
 
 					*location = traverse->thisLoop->getBase(type, *index, crit.half[site]);
 
-//					cout << "Executing merging! ****" << std::endl;
 
 					return traverse->thisLoop;
 
@@ -603,11 +631,13 @@ void StrandOrdering::addOpenLoop(OpenLoop *newLoop, int index) {
 
 	int cpos, cstrand;
 	orderingList *traverse;
+
 	for (cpos = 0, cstrand = 0, traverse = first; cstrand < count; cstrand++, traverse = traverse->next) {
 		if (index < cpos + traverse->size) // index is into the current strand
 				{
 			assert(traverse->thisLoop == NULL);
 			traverse->thisLoop = newLoop;
+
 			return; // loop terminates once association occurs, function complete.
 		} else if (index == cpos + traverse->size)
 			; //fprintf(stderr, "Strandordering.cc, convertIndex: indexed into a strand break.\n");
@@ -919,6 +949,8 @@ void StrandOrdering::breakBasepair(char *first_bp, char *second_bp) {
 	openInfo.upToDate = false;
 
 	for (traverse = first; traverse != NULL; traverse = traverse->next, iflag = 0) {
+
+		traverse->thisLoop->openInfo.upToDate  = false;
 
 		if (((first_bp - traverse->thisCodeSeq) < traverse->size) && ((first_bp - traverse->thisCodeSeq) >= 0)) {
 			if (id[0] == NULL)

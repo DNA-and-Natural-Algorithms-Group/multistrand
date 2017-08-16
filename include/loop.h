@@ -233,7 +233,7 @@ public:
 	OpenInfo& getOpenInfo(void);
 	HalfContext getHalfContext(int, int);
 
-	char* getBase(char type, int index, bool);
+	char* getBase(char type, int index);
 	char* getBase(char type, int index, HalfContext);
 
 	OpenLoop(void);
@@ -251,8 +251,10 @@ public:
 	BaseCount exposedBases = BaseCount();
 	bool updatedContext2 = false; // this is the update toggle for exposedBases.
 
-private:
 	OpenInfo openInfo;
+	bool initial = false; // FD: if true, then the loop is the initial open loop and seqs[0][0] is out of bounds.
+private:
+
 	int *sidelen;
 	char **seqs;
 

@@ -535,7 +535,7 @@ def doInference(mySeq, extraTitle, cutOff, runs):
 
     # # Write the alignment - success table
     makeAlignmentSuccessTable(myMultistrand.aFactory, settings, extraTitle)
-    myMultistrand.clear()
+#     myMultistrand.clear()
     
 
 

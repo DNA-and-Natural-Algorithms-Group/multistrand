@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2017 California Institute of Technology. All rights reserved.
-Multistrand nucleic acid kinetic simulator
-help@multistrand.org
-*/
+ Copyright (c) 2017 California Institute of Technology. All rights reserved.
+ Multistrand nucleic acid kinetic simulator
+ help@multistrand.org
+ */
 
 // FD  March 31, 2017. The following include fixes OSX compatibility issues.
 #include <Python.h>
@@ -1376,7 +1376,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 		tie(s_index, e_index) = findExternalAdjacent(start_, end_);
 
 		// resulting will be an interior loop with sidelengths 1 and 1.
-		newLoop = new InteriorLoop( 1, 1, start_->seqs[s_index], end_->seqs[e_index]);
+		newLoop = new InteriorLoop(1, 1, start_->seqs[s_index], end_->seqs[e_index]);
 
 		newLoop->addAdjacent(start_->adjacentLoops[s_index]);
 		// TODO: fix this! asserts generate no code when NDEBUG is set!
@@ -1413,7 +1413,6 @@ Loop *Loop::performDeleteMove(Move *move) {
 		// FD: this compares pointers, the execution is arbitrarly
 //		assert(!(start_->seqs[s_index] + 1 == end_->int_seq[e_index]));
 //		assert(!(start_->seqs[s_index] == end_->int_seq[e_index] + 1));
-
 
 		// FD: this compares pointers, the execution is arbitrarly
 //		if (start_->seqs[s_index] < end_->int_seq[e_index]) {
@@ -1962,8 +1961,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 		// FD: this compares pointers, the execution is arbitrarly
 //		if (start_->bulge_seq[s_index] < end_->bulge_seq[e_index]) {
 
-		newLoop = new InteriorLoop(end_->bulgesize[1 - e_index] + start_->bulgesize[s_index] + 1,
-				end_->bulgesize[e_index] + start_->bulgesize[1 - s_index] + 1, start_->bulge_seq[s_index], end_->bulge_seq[e_index]);
+		newLoop = new InteriorLoop(end_->bulgesize[1 - e_index] + start_->bulgesize[s_index] + 1, end_->bulgesize[e_index] + start_->bulgesize[1 - s_index] + 1,
+				start_->bulge_seq[s_index], end_->bulge_seq[e_index]);
 
 		newLoop->addAdjacent(start_->adjacentLoops[s_index]);
 		// TODO: fix this! asserts generate no code when NDEBUG is set!
@@ -2266,7 +2265,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 			int* sidelens = new int[end_->numAdjacent - 1];
 			char** seqs = new char*[end_->numAdjacent - 1];
 
-			if (utility::debugTraces){
+			if (utility::debugTraces) {
 
 				cout << "s_index = " << s_index << endl;
 				cout << "e_index = " << e_index << endl;
@@ -2292,7 +2291,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 				}
 			}
 
-			newLoop = new MultiLoop(end_->numAdjacent - 1,  sidelens, seqs);
+			newLoop = new MultiLoop(end_->numAdjacent - 1, sidelens, seqs);
 			for (int loop = 0; loop < end_->numAdjacent; loop++) {
 				if (loop != e_index) {
 					newLoop->addAdjacent(end_->adjacentLoops[loop]);
@@ -2783,9 +2782,9 @@ double HairpinLoop::doChoice(Move *move, Loop **returnLoop) {
 		if (move->type & MOVE_2) // bulge and hairpin
 				{
 			if (loop == 1)
-				newLoop[0] = new BulgeLoop( 0, (hairpinsize - loop2), &hairpin_seq[0], &hairpin_seq[loop2]);
+				newLoop[0] = new BulgeLoop(0, (hairpinsize - loop2), &hairpin_seq[0], &hairpin_seq[loop2]);
 			else
-				newLoop[0] = new BulgeLoop( loop - 1, 0, &hairpin_seq[0], &hairpin_seq[loop2]);
+				newLoop[0] = new BulgeLoop(loop - 1, 0, &hairpin_seq[0], &hairpin_seq[loop2]);
 			newLoop[1] = new HairpinLoop(loop2 - loop - 1, &hairpin_seq[loop]);
 			newLoop[0]->addAdjacent(adjacentLoops[0]);
 			adjacentLoops[0]->replaceAdjacent(this, newLoop[0]);
@@ -2799,7 +2798,7 @@ double HairpinLoop::doChoice(Move *move, Loop **returnLoop) {
 		}
 		if (move->type & MOVE_3) // interior and hairpin
 				{
-			newLoop[0] = new InteriorLoop( loop - 1, hairpinsize - loop2, &hairpin_seq[0], &hairpin_seq[loop2]);
+			newLoop[0] = new InteriorLoop(loop - 1, hairpinsize - loop2, &hairpin_seq[0], &hairpin_seq[loop2]);
 			newLoop[1] = new HairpinLoop(loop2 - loop - 1, &hairpin_seq[loop]);
 			newLoop[0]->addAdjacent(adjacentLoops[0]);
 			adjacentLoops[0]->replaceAdjacent(this, newLoop[0]);
@@ -3395,7 +3394,7 @@ double InteriorLoop::doChoice(Move *move, Loop **returnLoop) {
 				newLoop[0] = new BulgeLoop((loop - 1), (sizes[1] - loop2), int_seq[0], &int_seq[1][loop2]);
 			else
 				// interior
-				newLoop[0] = new InteriorLoop( loop - 1, sizes[1] - loop2, int_seq[0], &int_seq[1][loop2]);
+				newLoop[0] = new InteriorLoop(loop - 1, sizes[1] - loop2, int_seq[0], &int_seq[1][loop2]);
 
 			// other side
 			if (loop == sizes[0] && loop2 == 1) {		// stack
@@ -3877,7 +3876,7 @@ double MultiLoop::doChoice(Move *move, Loop **returnLoop) {
 				}
 			}
 
-			newLoop[0] = new MultiLoop(loop4 - loop3 + 1,  sidelengths, sequences);
+			newLoop[0] = new MultiLoop(loop4 - loop3 + 1, sidelengths, sequences);
 
 			sidelengths = new int[numAdjacent - (loop4 - loop3 - 1)];
 			sequences = new char *[numAdjacent - (loop4 - loop3 - 1)];
@@ -3897,7 +3896,7 @@ double MultiLoop::doChoice(Move *move, Loop **returnLoop) {
 					temploop++;
 				}
 			}
-			newLoop[1] = new MultiLoop(numAdjacent - (loop4 - loop3 - 1),  sidelengths, sequences);
+			newLoop[1] = new MultiLoop(numAdjacent - (loop4 - loop3 - 1), sidelengths, sequences);
 
 			// fix all the connections
 			//
@@ -3936,8 +3935,8 @@ double MultiLoop::doChoice(Move *move, Loop **returnLoop) {
 
 void MultiLoop::generateMoves(void) {
 
-	if(utility::debugTraces){
-			cout << "Multiloop generating moves!" << endl;
+	if (utility::debugTraces) {
+		cout << "Multiloop generating moves!" << endl;
 	}
 
 	int loop, loop2, loop3, loop4, temploop, tempindex, loops[4];
@@ -4269,23 +4268,28 @@ OpenLoop::~OpenLoop(void) {
 }
 
 OpenLoop::OpenLoop(int branches, int *sidelengths, char **sequences) {
+
 	numAdjacent = branches;
+
 	if (branches > 0) {
+
 		adjacentLoops = new Loop *[branches];
-		for (int loop = 0; loop < branches; loop++)
+		for (int loop = 0; loop < branches; loop++) {
 			adjacentLoops[loop] = NULL;
-	} else
+		}
+	} else {
 		adjacentLoops = NULL;
+	}
 
 	sidelen = sidelengths;
 	seqs = sequences;
 	identity = 'O';
+
 }
 
 string OpenLoop::typeInternalsToString(void) {
 
 	std::stringstream ss;
-
 
 	for (int i = 0; i < numAdjacent + 1; i++) {
 
@@ -4309,10 +4313,10 @@ void OpenLoop::calculateEnergy(void) {
 
 	energy = energyModel->OpenloopEnergy(numAdjacent, sidelen, seqs);
 
-	if(utility::debugTraces){
-			cout << "Computed openloop energy \n" << endl;
-			cout << this->typeInternalsToString();
-			cout << "Energy =" <<  energy << endl;
+	if (utility::debugTraces) {
+		cout << "Computed openloop energy \n" << endl;
+		cout << this->typeInternalsToString();
+		cout << "Energy =" << energy << endl;
 	}
 
 	return;
@@ -4370,7 +4374,7 @@ double OpenLoop::doChoice(Move *move, Loop **returnLoop) {
 				}
 			}
 
-			newLoop[0] = new OpenLoop(numAdjacent + 1,  sidelengths, sequences);
+			newLoop[0] = new OpenLoop(numAdjacent + 1, sidelengths, sequences);
 
 			newLoop[1] = new HairpinLoop(loop2 - loop - 1, &seqs[loop3][loop]);
 
@@ -4421,7 +4425,7 @@ double OpenLoop::doChoice(Move *move, Loop **returnLoop) {
 				}
 			}
 
-			newLoop[0] = new OpenLoop(numAdjacent,  sidelengths, sequences);
+			newLoop[0] = new OpenLoop(numAdjacent, sidelengths, sequences);
 
 			// three cases for which type of move:
 			// #2a: stack
@@ -4430,14 +4434,14 @@ double OpenLoop::doChoice(Move *move, Loop **returnLoop) {
 			}
 			// #2b: bulge
 			else if (loop == sidelen[loop3] || loop2 == 1) {
-				newLoop[1] = new BulgeLoop( sidelen[loop3] - loop, loop2 - 1, &seqs[loop3][loop], &seqs[loop3 + 1][0]);
+				newLoop[1] = new BulgeLoop(sidelen[loop3] - loop, loop2 - 1, &seqs[loop3][loop], &seqs[loop3 + 1][0]);
 			}
 
 			//FIXME 01/17/05: not necessarily in this location: need to make sure that we have a consistent case: sequences in multiloops/openloops are always /before/ (as is the case with open loops) or after, the pairing. 01/17/05 - this definately is the case, open loops have the sequence /before/ the pair with the same index - multi and all others have the squence /after/ the pair with the same index. It appears to be consistently used in most cases, but perhaps i should add an assert into the code to ensure this is the case.
 
 			// #2c: interior
 			else {
-				newLoop[1] = new InteriorLoop( sidelen[loop3] - loop, loop2 - 1, &seqs[loop3][loop], &seqs[loop3 + 1][0]);
+				newLoop[1] = new InteriorLoop(sidelen[loop3] - loop, loop2 - 1, &seqs[loop3][loop], &seqs[loop3 + 1][0]);
 			}
 
 			for (temploop = 0; temploop < numAdjacent; temploop++) {
@@ -4489,7 +4493,7 @@ double OpenLoop::doChoice(Move *move, Loop **returnLoop) {
 				}
 			}
 
-			newLoop[0] = new MultiLoop(loop4 - loop3 + 1,  sidelengths, sequences);
+			newLoop[0] = new MultiLoop(loop4 - loop3 + 1, sidelengths, sequences);
 
 			sidelengths = new int[numAdjacent - (loop4 - loop3 - 1) + 1];
 			sequences = new char *[numAdjacent - (loop4 - loop3 - 1) + 1];
@@ -4509,7 +4513,7 @@ double OpenLoop::doChoice(Move *move, Loop **returnLoop) {
 					temploop++;
 				}
 			}
-			newLoop[1] = new OpenLoop(numAdjacent - (loop4 - loop3 - 1),  sidelengths, sequences);
+			newLoop[1] = new OpenLoop(numAdjacent - (loop4 - loop3 - 1), sidelengths, sequences);
 
 			// fix all the connections
 
@@ -4547,9 +4551,9 @@ double OpenLoop::doChoice(Move *move, Loop **returnLoop) {
 
 void OpenLoop::generateMoves(void) {
 
-	if(utility::debugTraces){
-			cout << "\n OpenLoop generating moves!" << endl;
-			cout << this->typeInternalsToString();
+	if (utility::debugTraces) {
+		cout << "\n OpenLoop generating moves!" << endl;
+		cout << this->typeInternalsToString();
 	}
 
 	int loop, loop2, loop3, loop4, temploop, tempindex, loops[4];
@@ -4578,7 +4582,6 @@ void OpenLoop::generateMoves(void) {
 
 	sideLengths = new int[numAdjacent + 2];
 	sequences = new char *[numAdjacent + 2];
-
 
 // Case #1: Single Side only Creation Moves
 	for (loop3 = 0; loop3 < numAdjacent + 1; loop3++) {
@@ -4834,11 +4837,13 @@ char *OpenLoop::getLocation(Move *move, int index) {
 
 char* OpenLoop::getBase(char type, int index, HalfContext half) {
 
+	int decrCount = 0;
+
 	for (int loop = 0; loop <= numAdjacent; loop++) {
 
 		int end = sidelen[loop] + 1;
 
-		for (int loop2 = 1; loop2 < end; loop2++)
+		for (int loop2 = 1; loop2 < end; loop2++) {
 
 			if (seqs[loop][loop2] == type) {
 
@@ -4862,24 +4867,66 @@ char* OpenLoop::getBase(char type, int index, HalfContext half) {
 				}
 
 			}
+		}
 	}
 
-	if (utility::debugTraces) {
+//	if (utility::debugTraces) {
 
-		cout << "Failing with  \n";
+	cout << "Failing with  \n";
 
-		cout << "type: " << (int) type << "\n";
-		cout << "index: " << index << "\n";
-		cout << "HalfContext: " << half << "\n";
-		cout << "This OpenLoop Info: \n" << openInfo << endl;
+	cout << "type: " << (int) type << "\n";
+	cout << "index: " << index << "\n";
+	cout << "HalfContext: " << half << "\n";
+	cout << "This OpenLoop Info: \n" << openInfo << endl;
 
+	for (int loop = 0; loop <= numAdjacent; loop++) {
+
+		int end = sidelen[loop] + 1;
+		cout << "end = " << end << endl;
+
+		for (int loop2 = 1; loop2 < end; loop2++) {
+
+			cout << (char) seqs[loop][loop2] << endl;
+
+			if (seqs[loop][loop2] == type) {
+
+				cout << "potential match" << endl;
+
+				// potential match, if the halfContext matches.
+
+				HalfContext thisHalf = getHalfContext(loop, loop2);
+
+				cout << "half      = " << half << endl;
+				cout << "thisHalf  = " << thisHalf << endl;
+
+				if (half == thisHalf) {
+					// it's a match.
+
+					cout << "it's a match, index = " << index << endl;
+
+					if (index == 0) {
+
+						return &seqs[loop][loop2];
+
+					} else {
+
+						index--;
+
+					}
+
+				}
+
+			}
+		}
 	}
+
+//	}
 
 	assert(0);
 	return NULL;
 }
 
-char* OpenLoop::getBase(char type, int index, bool useArr) {
+char* OpenLoop::getBase(char type, int index) {
 
 	// FD 2016-11-14
 	// adjusting this to work with arrhenius rates.
@@ -4888,13 +4935,6 @@ char* OpenLoop::getBase(char type, int index, bool useArr) {
 
 		int loop2 = 1;
 		int end = sidelen[loop] + 1;
-
-		if (useArr) {
-
-			loop2++;
-			end--;
-
-		}
 
 		for (; loop2 < end; loop2++)
 
@@ -5052,7 +5092,7 @@ void OpenLoop::performComplexJoin(OpenLoop **oldLoops, OpenLoop **newLoops, char
 			}
 		}
 		//initialize the new openloops, and connect them correctly, then initialize their moves, etc.
-		newLoop = new OpenLoop(sizes[toggle],  sidelen, seqs);
+		newLoop = new OpenLoop(sizes[toggle], sidelen, seqs);
 
 		for (loop = 0; loop < sizes[toggle]; loop++) {
 			if (loop < seqnum[toggle]) {

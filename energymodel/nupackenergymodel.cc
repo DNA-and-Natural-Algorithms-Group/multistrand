@@ -557,7 +557,7 @@ void NupackEnergyModel::processOptions() {
 				string errorm = string("ERROR: nupack parameter file not found: $NUPACKHOME");
 				errorm += paramPath + RNAdG + string(" or ") + RNAdG;
 				errorm += string(" in current directory.\n");
-				fprintf(stderr, errorm.c_str());
+				fprintf(stderr, "%s", errorm.c_str()); //fd: without "%s" potentially insecure, clang
 				exit(0);
 			}
 
@@ -572,7 +572,7 @@ void NupackEnergyModel::processOptions() {
 				errorm += paramPath + RNAdH + string(" or ") + RNAdH;
 				errorm += string(" in current directory.\n");
 
-				fprintf(stderr, errorm.c_str());
+				fprintf(stderr, "%s", errorm.c_str()); //fd: without "%s" potentially insecure, clang
 				exit(0);
 			}
 
