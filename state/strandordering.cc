@@ -418,7 +418,9 @@ int StrandOrdering::checkIDBound(char *id) {
 // Sequence seperation is indicated by a single '_' character.
 void StrandOrdering::generateFlatSequence(char **sequence, char **structure, char **code_sequence) {
 
-	int totallength = 0, index = 0, cpos = 0;
+	int totallength = 0;
+	int index = 0;
+	int cpos = 0;
 	orderingList *traverse = first;
 
 	openInfo.upToDate = false;
@@ -427,11 +429,11 @@ void StrandOrdering::generateFlatSequence(char **sequence, char **structure, cha
 		totallength += traverse->size;
 	}
 
-	totallength += count - 1;
+	totallength += count;
 
-	*sequence = new char[totallength + 1];
-	*structure = new char[totallength + 1];
-	*code_sequence = new char[totallength + 1];
+	*sequence = new char[totallength];
+	*structure = new char[totallength];
+	*code_sequence = new char[totallength];
 
 	for (index = 0, cpos = 0, traverse = first; index < count; index++, traverse = traverse->next) {
 		strncpy(&((*sequence)[cpos]), traverse->thisSeq, traverse->size);

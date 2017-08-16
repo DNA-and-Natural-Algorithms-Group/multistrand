@@ -237,7 +237,7 @@ public:
 	char* getBase(char type, int index, HalfContext);
 
 	OpenLoop(void);
-	OpenLoop(int branches,  int *sidelengths, char **sequences, bool initialIn = false);
+	OpenLoop(int branches,  int *sidelengths, char **sequences);
 	~OpenLoop(void);
 	friend RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end);
 	friend Loop * Loop::performDeleteMove(Move *move);
