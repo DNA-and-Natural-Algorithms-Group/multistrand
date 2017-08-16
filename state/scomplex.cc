@@ -500,7 +500,7 @@ int StrandComplex::generateLoops(void) {
 				OL_sidelengths[listlength] = olseqlen;
 			}
 
-			newLoop = new OpenLoop(listlength,  OL_sidelengths, OL_sequences, ordering->convertIndexCheckBounds(olflag));
+			newLoop = new OpenLoop(listlength,  OL_sidelengths, OL_sequences);
 			newLoop->initAdjacency(-(openloopcount + 1));
 			ordering->addOpenLoop((OpenLoop *) newLoop, olflag);
 			olflag = -1;
@@ -510,6 +510,7 @@ int StrandComplex::generateLoops(void) {
 			int *OL_pairtypes;
 			int *OL_sidelengths;
 			char **OL_sequences;
+
 			if (listlength != 0) {
 
 				OL_pairtypes = (int *) new int[listlength];
@@ -532,7 +533,7 @@ int StrandComplex::generateLoops(void) {
 					OL_sequences[loop + 1] = ordering->convertIndex(pairlist[temp_intlist->data]);
 				}
 
-				newLoop = new OpenLoop(listlength, OL_sidelengths, OL_sequences, ordering->convertIndexCheckBounds(stacklist->data));
+				newLoop = new OpenLoop(listlength, OL_sidelengths, OL_sequences, false);
 				ordering->addOpenLoop((OpenLoop *) newLoop, stacklist->data);
 
 			} else {

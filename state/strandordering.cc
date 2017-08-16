@@ -485,7 +485,7 @@ bool StrandOrdering::convertIndexCheckBounds(int index) {
 
 		if (index < cpos + traverse->size){ // index is into the current strand
 
-			return ((cpos - index) < -1);
+			return ((index - cpos) < 0);
 		}
 
 		cpos += traverse->size + 1;
