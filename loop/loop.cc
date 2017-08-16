@@ -4303,11 +4303,8 @@ string OpenLoop::typeInternalsToString(void) {
 
 	for (int i = 0; i < numAdjacent + 1; i++) {
 
-		if(i == 0 && initial){
-			ss << '*';
-		} else {
-			ss << utility::sequenceToString(seqs[i], sidelen[i]) << "  -- ";
-		}
+		ss << utility::sequenceToString(seqs[i], sidelen[i]) << "  -- ";
+
 	}
 
 	ss << "  (size =" << numAdjacent << ")" << endl;
@@ -4893,7 +4890,7 @@ char* OpenLoop::getBase(char type, int index, HalfContext half) {
 		cout << "index: " << index << "\n";
 		cout << "HalfContext: " << half << "\n";
 		cout << "This OpenLoop Info: \n" << openInfo << endl;
-
+		cout << "initial: " << initial << endl;
 
 
 		for (int loop = 0; loop <= numAdjacent; loop++) {
