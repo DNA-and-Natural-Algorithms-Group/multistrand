@@ -557,7 +557,7 @@ void NupackEnergyModel::processOptions() {
 				string errorm = string("ERROR: nupack parameter file not found: $NUPACKHOME");
 				errorm += paramPath + RNAdG + string(" or ") + RNAdG;
 				errorm += string(" in current directory.\n");
-				fprintf(stderr, errorm.c_str());
+				fprintf(stderr, "%s", errorm.c_str()); //fd: without "%s" potentially insecure, clang
 				exit(0);
 			}
 
@@ -572,7 +572,7 @@ void NupackEnergyModel::processOptions() {
 				errorm += paramPath + RNAdH + string(" or ") + RNAdH;
 				errorm += string(" in current directory.\n");
 
-				fprintf(stderr, errorm.c_str());
+				fprintf(stderr, "%s", errorm.c_str()); //fd: without "%s" potentially insecure, clang
 				exit(0);
 			}
 
@@ -1332,7 +1332,7 @@ void NupackEnergyModel::internal_set_hairpin_tetraloop_parameters(FILE *fp, char
 
 	while (strlen(buffer) > 7 && buffer[0] != '>') {
 		buf_index = 0;
-		while (isspace(buffer[buf_index]))
+		while (std::isspace(buffer[buf_index]))
 			buf_index++;
 
 		lookup_index = ((baseLookup(buffer[buf_index + 0]) - 1) << 10) + ((baseLookup(buffer[buf_index + 1]) - 1) << 8)
@@ -1361,7 +1361,7 @@ void NupackEnergyModel::internal_set_hairpin_tetraloop_parameters_enthalpy(FILE 
 
 	while (strlen(buffer) > 7 && buffer[0] != '>') {
 		buf_index = 0;
-		while (isspace(buffer[buf_index]))
+		while (std::isspace(buffer[buf_index]))
 			buf_index++;
 
 		lookup_index = ((baseLookup(buffer[buf_index + 0]) - 1) << 10) + ((baseLookup(buffer[buf_index + 1]) - 1) << 8)
@@ -1385,7 +1385,7 @@ void NupackEnergyModel::internal_set_hairpin_triloop_parameters(FILE *fp, char *
 	}
 	while (strlen(buffer) > 6 && buffer[0] != '>') {
 		buf_index = 0;
-		while (isspace(buffer[buf_index]))
+		while (std::isspace(buffer[buf_index]))
 			buf_index++;
 		lookup_index = ((baseLookup(buffer[buf_index + 0]) - 1) << 8) + ((baseLookup(buffer[buf_index + 1]) - 1) << 6)
 				+ ((baseLookup(buffer[buf_index + 2]) - 1) << 4) + ((baseLookup(buffer[buf_index + 3]) - 1) << 2) + (baseLookup(buffer[buf_index + 4]) - 1);
@@ -1411,7 +1411,7 @@ void NupackEnergyModel::internal_set_hairpin_triloop_parameters_enthalpy(FILE *f
 
 	while (strlen(buffer) > 6 && buffer[0] != '>') {
 		buf_index = 0;
-		while (isspace(buffer[buf_index]))
+		while (std::isspace(buffer[buf_index]))
 			buf_index++;
 
 		lookup_index = ((baseLookup(buffer[buf_index + 0]) - 1) << 8) + ((baseLookup(buffer[buf_index + 1]) - 1) << 6)

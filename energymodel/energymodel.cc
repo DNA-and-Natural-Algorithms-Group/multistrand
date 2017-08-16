@@ -384,7 +384,6 @@ double EnergyModel::saltCorrection(int size) {
 
 }
 
-
 int pairs[5] = { 0, 0, 0, 0, 0 };
 int pairtypes[5][5] = { { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 } };
 int basepair_sw[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -394,9 +393,17 @@ int lookuphelper[26] = { 1, 0, 2, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
 // // helper function to convert to numerical base format.
 int baseLookup(char base) {
-	char temp = toupper(base);
-	if (temp < 'A' || temp > 'Z')
+
+
+
+	char temp = std::toupper(base);
+	if (temp < 'A' || temp > 'Z'){
+//		cout << "Warning! Trying to cast a non-base, value is " << ((int) base) << " and  temp is " << (int) (temp)  << endl;
 		return base;
+	}
+
+//	cout << "Found char: " << lookuphelper[temp - 'A'] << endl;
+
 	return lookuphelper[temp - 'A'];
 }
 

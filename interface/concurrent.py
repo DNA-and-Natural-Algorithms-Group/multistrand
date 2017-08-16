@@ -148,7 +148,6 @@ class FirstStepRate(basicRate):
             print "Cannot compute k_effective without concentration"
             return MINIMUM_RATE
 
-        #casting just in case
         concentration = np.float(concentration)
 
         if self.nForward == 0:
@@ -157,22 +156,11 @@ class FirstStepRate(basicRate):
         # expected number of failed collisions
         multiple = (self.k1Prime() / self.k1())
 
-        # the expected collision rates for success and failed collisions respectively
-        # this is not equal to k1 k1' because those are weighted by the probability of success
-        # netto, k1 k1' are lower
+        # the expected rate for a collision
+        collTime = self.k1() + self.k1Prime()
 
-        if self.nForward == 0:
-            return MINIMUM_RATE
-        else:
-            collForward = self.sumCollisionForward() / np.float(self.nForward)
-
-        if self.nReverse == 0:
-            collReverse = MINIMUM_RATE
-        else:
-            collReverse = self.sumCollisionReverse() / np.float(self.nReverse)
-
-        dTForward = self.weightedForwardUni() + np.float(1.0) / (concentration * collForward)
-        dTReverse = self.weightedReverseUni() + np.float(1.0) / (concentration * collReverse)
+        dTForward = np.float(1.0) / self.k2()       + np.float(1.0) / (concentration * collTime)
+        dTReverse = np.float(1.0) / self.k2Prime()  + np.float(1.0) / (concentration * collTime)
 
         dT = dTReverse * multiple + dTForward
 

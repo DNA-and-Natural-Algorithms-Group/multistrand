@@ -8,30 +8,8 @@
 #  This makefile invokes it and copies the built version.
 
 vpath %.h include
-INCLUDES = utility.h sequtil.h energymodel.h loop.h move.h moveutil.h optionlists.h python_options.h scomplex.h scomplexlist.h energyoptions.h simoptions.h ssystem.h strandordering.h 
-
-SOURCES_LOOP = loop.cc move.cc moveutil.cc
-SOURCES_ENERGYMODEL = energymodel.cc nupackenergymodel.cc 
-SOURCES_STATE = scomplex.cc scomplexlist.cc strandordering.cc
-SOURCES_SYSTEM =  utility.cc sequtil.cc  energyoptions.cc simoptions.cc ssystem.cc 
-SOURCES_OPTIONS = optionlists.cc python_options.cc
-SOURCES_TESTING = testingmain.cc
-
-SOURCES = $(SOURCES_LOOP) $(SOURCES_ENERGYMODEL) $(SOURCES_STATE) $(SOURCES_SYSTEM) $(SOURCES_OPTIONS) $(SOURCES_TESTING)
-
-VPATH=loop state system energymodel include interface
-MAIN_OBJECT = testingmain.o
-OBJECTS = sequtil.o loop.o scomplex.o energymodel.o  nupackenergymodel.o move.o moveutil.o energyoptions.o  simoptions.o ssystem.o scomplexlist.o strandordering.o python_options.o optionlists.o 
-
-OBJPATH = obj
-OBJECTS := $(OBJECTS:%=$(OBJPATH)/%)
-MAIN_OBJECT := $(MAIN_OBJECT:%=$(OBJPATH)/%)
-
-MULTISTRAND_INCLUDES := -I $(realpath ./include)
-PYTHON_INCLUDES 	  = -I /usr/include/python2.7
 
 ## utility function for searching a path: 
-## [main idea via the make info manual] 
 ## 1st param is file to search for, 2nd is space separated list
 ##  of paths (e.g. PATH environment variable with :'s changed to spaces)
 ## Works by clever use of the wildcard function's expansion to
@@ -41,10 +19,6 @@ PYTHON_INCLUDES 	  = -I /usr/include/python2.7
 
 any_path_search = $(firstword $(wildcard $(addsuffix /$(1), $(2))))
 path_search = $(call any_path_search,$(1),$(subst :, ,$(PATH)))
-
-## use via, eg PYTHON := $(call path_search,python)
-## or          PYTHON := $(call any_path_search,/opt/local/bin /usr/bin)
-
 find_executable = $(strip $(firstword $(foreach file,$(1),$(call path_search,$(file)))))
 
 ## The next two blocks try to work out either a usable python version
@@ -73,22 +47,6 @@ endif
 ifeq ($(call find_executable,$(PYTHON_DEBUG_NAMES)),)
 $(warning Could not find a debugging python executable in your PATH. Compiling the extension module with a standard python executable.)
 endif
-
-# flag blocks for C compilation
-CFLAGS_RELEASE = -O3 -std=c++11
-CFLAGS_DEBUG   = -g -Wconversion -DDEBUG_MACROS -DDEBUG
-
-#CFLAGS := $(CFLAGS_DEBUG)
-CFLAGS := $(CFLAGS_RELEASE)
-INCLUDEPATHS = $(MULTISTRAND_INCLUDES) $(PYTHON_INCLUDES)
-
-LIBRARIES= $(LIBRARYPATHS) -lpython2.7
-
-CC = g++
-#CC = clang
-COMPILE = $(CC) $(CFLAGS) $(INCLUDEPATHS)
-LINK = $(CC) $(CFLAGS) $(LIBRARIES)
-
 
 all: package
 
@@ -152,10 +110,3 @@ dircheck:
 
 Multistrand-internal: dircheck Multistrand
 
-# How to build the object files.
-$(OBJPATH)/%.o: %.cc $(INCLUDES) 
-	$(COMPILE) $< -c -o $@
-
-Multistrand: $(MAIN_OBJECT) $(OBJECTS)
-	rm -f Multistrand
-	$(LINK) $(CFLAGS) $(LIBRARIES) $(filter-out dircheck,$^) -o Multistrand
