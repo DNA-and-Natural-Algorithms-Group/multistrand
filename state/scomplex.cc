@@ -440,7 +440,6 @@ int StrandComplex::generateLoops(void) {
 			int *OL_pairtypes;
 			int *OL_sidelengths;
 			char **OL_sequences;
-			bool initial = false;
 
 			openloopcount = 0;
 			// listlength is at least one.
@@ -452,7 +451,6 @@ int StrandComplex::generateLoops(void) {
 
 			if (listlength == 1) {
 				OL_sequences[0] = ordering->convertIndex(olflag); // CHANGED 01/06
-				initial = ordering->convertIndexCheckBounds(olflag);
 				// removed +1 in index to hopefully fix the offset problems with open loops. This may require olflag to always be the last _ before the open loop, but that seems acceptable.
 				OL_sidelengths[0] = seqlen - (olflag - stacklist->data - 1);
 				OL_pairtypes[0] = stacklist->pairtype;
@@ -478,7 +476,6 @@ int StrandComplex::generateLoops(void) {
 				}
 
 				OL_sequences[0] = ordering->convertIndex(olflag);
-				initial = ordering->convertIndexCheckBounds(olflag);
 				if (temp_intlist == NULL)
 					OL_sidelengths[0] = seqlen - olseqlen;
 				else
@@ -505,7 +502,7 @@ int StrandComplex::generateLoops(void) {
 				OL_sidelengths[listlength] = olseqlen;
 			}
 
-			newLoop = new OpenLoop(listlength,  OL_sidelengths, OL_sequences, initial);
+			newLoop = new OpenLoop(listlength,  OL_sidelengths, OL_sequences);
 			newLoop->initAdjacency(-(openloopcount + 1));
 			ordering->addOpenLoop((OpenLoop *) newLoop, olflag);
 			olflag = -1;
@@ -515,7 +512,6 @@ int StrandComplex::generateLoops(void) {
 			int *OL_pairtypes;
 			int *OL_sidelengths;
 			char **OL_sequences;
-			bool initial = false;
 
 			if (listlength != 0) {
 
@@ -532,7 +528,6 @@ int StrandComplex::generateLoops(void) {
 				 loops, but for open loops it doesn't make any sense. */
 				// Possibly a problem here, need to make sure sequences get paired correctly with lengths. FIXME
 				OL_sequences[0] = ordering->convertIndex(stacklist->data);
-				initial = ordering->convertIndexCheckBounds(stacklist->data);
 				OL_sidelengths[listlength] = seqlen;
 				for (loop = 0; loop < listlength; loop++, temp_intlist = temp_intlist->next) {
 					OL_pairtypes[loop] = temp_intlist->pairtype;
@@ -540,7 +535,7 @@ int StrandComplex::generateLoops(void) {
 					OL_sequences[loop + 1] = ordering->convertIndex(pairlist[temp_intlist->data]);
 				}
 
-				newLoop = new OpenLoop(listlength, OL_sidelengths, OL_sequences, initial);
+				newLoop = new OpenLoop(listlength, OL_sidelengths, OL_sequences);
 				ordering->addOpenLoop((OpenLoop *) newLoop, stacklist->data);
 
 			} else {
@@ -549,7 +544,7 @@ int StrandComplex::generateLoops(void) {
 				OL_sequences = (char **) new char *[listlength + 1];
 				OL_sidelengths[0] = seqlen;
 				OL_sequences[0] = ordering->convertIndex(-1);
-				newLoop = new OpenLoop(0, OL_sidelengths, OL_sequences, ordering->convertIndexCheckBounds(-1)); // open chain
+				newLoop = new OpenLoop(0, OL_sidelengths, OL_sequences); // open chain
 				ordering->addOpenLoop((OpenLoop *) newLoop, -1);
 			}
 		} else if (listlength > 2) // MultiLoop
