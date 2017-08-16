@@ -533,7 +533,7 @@ int StrandComplex::generateLoops(void) {
 					OL_sequences[loop + 1] = ordering->convertIndex(pairlist[temp_intlist->data]);
 				}
 
-				newLoop = new OpenLoop(listlength, OL_sidelengths, OL_sequences);
+				newLoop = new OpenLoop(listlength, OL_sidelengths, OL_sequences,  true);
 				ordering->addOpenLoop((OpenLoop *) newLoop, stacklist->data);
 			} else {
 				OL_sidelengths = (int *) new int[listlength + 1];

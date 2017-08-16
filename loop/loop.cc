@@ -4268,7 +4268,7 @@ OpenLoop::~OpenLoop(void) {
 	delete[] seqs;
 }
 
-OpenLoop::OpenLoop(int branches, int *sidelengths, char **sequences) {
+OpenLoop::OpenLoop(int branches, int *sidelengths, char **sequences, bool initialIn) {
 
 	numAdjacent = branches;
 
@@ -4285,6 +4285,9 @@ OpenLoop::OpenLoop(int branches, int *sidelengths, char **sequences) {
 	sidelen = sidelengths;
 	seqs = sequences;
 	identity = 'O';
+
+	// FD: if initial is true, then this openloop is an initial open loop.
+	initial = initialIn;
 
 }
 
@@ -5196,7 +5199,15 @@ HalfContext OpenLoop::getHalfContext(int loop, int loop2) {
 
 	if (loop2 == 1) {
 		// left could be end or stack
-		thisHalf.left = moveutil::getContext(mySeq[0]);
+
+		// If initial is true, we cannot probe mySeq[0], because this location is out of bounds.
+		// Instead the left context is given by endC
+		if(initial){
+			thisHalf.left = endC;
+		} else {
+			thisHalf.left = moveutil::getContext(mySeq[0]);
+		}
+
 	}
 
 	if (loop2 == sidelen[loop]) {

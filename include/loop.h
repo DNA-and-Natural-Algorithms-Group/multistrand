@@ -237,7 +237,7 @@ public:
 	char* getBase(char type, int index, HalfContext);
 
 	OpenLoop(void);
-	OpenLoop(int branches,  int *sidelengths, char **sequences);
+	OpenLoop(int branches,  int *sidelengths, char **sequences, bool initialIn = false);
 	~OpenLoop(void);
 	friend RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end);
 	friend Loop * Loop::performDeleteMove(Move *move);
@@ -253,6 +253,8 @@ public:
 
 	OpenInfo openInfo;
 private:
+	bool initial = false; // FD: if true, then the loop is the initial open loop and seqs[0][0] is out of bounds.
+
 	int *sidelen;
 	char **seqs;
 
