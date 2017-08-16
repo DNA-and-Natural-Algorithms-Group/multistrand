@@ -19,17 +19,11 @@ int timeOut = 0;
 
 SimulationSystem::SimulationSystem(PyObject *system_o) {
 
-//	cout << "Running fdann-devel" << endl;
-
 	system_options = system_o;
 	simOptions = new PSimOptions(system_o);
 
 	construct();
 	energyModel->writeConstantsToFile();
-
-//	cout << energyModel << endl;
-//	cout << simOptions->toString() << endl;
-
 
 }
 
