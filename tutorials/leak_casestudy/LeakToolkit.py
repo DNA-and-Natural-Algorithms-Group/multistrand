@@ -25,15 +25,15 @@ from SeesawGate import SeesawRates
 import numpy as np
 
 
-ATIME_OUT = 10.0
+ATIME_OUT = 0.1
 # lets see the error bars I get here....
-MINIMUM_FORWARD = 2
+MINIMUM_FORWARD = 25
 A_CONCENTRATION = 50e-9
-INCREMENT_TRIALS = 50000
+INCREMENT_TRIALS = 5000
 DNA = "DNA"
 
 
-myMultistrand.setNumOfThreads(2)
+myMultistrand.setNumOfThreads(8)
 myMultistrand.setTerminationCriteria(MINIMUM_FORWARD)
 myMultistrand.setLeakMode()
 
@@ -100,7 +100,7 @@ def calculateBaseOutputRate(gate, trials=INCREMENT_TRIALS):
 
 def calculateReverseOutputRate(gate, trials=INCREMENT_TRIALS):
     rates = calculateGateInputRate(
-        gate.gate_input, gate.output_complex, gate.input_complex, trials)
+        gate.gate_input_complex, gate.output_complex, gate.input_complex, trials)
     return rates
 
 def calculateThresholdRate(gate, trials=INCREMENT_TRIALS):

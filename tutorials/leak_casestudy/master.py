@@ -49,7 +49,7 @@ CL_LONG_GATE_A_SEQ = [CL_LONG_S44, CL_LONG_S18,
 CL_LONG_GATE_B_SEQ = [CL_LONG_S53, CL_LONG_S5,
                       CL_LONG_S6, CL_LONG_S29, CL_LONG_SEQT, CLAMP_SEQ]
 
-start_time = 0
+start_time = time.time()
 
 
 def calcMetrics(gateA, gateB):
@@ -60,6 +60,7 @@ def calcMetrics(gateA, gateB):
     rates.append(calculateBaseOutputRate(gateB))
     printTimeElapsed()
 
+    
     print "\n **** Reverse Output Rates **** \n"
     rates.append(calculateReverseOutputRate(gateA))
     printTimeElapsed()
@@ -78,17 +79,23 @@ def calcMetrics(gateA, gateB):
     rates.append(calculateReverseFuelRate(gateB))
     printTimeElapsed()
 
+    
+
     print "\n **** Threshold Rates **** \n"
-    rates.append(calculateBaseThresholdRate(gateA))
+    # rates.append(calculateBaseThresholdRate(gateA))
     printTimeElapsed()
-    rates.append(calculateBaseThresholdRate(gateB))
+    # rates.append(calculateBaseThresholdRate(gateB))
     printTimeElapsed()
+
+    # lets have a go...
 
     print "\n **** Fuel Leak Rate s ****\n"
     rates.append(calculateGateFuelLeak(gateA))
     printTimeElapsed()
     rates.append(calculateGateFuelLeak(gateB))
     printTimeElapsed()
+
+    return rates 
 
     print "\n **** Gate Leak Rates **** \n"
     rates.append(calculateGateGateLeak(gateA, gateB))
@@ -195,8 +202,15 @@ def runAndLogAntiLeak():
     CL_LONG_GATE_A_SEQ.extend(['GA', 'GT'])
     CL_LONG_GATE_B_SEQ.extend(['GA', 'GT'])
     start_time = time.time()
-    data = runClampedSimulations(CL_LONG_GATE_A_SEQ, CL_LONG_GATE_B_SEQ)
+    data = runAntiLeakSimulations(CL_LONG_GATE_A_SEQ, CL_LONG_GATE_B_SEQ)
     time_taken = time.time() - start_time
     outputRates(data, time_taken)
 
-    
+if __name__ == '__main__':
+    CL_LONG_GATE_A_SEQ.extend(['GA', 'GA'])
+    gateA = AntiLeakSeesawGate(*CL_LONG_GATE_A_SEQ)
+    print gateA.gate_fuel_complex
+    print gateA.gate_output_complex
+    print gateA.gate_input_complex
+   
+
