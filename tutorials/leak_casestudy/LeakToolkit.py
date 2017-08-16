@@ -29,13 +29,13 @@ ATIME_OUT = 10.0
 # lets see the error bars I get here....
 MINIMUM_FORWARD = 2
 A_CONCENTRATION = 50e-9
-INCREMENT_TRIALS = 2000
+INCREMENT_TRIALS = 50000
 DNA = "DNA"
 
 
 myMultistrand.setNumOfThreads(2)
-# myMultistrand.setTerminationCriteria(MINIMUM_FORWARD)
-# myMultistrand.setLeakMode()
+myMultistrand.setTerminationCriteria(MINIMUM_FORWARD)
+myMultistrand.setLeakMode()
 
 
 def getOptions(trials, material, complex1, complex2,

@@ -40,9 +40,9 @@ LONG_SEQT = "CTCT"
 # The actual main method
 if __name__ == '__main__':
     toehold_dom = Domain(name="T", sequence=LONG_SEQT)
-    base_dom = Domain(name="S2", sequence=LONG_SEQ2)
-    input_dom = Domain(name="S5", sequence=LONG_SEQ5)
-    output_dom = Domain(name="S6", sequence=LONG_SEQ6)
+    base_dom = Domain(name="S2", sequence=LONG_SEQ2+LONG_SEQ2)
+    input_dom = Domain(name="S5", sequence=LONG_SEQ5+LONG_SEQ5)
+    output_dom = Domain(name="S6", sequence=LONG_SEQ6+LONG_SEQ6)
 
     input_strand = base_dom + toehold_dom + input_dom
     output_strand = output_dom + toehold_dom  + base_dom
@@ -50,7 +50,7 @@ if __name__ == '__main__':
 
     gate_complex = Complex(strands=[base_strand, output_strand], structure = ".((+.))")
     input_complex = Complex(strands=[input_strand], structure="...")
-    intermediate_complex = Complex(strands=[base_strand, output_strand, input_strand], structure = "(((+.))+.).")
+    intermediate_complex = Complex(strands=[base_strand, output_strand, input_strand], structure = "(((+.).+.))")
     output_complex = Complex(strands=[output_strand], structure="...")
 
     success_stop_condition = StopCondition(

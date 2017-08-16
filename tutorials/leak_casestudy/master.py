@@ -53,9 +53,7 @@ start_time = 0
 
 
 def calcMetrics(gateA, gateB):
-    calculateGateGateLeak(gateA, gateB)
-    
-    rates = []
+    rates=[]
     print "\n **** Base Output Rates **** \n"
     rates.append(calculateBaseOutputRate(gateA))
     printTimeElapsed()
@@ -86,14 +84,14 @@ def calcMetrics(gateA, gateB):
     rates.append(calculateBaseThresholdRate(gateB))
     printTimeElapsed()
 
-    print "\n **** Gate Leak Rates **** \n"
-    rates.append(calculateGateGateLeak(gateA, gateB))
-    printTimeElapsed()
-
     print "\n **** Fuel Leak Rate s ****\n"
     rates.append(calculateGateFuelLeak(gateA))
     printTimeElapsed()
     rates.append(calculateGateFuelLeak(gateB))
+    printTimeElapsed()
+
+    print "\n **** Gate Leak Rates **** \n"
+    rates.append(calculateGateGateLeak(gateA, gateB))
     printTimeElapsed()
     print "Finished Rates \n"
     return rates
@@ -187,11 +185,18 @@ def printTimeElapsed():
     else:
         print "Time since start: {} hr\n".format(elap_time / 3600)
 
-
-# The actual main method
-if __name__ == '__main__':
+def runAndLogClamped():
     start_time = time.time()
     data = runClampedSimulations(CL_LONG_GATE_A_SEQ, CL_LONG_GATE_B_SEQ)
     time_taken = time.time() - start_time
     outputRates(data, time_taken)
+
+def runAndLogAntiLeak():
+    CL_LONG_GATE_A_SEQ.extend(['GA', 'GT'])
+    CL_LONG_GATE_B_SEQ.extend(['GA', 'GT'])
+    start_time = time.time()
+    data = runClampedSimulations(CL_LONG_GATE_A_SEQ, CL_LONG_GATE_B_SEQ)
+    time_taken = time.time() - start_time
+    outputRates(data, time_taken)
+
     
