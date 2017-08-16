@@ -252,8 +252,8 @@ public:
 	bool updatedContext2 = false; // this is the update toggle for exposedBases.
 
 	OpenInfo openInfo;
-private:
 	bool initial = false; // FD: if true, then the loop is the initial open loop and seqs[0][0] is out of bounds.
+private:
 
 	int *sidelen;
 	char **seqs;

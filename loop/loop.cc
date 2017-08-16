@@ -4295,11 +4295,19 @@ string OpenLoop::typeInternalsToString(void) {
 
 	std::stringstream ss;
 
+	if(initial){
+
+		ss << "Initial loop -- ";
+
+	}
 
 	for (int i = 0; i < numAdjacent + 1; i++) {
 
-		ss << utility::sequenceToString(seqs[i], sidelen[i]) << "  -- ";
-
+		if(i == 0 && initial){
+			ss << '*';
+		} else {
+			ss << utility::sequenceToString(seqs[i], sidelen[i]) << "  -- ";
+		}
 	}
 
 	ss << "  (size =" << numAdjacent << ")" << endl;

@@ -453,22 +453,49 @@ void StrandOrdering::generateFlatSequence(char **sequence, char **structure, cha
 	}
 }
 
-// char *convertIndex( int index)
-// -- converts an index into a flat char sequence returned by generateFlatSequence into an appropriate pointer into the particular strand's code sequence.
-char *StrandOrdering::convertIndex(int index) {
+
+// JS: converts an index into a flat char sequence returned by generateFlatSequence
+// into an appropriate pointer into the particular strand's code sequence.
+char* StrandOrdering::convertIndex(int index) {
+
 	int cpos, cstrand;
 	orderingList *traverse;
+
 	for (cpos = 0, cstrand = 0, traverse = first; cstrand < count; cstrand++, traverse = traverse->next) {
-		if (index < cpos + traverse->size) // index is into the current strand
+
+		if (index < cpos + traverse->size){ // index is into the current strand
 			return &traverse->thisCodeSeq[index - cpos];
-		else if (index == cpos + traverse->size)
-			; //fprintf(stderr, "Strandordering.cc, convertIndex: indexed into a strand break.\n");
+		}
 
 		cpos += traverse->size + 1;
 	}
+
 	fprintf(stderr, "strandordering.cc, convertIndex: index out of bounds.\n");
 	return NULL;
 }
+
+
+// FD: repeat the computation and flag if the index is out of bounds.
+bool StrandOrdering::convertIndexCheckBounds(int index) {
+
+	int cpos, cstrand;
+	orderingList *traverse;
+
+	for (cpos = 0, cstrand = 0, traverse = first; cstrand < count; cstrand++, traverse = traverse->next) {
+
+		if (index < cpos + traverse->size){ // index is into the current strand
+
+			return ((cpos - index) < -1);
+		}
+
+		cpos += traverse->size + 1;
+	}
+
+	fprintf(stderr, "strandordering.cc, convertIndexCheckBounds: index out of bounds.\n");
+	return NULL;
+}
+
+
 
 // Used for delete moves to get the actual Open loop and location within which is to be joined.
 OpenLoop* StrandOrdering::getIndex(JoinCriteria& crit, int site, char **location, bool useArr) {
@@ -602,11 +629,13 @@ void StrandOrdering::addOpenLoop(OpenLoop *newLoop, int index) {
 
 	int cpos, cstrand;
 	orderingList *traverse;
+
 	for (cpos = 0, cstrand = 0, traverse = first; cstrand < count; cstrand++, traverse = traverse->next) {
 		if (index < cpos + traverse->size) // index is into the current strand
 				{
 			assert(traverse->thisLoop == NULL);
 			traverse->thisLoop = newLoop;
+
 			return; // loop terminates once association occurs, function complete.
 		} else if (index == cpos + traverse->size)
 			; //fprintf(stderr, "Strandordering.cc, convertIndex: indexed into a strand break.\n");

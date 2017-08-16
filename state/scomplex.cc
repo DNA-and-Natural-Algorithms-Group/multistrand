@@ -430,12 +430,11 @@ int StrandComplex::generateLoops(void) {
 			}
 		}
 
-		// classification of loop type time.
+		// JS: classification of loop type time.
 		// classification should end up with a pointer to the new loop, newLoop.
+
 		if (olflag != -1)			// 'internal' open loop
 				{
-			//printf("listlength: %d\n",listlength);
-			//printf("seqlen#0,1,olsq: %d,%d, %d\n", seqlen, templist?templist->seqlen:-1,olseqlen);
 			int *OL_pairtypes;
 			int *OL_sidelengths;
 			char **OL_sequences;
@@ -456,7 +455,7 @@ int StrandComplex::generateLoops(void) {
 				OL_sequences[1] = ordering->convertIndex(stacklist->data);
 				OL_sidelengths[1] = olflag - stacklist->data - 1;
 				openloopcount = -1;
-			} else // Algorithm follows:
+			} else // JS: Algorithm follows:
 				   // We need to find the circular rotation such that we always
 				   // have the sequences in the correct 5'->3' ordering.
 				   // 1. step through the list of adjacent helices till we find
@@ -500,9 +499,8 @@ int StrandComplex::generateLoops(void) {
 				}
 				OL_sidelengths[listlength] = olseqlen;
 			}
-			//for( loop = 0; loop <= listlength ; loop ++ )
-			//printf("Seq %d: %s\n Length %d: %d\n",loop,OL_sequences[loop],loop,OL_sidelengths[loop]);
-			newLoop = new OpenLoop(listlength,  OL_sidelengths, OL_sequences);
+
+			newLoop = new OpenLoop(listlength,  OL_sidelengths, OL_sequences, ordering->convertIndexCheckBounds(olflag));
 			newLoop->initAdjacency(-(openloopcount + 1));
 			ordering->addOpenLoop((OpenLoop *) newLoop, olflag);
 			olflag = -1;
@@ -513,6 +511,7 @@ int StrandComplex::generateLoops(void) {
 			int *OL_sidelengths;
 			char **OL_sequences;
 			if (listlength != 0) {
+
 				OL_pairtypes = (int *) new int[listlength];
 				OL_sidelengths = (int *) new int[listlength + 1];
 				OL_sequences = (char **) new char *[listlength + 1];
@@ -521,7 +520,7 @@ int StrandComplex::generateLoops(void) {
 				/*	      OL_pairtypes[0] = stacklist->pairtype;
 				 OL_sidelengths[0] = seqlen;
 				 OL_sequences[0] = &sequence[stacklist->data]; */
-				/* Hmmm, this doesn't work. I'm currently commenting it out
+				/* JS: Hmmm, this doesn't work. I'm currently commenting it out
 				 ... the problem appears to be that we need this for non open
 				 loops, but for open loops it doesn't make any sense. */
 				// Possibly a problem here, need to make sure sequences get paired correctly with lengths. FIXME
@@ -533,14 +532,16 @@ int StrandComplex::generateLoops(void) {
 					OL_sequences[loop + 1] = ordering->convertIndex(pairlist[temp_intlist->data]);
 				}
 
-				newLoop = new OpenLoop(listlength, OL_sidelengths, OL_sequences,  true);
+				newLoop = new OpenLoop(listlength, OL_sidelengths, OL_sequences, ordering->convertIndexCheckBounds(stacklist->data));
 				ordering->addOpenLoop((OpenLoop *) newLoop, stacklist->data);
+
 			} else {
+
 				OL_sidelengths = (int *) new int[listlength + 1];
 				OL_sequences = (char **) new char *[listlength + 1];
 				OL_sidelengths[0] = seqlen;
 				OL_sequences[0] = ordering->convertIndex(-1);
-				newLoop = new OpenLoop(0, OL_sidelengths, OL_sequences); // open chain
+				newLoop = new OpenLoop(0, OL_sidelengths, OL_sequences, ordering->convertIndexCheckBounds(-1)); // open chain
 				ordering->addOpenLoop((OpenLoop *) newLoop, -1);
 			}
 		} else if (listlength > 2) // MultiLoop
@@ -553,24 +554,9 @@ int StrandComplex::generateLoops(void) {
 			ML_sequences = (char **) new char *[listlength];
 			// deletion for these is handled in the OpenLoop destructor.
 			temp_intlist = templist;
-			// Possibly a problem here, need to make sure sequences get paired correctly with lengths. FIXME
-			/*
-			 // old code for pairtypes and sidelengths for multiloop. uncomment the above and below to restore old sequencing.
-			 ML_pairtypes[0] = stacklist->pairtype;
-			 ML_sidelengths[0] = seqlen;
-			 ML_sequences[1] = &sequence[stacklist->data];
-			 for( loop = 1; loop < listlength; loop++, temp_intlist = temp_intlist->next)
-			 {
-			 ML_pairtypes[loop] = temp_intlist->pairtype;
-			 ML_sidelengths[loop] = temp_intlist->seqlen;
-			 if( loop == listlength - 1 )
-			 ML_sequences[0] = &sequence[pairlist[temp_intlist->data]];
-			 else
-			 ML_sequences[loop+1] = &sequence[pairlist[temp_intlist->data]];
-			 }
-			 */
+			// JS: Possibly a problem here, need to make sure sequences get paired correctly with lengths. FIXME
 
-			// new code for pairtypes, sidelengths, seqs for multiloop, matching sequencing correctly.
+			// JS: new code for pairtypes, sidelengths, seqs for multiloop, matching sequencing correctly.
 			ML_pairtypes[0] = stacklist->pairtype;
 			ML_sidelengths[0] = temp_intlist->seqlen;
 			ML_sequences[1] = ordering->convertIndex(pairlist[temp_intlist->data]);
