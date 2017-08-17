@@ -2,10 +2,11 @@
 from multistrand.objects import Strand, Complex, Domain, StopCondition
 from multistrand.options import Options
 from multistrand.system import SimSystem
+from multistrand.experiment import makeComplex
 
 def createOptions(start_complex, stop_complex, simMode):
 
-    full_sc = StopCondition("CLOSED", [(stop_complex, msUtil.Dissoc_Macrostate, 2)])    
+    full_sc = StopCondition("CLOSED", [(stop_complex, Options.dissocMacrostate, 2)])    
     
     o1 = Options(simulation_mode=simMode,  # "First Passage Time", 
                  parameter_type="Nupack", substrate_type="DNA", temperature=273.15 + 25.0,
@@ -428,13 +429,31 @@ def create_test9():
     return createOptions(start_complex, stop_complex, "First Passage Time")
 
 
+def create_test10():
+
+
+    seq0 = "GTCACTGCTTTT"
+    seq1 = "GCAGTGAC"
+    dotparen1 = "..((((((....+)))))).."
+    
+    
+    seq2 = "GTCACTGC"
+    dotparen2 = "........"
+    
+    complex1 = makeComplex([seq0, seq1], dotparen1)
+    complex2 = makeComplex([seq2], dotparen2 )
+        
+    return createOptions(complex1, complex2, "First Passage Time")
+
+
+
 
 def main():
     
         
 #     o1 = create_test0()      # just a fully hybridized strand.
 #     o1 = create_test0B()      # just a fully hybridized strand.
-    o1 = create_test0C()      # just a fully hybridized strand.
+#     o1 = create_test0C()      # just a fully hybridized strand.
 #     o1 = create_test1()      # testing open-loop 
 #     o1 = create_test1B()      # testing open-loop with the initialiation penalty 
 #     o1 = create_test2()      # a very simple test
@@ -446,6 +465,8 @@ def main():
 #     o1 = create_test7()      # Bulge loop.
 #     o1 = create_test8()      # Hairpin loop.
 #     o1 = create_test9()      # Small open-loop code
+    o1 = create_test10()      # half open duplex
+
 
 
 #     setArrheniusConstantsNM1(o1)

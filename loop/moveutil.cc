@@ -28,8 +28,6 @@ int moveutil::typeMult(MoveType left, MoveType right) {
 
 }
 
-//moveutil::useArr = energyModel.
-
 QuartContext moveutil::getContext(char input) {
 
 	if (input > 0 && input < 5) { // there is a stack on the exteriour
@@ -316,13 +314,7 @@ MoveType moveutil::combineBi(QuartContext & one, QuartContext & two) {
 
 }
 
-bool moveutil::isPair(BaseType one, BaseType two) {
 
-	return (one + two == 5);
-
-}
-
-// constructor assigns the base
 HalfContext::HalfContext() {
 
 }
@@ -345,7 +337,7 @@ std::ostream & operator<<(std::ostream & os, HalfContext & m) {
 
 bool HalfContext::operator==(const HalfContext& other) const {
 
-	return (left == other.left) && (right == other.right);
+	return ((left == other.left) && (right == other.right)) || ((left == other.right) && (right == other.left)) ;
 
 }
 

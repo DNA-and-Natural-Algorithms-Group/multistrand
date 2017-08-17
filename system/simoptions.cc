@@ -87,23 +87,23 @@ string SimOptions::toString() {
 	ss << "max_sim_time = " << max_sim_time << " \n";
 	ss << "seed = " << seed << " \n";
 
-	ss << "myComplexes = { ";
-
-	for (int i = 0; i < myComplexes->size(); i++) {
-
-		ss << "{ " << myComplexes->at(i).sequence << ", " << myComplexes->at(i).structure << " }";
-
-	}
-
-	ss << "} \n";
-
-	ss << " myStopComplexes = { ";
-
-	// linked list iterator
-	stopComplexes* myStopComplex = myStopComplexes; // copying pointer so we can iterate.
-
-	ss << "} \n";
-
+//	ss << "myComplexes = { ";
+//
+//	for (int i = 0; i < myComplexes->size(); i++) {
+//
+//		ss << "{ " << myComplexes->at(i).sequence << ", " << myComplexes->at(i).structure << " }";
+//
+//	}
+//
+//	ss << "} \n";
+//
+//	ss << " myStopComplexes = { ";
+//
+//	// linked list iterator
+//	stopComplexes* myStopComplex = myStopComplexes; // copying pointer so we can iterate.
+//
+//	ss << "} \n";
+//
 	string output = ss.str();
 
 	output += energyOptions->toString();

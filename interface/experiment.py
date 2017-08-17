@@ -4,8 +4,6 @@ from multistrand.objects import Complex, Domain, Strand, StopCondition
 from multistrand.options import Options
 
 
-
-
 def setBoltzmann(complexIn, trials):
     
     complexIn.boltzmann_count = trials

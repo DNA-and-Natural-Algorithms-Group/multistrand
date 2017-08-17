@@ -44,9 +44,7 @@ import numpy as np
 from multistrand._options.interface import FirstStepResult
 ATIME_OUT = 10.0
 
-
-myMultistrand.setNumOfThreads(4)
-
+myMultistrand.setNumOfThreads(2) 
 
 def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
 
