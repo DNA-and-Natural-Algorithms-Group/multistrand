@@ -87,22 +87,7 @@ def calcMetrics(gateA, gateB):
     # rates.append(calculateBaseThresholdRate(gateB))
     printTimeElapsed()
 
-    # lets have a go...
-
-    print "\n **** Fuel Leak Rate s ****\n"
-    rates.append(calculateGateFuelLeak(gateA))
-    printTimeElapsed()
-    rates.append(calculateGateFuelLeak(gateB))
-    printTimeElapsed()
-
-    return rates 
-
-    print "\n **** Gate Leak Rates **** \n"
-    rates.append(calculateGateGateLeak(gateA, gateB))
-    printTimeElapsed()
-    print "Finished Rates \n"
-    return rates
-
+   return rates
 
 def runMismatchSimulations(domainListA, domainListB):
     # 'recognition domain' sequence length
@@ -145,14 +130,14 @@ def runClampedSimulations(domainListA, domainListB):
     mismatched_rates = []
     gateA = ClampedSeesawGate(*domainListA)
     gateB = ClampedSeesawGate(*domainListB)
-    mismatched_rates.append(calcMetrics(gateA, gateB))
+    mismatched_rates.append(calcLeakMetrics(gateA, gateB))
     return mismatched_rates
 
 
 def runAntiLeakSimulations(domainListA, domainListB):
     gateA = AntiLeakSeesawGate(*domainListA)
     gateB = AntiLeakSeesawGate(*domainListB)
-    return calcMetrics(gateA, gateB)
+    return calcLeakMetrics(gateA, gateB)
 
 
 def outputRates(rates, time_taken):
@@ -208,9 +193,21 @@ def runAndLogAntiLeak():
 
 if __name__ == '__main__':
     CL_LONG_GATE_A_SEQ.extend(['GA', 'GA'])
-    gateA = AntiLeakSeesawGate(*CL_LONG_GATE_A_SEQ)
-    print gateA.gate_fuel_complex
+    gateA = NormalSeesawGate(*LONG_GATE_A_SEQ)
     print gateA.gate_output_complex
-    print gateA.gate_input_complex
    
 
+def calcLeakMetrics(gateA, gateB):
+    rates=[]
+    print "\n **** Fuel Leak Rate s ****\n"
+    rates.append(calculateGateFuelLeak(gateA))
+    printTimeElapsed()
+    rates.append(calculateGateFuelLeak(gateB))
+    printTimeElapsed()
+
+
+    print "\n **** Gate Leak Rates **** \n"
+    rates.append(calculateGateGateLeak(gateA, gateB))
+    printTimeElapsed()
+    print "Finished Rates \n"
+    return rates

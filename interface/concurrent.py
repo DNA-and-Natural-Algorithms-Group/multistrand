@@ -22,7 +22,7 @@ import numpy as np
 from multistrand.system import SimSystem
 
 MINIMUM_RATE = 1e-36
-MAX_TRIALS = 15000
+MAX_TRIALS = 25000000
 MAX_TRIALS_TEST = 2500
 
 # # Rate-computation classes start here

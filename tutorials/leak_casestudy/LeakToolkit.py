@@ -27,7 +27,7 @@ import numpy as np
 
 ATIME_OUT = 0.1
 # lets see the error bars I get here....
-MINIMUM_FORWARD = 25
+MINIMUM_FORWARD = 2
 A_CONCENTRATION = 50e-9
 INCREMENT_TRIALS = 5000
 DNA = "DNA"
