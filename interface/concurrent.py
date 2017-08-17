@@ -20,6 +20,7 @@ import multiprocessing
 import numpy as np
 
 from multistrand.system import SimSystem
+from mercurial.encoding import lower
 
 MINIMUM_RATE = 1e-36
 MAX_TRIALS = 15000
@@ -47,11 +48,12 @@ class basicRate(object):
     # Convenience.
     def doBootstrap(self):
         myBootstrap = Bootstrap(self, computek1=True)
-        low, high = myBootstrap.ninetyFivePercentiles()
+#         low, high = myBootstrap.ninetyFivePercentiles()
 
-        print "Estimated k1 = %0.3g /M /s with 95 pct confidence interval [%0.3g, %0.3g] \n" % (self.k1(), low, high)
+        print "Estimated k1 = %0.3g /M /s" # with 95 pct confidence interval [%0.3g, %0.3g] \n" % (self.k1(), low, high)
+        print myBootstrap
 
-        return low, high
+        return myBootstrap.ninetyFivePercentiles()
 
 
 # # Migration rates for first step
@@ -461,7 +463,7 @@ class Bootstrap():
                 rate = float(sample.k1())
             else:
                 rate = float(sample.kEff(concentration))
-
+                
             self.effectiveRates.append(rate)
 
             if(computek1Alt):
@@ -504,11 +506,11 @@ class Bootstrap():
         return np.std(self.logEffectiveRates)
 
     def __str__(self):
-
-        low, high = self.ninetyFivePercentiles()
-
-        print "Confidence Interval: %.3g /M /s, %.3g /M /s" % low, high
-
+        if len(self.effectiveRates) > 0 : 
+            low, high = self.ninetyFivePercentiles()    
+            return "Confidence Interval: %.3g /M /s, %.3g /M /s" % (low, high)
+        else :
+            return "No successful reactions observed "
 
 # # Concurrent classes start here
 
@@ -732,9 +734,7 @@ class MergeSim(object):
         if not self.settings.terminationCount == None:
 
             welcomeMessage += " .. and rolling " + str(self.trialsPerThread)
-            welcomeMessage += " trajectories per thread until " + \
-                str(self.settings.terminationCount) + \
-                " successful trials occur. \n"
+            welcomeMessage += " trajectories per thread until " + str(self.settings.terminationCount) + " successful trials occur. \n"
 
         return welcomeMessage
     

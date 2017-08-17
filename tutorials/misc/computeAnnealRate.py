@@ -25,7 +25,6 @@ def first_step_simulation(strand_seq, trials, T=20.0, material="DNA"):
         o = standardOptions("First Step", tempIn=25.0, trials=200, timeOut = 0.1) 
         hybridization(o, strand_seq, trials)
         o.DNA23Metropolis()
-        
           
         return o
       
@@ -33,7 +32,6 @@ def first_step_simulation(strand_seq, trials, T=20.0, material="DNA"):
     myMultistrand.setOptionsFactory2(getOptions, trials, material)
     myMultistrand.setTerminationCriteria(1000)
     myMultistrand.setLeakMode()
-    
     
     myMultistrand.run()
     

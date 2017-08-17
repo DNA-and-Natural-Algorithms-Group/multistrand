@@ -445,6 +445,17 @@ def create_test10():
         
     return createOptions(complex1, complex2, "First Passage Time")
 
+def create_test11():
+    
+    seq0 =      "GTAAAGACCAGTGGTGTGAAGATAGGAAAGGTGTTGATTGGGATTAGGAAACC"
+    seq1 =      "CATCACTATCAATCATACATGGTTTCCTAATCCCAATCAACACC"
+    seq2 =      "CATCACTATCAATCATACATGGTTTCCTATCTTCACACCACTGG"
+    struc1 =    ".......((((((((((((((((((((((((((((((((((((((((((((((+....................))))))))))))))))))))))))+......................))))))))))))))))))))))"
+    
+    complex1 = makeComplex([seq0, seq1, seq2], struc1)
+    complex2 = makeComplex([seq0, seq1, seq2], struc1)
+
+    return createOptions(complex1, complex2, "First Passage Time")
 
 
 
@@ -465,7 +476,8 @@ def main():
 #     o1 = create_test7()      # Bulge loop.
 #     o1 = create_test8()      # Hairpin loop.
 #     o1 = create_test9()      # Small open-loop code
-    o1 = create_test10()      # half open duplex
+#     o1 = create_test10()      # half open duplex
+    o1 = create_test11()      # Oscillator gate
 
 
 
