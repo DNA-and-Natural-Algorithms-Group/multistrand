@@ -8,22 +8,22 @@ import os, sys
 
 config_vars = distutils.sysconfig.get_config_vars()
 
-sources = ["system/utility.cc",
-           "system/sequtil.cc",
+sources = ["src/system/utility.cc",
+           "src/system/sequtil.cc",
            "interface/multistrand_module.cc",
            "interface/optionlists.cc",
            "interface/options.cc",
-           "loop/move.cc",
-           "loop/moveutil.cc",
-           "loop/loop.cc",
-           "system/energyoptions.cc",
-           "energymodel/nupackenergymodel.cc",
-           "energymodel/energymodel.cc",
-           "state/scomplex.cc",
-           "state/scomplexlist.cc",
-           "system/simoptions.cc",
-           "system/ssystem.cc",
-           "state/strandordering.cc"
+           "src/loop/move.cc",
+           "src/loop/moveutil.cc",
+           "src/loop/loop.cc",
+           "src/system/energyoptions.cc",
+           "src/energymodel/nupackenergymodel.cc",
+           "src/energymodel/energymodel.cc",
+           "src/state/scomplex.cc",
+           "src/state/scomplexlist.cc",
+           "src/system/simoptions.cc",
+           "src/system/ssystem.cc",
+           "src/state/strandordering.cc"
            ]
 
 def setup_ext( ):    
