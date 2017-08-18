@@ -16,7 +16,7 @@ import sys, time
  
 def first_step_simulation(strand_seq, trials, temperature, material="DNA"):
  
-    print ("Running first step mode simulations for %s (with Boltzmann sampling)..." % (strand_seq))
+    print ("Running first passage time simulations for %s (with Boltzmann sampling)..." % (strand_seq))
         
     def getOptions(trials, material):
          
@@ -29,7 +29,7 @@ def first_step_simulation(strand_seq, trials, temperature, material="DNA"):
       
     myMultistrand.setNumOfThreads(8)
     myMultistrand.setOptionsFactory2(getOptions, trials, material)
-    myMultistrand.setTerminationCriteria(30)
+    myMultistrand.setTerminationCriteria(50)
     myMultistrand.setPassageMode()
     
     myMultistrand.run()
@@ -47,8 +47,8 @@ def compute(strand_seq):
 
 def computeAndWriteToCL(strand_seq, doBootstrap):
     
-    result = first_step_simulation(strand_seq, 16, 25.0, material="DNA")
-    print("The dissociation rate of ", strand_seq, " and the reverse complement is ", "{:.2e}".format(result.k1()), " /M /s", sep="")
+    result = first_step_simulation(strand_seq, 64, 25.0, material="DNA")
+    print("The dissociation rate of ", strand_seq, " and the reverse complement is ", "{:.2e}".format(result.k1()), " /s", sep="")
     
     if(doBootstrap):
         
@@ -56,26 +56,7 @@ def computeAndWriteToCL(strand_seq, doBootstrap):
         bounds = bootstrap.ninetyFivePercentiles()
         
         print("Estimated 95% confidence interval: [","{:.2e}".format(bounds[0]),",","{:.2e}".format(bounds[1]),"] ", sep="")
-        
 
-if(len(sys.argv) < 2):
-    print("Please provide a DNA sequence as commandline argument")
-    print("Add -bootstrap to do a boostrap ")
-    print("Example: computeDisscociationRate.py ATGCAGT -bootstrap")
-    exit()
-
-start_time = time.time()
-
-mySequence = sys.argv[1]
-doBootstrap = False
-if(len(sys.argv) > 2):
-    if(str(sys.argv[2])=="-bootstrap"):
-        doBootstrap = True
-
-result = computeAndWriteToCL(mySequence, doBootstrap )
-
-
-print ("Computing took %.4f s" % (time.time() - start_time))
 
 
 

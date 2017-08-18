@@ -29,6 +29,13 @@ Release 2.1 changelog:
 	As of Jul 2017:
 	- Added support for nupack 3.2.1
 	
+	As of Aug 2017:
+	- Expanding the leak case study (Mirnank Sharma), added FirstStepLeak object to handle leak simulations in concurrent.py (FD and MS).
+	- An OS X bugfix.
+	- Added error messages for object initialization (Mirnank Sharma).
+	- Added compute folder for (commandline) utility in tutorials
+	- Removed unused code in make files and initialization routine. 
+	- Added files for simulating Machinek - Turberfield mismatch paper
 	
 	
 Known issues in Multistrand 2.1:

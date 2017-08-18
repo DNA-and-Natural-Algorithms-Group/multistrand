@@ -2,6 +2,7 @@ from __future__ import print_function
 
 from multistrand.concurrent import myMultistrand, FirstStepRate, Bootstrap
 from multistrand.experiment import standardOptions, hybridization
+from multistrand.options import Options
 
 import sys, time
 
@@ -15,15 +16,15 @@ def first_step_simulation(strand_seq, trials, T=20.0, material="DNA"):
         
     def getOptions(trials, material):
          
-        o = standardOptions("First Step", tempIn=25.0, trials=200, timeOut = 0.1) 
+        o = standardOptions(Options.firstStep, tempIn=25.0, trials=200, timeOut = 0.1) 
         hybridization(o, strand_seq, trials)
         o.DNA23Metropolis()
           
         return o
       
-    myMultistrand.setNumOfThreads(1)
+    myMultistrand.setNumOfThreads(4)
     myMultistrand.setOptionsFactory2(getOptions, trials, material)
-    myMultistrand.setTerminationCriteria(10)
+    myMultistrand.setTerminationCriteria(100)
     myMultistrand.setLeakMode()
     
     myMultistrand.run()
@@ -42,7 +43,7 @@ def compute(strand_seq):
 
 def computeAndWriteToCL(strand_seq, doBootstrap):
     
-    result = first_step_simulation(strand_seq, 12000, T=25.0, material="DNA")
+    result = first_step_simulation(strand_seq, 1200, T=25.0, material="DNA")
     print("The hybridization rate of ", strand_seq, " and the reverse complement is ", "{:.2e}".format(result.k1()), " /M /s", sep="")
     
     # check for two-stateness

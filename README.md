@@ -61,7 +61,9 @@ Tutorial files use the 'numpy', 'matplotlib' and 'scipy' python packages. You ca
  
 ## Installation ##
  
- - Clone the repository into your workspace.
+ For linux:
+ 
+ - Clone the repository into your workspace, using 'git clone *repo-url*'.
  - In your enviroment (eclipse, bash, etc), set NUPACKHOME to point the directory where NUPACK is installed. 
  - Build multistrand by running 'make' in the Multistrand directory.
  - Multistrand can be exported as a python library by calling 'sudo make install'.
@@ -72,7 +74,12 @@ To verify that NUPACKHOME is set correctly in bash, run 'echo $NUPACKHOME':
 $ echo $NUPACKHOME
 /home/user/path/to/nupack3.2.1
 ```
+For OS X, the following steps enabled successful installation on a 2017 macbook pro. 
 
+ - Install xcode commandline tools
+ - Install brew (homebrew) and install python through homebrew (command: 'brew install python').
+ - The linux installation steps should now work. 
+ - In the bash profile file ~/.bash_profile, edit the python path to include /Library/Python/2.7/site-packages. For example, the line could read: export PYTHONPATH=/Library/Python/2.7/site-packages:$PYTHONPATH. 
  
 ## Package tree ##
 
@@ -111,7 +118,7 @@ GCGTTTCAC+GTGAAACGC
 The following script computes a hybridization rate for a strand and its compement. The computation relies on first step mode and will only work with the appropriate version of NUPACK.
 
 ```sh
-[iris@dhcp-135-182 Multistrand]$ python tutorials/misc/computeAnnealRate.py 'AGCTGA' -bootstrap
+[iris@dhcp-135-182 Multistrand]$ python tutorials/compute/anneal.py 'AGCTGA' -bootstrap
 2017-05-30 18:05:34  Starting Multistrand 2.1      (c) 2008-2017 Caltech      
 Running first step mode simulations for AGCTGA (with Boltzmann sampling)...
 Computing 800 trials, using 2 threads .. 
@@ -171,3 +178,7 @@ A:  This occurs when NUPACK returns void output for 'sample'. If NUPACK is insta
 ```
 and supplying the arguments 'test' '1' 'AGTGTGCGTAGA' '1' will result in a list of 100 non-trivial dot-paren secondary structures in the 'test.sample' file. 
 NUPACK 3.0.4 only: if you have patched NUPACK, be sure to rebuild (make clean; make) the package. Unpatched NUPACK 3.0.4 will return a void output. Some nupack releases (3.1, 3.2) do not have the sample function included.
+
+Q: When I run a Multistrand script, I get ImportError: No module named Multistrand. 
+
+A: Please check that PYTHONPATH includes a link to your Multistrand executables, or run 'sudo make install' in the Multistrand directory to install Multistrand python module on your system.

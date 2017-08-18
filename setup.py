@@ -8,29 +8,29 @@ import os, sys
 
 config_vars = distutils.sysconfig.get_config_vars()
 
-sources = ["system/utility.cc",
-           "system/sequtil.cc",
-           "interface/multistrand_module.cc",
-           "interface/optionlists.cc",
-           "interface/options.cc",
-           "loop/move.cc",
-           "loop/moveutil.cc",
-           "loop/loop.cc",
-           "system/energyoptions.cc",
-           "energymodel/nupackenergymodel.cc",
-           "energymodel/energymodel.cc",
-           "state/scomplex.cc",
-           "state/scomplexlist.cc",
-           "system/simoptions.cc",
-           "system/ssystem.cc",
-           "state/strandordering.cc"
+sources = ["src/system/utility.cc",
+           "src/system/sequtil.cc",
+           "src/interface/multistrand_module.cc",
+           "src/interface/optionlists.cc",
+           "src/interface/options.cc",
+           "src/loop/move.cc",
+           "src/loop/moveutil.cc",
+           "src/loop/loop.cc",
+           "src/system/energyoptions.cc",
+           "src/energymodel/nupackenergymodel.cc",
+           "src/energymodel/energymodel.cc",
+           "src/state/scomplex.cc",
+           "src/state/scomplexlist.cc",
+           "src/system/simoptions.cc",
+           "src/system/ssystem.cc",
+           "src/state/strandordering.cc"
            ]
 
 def setup_ext( ):    
 
     multi_ext = Extension("multistrand.system",
                           sources=sources,
-                          include_dirs=["./include"],
+                          include_dirs=["./src/include"],
                           language="c++",
                         undef_macros=['NDEBUG'],
                         extra_compile_args = ['-O3','-g', '-w', "-std=c++11", ], #FD: adding c11 flag
@@ -47,7 +47,7 @@ if __name__ == '__main__':
           license='MIT',
           author='The Multistrand Team',
           author_email='help@multistrand.org',
-          package_dir={'multistrand':'interface'},
+          package_dir={'multistrand':'src/interface'},
           ext_modules=[multi_ext])
 
 
