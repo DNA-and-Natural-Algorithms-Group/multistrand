@@ -4,6 +4,12 @@
 import sys, time, os
 from os.path import expanduser
 
+dirs = ["~/workspace/multistrand", "~/workspace/multistrandPy",
+        "~/multistrand", "~/multistrandPy"]
+for x in dirs:
+    i = expanduser(x)
+    sys.path.append(i)
+
 import xlrd
 
 import matplotlib.pyplot as plt
@@ -26,18 +32,12 @@ WITHOUT_GG = 1
 WITHOUT_G = 2
 HELPER_WITHOUT_CC = 3
 
-# to make - the excel spreadsheet
-
-# To correct - see excel spreadsheet
 SODIUM_COL = 11
 MAGNESIUM_COL = 12
 TEMP_COL = 5
 MEASURED_RATE_COL = 7
 
-myMultistrand.setNumOfThreads(1)
-
-# i.e. setup options obiect, given the type of experiment and
-# number of trials
+myMultistrand.setNumOfThreads(8)
 
 def changeComplex(options, expirement_type=NORMAL, trials=500):
     # Easiest to use full dot paren here
@@ -52,10 +52,9 @@ def changeComplex(options, expirement_type=NORMAL, trials=500):
 
     # Offset of two to account for clamp domains
     produce_struct = "." * toehold_length + "(" * (len(produce_bot.sequence) - toehold_length) + "+" + '.' * (toehold_length + h_length - 2) + ')' * (
-        len(ap.sequence) - toehold_length - h_length + 2) + "+" + '.' * (toehold_length + h_length) + ')' * (len(ap.sequence) - toehold_length - h_length)
+        len(ap.sequence) - toehold_length - h_length + 2 ) + "+" + '.' * (toehold_length + h_length) + ')' * (len(ap.sequence) - toehold_length - h_length)
 
     if expirement_type == WITHOUT_GG:
-         
         helper = Strand(name="Helper_AAq", sequence="TTTCCTAATCCCAATCAACACCTTTCCTA")
         produce_bot = Strand(name="Produce_BOT_CApAq", sequence="GTAAAGACCAGTGGTGTGAAGATAGGAAAGGTGTTGATTGGGATTAGGAAACC")
         ap = Strand(name="ap", sequence="CATCACTATCAATCATACATTTTCCTATCTTCACACCACTGG")
@@ -64,7 +63,7 @@ def changeComplex(options, expirement_type=NORMAL, trials=500):
         # bot, aq, ap
         # Offsets due to a) clamp domains b) two b.p. removal
         produce_struct = "." * toehold_length + "(" * (len(produce_bot.sequence) - toehold_length) + "+" + '.' * (toehold_length + h_length - 2) + ')' * (
-            len(ap.sequence) - toehold_length - h_length + 2) + "+" + '.' * (toehold_length + h_length - 2) + ')' * (len(ap.sequence) - toehold_length - h_length + 2)
+            len(ap.sequence) - toehold_length - h_length + 4) + "+" + '.' * (toehold_length + h_length - 2) + ')' * (len(ap.sequence) - toehold_length - h_length + 2)
 
     elif expirement_type == WITHOUT_G:
         helper = Strand(name="Helper_AAq",
@@ -79,7 +78,7 @@ def changeComplex(options, expirement_type=NORMAL, trials=500):
         # bot, aq, ap
         # Offsets due to a) clamp domains b) one b.p. removal
         produce_struct = "." * toehold_length + "(" * (len(produce_bot.sequence) - toehold_length) + "+" + '.' * (toehold_length + h_length - 2) + ')' * (
-            len(ap.sequence) - toehold_length - h_length + 2) + "+" + '.' * (toehold_length + h_length - 1) + ')' * (len(ap.sequence) - toehold_length - h_length + 1)
+            len(ap.sequence) - toehold_length - h_length + 3) + "+" + '.' * (toehold_length + h_length - 1) + ')' * (len(ap.sequence) - toehold_length - h_length + 1)
     elif expirement_type == HELPER_WITHOUT_CC:
         # only modify helper sequence here - remove the two 3' most 'C'.
         helper = Strand(name="Helper_AAq",
@@ -104,8 +103,8 @@ def changeComplex(options, expirement_type=NORMAL, trials=500):
     leak_complex = Complex(name="leak",strands=[aq], structure='.' * len(aq.sequence))
     
     if trials > 0:
-        setBoltzmann(produce_complex, trials)
-        setBoltzmann(helper_complex, trials)
+        setBoltzmann(produce_complex, trials, 25)
+        setBoltzmann(helper_complex, trials, 25)
 
     success_stop_cond = StopCondition(
         Options.STR_SUCCESS, [(leak_complex, Options.dissocMacrostate, 0)])
@@ -114,7 +113,6 @@ def changeComplex(options, expirement_type=NORMAL, trials=500):
     failure_stop_cond = StopCondition(
         Options.STR_FAILURE, [(helper_complex, Options.dissocMacrostate, 0)])
 
-   
     options.start_state = [produce_complex, helper_complex]
     options.stop_conditions = [success_stop_cond, failure_stop_cond]
 
@@ -128,13 +126,14 @@ def openDocument(document):
 def genOptions(trialsIn, experiment_type=NORMAL):
     # NB: Time out MUST be a float
     stdOptions = standardOptions(
-        Options.firstStep, expTemp(experiment_type), trials=trialsIn, timeOut=0.00001)
+        Options.firstStep, expTemp(experiment_type), trials=trialsIn, timeOut=0.1)
+    changeComplex(stdOptions, experiment_type)
     stdOptions.temperature = expTemp(experiment_type)
     stdOptions.sodium = expSodium(experiment_type)
     stdOptions.magnesium = expMagnesium(experiment_type)
-    stdOptions.DNA23Metropolis()
-    #setArrheniusConstantsDNA23(stdOptions)
-    changeComplex(stdOptions, experiment_type)
+    # stdOptions.DNA23Metropolis()
+    setArrheniusConstantsDNA23(stdOptions)
+    
 
     return stdOptions
 
@@ -190,26 +189,27 @@ def measuredRate(experiment_type):
     return excelFind(excelSelect(experiment_type), MEASURED_RATE_COL)
 
 
-def generateGraph(trials=50):
-    
+def generateGraph(min_success, increment_trials):
+    myMultistrand.setTerminationCriteria(min_success)
     plt.rcdefaults()
     width = 0.35
-    measuredRates = []
+    measuredRates = [82, 11, 3, 28]
     simRates = []
     low_error = []
     high_error = []
     
 #     for x in [NORMAL, WITHOUT_GG, WITHOUT_G, HELPER_WITHOUT_CC]:
-    for x in [NORMAL ]:
-        results = computeRate(trials, x)
+    for x in [NORMAL, WITHOUT_GG, WITHOUT_G, HELPER_WITHOUT_CC]:
+        results = computeRate(increment_trials, x)
         k1 = results[0].k1()
         lower_bound = results[1].ninetyFivePercentiles()[0]
         upper_bound = results[1].ninetyFivePercentiles()[1]
-        expRate = measuredRate(x)
-        measuredRates.append(k1)
+        # expRate = measuredRate[x]
+        # measuredRates.append(k1)
+        simRates.append(k1)
         low_error.append(k1 - lower_bound)
         high_error.append(upper_bound - k1)
-        measuredRates.append(expRate)
+        # measuredRates.append(expRate)
 
     fig, ax = plt.subplots()
     plt.ylabel(r"$\mathregular{Leak\ Rate\ (M^{-1}s^{-1})}$",  fontsize=12)
@@ -228,5 +228,5 @@ def generateGraph(trials=50):
 
 # the main method
 if __name__ == '__main__':
-    generateGraph(5)
+    generateGraph(2, 10000)
  

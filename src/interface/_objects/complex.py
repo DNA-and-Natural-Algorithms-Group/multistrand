@@ -103,7 +103,7 @@ class Complex(object):
                         "+".join(''.join('x' for d in s.domain_list)\
                                  for s in self.strand_list))
                 else:
-                    error_msg += " Expected a complete structure with [{1}] total characters chosen from '.()+'.".format( total_flat_length )
+                        error_msg += " Please check using Nupack!"
                 raise ValueError( error_msg )
             else:
                 matched_list = zip( structure,
