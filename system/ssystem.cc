@@ -19,6 +19,7 @@ int timeOut = 0;
 
 SimulationSystem::SimulationSystem(PyObject *system_o) {
 
+	
 	system_options = system_o;
 	simOptions = new PSimOptions(system_o);
 

@@ -7,13 +7,7 @@ import sys, time
 
 A_CONCENTRATION = 50e-9;
 
-
-class customResult(object):
-    
-    def __init__(self):
-    
-        self.thing = 'x'
-    
+   
  
 def first_step_simulation(strand_seq, trials, T=20.0, material="DNA"):
  
@@ -21,18 +15,17 @@ def first_step_simulation(strand_seq, trials, T=20.0, material="DNA"):
         
     def getOptions(trials, material):
          
-         
         o = standardOptions("First Step", tempIn=25.0, trials=200, timeOut = 0.1) 
         hybridization(o, strand_seq, trials)
         o.DNA23Metropolis()
-        
           
         return o
       
-    myMultistrand.setNumOfThreads(2)
+    myMultistrand.setNumOfThreads(1)
     myMultistrand.setOptionsFactory2(getOptions, trials, material)
-    myMultistrand.setTerminationCriteria(1000)
+    myMultistrand.setTerminationCriteria(10)
     myMultistrand.setLeakMode()
+    
     myMultistrand.run()
     
     return myMultistrand.results    # this is a first step rate object

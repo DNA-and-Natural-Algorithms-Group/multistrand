@@ -3,6 +3,8 @@ from multistrand.concurrent import Bootstrap, FirstStepRate
 
 MISMATCH_TYPE = 'C'
 
+SEESAW_DELTA = 5
+
 
 class NormalSeesawGate(object):
     Gate_Count = 1
@@ -32,13 +34,14 @@ class NormalSeesawGate(object):
         self.output_strand = self.output_domain + \
             self.toehold_domain + self.base_domain
         self.input_partial = Domain(name="partial",
-                                    sequence=self.input_domain.sequence[:3])
+                                    sequence=self.input_domain.sequence[:SEESAW_DELTA])
         self.threshold_base = self.input_partial.C + self.toehold_domain.C + \
             self.base_domain.C
         self.base_dom_strand = Strand(
             name="base strand", domains=[self.base_domain])
         self.threshold_free_waste_complex = Complex(
             strands=[self.base_dom_strand], structure='.' * len(self.base_dom_strand.sequence))
+
         self.gate_output_complex = Complex(strands=[self.base_strand,
                                                     self.output_strand],
                                            structure=".((+.))")
@@ -84,7 +87,8 @@ class MismatchedSeesawGate(NormalSeesawGate):
         return strand, strand_prime, strand.C
 
     def placeMismatchInOutput(self, position):
-        mismatched_strands = self.placeMismatchInDomain(position, self.output_domain.sequence)
+        mismatched_strands = self.placeMismatchInDomain(
+            position, self.output_domain.sequence)
         self.output_strand = mismatched_strands[0] + \
             self.toehold_domain + self.base_domain
         self.gate_output_complex = Complex(strands=[self.base_strand,
@@ -103,7 +107,8 @@ class MismatchedSeesawGate(NormalSeesawGate):
         self.input_strand = mismatched_strands[0] + \
             self.toehold_domain + self.input_domain
         # make the new base strand have a 'C-C' mismatch
-        self.base_strand = self.toehold_domain.C + mismatched_strands[1] + self.toehold_domain.C
+        self.base_strand = self.toehold_domain.C + \
+            mismatched_strands[1] + self.toehold_domain.C
         # we want to keep our the gate
         self.base_domain = mismatched_strands[1].C
 
@@ -133,9 +138,11 @@ class MismatchedSeesawGate(NormalSeesawGate):
         # Get the standard recognition domain length
         recog_len = len(self.base_domain.sequence)
 
-        self.fuel_strand = self.fuel_domain + self.toehold_domain + mismatched_strands[0]
+        self.fuel_strand = self.fuel_domain + \
+            self.toehold_domain + mismatched_strands[0]
         # make the new base strand have a 'C-C' mismatch with the fuel
-        self.base_strand = self.toehold_domain.C + mismatched_strands[1] + self.toehold_domain.C
+        self.base_strand = self.toehold_domain.C + \
+            mismatched_strands[1] + self.toehold_domain.C
         # we want to keep our the gate - as above, the complement for the prime in most places!
         self.base_domain = mismatched_strands[1].C
 

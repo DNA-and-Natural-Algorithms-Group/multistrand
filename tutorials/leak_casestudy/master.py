@@ -1,4 +1,5 @@
-import sys, time
+import sys
+import time
 from os.path import expanduser
 from datetime import datetime
 
@@ -9,10 +10,12 @@ for x in dirs:
     i = expanduser(x)
     sys.path.append(i)
 
-from LeakToolkit import calculateBaseOutputRate, calculateGateGateLeak, calculateBaseFuelRate, calculateGateFuelLeak
+from LeakToolkit import setMinimumSuccess, calculateBaseOutputRate, calculateGateGateLeak, calculateBaseFuelRate, calculateGateFuelLeak, calculateBaseThresholdRate, calculateReverseFuelRate, calculateReverseOutputRate
 from SeesawGate import NormalSeesawGate, MismatchedSeesawGate
+from multistrand.experiment import ClampedSeesawGate
+from HiddenSeesawGate import AntiLeakSeesawGate
 
-USE_SHORT_DOMAINS = False
+USE_SHORT_DOMAINS = True
 
 SHORT_SEQ1 = "ACCTCT"
 SHORT_SEQ2 = "TCTTTA"
@@ -25,16 +28,30 @@ LONG_SEQ2 = "CCAAACAAAACCTAT"
 LONG_SEQ5 = "AACCACCAAACTTAT"
 LONG_SEQ6 = "CCTAACACAATCACT"
 # some ive made up, but these shouldn't make much difference
-LONG_SEQ7 = "TCATTCCAACATTCA"
-LONG_SEQ1 = "CCATTCAACTTAATC"
+LONG_SEQ7 = "CCACAAAACAAAACT"
+LONG_SEQ1 = "CATCCATTCAACTAT"
 LONG_SEQT = SHORT_SEQT
+
+CL_LONG_S18 = "TCTTCTAACAT"
+CL_LONG_S5 = "CCACCAAACTT"
+CL_LONG_S6 = "TAACACAATCA"
+CL_LONG_S29 = "CCAATACTCCT"
+CL_LONG_S53 = "TATCTAATCTC"
+CL_LONG_S44 = "AAACTCTCTCT"
+CL_LONG_SEQT = "TCT"
+CLAMP_SEQ = "CA"
 
 SHORT_GATE_A_SEQ = [SHORT_SEQ1, SHORT_SEQ2, SHORT_SEQ5, SHORT_SEQ7, SHORT_SEQT]
 SHORT_GATE_B_SEQ = [SHORT_SEQ2, SHORT_SEQ5, SHORT_SEQ6, SHORT_SEQ7, SHORT_SEQT]
 LONG_GATE_A_SEQ = [LONG_SEQ1, LONG_SEQ2, LONG_SEQ5, LONG_SEQ7, LONG_SEQT]
 LONG_GATE_B_SEQ = [LONG_SEQ2, LONG_SEQ5, LONG_SEQ6, LONG_SEQ7, LONG_SEQT]
+CL_LONG_GATE_A_SEQ = [CL_LONG_S44, CL_LONG_S18,
+                      CL_LONG_S5, CL_LONG_S29, CL_LONG_SEQT, CLAMP_SEQ]
+CL_LONG_GATE_B_SEQ = [CL_LONG_S53, CL_LONG_S5,
+                      CL_LONG_S6, CL_LONG_S29, CL_LONG_SEQT, CLAMP_SEQ]
 
-start_time = 0
+start_time = time.time()
+
 
 def calcMetrics(gateA, gateB):
     rates = []
@@ -44,23 +61,32 @@ def calcMetrics(gateA, gateB):
     rates.append(calculateBaseOutputRate(gateB))
     printTimeElapsed()
 
+    print "\n **** Reverse Output Rates **** \n"
+    rates.append(calculateReverseOutputRate(gateA))
+    printTimeElapsed()
+    rates.append(calculateReverseOutputRate(gateB))
+    printTimeElapsed()
+
     print "\n **** Base Fuel Rates **** \n"
     rates.append(calculateBaseFuelRate(gateA))
     printTimeElapsed()
     rates.append(calculateBaseFuelRate(gateB))
     printTimeElapsed()
 
-    print "\n **** Gate Leak Rates **** \n"
-    rates.append(calculateGateGateLeak(gateA, gateB))
+    print "\n **** Reverse Fuel Rates **** \n"
+    rates.append(calculateReverseFuelRate(gateA))
+    printTimeElapsed()
+    rates.append(calculateReverseFuelRate(gateB))
     printTimeElapsed()
 
-    print "\n **** Fuel Leak Rate s ****\n"
-    rates.append(calculateGateFuelLeak(gateA))
+    print "\n **** Threshold Rates **** \n"
+    # rates.append(calculateBaseThresholdRate(gateA))
     printTimeElapsed()
-    rates.append(calculateGateFuelLeak(gateB))
+    # rates.append(calculateBaseThresholdRate(gateB))
     printTimeElapsed()
-    print "Finished Rates \n"
+
     return rates
+
 
 def runMismatchSimulations(domainListA, domainListB):
     # 'recognition domain' sequence length
@@ -69,15 +95,14 @@ def runMismatchSimulations(domainListA, domainListB):
     mismatched_rates = []
     gateA = NormalSeesawGate(*domainListA)
     gateB = NormalSeesawGate(*domainListB)
-    print " >>>>>> Normal Gate Rates <<<<<<<" 
+    print " >>>>>> Normal Gate Rates <<<<<<<"
     mismatched_rates.append(calcMetrics(gateA, gateB))
-    
+
     for i in range(2, recog_len, 2):
             # Not terribly efficient...
         rates = []
         gateA = MismatchedSeesawGate(*domainListA)
         gateB = MismatchedSeesawGate(*domainListB)
-        
 
         # Assume that it is required for a mismatch in the output of the first
         # gate and the input of the second gate
@@ -97,6 +122,32 @@ def runMismatchSimulations(domainListA, domainListB):
     return mismatched_rates
 
 
+def runClampedSimulations(domainListA, domainListB):
+    # 'recognition domain' sequence length
+    recog_len = len(domainListA[1])
+    # increment by twos
+    rates = []
+    gateA = ClampedSeesawGate(*domainListA)
+    gateB = ClampedSeesawGate(*domainListB)
+    setMinimumSuccess(25)
+    rates.append(calcMetrics(gateA, gateB))
+    setMinimumSuccess(2)
+    rates.append(calcLeakMetrics(gateA, gateB))
+    return rates
+
+
+def runAntiLeakSimulations(domainListA, domainListB):
+    rates = []
+    gateA = AntiLeakSeesawGate(*domainListA)
+    gateB = AntiLeakSeesawGate(*domainListB)
+    setMinimumSuccess(25)
+    rates.append(calcMetrics(gateA, gateB))
+    setMinimumSuccess(2)
+    rates.append(calcLeakMetrics(gateA, gateB))
+    return rates
+
+
+
 def outputRates(rates, time_taken):
     # this method assumes that the rates object is a 2D array
     try:
@@ -105,7 +156,7 @@ def outputRates(rates, time_taken):
         file_name = "data{}.txt".format(str(datetime.now()))
         with open(file_name, "w") as output:
             output.write("Dataset Created On: {}\n Took {} s\n".format(
-                str(datetime.now()), time_taken ))
+                str(datetime.now()), time_taken))
             for i in range(0, rates_measured):
                 output_str = ""
                 #output.write("writing rate " + str(i) + "\n")
@@ -123,26 +174,51 @@ def outputRates(rates, time_taken):
         print "Rates Input Object Invalid"
         print "No output has been printed"
 
+
 def printTimeElapsed():
     curr_time = time.time()
     elap_time = curr_time - start_time
     if(elap_time < 1000):
         print "Time since start: {} s\n".format(elap_time)
     elif(elap_time < 6000):
-        print "Time since start: {} min\n".format(elap_time/60)  
+        print "Time since start: {} min\n".format(elap_time / 60)
     else:
-        print "Time since start: {} hr\n".format(elap_time/3600)  
+        print "Time since start: {} hr\n".format(elap_time / 3600)
 
-# The actual main method
+
+def runAndLogClamped():
+    start_time = time.time()
+    data = runClampedSimulations(CL_LONG_GATE_A_SEQ, CL_LONG_GATE_B_SEQ)
+    time_taken = time.time() - start_time
+    outputRates(data, time_taken)
+
+
+def runAndLogAntiLeak():
+    CL_LONG_GATE_A_SEQ.extend(['GA', 'GT'])
+    CL_LONG_GATE_B_SEQ.extend(['GA', 'GT'])
+    start_time = time.time()
+    data = runAntiLeakSimulations(CL_LONG_GATE_A_SEQ, CL_LONG_GATE_B_SEQ)
+    time_taken = time.time() - start_time
+    outputRates(data, time_taken)
+
+
 if __name__ == '__main__':
-    print "Initializing Example 3"
-    if not USE_SHORT_DOMAINS:
-        start_time = time.time()
-        data = runMismatchSimulations(LONG_GATE_A_SEQ, LONG_GATE_B_SEQ)
-        time_taken = time.time() - start_time
-        outputRates(data, time_taken)
-    else:
-        gateA = MismatchedSeesawGate(*LONG_GATE_A_SEQ)
-        gateB = MismatchedSeesawGate(*LONG_GATE_A_SEQ)
+    gateA = ClampedSeesawGate(*CL_LONG_GATE_A_SEQ)
+    print gateA.gate_input_complex
+    print gateA.gate_fuel_complex
+    print gateA.gate_output_complex
 
-        
+
+def calcLeakMetrics(gateA, gateB):
+    rates = []
+    print "\n **** Fuel Leak Rate s ****\n"
+    rates.append(calculateGateFuelLeak(gateA))
+    printTimeElapsed()
+    rates.append(calculateGateFuelLeak(gateB))
+    printTimeElapsed()
+
+    print "\n **** Gate Leak Rates **** \n"
+    rates.append(calculateGateGateLeak(gateA, gateB))
+    printTimeElapsed()
+    print "Finished Rates \n"
+    return rates

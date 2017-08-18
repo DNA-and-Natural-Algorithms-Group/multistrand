@@ -21,7 +21,10 @@ import numpy as np
 
 from multistrand.system import SimSystem
 
+
 MINIMUM_RATE = 1e-36
+MAX_TRIALS = 25000000
+MAX_TRIALS_TEST = 2500
 
 # # Rate-computation classes start here
 
@@ -36,22 +39,21 @@ class basicRate(object):
 
     dataset = []
 
-    def log10KEff(self,concentration):
+    def log10KEff(self, concentration):
         return np.log10(self.kEff(concentration))
 
-    
     def testForTwoStateness(self, concentration):
         print "Test for two-stateness is not implemented for this object (type: " + type(self).__name__ + ")\n"
 
-    # Convenience. 
+    # Convenience.
     def doBootstrap(self):
         myBootstrap = Bootstrap(self, computek1=True)
-        low, high = myBootstrap.ninetyFivePercentiles()
-        
-        print "Estimated k1 = %0.3g /M /s with 95 pct confidence interval [%0.3g, %0.3g] \n" % (self.k1(), low, high)
-        
-        return low, high
+#         low, high = myBootstrap.ninetyFivePercentiles()
 
+        print "Estimated k1 = %0.3g /M /s" # with 95 pct confidence interval [%0.3g, %0.3g] \n" % (self.k1(), low, high)
+        print myBootstrap
+
+        return myBootstrap.ninetyFivePercentiles()
 
 
 # # Migration rates for first step
@@ -159,8 +161,10 @@ class FirstStepRate(basicRate):
         # the expected rate for a collision
         collTime = self.k1() + self.k1Prime()
 
-        dTForward = np.float(1.0) / self.k2()       + np.float(1.0) / (concentration * collTime)
-        dTReverse = np.float(1.0) / self.k2Prime()  + np.float(1.0) / (concentration * collTime)
+        dTForward = np.float(1.0) / self.k2() + \
+            np.float(1.0) / (concentration * collTime)
+        dTReverse = np.float(1.0) / self.k2Prime() + \
+            np.float(1.0) / (concentration * collTime)
 
         dT = dTReverse * multiple + dTForward
 
@@ -169,19 +173,20 @@ class FirstStepRate(basicRate):
     def testForTwoStateness(self, concentration=None):
 
         if concentration == None:
-            print  "Warning! Attempting to test for two-state behaviour but concentration was not given. \n"
+            print "Warning! Attempting to test for two-state behaviour but concentration was not given. \n"
             return True
 
         # Test if the failed trajectory and the success trajectory are dominated ( > 10% of total ) by the unimolecular phase
         tau_bi_succ = np.float(1) / (self.k1() * concentration)
         tau_bi_fail = np.float(1) / (self.k1Prime() * concentration)
-    
+
         testFail = (tau_bi_fail / self.weightedReverseUni()) < 9
         testSucces = (tau_bi_succ / self.weightedForwardUni()) < 9
-    
+
         if(testFail | testSucces):
-    
-            print(''.join(["Warning! At the chosen concentration, ", str(concentration), " M, the reaction might violate two-state secondary order rate kinetics"]))
+
+            print(''.join(["Warning! At the chosen concentration, ", str(
+                concentration), " M, the reaction might violate two-state secondary order rate kinetics"]))
             print(self)
 
     def resample(self):
@@ -212,7 +217,6 @@ class FirstStepRate(basicRate):
 
         else:
             self.dataset.append(that.dataset)
-
 
     # # override toString
     def __str__(self):
@@ -255,12 +259,12 @@ class FirstStepLeakRate(basicRate):
 
     # take a dataset with failed trajectories, save only the important information.
     def __init__(self, dataset=None, generate_rates=True):
-                
+
         if dataset == None:
             dataset = []
 
         c = Counter(x.tag for x in dataset)
-        
+
         self.nForward = c[Options.STR_SUCCESS]
         self.nForwardAlt = c[Options.STR_ALT_SUCCESS]
         self.nReverse = c[Options.STR_FAILURE]
@@ -268,7 +272,6 @@ class FirstStepLeakRate(basicRate):
 
         self.dataset = [x for x in dataset if (
             (x.tag == Options.STR_SUCCESS) or x.tag == Options.STR_ALT_SUCCESS)]
-
 
     def generateRates(self, dataset=None):
         0
@@ -292,18 +295,19 @@ class FirstStepLeakRate(basicRate):
             return self.sumCollisionForwardAlt() / np.float(self.nTotal)
 
     def resample(self):
-        
+
         new_dataset = []
         time_outs = self.nTotal - self.nForward - self.nReverse - self.nForwardAlt
         successful_trials = len(self.dataset)
         p = np.float(successful_trials) / self.nTotal
         # the number of succesful trials
         success = np.random.binomial(self.nTotal, p)
-        
+
         # use random.choice rather than random.sample because this samples
         # WITH REPLACEMENT, as required.
         if success > 0:
-            new_dataset = np.random.choice(self.dataset, success, True).tolist()
+            new_dataset = np.random.choice(
+                self.dataset, success, True).tolist()
         else:
             new_dataset = []
 
@@ -328,9 +332,8 @@ class FirstStepLeakRate(basicRate):
         self.nReverse += that.nReverse
         self.nTotal += that.nTotal
 
-
     def __str__(self):
-        
+
         output = "nForward = " + str(self.nForward) + " \n"
         output += "nReverse = " + str(self.nReverse) + " \n \n"
 
@@ -342,9 +345,8 @@ class FirstStepLeakRate(basicRate):
 
         if(self.nForwardAlt > 0):
             output += "k1Alt       = %.2e  /M /s  \n" % self.k1Alt()
-            
-        return output
 
+        return output
 
     def shortString(self):
         return self.__str__()
@@ -354,7 +356,7 @@ class FirstStepLeakRate(basicRate):
 class FirstPassageRate(basicRate):
 
     def __init__(self, dataset=None):
-        
+
         if dataset == None:
             # set up for resampling
             self.dataset = []
@@ -368,14 +370,15 @@ class FirstPassageRate(basicRate):
     def process(self, dataset):
 
         self.times = np.array([i.time for i in dataset])
-        self.timeouts = [i for i in dataset if not i.tag == Options.STR_SUCCESS]
+        self.timeouts = [
+            i for i in dataset if not i.tag == Options.STR_SUCCESS]
 
     def castToNumpyArray(self):
 
         self.times = np.array(self.times)
 
     def resample(self):
-        
+
         # avoid resampling time-outs.
         newRates = FirstPassageRate()
 
@@ -391,7 +394,7 @@ class FirstPassageRate(basicRate):
         newRates.generateRates()
 
         return newRates
-    
+
     def merge(self, that, deepCopy=False):
 
         # Now merge the existing datastructures with the ones from the new dataset
@@ -404,9 +407,18 @@ class FirstPassageRate(basicRate):
         else:
             self.times.append(that.times)
             self.timeouts.append(that.timesouts)
-
+        
+        self.generateRates()
+            
     def generateRates(self):
-        0
+            
+        self.nForward = len(self.times) - len(self.timeouts) 
+
+    def k1(self):
+        
+        mean = np.mean(self.times)
+        return np.float(1.0) / (mean)
+        
 
     def kEff(self, concentration):
 
@@ -414,26 +426,23 @@ class FirstPassageRate(basicRate):
 
             print("# association trajectories did not finish =",
                   str(len(self.timeouts)))
-            
+
             for timeout in self.timeouts:
                 print timeout
-            
+
             for i in self.timeouts:
                 assert (i.type_name == 'Time')
                 assert (i.tag == None)
                 assert (i.time >= 10.0)
-
 
         mean = np.mean(self.times)
         kEff = np.float(1.0) / (mean * concentration)
 
         return kEff
 
-
     def __str__(self):
-        
-        return "kEff = %.3g \n" % self.kEff(50e9)
-            
+
+        return "k1 = %.3g \n" % self.k1()
 
 
 class Bootstrap():
@@ -449,9 +458,9 @@ class Bootstrap():
         self.effectiveRates = list()
         self.effectiveAltRates = list()
         self.logEffectiveRates = list()
-        self.N = 400
-        
-        print "Bootstrapping " +   type(myRates).__name__ + ", using "  + str(self.N) + " samples.",
+        self.N = 10000
+
+        print "Bootstrapping " + type(myRates).__name__ + ", using " + str(self.N) + " samples.",
 
         for i in range(self.N):
 
@@ -463,7 +472,7 @@ class Bootstrap():
                 rate = float(sample.k1())
             else:
                 rate = float(sample.kEff(concentration))
-
+                
             self.effectiveRates.append(rate)
 
             if(computek1Alt):
@@ -477,7 +486,7 @@ class Bootstrap():
         self.effectiveRates.sort(cmp=None, key=None, reverse=False)
         self.effectiveAltRates.sort(cmp=None, key=None, reverse=False)
         b_finish_time = time.time()
-        print "   ..finished in %.2f sec.\n"  % (b_finish_time - b_start_time)
+        print "   ..finished in %.2f sec.\n" % (b_finish_time - b_start_time)
 
         # Yet to generate log alt rates
         for rate in self.effectiveRates:
@@ -506,11 +515,11 @@ class Bootstrap():
         return np.std(self.logEffectiveRates)
 
     def __str__(self):
-
-        low, high = self.ninetyFivePercentiles()
-
-        print "Confidence Interval: %.3g /M /s, %.3g /M /s" % low, high
-
+        if len(self.effectiveRates) > 0 : 
+            low, high = self.ninetyFivePercentiles()    
+            return "Confidence Interval: %.3g /M /s, %.3g /M /s" % (low, high)
+        else :
+            return "No successful reactions observed "
 
 # # Concurrent classes start here
 
@@ -567,6 +576,7 @@ class MergeSimSettings(object):
     terminationCount = None
 
     def rateFactory(self, dataset=None):
+        
         if self.resultsType == self.RESULTTYPE1:
             return FirstStepRate(dataset=dataset)
         if self.resultsType == self.RESULTTYPE2:
@@ -583,7 +593,17 @@ class MergeSimSettings(object):
                 print "nForward = %i " % nForwardIn.value
                 print "nReverse = %i \n" % nReverseIn.value
 
-            return nForwardIn.value >= self.terminationCount
+       
+            if(nForwardIn.value >= self.terminationCount):
+                print "Found " + str(nForwardIn.value) + " successful trials, terminating."
+                return True
+
+            elif((nForwardIn.value + nReverseIn.value) > MAX_TRIALS):
+                print "Simulated " + str(nForwardIn.value + nReverseIn.value) +  " trials, terminating."
+                return True
+
+            else:
+                return False
 
 
 def timeStamp(inTime=None):
@@ -617,7 +637,7 @@ class MergeSim(object):
 
     def setFirstStepMode(self):
         self.settings.resultsType = self.settings.RESULTTYPE1
-        
+
     def setLeakMode(self):
         self.settings.resultsType = self.settings.RESULTTYPE2
 
@@ -724,14 +744,33 @@ class MergeSim(object):
         if not self.settings.terminationCount == None:
 
             welcomeMessage += " .. and rolling " + str(self.trialsPerThread)
-            welcomeMessage += " trajectories per thread until " + \
-                str(self.settings.terminationCount) + \
-                " successful trials occur. \n"
+            welcomeMessage += " trajectories per thread until " + str(self.settings.terminationCount) + " successful trials occur. \n"
 
         return welcomeMessage
+    
+          
+    def printStates(self):
+        
+        def actualPrint():   
+            print  "Start states:"
+            for i in self.factory.new(0).start_state:
+                print i
+                print "\n"
+                
+            print "Stop conditions: "
+            for i in self.factory.new(0).stop_conditions:
+                print i
+                print "\n"
+
+             
+        myProc = multiprocessing.Process(target=actualPrint,  args= [])
+        myProc.start()
+        myProc.join()
+        myProc.terminate()
+                
 
     def run(self):
-        
+
         # The input0 is always trials.
         self.trialsPerThread = int(
             math.ceil(float(self.factory.input0) / float(self.numOfThreads)))
@@ -757,11 +796,11 @@ class MergeSim(object):
             s = SimSystem(myOptions)
             s.start()
 
-            if myOptions.simulation_mode == Options.firstStep:
+#             if myOptions.simulation_mode == Options.firstStep | myOptions.simulation_mode == Options.trajectory:
 
-                myFSR = self.settings.rateFactory(myOptions.interface.results)
-                nForwardIn.value += myFSR.nForward + myFSR.nForwardAlt
-                nReverseIn.value += myFSR.nReverse
+            myFSR = self.settings.rateFactory(myOptions.interface.results)
+            nForwardIn.value += myFSR.nForward + myFSR.nForwardAlt
+            nReverseIn.value += myFSR.nReverse
 
             for result in myOptions.interface.results:
 
@@ -780,8 +819,7 @@ class MergeSim(object):
                 aFactory.doAnalysis(myOptions)
 
         def getSimulation():
-            instanceSeed = self.seed + i * 3 * 5 * 19 + \
-                (time.time() * 10000) % (math.pow(2, 32) - 1)
+            instanceSeed = self.seed + i * 3 * 5 * 19 + (time.time() * 10000) % (math.pow(2, 32) - 1)
             return multiprocessing.Process(target=doSim, args=(self.factory, self.aFactory, self.managed_result, self.managed_endStates, instanceSeed, self.nForward, self.nReverse))
 
         # this saves the results generated so far as regular Python objects,
@@ -796,7 +834,7 @@ class MergeSim(object):
             # NB: Initialize with a dataset, but we merge with
             # a differrent rates object.
             myFSR = self.settings.rateFactory(self.managed_result)
-                        
+
             self.results.merge(myFSR, deepCopy=True)
 
             # save the terminal states if we are not in leak mode
@@ -808,8 +846,11 @@ class MergeSim(object):
             self.managed_result = manager.list()
             self.managed_endStates = manager.list()
 
+        # give a print of the initial states and stopping conditions
+        self.printStates()
         # start the initial bulk
         print(self.startSimMessage())
+        
         procs = []
 
         for i in range(self.numOfThreads):
@@ -845,7 +886,6 @@ class MergeSim(object):
 
             # if >500 000 results have been generated, then store
             if (self.nForward.value + self.nReverse.value) > 500000:
-
                 saveResults()
 
         saveResults()
