@@ -29,7 +29,7 @@ def first_step_simulation(strand_seq, trials, temperature, material="DNA"):
       
     myMultistrand.setNumOfThreads(8)
     myMultistrand.setOptionsFactory2(getOptions, trials, material)
-    myMultistrand.setTerminationCriteria(30)
+    myMultistrand.setTerminationCriteria(200)
     myMultistrand.setPassageMode()
     
     myMultistrand.run()
@@ -47,8 +47,8 @@ def compute(strand_seq):
 
 def computeAndWriteToCL(strand_seq, doBootstrap):
     
-    result = first_step_simulation(strand_seq, 16, 25.0, material="DNA")
-    print("The dissociation rate of ", strand_seq, " and the reverse complement is ", "{:.2e}".format(result.k1()), " /M /s", sep="")
+    result = first_step_simulation(strand_seq, 64, 25.0, material="DNA")
+    print("The dissociation rate of ", strand_seq, " and the reverse complement is ", "{:.2e}".format(result.k1()), " /s", sep="")
     
     if(doBootstrap):
         

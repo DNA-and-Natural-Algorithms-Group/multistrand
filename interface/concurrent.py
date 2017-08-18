@@ -412,7 +412,7 @@ class FirstPassageRate(basicRate):
             
     def generateRates(self):
             
-        self.nForward = len(self.times) - len(self.timeouts) + 9
+        self.nForward = len(self.times) - len(self.timeouts) 
 
     def k1(self):
         
