@@ -148,6 +148,15 @@ def clamped_gate_output_leak(options, domain_list, trials, supersample=25, doFir
     two_input(options, gate.gate_output_complex, gate.fuel_complex,
               gate.output_complex, trials, supersample, doFirstPassage=False)
 
+# Domain list as a list of strings, defined as follows input_sequence, base_sequence, output_sequence, fuel_sequence,
+# toehold_sequence, clamp_sequence which defaults to clamp_sequence
+# This method takes two gates
+def clamped_gate_output_leak(options, domain_list_A, domain_list_B, trials, supersample=25, doFirstPassage=False):
+    gateA = ClampedSeesawGate(*domain_list_A)
+    gateB = ClampedSeesawGate(*domain_list_B)
+    two_input_two_success(options, gateA.gate_output_complex, gateA.fuel_complex,
+              gateA.output_complex,gateB.output_complex, trials, supersample, doFirstPassage=False)
+
 
 
 def two_input(options, input_complex_A, input_complex_B, output_complex, trials=0, supersample=25, doFirstPassage=False):
@@ -168,6 +177,27 @@ def two_input(options, input_complex_A, input_complex_B, output_complex, trials=
         options.stop_conditions = [successful_stop_condition, failure_stop_condition]
     else:
         options.stop_conditions = [successful_stop_condition]
+
+def two_input_two_success(options, input_complex_A, input_complex_B, output_complex_A, output_complex_B, trials=0, supersample=25, doFirstPassage=False):
+
+    if(trials > 0):
+        for x in [input_complex_A, input_complex_B]:
+            setBoltzmann(x, trials, supersample)
+
+    successful_stop_condition = StopCondition(
+        Options.STR_SUCCESS, [(output_complex_A, Options.dissocMacrostate, 0)])
+    alt_successful_stop_condition = StopCondition(
+        Options.STR_ALT_SUCCESS, [(output_complex_B, Options.dissocMacrostate, 0)])
+    failure_stop_condition = StopCondition(
+        Options.STR_SUCCESS, [(input_complex_B, Options.dissocMacrostate, 0)])
+
+    options.start_state = [input_complex_A, input_complex_B]
+
+    # Point the options to the right objects
+    if not doFirstPassage:
+        options.stop_conditions = [successful_stop_condition, alt_successful_stop_condition,  failure_stop_condition]
+    else:
+        options.stop_conditions = [successful_stop_condition, alt_successful_stop_condition]
 
 
 class ClampedSeesawGate(object):
