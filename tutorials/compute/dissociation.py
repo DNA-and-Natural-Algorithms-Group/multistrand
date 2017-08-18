@@ -16,7 +16,7 @@ import sys, time
  
 def first_step_simulation(strand_seq, trials, temperature, material="DNA"):
  
-    print ("Running first step mode simulations for %s (with Boltzmann sampling)..." % (strand_seq))
+    print ("Running first passage time simulations for %s (with Boltzmann sampling)..." % (strand_seq))
         
     def getOptions(trials, material):
          
