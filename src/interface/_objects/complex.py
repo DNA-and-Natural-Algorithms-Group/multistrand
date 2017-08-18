@@ -103,7 +103,7 @@ class Complex(object):
                         "+".join(''.join('x' for d in s.domain_list)\
                                  for s in self.strand_list))
                 else:
-                        error_msg += " Please check using Nupack!"
+                        error_msg += " Could not parse the dot-paren structure. Expected string composed of ()+."
                 raise ValueError( error_msg )
             else:
                 matched_list = zip( structure,
