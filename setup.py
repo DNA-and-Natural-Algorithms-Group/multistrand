@@ -30,7 +30,7 @@ def setup_ext( ):
 
     multi_ext = Extension("multistrand.system",
                           sources=sources,
-                          include_dirs=["./include"],
+                          include_dirs=["./src/include"],
                           language="c++",
                         undef_macros=['NDEBUG'],
                         extra_compile_args = ['-O3','-g', '-w', "-std=c++11", ], #FD: adding c11 flag
