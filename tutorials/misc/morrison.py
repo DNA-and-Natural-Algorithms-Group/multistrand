@@ -2,6 +2,7 @@
 
 import sys, os
 import xlrd         #excel sheets
+import numpy as np
 
 from dissociation import compute
 
@@ -25,17 +26,35 @@ def excelFind(row, col):
 resultFileName = "morrison-results.txt"
 file = open(resultFileName, 'w+')
 
-for i in range(12):
-    
-    name = excelFind(i+1, 1)
-    seq = excelFind(i+1, 2)
-    
-    file.write(str(name) + "    ")
-    file.write(str(seq) + "   ")
-    file.write(str(99.0) + "   ")
+file.write("Seq    temp    measured    predicted    pred-95-low    pred-95-high\n\n") 
 
-    file.write("\n")
+def doMorrison(myRange):
 
+    for i in myRange:
+        
+        seq = excelFind(i+1, 1)
+        temp = 1000/ float(excelFind(i+1, 3))
+        measured = excelFind(i+1, 5) 
+        
+        
+        file.write(str(seq) + "   ")
+        file.write(str(temp) + "   ")
+        file.write(str(measured) + "   ")
+        
+        predicted = compute(seq, temp)
+        file.write(str(np.log10(predicted.k1())) +     "    "  )
+    
+        low, high = predicted.doBootstrap()
+        file.write(str(np.log10(low)) +     "    "  )
+        file.write(str(np.log10(high)) +     "    "  )    
+    
+        file.write("\n")
+    
+        file.flush()
+
+
+doMorrison(range(6,12)) #do short seq first
+doMorrison(range(6))
 
 file.close()
 rate = compute("AGAT")

@@ -14,13 +14,13 @@ import sys, time
    
 # In the following file, we simply simulate the actual dissocation time and compute k- = 1/t. 
  
-def first_step_simulation(strand_seq, trials, temperature, material="DNA"):
+def first_step_simulation(strand_seq, trials, temperature):
  
     print ("Running first passage time simulations for %s (with Boltzmann sampling)..." % (strand_seq))
         
-    def getOptions(trials, material):
+    def getOptions(trials):
          
-        o = standardOptions(Options.firstPassageTime, temperature, trials, timeOut = 100.0) 
+        o = standardOptions(Options.firstPassageTime, temperature, trials, timeOut = 1000.0) 
         dissociation(o, strand_seq, trials)
 #         o.DNA23Metropolis()
         setArrheniusConstantsDNA23(o) # unreleased parameterization
@@ -28,8 +28,8 @@ def first_step_simulation(strand_seq, trials, temperature, material="DNA"):
         return o
       
     myMultistrand.setNumOfThreads(8)
-    myMultistrand.setOptionsFactory2(getOptions, trials, material)
-    myMultistrand.setTerminationCriteria(50)
+    myMultistrand.setOptionsFactory1(getOptions, trials)
+    myMultistrand.setTerminationCriteria(20)
     myMultistrand.setPassageMode()
     
     myMultistrand.run()
@@ -37,11 +37,10 @@ def first_step_simulation(strand_seq, trials, temperature, material="DNA"):
     return myMultistrand.results    # this is a first passage rate object
 
 
-def compute(strand_seq):
+def compute(strand_seq, temperature=25):
     
-    result = first_step_simulation(strand_seq, 16, 25.0, material="DNA")
+    return first_step_simulation(strand_seq, 16,temperature)
 
-    return result.k1()
 
 
 
