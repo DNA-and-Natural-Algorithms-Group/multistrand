@@ -177,6 +177,20 @@ class ClampedSeesawGate(object):
             self.toehold_domain.C + self.clamp_domain + \
             self.base_domain.C + self.clamp_domain
         self.base_dom_strand = self.clamp_domain + self.base_domain + self.clamp_domain
+    duplex = Complex(strands=[top, bot], structure="()")
+    
+    # Turns Boltzmann sampling on for this complex and also does sampling more efficiently by sampling 'trials' states.
+    if(myTrials > 0):
+        setBoltzmann(duplex)
+    
+    # Stop when the strands fall apart.
+    successComplex = Complex(strands=[top], structure=".")
+    stopSuccess = StopCondition(Options.STR_SUCCESS, [(success_complex, Options.dissocMacrostate, 0)])
+    
+    options.start_state = [duplex]
+    options.stop_conditions = [stopSuccess]         
+        
+        
 
         self.threshold_free_waste_complex = Complex(
             strands=[self.base_dom_strand], structure='.' * len(self.base_dom_strand.sequence))
