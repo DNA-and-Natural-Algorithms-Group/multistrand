@@ -20,7 +20,7 @@ import multiprocessing
 import numpy as np
 
 from multistrand.system import SimSystem
-from mercurial.encoding import lower
+
 
 MINIMUM_RATE = 1e-36
 MAX_TRIALS = 25000000

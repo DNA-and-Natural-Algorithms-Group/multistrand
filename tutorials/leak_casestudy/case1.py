@@ -70,7 +70,6 @@ def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
         Options.STR_FAILURE, [(duplex_complex, Options.dissocMacrostate, 0)])
 
     for x in [duplex_complex, invader_complex]:
-
         x.boltzmann_count = trials
         x.boltzmann_sample = True
 

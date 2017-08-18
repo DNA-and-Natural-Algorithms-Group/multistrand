@@ -45,15 +45,12 @@ def getOptions(trials, material, complex1, complex2,
                 rate_method="Metropolis", num_simulations=trials,
                 simulation_time=ATIME_OUT, temperature=T)
 
-    o.start_state = [complex1, complex2]
-    conds = []
-
     for x in [complex1, complex2]:
         x.boltzmann_supersample = supersample
         x.boltzmann_count = trials
         x.boltzmann_sample = True
         
-
+    conds=[]
     for x in [success_stop_conditions, failed_stop_conditions]:
         try:
             # x is a list
@@ -62,6 +59,7 @@ def getOptions(trials, material, complex1, complex2,
             # x is a single input
             conds.append(x)
 
+    o.start_state = [complex1, complex2]
     o.stop_conditions = conds
     # Using new parameters.
     setArrheniusConstantsDNA23(o)
