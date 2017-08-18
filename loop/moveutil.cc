@@ -30,7 +30,7 @@ int moveutil::typeMult(MoveType left, MoveType right) {
 
 QuartContext moveutil::getContext(char input) {
 
-	if (input > 0 && input < 5) { // there is a stack on the exterior
+	if (input > 0 && input < 5) { // there is a stack on the exteriour
 
 		return stackC;
 
