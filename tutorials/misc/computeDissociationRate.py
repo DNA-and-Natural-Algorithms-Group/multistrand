@@ -1,13 +1,17 @@
 from __future__ import print_function
 
 from multistrand.concurrent import myMultistrand, FirstStepRate, Bootstrap
-from multistrand.experiment import standardOptions, hybridization
+from multistrand.experiment import standardOptions, dissociation
 
 import sys, time
 
 A_CONCENTRATION = 50e-9;
-
    
+# Frits Dannenberg, Aug 2017.
+# In order to compute dissociation rates for duplex, we can either compute the forward rate k+
+# and simply compute k- from k+ / k-  = exp ( - dG / RT )
+   
+# In the following file, we simply simulate the actual dissocation and compute 1/t. 
  
 def first_step_simulation(strand_seq, trials, T=20.0, material="DNA"):
  
@@ -16,7 +20,7 @@ def first_step_simulation(strand_seq, trials, T=20.0, material="DNA"):
     def getOptions(trials, material):
          
         o = standardOptions("First Step", tempIn=25.0, trials=200, timeOut = 0.1) 
-        hybridization(o, strand_seq, trials)
+        dissociation(o, strand_seq, trials)
         o.DNA23Metropolis()
           
         return o
@@ -24,7 +28,7 @@ def first_step_simulation(strand_seq, trials, T=20.0, material="DNA"):
     myMultistrand.setNumOfThreads(2)
     myMultistrand.setOptionsFactory2(getOptions, trials, material)
     myMultistrand.setTerminationCriteria(1000)
-    myMultistrand.setLeakMode()
+    myMultistrand.setPassageMode()
     
     myMultistrand.run()
     
@@ -34,7 +38,6 @@ def first_step_simulation(strand_seq, trials, T=20.0, material="DNA"):
 def compute(strand_seq):
     
     result = first_step_simulation(strand_seq, 200, T=25.0, material="DNA")
-    
     rRate = result.k1()
 
     return "{:.2e}".format(float(rRate)), '999.0'
@@ -43,7 +46,7 @@ def compute(strand_seq):
 def computeAndWriteToCL(strand_seq, doBootstrap):
     
     result = first_step_simulation(strand_seq, 12000, T=25.0, material="DNA")
-    print("The hybridization rate of ", strand_seq, " and the reverse complement is ", "{:.2e}".format(result.k1()), " /M /s", sep="")
+    print("The dissociation rate of ", strand_seq, " and the reverse complement is ", "{:.2e}".format(result.k1()), " /M /s", sep="")
     
     # check for two-stateness
     result.testForTwoStateness(100e-9)
@@ -61,7 +64,7 @@ def computeAndWriteToCL(strand_seq, doBootstrap):
 if(len(sys.argv) < 2):
     print("Please provide a DNA sequence as commandline argument")
     print("Add -bootstrap to do a boostrap ")
-    print("Example: computeAnnealRate.py ATGCAGT -bootstrap")
+    print("Example: computeDisscociationRate.py ATGCAGT -bootstrap")
     exit()
 
 start_time = time.time()
