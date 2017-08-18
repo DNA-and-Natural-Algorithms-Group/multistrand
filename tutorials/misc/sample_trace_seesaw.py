@@ -9,7 +9,7 @@ from multistrand.objects import Complex, Domain, Strand, StopCondition
 from multistrand.options import Options
 from multistrand.system import SimSystem
 from multistrand.utils import pairType
-from multistrand.experiment import standardOptions, hybridization
+from multistrand.experiment import standardOptions, clamped_gate_output_leak
 
     
 ATIME_OUT = 0.001

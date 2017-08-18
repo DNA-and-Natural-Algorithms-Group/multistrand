@@ -4,7 +4,6 @@ from multistrand.objects import Complex, Domain, Strand, StopCondition
 from multistrand.options import Options
 
 
-
 def setBoltzmann(complexIn, trials, supersample=1):
     complexIn.boltzmann_supersample = supersample
     complexIn.boltzmann_count = trials
@@ -42,7 +41,6 @@ def makeComplex(seq, dotparen):
     return Complex(strands=strandList, structure=dotparen)
 
 makeComplex.counter = 0
-
 
 
 

@@ -407,9 +407,18 @@ class FirstPassageRate(basicRate):
         else:
             self.times.append(that.times)
             self.timeouts.append(that.timesouts)
-
+        
+        self.generateRates()
+            
     def generateRates(self):
-        0
+            
+        self.nForward = len(self.times) - len(self.timeouts) + 9
+
+    def k1(self):
+        
+        mean = np.mean(self.times)
+        return np.float(1.0) / (mean)
+        
 
     def kEff(self, concentration):
 
@@ -433,7 +442,7 @@ class FirstPassageRate(basicRate):
 
     def __str__(self):
 
-        return "kEff = %.3g \n" % self.kEff(50e9)
+        return "k1 = %.3g \n" % self.k1()
 
 
 class Bootstrap():
@@ -567,6 +576,7 @@ class MergeSimSettings(object):
     terminationCount = None
 
     def rateFactory(self, dataset=None):
+        
         if self.resultsType == self.RESULTTYPE1:
             return FirstStepRate(dataset=dataset)
         if self.resultsType == self.RESULTTYPE2:
@@ -786,11 +796,11 @@ class MergeSim(object):
             s = SimSystem(myOptions)
             s.start()
 
-            if myOptions.simulation_mode == Options.firstStep:
+#             if myOptions.simulation_mode == Options.firstStep | myOptions.simulation_mode == Options.trajectory:
 
-                myFSR = self.settings.rateFactory(myOptions.interface.results)
-                nForwardIn.value += myFSR.nForward + myFSR.nForwardAlt
-                nReverseIn.value += myFSR.nReverse
+            myFSR = self.settings.rateFactory(myOptions.interface.results)
+            nForwardIn.value += myFSR.nForward + myFSR.nForwardAlt
+            nReverseIn.value += myFSR.nReverse
 
             for result in myOptions.interface.results:
 
@@ -876,7 +886,6 @@ class MergeSim(object):
 
             # if >500 000 results have been generated, then store
             if (self.nForward.value + self.nReverse.value) > 500000:
-
                 saveResults()
 
         saveResults()
