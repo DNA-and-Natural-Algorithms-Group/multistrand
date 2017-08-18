@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+from multistrand.options import Options
 from multistrand.concurrent import myMultistrand, FirstStepRate, Bootstrap
 from multistrand.experiment import standardOptions, dissociation
 
@@ -19,7 +20,7 @@ def first_step_simulation(strand_seq, trials, T=20.0, material="DNA"):
         
     def getOptions(trials, material):
          
-        o = standardOptions("First Step", tempIn=25.0, trials=200, timeOut = 0.1) 
+        o = standardOptions(Options.firstPassageTime, tempIn=25.0, trials=200, timeOut = 0.1) 
         dissociation(o, strand_seq, trials)
         o.DNA23Metropolis()
           
@@ -48,8 +49,6 @@ def computeAndWriteToCL(strand_seq, doBootstrap):
     result = first_step_simulation(strand_seq, 12000, T=25.0, material="DNA")
     print("The dissociation rate of ", strand_seq, " and the reverse complement is ", "{:.2e}".format(result.k1()), " /M /s", sep="")
     
-    # check for two-stateness
-    result.testForTwoStateness(100e-9)
     
     if(doBootstrap):
         

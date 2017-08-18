@@ -88,15 +88,15 @@ def dissociation(options, mySeq, myTrials=0):
     bot = top.C
     
     # Note that the structure is specified to be single stranded, but this will be over-ridden when Boltzmann sampling is turned on.
-    duplex = Complex(strands=[top, bot], structure="()")
+    duplex = Complex(strands=[top, bot], structure="(+)")
     
     # Turns Boltzmann sampling on for this complex and also does sampling more efficiently by sampling 'trials' states.
     if(myTrials > 0):
-        setBoltzmann(duplex)
+        setBoltzmann(duplex, myTrials)
     
     # Stop when the strands fall apart.
     successComplex = Complex(strands=[top], structure=".")
-    stopSuccess = StopCondition(Options.STR_SUCCESS, [(success_complex, Options.dissocMacrostate, 0)])
+    stopSuccess = StopCondition(Options.STR_SUCCESS, [(successComplex, Options.dissocMacrostate, 0)])
     
     options.start_state = [duplex]
     options.stop_conditions = [stopSuccess]         

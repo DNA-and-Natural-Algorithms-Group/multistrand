@@ -21,9 +21,9 @@ def first_step_simulation(strand_seq, trials, T=20.0, material="DNA"):
           
         return o
       
-    myMultistrand.setNumOfThreads(2)
+    myMultistrand.setNumOfThreads(1)
     myMultistrand.setOptionsFactory2(getOptions, trials, material)
-    myMultistrand.setTerminationCriteria(1000)
+    myMultistrand.setTerminationCriteria(10)
     myMultistrand.setLeakMode()
     
     myMultistrand.run()
