@@ -134,7 +134,7 @@ def hybridization(options, mySeq, myTrials=0, doFirstPassage=False):
 class ClampedSeesawGate(object):
 
     Gate_Count = 1
-    # Note that the clamp sequence is 'CG' with length 2 by default.
+    duplex = Complex(strands=[top, bot], structure="(+)")
 
     def __init__(self, input_sequence, base_sequence, output_sequence, fuel_sequence,
                  toehold_sequence, clamp_sequence="CG"):
@@ -177,15 +177,14 @@ class ClampedSeesawGate(object):
             self.toehold_domain.C + self.clamp_domain + \
             self.base_domain.C + self.clamp_domain
         self.base_dom_strand = self.clamp_domain + self.base_domain + self.clamp_domain
-    duplex = Complex(strands=[top, bot], structure="()")
     
     # Turns Boltzmann sampling on for this complex and also does sampling more efficiently by sampling 'trials' states.
     if(myTrials > 0):
-        setBoltzmann(duplex)
+        setBoltzmann(duplex, myTrials)
     
     # Stop when the strands fall apart.
     successComplex = Complex(strands=[top], structure=".")
-    stopSuccess = StopCondition(Options.STR_SUCCESS, [(success_complex, Options.dissocMacrostate, 0)])
+    stopSuccess = StopCondition(Options.STR_SUCCESS, [(successComplex, Options.dissocMacrostate, 0)])
     
     options.start_state = [duplex]
     options.stop_conditions = [stopSuccess]         
