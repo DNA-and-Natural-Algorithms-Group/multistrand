@@ -56,26 +56,7 @@ def computeAndWriteToCL(strand_seq, doBootstrap):
         bounds = bootstrap.ninetyFivePercentiles()
         
         print("Estimated 95% confidence interval: [","{:.2e}".format(bounds[0]),",","{:.2e}".format(bounds[1]),"] ", sep="")
-        
 
-if(len(sys.argv) < 2):
-    print("Please provide a DNA sequence as commandline argument")
-    print("Add -bootstrap to do a boostrap ")
-    print("Example: computeDisscociationRate.py ATGCAGT -bootstrap")
-    exit()
-
-start_time = time.time()
-
-mySequence = sys.argv[1]
-doBootstrap = False
-if(len(sys.argv) > 2):
-    if(str(sys.argv[2])=="-bootstrap"):
-        doBootstrap = True
-
-result = computeAndWriteToCL(mySequence, doBootstrap )
-
-
-print ("Computing took %.4f s" % (time.time() - start_time))
 
 
 
