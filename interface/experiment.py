@@ -215,6 +215,28 @@ class ClampedSeesawGate(object):
             self.toehold_domain.C + self.clamp_domain + \
             self.base_domain.C + self.clamp_domain
         self.base_dom_strand = self.clamp_domain + self.base_domain + self.clamp_domain
+
+        self.gate_output_complex = Complex(strands=[self.base_strand,
+                                                    self.output_strand],
+                                           structure="..(((((+..)))))")
+        self.gate_fuel_complex = Complex(strands=[self.base_strand,
+                                                  self.fuel_strand],
+                                         structure="..(((((+..)))))")
+        self.gate_input_complex = Complex(strands=[self.base_strand,
+                                                   self.input_strand],
+                                          structure="(((((..+)))))..")
+        self.threshold_complex = Complex(strands=[self.threshold_base,
+                                                  self.base_dom_strand],
+                                         structure="...(((+)))")
+        self.input_complex = Complex(strands=[self.input_strand],
+                                     structure='.' *
+                                     len(self.input_strand.sequence))
+        self.fuel_complex = Complex(strands=[self.fuel_strand],
+                                    structure='.' *
+                                    len(self.fuel_strand.sequence))
+        self.output_complex = Complex(strands=[self.output_strand],
+                                      structure='.' *
+                                      len(self.output_strand.sequence))
         
         ClampedSeesawGate.Gate_Count += 1 
     

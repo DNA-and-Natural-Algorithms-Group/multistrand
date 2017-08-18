@@ -10,7 +10,7 @@ for x in dirs:
     i = expanduser(x)
     sys.path.append(i)
 
-from LeakToolkit import calculateBaseOutputRate, calculateGateGateLeak, calculateBaseFuelRate, calculateGateFuelLeak, calculateBaseThresholdRate, calculateReverseFuelRate, calculateReverseOutputRate
+from LeakToolkit import setMinimumSuccess, calculateBaseOutputRate, calculateGateGateLeak, calculateBaseFuelRate, calculateGateFuelLeak, calculateBaseThresholdRate, calculateReverseFuelRate, calculateReverseOutputRate
 from SeesawGate import NormalSeesawGate, MismatchedSeesawGate
 from multistrand.experiment import ClampedSeesawGate
 from HiddenSeesawGate import AntiLeakSeesawGate
@@ -126,17 +126,26 @@ def runClampedSimulations(domainListA, domainListB):
     # 'recognition domain' sequence length
     recog_len = len(domainListA[1])
     # increment by twos
-    mismatched_rates = []
+    rates = []
     gateA = ClampedSeesawGate(*domainListA)
     gateB = ClampedSeesawGate(*domainListB)
-    mismatched_rates.append(calcLeakMetrics(gateA, gateB))
-    return mismatched_rates
+    setMinimumSuccess(25)
+    rates.append(calcMetrics(gateA, gateB))
+    setMinimumSuccess(2)
+    rates.append(calcLeakMetrics(gateA, gateB))
+    return rates
 
 
 def runAntiLeakSimulations(domainListA, domainListB):
+    rates = []
     gateA = AntiLeakSeesawGate(*domainListA)
     gateB = AntiLeakSeesawGate(*domainListB)
-    return calcLeakMetrics(gateA, gateB)
+    setMinimumSuccess(25)
+    rates.append(calcMetrics(gateA, gateB))
+    setMinimumSuccess(2)
+    rates.append(calcLeakMetrics(gateA, gateB))
+    return rates
+
 
 
 def outputRates(rates, time_taken):
