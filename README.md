@@ -111,7 +111,7 @@ GCGTTTCAC+GTGAAACGC
 The following script computes a hybridization rate for a strand and its compement. The computation relies on first step mode and will only work with the appropriate version of NUPACK.
 
 ```sh
-[iris@dhcp-135-182 Multistrand]$ python tutorials/misc/computeAnnealRate.py 'AGCTGA' -bootstrap
+[iris@dhcp-135-182 Multistrand]$ python tutorials/misc/compute/anneal.py 'AGCTGA' -bootstrap
 2017-05-30 18:05:34  Starting Multistrand 2.1      (c) 2008-2017 Caltech      
 Running first step mode simulations for AGCTGA (with Boltzmann sampling)...
 Computing 800 trials, using 2 threads .. 
