@@ -3,6 +3,7 @@ from __future__ import print_function
 from multistrand.options import Options
 from multistrand.concurrent import myMultistrand, FirstStepRate, Bootstrap
 from multistrand.experiment import standardOptions, dissociation
+from msArrhenius import setArrheniusConstantsDNA23
 
 import sys, time
 
@@ -21,7 +22,8 @@ def first_step_simulation(strand_seq, trials, temperature, material="DNA"):
          
         o = standardOptions(Options.firstPassageTime, temperature, trials, timeOut = 100.0) 
         dissociation(o, strand_seq, trials)
-        o.DNA23Metropolis()
+#         o.DNA23Metropolis()
+        setArrheniusConstantsDNA23(o) # unreleased parameterization
           
         return o
       
