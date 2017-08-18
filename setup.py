@@ -10,9 +10,9 @@ config_vars = distutils.sysconfig.get_config_vars()
 
 sources = ["src/system/utility.cc",
            "src/system/sequtil.cc",
-           "interface/multistrand_module.cc",
-           "interface/optionlists.cc",
-           "interface/options.cc",
+           "src/interface/multistrand_module.cc",
+           "src/interface/optionlists.cc",
+           "src/interface/options.cc",
            "src/loop/move.cc",
            "src/loop/moveutil.cc",
            "src/loop/loop.cc",
@@ -47,7 +47,7 @@ if __name__ == '__main__':
           license='MIT',
           author='The Multistrand Team',
           author_email='help@multistrand.org',
-          package_dir={'multistrand':'interface'},
+          package_dir={'multistrand':'src/interface'},
           ext_modules=[multi_ext])
 
 
