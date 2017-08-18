@@ -458,7 +458,7 @@ class Bootstrap():
         self.effectiveRates = list()
         self.effectiveAltRates = list()
         self.logEffectiveRates = list()
-        self.N = 1200
+        self.N = 10000
 
         print "Bootstrapping " + type(myRates).__name__ + ", using " + str(self.N) + " samples.",
 

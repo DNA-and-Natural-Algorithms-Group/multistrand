@@ -37,6 +37,8 @@ myMultistrand.setNumOfThreads(8)
 myMultistrand.setTerminationCriteria(MINIMUM_FORWARD)
 myMultistrand.setLeakMode()
 
+def setMinimumSuccess(n):
+    myMultistrand.setTerminationCriteria(n)
 
 def getOptions(trials, material, complex1, complex2,
                success_stop_conditions, failed_stop_conditions, T=25, supersample=25):
