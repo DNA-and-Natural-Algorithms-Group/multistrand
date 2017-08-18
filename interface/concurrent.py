@@ -20,6 +20,7 @@ import multiprocessing
 import numpy as np
 
 from multistrand.system import SimSystem
+from mercurial.encoding import lower
 
 MINIMUM_RATE = 1e-36
 MAX_TRIALS = 25000000
@@ -47,11 +48,12 @@ class basicRate(object):
     # Convenience.
     def doBootstrap(self):
         myBootstrap = Bootstrap(self, computek1=True)
-        low, high = myBootstrap.ninetyFivePercentiles()
+#         low, high = myBootstrap.ninetyFivePercentiles()
 
-        print "Estimated k1 = %0.3g /M /s with 95 pct confidence interval [%0.3g, %0.3g] \n" % (self.k1(), low, high)
+        print "Estimated k1 = %0.3g /M /s" # with 95 pct confidence interval [%0.3g, %0.3g] \n" % (self.k1(), low, high)
+        print myBootstrap
 
-        return low, high
+        return myBootstrap.ninetyFivePercentiles()
 
 
 # # Migration rates for first step
@@ -461,7 +463,7 @@ class Bootstrap():
                 rate = float(sample.k1())
             else:
                 rate = float(sample.kEff(concentration))
-
+                
             self.effectiveRates.append(rate)
 
             if(computek1Alt):
@@ -504,11 +506,11 @@ class Bootstrap():
         return np.std(self.logEffectiveRates)
 
     def __str__(self):
-
-        low, high = self.ninetyFivePercentiles()
-
-        print "Confidence Interval: %.3g /M /s, %.3g /M /s" % low, high
-
+        if len(self.effectiveRates) > 0 : 
+            low, high = self.ninetyFivePercentiles()    
+            return "Confidence Interval: %.3g /M /s, %.3g /M /s" % (low, high)
+        else :
+            return "No successful reactions observed "
 
 # # Concurrent classes start here
 
@@ -583,11 +585,11 @@ class MergeSimSettings(object):
 
        
             if(nForwardIn.value >= self.terminationCount):
-                print "terminating due to  enough success"
+                print "Found " + str(nForwardIn.value) + " successful trials, terminating."
                 return True
 
             elif((nForwardIn.value + nReverseIn.value) > MAX_TRIALS):
-                print "terminating due to too many trials"
+                print "Simulated " + str(nForwardIn.value + nReverseIn.value) +  " trials, terminating."
                 return True
 
             else:
@@ -732,11 +734,30 @@ class MergeSim(object):
         if not self.settings.terminationCount == None:
 
             welcomeMessage += " .. and rolling " + str(self.trialsPerThread)
-            welcomeMessage += " trajectories per thread until " + \
-                str(self.settings.terminationCount) + \
-                " successful trials occur. \n"
+            welcomeMessage += " trajectories per thread until " + str(self.settings.terminationCount) + " successful trials occur. \n"
 
         return welcomeMessage
+    
+          
+    def printStates(self):
+        
+        def actualPrint():   
+            print  "Start states:"
+            for i in self.factory.new(0).start_state:
+                print i
+                print "\n"
+                
+            print "Stop conditions: "
+            for i in self.factory.new(0).stop_conditions:
+                print i
+                print "\n"
+
+             
+        myProc = multiprocessing.Process(target=actualPrint,  args= [])
+        myProc.start()
+        myProc.join()
+        myProc.terminate()
+                
 
     def run(self):
 
@@ -788,8 +809,7 @@ class MergeSim(object):
                 aFactory.doAnalysis(myOptions)
 
         def getSimulation():
-            instanceSeed = self.seed + i * 3 * 5 * 19 + \
-                (time.time() * 10000) % (math.pow(2, 32) - 1)
+            instanceSeed = self.seed + i * 3 * 5 * 19 + (time.time() * 10000) % (math.pow(2, 32) - 1)
             return multiprocessing.Process(target=doSim, args=(self.factory, self.aFactory, self.managed_result, self.managed_endStates, instanceSeed, self.nForward, self.nReverse))
 
         # this saves the results generated so far as regular Python objects,
@@ -816,8 +836,11 @@ class MergeSim(object):
             self.managed_result = manager.list()
             self.managed_endStates = manager.list()
 
+        # give a print of the initial states and stopping conditions
+        self.printStates()
         # start the initial bulk
         print(self.startSimMessage())
+        
         procs = []
 
         for i in range(self.numOfThreads):

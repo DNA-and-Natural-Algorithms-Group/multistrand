@@ -82,15 +82,15 @@ void EnergyModel::writeConstantsToFile() {
 
 	std::stringstream ss;
 
-//	ss << "Sodium      :  " << simOptions->energyOptions->sodium << " M \n";
-//	ss << "Magnesium   :  " << simOptions->energyOptions->magnesium << " M \n";
-//	ss << "Temperature :  " << simOptions->energyOptions->getTemperature() << " K" << endl;
-//	ss << "Rate method :  " << simOptions->energyOptions->getKineticRateMethod() << "           (1: Metropolis, 2: Kawasaki)" << endl;
-//	ss << "useArr      :  " << simOptions->energyOptions->usingArrhenius()  <<  "           (0: disabled)"<< endl;
-//	ss << "dangles     :  " << simOptions->energyOptions->getDangles()   <<  "           (0: none, 1: some, 2: all)" << endl;
+	ss << "Sodium      :  " << simOptions->energyOptions->sodium << " M \n";
+	ss << "Magnesium   :  " << simOptions->energyOptions->magnesium << " M \n";
+	ss << "Temperature :  " << simOptions->energyOptions->getTemperature() << " K" << endl;
+	ss << "Rate method :  " << simOptions->energyOptions->getKineticRateMethod() << "           (1: Metropolis, 2: Kawasaki)" << endl;
+	ss << "useArr      :  " << simOptions->energyOptions->usingArrhenius()  <<  "           (0: disabled)"<< endl;
+	ss << "dangles     :  " << simOptions->energyOptions->getDangles()   <<  "           (0: none, 1: some, 2: all)" << endl;
 	//ss << "substrate   :  << simOptions->energyOptions->compareSubstrateType(SUBSTRATE_DNA) <<   "           (1: DNA)" << endl;
-//	ss << "GT pairing  :  " << simOptions->energyOptions->getGtenable() << "           (0: disabled)" << endl;
-//	ss << "" << endl;
+	ss << "GT pairing  :  " << simOptions->energyOptions->getGtenable() << "           (0: disabled)" << endl;
+	ss << "" << endl;
 
 	if (!simOptions->energyOptions->usingArrhenius()) {
 
