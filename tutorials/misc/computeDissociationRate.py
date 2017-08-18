@@ -3,62 +3,60 @@ from __future__ import print_function
 from multistrand.options import Options
 from multistrand.concurrent import myMultistrand, FirstStepRate, Bootstrap
 from multistrand.experiment import standardOptions, dissociation
+from msArrhenius import setArrheniusConstantsDNA23
 
 import sys, time
 
-A_CONCENTRATION = 50e-9;
    
 # Frits Dannenberg, Aug 2017.
 # In order to compute dissociation rates for duplex, we can either compute the forward rate k+
 # and simply compute k- from k+ / k-  = exp ( - dG / RT )
    
-# In the following file, we simply simulate the actual dissocation and compute 1/t. 
+# In the following file, we simply simulate the actual dissocation time and compute k- = 1/t. 
  
-def first_step_simulation(strand_seq, trials, T=20.0, material="DNA"):
+def first_step_simulation(strand_seq, trials, temperature, material="DNA"):
  
     print ("Running first step mode simulations for %s (with Boltzmann sampling)..." % (strand_seq))
         
     def getOptions(trials, material):
          
-        o = standardOptions(Options.firstPassageTime, tempIn=25.0, trials=200, timeOut = 0.1) 
+        o = standardOptions(Options.firstPassageTime, temperature, trials, timeOut = 100.0) 
         dissociation(o, strand_seq, trials)
-        o.DNA23Metropolis()
+#         o.DNA23Metropolis()
+        setArrheniusConstantsDNA23(o) # unreleased parameterization
           
         return o
       
-    myMultistrand.setNumOfThreads(2)
+    myMultistrand.setNumOfThreads(8)
     myMultistrand.setOptionsFactory2(getOptions, trials, material)
-    myMultistrand.setTerminationCriteria(1000)
+    myMultistrand.setTerminationCriteria(30)
     myMultistrand.setPassageMode()
     
     myMultistrand.run()
     
-    return myMultistrand.results    # this is a first step rate object
+    return myMultistrand.results    # this is a first passage rate object
 
 
 def compute(strand_seq):
     
-    result = first_step_simulation(strand_seq, 200, T=25.0, material="DNA")
-    rRate = result.k1()
+    result = first_step_simulation(strand_seq, 16, 25.0, material="DNA")
 
-    return "{:.2e}".format(float(rRate)), '999.0'
+    return result.k1()
+
 
 
 def computeAndWriteToCL(strand_seq, doBootstrap):
     
-    result = first_step_simulation(strand_seq, 12000, T=25.0, material="DNA")
+    result = first_step_simulation(strand_seq, 16, 25.0, material="DNA")
     print("The dissociation rate of ", strand_seq, " and the reverse complement is ", "{:.2e}".format(result.k1()), " /M /s", sep="")
-    
     
     if(doBootstrap):
         
-        bootstrap = Bootstrap(result, A_CONCENTRATION, computek1=True)
+        bootstrap = Bootstrap(result, 50e-9, computek1=True)
         bounds = bootstrap.ninetyFivePercentiles()
         
         print("Estimated 95% confidence interval: [","{:.2e}".format(bounds[0]),",","{:.2e}".format(bounds[1]),"] ", sep="")
         
-        # print("The hybridization rate of ", mySequence, "and the reverse complement is ", myRates[0], "/M /s")
-
 
 if(len(sys.argv) < 2):
     print("Please provide a DNA sequence as commandline argument")
