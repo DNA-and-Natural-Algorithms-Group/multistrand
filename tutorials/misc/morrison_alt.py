@@ -54,7 +54,9 @@ def doMorrison(myRange):
         
         dotparen = "("*len(seq) + "+" + ")"*len(seq)
         
-        dG = energy([seq, seqC], dotparen, T=temp, material="dna")
+        dG = energy([seq, seqC], dotparen, T=(temp-273.15), material="dna") + 2.44  # NUPACK energy is too negative.
+        print (str(dG)) 
+        
         kMinus = predicted.k1() * math.exp( dG / ( GAS_CONSTANT_R * temp) ) 
         kMinusLow = low * math.exp( dG / ( GAS_CONSTANT_R * temp) ) 
         kMinusHigh = high * math.exp( dG / ( GAS_CONSTANT_R * temp) ) 
