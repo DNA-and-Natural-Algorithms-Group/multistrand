@@ -42,28 +42,28 @@ def doMorrison(myRange):
         seq = excelFind(i+1, 1)
         seqC = excelFind(i+1,2)
         temp = 1000/ float(excelFind(i+1, 3))
-        measured = excelFind(i+1, 5) 
+        measured = float(excelFind(i+1, 5) )
         
         
         file.write(str(seq) + "   ")
-        file.write(str(temp) + "   ")
-        file.write(str(measured) + "   ")
+        file.write(str( "%0.3g" %  (temp - 273.15) ) + "   ")
+        file.write(str(  "%0.3g" % measured) + "   ")
         
         predicted = compute(seq, temp)
         low, high = predicted.doBootstrap()
         
         dotparen = "("*len(seq) + "+" + ")"*len(seq)
         
-        dG = energy([seq, seqC], dotparen, T=(temp-273.15), material="dna") + 2.44  # NUPACK energy is too negative.
+        dG = energy([seq, seqC], dotparen, T=(temp-273.15), material="dna") + GAS_CONSTANT_R * temp * math.log(55.14)  # NUPACK energy is too negative.
         print (str(dG)) 
         
         kMinus = predicted.k1() * math.exp( dG / ( GAS_CONSTANT_R * temp) ) 
         kMinusLow = low * math.exp( dG / ( GAS_CONSTANT_R * temp) ) 
         kMinusHigh = high * math.exp( dG / ( GAS_CONSTANT_R * temp) ) 
         
-        file.write(str(np.log10(kMinus)) +     "    "  )
-        file.write(str(np.log10(kMinusLow)) +     "    "  )
-        file.write(str(np.log10(kMinusHigh)) +     "    "  )    
+        file.write(str( "%0.3g" % np.log10(kMinus)) +     "    "  )
+        file.write(str( "%0.3g" % np.log10(kMinusLow)) +     "    "  )
+        file.write(str( "%0.3g" % np.log10(kMinusHigh)) +     "    "  )    
     
         file.write("\n")
     

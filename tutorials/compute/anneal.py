@@ -3,6 +3,7 @@ from __future__ import print_function
 from multistrand.concurrent import myMultistrand, FirstStepRate, Bootstrap
 from multistrand.experiment import standardOptions, hybridization
 from multistrand.options import Options
+from msArrhenius import setArrheniusConstantsDNA23
 
 import sys, time
 
@@ -10,22 +11,24 @@ A_CONCENTRATION = 50e-9;
 
    
  
-def first_step_simulation(strand_seq, trials, T=20.0, material="DNA"):
+def first_step_simulation(strand_seq, trials, temperature=25.0, material="DNA"):
  
     print ("Running first step mode simulations for %s (with Boltzmann sampling)..." % (strand_seq))
         
-    def getOptions(trials, material):
+    def getOptions(trials, material, temperature=25.0):
          
-        o = standardOptions(Options.firstStep, tempIn=25.0, trials=200, timeOut = 0.1) 
+        o = standardOptions(Options.firstStep, tempIn=temperature, trials=200, timeOut = 0.1) 
         hybridization(o, strand_seq, trials)
-        o.DNA23Metropolis()
+#         o.DNA23Metropolis()
+        setArrheniusConstantsDNA23(o)
           
         return o
       
-    myMultistrand.setNumOfThreads(4)
-    myMultistrand.setOptionsFactory2(getOptions, trials, material)
-    myMultistrand.setTerminationCriteria(100)
+    myMultistrand.setNumOfThreads(6)
+    myMultistrand.setOptionsFactory3(getOptions, trials, material, temperature)
+    myMultistrand.setTerminationCriteria(1400)
     myMultistrand.setLeakMode()
+
     
     myMultistrand.run()
     
@@ -34,7 +37,7 @@ def first_step_simulation(strand_seq, trials, T=20.0, material="DNA"):
 
 def compute(strand_seq, temperature=25.0):
     
-    return first_step_simulation(strand_seq, 200, T=temperature, material="DNA")
+    return first_step_simulation(strand_seq, 2400, temperature, material="DNA")
     
     
 
