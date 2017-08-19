@@ -11,13 +11,14 @@ A_CONCENTRATION = 50e-9;
 
    
  
-def first_step_simulation(strand_seq, trials, temperature=25.0, material="DNA"):
+def first_step_simulation(strand_seq, trials, temperature=25.0, sodium = 1.0, material="DNA"):
  
     print ("Running first step mode simulations for %s (with Boltzmann sampling)..." % (strand_seq))
         
-    def getOptions(trials, material, temperature=25.0):
+    def getOptions(trials, material, temperature=25.0, sodium = 1.0):
          
-        o = standardOptions(Options.firstStep, tempIn=temperature, trials=200, timeOut = 0.1) 
+        o = standardOptions(Options.firstStep, tempIn=temperature, trials=200, timeOut = 1.0)
+        o.sodium = sodium 
         hybridization(o, strand_seq, trials)
 #         o.DNA23Metropolis()
         setArrheniusConstantsDNA23(o)
@@ -25,8 +26,8 @@ def first_step_simulation(strand_seq, trials, temperature=25.0, material="DNA"):
         return o
       
     myMultistrand.setNumOfThreads(6)
-    myMultistrand.setOptionsFactory3(getOptions, trials, material, temperature)
-    myMultistrand.setTerminationCriteria(1400)
+    myMultistrand.setOptionsFactory4(getOptions, trials, material, temperature, sodium)
+    myMultistrand.setTerminationCriteria(400)
     myMultistrand.setLeakMode()
 
     
@@ -35,9 +36,9 @@ def first_step_simulation(strand_seq, trials, temperature=25.0, material="DNA"):
     return myMultistrand.results    # this is a first step rate object
 
 
-def compute(strand_seq, temperature=25.0):
+def compute(strand_seq, temperature=25.0, sodium = 1.0):
     
-    return first_step_simulation(strand_seq, 2400, temperature, material="DNA")
+    return first_step_simulation(strand_seq, 240, temperature,  sodium, material="DNA")
     
     
 
