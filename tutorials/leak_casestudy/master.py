@@ -10,7 +10,7 @@ for x in dirs:
     i = expanduser(x)
     sys.path.append(i)
 
-from LeakToolkit import setMinimumSuccess, calculateBaseOutputRate, calculateGateGateLeak, calculateBaseFuelRate, calculateGateFuelLeak, calculateBaseThresholdRate, calculateReverseFuelRate, calculateReverseOutputRate
+from LeakToolkit import setMinimumSuccess, setMaxTrials,  calculateBaseOutputRate, calculateGateGateLeak, calculateBaseFuelRate, calculateGateFuelLeak, calculateBaseThresholdRate, calculateReverseFuelRate, calculateReverseOutputRate
 from SeesawGate import NormalSeesawGate, MismatchedSeesawGate
 from multistrand.experiment import ClampedSeesawGate
 from HiddenSeesawGate import AntiLeakSeesawGate
@@ -124,6 +124,7 @@ def runMismatchSimulations(domainListA, domainListB):
 
 def runClampedSimulations(domainListA, domainListB):
     # 'recognition domain' sequence length
+    setMaxTrials(2500000)
     recog_len = len(domainListA[1])
     # increment by twos
     rates = []
@@ -138,11 +139,12 @@ def runClampedSimulations(domainListA, domainListB):
 
 def runAntiLeakSimulations(domainListA, domainListB):
     rates = []
+    setMaxTrials(50000000)
     gateA = AntiLeakSeesawGate(*domainListA)
     gateB = AntiLeakSeesawGate(*domainListB)
     setMinimumSuccess(25)
     rates.append(calcMetrics(gateA, gateB))
-    setMinimumSuccess(2)
+    setMinimumSuccess(15)
     rates.append(calcLeakMetrics(gateA, gateB))
     return rates
 
@@ -186,7 +188,7 @@ def printTimeElapsed():
         print "Time since start: {} hr\n".format(elap_time / 3600)
 
 
-def runAndLogClamped():
+def runAndLogClamped(max_trials):
     start_time = time.time()
     data = runClampedSimulations(CL_LONG_GATE_A_SEQ, CL_LONG_GATE_B_SEQ)
     time_taken = time.time() - start_time

@@ -574,6 +574,7 @@ class MergeSimSettings(object):
     debug = False
     resultsType = RESULTTYPE1
     terminationCount = None
+    max_trials = 250000000
 
     def rateFactory(self, dataset=None):
         
@@ -598,7 +599,7 @@ class MergeSimSettings(object):
                 print "Found " + str(nForwardIn.value) + " successful trials, terminating."
                 return True
 
-            elif((nForwardIn.value + nReverseIn.value) > MAX_TRIALS):
+            elif((nForwardIn.value + nReverseIn.value) > self.max_trials):
                 print "Simulated " + str(nForwardIn.value + nReverseIn.value) +  " trials, terminating."
                 return True
 
