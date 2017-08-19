@@ -61,31 +61,30 @@ def calcMetrics(gateA, gateB):
     rates.append(calculateBaseOutputRate(gateB))
     printTimeElapsed()
 
-    print "\n **** Reverse Output Rates **** \n"
-    rates.append(calculateReverseOutputRate(gateA))
-    printTimeElapsed()
-    rates.append(calculateReverseOutputRate(gateB))
-    printTimeElapsed()
-
+    
     print "\n **** Base Fuel Rates **** \n"
     rates.append(calculateBaseFuelRate(gateA))
     printTimeElapsed()
     rates.append(calculateBaseFuelRate(gateB))
     printTimeElapsed()
 
+    return rates 
+
+def calcReverseMetrics(gateA, gateB):
+    rates =[]
+    print "\n **** Reverse Output Rates **** \n"
+    rates.append(calculateReverseOutputRate(gateA))
+    printTimeElapsed()
+    rates.append(calculateReverseOutputRate(gateB))
+    printTimeElapsed()
+
+
     print "\n **** Reverse Fuel Rates **** \n"
     rates.append(calculateReverseFuelRate(gateA))
     printTimeElapsed()
     rates.append(calculateReverseFuelRate(gateB))
     printTimeElapsed()
-
-    print "\n **** Threshold Rates **** \n"
-    # rates.append(calculateBaseThresholdRate(gateA))
-    printTimeElapsed()
-    # rates.append(calculateBaseThresholdRate(gateB))
-    printTimeElapsed()
-
-    return rates
+    return rates 
 
 
 def runMismatchSimulations(domainListA, domainListB):
@@ -132,7 +131,7 @@ def runClampedSimulations(domainListA, domainListB):
     gateB = ClampedSeesawGate(*domainListB)
     setMinimumSuccess(25)
     rates.append(calcMetrics(gateA, gateB))
-    setMinimumSuccess(2)
+    setMinimumSuccess(5)
     rates.append(calcLeakMetrics(gateA, gateB))
     return rates
 
