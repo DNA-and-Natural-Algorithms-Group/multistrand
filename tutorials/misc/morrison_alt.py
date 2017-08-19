@@ -1,10 +1,17 @@
 ## FD: Morrison and Stols, 2003. Comparison of Multistrand vs. reported values.
 
+## FD: this is the EXACT same as morrison but computes the rates via k+ / k- = exp -dG / RT
+
+GAS_CONSTANT_R = 0.0019872036
+
 import sys, os
+import math
 import xlrd         #excel sheets
 import numpy as np
 
-from dissociation import compute
+from anneal import compute
+from nupack import energy
+
 
 print "Morrison and Stolls 1993"
 
@@ -23,16 +30,17 @@ def excelFind(row, col):
 
 
 ## For each column, compute the rate and print it to a file. 
-resultFileName = "morrison-results.txt"
+resultFileName = "morrison-results-ALT.txt"
 file = open(resultFileName, 'w+')
 
-file.write("Seq    temp    measured    predicted    pred-95-low    pred-95-high\n\n") 
+file.write("Seq    temp    measured    predicted    pred-95-low    pred-95-high     alternative computation\n\n") 
 
 def doMorrison(myRange):
 
     for i in myRange:
         
         seq = excelFind(i+1, 1)
+        seqC = excelFind(i+1,2)
         temp = 1000/ float(excelFind(i+1, 3))
         measured = excelFind(i+1, 5) 
         
@@ -42,11 +50,18 @@ def doMorrison(myRange):
         file.write(str(measured) + "   ")
         
         predicted = compute(seq, temp)
-        file.write(str(np.log10(predicted.k1())) +     "    "  )
-    
         low, high = predicted.doBootstrap()
-        file.write(str(np.log10(low)) +     "    "  )
-        file.write(str(np.log10(high)) +     "    "  )    
+        
+        dotparen = "("*len(seq) + "+" + ")"*len(seq)
+        
+        dG = energy([seq, seqC], dotparen, T=temp, material="dna")
+        kMinus = predicted.k1() * math.exp( dG / ( GAS_CONSTANT_R * temp) ) 
+        kMinusLow = low * math.exp( dG / ( GAS_CONSTANT_R * temp) ) 
+        kMinusHigh = high * math.exp( dG / ( GAS_CONSTANT_R * temp) ) 
+        
+        file.write(str(np.log10(kMinus)) +     "    "  )
+        file.write(str(np.log10(kMinusLow)) +     "    "  )
+        file.write(str(np.log10(kMinusHigh)) +     "    "  )    
     
         file.write("\n")
     
@@ -57,4 +72,3 @@ doMorrison(range(6,12)) #do short seq first
 doMorrison(range(6))
 
 file.close()
-rate = compute("AGAT")

@@ -1,4 +1,5 @@
-from dissociation import compute as computeDissociation
+from dissociation import computeAndWriteToCL as computeDissociation
+from anneal import computeAndWriteToCL as computeAnneal 
 
 if(len(sys.argv) < 2):
     print("Please provide a DNA sequence as commandline argument")
@@ -19,7 +20,11 @@ if(len(sys.argv) > 2):
 
 if (type ==  "dissociation"):
 
-    result = computeAndWriteToCL(mySequence, doBootstrap )
+    result = computeDissociation(mySequence, doBootstrap )
+
+if type == "association":
+    
+    result = computeAnneal(mySequence, doBootstrap)
 
 
 print ("Computing took %.4f s" % (time.time() - start_time))

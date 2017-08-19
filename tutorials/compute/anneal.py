@@ -32,14 +32,11 @@ def first_step_simulation(strand_seq, trials, T=20.0, material="DNA"):
     return myMultistrand.results    # this is a first step rate object
 
 
-def compute(strand_seq):
+def compute(strand_seq, temperature=25.0):
     
-    result = first_step_simulation(strand_seq, 200, T=25.0, material="DNA")
+    return first_step_simulation(strand_seq, 200, T=temperature, material="DNA")
     
-    rRate = result.k1()
-
-    return "{:.2e}".format(float(rRate)), '999.0'
-
+    
 
 def computeAndWriteToCL(strand_seq, doBootstrap):
     
@@ -59,24 +56,24 @@ def computeAndWriteToCL(strand_seq, doBootstrap):
         # print("The hybridization rate of ", mySequence, "and the reverse complement is ", myRates[0], "/M /s")
 
 
-if(len(sys.argv) < 2):
-    print("Please provide a DNA sequence as commandline argument")
-    print("Add -bootstrap to do a boostrap ")
-    print("Example: computeAnnealRate.py ATGCAGT -bootstrap")
-    exit()
-
-start_time = time.time()
-
-mySequence = sys.argv[1]
-doBootstrap = False
-if(len(sys.argv) > 2):
-    if(str(sys.argv[2])=="-bootstrap"):
-        doBootstrap = True
-
-result = computeAndWriteToCL(mySequence, doBootstrap )
-
-
-print ("Computing took %.4f s" % (time.time() - start_time))
+# if(len(sys.argv) < 2):
+#     print("Please provide a DNA sequence as commandline argument")
+#     print("Add -bootstrap to do a boostrap ")
+#     print("Example: computeAnnealRate.py ATGCAGT -bootstrap")
+#     exit()
+# 
+# start_time = time.time()
+# 
+# mySequence = sys.argv[1]
+# doBootstrap = False
+# if(len(sys.argv) > 2):
+#     if(str(sys.argv[2])=="-bootstrap"):
+#         doBootstrap = True
+# 
+# result = computeAndWriteToCL(mySequence, doBootstrap )
+# 
+# 
+# print ("Computing took %.4f s" % (time.time() - start_time))
 
 
 
