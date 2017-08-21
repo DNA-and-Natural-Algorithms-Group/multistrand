@@ -125,41 +125,41 @@ SEESAW_DELTA = 5
 # Domain list as a list of strings, defined as follows input_sequence, base_sequence, output_sequence, fuel_sequence,
 # toehold_sequence, clamp_sequence which defaults to clamp_sequence 
 # This method takes a gate output complex and its input and then calculate the rate of output production
-def clamped_gate_output_production(options, domain_list, trials, supersample=25, doFirstPassage=False):
+def clamped_gate_output_production(trials, options, domain_list, supersample=25, doFirstPassage=False):
     gate = ClampedSeesawGate(*domain_list)
-    two_input(options, gate.gate_output_complex, gate.input_complex,
-              gate.output_complex, trials, supersample, doFirstPassage=False)
+    two_input(trials, options, gate.gate_output_complex, gate.input_complex,
+              gate.output_complex, supersample, doFirstPassage=False)
 
 # Domain list as a list of strings, defined as follows input_sequence, base_sequence, output_sequence, fuel_sequence,
 # toehold_sequence, clamp_sequence which defaults to clamp_sequence
 # This method takes a gate input complex and its fuels and then calculates the rate of input regeneration
-def clamped_gate_fuel_catalysis(options, domain_list, trials, supersample=25, doFirstPassage=False):
+def clamped_gate_fuel_catalysis(trials, options, domain_list, supersample=25, doFirstPassage=False):
     gate = ClampedSeesawGate(*domain_list)
-    two_input(options, gate.gate_input_complex, gate.fuel_complex,
-              gate.input_complex, trials, supersample, doFirstPassage=False)
+    two_input(trials, options, gate.gate_input_complex, gate.fuel_complex,
+              gate.input_complex, supersample, doFirstPassage=False)
 
 
 # Domain list as a list of strings, defined as follows input_sequence, base_sequence, output_sequence, fuel_sequence,
 # toehold_sequence, clamp_sequence which defaults to clamp_sequence
 # This method takes a gate output complex with its fuel complex and calculates the ***leak*** rate at which
 # the fuel displaces the output i.e. the rate of leak output production.
-def clamped_gate_output_leak(options, domain_list, trials, supersample=25, doFirstPassage=False):
+def clamped_gate_fuel_leak(trials, options, domain_list, supersample=25, doFirstPassage=False):
     gate = ClampedSeesawGate(*domain_list)
-    two_input(options, gate.gate_output_complex, gate.fuel_complex,
-              gate.output_complex, trials, supersample, doFirstPassage=False)
+    two_input(trials, options, gate.gate_output_complex, gate.fuel_complex,
+              gate.output_complex, supersample, doFirstPassage=False)
 
 # Domain list as a list of strings, defined as follows input_sequence, base_sequence, output_sequence, fuel_sequence,
 # toehold_sequence, clamp_sequence which defaults to clamp_sequence
 # This method takes two gates
-def clamped_gate_output_leak(options, domain_list_A, domain_list_B, trials, supersample=25, doFirstPassage=False):
+def clamped_gate_gate_leak(trials, options, domain_list_A, domain_list_B, supersample=25, doFirstPassage=False):
     gateA = ClampedSeesawGate(*domain_list_A)
     gateB = ClampedSeesawGate(*domain_list_B)
-    two_input_two_success(options, gateA.gate_output_complex, gateA.fuel_complex,
-              gateA.output_complex,gateB.output_complex, trials, supersample, doFirstPassage=False)
+    two_input_two_success(trials, options, gateA.gate_output_complex, gateA.fuel_complex,
+              gateA.output_complex,gateB.output_complex,supersample, doFirstPassage=False)
 
 
 
-def two_input(options, input_complex_A, input_complex_B, output_complex, trials=0, supersample=25, doFirstPassage=False):
+def two_input(trials, options, input_complex_A, input_complex_B, output_complex, supersample=25, doFirstPassage=False):
 
     if(trials > 0):
         for x in [input_complex_A, input_complex_B]:
@@ -168,7 +168,7 @@ def two_input(options, input_complex_A, input_complex_B, output_complex, trials=
     successful_stop_condition = StopCondition(
         Options.STR_SUCCESS, [(output_complex, Options.dissocMacrostate, 0)])
     failure_stop_condition = StopCondition(
-        Options.STR_SUCCESS, [(input_complex_B, Options.dissocMacrostate, 0)])
+        Options.STR_FAILURE, [(input_complex_B, Options.dissocMacrostate, 0)])
 
     options.start_state = [input_complex_A, input_complex_B]
 
@@ -178,7 +178,7 @@ def two_input(options, input_complex_A, input_complex_B, output_complex, trials=
     else:
         options.stop_conditions = [successful_stop_condition]
 
-def two_input_two_success(options, input_complex_A, input_complex_B, output_complex_A, output_complex_B, trials=0, supersample=25, doFirstPassage=False):
+def two_input_two_success(trials, options, input_complex_A, input_complex_B, output_complex_A, output_complex_B, supersample=25, doFirstPassage=False):
 
     if(trials > 0):
         for x in [input_complex_A, input_complex_B]:
@@ -189,7 +189,7 @@ def two_input_two_success(options, input_complex_A, input_complex_B, output_comp
     alt_successful_stop_condition = StopCondition(
         Options.STR_ALT_SUCCESS, [(output_complex_B, Options.dissocMacrostate, 0)])
     failure_stop_condition = StopCondition(
-        Options.STR_SUCCESS, [(input_complex_B, Options.dissocMacrostate, 0)])
+        Options.STR_FAILURE, [(input_complex_B, Options.dissocMacrostate, 0)])
 
     options.start_state = [input_complex_A, input_complex_B]
 
