@@ -187,7 +187,7 @@ def printTimeElapsed():
         print "Time since start: {} hr\n".format(elap_time / 3600)
 
 
-def runAndLogClamped(max_trials):
+def runAndLogClamped():
     start_time = time.time()
     data = runClampedSimulations(CL_LONG_GATE_A_SEQ, CL_LONG_GATE_B_SEQ)
     time_taken = time.time() - start_time
@@ -204,10 +204,13 @@ def runAndLogAntiLeak():
 
 
 if __name__ == '__main__':
-    gateA = ClampedSeesawGate(*CL_LONG_GATE_A_SEQ)
+    CL_LONG_GATE_A_SEQ.extend(['GA', 'GA'])
+    gateA = AntiLeakSeesawGate(*CL_LONG_GATE_A_SEQ)
     print gateA.gate_input_complex
     print gateA.gate_fuel_complex
     print gateA.gate_output_complex
+    print gateA.fuel_complex
+    print gateA.output_complex
 
 
 def calcLeakMetrics(gateA, gateB):
