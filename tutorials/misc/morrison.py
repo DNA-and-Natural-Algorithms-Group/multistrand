@@ -32,9 +32,11 @@ def excelFind(row, col):
 resultFileName = "morrison-results.txt"
 file = open(resultFileName, 'w+')
 
-file.write("Seq    temp    measured    predicted    pred-95-low    pred-95-high     alternative computation\n\n") 
+file.write("Seq    temp    measured    predicted    pred-95-low    pred-95-high  diff   alternative computation\n\n") 
 
-def doMorrison(myRange):
+diffSum = 0.0
+
+def doMorrison(myRange, diffSum):
 
     for i in myRange:
         
@@ -58,12 +60,22 @@ def doMorrison(myRange):
         file.write(str( "%0.3g" % np.log10(kMinusLow)) +     "    "  )
         file.write(str( "%0.3g" % np.log10(kMinusHigh)) +     "    "  )    
     
+        
+        file.write(str( "%0.3g" % np.abs(np.log10(kMinus) - np.float(predicted)) ) +     "    "  )
+    
+        diff = np.abs(np.log10(kMinus) - np.float(measured)) 
+        diffSum = diffSum +  diff
+        
+        file.write(str( "%0.3g" % diff ) +     "    "  )
+        file.write(str( "%0.3g" % diffSum ) +     "    "  )
+    
+    
         file.write("\n")
     
         file.flush()
 
 
-doMorrison(range(6,12)) #do short seq first
-doMorrison(range(6))
+doMorrison(range(6,12), diffSum) #do short seq first
+doMorrison(range(6), diffSum)
 
 file.close()

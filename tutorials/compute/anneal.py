@@ -27,7 +27,7 @@ def first_step_simulation(strand_seq, trials, temperature=25.0, sodium = 1.0, ma
       
     myMultistrand.setNumOfThreads(6)
     myMultistrand.setOptionsFactory4(getOptions, trials, material, temperature, sodium)
-    myMultistrand.setTerminationCriteria(400)
+    myMultistrand.setTerminationCriteria(500)
     myMultistrand.setLeakMode()
 
     

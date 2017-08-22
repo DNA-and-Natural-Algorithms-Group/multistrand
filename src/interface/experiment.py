@@ -21,6 +21,7 @@ def standardOptions(simMode=Options.firstStep, tempIn=25.0, trials=10, timeOut=0
                      )
 
     output.DNA23Metropolis()
+    output.rate_method = Options.metropolis
 
     return output
 

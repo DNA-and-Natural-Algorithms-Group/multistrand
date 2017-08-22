@@ -29,7 +29,7 @@ def first_step_simulation(strand_seq, trials, temperature):
       
     myMultistrand.setNumOfThreads(8)
     myMultistrand.setOptionsFactory1(getOptions, trials)
-    myMultistrand.setTerminationCriteria(20)
+    myMultistrand.setTerminationCriteria(500)
     myMultistrand.setPassageMode()
     
     myMultistrand.run()
