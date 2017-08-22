@@ -3,7 +3,7 @@ from anneal import computeAndWriteToCL as computeAnneal
 
 if(len(sys.argv) < 2):
     print("Please provide a DNA sequence as commandline argument")
-    print("Specify the experiment in the first argument: <dissociation>   ")
+    print("Specify the experiment in the first argument: <dissociation> or <association>  ")
     print("Add -bootstrap to do a boostrap ")
     print("Example: rate.py dissociation ATGCAGT -bootstrap")
     exit()
