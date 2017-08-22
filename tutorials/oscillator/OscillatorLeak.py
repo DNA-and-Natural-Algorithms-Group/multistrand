@@ -217,9 +217,10 @@ def generateGraph(min_success, increment_trials):
     n = 4
     X = np.arange(n)
     plt.xticks(X + width / 2, experiment_types)
-    plt.bar(X, measuredRates, width, facecolor="#9999ff",
-            yerr=[low_error, high_error])
-    plt.bar(X + width, simRates, width, facecolor="#ff9999")
+    plt.bar(X, simRates, width, facecolor="#9999ff",
+            yerr=[low_error, high_error], label="Simulated")
+    plt.bar(X + width, measuredRates, width, facecolor="#ff9999", label="Measured")
+    plt.legend()
     plt.title("Leak Rates in Oscillator Circuit")
     plt.gca().set_ylim(bottom=0)
     plt.show()
@@ -228,5 +229,5 @@ def generateGraph(min_success, increment_trials):
 
 # the main method
 if __name__ == '__main__':
-    generateGraph(2, 10000)
+    generateGraph(10, 10000)
  
