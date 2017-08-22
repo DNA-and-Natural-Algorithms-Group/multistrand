@@ -13,7 +13,7 @@ for x in dirs:
 from LeakToolkit import setMinimumSuccess, setMaxTrials,  calculateBaseOutputRate, calculateGateGateLeak, calculateBaseFuelRate, calculateGateFuelLeak, calculateBaseThresholdRate, calculateReverseFuelRate, calculateReverseOutputRate
 from SeesawGate import NormalSeesawGate, MismatchedSeesawGate
 from multistrand.experiment import ClampedSeesawGate
-from HiddenSeesawGate import AntiLeakSeesawGate
+from HiddenSeesawGate import AntiLeakSeesawGate, AlternativeAntiLeakSeesawGate
 
 USE_SHORT_DOMAINS = True
 
@@ -147,6 +147,16 @@ def runAntiLeakSimulations(domainListA, domainListB):
     rates.append(calcLeakMetrics(gateA, gateB))
     return rates
 
+def runAltAntiLeakSimulations(domainListA, domainListB):
+    rates = []
+    setMaxTrials(50000000)
+    gateA = AlternativeAntiLeakSeesawGate(*domainListA)
+    gateB = AlternativeAntiLeakSeesawGate(*domainListB)
+    setMinimumSuccess(25)
+    rates.append(calcMetrics(gateA, gateB))
+    setMinimumSuccess(10)
+    rates.append(calcLeakMetrics(gateA, gateB))
+    return rates
 
 
 def outputRates(rates, time_taken):
@@ -202,10 +212,18 @@ def runAndLogAntiLeak():
     time_taken = time.time() - start_time
     outputRates(data, time_taken)
 
+def runAndLogAltAntiLeak():
+    CL_LONG_GATE_A_SEQ.extend(['G', 'A'])
+    CL_LONG_GATE_B_SEQ.extend(['G', 'A'])
+    start_time = time.time()
+    data = runAltAntiLeakSimulations(CL_LONG_GATE_A_SEQ, CL_LONG_GATE_B_SEQ)
+    time_taken = time.time() - start_time
+    outputRates(data, time_taken)
+
 
 if __name__ == '__main__':
-    CL_LONG_GATE_A_SEQ.extend(['GA', 'GA'])
-    gateA = AntiLeakSeesawGate(*CL_LONG_GATE_A_SEQ)
+    CL_LONG_GATE_A_SEQ.extend(['G', 'A'])
+    gateA = AlternativeAntiLeakSeesawGate(*CL_LONG_GATE_A_SEQ)
     print gateA.gate_input_complex
     print gateA.gate_fuel_complex
     print gateA.gate_output_complex
