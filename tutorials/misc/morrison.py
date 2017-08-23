@@ -1,6 +1,5 @@
 ## FD: Morrison and Stols, 2003. Comparison of Multistrand vs. reported values.
-
-## FD: this is the EXACT same as morrison but computes the rates via k+ / k- = exp -dG / RT
+## FD: this computes the rates via k+ / k- = exp -dG / RT
 
 GAS_CONSTANT_R = 0.0019872036
 
@@ -35,6 +34,7 @@ file = open(resultFileName, 'w+')
 
 file.write("Seq    temp    measured    predicted    pred-95-low    pred-95-high     alternative computation\n\n") 
 
+## FD: again, this will use the default settings of compute files
 
 
 
