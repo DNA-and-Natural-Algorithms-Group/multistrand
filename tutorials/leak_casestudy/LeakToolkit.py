@@ -25,7 +25,7 @@ from SeesawGate import SeesawRates
 import numpy as np
 
 
-ATIME_OUT = 0.1
+ATIME_OUT = 10
 # lets see the error bars I get here....
 MINIMUM_FORWARD = 2
 A_CONCENTRATION = 50e-9

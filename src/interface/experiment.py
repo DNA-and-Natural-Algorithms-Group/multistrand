@@ -122,38 +122,29 @@ def dissociation(options, mySeq, myTrials=0):
 SEESAW_DELTA = 5
 
 
-# Domain list as a list of strings, defined as follows input_sequence, base_sequence, output_sequence, fuel_sequence,
-# toehold_sequence, clamp_sequence which defaults to clamp_sequence 
+# Use a gate object, with a defined interface
 # This method takes a gate output complex and its input and then calculate the rate of output production
-def clamped_gate_output_production(trials, options, domain_list, supersample=25, doFirstPassage=False):
-    gate = ClampedSeesawGate(*domain_list)
+def gate_output_production(trials, options, gate, supersample=25, doFirstPassage=False):
     two_input(trials, options, gate.gate_output_complex, gate.input_complex,
               gate.output_complex, supersample, doFirstPassage=False)
 
-# Domain list as a list of strings, defined as follows input_sequence, base_sequence, output_sequence, fuel_sequence,
-# toehold_sequence, clamp_sequence which defaults to clamp_sequence
+# Use a gate object, with a defined interface
 # This method takes a gate input complex and its fuels and then calculates the rate of input regeneration
-def clamped_gate_fuel_catalysis(trials, options, domain_list, supersample=25, doFirstPassage=False):
-    gate = ClampedSeesawGate(*domain_list)
+def clamped_gate_fuel_catalysis(trials, options, gate, supersample=25, doFirstPassage=False):
     two_input(trials, options, gate.gate_input_complex, gate.fuel_complex,
               gate.input_complex, supersample, doFirstPassage=False)
 
 
-# Domain list as a list of strings, defined as follows input_sequence, base_sequence, output_sequence, fuel_sequence,
-# toehold_sequence, clamp_sequence which defaults to clamp_sequence
+# Use a gate object, with a defined interface
 # This method takes a gate output complex with its fuel complex and calculates the ***leak*** rate at which
 # the fuel displaces the output i.e. the rate of leak output production.
-def clamped_gate_fuel_leak(trials, options, domain_list, supersample=25, doFirstPassage=False):
-    gate = ClampedSeesawGate(*domain_list)
+def clamped_gate_fuel_leak(trials, options, gate, supersample=25, doFirstPassage=False):
     two_input(trials, options, gate.gate_output_complex, gate.fuel_complex,
               gate.output_complex, supersample, doFirstPassage=False)
 
-# Domain list as a list of strings, defined as follows input_sequence, base_sequence, output_sequence, fuel_sequence,
-# toehold_sequence, clamp_sequence which defaults to clamp_sequence
-# This method takes two gates
-def clamped_gate_gate_leak(trials, options, domain_list_A, domain_list_B, supersample=25, doFirstPassage=False):
-    gateA = ClampedSeesawGate(*domain_list_A)
-    gateB = ClampedSeesawGate(*domain_list_B)
+# Use a gate object, with a defined interface
+# This method takes two gates and calculates the rate of spurious output production
+def clamped_gate_gate_leak(trials, options, gateA, gateB, supersample=25, doFirstPassage=False):
     two_input_two_success(trials, options, gateA.gate_output_complex, gateA.fuel_complex,
               gateA.output_complex,gateB.output_complex,supersample, doFirstPassage=False)
 
