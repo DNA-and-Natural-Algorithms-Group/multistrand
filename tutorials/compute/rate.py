@@ -1,8 +1,9 @@
-from dissociation import compute as computeDissociation
+from dissociation import computeAndWriteToCL as computeDissociation
+from anneal import computeAndWriteToCL as computeAnneal 
 
 if(len(sys.argv) < 2):
     print("Please provide a DNA sequence as commandline argument")
-    print("Specify the experiment in the first argument: <dissociation>   ")
+    print("Specify the experiment in the first argument: <dissociation> or <association>  ")
     print("Add -bootstrap to do a boostrap ")
     print("Example: rate.py dissociation ATGCAGT -bootstrap")
     exit()
@@ -19,7 +20,11 @@ if(len(sys.argv) > 2):
 
 if (type ==  "dissociation"):
 
-    result = computeAndWriteToCL(mySequence, doBootstrap )
+    result = computeDissociation(mySequence, doBootstrap )
+
+if type == "association":
+    
+    result = computeAnneal(mySequence, doBootstrap)
 
 
 print ("Computing took %.4f s" % (time.time() - start_time))

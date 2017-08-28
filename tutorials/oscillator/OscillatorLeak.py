@@ -55,10 +55,7 @@ def changeComplex(options, expirement_type=NORMAL, trials=500):
         len(ap.sequence) - toehold_length - h_length + 2 ) + "+" + '.' * (toehold_length + h_length) + ')' * (len(ap.sequence) - toehold_length - h_length)
 
     if expirement_type == WITHOUT_GG:
-        helper = Strand(name="Helper_AAq", sequence="TTTCCTAATCCCAATCAACACCTTTCCTA")
-        produce_bot = Strand(name="Produce_BOT_CApAq", sequence="GTAAAGACCAGTGGTGTGAAGATAGGAAAGGTGTTGATTGGGATTAGGAAACC")
         ap = Strand(name="ap", sequence="CATCACTATCAATCATACATTTTCCTATCTTCACACCACTGG")
-        aq = Strand(name="aq", sequence="CATCACTATCAATCATACATGGTTTCCTAATCCCAATCAACACC")
  
         # bot, aq, ap
         # Offsets due to a) clamp domains b) two b.p. removal
@@ -66,14 +63,8 @@ def changeComplex(options, expirement_type=NORMAL, trials=500):
             len(ap.sequence) - toehold_length - h_length + 4) + "+" + '.' * (toehold_length + h_length - 2) + ')' * (len(ap.sequence) - toehold_length - h_length + 2)
 
     elif expirement_type == WITHOUT_G:
-        helper = Strand(name="Helper_AAq",
-                        sequence="TTTCCTAATCCCAATCAACACCTTTCCTA")
-        produce_bot = Strand(name="Produce_BOT_CApAq",
-                             sequence="GTAAAGACCAGTGGTGTGAAGATAGGAAAGGTGTTGATTGGGATTAGGAAACC")
         ap = Strand(
             name="ap", sequence="CATCACTATCAATCATACATGTTTCCTATCTTCACACCACTGG")
-        aq = Strand(
-            name="aq", sequence="CATCACTATCAATCATACATGGTTTCCTAATCCCAATCAACACC")
  
         # bot, aq, ap
         # Offsets due to a) clamp domains b) one b.p. removal
@@ -87,12 +78,6 @@ def changeComplex(options, expirement_type=NORMAL, trials=500):
         # No change required elsewhere -  we check for the release of strands rather than the complicated
         # leak complex formed for simplicity. We should really check for ANY free strands here i.e. Ap OR Aq
         # but it is hard to imagine a mechanism which results in the release of Ap in this simulation
-        produce_bot = Strand(name="Produce_BOT_CApAq",
-                             sequence="GTAAAGACCAGTGGTGTGAAGATAGGAAAGGTGTTGATTGGGATTAGGAAACC")
-        ap = Strand(
-            name="ap", sequence="CATCACTATCAATCATACATGGTTTCCTATCTTCACACCACTGG")
-        aq = Strand(
-            name="aq", sequence="CATCACTATCAATCATACATGGTTTCCTAATCCCAATCAACACC")
  
         # Offset of two to account for clamp domains
         produce_struct = "." * toehold_length + "(" * (len(produce_bot.sequence) - toehold_length) + "+" + '.' * (toehold_length + h_length - 2) + ')' * (

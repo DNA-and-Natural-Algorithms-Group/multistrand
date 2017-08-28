@@ -9,11 +9,10 @@ import math
 import xlrd         #excel sheets
 import numpy as np
 
-from anneal import compute
-from nupack import pfunc
+from dissociation import compute
 
 
-print "Morrison and Stols 1993"
+print "Morrison and Stolls 1993"
 
 def openDocument(document): 
     
@@ -30,17 +29,14 @@ def excelFind(row, col):
 
 
 ## For each column, compute the rate and print it to a file. 
-resultFileName = "morrison-results-ALT-METROPOLIS.txt"
+resultFileName = "morrison-results.txt"
 file = open(resultFileName, 'w+')
 
-file.write("Seq    temp    measured    predicted    pred-95-low    pred-95-high     alternative computation\n\n") 
+file.write("Seq    temp    measured    predicted    pred-95-low    pred-95-high  diff   alternative computation\n\n") 
 
+diffSum = 0.0
 
-
-
-def doMorrison(myRange):
-
-    diffSum = np.float(0.0)
+def doMorrison(myRange, diffSum):
 
     for i in myRange:
         
@@ -56,32 +52,30 @@ def doMorrison(myRange):
         predicted = compute(seq, temp)
         low, high = predicted.doBootstrap()
         
-        dotparen = "("*len(seq) + "+" + ")"*len(seq)
-        
-        dG = pfunc([seq, seqC], [1,2], T=(temp-273.15), material="dna")
-        print (str(dG)) 
-        
-        kMinus = predicted.k1() * math.exp( dG / ( GAS_CONSTANT_R * temp) ) 
-        kMinusLow = low * math.exp( dG / ( GAS_CONSTANT_R * temp) ) 
-        kMinusHigh = high * math.exp( dG / ( GAS_CONSTANT_R * temp) ) 
+        kMinus = predicted.k1() 
+        kMinusLow = low 
+        kMinusHigh = high  
         
         file.write(str( "%0.3g" % np.log10(kMinus)) +     "    "  )
         file.write(str( "%0.3g" % np.log10(kMinusLow)) +     "    "  )
         file.write(str( "%0.3g" % np.log10(kMinusHigh)) +     "    "  )    
+    
         
+        file.write(str( "%0.3g" % np.abs(np.log10(kMinus) - np.float(predicted)) ) +     "    "  )
+    
         diff = np.abs(np.log10(kMinus) - np.float(measured)) 
         diffSum = diffSum +  diff
         
         file.write(str( "%0.3g" % diff ) +     "    "  )
         file.write(str( "%0.3g" % diffSum ) +     "    "  )
     
+    
         file.write("\n")
     
         file.flush()
 
 
-doMorrison(range(6,12)) #do short seq first
-doMorrison(range(6))
-
+doMorrison(range(6,12), diffSum) #do short seq first
+doMorrison(range(6), diffSum)
 
 file.close()
