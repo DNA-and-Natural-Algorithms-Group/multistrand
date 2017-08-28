@@ -11,8 +11,7 @@ for x in dirs:
     sys.path.append(i)
 
 from LeakToolkit import setMinimumSuccess, setMaxTrials,  calculateBaseOutputRate, calculateGateGateLeak, calculateBaseFuelRate, calculateGateFuelLeak, calculateBaseThresholdRate, calculateReverseFuelRate, calculateReverseOutputRate
-from SeesawGate import NormalSeesawGate, MismatchedSeesawGate
-from multistrand.experiment import ClampedSeesawGate
+from SeesawGate import NormalSeesawGate, MismatchedSeesawGate, ClampedSeesawGate
 from HiddenSeesawGate import AntiLeakSeesawGate, AlternativeAntiLeakSeesawGate
 
 USE_SHORT_DOMAINS = True
@@ -158,34 +157,6 @@ def runAltAntiLeakSimulations(domainListA, domainListB):
     rates.append(calcLeakMetrics(gateA, gateB))
     return rates
 
-
-def outputRates(rates, time_taken):
-    # this method assumes that the rates object is a 2D array
-    try:
-        rates_measured = len(rates[0])
-        param_measured = len(rates)
-        file_name = "data{}.txt".format(str(datetime.now()))
-        with open(file_name, "w") as output:
-            output.write("Dataset Created On: {}\n Took {} s\n".format(
-                str(datetime.now()), time_taken))
-            for i in range(0, rates_measured):
-                output_str = ""
-                #output.write("writing rate " + str(i) + "\n")
-                for j in range(0, param_measured):
-                    # i.e. measure the SAME RATE accross different parameters
-                    output_str += ("{},{},{},".format(
-                        rates[j][i].k1, rates[j][i].k1_bounds[0], rates[j][i].k1_bounds[1]))
-                    # If an alternative rate exists for that reaction do output that!
-                    if rates[j][i].k1Alt != None:
-                        output_str += ("[{},{},{},]".format(
-                            rates[j][i].k1Alt, rates[j][i].k1_alt_bounds[0], rates[j][i].k1_alt_bounds[1]))
-                output_str += "\n"
-                output.write(output_str)
-    except TypeError:
-        print "Rates Input Object Invalid"
-        print "No output has been printed"
-
-
 def printTimeElapsed():
     curr_time = time.time()
     elap_time = curr_time - start_time
@@ -201,7 +172,7 @@ def runAndLogClamped():
     start_time = time.time()
     data = runClampedSimulations(CL_LONG_GATE_A_SEQ, CL_LONG_GATE_B_SEQ)
     time_taken = time.time() - start_time
-    outputRates(data, time_taken)
+    
 
 
 def runAndLogAntiLeak():
@@ -210,7 +181,7 @@ def runAndLogAntiLeak():
     start_time = time.time()
     data = runAntiLeakSimulations(CL_LONG_GATE_A_SEQ, CL_LONG_GATE_B_SEQ)
     time_taken = time.time() - start_time
-    outputRates(data, time_taken)
+    
 
 def runAndLogAltAntiLeak():
     CL_LONG_GATE_A_SEQ.extend(['G', 'A'])
@@ -218,17 +189,14 @@ def runAndLogAltAntiLeak():
     start_time = time.time()
     data = runAltAntiLeakSimulations(CL_LONG_GATE_A_SEQ, CL_LONG_GATE_B_SEQ)
     time_taken = time.time() - start_time
-    outputRates(data, time_taken)
+
 
 
 if __name__ == '__main__':
-    CL_LONG_GATE_A_SEQ.extend(['G', 'A'])
-    gateA = AlternativeAntiLeakSeesawGate(*CL_LONG_GATE_A_SEQ)
-    print gateA.gate_input_complex
-    print gateA.gate_fuel_complex
-    print gateA.gate_output_complex
-    print gateA.fuel_complex
-    print gateA.output_complex
+    gateA = ClampedSeesawGate(*CL_LONG_GATE_A_SEQ)
+    print gateA.gate_input_complex_input_occuluded
+    print gateA.threshold_complex_output_occuluded
+    print gateA.gate_output_complex_output_occuluded
 
 
 def calcLeakMetrics(gateA, gateB):
