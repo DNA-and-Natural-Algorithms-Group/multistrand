@@ -70,6 +70,7 @@ def changeComplex(options, expirement_type=NORMAL, trials=500):
         # Offsets due to a) clamp domains b) one b.p. removal
         produce_struct = "." * toehold_length + "(" * (len(produce_bot.sequence) - toehold_length) + "+" + '.' * (toehold_length + h_length - 2) + ')' * (
             len(ap.sequence) - toehold_length - h_length + 3) + "+" + '.' * (toehold_length + h_length - 1) + ')' * (len(ap.sequence) - toehold_length - h_length + 1)
+            
     elif expirement_type == HELPER_WITHOUT_CC:
         # only modify helper sequence here - remove the two 3' most 'C'.
         helper = Strand(name="Helper_AAq",
@@ -79,17 +80,17 @@ def changeComplex(options, expirement_type=NORMAL, trials=500):
         # leak complex formed for simplicity. We should really check for ANY free strands here i.e. Ap OR Aq
         # but it is hard to imagine a mechanism which results in the release of Ap in this simulation
  
-        # Offset of two to account for clamp domains
-        produce_struct = "." * toehold_length + "(" * (len(produce_bot.sequence) - toehold_length) + "+" + '.' * (toehold_length + h_length - 2) + ')' * (
-            len(ap.sequence) - toehold_length - h_length + 2) + "+" + '.' * (toehold_length + h_length) + ')' * (len(ap.sequence) - toehold_length - h_length)
+#         # Offset of two to account for clamp domains
+#         produce_struct = "." * toehold_length + "(" * (len(produce_bot.sequence) - toehold_length) + "+" + '.' * (toehold_length + h_length - 2) + ')' * (
+#             len(ap.sequence) - toehold_length - h_length + 2) + "+" + '.' * (toehold_length + h_length) + ')' * (len(ap.sequence) - toehold_length - h_length)
 
     produce_complex = Complex(name="produce", strands=[produce_bot, aq, ap], structure=produce_struct)
     helper_complex = Complex(name="helper",strands=[helper], structure='.' * len(helper.sequence))
     leak_complex = Complex(name="leak",strands=[aq], structure='.' * len(aq.sequence))
     
     if trials > 0:
-        setBoltzmann(produce_complex, trials, 25)
-        setBoltzmann(helper_complex, trials, 25)
+        setBoltzmann(produce_complex, trials, 75)
+        setBoltzmann(helper_complex, trials, 75)
 
     success_stop_cond = StopCondition(
         Options.STR_SUCCESS, [(leak_complex, Options.dissocMacrostate, 0)])
@@ -110,14 +111,16 @@ def openDocument(document):
 
 def genOptions(trialsIn, experiment_type=NORMAL):
     # NB: Time out MUST be a float
-    stdOptions = standardOptions(
-        Options.firstStep, expTemp(experiment_type), trials=trialsIn, timeOut=0.1)
+    stdOptions = standardOptions(Options.firstStep, expTemp(experiment_type), trials=trialsIn, timeOut=0.1)
     changeComplex(stdOptions, experiment_type)
     stdOptions.temperature = expTemp(experiment_type)
     stdOptions.sodium = expSodium(experiment_type)
     stdOptions.magnesium = expMagnesium(experiment_type)
+    stdOptions.gt_enable = 1
+    
     # stdOptions.DNA23Metropolis()
     setArrheniusConstantsDNA23(stdOptions)
+    
     
 
     return stdOptions
@@ -183,7 +186,7 @@ def generateGraph(min_success, increment_trials):
     low_error = []
     high_error = []
     
-#     for x in [NORMAL, WITHOUT_GG, WITHOUT_G, HELPER_WITHOUT_CC]:
+#     for x in [WITHOUT_G]:
     for x in [NORMAL, WITHOUT_GG, WITHOUT_G, HELPER_WITHOUT_CC]:
         results = computeRate(increment_trials, x)
         k1 = results[0].k1()
@@ -214,5 +217,5 @@ def generateGraph(min_success, increment_trials):
 
 # the main method
 if __name__ == '__main__':
-    generateGraph(10, 10000)
+    generateGraph(4, 10000)
  

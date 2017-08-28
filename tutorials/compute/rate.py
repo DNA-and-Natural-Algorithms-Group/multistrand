@@ -1,6 +1,8 @@
 from dissociation import computeAndWriteToCL as computeDissociation
 from anneal import computeAndWriteToCL as computeAnneal 
 
+import sys
+
 if(len(sys.argv) < 2):
     print("Please provide a DNA sequence as commandline argument")
     print("Specify the experiment in the first argument: <dissociation> or <association>  ")
