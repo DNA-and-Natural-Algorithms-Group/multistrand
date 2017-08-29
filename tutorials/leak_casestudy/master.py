@@ -194,10 +194,8 @@ def runAndLogAltAntiLeak():
 
 if __name__ == '__main__':
     gateA = ClampedSeesawGate(*CL_LONG_GATE_A_SEQ)
-    print gateA.gate_input_complex_input_occuluded
-    print gateA.threshold_complex_output_occuluded
-    print gateA.gate_output_complex_output_occuluded
-
+    calculateBaseOutputRate(gateA, 10)
+    calculateBaseOutputRate(gateA, 50)
 
 def calcLeakMetrics(gateA, gateB):
     rates = []

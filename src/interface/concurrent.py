@@ -32,6 +32,7 @@ MAX_TRIALS_TEST = 2500
 # Shared class methods
 class basicRate(object):
 
+    myBootstrap = None
     nForward = 0
     nReverse = 0
     nForwardAlt = 0
@@ -46,15 +47,15 @@ class basicRate(object):
         print "Test for two-stateness is not implemented for this object (type: " + type(self).__name__ + ")\n"
 
     # Convenience.
-    def doBootstrap(self):
-        myBootstrap = Bootstrap(self, computek1=True)
-#         low, high = myBootstrap.ninetyFivePercentiles()
+    def doBootstrap(self, NIn=10000):
+        self.myBootstrap = Bootstrap(self, N=NIn,  computek1=True)
+        return self.myBootstrap.ninetyFivePercentiles()
 
-        print "Estimated k1 = %0.3g /M /s" # with 95 pct confidence interval [%0.3g, %0.3g] \n" % (self.k1(), low, high)
-        print myBootstrap
-
-        return myBootstrap.ninetyFivePercentiles()
-
+    def __str__(self):
+        if self.myBootstrap != None:
+            return self.myBootstrap.__str__() + "\n"
+        else:
+            return ""
 
 # # Migration rates for first step
 class FirstStepRate(basicRate):
@@ -236,6 +237,11 @@ class FirstStepRate(basicRate):
         if(self.nReverse > 0):
             output += "k2'      = %.2e /M /s \n" % self.k2Prime()
 
+        output+= super(FirstStepRate, self).__str__()
+
+        suc = (x for x in self.dataset if (x.tag==Options.STR_SUCCESS or x.tag==Options.STR_FAILURE))
+        for x in suc:
+            output+= x.__str__() +"\n\n"
         return output
 
     def shortString(self):
@@ -274,7 +280,7 @@ class FirstStepLeakRate(basicRate):
             (x.tag == Options.STR_SUCCESS) or x.tag == Options.STR_ALT_SUCCESS)]
 
     def generateRates(self, dataset=None):
-        0
+        pass
 
     def sumCollisionForward(self):
         return sum([np.float(i.collision_rate) for i in self.dataset if i.tag == Options.STR_SUCCESS])
@@ -337,20 +343,38 @@ class FirstStepLeakRate(basicRate):
         output = "nForward = " + str(self.nForward) + " \n"
         output += "nReverse = " + str(self.nReverse) + " \n \n"
 
+        for x in self.dataset:
+            output+= x.__str__() +"\n\n"
+        
         if self.nForwardAlt > 0:
             output += "nForwardAlt = " + str(self.nForwardAlt) + "\n"
 
         if(self.nForward > 0):
-            output += "k1       = %.2e  /M /s  \n" % self.k1()
+            output += "k1       = %.2e  /M /s  \n\n" % self.k1()
 
         if(self.nForwardAlt > 0):
             output += "k1Alt       = %.2e  /M /s  \n" % self.k1Alt()
 
+        output+= super(FirstStepLeakRate, self).__str__() + "\n"
+        
+        
         return output
 
     def shortString(self):
-        return self.__str__()
+        output = "nForward = " + str(self.nForward) + " \n"
+        output += "nReverse = " + str(self.nReverse) + " \n \n"
 
+        if self.nForwardAlt > 0:
+            output += "nForwardAlt = " + str(self.nForwardAlt) + "\n"
+
+        if(self.nForward > 0):
+            output += "k1       = %.2e  /M /s  \n\n" % self.k1()
+
+        if(self.nForwardAlt > 0):
+            output += "k1Alt       = %.2e  /M /s  \n" % self.k1Alt()
+
+       
+        return output
 
 # Like migrationrate, but uses data from first passage time rather than first step mode
 class FirstPassageRate(basicRate):
@@ -441,13 +465,14 @@ class FirstPassageRate(basicRate):
         return kEff
 
     def __str__(self):
-
-        return "k1 = %.3g \n" % self.k1()
+        output = "k1 = %.3g \n" % self.k1()
+        output+= super(FirstPassageRate, self).__str__() 
+        return output
 
 
 class Bootstrap():
 
-    def __init__(self, myRates, concentration=None, computek1=False, computek1Alt=False):
+    def __init__(self, myRates, N=10000, concentration=None, computek1=False, computek1Alt=False):
 
         self.myRates = myRates
 
@@ -458,7 +483,7 @@ class Bootstrap():
         self.effectiveRates = list()
         self.effectiveAltRates = list()
         self.logEffectiveRates = list()
-        self.N = 1000
+        self.N = N
 
         print "Bootstrapping " + type(myRates).__name__ + ", using " + str(self.N) + " samples.",
 
@@ -517,7 +542,8 @@ class Bootstrap():
     def __str__(self):
         if len(self.effectiveRates) > 0 : 
             low, high = self.ninetyFivePercentiles()    
-            return "Confidence Interval: %.3g /M /s, %.3g /M /s" % (low, high)
+            output= "95%% Confidence Interval: [%.3g /M /s, %.3g /M /s] with N=%d" % (low, high, self.N)
+            return output
         else :
             return "No successful reactions observed "
 
@@ -570,11 +596,21 @@ class MergeSimSettings(object):
     RESULTTYPE1 = "FirstStepRate"
     RESULTTYPE2 = "FirstStepRateLeak"
     RESULTTYPE3 = "FirstPassageRate"
+    
+    DEFAULT_OUTPUT_FILE = "data.txt"
 
     debug = False
     resultsType = RESULTTYPE1
     terminationCount = None
     max_trials = 250000000
+
+    defaultOutput = True
+    outputFile = DEFAULT_OUTPUT_FILE
+
+    experimentTag = "No Tag Provided"
+
+    bootstrap = False
+    bootstrapN = 0
 
     def rateFactory(self, dataset=None):
         
@@ -606,6 +642,19 @@ class MergeSimSettings(object):
             else:
                 return False
 
+
+    def setOutputFile(self,filetitle):
+            # sets flags and updates the file title but not more than this.
+            # Here, we will wish to append to the file in the future but not normally.
+            self.defaultOutput=False
+            self.outputFile = filetitle + time.strftime("-%d-%m-%y+%H-%M-%S")+".txt"
+
+    def setExperimentTag(self, tagIn):
+            self.experimentTag = tagIn
+
+    def setBootstrap(self, doBootstrap, numIn):
+        self.bootstrap = doBootstrap
+        self.bootstrapN = numIn
 
 def timeStamp(inTime=None):
 
@@ -644,6 +693,15 @@ class MergeSim(object):
 
     def setPassageMode(self):
         self.settings.resultsType = self.settings.RESULTTYPE3
+
+    def setOutputFile(self, title):
+        self.settings.setOutputFile(title)
+
+    def setExperimentTag(self, tag):
+        self.settings.setExperimentTag(tag)    
+
+    def setBootstrap(self, bootstrapIn, num):
+        self.settings.setBootstrap(bootstrapIn, num)
 
     def timeSinceStart(self):
         print("Time since creating object %.5f seconds" %
@@ -893,12 +951,54 @@ class MergeSim(object):
 
         # print final results to the user
         self.results.generateRates()
-        print str(self.results)
-
+        
         self.runTime = (time.time() - startTime)
         print("Done.  %.5f seconds \n" % (time.time() - startTime))
 
+        if self.settings.bootstrap == True:
+            self.results.doBootstrap(self.settings.bootstrapN)
+
+        self.writeToFile()    
         return 0
+
+    def createOutputMessage(self):
+        outputString ="Experiment Type: " + self.settings.experimentTag + ".\n\n"
+        
+        outputString+="Max Trials:          " + str(self.settings.max_trials) + "\n"
+        outputString+="Termination  Count:  " + str(self.settings.terminationCount) + "\n"
+        outputString+="Num. of Threads:     " + str(self.numOfThreads) + "\n"
+        outputString+="Run Time:            " + str(self.runTime) + "s \n\n"
+
+        options = self.factory.new(0)
+        outputString+="Temperature: " + str(options.temperature) +  "K \n\n"
+
+        outputString+="Start States\n"
+        for x in options.start_state:
+            outputString+=x.__str__()+"\n\n"
+
+        for x in options.stop_conditions:
+            outputString+=x.__str__()+"\n"
+
+        outputString+="\n"+self.results.__str__() + "\n"
+        
+        return outputString
+
+    
+    def writeToFile(self):
+        outputString = self.createOutputMessage()
+        if(self.settings.defaultOutput==False):
+            # if a file has been specified, open is default mode.
+            f = open(self.settings.outputFile, 'a+')
+        else:
+            # i.e. the user has not passed in any data at all in terms of file logging.
+            # Open in write, not append mode!!
+            f = open(self.settings.outputFile, 'w')
+            
+        f.write(outputString)
+        f.close()
+
+            
+
 
 
 

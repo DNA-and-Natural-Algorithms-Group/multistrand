@@ -22,7 +22,6 @@ from multistrand.objects import StopCondition
 from multistrand.options import Options
 from msArrhenius import setArrheniusConstantsDNA23
 
-from SeesawGate import SeesawRates
 import numpy as np
 
 
@@ -34,9 +33,11 @@ INCREMENT_TRIALS = 5000
 DNA = "DNA"
 
 
-myMultistrand.setNumOfThreads(8)
-myMultistrand.setTerminationCriteria(MINIMUM_FORWARD)
+myMultistrand.setNumOfThreads(2)
+# myMultistrand.setTerminationCriteria(MINIMUM_FORWARD)
 myMultistrand.setLeakMode()
+myMultistrand.setBootstrap(True, 10000)
+myMultistrand.setOutputFile("testing")
 
 outputFile = "data.txt"
 
@@ -47,26 +48,6 @@ def setMinimumSuccess(n):
 
 def setMaxTrials(n):
     myMultistrand.settings.max_trials = n
-
-
-def setOutputFile(title, info="No Additional Information Provied"):
-    date_str = datetime.now().strftime(' %d-%m+%H:%M')
-    outputFile = title + date_str + ".txt"
-    f = open(outputFile, 'w')
-    f.write("File Created using Multistrand 2.1.\n" + info)
-    f.close()
-
-# it is intended that rate is a SeesawRate object
-
-
-def writeRate(title, rate):
-    date_str = datetime.now().strftime(' %d-%m+%H:%M')
-    outputFile = title + date_str
-    f = open(outputFile, 'a')
-    f.write("Rate " + title + "\n")
-    f.write(rate.str() + "\n\n")
-    f.close()
-
 
 def getOptions(trials, material, complexes,
                success_stop_conditions, failed_stop_conditions, T=25, supersample=25):
@@ -142,7 +123,7 @@ def calculateGateGateLeak(gateA, gateB, trials=INCREMENT_TRIALS, title="Gate Gat
     leak_complex = gateB.output_complex
     alt_leak_complex = gateA.output_complex
 
-    success_stop_condition = StopCo tndition(
+    success_stop_condition = StopCondition(
         Options.STR_SUCCESS, [(leak_complex,
                                Options.dissocMacrostate, 0)])
 
@@ -163,9 +144,9 @@ def calculateGateGateLeak(gateA, gateB, trials=INCREMENT_TRIALS, title="Gate Gat
 
 
 def calculateBaseOutputRate(gate, trials=INCREMENT_TRIALS):
-    title = "Forward Output Reaction"
+    myMultistrand.setExperimentTag("Forward Output Reaction")
     rates = calculateGateInputRate(
-        gate.gate_output_complex, gate.input_complex, gate.output_complex, trials, title)
+        gate.gate_output_complex, gate.input_complex, gate.output_complex, trials, "")
     return rates
 
 
@@ -252,7 +233,4 @@ def calculateInputGateOcclusionUnbind(gate, trials=INCREMENT_TRIALS, material="D
 
 def getRates(tag):
     myMultistrand.run()
-    rates = SeesawRates(myMultistrand.results)
-    writeRate(tag, rates)
-    print rates
-    return rates
+    return myMultistrand.results

@@ -289,46 +289,4 @@ class MismatchedSeesawGate(NormalSeesawGate):
                                       len(self.output_strand.sequence))
 
 
-# Stores SeesawRates
-class SeesawRates(object):
 
-    def __init__(self, myFSR, bootstrap=True, concentration=5e-9):
-
-        #         myFSR = FirstStepRate(dataset, concentration)
-        self.nForward = myFSR.nForward
-        self.nReverse = myFSR.nReverse
-        self.nForwardAlt = myFSR.nForwardAlt
-        self.k1 = myFSR.k1()
-        self.k1Alt = None
-        self.k1_alt_bounds = None
-        if self.nForwardAlt != 0:
-            print self.nForwardAlt
-            self.k1Alt = myFSR.k1Alt()
-
-        if bootstrap:
-            if(self.nForwardAlt != 0):
-                print "boostrapping"
-                bootstrap = Bootstrap(
-                    myFSR, concentration, computek1=True, computek1Alt=True)
-                self.k1_alt_bounds = bootstrap.ninetyFivePercentilesAlt()
-                self.k1_bounds = bootstrap.ninetyFivePercentiles()
-            else:
-                bootstrap = Bootstrap(myFSR, concentration, computek1=True)
-                self.k1_bounds = bootstrap.ninetyFivePercentiles()
-
-    def __str__(self):
-        str_ret = "F: %d R: %d F(A): %d \n" % (
-            self.nForward, self.nReverse, self.nForwardAlt)
-        str_ret += "k1:     %f\n" % self.k1
-        if self.k1_bounds != None:
-            str_ret += "Estimated Confidence Interval [%f - %f] \n\n" % (
-                self.k1_bounds[0], self.k1_bounds[1])
-            if self.k1Alt != None:
-                str_ret += "k1_alt:     %f\n" % self.k1Alt
-                str_ret += "Estimated Confidence Interval [%f - %f] \n\n" % (
-                    self.k1_alt_bounds[0], self.k1_alt_bounds[1])
-        else:
-            if self.k1Alt != None:
-                str_ret += "k1_alt:     %f\n\n" % self.k1Alt
-
-        return str_ret
