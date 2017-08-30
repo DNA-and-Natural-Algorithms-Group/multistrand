@@ -38,11 +38,11 @@ CL_LONG_SEQT = "TCTCT"
 
 def setupSims():
     setMaxTrials(25000000)
-    setMinimumSuccess(50)
     # perhaps too high....
     setMinimumSuccess(30)
 
 def runAndLogNormal():
+    
     setupSims()
     domainListA = [LONG_SEQ1, LONG_SEQ2, LONG_SEQ5, LONG_SEQ7, SEQT]
     domainListB = [LONG_SEQ2, LONG_SEQ5, LONG_SEQ6, LONG_SEQ7, SEQT]

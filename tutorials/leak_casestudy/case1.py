@@ -21,7 +21,8 @@ import numpy as np
 from multistrand._options.interface import FirstStepResult
 ATIME_OUT = 10.0
 
-myMultistrand.setNumOfThreads(4) 
+myMultistrand.setNumOfThreads(2) 
+myMultistrand.setLeakMode()
 
 def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
 
@@ -85,19 +86,11 @@ def doFirstStepMode(seq, T=25, material="DNA", numOfRuns=500):
 def makePlots():
 
     seqs = list()
-
-#     seqs.append('GTCGATGC')
-#     seqs.append('ATCGATGC')
-
-    seqs.append('GTCACTGC')
-    seqs.append('GTCACTGA')
-
-
-#    seqs.append('CCTACGTCTCACTAACG')
+    seqs.append('CCTACGTCTCACTAACG')
 #    seqs.append('ACTACGTCTCACTAACG')
 
     for seq in seqs:
-        doFirstStepMode(seq, numOfRuns=5000)
+        doFirstStepMode(seq, numOfRuns=50000)
 
 
 # The actual main method

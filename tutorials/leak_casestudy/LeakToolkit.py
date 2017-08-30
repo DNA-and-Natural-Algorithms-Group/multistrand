@@ -34,7 +34,7 @@ DNA = "DNA"
 DEFAULT_TEMPERATURE = 35
 
 
-myMultistrand.setNumOfThreads(2)
+myMultistrand.setNumOfThreads(8)
 myMultistrand.setTerminationCriteria(MINIMUM_FORWARD)
 myMultistrand.setBootstrap(True, 10000)
 
