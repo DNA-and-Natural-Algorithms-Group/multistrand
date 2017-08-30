@@ -25,34 +25,35 @@ from msArrhenius import setArrheniusConstantsDNA23
 import numpy as np
 
 
-ATIME_OUT = 0.1
+ATIME_OUT = 1.0
 # lets see the error bars I get here....
 MINIMUM_FORWARD = 2
 A_CONCENTRATION = 50e-9
-INCREMENT_TRIALS = 5000
+INCREMENT_TRIALS = 50000
 DNA = "DNA"
+DEFAULT_TEMPERATURE = 35
 
 
 myMultistrand.setNumOfThreads(2)
-# myMultistrand.setTerminationCriteria(MINIMUM_FORWARD)
-myMultistrand.setLeakMode()
+myMultistrand.setTerminationCriteria(MINIMUM_FORWARD)
 myMultistrand.setBootstrap(True, 10000)
-myMultistrand.setOutputFile("testing")
 
-outputFile = "data.txt"
 
 
 def setMinimumSuccess(n):
     myMultistrand.setTerminationCriteria(n)
 
-
 def setMaxTrials(n):
     myMultistrand.settings.max_trials = n
 
-def getOptions(trials, material, complexes,
-               success_stop_conditions, failed_stop_conditions, T=25, supersample=25):
+def setOutputFile(name):
+    myMultistrand.setOutputFile(name)
 
-    o = Options(simulation_mode="First Step", substrate_type=material,
+
+def getOptions(trials, material, complexes,
+               success_stop_conditions, failed_stop_conditions, T=25, simulationModeIn="First Step", supersample=25):
+
+    o = Options(simulation_mode=simulationModeIn, substrate_type=material,
                 rate_method="Metropolis", num_simulations=trials,
                 simulation_time=ATIME_OUT, temperature=T)
 
@@ -77,7 +78,8 @@ def getOptions(trials, material, complexes,
     return o
 
 
-def calculateGateInputRate(gate_complex, input_complex, output_complex, trials=INCREMENT_TRIALS, title="Gate w/ Input", material="DNA",  alt_output_complex=None):
+def calculateGateInputRate(gate_complex, input_complex, output_complex, trials=INCREMENT_TRIALS, material="DNA",  alt_output_complex=None):
+    myMultistrand.setLeakMode()
     success_stop_condition = StopCondition(
         Options.STR_SUCCESS, [(output_complex, Options.dissocMacrostate, 0)])
     failed_stop_condition = StopCondition(
@@ -88,35 +90,34 @@ def calculateGateInputRate(gate_complex, input_complex, output_complex, trials=I
             raise TypeError
         alt_success_stop_condition = StopCondition(
             Options.STR_ALT_SUCCESS, [(output_complex, Options.dissocMacrostate, 0)])
-        myMultistrand.setOptionsFactory5(getOptions, trials, material,
+        myMultistrand.setOptionsFactory6(getOptions, trials, material,
                                          [gate_complex, input_complex],
                                          [success_stop_condition,
                                              alt_success_stop_condition],
-                                         [failed_stop_condition])
+                                         [failed_stop_condition], DEFAULT_TEMPERATURE)
     except TypeError:
-        myMultistrand.setOptionsFactory5(getOptions, trials, material, [gate_complex, input_complex], [
-                                         success_stop_condition], [failed_stop_condition])
+        myMultistrand.setOptionsFactory6(getOptions, trials, material, [gate_complex, input_complex], [
+                                         success_stop_condition], [failed_stop_condition], DEFAULT_TEMPERATURE)
 
-    return getRates(title)
+    return getRates()
 
 
-def calculateGateDissocRate(start_complex, output_complex, trials=INCREMENT_TRIALS, title="Gate Dissociation", material="DNA"):
+def calculateGateDissocRate(start_complex, output_complex, trials=MINIMUM_FORWARD, material="DNA"):
+    myMultistrand.setPassageMode()
     success_stop_condition = StopCondition(
         Options.STR_SUCCESS, [(output_complex, Options.dissocMacrostate, 0)])
-    failed_stop_condition = StopCondition(
-        Options.STR_FAILURE, [(start_complex, Options.dissocMacrostate, 0)])
+    # no failure stop condition here...
+    print trials
+    myMultistrand.setOptionsFactory7(getOptions, trials, material, [start_complex], [
+        success_stop_condition], [], DEFAULT_TEMPERATURE, "First Passage Time")
 
-    myMultistrand.setOptionsFactory5(getOptions, trials, material, [start_complex], [
-        success_stop_condition], [failed_stop_condition])
-
-    return getRates(title)
+    return getRates()
 
 # MS: Adapted to return two rates within the rates object returned:
 #     Both the rate for one complex being released but also the other,
 #     as an alternative success condition for first step mode
-
-
-def calculateGateGateLeak(gateA, gateB, trials=INCREMENT_TRIALS, title="Gate Gate Fuel", material="DNA"):
+def calculateGateGateLeak(gateA, gateB, trials=INCREMENT_TRIALS, material="DNA"):
+    myMultistrand.setLeakMode()
     # define stop conditions
     gateA_complex = gateA.gate_output_complex
     gateB_complex = gateB.gate_output_complex
@@ -134,103 +135,100 @@ def calculateGateGateLeak(gateA, gateB, trials=INCREMENT_TRIALS, title="Gate Gat
         Options.STR_FAILURE, [(gateA_complex,
                                Options.dissocMacrostate, 0)])
 
-    myMultistrand.setOptionsFactory5(getOptions, trials, material,
+    myMultistrand.setOptionsFactory6(getOptions, trials, material,
                                      [gateA_complex, gateB_complex],
                                      [success_stop_condition,
                                          alt_success_stop_condition],
-                                     [failed_stop_condition])
+                                     [failed_stop_condition], DEFAULT_TEMPERATURE)
 
-    return getRates(title)
+    return getRates()
 
 
 def calculateBaseOutputRate(gate, trials=INCREMENT_TRIALS):
     myMultistrand.setExperimentTag("Forward Output Reaction")
     rates = calculateGateInputRate(
-        gate.gate_output_complex, gate.input_complex, gate.output_complex, trials, "")
+        gate.gate_output_complex, gate.input_complex, gate.output_complex, trials)
     return rates
 
 
 def calculateReverseOutputRate(gate, trials=INCREMENT_TRIALS):
-    title = "Reverse Output Reaction"
+    myMultistrand.setExperimentTag("Reverse Output Reaction")
     rates = calculateGateInputRate(
-        gate.gate_input_complex, gate.output_complex, gate.input_complex, trials, title)
+        gate.gate_input_complex, gate.output_complex, gate.input_complex, trials)
     return rates
 
 
-def calculateBaseFuelRate(gate, trials=INCREMENT_TRIALS,
-                          ):
-    title = "Forward Fuel Reaction"
+def calculateBaseFuelRate(gate, trials=INCREMENT_TRIALS):
+    myMultistrand.setExperimentTag("Forward Fuel Reaction")
     rates = calculateGateInputRate(
-        gate.gate_input_complex, gate.fuel_complex, gate.input_complex, trials, title)
+        gate.gate_input_complex, gate.fuel_complex, gate.input_complex, trials)
     return rates
 
 
 def calculateReverseFuelRate(gate, trials=INCREMENT_TRIALS,
                              ):
-    title = "Reverse Fuel Reaction"
+    myMultistrand.setExperimentTag("Reverse Fuel Reaction")
     rates = calculateGateInputRate(
-        gate.gate_fuel_complex, gate.input_complex, gate.fuel_complex, trials, title)
+        gate.gate_fuel_complex, gate.input_complex, gate.fuel_complex, trials)
     return rates
 
 
 def calculateBaseThresholdRate(gate, trials=INCREMENT_TRIALS):
-    title = "Thresholding"
+    myMultistrand.setExperimentTag("Thresholding")
     rates = calculateGateInputRate(
-        gate.threshold_complex, gate.input_complex, gate.threshold_free_waste_complex, trials, title)
+        gate.threshold_complex, gate.input_complex, gate.threshold_free_waste_complex, trials)
     return rates
-
-# MS: Calculates the leak between a gate and its fuel
 
 
 def calculateGateFuelLeak(gate, trials=INCREMENT_TRIALS, material="DNA"):
-    title = "Gate Fuel Leak"
+    myMultistrand.setExperimentTag("Gate Fuel Leak")
     rates = calculateGateInputRate(
-        gate.gate_output_complex, gate.fuel_complex, gate.output_complex, trials, title)
+        gate.gate_output_complex, gate.fuel_complex, gate.output_complex, trials)
     return rates
 
 
-def calculateOutputThresholdOcclusion(gate, trials=INCREMENT_TRIALS, material="DNA"):
-    title = "Output Threshold Occlusion"
+def calculateOutputThresholdOcclusion(gate, trials=INCREMENT_TRIALS):
+    myMultistrand.setExperimentTag("Output Threshold Occlusion")
     rates = calculateGateInputRate(
-        gate.threshold_complex, gate.output_complex, gate.threshold_complex_output_occluded, trials, title)
+        gate.threshold_complex, gate.output_complex, gate.threshold_complex_output_occluded, trials)
     return rates
 
 
-def calculateOutputThresholdOcclusionUnbind(gate, trials=INCREMENT_TRIALS, material="DNA"):
-    title = "Output Threshold Occlusion Unbind"
+def calculateOutputThresholdOcclusionUnbind(gate, trials=MINIMUM_FORWARD):
+    myMultistrand.setExperimentTag("Output Threshold Occlusion Unbind")
     rates = calculateGateDissocRate(
-        gate.threshold_complex_output_occluded, gate.output_complex, trials, title)
+        gate.threshold_complex_output_occluded, gate.output_complex, trials)
     return rates
 
 
-def calculateOutputGateOcclusion(gate, trials=INCREMENT_TRIALS, material="DNA"):
-    title = "Output Gate Occlusion"
+def calculateOutputGateOcclusion(gate, trials=INCREMENT_TRIALS):
+    myMultistrand.setExperimentTag("Output Gate Occlusion")
     rates = calculateGateInputRate(
-        gate.gate_output_complex, gate.output_complex, gate.gate_output_complex_output_occluded, trials, title)
+        gate.gate_output_complex, gate.output_complex, gate.gate_output_complex_output_occluded, trials)
     return rates
 
 
-def calculateOutputGateOcclusionUnbind(gate, trials=INCREMENT_TRIALS, material="DNA"):
-    title = "Output Gate Occlusion Unbind"
+def calculateOutputGateOcclusionUnbind(gate, trials=MINIMUM_FORWARD):
+    myMultistrand.setExperimentTag("Output Gate Occlusion Unbind")
     rates = calculateGateDissocRate(
-        gate.gate_output_complex_output_occluded, gate.output_complex, trials, title)
+        gate.gate_output_complex_output_occluded, gate.output_complex, trials)
     return rates
 
 
-def calculateInputGateOcclusion(gate, trials=INCREMENT_TRIALS, material="DNA"):
-    title = "Input Gate Occlusion"
+def calculateInputGateOcclusion(gate, trials=INCREMENT_TRIALS):
+    myMultistrand.setExperimentTag("Input Gate Occlusion")
     rates = calculateGateInputRate(
-        gate.gate_input_complex, gate.input_complex, gate.gate_input_complex_input_occluded, trials, title)
+        gate.gate_input_complex, gate.input_complex, gate.gate_input_complex_input_occluded, trials)
     return rates
 
 
-def calculateInputGateOcclusionUnbind(gate, trials=INCREMENT_TRIALS, material="DNA"):
-    title = "Input Gate Occlusion Unbind"
+def calculateInputGateOcclusionUnbind(gate, trials=MINIMUM_FORWARD):
+    myMultistrand.setExperimentTag("Input Gate Occlusion Unbind")
     rates = calculateGateDissocRate(
-        gate.gate_input_complex, gate.input_complex, trials, title)
+        gate.gate_input_complex_input_occluded, gate.input_complex, trials)
     return rates
 
 
-def getRates(tag):
+def getRates():
     myMultistrand.run()
     return myMultistrand.results

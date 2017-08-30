@@ -239,9 +239,9 @@ class FirstStepRate(basicRate):
 
         output+= super(FirstStepRate, self).__str__()
 
-        suc = (x for x in self.dataset if (x.tag==Options.STR_SUCCESS or x.tag==Options.STR_FAILURE))
-        for x in suc:
-            output+= x.__str__() +"\n\n"
+        # suc = (x for x in self.dataset if (x.tag==Options.STR_SUCCESS or x.tag==Options.STR_FAILURE))
+        # for x in suc:
+        #     output+= x.__str__() +"\n\n"
         return output
 
     def shortString(self):
@@ -343,8 +343,8 @@ class FirstStepLeakRate(basicRate):
         output = "nForward = " + str(self.nForward) + " \n"
         output += "nReverse = " + str(self.nReverse) + " \n \n"
 
-        for x in self.dataset:
-            output+= x.__str__() +"\n\n"
+        # for x in self.dataset:
+        #     output+= x.__str__() +"\n\n"
         
         if self.nForwardAlt > 0:
             output += "nForwardAlt = " + str(self.nForwardAlt) + "\n"
@@ -465,7 +465,8 @@ class FirstPassageRate(basicRate):
         return kEff
 
     def __str__(self):
-        output = "k1 = %.3g \n" % self.k1()
+        output = "nForward: %d \n" % self.nForward
+        output+= "k1 = %.3g \n" % self.k1()
         output+= super(FirstPassageRate, self).__str__() 
         return output
 
@@ -796,8 +797,10 @@ class MergeSim(object):
         simSys.initialInfo()
 
     def startSimMessage(self):
+        welcomeMessage = "Running Experiment w/ tag: " + self.settings.experimentTag + "\n"
+        welcomeMessage += "Using Results Type: " + self.settings.resultsType + "\n"
         # python2 style printing because of an compilation issue with web.py
-        welcomeMessage = ''.join(["Computing ", str(
+        welcomeMessage += ''.join(["Computing ", str(
             self.numOfThreads * self.trialsPerThread), " trials, using ", str(self.numOfThreads), " threads .. \n"])
 
         if not self.settings.terminationCount == None:
@@ -952,6 +955,8 @@ class MergeSim(object):
         # print final results to the user
         self.results.generateRates()
         
+        print self.results
+
         self.runTime = (time.time() - startTime)
         print("Done.  %.5f seconds \n" % (time.time() - startTime))
 
@@ -964,10 +969,12 @@ class MergeSim(object):
     def createOutputMessage(self):
         outputString ="Experiment Type: " + self.settings.experimentTag + ".\n\n"
         
+        outputString+="Trials:              " + str(self.factory.input0) + "\n"
         outputString+="Max Trials:          " + str(self.settings.max_trials) + "\n"
         outputString+="Termination  Count:  " + str(self.settings.terminationCount) + "\n"
         outputString+="Num. of Threads:     " + str(self.numOfThreads) + "\n"
-        outputString+="Run Time:            " + str(self.runTime) + "s \n\n"
+        outputString+="Run Time:            " + str(self.runTime) + "s \n"
+        outputString+="Using Results Type:  " + self.settings.resultsType + "\n\n"
 
         options = self.factory.new(0)
         outputString+="Temperature: " + str(options.temperature) +  "K \n\n"
