@@ -8,35 +8,12 @@
 # FD: This script is now set to use 4 threads and just 50,000 trajectories.
 # FD: This is different from the results in case1.pdf
 # FD: The results of this study heavily depend on the parameterization of the Metropolis model: JS or DNA23 (see below).
-import operator
-import os
-import time
-import datetime
-import math
-import traceback
-import copy
-import sys
-import random
-from os.path import expanduser
-from datetime import datetime
-dirs = ["~/workspace/multistrand", "~/workspace/multistrandPy",
-        "~/multistrand", "~/multistrandPy"]
-for x in dirs:
-    i = expanduser(x)
-    sys.path.append(i)
 
-
-from collections import Counter
-from multistrand.options import Options
-import multiprocessing
-import numpy as np
-
-from multistrand.system import SimSystem
-
-MINIMUM_RATE = 1e-36
-from multistrand.concurrent import myMultistrand, FirstStepRate
 from multistrand.objects import StopCondition, Domain, Complex, Strand
 from multistrand.options import Options
+from multistrand.system import SimSystem
+from multistrand.concurrent import myMultistrand
+
 from msArrhenius import setArrheniusConstantsDNA23
 
 
@@ -45,6 +22,7 @@ from multistrand._options.interface import FirstStepResult
 ATIME_OUT = 10.0
 
 myMultistrand.setNumOfThreads(2) 
+myMultistrand.setLeakMode()
 
 def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
 
@@ -95,14 +73,9 @@ def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
     myFSR = myMultistrand.results
 
     # Now determine the reaction model parameters from the simulation results.
-#     myFSR = FirstStepRate(dataset, 5e-9)
-
     print myFSR
 
-#     print("Was success :  %i  " % myFSR.nForward)
-#     print("Was failure :  %i  " % myFSR.nReverse)
-#     print("Total runs  :  %i  " % myFSR.nTotal)
-#     print("k1          :  %.2f /M /s \n " % myFSR.k1() )
+
 
 
 def doFirstStepMode(seq, T=25, material="DNA", numOfRuns=500):
@@ -113,19 +86,11 @@ def doFirstStepMode(seq, T=25, material="DNA", numOfRuns=500):
 def makePlots():
 
     seqs = list()
-
-#     seqs.append('GTCGATGC')
-#     seqs.append('ATCGATGC')
-
-    seqs.append('GTCACTGC')
-    seqs.append('GTCACTGA')
-
-
-#    seqs.append('CCTACGTCTCACTAACG')
+    seqs.append('CCTACGTCTCACTAACG')
 #    seqs.append('ACTACGTCTCACTAACG')
 
     for seq in seqs:
-        doFirstStepMode(seq, numOfRuns=500000)
+        doFirstStepMode(seq, numOfRuns=50000)
 
 
 # The actual main method
