@@ -113,8 +113,10 @@ def runExperiment(trialsIn, gateA, sel, gateB=None, supersample=25):
 # Trials in will determine the increment of the extra number of trials ran each time
 #  (here, we keep running until we have a minimum number of succesful trials)
 
-
-def runSimulations(trialsIn=100):
+def runSimulations(trialsIn=1000):
+    # uncomment for logging
+    # myMultistrand.setOutputFile("case2")
+    
     # Here we say we are going to use 2 threads, storing only succesful data. We will require at least 2 succesful trials with a maximum number of trials of 2500000
     setupSimulationOptions(2, True, 2, 2.5e6, 1000)
 

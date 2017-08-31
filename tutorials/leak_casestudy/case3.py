@@ -12,9 +12,6 @@ import matplotlib.pyplot as plt
 import matplotlib.lines as lines
 from matplotlib.ticker import ScalarFormatter
 
-# numpy, for better maths
-import numpy as np
-
 # multistrand
 from multistrand.concurrent import myMultistrand
 from case2 import genOptions, Experiment, setupSimulationOptions, runExperiment, CL_LONG_GATE_A_SEQ, CL_LONG_GATE_B_SEQ
@@ -24,7 +21,7 @@ from multistrand.experiment import ClampedSeesawGate
 # For a greater understanding of how this specific code actually runs, please see case2.py
 def runSimulations():
     # Here we say we are going to use 2 threads, storing only succesful data.
-    # We demand at 30 successful trials
+    # We demand at 100 successful trials
     setupSimulationOptions(2, True, 100, 2.5e6, 1000)
 
     # Here we create two clamped seesaw gates, according to the defined interface.
