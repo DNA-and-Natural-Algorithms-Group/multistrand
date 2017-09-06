@@ -23,8 +23,6 @@ from multistrand.system import SimSystem
 
 
 MINIMUM_RATE = 1e-36
-MAX_TRIALS = 25000000
-MAX_TRIALS_TEST = 2500
 
 # # Rate-computation classes start here
 
@@ -210,12 +208,11 @@ class FirstStepRate(basicRate):
         self.was_failure = np.array(self.was_failure)
 
     def merge(self, that, deepCopy=False):
-
+        
         # Now merge the existing datastructures with the ones from the new dataset
-        if deepCopy == True:
+        if deepCopy:
             for result in that.dataset:
                 self.dataset.append(copy.deepcopy(result))
-
         else:
             self.dataset.append(that.dataset)
 
@@ -328,10 +325,11 @@ class FirstStepLeakRate(basicRate):
     def merge(self, that, deepCopy=True):
 
         # that is always a FirstStepLeakRate object
-        if deepCopy == True:
-            self.dataset.extend(copy.deepcopy(that.dataset))
+        if deepCopy:
+            for data in that.dataset:
+                self.dataset.append(copy.deepcopy(data))
         else:
-            self.dataset.extend(that.dataset)
+            self.dataset.append(that.dataset)
 
         self.nForward += that.nForward
         self.nForwardAlt += that.nForwardAlt
@@ -352,8 +350,12 @@ class FirstStepLeakRate(basicRate):
         if(self.nForward > 0):
             output += "k1       = %.2e  /M /s  \n\n" % self.k1()
 
+
         if(self.nForwardAlt > 0):
             output += "k1Alt       = %.2e  /M /s  \n" % self.k1Alt()
+            
+        
+            
 
         output+= super(FirstStepLeakRate, self).__str__() + "\n"
         
@@ -422,12 +424,11 @@ class FirstPassageRate(basicRate):
     def merge(self, that, deepCopy=False):
 
         # Now merge the existing datastructures with the ones from the new dataset
-        if deepCopy == True:
+        if deepCopy:
             for time in that.times:
                 self.times.append(copy.deepcopy(time))
             for timeout in that.timeouts:
                 self.timeouts.append(copy.deepcopy(timeout))
-
         else:
             self.times.append(that.times)
             self.timeouts.append(that.timesouts)
@@ -604,6 +605,9 @@ class MergeSimSettings(object):
     resultsType = RESULTTYPE1
     terminationCount = None
     max_trials = 250000000
+    
+    saveInterval = 2500
+    saveIncrement = saveInterval
 
     defaultOutput = True
     outputFile = DEFAULT_OUTPUT_FILE
@@ -880,9 +884,10 @@ class MergeSim(object):
 
                 aFactory.doAnalysis(myOptions)
 
-        def getSimulation():
-            instanceSeed = self.seed + i * 3 * 5 * 19 + (time.time() * 10000) % (math.pow(2, 32) - 1)
-            return multiprocessing.Process(target=doSim, args=(self.factory, self.aFactory, self.managed_result, self.managed_endStates, instanceSeed, self.nForward, self.nReverse))
+        def getSimulation(input):
+            instanceSeed = self.seed + input * 3 * 5 * 19 + (time.time() * 10000) % (math.pow(2, 32) - 1)
+            return multiprocessing.Process(target=doSim, args=(self.factory, self.aFactory, self.managed_result, self.managed_endStates, instanceSeed, self.nForward, self.nReverse))          
+
 
         # this saves the results generated so far as regular Python objects,
         # and clears the concurrent result lists.
@@ -891,6 +896,7 @@ class MergeSim(object):
             # join all running threads
             for i in range(self.numOfThreads):
                 procs[i].join()
+                procs[i].terminate()
 
             # Leak - the below is a leak rates object
             # NB: Initialize with a dataset, but we merge with
@@ -903,10 +909,24 @@ class MergeSim(object):
             if self.settings.resultsType != self.settings.RESULTTYPE2:
                 for endState in self.managed_endStates:
                     self.endStates.append(copy.deepcopy(endState))
+            else: #in case of studying leak reaction, expect few hits, and print out info more often.
+                print self.results
+                
 
             # reset the multiprocessing results lists.
             self.managed_result = manager.list()
             self.managed_endStates = manager.list()
+            # this should also reset the 
+            self.settings.saveInterval += self.settings.saveIncrement 
+            
+#             # start the processes.
+#             for i in range(self.numOfThreads):
+# 
+#                 procs[i] = getSimulation(i)
+#                 procs[i].start()
+                
+                
+             
 
         # give a print of the initial states and stopping conditions
         self.printStates()
@@ -916,8 +936,8 @@ class MergeSim(object):
         procs = []
 
         for i in range(self.numOfThreads):
-
-            p = getSimulation()
+            
+            p = getSimulation(i)
             procs.append(p)
             p.start()
 
@@ -935,19 +955,23 @@ class MergeSim(object):
             for i in range(self.numOfThreads):
 
                 if not procs[i].is_alive():
+                        
+                    print "waiting to terminate!"
 
                     procs[i].join()
                     procs[i].terminate()
 
-                    procs[i] = getSimulation()
+                    print "The process terminated."
+
+                    procs[i] = getSimulation(i)
                     procs[i].start()
 
                     printFlag = True
 
-            time.sleep(0.25)
+#             time.sleep(0.25)
 
             # if >500 000 results have been generated, then store
-            if (self.nForward.value + self.nReverse.value) > 500000:
+            if (self.nForward.value + self.nReverse.value) > self.settings.saveInterval:
                 saveResults()
 
         saveResults()
