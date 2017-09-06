@@ -11,7 +11,6 @@
 
 from multistrand.objects import StopCondition, Domain, Complex, Strand
 from multistrand.options import Options
-from multistrand.system import SimSystem
 from multistrand.concurrent import myMultistrand
 
 from msArrhenius import setArrheniusConstantsDNA23

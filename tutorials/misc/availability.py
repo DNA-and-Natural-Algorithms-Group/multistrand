@@ -36,7 +36,7 @@ def doExperiment(trials):
     myLeakedSignal = makeComplex([seqSignal], "."*len(seqSignal))
     
     for x in [myGate, myFuel]:
-        setBoltzmann(x, trials, supersample=25)
+        setBoltzmann(x, trials, supersample=125)
     
     # stopping states
     
@@ -45,8 +45,8 @@ def doExperiment(trials):
     # we use dissocMacrostate - this only checks the presence of strands in the complex, and 
     # does not depend on dotparens structure.
     
-    success_stop_condition = StopCondition(Options.STR_SUCCESS, [(myLeakedSignal, Options.dissocMacrostate, 0)])
-    failed_stop_condition = StopCondition(Options.STR_FAILURE, [(myFuel, Options.dissocMacrostate, 0)])
+    successStopping = StopCondition(Options.STR_SUCCESS, [(myLeakedSignal, Options.dissocMacrostate, 0)])
+    failedStopping = StopCondition(Options.STR_FAILURE, [(myFuel, Options.dissocMacrostate, 0)])
     
     
     # options
@@ -54,15 +54,18 @@ def doExperiment(trials):
     stdOptions = standardOptions(trials=trials)
      
     stdOptions.start_state = [myGate, myFuel]
-    stdOptions.stop_conditions = [success_stop_condition, failed_stop_condition]
+    stdOptions.stop_conditions = [successStopping, failedStopping]
 
-    # buffer
-    
+    # buffer and temperature
     stdOptions.sodium = 0.05
     stdOptions.magnesium = 0.0125 ##  believed to be 11.5 mM effectively -- using 12.5 mM anyway
     
+    stdOptions.temperature = 37  # can run at higher temperature to increase leak rate.
+    
     # rate model
     setArrheniusConstantsDNA23(stdOptions)
+    simulation_time = 10.0
+    
     
     return stdOptions
 
@@ -70,8 +73,8 @@ def doExperiment(trials):
     
 # actually calling multistrand
 
-myMultistrand.setOptionsFactory1(doExperiment, 15000)
-myMultistrand.setTerminationCriteria(terminationCount=20)
+myMultistrand.setOptionsFactory1(doExperiment, 5*125*4)
+myMultistrand.setTerminationCriteria(terminationCount=6)
 myMultistrand.setLeakMode()
 
 myMultistrand.run()
