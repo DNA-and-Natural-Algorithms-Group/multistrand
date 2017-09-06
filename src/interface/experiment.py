@@ -41,8 +41,8 @@ def makeComplex(seq, dotparen):
 
     return Complex(strands=strandList, structure=dotparen)
 
-makeComplex.counter = 0
 
+makeComplex.counter = 0
 
 
 def hybridization(options, mySeq, myTrials=0, doFirstPassage=False):
@@ -84,58 +84,52 @@ def hybridization(options, mySeq, myTrials=0, doFirstPassage=False):
 
  # Does not inherit NormalSeesawGate - basically have to rewrite everything
 
-# simulates until a dissociation event occurs. 
+# simulates until a dissociation event occurs.
 # Note: for long sequences, this could result in a timeout.
+
+
 def dissociation(options, mySeq, myTrials=0):
-                
+
     # Using domain representation makes it easier to write secondary structures.
     onedomain = Domain(name="itall", sequence=mySeq)
     top = Strand(name="top", domains=[onedomain])
     bot = top.C
-    
+
     # Note that the structure is specified to be single stranded, but this will be over-ridden when Boltzmann sampling is turned on.
     duplex = Complex(strands=[top, bot], structure="(+)")
-    
+
     # Turns Boltzmann sampling on for this complex and also does sampling more efficiently by sampling 'trials' states.
     if(myTrials > 0):
         setBoltzmann(duplex, myTrials)
-    
+
     # Stop when the strands fall apart.
     successComplex = Complex(strands=[top], structure=".")
-    stopSuccess = StopCondition(Options.STR_SUCCESS, [(successComplex, Options.dissocMacrostate, 0)])
-    
+    stopSuccess = StopCondition(Options.STR_SUCCESS, [(
+        successComplex, Options.dissocMacrostate, 0)])
+
     options.start_state = [duplex]
-    options.stop_conditions = [stopSuccess]         
-        
-
-
-
-
-
+    options.stop_conditions = [stopSuccess]
 
 
 # Aug 2017: this is Mrinanks' implementation of the clamped seesaw gate.
-
-
-
 # this is how much the domain overlaps
-# see Figure 1, Winfree Qian 2010 -- A simple DNA gate motif for synthesizing large-scale circuits 
+# see Figure 1, Winfree Qian 2010 -- A simple DNA gate motif for synthesizing large-scale circuits
 SEESAW_DELTA = 5
 
 
 # Domain list as a list of strings, defined as follows input_sequence, base_sequence, output_sequence, fuel_sequence,
-# toehold_sequence, clamp_sequence which defaults to clamp_sequence 
+# toehold_sequence, clamp_sequence which defaults to clamp_sequence
 # This method takes a gate output complex and its input and then calculate the rate of output production
-def clamped_gate_output_production(options, domain_list, trials, supersample=25, doFirstPassage=False):
-    gate = ClampedSeesawGate(*domain_list)
+def seesaw_gate_output_production(options, gate, trials, supersample=25, doFirstPassage=False):
     two_input(options, gate.gate_output_complex, gate.input_complex,
               gate.output_complex, trials, supersample, doFirstPassage=False)
 
 # Domain list as a list of strings, defined as follows input_sequence, base_sequence, output_sequence, fuel_sequence,
 # toehold_sequence, clamp_sequence which defaults to clamp_sequence
 # This method takes a gate input complex and its fuels and then calculates the rate of input regeneration
-def clamped_gate_fuel_catalysis(options, domain_list, trials, supersample=25, doFirstPassage=False):
-    gate = ClampedSeesawGate(*domain_list)
+
+
+def seesaw_gate_fuel_catalysis(options, gate, trials, supersample=25, doFirstPassage=False):
     two_input(options, gate.gate_input_complex, gate.fuel_complex,
               gate.input_complex, trials, supersample, doFirstPassage=False)
 
@@ -144,11 +138,14 @@ def clamped_gate_fuel_catalysis(options, domain_list, trials, supersample=25, do
 # toehold_sequence, clamp_sequence which defaults to clamp_sequence
 # This method takes a gate output complex with its fuel complex and calculates the ***leak*** rate at which
 # the fuel displaces the output i.e. the rate of leak output production.
-def clamped_gate_output_leak(options, domain_list, trials, supersample=25, doFirstPassage=False):
-    gate = ClampedSeesawGate(*domain_list)
+def seesaw_gate_fuel_leak(options, gate, trials, supersample=25, doFirstPassage=False):
     two_input(options, gate.gate_output_complex, gate.fuel_complex,
               gate.output_complex, trials, supersample, doFirstPassage=False)
 
+# Takes two gate objects and calcualtes their leak!
+def seesaw_gate_gate_leak(options, gateA, gateB, trials, supersample=25, doFirstPassage=False):
+    two_input_two_success(options, gateA.gate_output_complex, gateB.gate_output_complex,
+                          gateA.output_complex, gateB.output_complex, trials,  supersample, doFirstPassage)
 
 
 def two_input(options, input_complex_A, input_complex_B, output_complex, trials=0, supersample=25, doFirstPassage=False):
@@ -160,15 +157,40 @@ def two_input(options, input_complex_A, input_complex_B, output_complex, trials=
     successful_stop_condition = StopCondition(
         Options.STR_SUCCESS, [(output_complex, Options.dissocMacrostate, 0)])
     failure_stop_condition = StopCondition(
-        Options.STR_SUCCESS, [(input_complex_B, Options.dissocMacrostate, 0)])
+        Options.STR_FAILURE, [(input_complex_B, Options.dissocMacrostate, 0)])
 
     options.start_state = [input_complex_A, input_complex_B]
 
     # Point the options to the right objects
     if not doFirstPassage:
-        options.stop_conditions = [successful_stop_condition, failure_stop_condition]
+        options.stop_conditions = [
+            successful_stop_condition, failure_stop_condition]
     else:
         options.stop_conditions = [successful_stop_condition]
+
+
+def two_input_two_success(trials, options, input_complex_A, input_complex_B, output_complex_A, output_complex_B, supersample=25, doFirstPassage=False):
+
+    if(trials > 0):
+        for x in [input_complex_A, input_complex_B]:
+            setBoltzmann(x, trials, supersample)
+
+    successful_stop_condition = StopCondition(
+        Options.STR_SUCCESS, [(output_complex_A, Options.dissocMacrostate, 0)])
+    alt_successful_stop_condition = StopCondition(
+        Options.STR_ALT_SUCCESS, [(output_complex_B, Options.dissocMacrostate, 0)])
+    failure_stop_condition = StopCondition(
+        Options.STR_FAILURE, [(input_complex_B, Options.dissocMacrostate, 0)])
+
+    options.start_state = [input_complex_A, input_complex_B]
+
+    # Point the options to the right objects
+    if not doFirstPassage:
+        options.stop_conditions = [successful_stop_condition,
+                                   alt_successful_stop_condition,  failure_stop_condition]
+    else:
+        options.stop_conditions = [
+            successful_stop_condition, alt_successful_stop_condition]
 
 
 class ClampedSeesawGate(object):
@@ -238,7 +260,5 @@ class ClampedSeesawGate(object):
         self.output_complex = Complex(strands=[self.output_strand],
                                       structure='.' *
                                       len(self.output_strand.sequence))
-        
-        ClampedSeesawGate.Gate_Count += 1 
-    
-   
+
+        ClampedSeesawGate.Gate_Count += 1
