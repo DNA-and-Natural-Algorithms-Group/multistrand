@@ -599,20 +599,17 @@ class MergeSimSettings(object):
     RESULTTYPE2 = "FirstStepRateLeak"
     RESULTTYPE3 = "FirstPassageRate"
     
-    DEFAULT_OUTPUT_FILE = "data.txt"
+    DEFAULT_OUTPUT_FILE = "mergesim_output.txt"
 
     debug = False
     resultsType = RESULTTYPE1
     terminationCount = None
     max_trials = 250000000
     
-    saveInterval = 2500
+    saveInterval = 500000
     saveIncrement = saveInterval
 
-    defaultOutput = True
     outputFile = DEFAULT_OUTPUT_FILE
-
-    experimentTag = "No Tag Provided"
 
     bootstrap = False
     bootstrapN = 0
@@ -651,11 +648,7 @@ class MergeSimSettings(object):
     def setOutputFile(self,filetitle):
             # sets flags and updates the file title but not more than this.
             # Here, we will wish to append to the file in the future but not normally.
-            self.defaultOutput=False
             self.outputFile = filetitle + time.strftime("-%d-%m-%y+%H-%M-%S")+".txt"
-
-    def setExperimentTag(self, tagIn):
-            self.experimentTag = tagIn
 
     def setBootstrap(self, doBootstrap, numIn):
         self.bootstrap = doBootstrap
@@ -701,9 +694,6 @@ class MergeSim(object):
 
     def setOutputFile(self, title):
         self.settings.setOutputFile(title)
-
-    def setExperimentTag(self, tag):
-        self.settings.setExperimentTag(tag)    
 
     def setBootstrap(self, bootstrapIn, num):
         self.settings.setBootstrap(bootstrapIn, num)
@@ -801,8 +791,8 @@ class MergeSim(object):
         simSys.initialInfo()
 
     def startSimMessage(self):
-        welcomeMessage = "Running Experiment w/ tag: " + self.settings.experimentTag + "\n"
-        welcomeMessage += "Using Results Type: " + self.settings.resultsType + "\n"
+        
+        welcomeMessage = "Using Results Type: " + self.settings.resultsType + "\n"
         # python2 style printing because of an compilation issue with web.py
         welcomeMessage += ''.join(["Computing ", str(
             self.numOfThreads * self.trialsPerThread), " trials, using ", str(self.numOfThreads), " threads .. \n"])
@@ -862,8 +852,6 @@ class MergeSim(object):
             s = SimSystem(myOptions)
             s.start()
 
-#             if myOptions.simulation_mode == Options.firstStep | myOptions.simulation_mode == Options.trajectory:
-
             myFSR = self.settings.rateFactory(myOptions.interface.results)
             nForwardIn.value += myFSR.nForward + myFSR.nForwardAlt
             nReverseIn.value += myFSR.nReverse
@@ -885,6 +873,7 @@ class MergeSim(object):
                 aFactory.doAnalysis(myOptions)
 
         def getSimulation(input):
+            
             instanceSeed = self.seed + input * 3 * 5 * 19 + (time.time() * 10000) % (math.pow(2, 32) - 1)
             return multiprocessing.Process(target=doSim, args=(self.factory, self.aFactory, self.managed_result, self.managed_endStates, instanceSeed, self.nForward, self.nReverse))          
 
@@ -918,13 +907,6 @@ class MergeSim(object):
             self.managed_endStates = manager.list()
             # this should also reset the 
             self.settings.saveInterval += self.settings.saveIncrement 
-            
-#             # start the processes.
-#             for i in range(self.numOfThreads):
-# 
-#                 procs[i] = getSimulation(i)
-#                 procs[i].start()
-                
                 
              
 
@@ -968,7 +950,7 @@ class MergeSim(object):
 
                     printFlag = True
 
-#             time.sleep(0.25)
+            time.sleep(0.25)
 
             # if >500 000 results have been generated, then store
             if (self.nForward.value + self.nReverse.value) > self.settings.saveInterval:
@@ -991,24 +973,31 @@ class MergeSim(object):
         return 0
 
     def createOutputMessage(self):
-        outputString ="Experiment Type: " + self.settings.experimentTag + ".\n\n"
         
-        outputString+="Trials:              " + str(self.factory.input0) + "\n"
+        outputString="Trials:              " + str(self.factory.input0) + "\n"
         outputString+="Max Trials:          " + str(self.settings.max_trials) + "\n"
         outputString+="Termination  Count:  " + str(self.settings.terminationCount) + "\n"
         outputString+="Num. of Threads:     " + str(self.numOfThreads) + "\n"
         outputString+="Run Time:            " + str(self.runTime) + "s \n"
         outputString+="Using Results Type:  " + self.settings.resultsType + "\n\n"
 
-        options = self.factory.new(0)
-        outputString+="Temperature: " + str(options.temperature) +  "K \n\n"
+        def hiddenPrint(myString):
+            
+            options = self.factory.new(0)
+            myString+="Temperature: " + str(options.temperature) +  "K \n\n"
+    
+            myString+="Start States\n"
+            for x in options.start_state:
+                myString+=x.__str__()+"\n\n"
+    
+            for x in options.stop_conditions:
+                myString+=x.__str__()+"\n"
 
-        outputString+="Start States\n"
-        for x in options.start_state:
-            outputString+=x.__str__()+"\n\n"
 
-        for x in options.stop_conditions:
-            outputString+=x.__str__()+"\n"
+        myProc = multiprocessing.Process(target=hiddenPrint,  args= [outputString])
+        myProc.start()
+        myProc.join()
+        myProc.terminate()
 
         outputString+="\n"+self.results.__str__() + "\n"
         
@@ -1016,8 +1005,10 @@ class MergeSim(object):
 
     
     def writeToFile(self):
+        
         outputString = self.createOutputMessage()
-        if(self.settings.defaultOutput==False):
+        
+        if(self.settings.outputFile==self.settings.DEFAULT_OUTPUT_FILE):
             # if a file has been specified, open is default mode.
             f = open(self.settings.outputFile, 'a+')
         else:
@@ -1027,8 +1018,7 @@ class MergeSim(object):
             
         f.write(outputString)
         f.close()
-
-            
+           
 
 
 
