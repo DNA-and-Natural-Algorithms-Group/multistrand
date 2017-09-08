@@ -599,7 +599,7 @@ class MergeSimSettings(object):
     RESULTTYPE2 = "FirstStepRateLeak"
     RESULTTYPE3 = "FirstPassageRate"
     
-    DEFAULT_OUTPUT_FILE = "mergesim_output.txt"
+    DEFAULT_OUTPUT_FILE = "mergesim_output.log"
 
     debug = False
     resultsType = RESULTTYPE1
@@ -648,7 +648,7 @@ class MergeSimSettings(object):
     def setOutputFile(self,filetitle):
             # sets flags and updates the file title but not more than this.
             # Here, we will wish to append to the file in the future but not normally.
-            self.outputFile = filetitle + time.strftime("-%d-%m-%y+%H-%M-%S")+".txt"
+            self.outputFile = filetitle + time.strftime("-%d-%m-%y+%H-%M-%S")+".log"
 
     def setBootstrap(self, doBootstrap, numIn):
         self.bootstrap = doBootstrap
