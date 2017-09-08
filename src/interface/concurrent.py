@@ -803,7 +803,56 @@ class MergeSim(object):
             welcomeMessage += " trajectories per thread until " + str(self.settings.terminationCount) + " successful trials occur. \n"
 
         return welcomeMessage
+
+
+    def createOutputMessage(self):
+        
+        outputString="Trials:              " + str(self.factory.input0) + "\n"
+        outputString+="Max Trials:          " + str(self.settings.max_trials) + "\n"
+        outputString+="Termination  Count:  " + str(self.settings.terminationCount) + "\n"
+        outputString+="Num. of Threads:     " + str(self.numOfThreads) + "\n"
+        outputString+="Run Time:            " + str(self.runTime) + "s \n"
+        outputString+="Using Results Type:  " + self.settings.resultsType + "\n\n"
+
+        def hiddenPrint(myString):
+            
+            options = self.factory.new(0)
+            myString+="Temperature: " + str(options.temperature) +  "K \n\n"
     
+            myString+="Start States\n"
+            for x in options.start_state:
+                myString+=x.__str__()+"\n\n"
+    
+            for x in options.stop_conditions:
+                myString+=x.__str__()+"\n"
+
+
+        myProc = multiprocessing.Process(target=hiddenPrint,  args= [outputString])
+        myProc.start()
+        myProc.join()
+        myProc.terminate()
+
+        outputString+="\n"+self.results.__str__() + "\n"
+        
+        return outputString
+
+    
+    def writeToFile(self):
+        
+        outputString = self.createOutputMessage()
+        
+        if(self.settings.outputFile == self.settings.DEFAULT_OUTPUT_FILE):
+            # if a file has been specified, open is default mode.
+            f = open(self.settings.outputFile, 'a+')
+        else:
+            # i.e. the user has not passed in any data at all in terms of file logging.
+            # Open in write, not append mode!!
+            f = open(self.settings.outputFile, 'w')
+            
+        f.write(outputString)
+        f.close()
+           
+
           
     def printStates(self):
         
@@ -938,12 +987,8 @@ class MergeSim(object):
 
                 if not procs[i].is_alive():
                         
-                    print "waiting to terminate!"
-
                     procs[i].join()
                     procs[i].terminate()
-
-                    print "The process terminated."
 
                     procs[i] = getSimulation(i)
                     procs[i].start()
@@ -972,53 +1017,6 @@ class MergeSim(object):
         self.writeToFile()    
         return 0
 
-    def createOutputMessage(self):
-        
-        outputString="Trials:              " + str(self.factory.input0) + "\n"
-        outputString+="Max Trials:          " + str(self.settings.max_trials) + "\n"
-        outputString+="Termination  Count:  " + str(self.settings.terminationCount) + "\n"
-        outputString+="Num. of Threads:     " + str(self.numOfThreads) + "\n"
-        outputString+="Run Time:            " + str(self.runTime) + "s \n"
-        outputString+="Using Results Type:  " + self.settings.resultsType + "\n\n"
-
-        def hiddenPrint(myString):
-            
-            options = self.factory.new(0)
-            myString+="Temperature: " + str(options.temperature) +  "K \n\n"
-    
-            myString+="Start States\n"
-            for x in options.start_state:
-                myString+=x.__str__()+"\n\n"
-    
-            for x in options.stop_conditions:
-                myString+=x.__str__()+"\n"
-
-
-        myProc = multiprocessing.Process(target=hiddenPrint,  args= [outputString])
-        myProc.start()
-        myProc.join()
-        myProc.terminate()
-
-        outputString+="\n"+self.results.__str__() + "\n"
-        
-        return outputString
-
-    
-    def writeToFile(self):
-        
-        outputString = self.createOutputMessage()
-        
-        if(self.settings.outputFile==self.settings.DEFAULT_OUTPUT_FILE):
-            # if a file has been specified, open is default mode.
-            f = open(self.settings.outputFile, 'a+')
-        else:
-            # i.e. the user has not passed in any data at all in terms of file logging.
-            # Open in write, not append mode!!
-            f = open(self.settings.outputFile, 'w')
-            
-        f.write(outputString)
-        f.close()
-           
 
 
 

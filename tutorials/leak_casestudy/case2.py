@@ -74,18 +74,21 @@ def printTimeElapsed():
 
 
 def getExperiment(selIn):
+   
     exp = selIn
+    fileName = ""
+    
     if exp == Experiment.GATE_OUTPUT_PRODUCTION:
-        myMultistrand.setExperimentTag("Gate Output Production")
+        print("Gate Output Production")
         experiment = seesaw_gate_output_production
     elif exp == Experiment.GATE_FUEL_REGEN:
-        myMultistrand.setExperimentTag("Fuel Input Regeneration")
+        print ("Fuel Input Regeneration")
         experiment = seesaw_gate_fuel_catalysis
     elif exp == Experiment.GATE_FUEL_LEAK:
-        myMultistrand.setExperimentTag("Gate Fuel Leak")
+        print ("Gate Fuel Leak")
         experiment = seesaw_gate_fuel_leak
     elif exp == Experiment.GATE_GATE_LEAK:
-        myMultistrand.setExperimentTag("Gate Gate Leak")
+        print ("Gate Gate Leak")
         experiment = seesaw_gate_gate_leak
 
     return experiment
@@ -94,6 +97,7 @@ def getExperiment(selIn):
 
 
 def genOptions(trialsIn, gateA, sel, supersample=25, gateB=None):
+    
     stdOptions = standardOptions(
         Options.firstStep, tempIn=25.0, trials=trialsIn, timeOut=ATIME_OUT)
     if gateB == None:
@@ -114,8 +118,8 @@ def runExperiment(trialsIn, gateA, sel, gateB=None, supersample=25):
 #  (here, we keep running until we have a minimum number of succesful trials)
 
 def runSimulations(trialsIn=1000):
-    # uncomment for logging
-    # myMultistrand.setOutputFile("case2")
+    
+    myMultistrand.setOutputFile("case2")
     
     # Here we say we are going to use 2 threads, storing only succesful data. We will require at least 2 succesful trials with a maximum number of trials of 2500000
     setupSimulationOptions(2, True, 2, 2.5e6, 1000)
