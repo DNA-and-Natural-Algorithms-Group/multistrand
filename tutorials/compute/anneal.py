@@ -3,7 +3,7 @@ from __future__ import print_function
 from multistrand.concurrent import myMultistrand, FirstStepRate, Bootstrap
 from multistrand.experiment import standardOptions, hybridization
 from multistrand.options import Options
-from msArrhenius import setArrheniusConstantsDNA23
+# from msArrhenius import setArrheniusConstantsDNA23
 
 import sys, time
 
@@ -20,8 +20,8 @@ def first_step_simulation(strand_seq, trials, temperature=25.0, sodium = 1.0, ma
         o = standardOptions(Options.firstStep, tempIn=temperature, trials=200, timeOut = 1.0)
         o.sodium = sodium 
         hybridization(o, strand_seq, trials)
-#         o.DNA23Metropolis()
-        setArrheniusConstantsDNA23(o)
+        o.DNA23Metropolis()
+#         setArrheniusConstantsDNA23(o)
           
         return o
       

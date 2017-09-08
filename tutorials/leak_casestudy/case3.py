@@ -22,7 +22,7 @@ from multistrand.experiment import ClampedSeesawGate
 def runSimulations():
     # Here we say we are going to use 2 threads, storing only succesful data.
     # We demand at 100 successful trials
-    setupSimulationOptions(8, True, 40, 2.5e6, 1000)
+    setupSimulationOptions(6, True, 40, 2.5e6, 1000)
 
     # Here we create two clamped seesaw gates, according to the defined interface.
     gateA = ClampedSeesawGate(*CL_LONG_GATE_A_SEQ)
@@ -34,7 +34,7 @@ def runSimulations():
     xValues = []
     times = []
 
-    for ssample in range(1, 76, 12):
+    for ssample in range(1, 76, 6):
         start = time.time()
         runExperiment(trialsIncrement, gateA,
                       Experiment.GATE_OUTPUT_PRODUCTION, None, ssample)

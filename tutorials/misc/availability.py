@@ -11,9 +11,9 @@ from multistrand.options import Options
 from multistrand.concurrent import myMultistrand
 from multistrand.experiment import makeComplex, standardOptions, setBoltzmann
 
-from msArrhenius import setArrheniusConstantsDNA23
+#from msArrhenius import setArrheniusConstantsDNA23
 
-myMultistrand.setNumOfThreads(5)
+myMultistrand.setNumOfThreads(8)
 
 def doExperiment(trials):
 
@@ -36,7 +36,7 @@ def doExperiment(trials):
     myLeakedSignal = makeComplex([seqSignal], "."*len(seqSignal))
     
     for x in [myGate, myFuel]:
-        setBoltzmann(x, trials, supersample=125)
+        setBoltzmann(x, trials, supersample=10)
     
     # stopping states
     
@@ -60,11 +60,12 @@ def doExperiment(trials):
     stdOptions.sodium = 0.05
     stdOptions.magnesium = 0.0125 ##  believed to be 11.5 mM effectively -- using 12.5 mM anyway
     
-    stdOptions.temperature = 37  # can run at higher temperature to increase leak rate.
+    stdOptions.temperature = 25  # can run at higher temperature to increase leak rate.
     
     # rate model
-    setArrheniusConstantsDNA23(stdOptions)
-    simulation_time = 10.0
+    stdOptions.DNA23Metropolis()
+    #setArrheniusConstantsDNA23(stdOptions)
+    stdOptions.simulation_time = 10.0
     
     
     return stdOptions
@@ -73,7 +74,7 @@ def doExperiment(trials):
     
 # actually calling multistrand
 
-myMultistrand.setOptionsFactory1(doExperiment, 5*125*4)
+myMultistrand.setOptionsFactory1(doExperiment, 5*20*4)
 myMultistrand.setTerminationCriteria(terminationCount=6)
 myMultistrand.setLeakMode()
 

@@ -1,6 +1,7 @@
 # Mrinank Sharma, July 2017
 # Frits Dannenberg, Aug 2017
 # Simulates Leak Reactions from a DSD oscillator and calculates the rate with bootstraping
+
 import sys, time, os
 from os.path import expanduser
 
@@ -20,7 +21,7 @@ from multistrand.concurrent import myMultistrand, FirstStepRate, Bootstrap
 from multistrand.experiment import standardOptions, setBoltzmann
 from multistrand.objects import StopCondition, Domain, Complex, Strand
 from multistrand.options import Options
-from msArrhenius import setArrheniusConstantsDNA23
+#from msArrhenius import setArrheniusConstantsDNA23
 
 import numpy as np
 
@@ -80,10 +81,6 @@ def changeComplex(options, expirement_type=NORMAL, trials=500):
         # leak complex formed for simplicity. We should really check for ANY free strands here i.e. Ap OR Aq
         # but it is hard to imagine a mechanism which results in the release of Ap in this simulation
  
-#         # Offset of two to account for clamp domains
-#         produce_struct = "." * toehold_length + "(" * (len(produce_bot.sequence) - toehold_length) + "+" + '.' * (toehold_length + h_length - 2) + ')' * (
-#             len(ap.sequence) - toehold_length - h_length + 2) + "+" + '.' * (toehold_length + h_length) + ')' * (len(ap.sequence) - toehold_length - h_length)
-
     produce_complex = Complex(name="produce", strands=[produce_bot, aq, ap], structure=produce_struct)
     helper_complex = Complex(name="helper",strands=[helper], structure='.' * len(helper.sequence))
     leak_complex = Complex(name="leak",strands=[aq], structure='.' * len(aq.sequence))
@@ -118,8 +115,8 @@ def genOptions(trialsIn, experiment_type=NORMAL):
     stdOptions.magnesium = expMagnesium(experiment_type)
     stdOptions.gt_enable = 1
     
-    # stdOptions.DNA23Metropolis()
-    setArrheniusConstantsDNA23(stdOptions)
+    stdOptions.DNA23Metropolis()
+    #setArrheniusConstantsDNA23(stdOptions)
     
     
 
@@ -132,8 +129,6 @@ def computeRate(trialsIn, experiment_type=NORMAL):
 
     # use the new leak rates class for memory efficiency
     myMultistrand.setLeakMode()
-#     myMultistrand.initialInfo()
-
     
     myMultistrand.run()
  
@@ -217,5 +212,5 @@ def generateGraph(min_success, increment_trials):
 
 # the main method
 if __name__ == '__main__':
-    generateGraph(4, 10000)
+    generateGraph(6, 10000)
  

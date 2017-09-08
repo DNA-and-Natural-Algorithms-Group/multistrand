@@ -13,7 +13,7 @@ from multistrand.objects import StopCondition, Domain, Complex, Strand
 from multistrand.options import Options
 from multistrand.concurrent import myMultistrand
 
-from msArrhenius import setArrheniusConstantsDNA23
+#from msArrhenius import setArrheniusConstantsDNA23
 
 
 import numpy as np
@@ -61,8 +61,8 @@ def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
 
         # FD: The result of this script depend significantly on JS or DNA23 parameterization.
 #        o.JSMetropolis25()
-        # o.DNA23Metropolis()
-        setArrheniusConstantsDNA23(o)
+        o.DNA23Metropolis()
+#        setArrheniusConstantsDNA23(o)
 
         return o
 
