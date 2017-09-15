@@ -111,6 +111,37 @@ def dissociation(options, mySeq, myTrials=0):
     options.stop_conditions = [stopSuccess]
 
 
+#
+def threewayDisplacement(options, toeholdSeq, domainSeq, myTrials=0, mySuperSample = 1):
+    
+    toeholdDomain = Domain(name="toehold", sequence = toeholdSeq)
+    disDomain = Domain(name="displacement", sequence = domainSeq)
+    
+        
+    topS = Strand(name="top", domains = [disDomain])
+    invaderS = Strand(name="invader", domains = [disDomain, toeholdDomain])
+    botS = invaderS.C
+    
+    startComplex   = Complex(strands= [topS,botS], structure ="(+.)")
+    invaderComplex = Complex(strands= [invaderS], structure ="..")
+    successComplex = Complex(strands= [invaderS,botS], structure="((+))" )
+    
+    if(myTrials > 0 ):
+        setBoltzmann(startComplex, myTrials, mySuperSample)
+        setBoltzmann(invaderComplex, myTrials, mySuperSample)
+        
+    # stop when the invasion is complete, or when the invader dissociates
+    stopSuccess = StopCondition(Options.STR_SUCCESS, [(successComplex, Options.dissocMacrostate, 0)])
+    
+    # Declare the simulation unproductive if the invader becomes single-stranded again.
+    stopFailed = StopCondition(Options.STR_FAILURE, [(invaderComplex, Options.dissocMacrostate, 0)])
+    
+    #set the starting and stopping conditions
+    options.start_state = [startComplex, invaderComplex]
+    options.stop_conditions = [stopFailed]
+
+
+
 # Aug 2017: this is Mrinanks' implementation of the clamped seesaw gate.
 # this is how much the domain overlaps
 # see Figure 1, Winfree Qian 2010 -- A simple DNA gate motif for synthesizing large-scale circuits
