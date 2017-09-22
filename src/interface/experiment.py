@@ -124,7 +124,7 @@ def threewayDisplacement(options, toeholdSeq, domainSeq, myTrials=0, mySuperSamp
     
     startComplex   = Complex(strands= [topS,botS], structure ="(+.)")
     invaderComplex = Complex(strands= [invaderS], structure ="..")
-    successComplex = Complex(strands= [invaderS,botS], structure="((+))" )
+    successComplex = Complex(strands= [botS,invaderS], structure="((+))" )
     
     if(myTrials > 0 ):
         setBoltzmann(startComplex, myTrials, mySuperSample)
@@ -138,7 +138,7 @@ def threewayDisplacement(options, toeholdSeq, domainSeq, myTrials=0, mySuperSamp
     
     #set the starting and stopping conditions
     options.start_state = [startComplex, invaderComplex]
-    options.stop_conditions = [stopFailed]
+    options.stop_conditions = [stopFailed,stopSuccess]
 
 
 

@@ -605,6 +605,7 @@ class MergeSimSettings(object):
     resultsType = RESULTTYPE1
     terminationCount = None
     max_trials = 250000000
+    timeOut = 24*60*60
     
     saveInterval = 500000
     saveIncrement = saveInterval
@@ -623,7 +624,7 @@ class MergeSimSettings(object):
         if self.resultsType == self.RESULTTYPE3:
             return FirstPassageRate(dataset=dataset)
 
-    def shouldTerminate(self, printFlag, nForwardIn, nReverseIn):
+    def shouldTerminate(self, printFlag, nForwardIn, nReverseIn, timeStart):
 
         if self.terminationCount == None:
             return True
@@ -640,6 +641,11 @@ class MergeSimSettings(object):
             elif((nForwardIn.value + nReverseIn.value) > self.max_trials):
                 print "Simulated " + str(nForwardIn.value + nReverseIn.value) +  " trials, terminating."
                 return True
+            
+            elif( time.time() - timeStart  > self.timeOut):
+                print "Runtime exeeded " + str(self.timeOut) + " seconds, terminating."
+                return True
+
 
             else:
                 return False
@@ -931,9 +937,9 @@ class MergeSim(object):
         # and clears the concurrent result lists.
         def saveResults():
 
-            # join all running threads
+            # join all running threads -- the process has 2 seconds to close or it will be terminated.
             for i in range(self.numOfThreads):
-                procs[i].join()
+                procs[i].join(timeout = 2)
                 procs[i].terminate()
 
             # Leak - the below is a leak rates object
@@ -977,7 +983,11 @@ class MergeSim(object):
         # check for stop conditions, restart sims if needed
         while True:
 
-            if self.settings.shouldTerminate(printFlag, self.nForward, self.nReverse):
+            if self.settings.shouldTerminate(printFlag, self.nForward, self.nReverse, startTime):
+                
+                #halt every simulation abruptly. 
+                
+                
                 break
 
             printFlag = False
