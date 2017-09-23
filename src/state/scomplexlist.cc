@@ -400,7 +400,7 @@ int SComplexList::getCount(void) {
 int SComplexList::doBasicChoice(double choice, double newtime) {
 
 	double rchoice = choice, moverate;
-	int type;
+	int type, arrType;
 	SComplexListEntry *temp, *temp2 = first;
 	StrandComplex* newComplex = NULL;
 	Move *tempmove;
@@ -446,6 +446,8 @@ int SComplexList::doBasicChoice(double choice, double newtime) {
 	tempmove = pickedComplex->getChoice(&rchoice);
 	moverate = tempmove->getRate();
 	type = tempmove->getType();
+	arrType = tempmove->getArrType();
+
 	newComplex = pickedComplex->doChoice(tempmove);
 
 	if (newComplex != NULL) {
@@ -461,7 +463,7 @@ int SComplexList::doBasicChoice(double choice, double newtime) {
 		cout << "Going to return the arrType in doBasicChoice!! **************** " << std::endl;
 	}
 
-	return tempmove->getArrType();
+	return arrType;
 
 }
 
@@ -502,7 +504,6 @@ int SComplexList::doJoinChoice(double choice) {
 	assert(crit.complexes[0]!=NULL);
 	assert(crit.complexes[1]!=NULL);
 
-//	cout << toString();
 
 // here we actually perform the complex join, using criteria as input.
 

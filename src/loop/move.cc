@@ -189,6 +189,7 @@ string Move::toString(bool useArr) {
 
 	// FD: print even if the rate equals 0
 
+	ss << "type=" << type << " desc:  ";
 	ss << utility::moveType(type) << " ";
 
 	if (affected[0] != NULL) {
@@ -306,6 +307,8 @@ void MoveList::printAllMoves(bool useArr) {
 
 void MoveList::addMove(Move *newmove) {
 	int type = newmove->getType();
+
+
 	if (!(type & MOVE_DELETE)) {
 
 		moves[moves_index] = newmove;

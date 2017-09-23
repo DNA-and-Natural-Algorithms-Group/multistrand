@@ -251,7 +251,6 @@ StrandComplex * StrandComplex::doChoice(Move * move) {
 struct intlist {
 	int data;
 	int seqlen;
-//	int pairtype;
 	Loop *predec;
 	struct intlist *next;
 };
