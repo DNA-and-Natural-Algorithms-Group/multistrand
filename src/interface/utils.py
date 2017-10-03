@@ -20,6 +20,15 @@ def concentration_string(concentration):
     return "{} M".format(concentration)
 
 
+def seqComplement(sequence):
+    
+    complement = {'G':'C',
+                  'C':'G',
+                  'A':'T',
+                  'T':'A'}
+    
+    return "".join([complement[i] for i in reversed(sequence)])
+
 
 def standardFileName(SCRIPT_DIR, mySeq=None, extraTitle=None, runs=None):
 
