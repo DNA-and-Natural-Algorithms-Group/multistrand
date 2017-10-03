@@ -36,7 +36,7 @@ Using this software is permitted for academic non-commercial purposes only. All 
 Disclaimer: This software is provided "as is", without warrenty of any kind, express or implied, including
 but not limited to the warrenties of merchantability, fitness of a particular purpose and 
 noninfringement. In no event shall the authors or copyright holders be liable for any claim,
-damages or otehr liability, whether in an action of contract, tort or otherwise, arising from,
+damages or other liability, whether in an action of contract, tort or otherwise, arising from,
 out of or in connection with the software or the use or other dealings in the software.
 
 
