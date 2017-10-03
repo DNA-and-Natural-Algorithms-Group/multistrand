@@ -604,6 +604,7 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 		}
 
 		int ArrMoveType = complexList->doBasicChoice(rchoice, stime);
+
 		rate = complexList->getTotalFlux();
 		current_state_count++;
 

@@ -4,6 +4,8 @@ from multistrand.options import Options
 from multistrand.system import SimSystem
 from multistrand.experiment import makeComplex
 
+from msArrhenius import setArrheniusConstantsDNA23
+
 def createOptions(start_complex, stop_complex, simMode):
 
     full_sc = StopCondition("CLOSED", [(stop_complex, Options.dissocMacrostate, 2)])    
@@ -458,6 +460,31 @@ def create_test11():
     return createOptions(complex1, complex2, "First Passage Time")
 
 
+# This tests a certain secondary structure for wrong arrhenius rates.
+
+# (...........+).....((((((+))))))  GTAATGTCGGCG+CGCCGACATTAC+GTAATG      t=0.094573 ms,  dG=-4.68 kcal/mol, ArrType= 25
+# (....(....).+).....((((((+))))))  GTAATGTCGGCG+CGCCGACATTAC+GTAATG      t=0.095125 ms,  dG=-3.27 kcal/mol, ArrType= 25
+# Found error
+# (...........+).....((((((+))))))  GTAATGTCGGCG+CGCCGACATTAC+GTAATG      t=0.095131 ms,  dG=-4.68 kcal/mol, ArrType= 0
+# (.(...).....+).....((((((+))))))  GTAATGTCGGCG+CGCCGACATTAC+GTAATG      t=0.095381 ms,  dG=-1.51 kcal/mol, ArrType= 25
+# (...........+).....((((((+))))))  GTAATGTCGGCG+CGCCGACATTAC+GTAATG      t=0.095417 ms,  dG=-4.68 kcal/mol, ArrType= 25
+
+def create_test12():
+    
+    seq0 =      "GTAATGTCGGCG"
+    seq1 =      "CGCCGACATTAC"
+    seq2 =      "GTAATG"
+    struc1 =    "(...........+).....((((((+))))))"
+#     struc1 =    "(...........+).....((((((+))))))"
+    
+    complex1 = makeComplex([seq0, seq1, seq2], struc1)
+    complex2 = makeComplex([seq0, seq1, seq2], struc1)
+
+    myOptions = createOptions(complex1, complex2, "First Passage Time")
+    setArrheniusConstantsDNA23(myOptions)
+
+    return myOptions
+
 
 def main():
     
@@ -477,7 +504,8 @@ def main():
 #     o1 = create_test8()      # Hairpin loop.
 #     o1 = create_test9()      # Small open-loop code
 #     o1 = create_test10()      # half open duplex
-    o1 = create_test11()      # Oscillator gate
+#     o1 = create_test11()      # Oscillator gate
+    o1 = create_test12()      # displacement situation.
 
 
 
