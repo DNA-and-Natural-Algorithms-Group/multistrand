@@ -81,7 +81,7 @@ For OS X, the following steps enabled successful installation on a 2017 macbook 
  - The linux installation steps should now work. 
  - In the bash profile file ~/.bash_profile, edit the python path to include /Library/Python/2.7/site-packages. For example, the line could read: export PYTHONPATH=/Library/Python/2.7/site-packages:$PYTHONPATH. 
 
-Update 2017-10-1: We've noticed that linking against anaconda sometimes gives errors during installation on OSX. The issue seems to be that the linked gcc, 4.2.1, does to not support certain c11 functions. OS X users who rely on brew-installed python do not have this problem, because the gcc call is piped to llvm, which then works. 
+Update 2017-10-1: We've noticed that linking against anaconda sometimes gives errors during installation on OSX. The issue seems to be that the linked gcc, 4.2.1, does to not support certain c++11 functions. OS X users who rely on brew-installed python do not have this problem, because the gcc call is piped to llvm, which then works. 
 
 
 ## Package tree ##
