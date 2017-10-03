@@ -82,7 +82,7 @@ def doSims(strandSeq, numTraj=2):
     
     
     
-    o1.initial_seed = 1777
+    o1.initial_seed = 1777+6
 
     s = SimSystem(o1)
     s.start()
