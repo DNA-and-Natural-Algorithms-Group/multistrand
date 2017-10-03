@@ -3,6 +3,7 @@ from __future__ import print_function
 from multistrand.concurrent import myMultistrand, FirstStepRate, Bootstrap
 from multistrand.experiment import standardOptions, hybridization
 from multistrand.options import Options
+from multistrand.objects import Strand
 # from msArrhenius import setArrheniusConstantsDNA23
 from rawdata.readensemble import setArrParams
 
@@ -41,12 +42,13 @@ def first_step_simulation(strand_seq, trials, temperature=25.0, sodium = 1.0, ma
 def compute(strand_seq, temperature=25.0, sodium = 1.0):
     
     return first_step_simulation(strand_seq, 240, temperature,  sodium, material="DNA")
-    
+   
+   
     
 
 def computeAndWriteToCL(strand_seq, doBootstrap):
     
-    result = first_step_simulation(strand_seq, 1200, T=25.0, material="DNA")
+    result = first_step_simulation(strand_seq, 1200, material="DNA")
     print("The hybridization rate of ", strand_seq, " and the reverse complement is ", "{:.2e}".format(result.k1()), " /M /s", sep="")
     
     # check for two-stateness
@@ -54,32 +56,41 @@ def computeAndWriteToCL(strand_seq, doBootstrap):
     
     if(doBootstrap):
         
-        bootstrap = Bootstrap(result, A_CONCENTRATION, computek1=True)
+        bootstrap = Bootstrap(result, concentration=A_CONCENTRATION, N=1200, computek1=True)
         bounds = bootstrap.ninetyFivePercentiles()
         
         print("Estimated 95% confidence interval: [","{:.2e}".format(bounds[0]),",","{:.2e}".format(bounds[1]),"] ", sep="")
         
-        # print("The hybridization rate of ", mySequence, "and the reverse complement is ", myRates[0], "/M /s")
-
-
-# if(len(sys.argv) < 2):
-#     print("Please provide a DNA sequence as commandline argument")
-#     print("Add -bootstrap to do a boostrap ")
-#     print("Example: computeAnnealRate.py ATGCAGT -bootstrap")
-#     exit()
-# 
-# start_time = time.time()
-# 
-# mySequence = sys.argv[1]
-# doBootstrap = False
-# if(len(sys.argv) > 2):
-#     if(str(sys.argv[2])=="-bootstrap"):
-#         doBootstrap = True
-# 
-# result = computeAndWriteToCL(mySequence, doBootstrap )
-# 
-# 
-# print ("Computing took %.4f s" % (time.time() - start_time))
-
-
+        
+# compute dissociation from association rate
+def computeDissociationAndWriteToCL(strand_seq, doBootstrap):
+    
+    result = first_step_simulation(strand_seq, 1200, material="DNA")
+    
+    seq = strand_seq
+     
+    topStrand = Strand(seq)
+    seqC = (topStrand.C).seq
+    
+    
+    dG = pfunc([seq, seqC], [1,2], T=(temp-273.15), material="dna")
+    print (str(dG)) 
+        
+    kMinus = predicted.k1() * math.exp( dG / ( GAS_CONSTANT_R * temp) ) 
+    kMinusLow = low * math.exp( dG / ( GAS_CONSTANT_R * temp) ) 
+    kMinusHigh = high * math.exp( dG / ( GAS_CONSTANT_R * temp) ) 
+    
+       
+    print("The dissociation rate of ", strand_seq, " and the reverse complement is ", "{:.2e}".format(result.k1()), " /M /s", sep="")
+    
+    # check for two-stateness
+    result.testForTwoStateness(100e-9)
+    
+    if(doBootstrap):
+        
+        bootstrap = Bootstrap(result, concentration=A_CONCENTRATION, N=1200, computek1=True)
+        bounds = bootstrap.ninetyFivePercentiles()
+        
+        print("Estimated 95% confidence interval: [","{:.2e}".format(bounds[0]),",","{:.2e}".format(bounds[1]),"] ", sep="")
+        
 

@@ -46,7 +46,7 @@ def compute(strand_seq, temperature=25):
 
 def computeAndWriteToCL(strand_seq, doBootstrap):
     
-    result = first_step_simulation(strand_seq, 64, 25.0, material="DNA")
+    result = first_step_simulation(strand_seq, 64, 25.0)
     print("The dissociation rate of ", strand_seq, " and the reverse complement is ", "{:.2e}".format(result.k1()), " /s", sep="")
     
     if(doBootstrap):

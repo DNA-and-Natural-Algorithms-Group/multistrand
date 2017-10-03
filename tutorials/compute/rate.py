@@ -1,7 +1,7 @@
-from dissociation import computeAndWriteToCL as computeDissociation
+from anneal import computeDissociationAndWriteToCL as computeDissociation
 from anneal import computeAndWriteToCL as computeAnneal 
 
-import sys
+import sys, time
 
 if(len(sys.argv) < 2):
     print("Please provide a DNA sequence as commandline argument")
@@ -12,11 +12,11 @@ if(len(sys.argv) < 2):
 
 start_time = time.time()
 
-type = sys.arv[1]
+type = sys.argv[1]
 mySequence = sys.argv[2]
 
 doBootstrap = False
-if(len(sys.argv) > 2):
+if(len(sys.argv) > 3):
     if(str(sys.argv[3])=="-bootstrap"):
         doBootstrap = True
 
