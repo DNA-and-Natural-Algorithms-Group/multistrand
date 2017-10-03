@@ -5,7 +5,7 @@ from multistrand.experiment import standardOptions, hybridization
 from multistrand.options import Options
 from multistrand.utils import seqComplement
 
-from nupack import pfunc
+
 # from rawdata.readensemble import setArrParams
 
 import sys, time, math
@@ -65,6 +65,9 @@ def computeAndWriteToCL(strand_seq, doBootstrap):
         
 # compute dissociation from association rate
 def computeDissociationAndWriteToCL(strand_seq, doBootstrap):
+
+    
+    
     
     result = first_step_simulation(strand_seq, 1200, material="DNA")
     
@@ -73,9 +76,11 @@ def computeDissociationAndWriteToCL(strand_seq, doBootstrap):
     
     temp = 273.15+ 25.0 # this is just for NUPACK calls, setting temperature is not yet implemented properly.
     
+    ## We only import nupack bindings here because it will print an welcom message 
+    from nupack import pfunc   
     dG = pfunc([seq, seqC], [1,2], T=(temp-273.15), material="dna")
         
-    print ("Using dG = " + "{:.2e}".format(dG) + "kcal/mol, and k+ = " + "{:.2e}".format(result.k1()) + "/M /s to compute the dissociation rate." )
+    print ("Using dG = " + "{:.2e}".format(dG) + " kcal/mol, and k+ = " + "{:.2e}".format(result.k1()) + " /M /s to compute the dissociation rate." )
         
     kMinus = result.k1() * math.exp( dG / ( GAS_CONSTANT_R * temp) ) 
 

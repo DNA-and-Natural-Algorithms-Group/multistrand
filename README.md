@@ -92,7 +92,7 @@ Tutorial files are organized as follows. Folder under_the_hood contains in depth
 
 ## Using Multistrand ##
 
-Several tutorial files on using multistrand are found in /tutorials/under_the_hood. As a very quick primer, we discuss two small scripts below.  Multistrand also comes with documentation (run 'make docs').
+Several tutorial files on using multistrand are found in /tutorials/under_the_hood. As a very quick primer, we discuss two small scripts below. 
 
 ### Hybridization trajectory ###
 
@@ -118,23 +118,30 @@ GCGTTTCAC+GTGAAACGC
 
 ### Hybridization Rates ###
 
-The following script computes a hybridization rate for a strand and its compement. The computation relies on first step mode and will only work with the appropriate version of NUPACK.
+The following script computes a hybridization rate for a strand and its compement. The computation relies on first step mode and will only work if NUPACK is correctly installed.
+Note: the released code does not yet include the calibrated parameters from the DNA23 conference. If you would like to use the calibrated model, please contact me directly (FD, 2017-10-03).
 
 ```sh
-[iris@dhcp-135-182 Multistrand]$ python tutorials/compute/anneal.py 'AGCTGA' -bootstrap
-2017-05-30 18:05:34  Starting Multistrand 2.1      (c) 2008-2017 Caltech      
+[iris@dhcp-135-182 Multistrand]$ python tutorials/compute/rate.py hybridization 'AGCTGA' -bootstrap
+2017-10-03 13:31:25  Starting Multistrand 2.1      (c) 2008-2017 Caltech      
 Running first step mode simulations for AGCTGA (with Boltzmann sampling)...
-Computing 800 trials, using 2 threads .. 
-Done.  0.25586 seconds 
 
-nForward = 419 
-nReverse = 381 
-k1 = 7332500.0 /M/s   
-k_eff = 7332500.0 /M/s   
+Computing 1200 trials, using 6 threads .. 
+ .. and rolling 200 trajectories per thread until 500 successful trials occur. 
+Found 957 successful trials, terminating.
 
-The hybridization rate of AGCTGA and the reverse complement is 7.33e+06 /M /s
-Estimated 95% confidence interval: [6.86e+06,7.79e+06] 
+nForward = 957 
+nReverse = 1443 
+ 
+k1       = 5.58e+06  /M /s  
+
+Done.  0.91273 seconds 
+
+The hybridization rate of AGCTGA and the reverse complement is 5.58e+06 /M /s
+Estimated 95% confidence interval: [5.32e+06,5.86e+06] 
 ```
+
+
 
 
 ### Log files ###
@@ -152,7 +159,6 @@ GT pairing  :  0           (0: disabled)
  biScale     kUni    
  1.4e+06     5e+06
 ```
- 
  
  ### Frequently Aksed Questions ###
  
