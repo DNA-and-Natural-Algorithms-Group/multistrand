@@ -92,11 +92,11 @@ Tutorial files are organized as follows. Folder under_the_hood contains in depth
 
 ## Using Multistrand ##
 
-Several tutorial files on using multistrand are found in /tutorials/under_the_hood. As a very quick primer, we discuss two small scripts below. 
+In-depth tutorial files on multistrand are found in /tutorials/under_the_hood. The other files in /tutorials/ are typically set up as case studies. As a very quick primer, we discuss two small scripts below. 
 
 ### Hybridization trajectory ###
 
-A quick test to see if Multistrand is working is by running 'python tutorials/misc/sample_trace.py'. This example does not use First Step mode, and should work would with all recent versions of NUPACK (3.0.6, 3.1.0, 3.2.0). This script simulates the hybridization of two complementary strands and ends the simulation when the two strands either completely hybridize or seperate after an initial collision:  
+A quick test to see if Multistrand is working is by running 'python tutorials/misc/sample_trace.py'. This example does not use First Step mode, and should work would with all recent versions of NUPACK (3.0.6, 3.1.0, 3.2.1). This script simulates the hybridization of two complementary strands and ends the simulation when the two strands either completely hybridize or seperate after an initial collision:  
 
 ```sh
 GTGAAACGC GCGTTTCAC
@@ -116,9 +116,9 @@ GCGTTTCAC+GTGAAACGC
 (((((((((+)))))))))   t=0.000334 ms,  dG=-12.38 kcal/mol  
 ```
 
-### Hybridization Rates ###
+### Hybridization rates ###
 
-The following script computes a hybridization rate for a strand and its compement. The computation relies on first step mode and will only work if NUPACK is correctly installed.
+The following script computes a hybridization rate for a strand and its compement. The computation relies on first step mode and will only work if NUPACK is correctly installed. Alternatively, dissociation rates can be computed by using 'dissociation' as the first commandline argument. In that case, the dissociation rate is computed indirectly by estimating the association rate, and working out the dissociation rate from the partition function (e.g. k_forward / k_backward = exp( -dG / RT) where dG is the partition function for the complex, R is the gas constant and T is temperature). 
 Note: the released code does not yet include the calibrated parameters from the DNA23 conference. If you would like to use the calibrated model, please contact me directly (FD, 2017-10-03).
 
 ```sh
