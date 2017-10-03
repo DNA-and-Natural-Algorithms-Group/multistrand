@@ -69,7 +69,25 @@ def doSims(strandSeq, numTraj=2):
     printTrajectory(o1)        
         
 
+def doSims(strandSeq, numTraj=2):    
+
+    o1 = standardOptions()
     
+    o1.num_simulations = numTraj
+    o1.output_interval = 1 
+    o1.simulation_time = ATIME_OUT
+       
+    
+    hybridization(o1, strandSeq )
+    
+    
+    
+    o1.initial_seed = 1777
+
+    s = SimSystem(o1)
+    s.start()
+    printTrajectory(o1)        
+        
 
     
 # # The actual main method

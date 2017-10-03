@@ -4,6 +4,7 @@ from multistrand.concurrent import myMultistrand, FirstStepRate, Bootstrap
 from multistrand.experiment import standardOptions, hybridization
 from multistrand.options import Options
 # from msArrhenius import setArrheniusConstantsDNA23
+from rawdata.readensemble import setArrParams
 
 import sys, time
 
@@ -22,6 +23,7 @@ def first_step_simulation(strand_seq, trials, temperature=25.0, sodium = 1.0, ma
         hybridization(o, strand_seq, trials)
         o.DNA23Metropolis()
 #         setArrheniusConstantsDNA23(o)
+        setArrParams(o, 92)
           
         return o
       

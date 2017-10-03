@@ -15,6 +15,10 @@ from multistrand.utils import concentration_string, standardFileName
 from multistrand.concurrent import  FirstStepRate, FirstPassageRate, Bootstrap, myMultistrand
 from multistrand.options import Options
 
+from rawdata.readensemble import setArrParams
+
+
+
 from constantsgao import goa2006_P0, goa2006_P3, goa2006_P4, setSaltGao2006, colors
 
 import nupack
@@ -34,7 +38,7 @@ myMultistrand.setNumOfThreads(8)
 
 
 
-def first_step_simulation(strand_seq, trials, T=20.0):
+def first_step_simulation(strand_seq, trials, T=20.0, leak=False):
 
     print ("Running first step mode simulations for %s (with Boltzmann sampling)..." % (strand_seq))
        
@@ -44,12 +48,17 @@ def first_step_simulation(strand_seq, trials, T=20.0):
         o = standardOptions(Options.firstStep, TEMPERATURE, trials, ATIME_OUT) 
         hybridization(o, strand_seq, trials)
         setSaltGao2006(o)
+        
+#         setArrheniusConstantsDNA23(o)
+        setArrParams(o, 96)
                
         
         return o
     
     myMultistrand.setOptionsFactory1(getOptions, trials)
     myMultistrand.setFirstStepMode() # ensure the right results object is set.
+    if leak:
+        myMultistrand.setLeakMode()
     myMultistrand.run()
     return myMultistrand.results
 
@@ -77,12 +86,60 @@ def first_passage_association(strand_seq, trials, concentration, T=20.0):
     return myMultistrand.results
 
 
-def doFirstStepMode(seq, concentrations, T=20.0, numOfRuns=500):
+
+# def doFirstStepModeLeak(seq, concentrations, T=20.0, numOfRuns=500):
+#     
+#     # track time for each kind of simulation, using time.time(), which has units of second
+#     # do one "first step mode" run, get k1, k2, etc, from which z_crit and k_eff(z) can be computed
+# 
+#     myRates = first_step_simulation(seq, numOfRuns, T=T, leak = True) 
+#     time2 = time.time()
+#     print str(myRates)
+#     
+#     FSResult = list()
+#     
+#     for z in concentrations:
+#         
+#         kEff = myRates.k1()
+#         myBootstrap = Bootstrap(myRates, N=4000, concentration=z, computek1=True)
+#         
+#         low, high = myBootstrap.ninetyFivePercentiles()
+#         logStd = myBootstrap.logStd()
+#         
+#         print "keff = %g /M/s at %s" % (kEff, concentration_string(z))
+#         
+#         myResult = (np.log10(kEff), np.log10(low), np.log10(high), logStd)
+#         FSResult.append(myResult)
+#         
+#     print
+#     
+#     # call NUPACK for pfunc dG of the reaction, calculate krev based on keff
+#     print "Calculating dissociate rate constant based on NUPACK partition function energies and first step mode k_eff..."
+# 
+#     dG_top = nupack.pfunc([seq], T=T)
+#     dG_bot = nupack.pfunc([ Strand(sequence=seq).C.sequence ], T=T)
+#     dG_duplex = nupack.pfunc([ seq, Strand(sequence=seq).C.sequence ], T=T)
+#     RT = 1.987e-3 * (273.15 + T)
+#     time3 = time.time()
+#     time_nupack = time3 - time2
+#     krev_nupack = kEff * np.exp((dG_duplex - dG_top - dG_bot) / RT)
+#     print "krev = %g /s (%g seconds)" % (krev_nupack, time_nupack)
+#     
+#     
+#     times = list()
+#     for i in concentrations:
+#         myTime = (np.log10(myMultistrand.runTime), 0.0, 0.0)
+#         times.append(myTime)
+#     
+#     return FSResult, times
+
+
+def doFirstStepMode(seq, concentrations, T=20.0, numOfRuns=500, leak=False):
     
     # track time for each kind of simulation, using time.time(), which has units of second
     # do one "first step mode" run, get k1, k2, etc, from which z_crit and k_eff(z) can be computed
 
-    myRates = first_step_simulation(seq, numOfRuns, T=T) 
+    myRates = first_step_simulation(seq, numOfRuns, T=T, leak=leak) 
     time2 = time.time()
     print str(myRates)
     
@@ -91,8 +148,12 @@ def doFirstStepMode(seq, concentrations, T=20.0, numOfRuns=500):
     
     for z in concentrations:
         
-        kEff = myRates.kEff(z)
-        myBootstrap = Bootstrap(myRates, z)
+        if leak:
+            kEff = myRates.k1()
+        else:
+            kEff = myRates.kEff(z)
+            
+        myBootstrap = Bootstrap(myRates, N=1000, concentration=z, computek1=leak)
         
         low, high = myBootstrap.ninetyFivePercentiles()
         logStd = myBootstrap.logStd()
@@ -294,7 +355,7 @@ def doSlowdownStudy(trials):
     def computeMeanStd(seq):
     
         
-        result, times = doFirstStepMode(seq, [1.0e-6], T=20, numOfRuns=trials) 
+        result, times = doFirstStepMode(seq, [1.0e-6], T=20, numOfRuns=trials, leak=True) 
         
         return result[0]
     

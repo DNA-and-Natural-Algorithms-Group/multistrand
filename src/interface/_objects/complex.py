@@ -83,6 +83,8 @@ class Complex(object):
            : {fieldnames[4]:>9}: {0.boltzmann_sample}\n\
            : {fieldnames[5]:>9}: {0.boltzmann_supersample}".format(self,[i.name for i in self.strand_list],
            fieldnames =('Name','Sequence','Structure','Strands','Boltzmann', 'Supersample') )
+
+
     
     def _init_parse_structure( self, structure ):
         strand_count = len(self.strand_list)
