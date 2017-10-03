@@ -4,7 +4,6 @@ from multistrand.options import Options
 from multistrand.system import SimSystem
 from multistrand.experiment import makeComplex
 
-from msArrhenius import setArrheniusConstantsDNA23
 
 def createOptions(start_complex, stop_complex, simMode):
 

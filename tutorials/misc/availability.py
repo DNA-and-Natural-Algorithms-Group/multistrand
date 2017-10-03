@@ -11,7 +11,6 @@ from multistrand.options import Options
 from multistrand.concurrent import myMultistrand
 from multistrand.experiment import makeComplex, standardOptions, setBoltzmann
 
-#from msArrhenius import setArrheniusConstantsDNA23
 
 myMultistrand.setNumOfThreads(8)
 

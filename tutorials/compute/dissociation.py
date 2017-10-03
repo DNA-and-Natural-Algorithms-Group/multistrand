@@ -3,11 +3,8 @@ from __future__ import print_function
 from multistrand.options import Options
 from multistrand.concurrent import myMultistrand, FirstStepRate, Bootstrap
 from multistrand.experiment import standardOptions, dissociation
-# from msArrhenius import setArrheniusConstantsDNA23
 
 import sys, time
-
-
 
    
 # Frits Dannenberg, Aug 2017.

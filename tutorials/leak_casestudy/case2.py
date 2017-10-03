@@ -8,7 +8,6 @@ from multistrand.objects import StopCondition
 from multistrand.options import Options
 from multistrand.experiment import ClampedSeesawGate, seesaw_gate_fuel_catalysis, seesaw_gate_gate_leak, seesaw_gate_output_production, seesaw_gate_fuel_leak, standardOptions
 
-from msArrhenius import setArrheniusConstantsDNA23
 
 class Experiment(Enum):
     GATE_OUTPUT_PRODUCTION = 0
@@ -105,8 +104,7 @@ def genOptions(trialsIn, gateA, sel, supersample=25, gateB=None):
         getExperiment(sel)(stdOptions, gateA, trialsIn, supersample)
     else:
         getExperiment(sel)(stdOptions, gateA, gateB, trialsIn, supersample)
-#     stdOptions.DNA23Metropolis()
-    setArrheniusConstantsDNA23(stdOptions)
+    stdOptions.DNA23Metropolis()
     return stdOptions
 
 
