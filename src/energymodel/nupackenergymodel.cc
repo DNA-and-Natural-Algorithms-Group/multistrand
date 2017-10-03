@@ -436,7 +436,8 @@ NupackEnergyModel::NupackEnergyModel(SimOptions* options) :
 
 
 void NupackEnergyModel::processOptions() {
-// This is the tough part, performing all read/input duties.
+
+	// 	This is the tough part, performing all read/input duties.
 	char in_buffer[2048];
 	int loop, loop2, loop3, loop4, loop5, loop6;
 	double temperature;
@@ -464,9 +465,10 @@ void NupackEnergyModel::processOptions() {
 			pairtypes[loop][loop2] = pairtypes_mfold[loop][loop2];
 
 	if (myEnergyOptions->compareSubstrateType(SUBSTRATE_INVALID)) {
-		PyObject *tmpStr = NULL;
 
+		PyObject *tmpStr = NULL;
 		char* tmp = NULL;
+
 		myEnergyOptions->getParameterFile(tmp, tmpStr);
 
 		if (tmp != NULL) {
@@ -482,80 +484,54 @@ void NupackEnergyModel::processOptions() {
 			exit(1);
 		}
 
-	} else if (myEnergyOptions->compareSubstrateType(SUBSTRATE_DNA)) {
+	} else if (myEnergyOptions->compareSubstrateType(SUBSTRATE_DNA) || myEnergyOptions->compareSubstrateType(SUBSTRATE_RNA)) {
+
 		char *nupackhome;
 		char fullpath[512];
 		char fullpath_dH[512];
+		std::string file_dG, file_dH;
 
 		nupackhome = getenv("NUPACKHOME");
 
-		if (nupackhome == NULL) {
-			strcpy(fullpath, "dna1998.dG");
-			strcpy(fullpath_dH, "dna1998.dH");
+		if(myEnergyOptions->compareSubstrateType(SUBSTRATE_DNA)){
+
+			file_dG =  "dna1998.dG";
+			file_dH =  "dna1998.dH";
+
 		} else {
-			strcpy(fullpath, nupackhome);
-			strcpy(fullpath_dH, nupackhome);
-			strcat(fullpath, "/parameters/dna1998.dG");
-			strcat(fullpath_dH, "/parameters/dna1998.dH");
-		}
 
-		fp = fopen(fullpath, "rt");
-		fp2 = fopen(fullpath_dH, "rt");
-
-		if (fp == NULL) {
-			fp = fopen("dna1998.dG", "rt");
-			if (fp == NULL) {
-				
-				fprintf(stderr, "ERROR: nupack/mfold parameter file not found: $NUPACKHOME/parameters/dna1998.dG or dna1998.dG in current directory.\nTarget path:%s\n", fullpath);
-				exit(0);
-			}
+			// FD: updating this to the new NUPACK parameter filenames
+			file_dG =  "rna1995.dG"; 	// "RNA_mfold2.3.dG";
+			file_dH =  "rna1995.dH";	// "RNA_mfold2.3.dH";
 
 		}
-
-		if (fp2 == NULL) {
-			fp2 = fopen("dna1998.dH", "rt");
-			if (fp2 == NULL) {
-				fprintf(stderr, "ERROR: nupack/mfold parameter file not found: $NUPACKHOME/parameters/dna1998.dH or dna1998.dH in current directory.\n");
-				exit(0);
-			}
-
-		}
-		//} else if (testLongAttr(energy_options, substrate_type, =, SUBSTRATE_RNA)) {
-	} else if (myEnergyOptions->compareSubstrateType(SUBSTRATE_RNA)) {
-		char *nupackhome;
-		char fullpath[512];
-		char fullpath_dH[512];
-
-		nupackhome = getenv("NUPACKHOME");
-
-		// FD: updating this to the new NUPACK parameter filenames
-		std::string RNAdG =  "rna1995.dG"; // "RNA_mfold2.3.dG";
-		std::string RNAdH =  "rna1995.dH";// "RNA_mfold2.3.dH";
 
 		std::string paramPath = "/parameters/";
 
 		if (nupackhome == NULL) {
-			strcpy(fullpath, RNAdG.c_str());
-			strcpy(fullpath_dH, RNAdH.c_str());
+			strcpy(fullpath, file_dG.c_str());
+			strcpy(fullpath_dH, file_dH.c_str());
 		} else {
 			strcpy(fullpath, nupackhome);
 			strcpy(fullpath_dH, nupackhome);
-			strcpy(fullpath, paramPath.c_str());
-			strcpy(fullpath_dH, paramPath.c_str());
-			strcpy(fullpath, RNAdG.c_str());
-			strcpy(fullpath_dH, RNAdH.c_str());
+			strcat(fullpath, paramPath.c_str());
+			strcat(fullpath_dH, paramPath.c_str());
+			strcat(fullpath, file_dG.c_str());
+			strcat(fullpath_dH, file_dH.c_str());
 		}
 
 
 		fp = fopen(fullpath, "rt");
 		fp2 = fopen(fullpath_dH, "rt");
 
+
+
 		if (fp == NULL) {
-			fp = fopen(RNAdG.c_str(), "rt");
+			fp = fopen(file_dG.c_str(), "rt");
 			if (fp == NULL) {
 
-				string errorm = string("ERROR: nupack parameter file not found: $NUPACKHOME");
-				errorm += paramPath + RNAdG + string(" or ") + RNAdG;
+				string errorm = string("ERROR: nupack parameter file not found:") + string(nupackhome);
+				errorm += paramPath + file_dG + string(" or ") + file_dG;
 				errorm += string(" in current directory.\n");
 				fprintf(stderr, "%s", errorm.c_str()); //fd: without "%s" potentially insecure, clang
 				exit(0);
@@ -564,12 +540,11 @@ void NupackEnergyModel::processOptions() {
 		}
 
 		if (fp2 == NULL) {
-			fp2 = fopen(RNAdH.c_str(), "rt");
+			fp2 = fopen(file_dH.c_str(), "rt");
 			if (fp2 == NULL) {
 
-
-				string errorm = string("ERROR: nupack parameter file not found: $NUPACKHOME");
-				errorm += paramPath + RNAdH + string(" or ") + RNAdH;
+				string errorm = string("ERROR: nupack parameter file not found:") + string(nupackhome);
+				errorm += paramPath + file_dH + string(" or ") + file_dH;
 				errorm += string(" in current directory.\n");
 
 				fprintf(stderr, "%s", errorm.c_str()); //fd: without "%s" potentially insecure, clang

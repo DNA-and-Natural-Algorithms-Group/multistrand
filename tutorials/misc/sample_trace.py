@@ -47,26 +47,6 @@ def printTrajectory(o):
 
         print tubestruct + ('   t=%.6f ms,  dG=%3.2f kcal/mol  ' % (time, dG)) 
 
-
-def doSims(strandSeq, numTraj=2):    
-
-    o1 = standardOptions()
-    
-    o1.simulation_mode = Options.trajectory
-    o1.num_simulations = numTraj
-    o1.output_interval = 1 
-    o1.simulation_time = ATIME_OUT
-       
-    
-    hybridization(o1, strandSeq )
-    
-    
-    
-    o1.initial_seed = 1777
-
-    s = SimSystem(o1)
-    s.start()
-    printTrajectory(o1)        
         
 
 def doSims(strandSeq, numTraj=2):    
@@ -76,6 +56,7 @@ def doSims(strandSeq, numTraj=2):
     o1.num_simulations = numTraj
     o1.output_interval = 1 
     o1.simulation_time = ATIME_OUT
+#     o1.substrate_type = Options.substrateRNA
        
     
     hybridization(o1, strandSeq )
