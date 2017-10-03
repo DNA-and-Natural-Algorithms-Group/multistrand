@@ -435,6 +435,40 @@ NupackEnergyModel::NupackEnergyModel(SimOptions* options) :
 }
 
 
+// returns a FILE pointer or prints an error message.
+FILE* NupackEnergyModel::openFiles(char* nupackhome, string& paramPath, string& fileName){
+
+	char fullpath[512];
+	FILE* fp = NULL;
+
+	if (nupackhome == NULL) {
+		strcpy(fullpath, fileName.c_str());
+	} else {
+		strcpy(fullpath, nupackhome);
+		strcat(fullpath, paramPath.c_str());
+		strcat(fullpath, fileName.c_str());
+	}
+
+	fp = fopen(fullpath, "rt");
+
+	if (fp == NULL) {
+		fp = fopen(fileName.c_str(), "rt");
+		if (fp == NULL) {
+
+			string errorm = string("ERROR: nupack parameter file not found:") + string(nupackhome);
+			errorm += paramPath + fileName + string(" or ") + fileName;
+			errorm += string(" in current directory.\n");
+			fprintf(stderr, "%s", errorm.c_str()); //fd: without "%s" potentially insecure, clang
+			exit(0);
+		}
+
+	}
+
+	return fp;
+
+}
+
+
 void NupackEnergyModel::processOptions() {
 
 	// 	This is the tough part, performing all read/input duties.
@@ -487,8 +521,6 @@ void NupackEnergyModel::processOptions() {
 	} else if (myEnergyOptions->compareSubstrateType(SUBSTRATE_DNA) || myEnergyOptions->compareSubstrateType(SUBSTRATE_RNA)) {
 
 		char *nupackhome;
-		char fullpath[512];
-		char fullpath_dH[512];
 		std::string file_dG, file_dH;
 
 		nupackhome = getenv("NUPACKHOME");
@@ -508,50 +540,9 @@ void NupackEnergyModel::processOptions() {
 
 		std::string paramPath = "/parameters/";
 
-		if (nupackhome == NULL) {
-			strcpy(fullpath, file_dG.c_str());
-			strcpy(fullpath_dH, file_dH.c_str());
-		} else {
-			strcpy(fullpath, nupackhome);
-			strcpy(fullpath_dH, nupackhome);
-			strcat(fullpath, paramPath.c_str());
-			strcat(fullpath_dH, paramPath.c_str());
-			strcat(fullpath, file_dG.c_str());
-			strcat(fullpath_dH, file_dH.c_str());
-		}
+		fp = openFiles(nupackhome, paramPath, file_dG);
+		fp2 = openFiles(nupackhome, paramPath, file_dH);
 
-
-		fp = fopen(fullpath, "rt");
-		fp2 = fopen(fullpath_dH, "rt");
-
-
-
-		if (fp == NULL) {
-			fp = fopen(file_dG.c_str(), "rt");
-			if (fp == NULL) {
-
-				string errorm = string("ERROR: nupack parameter file not found:") + string(nupackhome);
-				errorm += paramPath + file_dG + string(" or ") + file_dG;
-				errorm += string(" in current directory.\n");
-				fprintf(stderr, "%s", errorm.c_str()); //fd: without "%s" potentially insecure, clang
-				exit(0);
-			}
-
-		}
-
-		if (fp2 == NULL) {
-			fp2 = fopen(file_dH.c_str(), "rt");
-			if (fp2 == NULL) {
-
-				string errorm = string("ERROR: nupack parameter file not found:") + string(nupackhome);
-				errorm += paramPath + file_dH + string(" or ") + file_dH;
-				errorm += string(" in current directory.\n");
-
-				fprintf(stderr, "%s", errorm.c_str()); //fd: without "%s" potentially insecure, clang
-				exit(0);
-			}
-
-		}
 	}
 
 	fgets(in_buffer, 2048, fp);

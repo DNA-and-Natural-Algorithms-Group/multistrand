@@ -121,6 +121,7 @@ public:
 	NupackEnergyModel(SimOptions* options);
 	~NupackEnergyModel(void);
 	void processOptions();
+	FILE* openFiles(char*, string&, string&);
 
 	double returnRate(double start_energy, double end_energy, int enth_entr_toggle);
 	double returnRate(energyS &start_energy, energyS &end_energy);
