@@ -103,13 +103,13 @@ os.environ["CXX"] = "clang"
 ```
 after the line that reads "config_vars = distutils.sysconfig.get_config_vars()" in the setup.py file.
 
-Q: I get the following error: 
+Q: During compilation, the following error appears: 
 ```
 gcc: error trying to exec 'cc1plus': execvp: No such file or directory
 ```
 A: You need to install c++ libraries. On Fedora, you would run: dnf install gcc-c++.
 
-Q: I get the following error:
+Q: During compilation, the following error appears:
 ```
 In file included from ./src/include/utility.h:21:0,
                  from src/system/utility.cc:13:
