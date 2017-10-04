@@ -83,6 +83,18 @@ For OS X, the following steps enabled successful installation on a 2017 macbook 
 
 Update 2017-10-1: We've noticed that linking against anaconda sometimes gives errors during installation on OSX. The issue seems to be that the linked gcc, 4.2.1, does to not support certain c++11 functions. OS X users who rely on brew-installed python do not have this problem, because the gcc call is piped to llvm, which then works. 
 
+To resolve this issue, users should add the lines
+
+``
+os.environ["CC"] = "clang"
+os.environ["CXX"] = "clang"
+``
+
+
+after the line that reads "config_vars = distutils.sysconfig.get_config_vars()" in the setup.py file.
+
+
+
 
 ## Package tree ##
 
