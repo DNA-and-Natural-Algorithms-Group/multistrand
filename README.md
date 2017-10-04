@@ -83,7 +83,7 @@ For OS X, the following steps enabled successful installation on a 2017 macbook 
 
 ### Troubleshooting ###
 
-Q: On OS X, I get the following errors when I try to make:
+Q: On OSX, I get the following error when I try to make:
 ```
 In file included from system/utility.cc:16:
 In file included from ./include/move.h:29:
