@@ -85,10 +85,10 @@ Update 2017-10-1: We've noticed that linking against anaconda sometimes gives er
 
 To resolve this issue, users should add the lines
 
-``
+```
 os.environ["CC"] = "clang"
 os.environ["CXX"] = "clang"
-``
+```
 
 
 after the line that reads "config_vars = distutils.sysconfig.get_config_vars()" in the setup.py file.
