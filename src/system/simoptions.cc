@@ -70,6 +70,8 @@ PSimOptions::PSimOptions(PyObject* input) :
 	getLongAttr(python_settings, use_stop_conditions, &stop_options);
 	getDoubleAttr(python_settings, simulation_time, &max_sim_time);
 
+	getBoolAttr(python_settings, print_initial_first_step, &printInitialFirstStep);
+
 	debug = false;	// this is the main switch for simOptions debug, for now.
 
 }
@@ -171,6 +173,12 @@ double SimOptions::getMaxSimTime(void) {
 	return max_sim_time;
 
 }
+
+bool SimOptions::getPrintIntialFirstStep(){
+
+	return printInitialFirstStep;
+}
+
 
 bool SimOptions::usingArrhenius(void) {
 

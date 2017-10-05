@@ -49,6 +49,8 @@ public:
 	long getStopCount(void);
 	double getMaxSimTime(void);
 
+	bool getPrintIntialFirstStep(); // true if the initial state has to be exported.
+
 	bool usingArrhenius(void);
 
 	// Virtual methods
@@ -84,6 +86,8 @@ protected:
 	long seed = 0;
 	bool fixedRandomSeed = false;
 	stopComplexes* myStopComplexes = NULL;
+
+	bool printInitialFirstStep = false;
 
 };
 

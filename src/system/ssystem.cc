@@ -243,8 +243,6 @@ void SimulationSystem::SimulationLoop_Standard(void) {
 
 			(void) complexList->doBasicChoice(rchoice, stime);
 
-			///Add the state to the hashmap counter
-			this->countState(complexList);
 
 			rate = complexList->getTotalFlux();
 
@@ -525,6 +523,15 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 
 	rate = complexList->getJoinFlux();
 
+	// if the toggle is set, export the initial state with arrType equal to flux
+	// and timestamp -1
+	if (simOptions->getPrintIntialFirstStep()){
+
+		exportInterval(-1.0, current_state_count, rate);
+
+	}
+
+
 // scomplexlist returns a 0.0 rate if there was a single complex in
 // the system, and a -1.0 rate if there are exactly 0 join moves. So
 // the 0.0 rate should probably be caught, though if you use a
@@ -541,6 +548,8 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 	}
 
 	rchoice = rate * drand48();
+
+
 
 	int ArrMoveType = complexList->doJoinChoice(rchoice);
 
@@ -696,6 +705,7 @@ void SimulationSystem::sendTrajectory_CurrentStateToPython(double current_time, 
 	char *names, *sequence, *structure;
 	double energy;
 	SComplexListEntry *temp;
+
 	temp = complexList->getFirst();
 	while (temp != NULL) {
 

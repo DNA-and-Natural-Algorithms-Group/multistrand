@@ -127,6 +127,11 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         Value >= 1:  end state reports to stdout
         """
         
+        self.print_initial_first_step = False
+        """
+        If True, this value will print the initial state in First Step Mode to the trajectory with a timestamp of -1.0
+        """
+        
         
         #############################################
         #                                           #
