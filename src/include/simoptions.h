@@ -71,7 +71,6 @@ public:
 	vector<complex_input>* myComplexes = NULL;
 	EnergyOptions* energyOptions = NULL;
 
-	const static bool countStates = false;
 
 protected:
 

@@ -197,12 +197,6 @@ void SimulationSystem::finalizeSimulation(void) {
 
 	}
 
-	// display size of statespace if used
-	if (SimOptions::countStates) {
-
-		cout << "Explored " << countMap.size() << " states. \n";
-
-	}
 
 	cout << flush;
 }
@@ -299,25 +293,6 @@ void SimulationSystem::SimulationLoop_Standard(void) {
 	}
 }
 
-void SimulationSystem::countState(SComplexList* complexList) {
-
-	if (SimOptions::countStates) {
-
-		string myComplex = complexList->toString();
-
-		if (countMap.count(myComplex) == 0) {
-
-			countMap[myComplex] = 1;
-
-		} else {
-
-			countMap[myComplex]++;
-
-		}
-
-	}
-
-}
 
 void SimulationSystem::SimulationLoop_Trajectory() {
 

@@ -84,8 +84,8 @@ private:
 	bool exportStatesTime = false;
 	bool exportStatesInterval = false;
 
-	// some results objects
-	std::unordered_map<std::string, int> countMap;
+//	// some results objects
+//	std::unordered_map<std::string, int> countMap;
 
 };
 
