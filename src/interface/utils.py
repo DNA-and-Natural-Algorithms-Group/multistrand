@@ -57,6 +57,26 @@ def standardFileName(SCRIPT_DIR, mySeq=None, extraTitle=None, runs=None):
 
 
 
+
+
+# Takes a list of ids and structures, and computes the pairtype for each of the complexes. 
+# Then returns a list of pairtypes that is alphabetically ordered.
+def uniqueStateID(idsList, structsList):
+    
+    pairTypes = []
+    
+    for ids, struct in zip(idsList, structsList):
+        
+        myPairType = pairType(ids, struct)        
+        pairTypes.append(myPairType)
+
+    # now sort the list of lists by the first element of each list (which is 
+    mySortedList = sorted(pairTypes, key = lambda x: x[0])
+    
+    # to make this hashable, we make it into a tuple.
+    return tuple(mySortedList)
+
+
 # ## Pairtype util
 def pairType(ids, structs):
     """Given identifiers and dot-parens for a complex, 
