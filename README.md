@@ -68,7 +68,7 @@ Tutorial files use the 'numpy', 'matplotlib' and 'scipy' python packages. You ca
  - Build multistrand by running 'make' in the Multistrand directory.
  - Multistrand can be exported as a python library by calling 'sudo make install'.
 
-In Fedora, add 'export NUPACKHOME=/path/to/nupack3.2.1' to ~./bashrc to make the export permanent.
+In Fedora, add 'export NUPACKHOME=/path/to/nupack3.2.1' to ~/.bashrc to make the export permanent.
 To verify that NUPACKHOME is set correctly in bash, run 'echo $NUPACKHOME':
 ```sh
 $ echo $NUPACKHOME
@@ -81,7 +81,19 @@ For OS X, the following steps enabled successful installation on a 2017 macbook 
  - The linux installation steps should now work. 
  - In the bash profile file ~/.bash_profile, edit the python path to include /Library/Python/2.7/site-packages. For example, the line could read: export PYTHONPATH=/Library/Python/2.7/site-packages:$PYTHONPATH. 
 
-Update 2017-10-1: We've noticed that linking against anaconda sometimes gives errors during installation on OSX. The issue seems to be that the linked gcc, 4.2.1, does to not support certain c++11 functions. OS X users who rely on brew-installed python do not have this problem, because the gcc call is piped to llvm, which then works. 
+### Troubleshooting ###
+
+Q: On OSX, I get the following error when I try to make:
+```
+In file included from system/utility.cc:16:
+In file included from ./include/move.h:29:
+In file included from ./include/moveutil.h:14:
+./include/sequtil.h:66:22: error: no matching constructor for initialization of
+      'vector<int>'
+        vector<int> count = { 0, 0, 0, 0, 0 }; // use baseType as access
+                            ^~~~~~~~~~~~~~~~~
+```
+A: We've noticed that linking against anaconda sometimes gives errors during installation on OSX. The issue seems to be that the linked gcc, 4.2.1, does to not support certain c++11 functions. OS X users who rely on brew-installed python do not have this problem, because the gcc call is piped to llvm, which then works. 
 
 To resolve this issue, users should add the lines
 
@@ -89,11 +101,24 @@ To resolve this issue, users should add the lines
 os.environ["CC"] = "clang"
 os.environ["CXX"] = "clang"
 ```
-
-
 after the line that reads "config_vars = distutils.sysconfig.get_config_vars()" in the setup.py file.
 
+Q: During compilation, the following error appears: 
+```
+gcc: error trying to exec 'cc1plus': execvp: No such file or directory
+```
+A: You need to install c++ libraries. On Fedora, you would run: dnf install gcc-c++.
 
+Q: During compilation, the following error appears:
+```
+In file included from ./src/include/utility.h:21:0,
+                 from src/system/utility.cc:13:
+./src/include/optionlists.h:16:10: fatal error: python2.7/Python.h: No such file or directory
+ #include <python2.7/Python.h>
+          ^~~~~~~~~~~~~~~~~~~~
+compilation terminated.
+```
+A: You need to install development libraries for python2. On Fedora, you should run: sudo dnf install python2-devel
 
 
 ## Package tree ##
