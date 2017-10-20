@@ -4588,12 +4588,6 @@ void OpenLoop::generateMoves(void) {
 // where T is the current time of the simulation.
 // DNA/RNA notation convention is 5' to 3' end. Enzymes can only attach new nucleotides at the 3' end.
 
-// temporary flags:
-
-	const bool cotranscriptional = true;
-	const int initialCT = 5;
-	const double delayCT = 0.001; // 1ms delay between adding nucleotides.
-
 
 
 	int *sideLengths = NULL;
@@ -4613,7 +4607,8 @@ void OpenLoop::generateMoves(void) {
 
 				pairType = pairtypes[mySequence[loop]][mySequence[loop2]];
 
-				if (pairType != 0) { // FD: the NUPACK model puts terms here to be non-zero.    in NUPACK, G-T stacking is a thing. Hairpin loops are size 3 or more.
+
+				if (pairType != 0 && this->nucleotideIsActive(mySequence, loop, loop2) ) { // FD: the NUPACK model puts terms here to be non-zero.  in NUPACK, G-T stacking is a thing. Hairpin loops are size 3 or more.
 
 					energies[0] = energyModel->HairpinEnergy(&mySequence[loop], loop2 - loop - 1);
 
@@ -4654,7 +4649,7 @@ void OpenLoop::generateMoves(void) {
 
 				pairType = pairtypes[seqs[loop3][loop]][seqs[loop3 + 1][loop2]];
 
-				if (pairType != 0) {
+				if (pairType != 0 && this->nucleotideIsActive(seqs[loop3], loop) && this->nucleotideIsActive(seqs[loop3 + 1],loop2) ) {
 
 					// three cases for which type of move:
 					MoveType leftMove = stackMove;
@@ -4730,7 +4725,7 @@ void OpenLoop::generateMoves(void) {
 
 					pairType = pairtypes[seqs[loop3][loop]][seqs[loop4][loop2]];
 
-					if (pairType != 0) { // result is a multiloop and open loop.
+					if (pairType != 0 && this->nucleotideIsActive(seqs[loop3], loop) && this->nucleotideIsActive(seqs[loop4],loop2)) { // result is a multiloop and open loop.
 
 						for (temploop = 0, tempindex = 0; temploop < (loop4 - loop3 + 1); tempindex++) { // note that loop4 - loop3 is the number of pairings that got included in the multiloop. The extra closing pair makes the +1.
 
@@ -5216,6 +5211,25 @@ HalfContext OpenLoop::getHalfContext(int loop, int loop2) {
 	return thisHalf;
 
 }
+
+
+bool OpenLoop::nucleotideIsActive(const char* sequence, const int pos1,  const int pos2 ){
+
+	return (this->nucleotideIsActive(sequence, pos1) && this->nucleotideIsActive(sequence, pos1));
+}
+
+
+
+bool OpenLoop::nucleotideIsActive(const char* sequence, const int pos1){
+
+	// needed: time and a pointer to the first entry.
+
+
+	return true;
+
+}
+
+
 
 void OpenLoop::parseLocalContext(int index) {
 

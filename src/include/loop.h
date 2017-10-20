@@ -233,6 +233,10 @@ public:
 	OpenInfo& getOpenInfo(void);
 	HalfContext getHalfContext(int, int);
 
+	// check for cotranscriptional folding.
+	bool nucleotideIsActive(const char* sequence, const int pos);
+	bool nucleotideIsActive(const char* sequence, const int pos1, const int pos2);
+
 	char* getBase(char type, int index);
 	char* getBase(char type, int index, HalfContext);
 
@@ -257,6 +261,17 @@ private:
 
 	int *sidelen;
 	char **seqs;
+
+
+	// temporary flags:
+
+	const bool cotranscriptional = true;
+	const int initialCT = 5;
+	const double delayCT = 0.001; // 1ms delay between adding nucleotides.
+
+
+
+
 
 };
 
