@@ -20,6 +20,27 @@ help@multistrand.org
 typedef std::vector<bool> boolvector;
 typedef std::vector<bool>::iterator boolvector_iterator;
 
+// structs
+
+
+// simply some simulation datapoints
+struct SimTimer{
+
+	SimTimer(SimOptions& myOptions);
+
+	void advanceTime(void);
+
+public:
+	double rchoice = 0.0;
+	double rate = 0.0;
+	double stime = 0.0;
+	double maxsimtime = 0.0;
+	long stopcount = 0;
+	long stopoptions = 0;
+};
+
+
+
 class SimulationSystem {
 public:
 	SimulationSystem(SimOptions* options);
@@ -83,8 +104,6 @@ private:
 	bool exportStatesTime = false;
 	bool exportStatesInterval = false;
 
-//	// some results objects
-//	std::unordered_map<std::string, int> countMap;
 
 };
 

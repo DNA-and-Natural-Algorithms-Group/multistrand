@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2017 California Institute of Technology. All rights reserved.
-Multistrand nucleic acid kinetic simulator
-help@multistrand.org
-*/
+ Copyright (c) 2017 California Institute of Technology. All rights reserved.
+ Multistrand nucleic acid kinetic simulator
+ help@multistrand.org
+ */
 
 #include "options.h"
 #include "ssystem.h"
@@ -17,9 +17,27 @@ help@multistrand.org
 int noInitialMoves = 0;
 int timeOut = 0;
 
+SimTimer::SimTimer(SimOptions& myOptions) {
+
+	maxsimtime = myOptions.getMaxSimTime();
+	stopcount = myOptions.getStopCount();
+	stopoptions = myOptions.getStopOptions();
+
+}
+
+
+// advances the simulation time according to the set rate
+void SimTimer::advanceTime(void){
+
+	rchoice = rate * drand48();
+	stime += (log(1. / (1.0 - drand48())) / rate);
+
+
+}
+
+
 SimulationSystem::SimulationSystem(PyObject *system_o) {
 
-	
 	system_options = system_o;
 	simOptions = new PSimOptions(system_o);
 
@@ -63,8 +81,6 @@ void SimulationSystem::construct(void) {
 	exportStatesTime = (simOptions->getOTime() >= 0);
 
 }
-
-
 
 SimulationSystem::SimulationSystem(void) {
 
@@ -197,35 +213,28 @@ void SimulationSystem::finalizeSimulation(void) {
 
 	}
 
-
 	cout << flush;
 }
 
 void SimulationSystem::SimulationLoop_Standard(void) {
 
-	double rchoice, rate, stime, ctime;
-	rchoice = rate = stime = ctime = 0.0;
+	SimTimer myTimer(*simOptions);
+	stopComplexes *traverse = NULL, *first = NULL;
 
 	bool checkresult = false;
-	class stopComplexes *traverse = NULL, *first = NULL;
-
-	double maxsimtime = simOptions->getMaxSimTime();
-	long stopcount = simOptions->getStopCount();
-	long stopoptions = simOptions->getStopOptions();
 
 	complexList->initializeList();
-
-	rate = complexList->getTotalFlux();
+	myTimer.rate = complexList->getTotalFlux();
 
 	do {
 
-		rchoice = rate * drand48();
-		stime += (log(1. / (1.0 - drand48())) / rate);
+		myTimer.rchoice = myTimer.rate * drand48();
+		myTimer.stime += (log(1. / (1.0 - drand48())) / myTimer.rate);
 
 		// 1.0 - drand as drand returns in the [0.0, 1.0) range, we need a (0.0,1.0] range.
 		// see notes below in First Step mode.
 
-		if (stime < maxsimtime) {
+		if (myTimer.stime < myTimer.maxsimtime) {
 			// Why check here? Because we want to report the final state
 			// as the one we were in before transitioning past the maximum
 			// time, rather than the one after it. This is not entirely
@@ -241,14 +250,13 @@ void SimulationSystem::SimulationLoop_Standard(void) {
 			// FD: Mathematically it is also the correct thing to do,
 			// FD: when we remember the memoryless property of the Markov chain
 
-			(void) complexList->doBasicChoice(rchoice, stime);
+			(void) complexList->doBasicChoice(myTimer.rchoice, myTimer.stime);
 
+			myTimer.rate = complexList->getTotalFlux();
 
-			rate = complexList->getTotalFlux();
+			if (myTimer.stopoptions) {
 
-			if (stopoptions) {
-
-				if (stopcount <= 0) {
+				if (myTimer.stopcount <= 0) {
 					simOptions->stopResultError(current_seed);
 					return;
 				}
@@ -271,53 +279,45 @@ void SimulationSystem::SimulationLoop_Standard(void) {
 				}
 			}
 		}
-	} while (stime < maxsimtime && !checkresult);
+	} while (myTimer.stime < myTimer.maxsimtime && !checkresult);
 
-	if (stime == NAN) {
+	if (myTimer.stime == NAN) {
 
 		simOptions->stopResultNan(current_seed);
 
 	} else if (checkresult) {
 
 		dumpCurrentStateToPython();
-		simOptions->stopResultNormal(current_seed, stime, traverse->tag);
+		simOptions->stopResultNormal(current_seed, myTimer.stime, traverse->tag);
 		delete first;
 
 	} else { // stime >= maxsimtime
 
 		dumpCurrentStateToPython();
-		simOptions->stopResultTime(current_seed, maxsimtime);
+		simOptions->stopResultTime(current_seed, myTimer.maxsimtime);
 
 	}
 }
 
-
 void SimulationSystem::SimulationLoop_Trajectory() {
 
-	double rchoice, rate, stime, last_trajectory_time;
-	rchoice = rate = 0.0;
+	SimTimer myTimer(*simOptions);
+	stopComplexes *traverse = NULL, *first = NULL;
 
-	double maxsimtime = simOptions->getMaxSimTime();
-	long stopcount = simOptions->getStopCount();
-	long stopoptions = simOptions->getStopOptions();
+	double last_trajectory_time;
 
 	bool stopFlag = false;
 	long current_state_count = 0;
-	class stopComplexes *traverse = NULL, *first = NULL;
 
 	complexList->initializeList();
-	rate = complexList->getTotalFlux();
+	myTimer.rate = complexList->getTotalFlux();
 
-//	cout << "rate is " << (rate) << endl;
-
-// We start at the beginning of time.
-	stime = 0.0;
 
 // The last time we gave the output state.
 	last_trajectory_time = 0.0;
 
-	if (stopoptions) {
-		if (stopcount <= 0) {
+	if (myTimer.stopoptions) {
+		if (myTimer.stopcount <= 0) {
 			simOptions->stopResultError(current_seed);
 			return;
 		}
@@ -326,16 +326,12 @@ void SimulationSystem::SimulationLoop_Trajectory() {
 
 	// write the initial state:
 	if (exportStatesInterval) {
-		exportInterval(stime, current_state_count);
+		exportInterval(myTimer.stime, current_state_count);
 	}
 
 	do {
 
-		rchoice = rate * drand48();
-		stime += (log(1. / (1.0 - drand48())) / rate);
-		// 1.0 - drand as drand returns in the [0.0, 1.0) range, we need a (0.0,1.0] range.
-		// see notes below in First Step mode.
-
+		myTimer.advanceTime();
 
 		if (debugTraces) {
 			cout << "Printing my complexlist! *************************************** \n";
@@ -343,18 +339,18 @@ void SimulationSystem::SimulationLoop_Trajectory() {
 		}
 
 		if (exportStatesTime) {
-			exportTime(stime, &last_trajectory_time);
+			exportTime(myTimer.stime, &last_trajectory_time);
 		}
 
-		int ArrMoveType = complexList->doBasicChoice(rchoice, stime);
-		rate = complexList->getTotalFlux();
+		int ArrMoveType = complexList->doBasicChoice(myTimer.rchoice, myTimer.stime);
+		myTimer.rate = complexList->getTotalFlux();
 		current_state_count += 1;
 
 		if (exportStatesInterval) {
-			exportInterval(stime, current_state_count, ArrMoveType);
+			exportInterval(myTimer.stime, current_state_count, ArrMoveType);
 		}
 
-		if (stopoptions) {
+		if (myTimer.stopoptions) {
 			stopFlag = false;
 			stopFlag = complexList->checkStopComplexList(first->citem);
 			traverse = first;
@@ -364,19 +360,19 @@ void SimulationSystem::SimulationLoop_Trajectory() {
 			}
 		}
 
-	} while (stime < maxsimtime && !stopFlag);
+	} while (myTimer.stime < myTimer.maxsimtime && !stopFlag);
 
-	if (stime == NAN) {
+	if (myTimer.stime == NAN) {
 
 		simOptions->stopResultNan(current_seed);
 
 	} else if (stopFlag) {
 
-		simOptions->stopResultNormal(current_seed, stime, traverse->tag);
+		simOptions->stopResultNormal(current_seed, myTimer.stime, traverse->tag);
 
 	} else {
 
-		simOptions->stopResultTime(current_seed, stime);
+		simOptions->stopResultTime(current_seed, myTimer.stime);
 
 	}
 
@@ -387,23 +383,15 @@ void SimulationSystem::SimulationLoop_Trajectory() {
 
 void SimulationSystem::SimulationLoop_Transition(void) {
 
-	double rchoice, rate, stime, ctime;
-
-	rchoice = rate = stime = ctime = 0.0;
-
-	double maxsimtime = -1.0;
+	SimTimer myTimer(*simOptions);
+	stopComplexes *traverse = NULL, *first = NULL;
 
 	bool checkresult = false;
 	bool stopFlag = false;
 	bool state_changed = false;
-	long stopcount = 0;
-	class stopComplexes *traverse = NULL, *first = NULL;
 
-	long stopoptions = simOptions->getStopOptions();
-	stopcount = simOptions->getStopCount();
-	maxsimtime = simOptions->getMaxSimTime();
 
-	if (stopcount <= 0 || !stopoptions) {
+	if (myTimer.stopcount <= 0 || !myTimer.stopoptions) {
 		// this simulation mode MUST have some stop conditions set.
 		simOptions->stopResultError(current_seed);
 		return;
@@ -414,15 +402,15 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 
 	boolvector stop_entries;
 	boolvector transition_states;
-	stop_entries.resize(stopcount, false);
-	transition_states.resize(stopcount, false);
+	stop_entries.resize(myTimer.stopcount, false);
+	transition_states.resize(myTimer.stopcount, false);
 
 	complexList->initializeList();
 
 	first = simOptions->getStopComplexes(0);
 	traverse = first;
 	checkresult = false;
-	for (int idx = 0; idx < stopcount; idx++) {
+	for (int idx = 0; idx < myTimer.stopcount; idx++) {
 		if (strstr(traverse->tag, "stop:") == traverse->tag)
 			stop_entries[idx] = true;
 
@@ -432,30 +420,27 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 		traverse = traverse->next;
 	}
 	delete first;
-	sendTransitionStateVectorToPython(transition_states, stime);
+	sendTransitionStateVectorToPython(transition_states, myTimer.stime);
 // start
 
-	rate = complexList->getTotalFlux();
+	myTimer.rate = complexList->getTotalFlux();
 	state_changed = false;
 	stopFlag = false;
 	do {
 
-		rchoice = rate * drand48();
-		stime += (log(1. / (1.0 - drand48())) / rate);
-		// 1.0 - drand as drand returns in the [0.0, 1.0) range, we need a (0.0,1.0] range.
-		// see notes below in First Step mode.
+		myTimer.advanceTime();
 
-		if (stime < maxsimtime) {
+		if (myTimer.stime < myTimer.maxsimtime) {
 			// See note in SimulationLoop_Standard
 
-			complexList->doBasicChoice(rchoice, stime);
-			rate = complexList->getTotalFlux();
+			complexList->doBasicChoice(myTimer.rchoice, myTimer.stime);
+			myTimer.rate = complexList->getTotalFlux();
 
 			// check if our transition state membership vector has changed
 			checkresult = false;
 			first = simOptions->getStopComplexes(0);
 			traverse = first;
-			for (int idx = 0; idx < stopcount; idx++) {
+			for (int idx = 0; idx < myTimer.stopcount; idx++) {
 
 				checkresult = complexList->checkStopComplexList(traverse->citem);
 
@@ -463,7 +448,7 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 					// multiple stop states could suddenly be true, we add
 					// a status line entry for the first one found.
 					if (!stopFlag) {
-						simOptions->stopResultNormal(current_seed, stime, traverse->tag);
+						simOptions->stopResultNormal(current_seed, myTimer.stime, traverse->tag);
 					}
 
 					stopFlag = true;
@@ -481,13 +466,13 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 						  // to moving printStatusLine to immediately upon
 						  // finding the stopping condition.
 			if (state_changed) {
-				sendTransitionStateVectorToPython(transition_states, stime);
+				sendTransitionStateVectorToPython(transition_states, myTimer.stime);
 				state_changed = false;
 			}
 		}
-	} while (stime < maxsimtime && !stopFlag);
+	} while (myTimer.stime < myTimer.maxsimtime && !stopFlag);
 
-	if (stime == NAN) {
+	if (myTimer.stime == NAN) {
 
 		simOptions->stopResultNan(current_seed);
 
@@ -498,39 +483,36 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 	} else { // stime >= maxsimtime
 
 		dumpCurrentStateToPython();
-		simOptions->stopResultTime(current_seed, maxsimtime);
+		simOptions->stopResultTime(current_seed, myTimer.maxsimtime);
 
 	}
 
 }
 
 void SimulationSystem::SimulationLoop_FirstStep(void) {
-	double rchoice, rate, stime = 0.0;
+
+	SimTimer myTimer(*simOptions);
+	stopComplexes *traverse = NULL, *first = NULL;
+
 	bool stopFlag = false;
 	double last_trajectory_time = 0.0;
 
-	class stopComplexes *traverse = NULL, *first = NULL;
 	double frate = 0.0;
 
-	double maxsimtime = simOptions->getMaxSimTime();
-	long stopcount = simOptions->getStopCount();
-	long stopoptions = simOptions->getStopOptions();
 	long ointerval = simOptions->getOInterval();
-
 	long current_state_count = 0;
 
 	complexList->initializeList();
 
-	rate = complexList->getJoinFlux();
+	myTimer.rate = complexList->getJoinFlux();
 
 	// if the toggle is set, export the initial state with arrType equal to flux
 	// and timestamp -1
-	if (simOptions->getPrintIntialFirstStep()){
+	if (simOptions->getPrintIntialFirstStep()) {
 
-		exportInterval(-1.0, current_state_count, rate);
+		exportInterval(-1.0, current_state_count, myTimer.rate);
 
 	}
-
 
 // scomplexlist returns a 0.0 rate if there was a single complex in
 // the system, and a -1.0 rate if there are exactly 0 join moves. So
@@ -538,7 +520,7 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 // single complex system for a starting state it's probably
 // deserved.
 
-	if (rate == 0.0) { // no initial moves
+	if (myTimer.rate == 0.0) { // no initial moves
 
 		noInitialMoves++;
 
@@ -547,18 +529,16 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 		return;
 	}
 
-	rchoice = rate * drand48();
+	myTimer.rchoice = myTimer.rate * drand48();
 
-
-
-	int ArrMoveType = complexList->doJoinChoice(rchoice);
+	int ArrMoveType = complexList->doJoinChoice(myTimer.rchoice);
 
 	if (exportStatesInterval) {
-		exportInterval(stime, current_state_count, ArrMoveType);
+		exportInterval(myTimer.stime, current_state_count, ArrMoveType);
 	}
 
 // store the forward rate used for the initial step so we can record it.
-	frate = rate * energyModel->getJoinRate_NoVolumeTerm() / energyModel->getJoinRate();
+	frate = myTimer.rate * energyModel->getJoinRate_NoVolumeTerm() / energyModel->getJoinRate();
 
 // rate is the total flux across all join moves - this is exactly equal to total_move_count *
 // dnaEnergyModel->getJoinRate()
@@ -570,12 +550,11 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 // 'collision' rate, but rather the volume we are simulating.
 
 // Begin normal steps.
-	rate = complexList->getTotalFlux();
+	myTimer.rate = complexList->getTotalFlux();
 
 	do {
 
-		rchoice = rate * drand48();
-		stime += (log(1. / (1.0 - drand48())) / rate);
+		myTimer.advanceTime();
 
 		if (debugTraces) {
 			cout << "Printing my complexlist! *************************************** \n";
@@ -584,19 +563,19 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 
 		// trajectory output via outputtime option
 		if (exportStatesTime) {
-			exportTime(stime, &last_trajectory_time);
+			exportTime(myTimer.stime, &last_trajectory_time);
 		}
 
-		int ArrMoveType = complexList->doBasicChoice(rchoice, stime);
+		int ArrMoveType = complexList->doBasicChoice(myTimer.rchoice, myTimer.stime);
 
-		rate = complexList->getTotalFlux();
+		myTimer.rate = complexList->getTotalFlux();
 		current_state_count++;
 
 		if (exportStatesInterval) {
-			exportInterval(stime, current_state_count, ArrMoveType);
+			exportInterval(myTimer.stime, current_state_count, ArrMoveType);
 		}
 
-		if (stopcount > 0 && stopoptions) {
+		if (myTimer.stopcount > 0 && myTimer.stopoptions) {
 
 			stopFlag = false;
 			first = simOptions->getStopComplexes(0);
@@ -612,19 +591,19 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 				delete first;
 		}
 
-	} while (stime < maxsimtime && !stopFlag);
+	} while (myTimer.stime < myTimer.maxsimtime && !stopFlag);
 
 	if (stopFlag) {
 		dumpCurrentStateToPython();
 		if (strcmp(traverse->tag, "REVERSE") == 0)
-			simOptions->stopResultBimolecular("Reverse", current_seed, stime, frate, traverse->tag);
+			simOptions->stopResultBimolecular("Reverse", current_seed, myTimer.stime, frate, traverse->tag);
 		else
-			simOptions->stopResultBimolecular("Forward", current_seed, stime, frate, traverse->tag);
+			simOptions->stopResultBimolecular("Forward", current_seed, myTimer.stime, frate, traverse->tag);
 		delete first;
 	} else {
 		timeOut++;
 		dumpCurrentStateToPython();
-		simOptions->stopResultBimolecular("FTime", current_seed, stime, frate,
+		simOptions->stopResultBimolecular("FTime", current_seed, myTimer.stime, frate,
 		NULL);
 	}
 

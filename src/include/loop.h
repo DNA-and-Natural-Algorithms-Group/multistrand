@@ -234,8 +234,8 @@ public:
 	HalfContext getHalfContext(int, int);
 
 	// check for cotranscriptional folding.
-	bool nucleotideIsActive(const char* sequence, const int pos);
-	bool nucleotideIsActive(const char* sequence, const int pos1, const int pos2);
+	bool nucleotideIsActive(const char* sequence, const char* initial, const int pos);
+	bool nucleotideIsActive(const char* sequence, const char* initial, const int pos1, const int pos2);
 
 	char* getBase(char type, int index);
 	char* getBase(char type, int index, HalfContext);
