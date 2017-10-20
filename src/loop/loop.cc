@@ -4577,6 +4577,25 @@ void OpenLoop::generateMoves(void) {
 // i'd like to optimize so they don't need to be created/deleted very often
 // but i'm  not sure of a good way of handling that yet.
 
+
+// FD Oct 19 2017.
+// We are going to implement a function that prevents moves from being added if the nucleotides are not yet "active".
+// The purpose is to simulate co-transcriptional folding. For this we may assume that there is only a single strand.
+// We have to somehow number the nucleotides on this strand; pointer arithmatic is one way to go about it.
+// Given a nucleotide number N, the activation time of that nucleotide is given N*dT where
+// dT is the amount of time (seconds) between nucleotides being activated.
+// We will assume the first 5 nucleotides are always active, so the activation function is (N-5)*dT > T
+// where T is the current time of the simulation.
+// DNA/RNA notation convention is 5' to 3' end. Enzymes can only attach new nucleotides at the 3' end.
+
+// temporary flags:
+
+	const bool cotranscriptional = true;
+	const int initialCT = 5;
+	const double delayCT = 0.001; // 1ms delay between adding nucleotides.
+
+
+
 	int *sideLengths = NULL;
 	char **sequences = NULL;
 
