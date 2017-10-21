@@ -35,6 +35,7 @@ public:
 	double rate = 0.0;
 	double stime = 0.0;
 	double maxsimtime = 0.0;
+	double last_trajectory_time = 0.0;
 	long stopcount = 0;
 	long stopoptions = 0;
 };
@@ -82,19 +83,18 @@ private:
 	void sendTrajectory_CurrentStateToPython(double current_time, int arrType = -77);
 	void sendTransitionStateVectorToPython(boolvector transition_states, double current_time);
 
-	void exportTime(double simTime, double* lastExportTime);
+	void exportTime(double& simTime, double& lastExportTime);
 	void exportInterval(double simTime, int period, int arrType = -88);
 	void exportTrajState(double simTime, double* lastExportTime, int period);
 
 	void printAllMoves(void);
 
-	EnergyModel* energyModel;
+	EnergyModel* energyModel = NULL;
+	StrandComplex *startState = NULL;
+	SComplexList *complexList = NULL;
+	SimOptions *simOptions = NULL;
 
-	StrandComplex *startState;
-	SComplexList *complexList;
-
-	PyObject *system_options;
-	SimOptions *simOptions;
+	PyObject *system_options = NULL;
 
 	long current_seed = NULL;
 	long simulation_mode;
@@ -103,6 +103,10 @@ private:
 	//bool triggers for output
 	bool exportStatesTime = false;
 	bool exportStatesInterval = false;
+
+	// counters for timeouts and no-move initial states.
+	int noInitialMoves = 0;
+	int timeOut = 0;
 
 
 };

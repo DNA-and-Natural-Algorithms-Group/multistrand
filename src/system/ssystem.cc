@@ -14,9 +14,6 @@
 #include <vector>
 #include <iostream>
 
-int noInitialMoves = 0;
-int timeOut = 0;
-
 SimTimer::SimTimer(SimOptions& myOptions) {
 
 	maxsimtime = myOptions.getMaxSimTime();
@@ -25,16 +22,13 @@ SimTimer::SimTimer(SimOptions& myOptions) {
 
 }
 
-
 // advances the simulation time according to the set rate
-void SimTimer::advanceTime(void){
+void SimTimer::advanceTime(void) {
 
 	rchoice = rate * drand48();
 	stime += (log(1. / (1.0 - drand48())) / rate);
 
-
 }
-
 
 SimulationSystem::SimulationSystem(PyObject *system_o) {
 
@@ -73,9 +67,6 @@ void SimulationSystem::construct(void) {
 		energyModel = Loop::GetEnergyModel();
 	}
 
-	startState = NULL;
-	complexList = NULL;
-
 	// move these to sim_settings
 	exportStatesInterval = (simOptions->getOInterval() >= 0);
 	exportStatesTime = (simOptions->getOTime() >= 0);
@@ -89,16 +80,12 @@ SimulationSystem::SimulationSystem(void) {
 	simulation_mode = -1;
 	simulation_count_remaining = -1;
 
-	if (Loop::GetEnergyModel() == NULL) {
-		energyModel = NULL;
-	} else {
+	if (Loop::GetEnergyModel() != NULL) {
+
 		energyModel = Loop::GetEnergyModel();
+
 	}
 
-	system_options = NULL;
-	simOptions = NULL;
-	startState = NULL;
-	complexList = NULL;
 }
 
 int SimulationSystem::isEnergymodelNull(void) {
@@ -108,16 +95,15 @@ int SimulationSystem::isEnergymodelNull(void) {
 }
 
 SimulationSystem::~SimulationSystem(void) {
-	if (complexList != NULL)
+
+	if (complexList != NULL) {
 		delete complexList;
+	}
 	complexList = NULL;
 
 // the remaining members are not our responsibility, we null them out
 // just in case something thread-unsafe happens.
 
-	energyModel = NULL;
-	simOptions = NULL;
-	startState = NULL;
 }
 
 void SimulationSystem::StartSimulation(void) {
@@ -228,11 +214,7 @@ void SimulationSystem::SimulationLoop_Standard(void) {
 
 	do {
 
-		myTimer.rchoice = myTimer.rate * drand48();
-		myTimer.stime += (log(1. / (1.0 - drand48())) / myTimer.rate);
-
-		// 1.0 - drand as drand returns in the [0.0, 1.0) range, we need a (0.0,1.0] range.
-		// see notes below in First Step mode.
+		myTimer.advanceTime();
 
 		if (myTimer.stime < myTimer.maxsimtime) {
 			// Why check here? Because we want to report the final state
@@ -250,7 +232,7 @@ void SimulationSystem::SimulationLoop_Standard(void) {
 			// FD: Mathematically it is also the correct thing to do,
 			// FD: when we remember the memoryless property of the Markov chain
 
-			(void) complexList->doBasicChoice(myTimer.rchoice, myTimer.stime);
+			(void) complexList->doBasicChoice(myTimer.rchoice);
 
 			myTimer.rate = complexList->getTotalFlux();
 
@@ -304,7 +286,6 @@ void SimulationSystem::SimulationLoop_Trajectory() {
 	SimTimer myTimer(*simOptions);
 	stopComplexes *traverse = NULL, *first = NULL;
 
-	double last_trajectory_time;
 
 	bool stopFlag = false;
 	long current_state_count = 0;
@@ -312,9 +293,6 @@ void SimulationSystem::SimulationLoop_Trajectory() {
 	complexList->initializeList();
 	myTimer.rate = complexList->getTotalFlux();
 
-
-// The last time we gave the output state.
-	last_trajectory_time = 0.0;
 
 	if (myTimer.stopoptions) {
 		if (myTimer.stopcount <= 0) {
@@ -339,10 +317,10 @@ void SimulationSystem::SimulationLoop_Trajectory() {
 		}
 
 		if (exportStatesTime) {
-			exportTime(myTimer.stime, &last_trajectory_time);
+			exportTime(myTimer.stime, myTimer.last_trajectory_time);
 		}
 
-		int ArrMoveType = complexList->doBasicChoice(myTimer.rchoice, myTimer.stime);
+		int ArrMoveType = complexList->doBasicChoice(myTimer.rchoice);
 		myTimer.rate = complexList->getTotalFlux();
 		current_state_count += 1;
 
@@ -390,7 +368,6 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 	bool stopFlag = false;
 	bool state_changed = false;
 
-
 	if (myTimer.stopcount <= 0 || !myTimer.stopoptions) {
 		// this simulation mode MUST have some stop conditions set.
 		simOptions->stopResultError(current_seed);
@@ -433,7 +410,7 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 		if (myTimer.stime < myTimer.maxsimtime) {
 			// See note in SimulationLoop_Standard
 
-			complexList->doBasicChoice(myTimer.rchoice, myTimer.stime);
+			complexList->doBasicChoice(myTimer.rchoice);
 			myTimer.rate = complexList->getTotalFlux();
 
 			// check if our transition state membership vector has changed
@@ -495,7 +472,6 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 	stopComplexes *traverse = NULL, *first = NULL;
 
 	bool stopFlag = false;
-	double last_trajectory_time = 0.0;
 
 	double frate = 0.0;
 
@@ -509,9 +485,7 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 	// if the toggle is set, export the initial state with arrType equal to flux
 	// and timestamp -1
 	if (simOptions->getPrintIntialFirstStep()) {
-
 		exportInterval(-1.0, current_state_count, myTimer.rate);
-
 	}
 
 // scomplexlist returns a 0.0 rate if there was a single complex in
@@ -524,8 +498,7 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 
 		noInitialMoves++;
 
-		simOptions->stopResultBimolecular("NoMoves", current_seed, 0.0, 0.0,
-		NULL);
+		simOptions->stopResultBimolecular("NoMoves", current_seed, 0.0, 0.0, NULL);
 		return;
 	}
 
@@ -563,10 +536,10 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 
 		// trajectory output via outputtime option
 		if (exportStatesTime) {
-			exportTime(myTimer.stime, &last_trajectory_time);
+			exportTime(myTimer.stime, myTimer.last_trajectory_time);
 		}
 
-		int ArrMoveType = complexList->doBasicChoice(myTimer.rchoice, myTimer.stime);
+		int ArrMoveType = complexList->doBasicChoice(myTimer.rchoice);
 
 		myTimer.rate = complexList->getTotalFlux();
 		current_state_count++;
@@ -798,12 +771,12 @@ void SimulationSystem::printTransition(double input) {
 
 }
 
-void SimulationSystem::exportTime(double simTime, double* lastExportTime) {
+void SimulationSystem::exportTime(double& simTime, double& lastExportTime) {
 
-	if (simTime - *lastExportTime > simOptions->getOTime()) {
+	if (simTime - lastExportTime > simOptions->getOTime()) {
 
-		*lastExportTime += simOptions->getOTime();
-		sendTrajectory_CurrentStateToPython(*lastExportTime);
+		lastExportTime += simOptions->getOTime();
+		sendTrajectory_CurrentStateToPython(lastExportTime);
 
 	}
 

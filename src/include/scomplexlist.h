@@ -40,7 +40,7 @@ public:
 	double *getEnergy(int volume_flag);
 	void printComplexList();
 	SComplexListEntry *getFirst(void);
-	int doBasicChoice(double choice, double newtime);
+	int doBasicChoice(double choice);
 	JoinCriteria cycleForJoinChoice(double choice);
 	JoinCriteria cycleForJoinChoiceArr(double choice);
 	JoinCriteria findJoinNucleotides(BaseType, int, BaseCount&, SComplexListEntry*, HalfContext* = NULL);

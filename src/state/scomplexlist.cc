@@ -397,9 +397,9 @@ int SComplexList::getCount(void) {
 	return numOfComplexes;
 }
 
-int SComplexList::doBasicChoice(double choice, double newtime) {
+int SComplexList::doBasicChoice(double rchoice) {
 
-	double rchoice = choice, moverate;
+	double  moverate;
 	int type, arrType;
 	SComplexListEntry *temp, *temp2 = first;
 	StrandComplex* newComplex = NULL;
