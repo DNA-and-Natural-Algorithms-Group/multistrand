@@ -46,7 +46,7 @@ public:
 private:
 
 	// temporary flags:
-	const bool cotranscriptional = true;
+	const bool cotranscriptional = false;
 	const double delayCT = 0.001; // 1ms delay between adding nucleotides.
 
 

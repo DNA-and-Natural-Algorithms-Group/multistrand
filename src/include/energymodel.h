@@ -105,7 +105,7 @@ public:
 
 	SimOptions* simOptions;
 	int numActiveNucl = 5; // for co-transcriptional folding.
-	bool cotranscriptional = true;
+	bool cotranscriptional = false;
 
 protected:
 	long dangles;
