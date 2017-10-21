@@ -30,6 +30,21 @@ void SimTimer::advanceTime(void) {
 
 }
 
+// returns TRUE if a new nucleotide is to be added to the chain
+bool SimTimer::checkForNewNucleotide(void){
+
+
+	if ( cotranscriptional && stime > (nuclAdded + initialCT) * delayCT ){
+
+		nuclAdded++;
+		return true;
+	}
+
+	return false;
+
+}
+
+
 SimulationSystem::SimulationSystem(PyObject *system_o) {
 
 	system_options = system_o;
@@ -232,7 +247,7 @@ void SimulationSystem::SimulationLoop_Standard(void) {
 			// FD: Mathematically it is also the correct thing to do,
 			// FD: when we remember the memoryless property of the Markov chain
 
-			(void) complexList->doBasicChoice(myTimer.rchoice);
+			(void) complexList->doBasicChoice(myTimer);
 
 			myTimer.rate = complexList->getTotalFlux();
 
@@ -320,7 +335,7 @@ void SimulationSystem::SimulationLoop_Trajectory() {
 			exportTime(myTimer.stime, myTimer.last_trajectory_time);
 		}
 
-		int ArrMoveType = complexList->doBasicChoice(myTimer.rchoice);
+		int ArrMoveType = complexList->doBasicChoice(myTimer);
 		myTimer.rate = complexList->getTotalFlux();
 		current_state_count += 1;
 
@@ -410,7 +425,7 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 		if (myTimer.stime < myTimer.maxsimtime) {
 			// See note in SimulationLoop_Standard
 
-			complexList->doBasicChoice(myTimer.rchoice);
+			complexList->doBasicChoice(myTimer);
 			myTimer.rate = complexList->getTotalFlux();
 
 			// check if our transition state membership vector has changed
@@ -539,7 +554,7 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 			exportTime(myTimer.stime, myTimer.last_trajectory_time);
 		}
 
-		int ArrMoveType = complexList->doBasicChoice(myTimer.rchoice);
+		int ArrMoveType = complexList->doBasicChoice(myTimer);
 
 		myTimer.rate = complexList->getTotalFlux();
 		current_state_count++;

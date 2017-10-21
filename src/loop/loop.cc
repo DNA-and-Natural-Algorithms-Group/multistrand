@@ -2817,6 +2817,7 @@ double HairpinLoop::doChoice(Move *move, Loop **returnLoop) {
 }
 
 void HairpinLoop::generateMoves(void) {
+
 	double energies[2];
 	int pt = 0;
 	int loop, loop2;
@@ -4612,7 +4613,7 @@ void OpenLoop::generateMoves(void) {
 				pairType = pairtypes[mySequence[loop]][mySequence[loop2]];
 
 
-				if (pairType != 0 && this->nucleotideIsActive(mySequence, initialPointer, loop, loop2) ) { // FD: the NUPACK model puts terms here to be non-zero.  in NUPACK, G-T stacking is a thing. Hairpin loops are size 3 or more.
+				if (pairType != 0 && nucleotideIsActive(mySequence, initialPointer, loop, loop2) ) { // FD: the NUPACK model puts terms here to be non-zero.  in NUPACK, G-T stacking is a thing. Hairpin loops are size 3 or more.
 
 					energies[0] = energyModel->HairpinEnergy(&mySequence[loop], loop2 - loop - 1);
 
@@ -5219,7 +5220,7 @@ HalfContext OpenLoop::getHalfContext(int loop, int loop2) {
 
 bool OpenLoop::nucleotideIsActive(const char* sequence, const char* initial, const int pos1,  const int pos2 ){
 
-	return (this->nucleotideIsActive(sequence, initial, pos1) && this->nucleotideIsActive(sequence, initial, pos1));
+	return (nucleotideIsActive(sequence, initial, pos1) && nucleotideIsActive(sequence, initial, pos1));
 
 }
 
@@ -5228,6 +5229,19 @@ bool OpenLoop::nucleotideIsActive(const char* sequence, const char* initial, con
 bool OpenLoop::nucleotideIsActive(const char* sequence, const char* initial, const int pos1){
 
 	// needed: time and a pointer to the first entry.
+	if (energyModel->cotranscriptional){
+
+		const char* seqPointer = &sequence[pos1];
+
+		if( seqPointer - initial > energyModel->numActiveNucl){
+			return true;
+
+		} else {
+
+			return false;
+		}
+
+	}
 
 
 	return true;

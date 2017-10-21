@@ -397,30 +397,20 @@ int SComplexList::getCount(void) {
 	return numOfComplexes;
 }
 
-int SComplexList::doBasicChoice(double rchoice) {
+int SComplexList::doBasicChoice(SimTimer& timer) {
 
-	double  moverate;
-	int type, arrType;
 	SComplexListEntry *temp, *temp2 = first;
 	StrandComplex* newComplex = NULL;
 	Move *tempmove;
-	char *struc;
+	int arrType;
 
-	if (utility::debugTraces) {
-		cout << "Doing a basic Choice  ***" << endl;
-	}
+	if (timer.rchoice < joinRate) {
 
-	if (rchoice < joinRate) {
-
-		if (utility::debugTraces) {
-			cout << "Triggering joinmove for rchoice " << rchoice << " and joinRate " << joinRate << endl;
-		}
-
-		return doJoinChoice(rchoice);
+		return doJoinChoice(timer.rchoice);
 
 	} else {
 
-		rchoice -= joinRate;
+		timer.rchoice -= joinRate;
 
 	}
 
@@ -428,13 +418,13 @@ int SComplexList::doBasicChoice(double rchoice) {
 	StrandComplex *pickedComplex = NULL;
 
 	while (temp != NULL) {
-		if (rchoice < temp->rate && pickedComplex == NULL) {
+		if (timer.rchoice < temp->rate && pickedComplex == NULL) {
 			pickedComplex = temp->thisComplex;
 			temp2 = temp;
 		}
 		if (pickedComplex == NULL) {
-			//	  assert( rchoice != temp->rate && temp->next == NULL);
-			rchoice -= temp->rate;
+
+			timer.rchoice -= temp->rate;
 
 		}
 		temp = temp->next;
@@ -443,9 +433,7 @@ int SComplexList::doBasicChoice(double rchoice) {
 
 	assert(pickedComplex != NULL);
 
-	tempmove = pickedComplex->getChoice(&rchoice);
-	moverate = tempmove->getRate();
-	type = tempmove->getType();
+	tempmove = pickedComplex->getChoice(&timer.rchoice);
 	arrType = tempmove->getArrType();
 
 	newComplex = pickedComplex->doChoice(tempmove);
@@ -459,9 +447,18 @@ int SComplexList::doBasicChoice(double rchoice) {
 
 	temp2->fillData(eModel);
 
-	if (utility::debugTraces) {
-		cout << "Going to return the arrType in doBasicChoice!! **************** " << std::endl;
+
+	// FD Oct 20, 2017.
+	// If co-transcriptional mode is activated, and the time indicates a new nucleotide has been added,
+	// then ask all loops to regenerated their transitions -- taking the new time into account.
+	if (timer.checkForNewNucleotide()){
+
+		eModel->numActiveNucl = timer.initialCT + timer.nuclAdded;
+		cout << "Setting the nucleotide count to : " << eModel->numActiveNucl;
+		regenerateMoves();
+
 	}
+
 
 	return arrType;
 

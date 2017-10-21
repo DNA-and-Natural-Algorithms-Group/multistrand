@@ -29,6 +29,7 @@ struct SimTimer{
 	SimTimer(SimOptions& myOptions);
 
 	void advanceTime(void);
+	bool checkForNewNucleotide(void);
 
 public:
 	double rchoice = 0.0;
@@ -38,6 +39,18 @@ public:
 	double last_trajectory_time = 0.0;
 	long stopcount = 0;
 	long stopoptions = 0;
+
+	const int initialCT = 5;
+	int nuclAdded = 0;
+
+private:
+
+	// temporary flags:
+	const bool cotranscriptional = true;
+	const double delayCT = 0.001; // 1ms delay between adding nucleotides.
+
+
+
 };
 
 

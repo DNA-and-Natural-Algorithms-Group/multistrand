@@ -263,15 +263,6 @@ private:
 	char **seqs;
 
 
-	// temporary flags:
-
-	const bool cotranscriptional = true;
-	const int initialCT = 5;
-	const double delayCT = 0.001; // 1ms delay between adding nucleotides.
-
-
-
-
 
 };
 

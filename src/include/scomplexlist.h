@@ -17,6 +17,7 @@ using std::cout;
 
 class SComplexListEntry;
 class JoinCriterea;
+class SimTimer;
 
 class SComplexList {
 public:
@@ -40,7 +41,7 @@ public:
 	double *getEnergy(int volume_flag);
 	void printComplexList();
 	SComplexListEntry *getFirst(void);
-	int doBasicChoice(double choice);
+	int doBasicChoice(SimTimer& timer);
 	JoinCriteria cycleForJoinChoice(double choice);
 	JoinCriteria cycleForJoinChoiceArr(double choice);
 	JoinCriteria findJoinNucleotides(BaseType, int, BaseCount&, SComplexListEntry*, HalfContext* = NULL);

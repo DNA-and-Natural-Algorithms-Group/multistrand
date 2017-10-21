@@ -73,8 +73,6 @@ public:
 
 	void writeConstantsToFile(void);
 
-//	void printPrecomputedArrRates(void);
-//	void printkBikUni(void);
 
 	// Virtual methods
 
@@ -106,6 +104,8 @@ public:
 	virtual double OpenloopEnergy(int size, int *sidelen, char **sequences) = 0;
 
 	SimOptions* simOptions;
+	int numActiveNucl = 5; // for co-transcriptional folding.
+	bool cotranscriptional = true;
 
 protected:
 	long dangles;
