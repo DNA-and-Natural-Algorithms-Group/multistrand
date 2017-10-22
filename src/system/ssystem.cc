@@ -49,6 +49,8 @@ bool SimTimer::checkForNewNucleotide(void){
 }
 
 
+// SFAFG
+
 std::ostream& operator<<(std::ostream& ss, SimTimer& timer) {
 
 	ss << "rchoice ";

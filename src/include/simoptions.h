@@ -79,7 +79,7 @@ public:
 
 	// actual option values
 	const bool cotranscriptional = true;
-	const int initialActiveNT = 5;
+	const int initialActiveNT = 8;
 	const double delayNT = 0.001; // delay between adding nucleotides (seconds)
 
 

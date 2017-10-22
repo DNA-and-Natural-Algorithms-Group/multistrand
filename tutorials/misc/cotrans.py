@@ -8,6 +8,10 @@ from multistrand.system import SimSystem
 from multistrand.utils import pairType
 from multistrand.experiment import standardOptions, hybridization
 
+from rawdata.readensemble import setArrParams
+
+import time
+
 
 def printTrajectory(o):
     
@@ -46,28 +50,35 @@ def printTrajectory(o):
 
 def doSims(strandSeq, numTraj=2):    
 
-    o1 = standardOptions()
+
+
+    curr = time.time()
+
+    o1 = standardOptions(tempIn = 36.95)
     
     o1.num_simulations = numTraj
-    o1.output_interval = 100 
-    o1.simulation_time = 0.10 # 10 ms
+    o1.output_time = 0.0004# 0.2 ms output
+    o1.simulation_time = 0.20 # 10 ms
+    o1.gt_enable = 1;
     o1.substrate_type = Options.substrateRNA
     o1.simulation_mode = Options.trajectory
        
 #     onedomain = Domain(name="itall", sequence="GGAACCGUCUCCCUCUGCCAAAAGGUAGAGGGAGAUGGAGCAUCUCUCUCUACGAAGCAGAGAGAGACGAAGG")    
-    onedomain = Domain(name="itall", sequence="GGAACCGTCTCCCTCTGCCAAAAGGTAGAGGGAGATGGAGCATCTCTCTCTACGAAGCAGAGAGAGACGAAGG")    
-#     onedomain = Domain(name="itall", sequence="GGAACCGTCTCCCTCTGCCAAAAGG")
+#     onedomain = Domain(name="itall", sequence="GGAACCGTCTCCCTCTGCCAAAAGGTAGAGGGAGATGGAGCATCTCTCTCTACGAAGCAGAGAGAGACGAAGG")    
+    onedomain = Domain(name="itall", sequence="GGAACCGTCTCCCTCTGCCAAAAGGTAGAGGGAGATGGAGCATCTCTCTCTACGAAGCAGAGAGAGACGAAGGGGAACCGTCTCCCTCTGCCAAAAGGTAGAGGGAGATGGAGCATCTCTCTCTACGAAGCAGAGAGAGACGAAGG")    
     top = Strand(name="top", domains=[onedomain])
     startTop = Complex(strands=[top], structure=".")
     o1.start_state = [startTop]
 
-    # do not define an ending 
-    
-    o1.initial_seed = 1777+6
+    setArrParams(o1,92)   
+
+#     o1.initial_seed = 1777+6
 
     s = SimSystem(o1)
     s.start()
-    printTrajectory(o1)        
+    printTrajectory(o1)     
+    
+    print "Exe time is " + str(time.time() - curr)   
         
 
     
