@@ -4552,7 +4552,7 @@ double OpenLoop::doChoice(Move *move, Loop **returnLoop) {
 
 void OpenLoop::generateMoves(void) {
 
-	if (utility::debugTraces) {
+	if (utility::debugTraces || false) {
 		cout << "\n OpenLoop generating moves!" << endl;
 		cout << this->typeInternalsToString();
 	}
@@ -4598,7 +4598,7 @@ void OpenLoop::generateMoves(void) {
 
 
 // for cotranscriptional mode, assume a single sequence
-	const char* initialPointer = &sequences[0][0];
+	const char* initialPointer = &seqs[0][0];
 
 
 // Case #1: Single Side only Creation Moves
@@ -4612,8 +4612,8 @@ void OpenLoop::generateMoves(void) {
 
 				pairType = pairtypes[mySequence[loop]][mySequence[loop2]];
 
-
-				if (pairType != 0 && nucleotideIsActive(mySequence, initialPointer, loop, loop2) ) { // FD: the NUPACK model puts terms here to be non-zero.  in NUPACK, G-T stacking is a thing. Hairpin loops are size 3 or more.
+				// FD: Allowed combinations are non-zero.  G-T stacks are sometimes allowed. Hairpin loops are size 3 or more.
+				if (pairType != 0 && nucleotideIsActive(mySequence, initialPointer, loop, loop2) ) {
 
 					energies[0] = energyModel->HairpinEnergy(&mySequence[loop], loop2 - loop - 1);
 
@@ -4978,20 +4978,15 @@ char* OpenLoop::getBase(char type, int index) {
 BaseCount& OpenLoop::getFreeBases() {
 
 	// do nothing if already computed last time
-	if (updatedContext2) {
-
-		return exposedBases;
-
-	} else {
+	if (!updatedContext) {
 
 		exposedBases.clear();
 
 		for (int loop = 0; loop < (numAdjacent + 1); loop++) {
 
-			int loop2 = 1;
 			int end = sidelen[loop] + 1;
 
-			for (; loop2 < end; loop2++) {
+			for (int loop2 = 1; loop2 < end; loop2++) {
 
 				int base = seqs[loop][loop2];
 
@@ -5012,7 +5007,7 @@ BaseCount& OpenLoop::getFreeBases() {
 
 		}
 
-		updatedContext2 = true;
+		updatedContext = true;
 
 	}
 
@@ -5220,7 +5215,7 @@ HalfContext OpenLoop::getHalfContext(int loop, int loop2) {
 
 bool OpenLoop::nucleotideIsActive(const char* sequence, const char* initial, const int pos1,  const int pos2 ){
 
-	return (nucleotideIsActive(sequence, initial, pos1) && nucleotideIsActive(sequence, initial, pos1));
+	return nucleotideIsActive(sequence, initial, pos1) && nucleotideIsActive(sequence, initial, pos2);
 
 }
 
@@ -5228,17 +5223,18 @@ bool OpenLoop::nucleotideIsActive(const char* sequence, const char* initial, con
 
 bool OpenLoop::nucleotideIsActive(const char* sequence, const char* initial, const int pos1){
 
-	// needed: time and a pointer to the first entry.
-	if (energyModel->cotranscriptional){
+//	// needed: time and a pointer to the first entry.
+	if (energyModel->simOptions->cotranscriptional){
 
 		const char* seqPointer = &sequence[pos1];
+		const int distance =  seqPointer - initial;
 
-		if( seqPointer - initial > energyModel->numActiveNucl){
+		cout << "Comparing nt distance " << distance << " and active " <<  energyModel->simOptions->initialActiveNT << endl;
+
+		if(distance > energyModel->simOptions->initialActiveNT){
+
 			return true;
 
-		} else {
-
-			return false;
 		}
 
 	}

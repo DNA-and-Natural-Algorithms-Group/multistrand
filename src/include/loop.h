@@ -253,7 +253,7 @@ public:
 	// non-private because we trust each other;
 	// so: only the loop itself is allowed to set these.
 	BaseCount exposedBases = BaseCount();
-	bool updatedContext2 = false; // this is the update toggle for exposedBases.
+	bool updatedContext = false; // this is the update toggle for exposedBases.
 
 	OpenInfo openInfo;
 	bool initial = false; // FD: if true, then the loop is the initial open loop and seqs[0][0] is out of bounds.

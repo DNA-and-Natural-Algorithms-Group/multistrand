@@ -23,15 +23,16 @@ typedef std::vector<bool>::iterator boolvector_iterator;
 // structs
 
 
-// simply some simulation datapoints
-struct SimTimer{
+// Some simulation datapoints
+class SimTimer{
 
+public:
 	SimTimer(SimOptions& myOptions);
 
 	void advanceTime(void);
 	bool checkForNewNucleotide(void);
+	friend std::ostream& operator<<(std::ostream&, SimTimer&);
 
-public:
 	double rchoice = 0.0;
 	double rate = 0.0;
 	double stime = 0.0;
@@ -40,15 +41,12 @@ public:
 	long stopcount = 0;
 	long stopoptions = 0;
 
-	const int initialCT = 5;
 	int nuclAdded = 0;
+	int numActiveNucl = 0; // for co-transcriptional folding.
 
 private:
 
-	// temporary flags:
-	const bool cotranscriptional = false;
-	const double delayCT = 0.001; // 1ms delay between adding nucleotides.
-
+	SimOptions* simOptions = NULL;
 
 
 };

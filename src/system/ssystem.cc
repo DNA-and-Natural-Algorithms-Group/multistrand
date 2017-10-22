@@ -20,6 +20,10 @@ SimTimer::SimTimer(SimOptions& myOptions) {
 	stopcount = myOptions.getStopCount();
 	stopoptions = myOptions.getStopOptions();
 
+	// saving the pointer to enable access to cotranscriptional timing values
+	simOptions = &myOptions;
+
+
 }
 
 // advances the simulation time according to the set rate
@@ -33,16 +37,30 @@ void SimTimer::advanceTime(void) {
 // returns TRUE if a new nucleotide is to be added to the chain
 bool SimTimer::checkForNewNucleotide(void){
 
-
-	if ( cotranscriptional && stime > (nuclAdded + initialCT) * delayCT ){
+	if ( simOptions->cotranscriptional && stime > (nuclAdded + simOptions->initialActiveNT) * simOptions->delayNT ){
 
 		nuclAdded++;
+
+		cout << "Adding a new nucleotide" << endl;
+
 		return true;
 	}
 
 	return false;
 
 }
+
+
+std::ostream& operator<<(std::ostream& ss, SimTimer& timer) {
+
+	ss << "rchoice ";
+	ss << timer.rchoice << "  rate  ";
+	ss << timer.rate << "  simTime  ";
+	ss << timer.stime ;
+
+	return ss;
+}
+
 
 
 SimulationSystem::SimulationSystem(PyObject *system_o) {

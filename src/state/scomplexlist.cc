@@ -397,20 +397,28 @@ int SComplexList::getCount(void) {
 	return numOfComplexes;
 }
 
-int SComplexList::doBasicChoice(SimTimer& timer) {
+int SComplexList::doBasicChoice(SimTimer& myTimer) {
 
 	SComplexListEntry *temp, *temp2 = first;
 	StrandComplex* newComplex = NULL;
 	Move *tempmove;
 	int arrType;
 
-	if (timer.rchoice < joinRate) {
+	if(utility::debugTraces){
 
-		return doJoinChoice(timer.rchoice);
+		cout << "Doing a basic choice " << endl;
+		cout << myTimer;
+
+	}
+
+
+	if (myTimer.rchoice < joinRate) {
+
+		return doJoinChoice(myTimer.rchoice);
 
 	} else {
 
-		timer.rchoice -= joinRate;
+		myTimer.rchoice -= joinRate;
 
 	}
 
@@ -418,13 +426,13 @@ int SComplexList::doBasicChoice(SimTimer& timer) {
 	StrandComplex *pickedComplex = NULL;
 
 	while (temp != NULL) {
-		if (timer.rchoice < temp->rate && pickedComplex == NULL) {
+		if (myTimer.rchoice < temp->rate && pickedComplex == NULL) {
 			pickedComplex = temp->thisComplex;
 			temp2 = temp;
 		}
 		if (pickedComplex == NULL) {
 
-			timer.rchoice -= temp->rate;
+			myTimer.rchoice -= temp->rate;
 
 		}
 		temp = temp->next;
@@ -433,7 +441,7 @@ int SComplexList::doBasicChoice(SimTimer& timer) {
 
 	assert(pickedComplex != NULL);
 
-	tempmove = pickedComplex->getChoice(&timer.rchoice);
+	tempmove = pickedComplex->getChoice(&myTimer.rchoice);
 	arrType = tempmove->getArrType();
 
 	newComplex = pickedComplex->doChoice(tempmove);
@@ -450,11 +458,11 @@ int SComplexList::doBasicChoice(SimTimer& timer) {
 
 	// FD Oct 20, 2017.
 	// If co-transcriptional mode is activated, and the time indicates a new nucleotide has been added,
-	// then ask all loops to regenerated their transitions -- taking the new time into account.
-	if (timer.checkForNewNucleotide()){
+	// then ask all  loops to regenerated their transitions -- taking the new time into account.
+	if (myTimer.checkForNewNucleotide()){
 
-		eModel->numActiveNucl = timer.initialCT + timer.nuclAdded;
-		cout << "Setting the nucleotide count to : " << eModel->numActiveNucl;
+		eModel->numActiveNT = eModel->simOptions->initialActiveNT + myTimer.nuclAdded;
+		cout << "Setting the nucleotide count to : " << eModel->numActiveNT << "and regen moves" << endl;
 		regenerateMoves();
 
 	}

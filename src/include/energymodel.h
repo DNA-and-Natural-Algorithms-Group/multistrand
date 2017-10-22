@@ -104,8 +104,10 @@ public:
 	virtual double OpenloopEnergy(int size, int *sidelen, char **sequences) = 0;
 
 	SimOptions* simOptions;
-	int numActiveNucl = 5; // for co-transcriptional folding.
-	bool cotranscriptional = false;
+
+	// for co-transcriptional, save the curent amount of activated nucleotides
+	int numActiveNT = 0;
+
 
 protected:
 	long dangles;

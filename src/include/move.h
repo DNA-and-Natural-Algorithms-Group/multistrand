@@ -9,14 +9,6 @@ help@multistrand.org
 #ifndef __MOVE_H__
 #define __MOVE_H__
 
-//#define MOVE_INVALID 0
-//#define MOVE_CREATE  1
-//#define MOVE_DELETE  2
-//#define MOVE_SHIFT   4
-//#define MOVE_1       8
-//#define MOVE_2      16
-//#define MOVE_3      32
-
 const int MOVE_INVALID = 0;
 const int MOVE_CREATE = 1;
 const int MOVE_DELETE = 2;
@@ -97,15 +89,7 @@ protected:
 
 };
 
-//// not using this storage method yet... refer to the list...
-//class MoveTree: public Move {
-//public:
-//	~MoveTree(void);
-//
-//private:
-//	Move *left, *right; // also an uplink?
-//	double totalrate;
-//};
+
 
 class MoveList: public MoveContainer {
 public:

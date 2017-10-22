@@ -72,7 +72,6 @@ public:
 
 
 	// nasim old loop model only
-
 	double dSC = 0.0;
 	double dSG = 0.0;
 	double dST = 0.0;
@@ -97,7 +96,6 @@ protected:
 	// not sure if these are long
 	long substrate_type;
 
-	// Hard coding some default Arrhenius constants (for now)
 	bool useArrRates = false;
 
 };

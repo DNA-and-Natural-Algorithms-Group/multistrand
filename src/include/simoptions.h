@@ -30,6 +30,14 @@ using namespace utility;
 
 class EnergyOptions;
 
+
+// FD: SimOptions contains an EnergyOptions object.
+// Both simOptions and energyOptions are meant to contain static values.
+// EnergyModel contains all precomputed maps AND relevant energy functions.
+//
+// hiarchy: energy model > simoptions > energyoptions.
+
+
 class SimOptions {
 public:
 
@@ -70,6 +78,11 @@ public:
 	string toString(void);
 
 	// actual option values
+	const bool cotranscriptional = true;
+	const int initialActiveNT = 5;
+	const double delayNT = 0.001; // delay between adding nucleotides (seconds)
+
+
 	vector<complex_input>* myComplexes = NULL;
 	EnergyOptions* energyOptions = NULL;
 
@@ -114,6 +127,8 @@ protected:
 
 };
 
+// FD: Starting multistrand without the python wrapper
+// is not implemented at this time, so the below is not functional.
 class CSimOptions: public SimOptions {
 public:
 	//constructors
