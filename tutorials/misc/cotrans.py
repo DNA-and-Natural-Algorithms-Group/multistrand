@@ -49,12 +49,14 @@ def doSims(strandSeq, numTraj=2):
     o1 = standardOptions()
     
     o1.num_simulations = numTraj
-    o1.output_interval = 1 
-    o1.simulation_time = 0.010 # 10 ms
+    o1.output_interval = 100 
+    o1.simulation_time = 0.10 # 10 ms
     o1.substrate_type = Options.substrateRNA
     o1.simulation_mode = Options.trajectory
        
-    onedomain = Domain(name="itall", sequence="ACTAGTACGTATGAT")    
+#     onedomain = Domain(name="itall", sequence="GGAACCGUCUCCCUCUGCCAAAAGGUAGAGGGAGAUGGAGCAUCUCUCUCUACGAAGCAGAGAGAGACGAAGG")    
+    onedomain = Domain(name="itall", sequence="GGAACCGTCTCCCTCTGCCAAAAGGTAGAGGGAGATGGAGCATCTCTCTCTACGAAGCAGAGAGAGACGAAGG")    
+#     onedomain = Domain(name="itall", sequence="GGAACCGTCTCCCTCTGCCAAAAGG")
     top = Strand(name="top", domains=[onedomain])
     startTop = Complex(strands=[top], structure=".")
     o1.start_state = [startTop]

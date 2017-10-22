@@ -462,7 +462,7 @@ int SComplexList::doBasicChoice(SimTimer& myTimer) {
 	if (myTimer.checkForNewNucleotide()){
 
 		eModel->numActiveNT = eModel->simOptions->initialActiveNT + myTimer.nuclAdded;
-		cout << "Setting the nucleotide count to : " << eModel->numActiveNT << "and regen moves" << endl;
+		cout << "Nucleotide count = " << eModel->numActiveNT << "   time = " << myTimer.stime << " sec"  << endl;
 		regenerateMoves();
 
 	}

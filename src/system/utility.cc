@@ -17,7 +17,7 @@ help@multistrand.org
 #include <energymodel.h>
 
 
-
+//ADAf
 
 char* utility::copyToCharArray(string& myString) {
 

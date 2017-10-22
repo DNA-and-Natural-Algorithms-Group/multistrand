@@ -106,7 +106,7 @@ public:
 	SimOptions* simOptions;
 
 	// for co-transcriptional, save the curent amount of activated nucleotides
-	int numActiveNT = 0;
+	int numActiveNT = NULL;
 
 
 protected:

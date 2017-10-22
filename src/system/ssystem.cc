@@ -14,6 +14,8 @@
 #include <vector>
 #include <iostream>
 
+//asfgakg
+
 SimTimer::SimTimer(SimOptions& myOptions) {
 
 	maxsimtime = myOptions.getMaxSimTime();
@@ -40,14 +42,10 @@ bool SimTimer::checkForNewNucleotide(void){
 	if ( simOptions->cotranscriptional && stime > (nuclAdded + simOptions->initialActiveNT) * simOptions->delayNT ){
 
 		nuclAdded++;
-
-		cout << "Adding a new nucleotide" << endl;
-
 		return true;
 	}
 
 	return false;
-
 }
 
 
@@ -56,7 +54,7 @@ std::ostream& operator<<(std::ostream& ss, SimTimer& timer) {
 	ss << "rchoice ";
 	ss << timer.rchoice << "  rate  ";
 	ss << timer.rate << "  simTime  ";
-	ss << timer.stime ;
+	ss << timer.stime << "\n";
 
 	return ss;
 }

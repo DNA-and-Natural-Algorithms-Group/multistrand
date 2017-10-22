@@ -920,7 +920,8 @@ void NupackEnergyModel::processOptions() {
 	_RT = kBoltzmann * temperature;
 	current_temp = temperature;
 
-//	cout << "Current Temperature is " << current_temp << "\n";
+	//FD: adding cotranscriptional initialziation
+	numActiveNT = simOptions->initialActiveNT;
 
 	setupRates();
 }

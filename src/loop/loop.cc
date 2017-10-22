@@ -4566,6 +4566,7 @@ void OpenLoop::generateMoves(void) {
 	if (moves != NULL)
 		delete moves;
 	moves = new MoveList(1);
+
 //  Several options here:
 //     #1: creation move within a side this results in a hairpin and a open loop with 1 greater magnitude.
 //     #2a: creation move between sides resulting in a stack and open loop
@@ -5228,20 +5229,15 @@ bool OpenLoop::nucleotideIsActive(const char* sequence, const char* initial, con
 
 		const char* seqPointer = &sequence[pos1];
 		const int distance =  seqPointer - initial;
+//		cout << "Comparing nt distance " << distance << " and active " <<  energyModel->numActiveNT  << endl;
 
-		cout << "Comparing nt distance " << distance << " and active " <<  energyModel->simOptions->initialActiveNT << endl;
+		if(distance > energyModel->numActiveNT){
 
-		if(distance > energyModel->simOptions->initialActiveNT){
-
-			return true;
-
+			return false;
 		}
-
 	}
 
-
 	return true;
-
 }
 
 
