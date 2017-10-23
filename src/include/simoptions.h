@@ -78,8 +78,9 @@ public:
 	string toString(void);
 
 	// actual option values
-	const bool cotranscriptional = true;
+	bool cotranscriptional = false;
 	const int initialActiveNT = 8;
+	const int maxActiveNt = 300;
 	const double delayNT = 0.001; // delay between adding nucleotides (seconds)
 
 

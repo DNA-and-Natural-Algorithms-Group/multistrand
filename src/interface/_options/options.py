@@ -131,6 +131,15 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         """
         If True, this value will print the initial state in First Step Mode to the trajectory with a timestamp of -1.0
         """
+
+        self.cotranscriptional = False
+        """
+        If True, enables the cotranscriptional simulation mode. The mode works only when a single strand is supplied.
+        Starting with the initial 8 nucleotides, the simulation adds a nucleotide on the 3' end every 1 milisecond. 
+        """
+
+
+
         
         
         #############################################

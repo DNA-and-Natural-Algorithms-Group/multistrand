@@ -71,6 +71,9 @@ PSimOptions::PSimOptions(PyObject* input) :
 	getDoubleAttr(python_settings, simulation_time, &max_sim_time);
 
 	getBoolAttr(python_settings, print_initial_first_step, &printInitialFirstStep);
+	getBoolAttr(python_settings, cotranscriptional, &cotranscriptional);
+
+
 
 	debug = false;	// this is the main switch for simOptions debug, for now.
 
