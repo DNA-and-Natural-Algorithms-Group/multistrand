@@ -133,7 +133,7 @@ In-depth tutorial files on multistrand are found in /tutorials/under_the_hood. T
 
 ### Hybridization trajectory ###
 
-A quick test to see if Multistrand is working is by running 'python tutorials/misc/sample_trace.py'. This example does not use First Step mode, and should work would with all recent versions of NUPACK (3.0.6, 3.1.0, 3.2.1). This script simulates the hybridization of two complementary strands and ends the simulation when the two strands either completely hybridize or seperate after an initial collision:  
+A quick test to see if Multistrand is working is by running 'python tutorials/misc/sample_trace.py'. This example does not use Boltzmann sampling, and should work would with all recent versions of NUPACK (3.0.6, 3.1.0, 3.2.1). This script simulates the hybridization of two complementary strands and ends the simulation when the two strands either completely hybridize or seperate after an initial collision:  
 
 ```sh
 GTGAAACGC GCGTTTCAC
