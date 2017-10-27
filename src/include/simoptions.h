@@ -80,8 +80,7 @@ public:
 	// actual option values
 	bool cotranscriptional = false;
 	const int initialActiveNT = 8;
-	const int maxActiveNt = 300;
-	const double delayNT = 0.001; // delay between adding nucleotides (seconds)
+	const double delayNT = 0.002; // delay between adding nucleotides (seconds)
 
 
 	vector<complex_input>* myComplexes = NULL;

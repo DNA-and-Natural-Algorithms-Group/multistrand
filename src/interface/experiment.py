@@ -88,6 +88,14 @@ def hybridization(options, mySeq, myTrials=0, doFirstPassage=False):
 # Note: for long sequences, this could result in a timeout.
 
 
+
+
+
+
+
+
+
+
 def dissociation(options, mySeq, myTrials=0):
 
     # Using domain representation makes it easier to write secondary structures.

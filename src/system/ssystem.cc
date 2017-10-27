@@ -14,7 +14,6 @@
 #include <vector>
 #include <iostream>
 
-//asfgakg
 
 SimTimer::SimTimer(SimOptions& myOptions) {
 
@@ -49,7 +48,6 @@ bool SimTimer::checkForNewNucleotide(void){
 }
 
 
-// SFAFG
 
 std::ostream& operator<<(std::ostream& ss, SimTimer& timer) {
 

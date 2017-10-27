@@ -472,6 +472,60 @@ class FirstPassageRate(basicRate):
         return output
 
 
+# Like FirstStepRate, but the collected data is from trajectory mode. 
+# Currently, this only saves the final state.
+class TrajectoryRate(basicRate):
+
+    def __init__(self, dataset=None):
+
+        if dataset == None:
+            # set up for resampling
+            self.dataset = []
+        else :
+            self.dataset = dataset
+
+    def resample(self):
+
+        # avoid resampling time-outs.
+        newRates = TrajectoryRate()
+
+        return newRates
+
+    def merge(self, that, deepCopy=False):
+        
+        # Now merge the existing datastructures with the ones from the new dataset
+        if deepCopy:
+            for result in that.dataset:
+                self.dataset.append(copy.deepcopy(result))
+        else:
+            self.dataset.append(that.dataset)
+
+            
+    def generateRates(self):
+            
+        self.nForward = 0;
+
+    def k1(self):
+        
+        return 0;
+        
+
+    def kEff(self, concentration):
+
+        return 0;
+
+    def __str__(self):
+
+        output = "Trajectory Rate, size = %d \n" % len(self.dataset)
+        output+= super(TrajectoryRate, self).__str__() 
+        return output
+
+
+
+
+
+
+
 class Bootstrap():
 
     def __init__(self, myRates, N=10000, concentration=None, computek1=False, computek1Alt=False):
@@ -598,6 +652,7 @@ class MergeSimSettings(object):
     RESULTTYPE1 = "FirstStepRate"
     RESULTTYPE2 = "FirstStepRateLeak"
     RESULTTYPE3 = "FirstPassageRate"
+    RESULTTYPE4 = "TrajectoryRate"
     
     DEFAULT_OUTPUT_FILE = "mergesim_output.log"
 
@@ -623,6 +678,8 @@ class MergeSimSettings(object):
             return FirstStepLeakRate(dataset=dataset)
         if self.resultsType == self.RESULTTYPE3:
             return FirstPassageRate(dataset=dataset)
+        if self.resultsType == self.RESULTTYPE4:
+            return TrajectoryRate(dataset=dataset)
 
     def shouldTerminate(self, printFlag, nForwardIn, nReverseIn, timeStart):
 
@@ -697,6 +754,9 @@ class MergeSim(object):
 
     def setPassageMode(self):
         self.settings.resultsType = self.settings.RESULTTYPE3
+
+    def setTrajectoryMode(self):
+        self.settings.resultsType = self.settings.RESULTTYPE4
 
     def setOutputFile(self, title):
         self.settings.setOutputFile(title)
@@ -936,11 +996,16 @@ class MergeSim(object):
         # this saves the results generated so far as regular Python objects,
         # and clears the concurrent result lists.
         def saveResults():
-
-            # join all running threads -- the process has 2 seconds to close or it will be terminated.
-            for i in range(self.numOfThreads):
-                procs[i].join(timeout = 2)
-                procs[i].terminate()
+            
+            if self.settings.terminationCount == None:
+                # just let the threads join peacefully
+               for i in range(self.numOfThreads):
+                   procs[i].join()
+            else :
+                # join all running threads -- the process has 2 seconds to close or it will be terminated.
+                for i in range(self.numOfThreads):
+                    procs[i].join(timeout = 2)
+                    procs[i].terminate()
 
             # Leak - the below is a leak rates object
             # NB: Initialize with a dataset, but we merge with
