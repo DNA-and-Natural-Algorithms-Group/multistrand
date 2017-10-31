@@ -38,7 +38,7 @@ void SimTimer::advanceTime(void) {
 // returns TRUE if a new nucleotide is to be added to the chain
 bool SimTimer::checkForNewNucleotide(void){
 
-	if ( simOptions->cotranscriptional && stime > (nuclAdded + simOptions->initialActiveNT) * simOptions->delayNT ){
+	if ( simOptions->cotranscriptional && stime > (nuclAdded + simOptions->initialActiveNT) * simOptions->cotranscriptional_rate ){
 
 		nuclAdded++;
 		return true;
