@@ -150,6 +150,54 @@ def threewayDisplacement(options, toeholdSeq, domainSeq, myTrials=0, mySuperSamp
 
 
 
+
+def hairpinclosing(options,strands_list, myTrials=0, doFirstPassage=False):
+
+    # Using domain representation makes it easier to write secondary structures.
+    stemdomain1 = Domain(name="stemdomain1", sequence=strands_list[0])
+    loopdomain = Domain(name="loopdomain", sequence=strands_list[1])
+    stemdomain2 = stemdomain1.C
+    strand = Strand(name="top", domains=[stemdomain1,loopdomain, stemdomain2])
+    print "Strand is "
+    print strand
+    start_complex = Complex(strands=[strand], structure="...")
+    success_complex = Complex(strands=[strand], structure="(.)")
+    failed_complex = Complex(strands=[strand], structure="...")
+
+    # Turns Boltzmann sampling on for this complex and also does sampling more efficiently by sampling 'trials' states.
+    if(myTrials > 0):
+        setBoltzmann(start_complex, myTrials)
+
+    # Stop when the exact full duplex is achieved.
+    stopSuccess = StopCondition(Options.STR_SUCCESS, [(
+        success_complex, Options.exactMacrostate, 0)])
+
+    # Declare the simulation unproductive if the strands become single-stranded again.
+    stopFailed = StopCondition(Options.STR_FAILURE, [( failed_complex, Options.dissocMacrostate, 0)])
+
+    options.start_state = [start_complex]
+
+    # Point the options to the right objects
+    if not doFirstPassage:
+
+        options.stop_conditions = [stopSuccess, stopFailed]
+
+    else:
+
+        options.stop_conditions = [stopSuccess]
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Aug 2017: this is Mrinanks' implementation of the clamped seesaw gate.
 # this is how much the domain overlaps
 # see Figure 1, Winfree Qian 2010 -- A simple DNA gate motif for synthesizing large-scale circuits
