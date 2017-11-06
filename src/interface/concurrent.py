@@ -642,6 +642,9 @@ class optionsFactory(object):
             output = self.myFunction(
                 self.input0, self.input1, self.input2, self.input3, self.input4, self.input5, self.input6)
 
+        if output == None:
+            sys.exit("MergeSim error: Did not recieve Options object from the factory function.")
+
         output.initial_seed = inputSeed
 
         return output
