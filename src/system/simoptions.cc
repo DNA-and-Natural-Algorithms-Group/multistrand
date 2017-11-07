@@ -70,8 +70,11 @@ PSimOptions::PSimOptions(PyObject* input) :
 	getLongAttr(python_settings, use_stop_conditions, &stop_options);
 	getDoubleAttr(python_settings, simulation_time, &max_sim_time);
 
+	// to print the initial state, used for statespace building
 	getBoolAttr(python_settings, print_initial_first_step, &printInitialFirstStep);
+	// to enable cotranscriptional folding, assumes a single strand
 	getBoolAttr(python_settings, cotranscriptional, &cotranscriptional);
+	getDoubleAttr(python_settings, cotranscriptional_rate, &cotranscriptional_rate);
 
 
 

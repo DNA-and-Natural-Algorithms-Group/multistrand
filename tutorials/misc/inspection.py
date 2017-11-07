@@ -480,7 +480,7 @@ def create_test12():
     complex2 = makeComplex([seq0, seq1, seq2], struc1)
 
     myOptions = createOptions(complex1, complex2, "First Passage Time")
-    setArrheniusConstantsDNA23(myOptions)
+#     setArrheniusConstantsDNA23(myOptions)
 
     return myOptions
 
@@ -489,7 +489,7 @@ def main():
     
         
 #     o1 = create_test0()      # just a fully hybridized strand.
-#     o1 = create_test0B()      # just a fully hybridized strand.
+    o1 = create_test0B()      # just a fully hybridized strand.
 #     o1 = create_test0C()      # just a fully hybridized strand.
 #     o1 = create_test1()      # testing open-loop 
 #     o1 = create_test1B()      # testing open-loop with the initialiation penalty 
@@ -504,7 +504,7 @@ def main():
 #     o1 = create_test9()      # Small open-loop code
 #     o1 = create_test10()      # half open duplex
 #     o1 = create_test11()      # Oscillator gate
-    o1 = create_test12()      # displacement situation.
+#     o1 = create_test12()      # displacement situation.
 
 
 

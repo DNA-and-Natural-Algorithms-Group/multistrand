@@ -1,12 +1,11 @@
 /*
-Copyright (c) 2017 California Institute of Technology. All rights reserved.
-Multistrand nucleic acid kinetic simulator
-help@multistrand.org
-*/
+ Copyright (c) 2017 California Institute of Technology. All rights reserved.
+ Multistrand nucleic acid kinetic simulator
+ help@multistrand.org
+ */
 
 // FD  March 31, 2017. The following include fixes OSX compatibility issues.
 #include <Python.h>
-
 
 #include "scomplexlist.h"
 #include <assert.h>
@@ -53,15 +52,15 @@ SComplexListEntry::~SComplexListEntry(void) {
 void SComplexListEntry::initializeComplex(void) {
 
 	thisComplex->generateLoops();
-	if(utility::debugTraces){
+	if (utility::debugTraces) {
 		cout << "Done generating loops!" << endl;
 	}
 
 	thisComplex->generateMoves();
 
-	if(utility::debugTraces){
-			cout << "Done generating moves!" << endl;
-		}
+	if (utility::debugTraces) {
+		cout << "Done generating moves!" << endl;
+	}
 
 }
 
@@ -84,13 +83,12 @@ string SComplexListEntry::toString(EnergyModel *em) {
 
 	std::stringstream ss;
 
-	// more comparable to NUPACK
-	double printEnergy = (energy - (em->getVolumeEnergy() + em->getAssocEnergy()) * (thisComplex->getStrandCount() - 1) );
-
+	// more comparable to NUPACK  - - FD replace assoEnergy with 2.44
+	double printEnergy = (energy - (em->getVolumeEnergy() + em->getAssocEnergy()) * (thisComplex->getStrandCount() - 1));
 
 	ss << "Complex      : " << id << " \n";
 	ss << "seq, struc   : " << thisComplex->getSequence() << " - " << thisComplex->getStructure() << " \n";
-	ss << "energy,rate  : " << printEnergy  << " - " << rate   <<  "     (T=" << em->simOptions->energyOptions->getTemperature() << ")";
+	ss << "energy,rate  : " << printEnergy << " - " << rate << "     (T=" << em->simOptions->energyOptions->getTemperature() << ")";
 	ss << "\n";
 
 	// also print info on the openloop datastructures
@@ -170,7 +168,7 @@ void SComplexList::initializeList(void) {
 
 		temp->initializeComplex();
 
-		if(utility::debugTraces){
+		if (utility::debugTraces) {
 			cout << "Done initializing a complex!" << endl;
 		}
 
@@ -178,7 +176,7 @@ void SComplexList::initializeList(void) {
 
 	}
 
-	if(utility::debugTraces){
+	if (utility::debugTraces) {
 		cout << "Done initializing List!" << endl;
 	}
 
@@ -203,7 +201,7 @@ double SComplexList::getTotalFlux(void) {
 
 	double total = 0.0;
 
-	for( SComplexListEntry *temp = first; temp != NULL; temp = temp->next){
+	for (SComplexListEntry *temp = first; temp != NULL; temp = temp->next) {
 
 		total += temp->rate;
 
@@ -211,7 +209,6 @@ double SComplexList::getTotalFlux(void) {
 
 	joinRate = getJoinFlux();
 	total += joinRate;
-
 
 	return total;
 }
@@ -352,7 +349,6 @@ double SComplexList::cycleCrossRateArr(StrandOrdering* input1, StrandOrdering* i
 
 }
 
-
 /*
  SComplexList::getEnergy( int volume_flag )
  */
@@ -404,13 +400,12 @@ int SComplexList::doBasicChoice(SimTimer& myTimer) {
 	Move *tempmove;
 	int arrType;
 
-	if(utility::debugTraces){
+	if (utility::debugTraces) {
 
 		cout << "Doing a basic choice " << endl;
 		cout << myTimer;
 
 	}
-
 
 	if (myTimer.rchoice < joinRate) {
 
@@ -455,18 +450,19 @@ int SComplexList::doBasicChoice(SimTimer& myTimer) {
 
 	temp2->fillData(eModel);
 
-
 	// FD Oct 20, 2017.
 	// If co-transcriptional mode is activated, and the time indicates a new nucleotide has been added,
 	// then ask all  loops to regenerated their transitions -- taking the new time into account.
-	if (myTimer.checkForNewNucleotide()){
+	if (myTimer.checkForNewNucleotide()) {
 
 		eModel->numActiveNT = eModel->simOptions->initialActiveNT + myTimer.nuclAdded;
-		cout << "Nucleotide count = " << eModel->numActiveNT << "   time = " << myTimer.stime << " sec"  << endl;
+
+		if (eModel->numActiveNT % 25 == 0) {
+			cout << "Nucleotide count = " << eModel->numActiveNT << "   time = " << myTimer.stime << " sec" << endl;
+		}
 		regenerateMoves();
 
 	}
-
 
 	return arrType;
 
@@ -508,7 +504,6 @@ int SComplexList::doJoinChoice(double choice) {
 
 	assert(crit.complexes[0]!=NULL);
 	assert(crit.complexes[1]!=NULL);
-
 
 // here we actually perform the complex join, using criteria as input.
 
@@ -596,7 +591,6 @@ JoinCriteria SComplexList::findJoinNucleotides(BaseType base, int choice, BaseCo
 	while (temp != NULL) {
 
 		BaseCount externOther = temp->thisComplex->getExteriorBases(lowerHalf);
-
 
 		if (choice < externOther.count[base] * external.count[otherBase]) {
 

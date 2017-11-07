@@ -88,6 +88,9 @@ def hybridization(options, mySeq, myTrials=0, doFirstPassage=False):
 # Note: for long sequences, this could result in a timeout.
 
 
+
+
+
 def dissociation(options, mySeq, myTrials=0):
 
     # Using domain representation makes it easier to write secondary structures.
@@ -143,18 +146,24 @@ def threewayDisplacement(options, toeholdSeq, domainSeq, myTrials=0, mySuperSamp
 
 
 
-def hairpinclosing(options,strands_list, myTrials=0, doFirstPassage=False):
+## Strandlist -- stem domain is first argument
+## Strandlist -- loop domain is second argument
+## Try:   ['ACGTGGA', 'TTTTT']
+
+# def hairpinclosing(options,strands_list, myTrials=0):
+#     return hairpinclosing(options, strands_list[0], strands_list[1], myTrials=0);
+    
+
+def hairpinclosing(options,stemSeq, loopSeq, myTrials=0):
 
     # Using domain representation makes it easier to write secondary structures.
-    stemdomain1 = Domain(name="stemdomain1", sequence=strands_list[0])
-    loopdomain = Domain(name="loopdomain", sequence=strands_list[1])
+    stemdomain1 = Domain(name="stemdomain1", sequence=stemSeq)
+    loopdomain = Domain(name="loopdomain", sequence=loopSeq)
     stemdomain2 = stemdomain1.C
+    
     strand = Strand(name="top", domains=[stemdomain1,loopdomain, stemdomain2])
-    print "Strand is "
-    print strand
     start_complex = Complex(strands=[strand], structure="...")
     success_complex = Complex(strands=[strand], structure="(.)")
-    failed_complex = Complex(strands=[strand], structure="...")
 
     # Turns Boltzmann sampling on for this complex and also does sampling more efficiently by sampling 'trials' states.
     if(myTrials > 0):
@@ -164,20 +173,9 @@ def hairpinclosing(options,strands_list, myTrials=0, doFirstPassage=False):
     stopSuccess = StopCondition(Options.STR_SUCCESS, [(
         success_complex, Options.exactMacrostate, 0)])
 
-    # Declare the simulation unproductive if the strands become single-stranded again.
-    stopFailed = StopCondition(Options.STR_FAILURE, [( failed_complex, Options.dissocMacrostate, 0)])
 
     options.start_state = [start_complex]
-
-    # Point the options to the right objects
-    if not doFirstPassage:
-
-        options.stop_conditions = [stopSuccess, stopFailed]
-
-    else:
-
-        options.stop_conditions = [stopSuccess]
-
+    options.stop_conditions = [stopSuccess]
 
 
 

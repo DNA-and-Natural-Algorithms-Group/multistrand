@@ -70,6 +70,10 @@ class Options(object):
     countMacrostate = 4  # match a secondary structure, allowing a certain number of disagreements
     # see Schaeffer's PhD thesis, chapter 7.2, for more information
     
+    cotranscriptional_rate_default = 0.001  # 1 nt added every 1 ms
+    
+    
+    
     def __init__(self, *args, **kargs):
         """
         Initialization of an Options object:
@@ -135,9 +139,13 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         self.cotranscriptional = False
         """
         If True, enables the cotranscriptional simulation mode. The mode works only when a single strand is supplied.
-        Starting with the initial 8 nucleotides, the simulation adds a nucleotide on the 3' end every 1 milisecond. 
+        Starting with the initial 8 nucleotides, the simulation adds a nucleotide on the 3' end every 1 millisecond. 
         """
-
+        
+        self.cotranscriptional_rate = self.cotranscriptional_rate_default
+        """
+        By default, the cotranscriptional mode adds one nucleotide every 1 millisecond.
+        """
 
 
         
