@@ -2,23 +2,22 @@
 # fdann@caltech.edu
 
 # # this is the new large figure for the MS 2.0 paper.
-from multistrand.experiment import standardOptions, hairpinclosing, threewayDisplacement, makeComplex, setBoltzmann
-from multistrand.objects import StopCondition
+from multistrand.experiment import standardOptions, hairpinclosing, threewayDisplacement
+from multistrand.objects import StopCondition, Complex, Domain, Strand
 from multistrand.options import Options
 from multistrand.utils import standardFileName
 from multistrand.concurrent import myMultistrand
 
 import matplotlib.pylab as plt
-import enum
 
-A_TIME_OUT = 4.0
+A_TIME_OUT = 3.0
 
 HAIRPIN_STEM = "ACGTACGT"
 HAIRPIN_LOOP = "TTTTT"
 
 FLAMM_SEQ = "GGGAUUUCUCGCUAUUCCAGUGGGA"
 
-YURK_T6E2003 = ""
+YURK_T6E2003 = "ACTAATCCTCAGATCCAGCTAGTGTCCGTACT"
 
 
 myMultistrand.setNumOfThreads(8) 
@@ -28,7 +27,7 @@ enum_hairpin = "hairpin"
 enum_flamm = "flamm2000"  # figure 8
 enum_yurke =  "yurke2003" # Yurke and Mills -- T6 in table 1
     
-nTrialsMod = 5
+nTrialsMod = 1
 
 
 class settings(object):
@@ -44,7 +43,8 @@ class settings(object):
         return self.seq
 
 setting_hairpin = settings(enum_hairpin, HAIRPIN_STEM, 20* myMultistrand.numOfThreads*nTrialsMod)
-setting_flamm = settings(enum_flamm, FLAMM_SEQ, 2 * myMultistrand.numOfThreads*nTrialsMod)
+setting_flamm = settings(enum_flamm, FLAMM_SEQ, 5 * myMultistrand.numOfThreads*nTrialsMod)
+settings_yurke = settings(enum_yurke, YURK_T6E2003,  myMultistrand.numOfThreads*nTrialsMod)
 
 
 
@@ -52,31 +52,41 @@ def simulationHairpin(trialsIn):
     
     stdOptions = standardOptions(simMode=Options.trajectory, trials=trialsIn)
     stdOptions.simulation_time = A_TIME_OUT
-    hairpinclosing(stdOptions, HAIRPIN_STEM, HAIRPIN_LOOP, myTrials=0)
+    hairpinclosing(stdOptions, HAIRPIN_STEM, HAIRPIN_LOOP)
     
     return stdOptions
-    
+
+
 
 # Figure 8 of Flamm 2000 -- bistable. Compute transition time S0 -> S1
 def simulationFlamm2000(trialsIn):
     
 #     seq = "GGGAUUUCUCGCUAUUCCAGUGGGA" ## FD: morphing this to be T's
-    seq =     "GGCCCCTTTGGGGGCCAGACCCCTAAAGGGGTC"
-    struct0 = "((((((((((((((.....))))))))))))))" 
-    struct1 = "((((((....)))))).((((((....))))))"
+#     seq =     "GGCCCCTTTGGGGGCCAGACCCCTAAAGGGGTC"
+#     struct0 = "((((((((((((((.....))))))))))))))" 
+#     struct1 = "((((((....)))))).((((((....))))))"
+
+    #          GGGAUUUCUCGCUAUUCCAGUGGGA
+    seq =     "GGGATTTCTCGCTATTCCAGTGGGA"
+    struct0 = "......(((((((.....)))))))"
+    struct1 = "(((....))).....(((....)))"
         
-    stdOptions = standardOptions(simMode=Options.trajectory, trials=trialsIn, tempIn = 36.95)
+    stdOptions = standardOptions(simMode=Options.trajectory, trials=trialsIn, tempIn = 37.0)
     stdOptions.substrate_type = Options.substrateRNA
+    stdOptions.gt_enable = 1
     stdOptions.simulation_time = A_TIME_OUT
     
-    startComplex = makeComplex([seq], struct0)
-    endComplex = makeComplex([seq], struct1)
+ 
+    stemdomain1 = Domain(name="stemdomain1", sequence=   seq)
+    strand = Strand(name="top", domains=[stemdomain1])
     
-    if(trialsIn > 0):
-        setBoltzmann(startComplex, trialsIn)
+    startComplex = Complex(strands=[strand], structure=  struct1)
+    successComplex = Complex(strands=[strand], structure=struct0)
 
-    # stop when the invasion is complete, or when the invader dissociates
-    stopSuccess = StopCondition(Options.STR_SUCCESS, [(endComplex, Options.countMacrostate , 3)])  # # three disagreements
+
+    # Stop when the exact full duplex is achieved.
+    stopSuccess = StopCondition(Options.STR_SUCCESS, [(successComplex, Options.exactMacrostate, 0)])
+
     
     stdOptions.start_state = [startComplex]
     stdOptions.stop_conditions = [stopSuccess]
@@ -85,23 +95,27 @@ def simulationFlamm2000(trialsIn):
     return stdOptions
     
 
-
+def simulationYurke(trialsIn):
+    
+    stdOptions = standardOptions(simMode=Options.trajectory, trials=trialsIn)
+    stdOptions.simulation_time = A_TIME_OUT
+    hairpinclosing(stdOptions, HAIRPIN_STEM, HAIRPIN_LOOP, myTrials=0)
+    
+    return stdOptions
 
 
 def computeHittingTimes(settings):
     
     if settings.title == enum_hairpin:
         myMultistrand.setOptionsFactory1(simulationHairpin, settings.nTrials)
-        myMultistrand.setTrajectoryMode()
             
     if settings.title == enum_flamm:
         myMultistrand.setOptionsFactory1(simulationFlamm2000, settings.nTrials)
-        myMultistrand.setTrajectoryMode()
-        
-            
+
+    myMultistrand.setPassageMode()
     myMultistrand.run()
     
-    return myMultistrand.results.dataset
+    return myMultistrand.results.times
 
 
 
@@ -134,15 +148,8 @@ def doBarplot(times, setting):
 
 def makePlots(setting):
 
-    dataset = computeHittingTimes(setting)
-    times = []
-    
-    for e in dataset:
-        times.append(e.time)        
-
-    print str(times)
+    times = computeHittingTimes(setting)
     doBarplot(times, setting)
-
 
 
 
