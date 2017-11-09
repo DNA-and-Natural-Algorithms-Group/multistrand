@@ -516,8 +516,11 @@ class TrajectoryRate(basicRate):
 
     def __str__(self):
 
+        nSucc = len([i for i in self.dataset if i.tag == Options.STR_SUCCESS])
+        nFail = len([i for i in self.dataset if i.tag == Options.STR_FAILURE])
+
         output = "Trajectory Rate, size = %d \n" % len(self.dataset)
-        output+= super(TrajectoryRate, self).__str__() 
+        output = output + "nSucc = " + str(nSucc) + "  nFail " + str(nFail)
         return output
 
 
