@@ -165,9 +165,9 @@ def hairpinclosing(options,stemSeq, loopSeq, myTrials=0):
     start_complex = Complex(strands=[strand], structure="...")
     success_complex = Complex(strands=[strand], structure="(.)")
 
-    # Turns Boltzmann sampling on for this complex and also does sampling more efficiently by sampling 'trials' states.
-    if(myTrials > 0):
-        setBoltzmann(start_complex, myTrials)
+
+    # N.B.: myTrials input signature is considered "default", 
+    # but in no circumstance will we enable Boltzmann sampling
 
     # Stop when the exact full duplex is achieved.
     stopSuccess = StopCondition(Options.STR_SUCCESS, [(
@@ -180,9 +180,27 @@ def hairpinclosing(options,stemSeq, loopSeq, myTrials=0):
 
 
 
+def hairpinopening(options, stemSeq, loopSeq, myTrials = 0):
+    
+    # Using domain representation makes it easier to write secondary structures.
+    stemdomain1 = Domain(name="stemdomain1", sequence=stemSeq)
+    loopdomain = Domain(name="loopdomain", sequence=loopSeq)
+    stemdomain2 = stemdomain1.C
+    
+    strand = Strand(name="top", domains=[stemdomain1,loopdomain, stemdomain2])
+    start_complex = Complex(strands=[strand], structure="(.)")
+    success_complex = Complex(strands=[strand], structure="...")
+
+    # N.B.: myTrials input signature is considered "default", 
+    # but in no circumstance will we enable Boltzmann sampling
+
+    # Stop when the exact full duplex is achieved.
+    stopSuccess = StopCondition(Options.STR_SUCCESS, [(
+        success_complex, Options.exactMacrostate, 0)])
 
 
-
+    options.start_state = [start_complex]
+    options.stop_conditions = [stopSuccess]
 
 
 
