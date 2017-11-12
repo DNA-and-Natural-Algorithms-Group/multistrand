@@ -111,6 +111,7 @@ def genOptions(trialsIn, gateA, sel, supersample=25, gateB=None):
 def runExperiment(trialsIn, gateA, sel, gateB=None, supersample=25):
     myMultistrand.setOptionsFactory5(
         genOptions, trialsIn, gateA, sel, supersample, gateB)
+    myMultistrand.setFirstStepMode()
     myMultistrand.run()
     
 

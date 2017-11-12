@@ -87,51 +87,7 @@ def first_passage_association(strand_seq, trials, concentration, T=20.0):
 
 
 
-# def doFirstStepModeLeak(seq, concentrations, T=20.0, numOfRuns=500):
-#     
-#     # track time for each kind of simulation, using time.time(), which has units of second
-#     # do one "first step mode" run, get k1, k2, etc, from which z_crit and k_eff(z) can be computed
-# 
-#     myRates = first_step_simulation(seq, numOfRuns, T=T, leak = True) 
-#     time2 = time.time()
-#     print str(myRates)
-#     
-#     FSResult = list()
-#     
-#     for z in concentrations:
-#         
-#         kEff = myRates.k1()
-#         myBootstrap = Bootstrap(myRates, N=4000, concentration=z, computek1=True)
-#         
-#         low, high = myBootstrap.ninetyFivePercentiles()
-#         logStd = myBootstrap.logStd()
-#         
-#         print "keff = %g /M/s at %s" % (kEff, concentration_string(z))
-#         
-#         myResult = (np.log10(kEff), np.log10(low), np.log10(high), logStd)
-#         FSResult.append(myResult)
-#         
-#     print
-#     
-#     # call NUPACK for pfunc dG of the reaction, calculate krev based on keff
-#     print "Calculating dissociate rate constant based on NUPACK partition function energies and first step mode k_eff..."
-# 
-#     dG_top = nupack.pfunc([seq], T=T)
-#     dG_bot = nupack.pfunc([ Strand(sequence=seq).C.sequence ], T=T)
-#     dG_duplex = nupack.pfunc([ seq, Strand(sequence=seq).C.sequence ], T=T)
-#     RT = 1.987e-3 * (273.15 + T)
-#     time3 = time.time()
-#     time_nupack = time3 - time2
-#     krev_nupack = kEff * np.exp((dG_duplex - dG_top - dG_bot) / RT)
-#     print "krev = %g /s (%g seconds)" % (krev_nupack, time_nupack)
-#     
-#     
-#     times = list()
-#     for i in concentrations:
-#         myTime = (np.log10(myMultistrand.runTime), 0.0, 0.0)
-#         times.append(myTime)
-#     
-#     return FSResult, times
+#
 
 
 def doFirstStepMode(seq, concentrations, T=20.0, numOfRuns=500, leak=False):
@@ -199,7 +155,7 @@ def doFirstPassageTimeAssocation(seq, concentrations, T=20, numOfRuns=500):
         myRates = first_passage_association(seq, numOfRuns, concentration=concentration, T=T)
         keff = myRates.log10KEff(concentration)
         
-        myBootstrap = Bootstrap(myRates, concentration)
+        myBootstrap = Bootstrap(myRates, concentration=concentration)
         low, high = myBootstrap.ninetyFivePercentiles()
         logStd = myBootstrap.logStd()
         

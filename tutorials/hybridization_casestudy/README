@@ -12,6 +12,7 @@ Case 3: Heathmap for hybridization states
 
 To test these files, try
 
+barplots 		(no arguments)
 case1.py plots 160
 case1.py slowDownStudy 1200
 case2.py generate iso-random 15 10 ir15-10

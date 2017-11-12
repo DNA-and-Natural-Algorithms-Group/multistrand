@@ -56,9 +56,10 @@ def first_step_simulation(strand_seq, num_traj, rate_method_k_or_m="Metropolis",
     print "Running first step mode simulations for %s (with Boltzmann sampling)..." % (strand_seq)
     
     myMultistrand.setOptionsFactory2(create_setup, num_traj, strand_seq)
+    myMultistrand.setFirstStepMode()
     myMultistrand.run()
     
-    return FirstStepRate(myMultistrand.results, CONCENTRATION) 
+    return myMultistrand.results, int(myMultistrand.nForward.value), int(myMultistrand.nReverse.value)
     
 
 def WC(seq):
@@ -339,15 +340,17 @@ if __name__ == '__main__':
             # Accumulate statistics from all the runs, until enough succesful simulations are collected.
             trials = 60
             CONCENTRATION = 50e-9
-            totalRates = FirstStepRate(concentration=CONCENTRATION)
-                       
+            totalRates = FirstStepRate()
+
+            nForward = 0;
+            nReverse = 0;
             
-            while ((totalRates.nForward < 25 or (totalRates.nReverse == 0)) and not timeOut[i]) :  # this is a bit wasteful, but "only" by a factor of about 1.5.  Aims for 20% error bars on k1.
+            while ((nForward < 25 or (nReverse == 0)) and not timeOut[i]) :  # this is a bit wasteful, but "only" by a factor of about 1.5.  Aims for 20% error bars on k1.
 
                 print 
-                batchRates = first_step_simulation(seq, trials, concentration=CONCENTRATION) 
+                batchRates, nF, nR = first_step_simulation(seq, trials, concentration=CONCENTRATION) 
                 
-                                       
+
                 if(totalRates == None):
                     totalRates = batchRates
                 else:
@@ -355,6 +358,10 @@ if __name__ == '__main__':
 
                 print "Inferred rate constants with analytical error bars (all runs so far):"
                 print totalRates
+
+                nForward = nForward + nF
+                nReverse = nReverse + nR
+
 
                 if totalRates.nReverse > 5000000:  # abort this by extrapolating the rate when 0.5 million trajectories have been run.                    
                     timeOut[i] = True
@@ -367,7 +374,7 @@ if __name__ == '__main__':
             print totalRates
 
 
-            results.append([seq, totalRates.nForward, totalRates.nReverse, totalRates.kEff()])
+            results.append([seq, nForward, nReverse, totalRates.kEff(concentration=CONCENTRATION)])
             
     else:
         print "Didn't understand args."
