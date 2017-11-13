@@ -8,7 +8,7 @@ class Complex(object):
     """
     unique_id = 0
     
-    def __init__(self, *args, **kargs):
+    def __init__(self, structure, sequence = None, strands = None, name = None, boltzmann_sample = False, id = None):
         """
         Initialization:
         
@@ -24,22 +24,29 @@ class Complex(object):
         You must include both of the required keyword arguments to create a Complex with the new style init, or pass it the old style arguments used in `old_init`.
         """
         
-        if len( args ) == 4 or len( args ) == 5:
-            self.old_init( *args, **kargs )
+
+        ## id is provided if and only if the old initialization is
+        ## desired, so it can be used as a switch for the old init
+        if id:
+            self.old_init(id, name, strands, structure, boltzmann_sample = False)
             return
-        elif 'sequence' in kargs and 'structure' in kargs:
-            self.strand_list = [Strand(sequence=i) for i in kargs['sequence'].split("+")]
-            self._fixed_structure = str(kargs['structure'])
-        elif 'strands' in kargs and 'structure' in kargs:
-            self.strand_list = kargs['strands']
-            self._init_parse_structure( str(kargs['structure']) )
+
+
+        if sequence and not strands:
+            self.strand_list = [Strand(sequence=i) for i in sequence.split("+")]
+            self._fixed_structure = str(structure)
+        elif strands and not sequence:
+            self.strand_list = strands
+            self._init_parse_structure(str(structure))
+        else:
+            raise Exception("One of, and and not both of, 'sequence' or 'strands' must be provided")
         
         self.id = Complex.unique_id
-        self.name = kargs.get('name') or "automatic" + str(Complex.unique_id)
+        self.name = name or "automatic" + str(Complex.unique_id)
         # note: Boltzmann sampling is somewhat confusing if you pass a
         # structure that is anything other than all "."'s. So maybe we
         # should check for that.
-        self.boltzmann_sample = kargs.get('boltzmann_sample', False)
+        self.boltzmann_sample = boltzmann_sample
         self._last_boltzmann_structure = False
         self._boltzmann_sizehint = 1
         self._boltzmann_queue = []
