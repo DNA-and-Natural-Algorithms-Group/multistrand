@@ -354,6 +354,7 @@ double SComplexList::cycleCrossRateArr(StrandOrdering* input1, StrandOrdering* i
  */
 
 double *SComplexList::getEnergy(int volume_flag) {
+
 	SComplexListEntry *temp = first;
 	double *energies = new double[numOfComplexes];
 	int index = 0;
@@ -615,19 +616,11 @@ JoinCriteria SComplexList::cycleForJoinChoiceArr(double choice) {
 	// Like the non-arrhenius version, but this time, we have to cycle over all he
 	// possible local structures.
 
-//	cout << "Starting. choice = " << choice << " \n";
-
 	OpenInfo baseSum = getOpenInfo();
-
-//	cout << "basesum = \n";
-//	cout << baseSum;
 
 	for (SComplexListEntry* temp = first; temp != NULL; temp = temp->next) {
 
 		OpenInfo& external = temp->thisComplex->ordering->getOpenInfo();
-
-//		cout << "external= \n";
-//		cout << external;
 
 		baseSum.decrement(external);
 
@@ -639,8 +632,6 @@ JoinCriteria SComplexList::cycleForJoinChoiceArr(double choice) {
 
 					int combinations = con.second.multiCount(ton.second);
 
-//					cout << combinations << "\n";
-
 					if (combinations > 0) {
 
 						MoveType left = moveutil::combineBi(con.first.left, ton.first.right);
@@ -650,44 +641,22 @@ JoinCriteria SComplexList::cycleForJoinChoiceArr(double choice) {
 
 						double rate = joinRate * combinations;
 
-//						cout << "choice  = " << choice << "\n";
-//						cout << "rate  = " << rate << "\n";
-
 						if (choice < rate) {
-
-//							cout << "trying to combine con - ton HalfEnv.: \n";
-//							cout << con.first << "\n";
-//							cout << ton.first << "\n";
 
 							// we have determined the HalfContexts for the upper and lower strand.
 							int choice_int = floor(choice / joinRate);
 
-//							cout << "The baseCounts are con: \n";
-//							cout << con.second << "\n";
-//							cout << "The baseCounts are ton: \n";
-//							cout << ton.second << "\n";
-
-//							cout << "choice_int = " << choice_int << "\n";
 
 							for (BaseType base : { baseA, baseT, baseG, baseC }) {
 
 								int combinations = con.second.count[base] * ton.second.count[5 - base];
 
-//								cout << "For base " << baseA << " combinations= " << combinations << "\n";
-//
-
 								if (choice_int < combinations) {
 
 									// return the joining criteria;
 
-//									cout << "choice_int= " << choice_int << "\n";
-
 									JoinCriteria crit = findJoinNucleotides(base, choice_int, ton.second, temp, &con.first);
 
-//									cout << "Found rate contexts left: " << moveutil::MoveToString[left] << " right:" << moveutil::MoveToString[right] << "\n";
-
-//									crit.half[0] = con.first;
-//									crit.half[1] = ton.first;
 									crit.half[0] = ton.first;
 									crit.half[1] = con.first;
 
@@ -723,47 +692,7 @@ JoinCriteria SComplexList::cycleForJoinChoiceArr(double choice) {
 
 }
 
-//// FD: crit is an export variable, but the bool return signifies if a pair has been selected or not.
-//JoinCriteria SComplexList::findJoinNucleotidesArr(BaseType base, HalfContext top, HalfContext bot, int choice, BaseCount& externalCount,
-//		SComplexListEntry* temp) {
-//
-//	JoinCriteria crit;
-//
-//	int otherBase = 5 - (int) base;
-//
-//	crit.picked[0] = temp->thisComplex;
-//	crit.types[0] = otherBase;
-//	crit.types[1] = base;
-//
-//	temp = temp->next;
-//
-//	bool useArr = eModel->useArrhenius();
-//
-//	while (temp != NULL) {
-////
-////		BaseCount& externOther = temp->thisComplex->getExteriorBases(useArr);
-////
-//		if (choice < externalCount.count[base] * externalCount.count[otherBase]) {
-////
-////			crit.picked[1] = temp->thisComplex;
-////			crit.index[0] = (int) floor(choice / externOther.count[base]);
-////			crit.index[1] = choice - crit.index[0] * externOther.count[base];
-////			temp = NULL;
-////
-//		} else {
-////
-//			temp = temp->next;
-////			choice -= externOther.count[base] * external.count[otherBase];
-////
-//
-//		}
-//
-//		return crit;
-//	}
 
-//	void SComplexList::doJoinChoiceArr(double choice) {
-//
-//	}
 
 /*
 

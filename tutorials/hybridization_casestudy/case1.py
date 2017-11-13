@@ -35,7 +35,6 @@ myMultistrand.setNumOfThreads(8)
 
 
 
-
 def first_step_simulation(strand_seq, trials, T=20.0, leak=False):
 
     print ("Running first step mode simulations for %s (with Boltzmann sampling)..." % (strand_seq))
@@ -46,8 +45,7 @@ def first_step_simulation(strand_seq, trials, T=20.0, leak=False):
         o = standardOptions(Options.firstStep, TEMPERATURE, trials, ATIME_OUT) 
         hybridization(o, strand_seq, trials)
         setSaltGao2006(o)
-        
-        o.JSMetropolis25()
+        o.JSDefault()
                
         
         return o
@@ -73,6 +71,7 @@ def first_passage_association(strand_seq, trials, concentration, T=20.0):
         hybridization(o, strand_seq, trials, True)
         setSaltGao2006(o)
         o.join_concentration = concentration
+        o.JSDefault()
 
         return o
     

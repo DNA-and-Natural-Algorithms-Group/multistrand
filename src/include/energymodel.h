@@ -228,7 +228,7 @@ private:
 	double dG_volume;
 	double dG_assoc;
 
-	double waterdensity;
+//	double waterdensity;
 	double biscale;
 	double uniscale;
 

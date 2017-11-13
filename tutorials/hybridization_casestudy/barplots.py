@@ -62,7 +62,7 @@ settings_yurke2 = settings(enum_yurke2, title_yurke2, nTrials=myMultistrand.numO
 def simulationHairpin(trialsIn, reverse):
     
     stdOptions = standardOptions(simMode=Options.trajectory, trials=trialsIn)
-    stdOptions.JSMetropolis25()
+#     stdOptions.JSMetropolis25()
     stdOptions.simulation_time = A_TIME_OUT
     stdOptions.temperature = 50.0
     
