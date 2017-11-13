@@ -38,11 +38,10 @@ def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
     invader_complex = Complex(strands=[dangle], structure="..")
     duplex_invaded = Complex(strands=[dangle, bot], structure="(.+)")
 
+
     # Declare the simulation complete if the strands become a perfect duplex.
-    success_stop_condition = StopCondition(
-        Options.STR_SUCCESS, [(duplex_invaded, Options.exactMacrostate, 0)])
-    failed_stop_condition = StopCondition(
-        Options.STR_FAILURE, [(duplex_complex, Options.dissocMacrostate, 0)])
+    success_stop_condition = StopCondition(Options.STR_SUCCESS, [(duplex_invaded, Options.dissocMacrostate, 0)])
+    failed_stop_condition = StopCondition(Options.STR_FAILURE, [(duplex_complex, Options.dissocMacrostate, 0)])
 
     for x in [duplex_complex, invader_complex]:
         x.boltzmann_count = trials
@@ -58,7 +57,7 @@ def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
         o.stop_conditions = [success_stop_condition, failed_stop_condition]
 
         # FD: The result of this script depend significantly on JS or DNA23 parameterization.
-#        o.JSMetropolis25()
+#         o.JSMetropolis25()
         o.DNA23Metropolis()
 
         return o
@@ -67,9 +66,7 @@ def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
                                      invader_complex, success_stop_condition, failed_stop_condition)
     myMultistrand.run()
     myFSR = myMultistrand.results
-
-    # Now determine the reaction model parameters from the simulation results.
-    print myFSR
+    
 
 
 
@@ -82,8 +79,10 @@ def doFirstStepMode(seq, T=25, material="DNA", numOfRuns=500):
 def makePlots():
 
     seqs = list()
-    seqs.append('CCTACGTCTCACTAACG')
-#    seqs.append('ACTACGTCTCACTAACG')
+    seqs.append('GTCGATGC')   
+    seqs.append('TCGAGTGA')
+#    seqs.append('CCTACGTCTCACTAACG')
+#     seqs.append('ACTACGTCTCACTAACG')
 
     for seq in seqs:
         doFirstStepMode(seq, numOfRuns=50000)
