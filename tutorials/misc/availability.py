@@ -59,7 +59,7 @@ def doExperiment(trials):
     stdOptions.sodium = 0.05
     stdOptions.magnesium = 0.0125 ##  believed to be 11.5 mM effectively -- using 12.5 mM anyway
     
-    stdOptions.temperature = 25  # can run at higher temperature to increase leak rate.
+    stdOptions.temperature = 25.0  # can run at higher temperature to increase leak rate.
     
     # rate model
     stdOptions.DNA23Metropolis()

@@ -15,8 +15,6 @@ from multistrand.utils import concentration_string, standardFileName
 from multistrand.concurrent import  FirstStepRate, FirstPassageRate, Bootstrap, myMultistrand
 from multistrand.options import Options
 
-from rawdata.readensemble import setArrParams
-
 
 
 from constantsgao import goa2006_P0, goa2006_P3, goa2006_P4, setSaltGao2006, colors
@@ -49,8 +47,7 @@ def first_step_simulation(strand_seq, trials, T=20.0, leak=False):
         hybridization(o, strand_seq, trials)
         setSaltGao2006(o)
         
-#         setArrheniusConstantsDNA23(o)
-        setArrParams(o, 96)
+        o.JSMetropolis25()
                
         
         return o

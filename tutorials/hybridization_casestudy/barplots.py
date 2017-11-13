@@ -35,7 +35,7 @@ title_yurke = "Threeway strand displacement - Yurke and Mills"  # Yurke and Mill
 title_yurke2 = "Toehold binding rate - Yurke and Mills"  # Yurke and Mills -- T6 in table 1
 
 
-nTrialsMod = 10  # number of trials per process
+nTrialsMod = 100  # number of trials per process
 
 
 class settings(object):
@@ -62,6 +62,7 @@ settings_yurke2 = settings(enum_yurke2, title_yurke2, nTrials=myMultistrand.numO
 def simulationHairpin(trialsIn, reverse):
     
     stdOptions = standardOptions(simMode=Options.trajectory, trials=trialsIn)
+    stdOptions.JSMetropolis25()
     stdOptions.simulation_time = A_TIME_OUT
     stdOptions.temperature = 50.0
     

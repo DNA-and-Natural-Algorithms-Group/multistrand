@@ -52,6 +52,7 @@ def getOptions(trials , settings): #start_complex_top, start_complex_bot, succes
     options = standardOptions("First Step", TEMPERATURE, settings.trials, ATIME_OUT)
 
     hybridization(options, settings.mySeq, settings.trials)
+    options.JSMetropolis25()
     setSaltGao2006(options)
 
     options.output_interval = 1  # print every state, ever

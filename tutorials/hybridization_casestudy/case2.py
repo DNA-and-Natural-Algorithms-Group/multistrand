@@ -47,6 +47,7 @@ def create_setup(num_traj, strand_seq):
     
     options = standardOptions("First Step", GLOBAL_TEMPERATURE, num_traj, ATIME_OUT)
     hybridization(options, strand_seq, num_traj)    
+    options.JSMetropolis25()
     setSaltGao2006(options)    
     
     return options
