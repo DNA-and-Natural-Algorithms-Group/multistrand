@@ -488,7 +488,6 @@ void NupackEnergyModel::processOptions() {
 	gtenable = myEnergyOptions->getGtenable();
 	kinetic_rate_method = myEnergyOptions->getKineticRateMethod();
 
-	waterdensity = setWaterDensity(temperature - TEMPERATURE_ZERO_CELSIUS_IN_KELVIN);
 
 	for (loop = 0; loop < NUM_BASES; loop++)
 		pairs[loop] = pairs_mfold[loop];
@@ -1622,8 +1621,6 @@ void NupackEnergyModel::setupRates() {
 
 // Two components to the join rate, the dG_assoc from mass action, and the dG_volume term which is related to the concentration. We compute each individually, following my derivation for the volume term, and the method used in Nupack for the dG_assoc term.
 
-// Please note, waterdensity is actually the Mols H2O / L, not the actual density of water (g/mol).
-
 // concentration units
 	dG_volume = _RT * log(1.0 / joinconc);
 
@@ -1635,22 +1632,4 @@ void NupackEnergyModel::setupRates() {
 
 	joinrate = biscale * joinrate_volume;
 
-}
-
-double NupackEnergyModel::setWaterDensity(double temp) {
-// returns the density of water at a given temperature (currently passed in degrees C)
-// Need to use data via appropriate table - nupack references:
-// "Recommended table for the density of water between 0C and 40C based on recent experimental reports", Tanaka M., Girard, G. et al, Metrologia, 2001 38, 301-309.
-// Look this up and enter the full formula from there. The paper is not available for free, probably need to use a caltech login or order it.
-
-// uses formulation via Nupack:
-	double values[6] = { -3.983035, 301.797, 522528.9, 69.34881, 999.97495, 18.0152 };
-
-	values[0] = temp + values[0];
-	values[1] = temp + values[1];
-	values[3] = temp + values[3];
-
-	return values[4] * (1 - values[0] * values[0] * values[1] / values[2] / values[3]) / values[5];
-
-//  return 55.6; // default for now, in units of mols/liter.
 }

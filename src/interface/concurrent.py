@@ -1044,11 +1044,6 @@ class MergeSim(object):
                     self.endStates.append(copy.deepcopy(endState))
             else: #in case of studying leak reaction, expect few hits, and print out info more often.
                 print self.results
-            
-            if self.settings.resultsType == self.settings.RESULTTYPE4 and  self.settings.terminationCount == None:
-                # cast to standard list instead of managed 
-                self.results.dataset = list(self.results.dataset)
-                self.results.endStates = list(self.results.endStates)
 
             # reset the multiprocessing results lists.
             self.managed_result = manager.list()
