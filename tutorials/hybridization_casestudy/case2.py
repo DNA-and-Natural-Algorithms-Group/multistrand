@@ -26,10 +26,10 @@ import sys, os
 
 
 SCRIPT_DIR = 'scatterdata/'
-myMultistrand.setNumOfThreads(12)
+myMultistrand.setNumOfThreads(8)
 
 GLOBAL_TEMPERATURE = 20.0
-ATIME_OUT = 0.5
+ATIME_OUT = 1.0
 TIME_MEASUREMENT = 0.0;
 
 OFFSET = 0;

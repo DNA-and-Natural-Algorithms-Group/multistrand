@@ -28,6 +28,8 @@ YURK_T6E2003 = "ACTAATCCTCAGATCCAGCTAGTGTCCGTACT"
 
 YURKE2_CONCENTRATION = 0.0001  # 100 microMolar    
 
+FIGURE_SIZE = (6 * 0.93, 4 * 0.93)
+
 
 enum_bonnet = "bonnet"
 enum_flamm = "flamm"
@@ -54,11 +56,6 @@ class settings(object):
 
     def __str__(self):
         return self.title
-
-setting_bonnet = settings(enum_bonnet, title_bonnet, True, 10 * NUM_PROCESS * nTrialsMod)
-setting_flamm = settings(enum_flamm, title_flamm, nTrials=10 * NUM_PROCESS * nTrialsMod)
-settings_yurke = settings(enum_yurke, title_yurke, nTrials=NUM_PROCESS * nTrialsMod)
-settings_yurke2 = settings(enum_yurke2, title_yurke2, nTrials=NUM_PROCESS * nTrialsMod)
 
 
 def simulationHairpin(trialsIn, reverse):
@@ -229,7 +226,6 @@ def setLabelAndClose(settings, plt, ax):
     ax.set_xlabel(u'Trajectory time (μs)')
     
     plt.xticks(rotation=-30)
-             
     plt.tight_layout()
     plt.savefig(fname + "-bar" + "-" + settings.title + '.pdf')
     plt.close()
@@ -240,10 +236,10 @@ def doBarplot(times, settings):
     
     times = [1000000 * ele for ele in times]
       
-    fig = plt.figure()
+    fig = plt.figure(figsize=FIGURE_SIZE)
     ax = fig.gca()
     
-    ax.hist(times, 50, alpha=0.75, log=1)
+    ax.hist(times, 50, alpha=0.20, log=1)
     ax.set_title(settings.title)      
       
     ax = plt.gca()
@@ -263,7 +259,7 @@ def doDoubleBarplot(times, times2, setting):
     times = [1000000 * ele for ele in times]
     times2 = [1000000 * ele for ele in times2]     
      
-    fig = plt.figure(figsize=(6 * 0.93, 4 * 0.93))
+    fig = plt.figure(figsize=FIGURE_SIZE)
     ax = fig.gca()
     
     
@@ -334,10 +330,17 @@ if __name__ == '__main__':
         
         NUM_PROCESS = int(sys.argv[1])
         nTrialsMod = int(sys.argv[2])
+
+        # by default, the first two examples get 10x more trajectories
+        setting_bonnet = settings(enum_bonnet, title_bonnet, True, 10 *  nTrialsMod)
+        setting_flamm = settings(enum_flamm, title_flamm, nTrials=10 *  nTrialsMod)
+        settings_yurke = settings(enum_yurke, title_yurke, nTrials= nTrialsMod)
+        settings_yurke2 = settings(enum_yurke2, title_yurke2, nTrials= nTrialsMod)
+
         
-        makePlots(setting_bonnet)
-        makePlots(setting_flamm)
-        makePlots(settings_yurke)
+#         makePlots(setting_bonnet)
+#         makePlots(setting_flamm)
+#         makePlots(settings_yurke)
         makePlots(settings_yurke2)
     
     else:
