@@ -19,15 +19,17 @@ from multistrand.experiment import  hybridization, standardOptions
 
 from constantsgao import goa2006_P0, goa2006_P3, goa2006_P4, setSaltGao2006, colors, position, pathProperties, analysisFactory, analysisResult
 
-
 from matplotlib.collections import LineCollection
+import matplotlib
+matplotlib.use('Agg') # multiprocessing errors?
 import matplotlib.pylab as plt
 import numpy as np
 import operator, sys
+# from copy import deepcopy
 
 SCRIPT_DIR = "Hybridization_F3"
 TEMPERATURE = 20.0
-ATIME_OUT = 0.0004
+ATIME_OUT = 0.04
 
 
 class hybridizationSimSettings(object):
@@ -52,7 +54,7 @@ def getOptions(trials , settings): #start_complex_top, start_complex_bot, succes
     options = standardOptions("First Step", TEMPERATURE, settings.trials, ATIME_OUT)
 
     hybridization(options, settings.mySeq, settings.trials)
-    options.JSDefault()
+    options.JSDefault()  
     setSaltGao2006(options)
 
     options.output_interval = 1  # print every state, ever
@@ -111,9 +113,8 @@ def estimateSuccessProbability(popularStructure, settings):
     first_step_simulation(newMultistrand, settings)
     settings.trials = oldTrials
     
-    output = np.float(newMultistrand.numOfSuccesTrials()) / np.float(newMultistrand.trialsPerThread * newMultistrand.numOfThreads)
+    output = np.float(newMultistrand.nForward.value) / np.float(newMultistrand.trialsPerThread * newMultistrand.numOfThreads)
     
-    newMultistrand.clear()
     
     return output
     
@@ -324,7 +325,9 @@ def writeStructFile(analysisResult, settings, extraTitle):
     fileName = standardFileName(SCRIPT_DIR, settings.mySeq, extraTitle, settings.trials)
     f = open(fileName + "-struct.txt", 'w')    
      
-    goodDict = dict(analysisResult.posDict)
+#     goodDict =  copy.deepcopy(dict(analysisResult.posDict))
+    goodDict =  dict(analysisResult.posDict)
+
      
     for pos, val in goodDict.iteritems():
         
@@ -338,7 +341,9 @@ def writeStructFile(analysisResult, settings, extraTitle):
 
     for i in range(len(analysisResult.structDict2)):
         
-        goodDict = dict(analysisResult.structDict2[i])
+#         goodDict = copy.deepcopy(dict(analysisResult.structDict2[i]))
+        goodDict = (dict(analysisResult.structDict2[i]))
+
         
         # only print the top 20 of structures found
         goodDict = dict(sorted(goodDict.iteritems(), key=operator.itemgetter(1), reverse=True)[:20])
@@ -361,8 +366,8 @@ def doProbabilitySuccesPlot(settings, extraTitle):
         
     winPosDict = dict()
      
-    goodDict = dict(myMultistrand.aFactory.result1.countDict)
-    goodDictOther = dict(myMultistrand.aFactory.result2.countDict)
+    goodDict =  (dict(myMultistrand.aFactory.result1.countDict))
+    goodDictOther =  (dict(myMultistrand.aFactory.result2.countDict))
 
     print("Dict size is ", len(goodDict)) 
 
@@ -387,7 +392,7 @@ def doBinaryProbabilityPlot(settings, extraTitle):
      
     def genPlots(settings, extraTitle, selectedCounts, result, extrastr): 
      
-        goodDict = dict(result.binaryDict)
+        goodDict =  (dict(result.binaryDict))
         plottingDict = dict()
         
         

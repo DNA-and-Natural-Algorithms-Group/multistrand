@@ -14,7 +14,7 @@ generate structured-random 25 3 4 10 sr25-10
 
 
 from multistrand.experiment import hybridization, standardOptions
-from multistrand.concurrent import FirstStepRate, myMultistrand
+from multistrand.concurrent import FirstStepRate,FirstStepLeakRate,  myMultistrand
 
 from constantsgao import goa2006_P0, goa2006_P3, goa2006_P4, setSaltGao2006, colors
 
@@ -57,7 +57,7 @@ def first_step_simulation(strand_seq, num_traj, rate_method_k_or_m="Metropolis",
     print "Running first step mode simulations for %s (with Boltzmann sampling)..." % (strand_seq)
     
     myMultistrand.setOptionsFactory2(create_setup, num_traj, strand_seq)
-    myMultistrand.setFirstStepMode()
+    myMultistrand.setLeakMode()
     myMultistrand.run()
     
     return myMultistrand.results, int(myMultistrand.nForward.value), int(myMultistrand.nReverse.value)
@@ -341,7 +341,7 @@ if __name__ == '__main__':
             # Accumulate statistics from all the runs, until enough succesful simulations are collected.
             trials = 60
             CONCENTRATION = 50e-9
-            totalRates = FirstStepRate()
+            totalRates = FirstStepLeakRate()
 
             nForward = 0;
             nReverse = 0;
@@ -355,7 +355,7 @@ if __name__ == '__main__':
                 if(totalRates == None):
                     totalRates = batchRates
                 else:
-                    totalRates.merge(batchRates) 
+                    totalRates.merge(batchRates,deepCopy=True) 
 
                 print "Inferred rate constants with analytical error bars (all runs so far):"
                 print totalRates
@@ -364,7 +364,7 @@ if __name__ == '__main__':
                 nReverse = nReverse + nR
 
 
-                if totalRates.nReverse > 5000000:  # abort this by extrapolating the rate when 0.5 million trajectories have been run.                    
+                if totalRates.nReverse > 4500000:  # abort this by extrapolating the rate when 0.5 million trajectories have been run.                    
                     timeOut[i] = True
 
                 if trials < 50000:  # memory problems running huge numbers of trials.  maybe we need to do better:  compress dataset incrementally...?
@@ -374,9 +374,10 @@ if __name__ == '__main__':
             print "Final statistics are "
             print totalRates
 
+#             results.append([seq, nForward, nReverse, totalRates.kEff(concentration=CONCENTRATION)])
+            results.append([seq, nForward, nReverse, totalRates.k1()])
+        
 
-            results.append([seq, nForward, nReverse, totalRates.kEff(concentration=CONCENTRATION)])
-            
     else:
         print "Didn't understand args."
         sys.exit()

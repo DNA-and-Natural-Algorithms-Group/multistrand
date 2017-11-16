@@ -13,6 +13,8 @@ from multistrand.options import Options
 from multistrand.utils import standardFileName
 from multistrand.concurrent import MergeSim
 
+
+
 import matplotlib.pylab as plt
 import numpy as np
 
@@ -116,8 +118,12 @@ def simulationYurke(trialsIn):
     
     stdOptions = standardOptions(simMode=Options.firstPassageTime, trials=trialsIn)
     stdOptions.simulation_time = A_TIME_OUT
-    stdOptions.JSDefault()
-    stdOptions.temperature = 45.0
+#     stdOptions.JSDefault()
+#     stdOptions.DNA23Metropolis()
+    
+    setArrParams(stdOptions, 92)
+   
+    stdOptions.temperature = 25.0
 
     domS = Domain(sequence="ACTAATCCTCAGATCCAGCTAGTGTC", name="d_S")
     domD = Domain(sequence="A", name="d_A")
@@ -130,7 +136,7 @@ def simulationYurke(trialsIn):
 
     complexStart = Complex(strands=[strandQ, strandS, strandT], structure="(.+)(+).")
     complexEndS = Complex(strands=[strandQ], structure="..")
-    complexEndF = Complex(strands=[strandT], structure="..")
+    complexEndF = Complex(strands=[strandT], structure="..")    ## ALT_SUCCESS is dissociation
     
     stopSuccess = StopCondition(Options.STR_SUCCESS, [(complexEndS, Options.dissocMacrostate, 3)])
     stopFailed = StopCondition(Options.STR_ALT_SUCCESS, [(complexEndF, Options.dissocMacrostate, 3)])
@@ -152,7 +158,6 @@ def simulationYurke2(trialsIn):
     domS = Domain(sequence="ACTAATCCTCAGATCCAGCTAGTGTC", name="d_S")
     domD = Domain(sequence="A", name="d_A")
     domT = Domain(sequence="CGTACT", name="d_T")
-    
     
     strandQ = Strand(domains=[domS, domD])
     strandT = Strand(domains=[domT, domS])
@@ -300,7 +305,7 @@ def makePlots(settings):
     if settings.type == enum_yurke2 :
         
         doBarplot(results.times, settings)
-        print "rate toehold binding = " + str(1.0 / sum(results.times))
+        print "rate toehold binding = " + str(settings.nTrials / (sum(results.times)) )
     
     
     if settings.type == enum_bonnet :
@@ -313,9 +318,8 @@ def makePlots(settings):
         times = [i.time for i in results.dataset if i.tag == Options.STR_SUCCESS]       
         times2 = [i.time for i in results.dataset if i.tag == Options.STR_ALT_SUCCESS]
         
-        print "rate reaction 1 = " + str(1.0 / sum(times))
-        print "rate reaction 2 = " + str(1.0 / sum(times2))
-
+        print "rate reaction 1 = " + str(len(times) / sum(times))
+        print "rate reaction 2 = " + str(len(times2) / sum(times2))
                 
         doDoubleBarplot(times, times2, settings)
     
@@ -338,9 +342,9 @@ if __name__ == '__main__':
         settings_yurke2 = settings(enum_yurke2, title_yurke2, nTrials= nTrialsMod)
 
         
-#         makePlots(setting_bonnet)
-#         makePlots(setting_flamm)
-#         makePlots(settings_yurke)
+        makePlots(setting_bonnet)
+        makePlots(setting_flamm)
+        makePlots(settings_yurke)
         makePlots(settings_yurke2)
     
     else:

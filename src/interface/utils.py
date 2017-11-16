@@ -1,7 +1,5 @@
 import random
 import os
-    
-
 
 
 def concentration_string(concentration):
@@ -84,8 +82,8 @@ def pairType(ids, structs):
     """
     
     # utility function
-    def generatePairing(dotParen, size, stack, offset, output):
-    
+    def generatePairing(dotParen, stack, offset, output):
+        
         index = 0
     
         for c in dotParen:
@@ -98,8 +96,8 @@ def pairType(ids, structs):
                 currIndex = offset + index
                 otherIndex = stack.pop()
                                 
-                output[currIndex] = otherIndex
-                output[otherIndex] = currIndex
+                output[currIndex]  = 1+ otherIndex
+                output[otherIndex] = 1+ currIndex
                 
             elif not c == '.':
                 raise Warning('There is an error in the dot paren structure -- PairType function') 
@@ -107,49 +105,35 @@ def pairType(ids, structs):
             index += 1
     
     
-    
     idList = ids.split(',')
     dotParens = structs.split('+') 
     
-    outputSize = sum(len(x) for x in dotParens)
+    # the new ordering, for example: 3 0 1 2, so that idList[3] < idList[0] < idList[1] < idList[2]
+    ordering = sorted(range(len(idList)), key=idList.__getitem__)    
+    
+    myOffsets =  list()   # what will the offset be in the new ordering?
+    idString = ''        
+    
+    for i in range(len(idList)):
+        
+        newPosition = ordering[i]
+        
+        offsets = [ len(dotParens[ordering[index]]) for index in range(newPosition)]
+        myOffsets.append(sum(offsets))
+        
+        idString += idList[newPosition]
     
 
-    offset = 0;    
     myStack = []
-    output = [0, ] * outputSize
-
+    output = [0, ] * sum([len(dp) for dp in dotParens])
+ 
     myEnum = enumerate(idList)
-    
+          
     for index, val in myEnum:      
-        
-        size = len(dotParens[index])        
-        generatePairing(dotParens[index], size, myStack, offset, output)
-        
-        offset += size
+         
+        generatePairing(dotParens[index], myStack, myOffsets[index], output)
 
-        
-        
-    
-    indices = sorted(range(len(idList)), key=idList.__getitem__)
-        
-    # now weave the new pairTypes in the right order.
-    
-    actualOutput = []    
-        
-    idString = ''
-    for index in indices:
-        
-        idString += idList[index]        
-        size = len(dotParens[index]) 
-        
-        offset = sum([len(dotParens[idx]) for idx in range(0, index - 1) ])  
-        
-        
-        actualOutput += output[offset : (offset + size)]
-        
-        
      
-    
     return  (idString, tuple(output))
     
 

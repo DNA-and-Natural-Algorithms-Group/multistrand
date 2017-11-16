@@ -62,7 +62,7 @@ def doSims(strandSeq, numTraj=2):
     o1.output_interval = 1 
     
     hybridization(o1, strandSeq)
-    o1.initial_seed = 1777
+    o1.initial_seed = 1778
 
     s = SimSystem(o1)
     s.start()
@@ -80,20 +80,4 @@ if __name__ == '__main__':
          
         
         
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
