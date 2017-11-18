@@ -453,7 +453,6 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         self.unimolecular_scaling = 1.5e8;
         self.bimolecular_scaling = 1.38e6;
         
-         
     
     def JSMetropolis37(self): 
         """ Default rates for Metropolis at 37 degree Celcius, from Joseph Schaeffer's thesis
@@ -467,9 +466,17 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
     def DNA23Metropolis(self):
         """ A default rate for Metropolis at 25 degree Celcius, from the DNA23 conference
         """
-            
+
         self.unimolecular_scaling = 5.0e6;
         self.bimolecular_scaling = 1.4e6;
+     
+     
+    def uniformRates(self):
+        """ uniform rates without a source
+        """
+            
+        self.unimolecular_scaling = 1.0e6;
+        self.bimolecular_scaling =  1.0e6;
  
         
 
