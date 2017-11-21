@@ -4,28 +4,25 @@
 ## This is the sample trajectory, figure 2
 ## single process, <1s
 
-#python sample_trace_fig1.py > sample_trace_fig1_output.txt;
-
+python sample_trace_fig1.py > sample_trace_fig1_output.txt;
 
 ## These are the first passage figure
 ## 8 processes, < 15 minutes
 
-#python barplots.py 8 800 > barplots_output.txt;
-
+python barplots.py 8 800 > barplots_output.txt;
 
 ## These are the comparison between first-step and trajectory mode
 ## 8 processes < 1 hr
 
-
-#python case1.py plots 1600;
-#python case1.py slowDownStudy 1600;
+python case1.py plots 1600;
+python case1.py slowDownStudy 1600;
 
 ## These are the trajectory studies of P0, P3, P4.
 ## 8 processes, <24 hr
 
-#python case3.py 8 1600 P4;			#<-- we got here.
-#python case3.py 8 1600 P3;
-#python case3.py 8 1600 P0;
+python case3.py 8 1600 P4;			#<-- we got here.
+python case3.py 8 1600 P3;
+python case3.py 8 1600 P0;
 
 ## These are the iso-random studies 
 ## 8 processes, < 24 hrs

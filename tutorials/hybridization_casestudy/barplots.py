@@ -63,7 +63,8 @@ class settings(object):
 def simulationHairpin(trialsIn, reverse):
     
     stdOptions = standardOptions(simMode=Options.trajectory, trials=trialsIn)
-    stdOptions.JSDefault()
+#     stdOptions.JSDefault()
+    stdOptions.uniformRates()
     stdOptions.simulation_time = A_TIME_OUT
     stdOptions.temperature = 50.0
     
@@ -91,7 +92,8 @@ def simulationFlamm2000(trialsIn):
     stdOptions.substrate_type = Options.substrateRNA
     stdOptions.gt_enable = 1
     stdOptions.simulation_time = A_TIME_OUT
-    stdOptions.JSDefault()
+#     stdOptions.JSDefault()
+    stdOptions.uniformRates()
     
  
     stemdomain1 = Domain(name="stemdomain1", sequence=seq)
@@ -119,9 +121,8 @@ def simulationYurke(trialsIn):
     stdOptions = standardOptions(simMode=Options.firstPassageTime, trials=trialsIn)
     stdOptions.simulation_time = A_TIME_OUT
 #     stdOptions.JSDefault()
-#     stdOptions.DNA23Metropolis()
-    
-    setArrParams(stdOptions, 92)
+    stdOptions.uniformRates()
+
    
     stdOptions.temperature = 25.0
 
@@ -153,7 +154,8 @@ def simulationYurke2(trialsIn):
     
     stdOptions = standardOptions(simMode=Options.firstPassageTime, trials=trialsIn)
     stdOptions.simulation_time = A_TIME_OUT
-    stdOptions.JSDefault()
+#     stdOptions.JSDefault()
+    stdOptions.uniformRates()
 
     domS = Domain(sequence="ACTAATCCTCAGATCCAGCTAGTGTC", name="d_S")
     domD = Domain(sequence="A", name="d_A")
@@ -163,11 +165,14 @@ def simulationYurke2(trialsIn):
     strandT = Strand(domains=[domT, domS])
     strandS = strandT.C
 
-    complexEndS = Complex(strands=[strandQ], structure="..")
+#     complexEndS = Complex(strands=[strandQ], structure="..")
     complexEndF = Complex(strands=[strandT], structure="..")
     complexEndFC = Complex(strands=[strandQ, strandS], structure="(.+).")
     
-    stopSuccess = StopCondition(Options.STR_SUCCESS, [(complexEndS, Options.dissocMacrostate, 3)])
+    complexAttached = Complex(strands=[strandQ, strandS, strandT], structure="(.+)(+).")
+    
+    
+    stopSuccess = StopCondition(Options.STR_SUCCESS, [(complexAttached, Options.looseMacrostate, 1)])
     
     stdOptions.start_state = [complexEndF, complexEndFC]
     stdOptions.stop_conditions = [stopSuccess]
@@ -228,7 +233,7 @@ def setLabelAndClose(settings, plt, ax):
     
     fname = standardFileName("barplots", settings.type, "", settings.nTrials)
 
-    ax.set_xlabel(u'Trajectory time (μs)')
+    ax.set_xlabel(u'Trajectory time (ms)')
     
     plt.xticks(rotation=-30)
     plt.tight_layout()
@@ -239,7 +244,7 @@ def setLabelAndClose(settings, plt, ax):
 
 def doBarplot(times, settings):
     
-    times = [1000000 * ele for ele in times]
+    times = [1000 * ele for ele in times]
       
     fig = plt.figure(figsize=FIGURE_SIZE)
     ax = fig.gca()
@@ -261,8 +266,8 @@ def doBarplot(times, settings):
         
 def doDoubleBarplot(times, times2, setting):
      
-    times = [1000000 * ele for ele in times]
-    times2 = [1000000 * ele for ele in times2]     
+    times = [1000 * ele for ele in times]
+    times2 = [1000 * ele for ele in times2]     
      
     fig = plt.figure(figsize=FIGURE_SIZE)
     ax = fig.gca()
@@ -342,9 +347,9 @@ if __name__ == '__main__':
         settings_yurke2 = settings(enum_yurke2, title_yurke2, nTrials= nTrialsMod)
 
         
-        makePlots(setting_bonnet)
-        makePlots(setting_flamm)
-        makePlots(settings_yurke)
+#         makePlots(setting_bonnet)
+#         makePlots(setting_flamm)
+#         makePlots(settings_yurke)
         makePlots(settings_yurke2)
     
     else:

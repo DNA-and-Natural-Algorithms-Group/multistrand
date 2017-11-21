@@ -1,4 +1,3 @@
-# Frits Dannenberg, May 17th, 2017.
 # This is used for the slowdown study 
 # and the comparison between first step and trajectory mode
 
@@ -16,7 +15,6 @@ from multistrand.concurrent import  FirstStepRate, FirstPassageRate, Bootstrap, 
 from multistrand.options import Options
 
 
-
 from constantsgao import goa2006_P0, goa2006_P3, goa2006_P4, setSaltGao2006, colors
 
 import nupack
@@ -25,14 +23,16 @@ import matplotlib.pylab as plt
 import numpy as np
 import time, sys
 
-SCRIPT_DIR = "Hybridization_F1"
+SCRIPT_DIR = "case1_first_step"
 TEMPERATURE = 20.0
 ATIME_OUT = 100.0
- 
+BOOTSTRAP_RESAMPLE = 1000
+POINT_SIZE = 38     # size of markers in the plot
+
+
 markers = ["8", ">", "D", "s", "*", "<", "^"] 
  
 myMultistrand.setNumOfThreads(8) 
-
 
 
 def first_step_simulation(strand_seq, trials, T=20.0, leak=False):
@@ -45,7 +45,7 @@ def first_step_simulation(strand_seq, trials, T=20.0, leak=False):
         o = standardOptions(Options.firstStep, TEMPERATURE, trials, ATIME_OUT) 
         hybridization(o, strand_seq, trials)
         setSaltGao2006(o)
-        o.JSDefault()
+        o.uniformRates()
                
         
         return o
@@ -65,13 +65,12 @@ def first_passage_association(strand_seq, trials, concentration, T=20.0):
     
     def getOptions(trials):
 
-           
         o = standardOptions(Options.firstPassageTime, TEMPERATURE, trials, ATIME_OUT) 
         
         hybridization(o, strand_seq, trials, True)
         setSaltGao2006(o)
         o.join_concentration = concentration
-        o.JSDefault()
+        o.uniformRates()
 
         return o
     
@@ -82,8 +81,6 @@ def first_passage_association(strand_seq, trials, concentration, T=20.0):
     return myMultistrand.results
 
 
-
-#
 
 
 def doFirstStepMode(seq, concentrations, T=20.0, numOfRuns=500, leak=False):
@@ -105,7 +102,7 @@ def doFirstStepMode(seq, concentrations, T=20.0, numOfRuns=500, leak=False):
         else:
             kEff = myRates.kEff(z)
             
-        myBootstrap = Bootstrap(myRates, N=1000, concentration=z, computek1=leak)
+        myBootstrap = Bootstrap(myRates, N=BOOTSTRAP_RESAMPLE, concentration=z, computek1=leak)
         
         low, high = myBootstrap.ninetyFivePercentiles()
         logStd = myBootstrap.logStd()
@@ -151,7 +148,7 @@ def doFirstPassageTimeAssocation(seq, concentrations, T=20, numOfRuns=500):
         myRates = first_passage_association(seq, numOfRuns, concentration=concentration, T=T)
         keff = myRates.log10KEff(concentration)
         
-        myBootstrap = Bootstrap(myRates, concentration=concentration)
+        myBootstrap = Bootstrap(myRates, N=BOOTSTRAP_RESAMPLE, concentration=concentration)
         low, high = myBootstrap.ninetyFivePercentiles()
         logStd = myBootstrap.logStd()
         
@@ -169,7 +166,6 @@ def doFirstPassageTimeAssocation(seq, concentrations, T=20, numOfRuns=500):
 
 
 def fluffyPlot(ax, seqs, concentrations):
-    
     
     myXTicks = list()
     for conc in concentrations:
@@ -198,8 +194,7 @@ def addPoints(results, i, alp, seqs, concentrations, lineStyle, extraOptions=Non
     xVal = np.log10(concentrations)
     yVal = [r[0] for r in results[i]]
     
-    
-    plt.scatter(x=xVal, y=yVal, color=colors[i], marker=markers[i], alpha=alp, s=50.0, label=str(seqs[i]))
+    plt.scatter(x=xVal, y=yVal, color=colors[i], marker=markers[i], alpha=alp, s=POINT_SIZE, label=str(seqs[i]))
     plt.plot(xVal, yVal, marker=markers[i], linestyle=lineStyle, color=colors[i], alpha=alp , label=str(seqs[i]))
     
     if not extraOptions == "noErrorBars" :
@@ -232,7 +227,7 @@ def doPlots(seqs, concentrations, results1, results2, trials):
     
     plt.gca().invert_xaxis()
     
-    plt.savefig(standardFileName(SCRIPT_DIR) + 'scatter1.pdf')
+    plt.savefig(standardFileName(SCRIPT_DIR) + 'hybridizationRate.pdf')
     plt.close()
     
     
@@ -258,7 +253,7 @@ def doTimePlots(seqs, concentrations, results1, results2, trials):
     
     plt.gca().invert_xaxis()
     
-    plt.savefig(standardFileName(SCRIPT_DIR) + 'runTime1.pdf')
+    plt.savefig(standardFileName(SCRIPT_DIR) + 'runTime.pdf')
 
 
 
@@ -322,9 +317,14 @@ def doSlowdownStudy(trials):
    
     output = ""
    
-    for result in [result0, result3, result4]:
+    names = ["P0", "P3", "P4"]
+    myResults = [result0, result3, result4]
    
-        output += "mean,  is " + str(result[0]) + "  " + str(result[1]) + "  " + str(result[2]) + "  " + str(result[3]) + "\n"
+    output += "Rate   -   lowerbound   -   upperbound   -  logSD \n \n"
+   
+    for name, result in zip(names, myResults):
+   
+        output += name + "mean,  is " + str(result[0]) + "  " + str(result[1]) + "  " + str(result[2]) + "  " + str(result[3]) + "\n"
 
     factor3 = np.power(10, result0[0] - result3[0])
     factor4 = np.power(10, result0[0] - result4[0])
@@ -337,11 +337,13 @@ def doSlowdownStudy(trials):
     dev3 = np.power(10, result0[0] - result3[0] + dev3) - factor3
     dev4 = np.power(10, result0[0] - result4[0] + dev4) - factor4                           
     
-    output += "factor3" + " " + str(factor3) + "  " + str(dev3) + " \n"
-    output += "factor4" + " " + str(factor4) + "  " + str(dev4) + " \n"
+    output += "\n"
+    
+    output += "Slowdown P3" + " " + str(factor3) + "  " + str(dev3) + " \n"
+    output += "Slowdown P4" + " " + str(factor4) + "  " + str(dev4) + " \n"
 
     
-    f = open(standardFileName(SCRIPT_DIR) + "relRates.txt", 'w')
+    f = open(standardFileName(SCRIPT_DIR) + "relativeRates.txt", 'w')
     f.write(output)
     f.close()    
 

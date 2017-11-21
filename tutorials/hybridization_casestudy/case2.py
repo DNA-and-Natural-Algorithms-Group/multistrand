@@ -15,17 +15,21 @@ generate structured-random 25 3 4 10 sr25-10
 
 from multistrand.experiment import hybridization, standardOptions
 from multistrand.concurrent import FirstStepRate,FirstStepLeakRate,  myMultistrand
+from constantsgao import goa2006_P0, goa2006_P3, goa2006_P4, setSaltGao2006
 
-from constantsgao import goa2006_P0, goa2006_P3, goa2006_P4, setSaltGao2006, colors
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_pdf import PdfPages
+from matplotlib import cm
+
 
 from datetime import datetime
-import random, string, pickle
+import random, string
 import numpy as np
 import nupack
 import sys, os
 
 
-SCRIPT_DIR = 'scatterdata/'
+SCRIPT_DIR = 'case2_scatterplots/'
 myMultistrand.setNumOfThreads(8)
 
 GLOBAL_TEMPERATURE = 20.0
@@ -47,7 +51,7 @@ def create_setup(num_traj, strand_seq):
     
     options = standardOptions("First Step", GLOBAL_TEMPERATURE, num_traj, ATIME_OUT)
     hybridization(options, strand_seq, num_traj)    
-    options.JSDefault()
+    options.uniformRates()
     setSaltGao2006(options)    
     
     return options
@@ -391,7 +395,7 @@ if __name__ == '__main__':
             os.makedirs(SCRIPT_DIR)
     
         # now also save the sequences 
-        f = open(SCRIPT_DIR + name + "-seqs_details" + ".txt", 'w')
+        f = open(SCRIPT_DIR + name + "-details" + ".txt", 'w')
         
         f.write("SIMULATION TIME WAS: " + str(datetime.now() - TIME_MEASUREMENT) + "          \n \n");
         f.write("OFFSET, N, M =  " + str(OFFSET) + "  " + str(N) + "  " + str(M) + "  \n");
@@ -430,14 +434,14 @@ if __name__ == '__main__':
     resultsFiltered = [ ((data[0], data[3]) if len(data) == 4 else (data[0], data[1])) for data in resultsFiltered  ]  
     
     
-    # NOW : Write to file! 
-    
-    
-    f = open(SCRIPT_DIR + filename + "-storage" + ".txt", 'w')
-    
-    f.write("SIMULATION TIME WAS: " + str(datetime.now() - TIME_MEASUREMENT) + "          \n \n");
-    f.write("OFFSET, N, M =  " + str(OFFSET) + "  " + str(N) + "  " + str(M) + "  \n");
-    
+#     # NOW : Write to file! 
+#     
+#     
+#     f = open(SCRIPT_DIR + filename + "-storage" + ".txt", 'w')
+#     
+#     f.write("SIMULATION TIME WAS: " + str(datetime.now() - TIME_MEASUREMENT) + "          \n \n");
+#     f.write("OFFSET, N, M =  " + str(OFFSET) + "  " + str(N) + "  " + str(M) + "  \n");
+#     
        
     
     
@@ -445,8 +449,6 @@ if __name__ == '__main__':
     
 
 
-    import matplotlib.pyplot as plt
-    from matplotlib.backends.backend_pdf import PdfPages
 
 
     print
@@ -501,12 +503,12 @@ if __name__ == '__main__':
         # Do the rates depend upon how much secondary structure the single strands have?
         plt.figure(1)
         plt.subplot(211)
-        plt.scatter(strand_dGs, log_kfs, s=[10 * s for s in stems], alpha=0.5)
+        plt.scatter(strand_dGs, log_kfs, s=[10 * s for s in stems], alpha=0.5, cmap=cm.jet)
         plt.title("Association and dissociation rates")
         plt.ylabel("Log10 rate constant kf (/M/s) \n", fontsize='larger')
         plt.yticks(fontsize='larger', va='bottom')
         plt.subplot(212)
-        plt.scatter(strand_dGs, log_krs, s=[10 * s for s in stems], alpha=0.5)
+        plt.scatter(strand_dGs, log_krs, s=[10 * s for s in stems], alpha=0.5, cmap=cm.jet)
         plt.ylabel("Log10 rate constant kr (/s)", fontsize='larger')
         plt.yticks(fontsize='larger', va='bottom')
         plt.xlabel("single-strand secondary structure (kcal/mol)", fontsize='larger')
@@ -517,12 +519,12 @@ if __name__ == '__main__':
         # Do the rates depend upon the overall dG of the reaction
         plt.figure(1)
         plt.subplot(211)
-        plt.scatter(binding_dGs, log_kfs, s=[10 * s for s in stems], alpha=0.5)
+        plt.scatter(binding_dGs, log_kfs, s=[10 * s for s in stems], alpha=0.5, cmap=cm.jet)
         plt.title("Association and dissociation rates")
         plt.ylabel("Log10 rate constant kf (/M/s) \n", fontsize='larger')
         plt.yticks(fontsize='larger', va='bottom')
         plt.subplot(212)
-        plt.scatter(binding_dGs, log_krs, s=[10 * s for s in stems], alpha=0.5)
+        plt.scatter(binding_dGs, log_krs, s=[10 * s for s in stems], alpha=0.5, cmap=cm.jet)
         plt.ylabel("Log10 rate constant kr (/s)", fontsize='larger')
         plt.yticks(fontsize='larger', va='bottom')
         plt.xlabel("net binding strength (kcal/mol)", fontsize='larger')
@@ -533,12 +535,12 @@ if __name__ == '__main__':
         # Do the rates depend upon the strength of the duplex state?
         plt.figure(1)
         plt.subplot(211)
-        plt.scatter(duplex_dGs, log_kfs, s=[10 * s for s in stems], alpha=0.5)
+        plt.scatter(duplex_dGs, log_kfs, s=[10 * s for s in stems], alpha=0.5, cmap=cm.jet)
         plt.title("Association and dissociation rates")
         plt.ylabel("Log10 rate constant kf (/M/s) \n", fontsize='larger')
         plt.yticks(fontsize='larger', va='bottom')
         plt.subplot(212)
-        plt.scatter(duplex_dGs, log_krs, s=[10 * s for s in stems], alpha=0.5)
+        plt.scatter(duplex_dGs, log_krs, s=[10 * s for s in stems], alpha=0.5, cmap=cm.jet)
         plt.ylabel("Log10 rate constant kr (/s)", fontsize='larger')
         plt.yticks(fontsize='larger', va='bottom')
         plt.xlabel("duplex strength (kcal/mol)", fontsize='larger')
@@ -552,12 +554,12 @@ if __name__ == '__main__':
         # Do the rates depend upon toehold lengths?
         plt.figure(1)
         plt.subplot(211)
-        plt.scatter(toes, log_kfs, s=[10 * s for s in stems], color=toecolors, alpha=0.5)
+        plt.scatter(toes, log_kfs, s=[10 * s for s in stems], color=toecolors, alpha=0.5, cmap=cm.jet)
         plt.title("Association and dissociation rates (double-toeholds are blue)")
         plt.ylabel("Log10 rate constant kf (/M/s) \n", fontsize='larger')
         plt.yticks(fontsize='larger', va='bottom')
         plt.subplot(212)
-        plt.scatter(toes, log_krs, s=[10 * s for s in stems], color=toecolors, alpha=0.5)
+        plt.scatter(toes, log_krs, s=[10 * s for s in stems], color=toecolors, alpha=0.5, cmap=cm.jet)
         plt.ylabel("Log10 rate constant kr (/s)", fontsize='larger')
         plt.yticks(fontsize='larger', va='bottom')
         plt.xlabel("effective toehold length (nt)", fontsize='larger')
@@ -582,12 +584,12 @@ if __name__ == '__main__':
         # Do the rates depend upon toehold lengths, for long-stemmed strands?
         plt.figure(1)
         plt.subplot(211)
-        plt.scatter(toes[long], log_kfs[long], s=[10 * s for s in stems[long]], color=toecolors, alpha=0.5)
+        plt.scatter(toes[long], log_kfs[long], s=[10 * s for s in stems[long]], color=toecolors, alpha=0.5, cmap=cm.jet)
         plt.title("Association and dissociation rates for long-stem strands")
         plt.ylabel("Log10 rate constant kf (/M/s) \n", fontsize='larger')
         plt.yticks(fontsize='larger', va='bottom')
         plt.subplot(212)
-        plt.scatter(toes[long], log_krs[long], s=[10 * s for s in stems[long]], color=toecolors, alpha=0.5)
+        plt.scatter(toes[long], log_krs[long], s=[10 * s for s in stems[long]], color=toecolors, alpha=0.5, cmap=cm.jet)
         plt.ylabel("Log10 rate constant kr (/s)", fontsize='larger')
         plt.yticks(fontsize='larger', va='bottom')
         plt.xlabel("effective toehold length (nt)", fontsize='larger')
@@ -598,12 +600,12 @@ if __name__ == '__main__':
         # Do the rates depend upon toehold lengths, for short-stemmed strands?
         plt.figure(1)
         plt.subplot(211)
-        plt.scatter(toes[short], log_kfs[short], s=[10 * s for s in stems[short]], color=toecolors, alpha=0.5)
+        plt.scatter(toes[short], log_kfs[short], s=[10 * s for s in stems[short]], color=toecolors, alpha=0.5, cmap=cm.jet)
         plt.title("Association and dissociation rates for short-stem strands")
         plt.ylabel("Log10 rate constant kf (/M/s) \n", fontsize='larger')
         plt.yticks(fontsize='larger', va='bottom')
         plt.subplot(212)
-        plt.scatter(toes[short], log_krs[short], s=[10 * s for s in stems[short]], color=toecolors, alpha=0.5)
+        plt.scatter(toes[short], log_krs[short], s=[10 * s for s in stems[short]], color=toecolors, alpha=0.5, cmap=cm.jet)
         plt.ylabel("Log10 rate constant kr (/s)", fontsize='larger')
         plt.yticks(fontsize='larger', va='bottom')
         plt.xlabel("effective toehold length (nt)", fontsize='larger')
@@ -614,12 +616,12 @@ if __name__ == '__main__':
         # Do the rates depend upon toehold strengths?
         plt.figure(1)
         plt.subplot(211)
-        plt.scatter(toe_dGs, log_kfs, s=[10 * s for s in stems], color=toecolors, alpha=0.5)
+        plt.scatter(toe_dGs, log_kfs, s=[10 * s for s in stems], color=toecolors, alpha=0.5, cmap=cm.jet)
         plt.title("Association and dissociation rates (double-toeholds are blue)")
         plt.ylabel("Log10 rate constant kf (/M/s) \n", fontsize='larger')
         plt.yticks(fontsize='larger', va='bottom')
         plt.subplot(212)
-        plt.scatter(toe_dGs, log_krs, s=[10 * s for s in stems], color=toecolors, alpha=0.5)
+        plt.scatter(toe_dGs, log_krs, s=[10 * s for s in stems], color=toecolors, alpha=0.5, cmap=cm.jet)
         plt.ylabel("Log10 rate constant kr (/s)", fontsize='larger')
         plt.yticks(fontsize='larger', va='bottom')
         plt.xlabel("toehold binding strength (kcal/mol)", fontsize='larger')
@@ -634,9 +636,10 @@ if __name__ == '__main__':
         # Not quite a contour plot, but can we illustrate kf as a function of toehold length and stem length
         plt.figure(1)
         plt.subplot(111)
-        plt.scatter(toes + r1, stems + r2, s=50, c=log_kfs, alpha=0.5)
+        plt.scatter(toes + r1, stems + r2, s=50, c=log_kfs, alpha=0.5, cmap=cm.jet)
         # plt.gray()
         cb = plt.colorbar()
+        cb.solids.set_edgecolor("face")
         cb.set_label('log10 of kf')
         plt.title("Association rates in toehold-length vs stem-length space\n")
         plt.ylabel("stem length", fontsize='larger')
@@ -648,10 +651,11 @@ if __name__ == '__main__':
 
         plt.figure(1)
         plt.subplot(111)
-        plt.scatter(toes + r1, stems + r2, s=50, c=log_krs, alpha=0.5)
+        plt.scatter(toes + r1, stems + r2, s=50, c=log_krs, alpha=0.5, cmap=cm.jet)
         # plt.gray()
         cb = plt.colorbar()
         cb.set_label('log10 of kr')
+        cb.solids.set_edgecolor("face")
         plt.title("Disassociation rates in toehold-length vs stem-length space\n")
         plt.ylabel("stem length", fontsize='larger')
         plt.yticks(fontsize='larger', va='bottom')
@@ -670,15 +674,16 @@ if __name__ == '__main__':
             plt.figure(1)
 #             ax = plt.subplot(111)  
             
-            plt.scatter(toe_dGs[RANGE1], stem_dGs[RANGE1], s=MARKER_SIZE, c=log_kfs[RANGE1], alpha=0.5)
+            plt.scatter(toe_dGs[RANGE1], stem_dGs[RANGE1], s=MARKER_SIZE, c=log_kfs[RANGE1], alpha=0.5, cmap=cm.jet)
 
             if(len(toe_dGs) > (N + OFFSET)):
-                plt.scatter(toe_dGs[RANGE2], stem_dGs[RANGE2], s=MARKER_SIZE, c=log_kfs[RANGE2], alpha=0.5, marker='D')
+                plt.scatter(toe_dGs[RANGE2], stem_dGs[RANGE2], s=MARKER_SIZE, c=log_kfs[RANGE2], alpha=0.5, marker='D', cmap=cm.jet)
                           
             if L == 25:               
-                plt.scatter(toe_dGs[RANGE3], stem_dGs[RANGE3], s= (2* MARKER_SIZE), c=log_kfs[RANGE3], alpha=1.0, marker='*')
+                plt.scatter(toe_dGs[RANGE3], stem_dGs[RANGE3], s= (2* MARKER_SIZE), c=log_kfs[RANGE3], alpha=1.0, marker='*', cmap=cm.jet)
 
             cb = plt.colorbar()
+            cb.solids.set_edgecolor("face")
             
 
         def strengthPlotA(toe_dGs, stem_dGs, log_kfs):
@@ -688,6 +693,7 @@ if __name__ == '__main__':
             genericScatter(toe_dGs, stem_dGs, log_kfs)
                 
             cb.set_label('log10 of kf')
+            cb.solids.set_edgecolor("face")
             plt.title("Association rates in toehold-strength vs stem-strength space\n")
             plt.ylabel("stem strength", fontsize='larger')
             plt.yticks(fontsize='larger', va='bottom')
@@ -700,6 +706,7 @@ if __name__ == '__main__':
             genericScatter(toe_dGs, stem_dGs, log_krs)
 
             cb.set_label('log10 of kr')
+            cb.solids.set_edgecolor("face")
             plt.title("Disassociation rates in toehold-strength vs stem-strength space\n")
             plt.ylabel("stem strength", fontsize='larger')
             plt.yticks(fontsize='larger', va='bottom')
@@ -750,17 +757,17 @@ if __name__ == '__main__':
             updown_range = round(max(max(dissoc_speed_ups), max(assoc_slow_downs)))
 
 
-            def finalPlots(dissoc_speed_ups, assoc_slow_downs, colors):
+            def finalPlots(dissoc_speed_ups, assoc_slow_downs, colorsIn):
                                 
                 plt.figure(1)
                 plt.subplot(111)
                 
 #                 iconSize = 20
                 
-                plt.scatter(dissoc_speed_ups[RANGE1], assoc_slow_downs[RANGE1], c=colors[RANGE1], s=MARKER_SIZE, alpha=0.5)
+                plt.scatter(dissoc_speed_ups[RANGE1], assoc_slow_downs[RANGE1], c=colorsIn[RANGE1], s=MARKER_SIZE, alpha=0.5, cmap=cm.jet)
 
                 if(len(dissoc_speed_ups)) > (N + OFFSET):
-                    plt.scatter(dissoc_speed_ups[RANGE2], assoc_slow_downs[RANGE2], c=colors[RANGE2], s=MARKER_SIZE, alpha=0.5, marker='D')
+                    plt.scatter(dissoc_speed_ups[RANGE2], assoc_slow_downs[RANGE2], c=colorsIn[RANGE2], s=MARKER_SIZE, alpha=0.5, marker='D', cmap=cm.jet)
                     
                                         
                 plt.plot([0, updown_range], [0, updown_range], 'r--')
@@ -771,7 +778,7 @@ if __name__ == '__main__':
                 plt.xticks(fontsize='larger')
                 
                 if L == 25:
-                    plt.scatter(dissoc_speed_ups[RANGE3], assoc_slow_downs[RANGE3], c=colors[RANGE3], s=(2 * MARKER_SIZE), alpha=1.0, marker='*')
+                    plt.scatter(dissoc_speed_ups[RANGE3], assoc_slow_downs[RANGE3], c=colorsIn[RANGE3], s=(2 * MARKER_SIZE), alpha=1.0, marker='*', cmap=cm.jet)
 
 
             # Does secondary structure primarily speed up dissociation rather than slow down association?
@@ -784,11 +791,13 @@ if __name__ == '__main__':
             finalPlots(dissoc_speed_ups, assoc_slow_downs, stem_dGs)
             cb = plt.colorbar()
             cb.set_label('stem strength (kcal/mol)')
+            cb.solids.set_edgecolor("face")
             pdf.savefig()
             plt.close()
             
             finalPlots(dissoc_speed_ups, assoc_slow_downs, toe_dGs)
             cb = plt.colorbar()
+            cb.solids.set_edgecolor("face")
             pdf.savefig()
             plt.close()
 
@@ -796,6 +805,7 @@ if __name__ == '__main__':
             finalPlots(dissoc_speed_ups, assoc_slow_downs, stem_dGs - toe_dGs)           
             cb = plt.colorbar() 
             cb.set_label('stem strength - toehold strength (kcal/mol)')
+            cb.solids.set_edgecolor("face")
             pdf.savefig()
             plt.close()
             
@@ -803,6 +813,7 @@ if __name__ == '__main__':
             finalPlots(dissoc_speed_ups, assoc_slow_downs, stem_dGs - toe_dGs)           
             cb = plt.colorbar() 
             cb.set_label('stem strength - toehold strength (kcal/mol)')
+            cb.solids.set_edgecolor("face")
             annotateThat(dissoc_speed_ups, assoc_slow_downs)
             pdf.savefig()
             plt.close()

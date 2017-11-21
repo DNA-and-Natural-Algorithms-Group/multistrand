@@ -53,11 +53,11 @@ def doSims(strandSeq, numTraj=2):
 
     o1 = standardOptions()
     
-    o1.JSDefault()
     o1.simulation_mode = Options.trajectory
     o1.num_simulations = numTraj
     o1.output_interval = 1 
     o1.simulation_time = 0.00000005
+    o1.uniformRates()
 
     seq1 = "ACTGACTGACTG"
     seq2 = "ACTG"

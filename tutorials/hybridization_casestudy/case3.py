@@ -27,7 +27,7 @@ import numpy as np
 import operator, sys
 # from copy import deepcopy
 
-SCRIPT_DIR = "Hybridization_F3"
+SCRIPT_DIR = "case3_gao_study"
 TEMPERATURE = 20.0
 ATIME_OUT = 0.04
 
@@ -54,7 +54,7 @@ def getOptions(trials , settings): #start_complex_top, start_complex_bot, succes
     options = standardOptions("First Step", TEMPERATURE, settings.trials, ATIME_OUT)
 
     hybridization(options, settings.mySeq, settings.trials)
-    options.JSDefault()  
+    options.uniformRates()
     setSaltGao2006(options)
 
     options.output_interval = 1  # print every state, ever
