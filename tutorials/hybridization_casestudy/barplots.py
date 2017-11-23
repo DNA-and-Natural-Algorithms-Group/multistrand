@@ -241,20 +241,31 @@ def setLabelAndClose(settings, plt, ax):
     plt.close()
          
 
+def removeOutliers(times):
+    
+    times  = np.array(sorted(times))
+    return times[range(int(len(times)*0.98))]
+
+    
 
 def doBarplot(times, settings):
+
+    observations = str(len(times))
     
     times = [1000 * ele for ele in times]
+    times = removeOutliers(times)
       
     fig = plt.figure(figsize=FIGURE_SIZE)
     ax = fig.gca()
     
-    ax.hist(times, 50, alpha=0.20, log=1)
+    ax.hist(times, 50, alpha=0.20, log=1, normed=True)
     ax.set_title(settings.title)      
       
     ax = plt.gca()
-    ax.set_ylabel('Trajectory counts (total = ' + str(len(times)) + ')')  
-     
+    ax.set_ylabel('Trajectory counts (total = ' + observations + ')')  
+    ax.set_ylim([0.001,4.0])
+    
+    
     survX, survY = computeCompletionLine(times)
              
     ax2 = ax.twinx()
@@ -266,9 +277,17 @@ def doBarplot(times, settings):
         
 def doDoubleBarplot(times, times2, setting):
      
+    observations = str(len(times))
+    observations2 =  str(len(times2))
+     
     times = [1000 * ele for ele in times]
     times2 = [1000 * ele for ele in times2]     
-     
+
+    # now remove top 1% of data
+    times = removeOutliers(times)
+    times2 = removeOutliers(times2)
+
+
     fig = plt.figure(figsize=FIGURE_SIZE)
     ax = fig.gca()
     
@@ -279,19 +298,20 @@ def doDoubleBarplot(times, times2, setting):
     
     myBins = np.arange(myMin, myMax + binwidth, binwidth)
     
-    ax.hist(times,  alpha=0.20, log=1, histtype='bar', bins=myBins)
-    ax.hist(times2, alpha=0.20, log=1, histtype='bar', bins=myBins, stacked=True)
+    ax.hist(times,  alpha=0.20, log=1, histtype='bar', bins=myBins, normed=True)
+    ax.hist(times2, alpha=0.20, log=1, histtype='bar', bins=myBins, normed=True, stacked=True)
             
     survX, survY = computeCompletionLine(times)
     survX2, survY2 = computeCompletionLine(times2)
     
     ax.set_title(setting.title)      
     ax = plt.gca()
+    ax.set_ylim([0.001,4.0])
     
     if setting.type == enum_flamm or setting.type == enum_yurke:
-            ax.set_ylabel('Trajectory counts (' + str(len(times)) + ' and ' + str(len(times2)) + ")")  
+            ax.set_ylabel('Trajectory counts (' + observations + ' and ' + observations2 + ")")  
     else:
-        ax.set_ylabel('Trajectory counts (total = ' + str(len(times)) + ')')  
+        ax.set_ylabel('Trajectory counts (total = ' + observations + ')')  
     
     ax2 = ax.twinx()
     ax2.plot(survX, survY, lw=2)
@@ -347,9 +367,9 @@ if __name__ == '__main__':
         settings_yurke2 = settings(enum_yurke2, title_yurke2, nTrials= nTrialsMod)
 
         
-#         makePlots(setting_bonnet)
-#         makePlots(setting_flamm)
-#         makePlots(settings_yurke)
+        makePlots(setting_bonnet)
+        makePlots(setting_flamm)
+        makePlots(settings_yurke)
         makePlots(settings_yurke2)
     
     else:

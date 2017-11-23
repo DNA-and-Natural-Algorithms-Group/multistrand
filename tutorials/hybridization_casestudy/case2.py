@@ -336,9 +336,8 @@ if __name__ == '__main__':
         for i in range(len(candidates)):
             
             timeOut[i] = False
-            
-#             print
             seq = candidates[i]
+            
             print "%d: Simulating %s DNA strand at 20 C:  %s with toeholds %d and %d, stem %d, ss dG = %g and %g, ds dG = %g " % \
                     (i, sys.argv[2], seq, toeholds(seq)[0], toeholds(seq)[1], stemsize(seq), strand_dG(seq), strand_dG(WC(seq)), duplex_dG(seq))
 
@@ -350,7 +349,7 @@ if __name__ == '__main__':
             nForward = 0;
             nReverse = 0;
             
-            while ((nForward < 25 or (nReverse == 0)) and not timeOut[i]) :  # this is a bit wasteful, but "only" by a factor of about 1.5.  Aims for 20% error bars on k1.
+            while nForward < 25  and not timeOut[i] :  # this is a bit wasteful, but "only" by a factor of about 1.5.  Aims for 20% error bars on k1.
 
                 print 
                 batchRates, nF, nR = first_step_simulation(seq, trials, concentration=CONCENTRATION) 
@@ -361,14 +360,14 @@ if __name__ == '__main__':
                 else:
                     totalRates.merge(batchRates,deepCopy=True) 
 
-                print "Inferred rate constants with analytical error bars (all runs so far):"
+                print "Inferred rate constants (runs so far):"
                 print totalRates
 
                 nForward = nForward + nF
                 nReverse = nReverse + nR
 
 
-                if totalRates.nReverse > 4500000:  # abort this by extrapolating the rate when 0.5 million trajectories have been run.                    
+                if totalRates.nReverse > 2000000:  # abort this by extrapolating the rate when 0.5 million trajectories have been run.                    
                     timeOut[i] = True
 
                 if trials < 50000:  # memory problems running huge numbers of trials.  maybe we need to do better:  compress dataset incrementally...?
@@ -378,7 +377,6 @@ if __name__ == '__main__':
             print "Final statistics are "
             print totalRates
 
-#             results.append([seq, nForward, nReverse, totalRates.kEff(concentration=CONCENTRATION)])
             results.append([seq, nForward, nReverse, totalRates.k1()])
         
 
@@ -426,26 +424,13 @@ if __name__ == '__main__':
     RANGE2 = [i for i in RANGE2  if not timeOut[i]]
     RANGE3 = [i for i in RANGE3  if not timeOut[i]]    
     
-    resultsFiltered = [results[i]  for i in range(TOTAL_NUM_OF_SEQ) if timeOut[i] ]
-   
-
+    print str(RANGE1)
+    print str(RANGE2)
+    print str(RANGE3)
+    
     # some old data files contain only (seq,kf); newer ones contains (seq, Nf, Nr, k1, k1p, k2, k2p); but here we only need kf == k1
     results = [ ((data[0], data[3]) if len(data) == 4 else (data[0], data[1])) for data in results ]  
-    resultsFiltered = [ ((data[0], data[3]) if len(data) == 4 else (data[0], data[1])) for data in resultsFiltered  ]  
-    
-    
-#     # NOW : Write to file! 
-#     
-#     
-#     f = open(SCRIPT_DIR + filename + "-storage" + ".txt", 'w')
-#     
-#     f.write("SIMULATION TIME WAS: " + str(datetime.now() - TIME_MEASUREMENT) + "          \n \n");
-#     f.write("OFFSET, N, M =  " + str(OFFSET) + "  " + str(N) + "  " + str(M) + "  \n");
-#     
-       
-    
-    
-    # now scrap all results that did not finish
+
     
 
 
@@ -463,7 +448,7 @@ if __name__ == '__main__':
     strand_dGs = [ strand_dG(seq) + strand_dG(WC(seq)) for (seq, kf) in results ]   
     kfs = [ kf for (seq, kf) in results ]
     krs = [ reverse_rate(seq, kf) for (seq, kf) in results ]
-    log_kfs = [ np.log10(kf) for (seq, kf) in results]  # forward rates
+    log_kfs = [ np.log10(kf) for (seq, kf) in results ]  # forward rates
     log_krs = [ np.log10(kr) for kr in krs]  # reverse rates
 
 
@@ -665,9 +650,9 @@ if __name__ == '__main__':
         plt.close()
         
         
-        def filter(array, range):
-        
-            return array[timeOut[range] == False]
+#         def filter(array, range):
+#          
+#             return array[timeOut[range] == False]
         
         def genericScatter(toe, stem, rates):
             
@@ -714,8 +699,18 @@ if __name__ == '__main__':
             plt.xticks(fontsize='larger')
             
         def annotateThat(toe_dGs, stem_dGs):
-            for label, x, y in zip(range(len(toe_dGs)), toe_dGs, stem_dGs):
+            
+            for label, x, y in zip(range(len(toe_dGs[RANGE1])), toe_dGs[RANGE1], stem_dGs[RANGE1]):
                 plt.annotate(label, xy=[x, y], size=2)
+                
+            if(len(dissoc_speed_ups)) > (N + OFFSET):
+               for label, x, y in zip(range(len(toe_dGs[RANGE2])), toe_dGs[RANGE2], stem_dGs[RANGE2]):
+                    plt.annotate(label, xy=[x, y], size=2)
+                        
+            if L == 25:
+               for label, x, y in zip(range(len(toe_dGs[RANGE3])), toe_dGs[RANGE3], stem_dGs[RANGE3]):
+                    plt.annotate(label, xy=[x, y], size=2)
+        
         
         strengthPlotA(toe_dGs, stem_dGs, log_kfs)
         pdf.savefig()
@@ -748,73 +743,71 @@ if __name__ == '__main__':
             duplex_DG_std = np.std(duplex_dGs[3:(N + 3)])
         
         print "duplex dG standard deviation = %g" % duplex_DG_std
-#         if number_distinct_lengths == 1 and duplex_DG_std < .2:
-        if True:
-            log_fastest_assoc = np.max(log_kfs)
-            log_slowest_dissoc = np.min(log_krs)
-            dissoc_speed_ups = log_krs - log_slowest_dissoc
-            assoc_slow_downs = log_fastest_assoc - log_kfs
-            updown_range = round(max(max(dissoc_speed_ups), max(assoc_slow_downs)))
 
 
-            def finalPlots(dissoc_speed_ups, assoc_slow_downs, colorsIn):
-                                
-                plt.figure(1)
-                plt.subplot(111)
-                
-#                 iconSize = 20
-                
-                plt.scatter(dissoc_speed_ups[RANGE1], assoc_slow_downs[RANGE1], c=colorsIn[RANGE1], s=MARKER_SIZE, alpha=0.5, cmap=cm.jet)
-
-                if(len(dissoc_speed_ups)) > (N + OFFSET):
-                    plt.scatter(dissoc_speed_ups[RANGE2], assoc_slow_downs[RANGE2], c=colorsIn[RANGE2], s=MARKER_SIZE, alpha=0.5, marker='D', cmap=cm.jet)
-                    
-                                        
-                plt.plot([0, updown_range], [0, updown_range], 'r--')
-                plt.title("Secondary structure slows down association \n or speeds up dissociation?")
-                plt.ylabel("Log10 slow-down of k+ (relative to fastest)", fontsize='larger')
-                plt.yticks(fontsize='larger', va='bottom')
-                plt.xlabel("Log10 speed-up of k- (relative to slowest)", fontsize='larger')
-                plt.xticks(fontsize='larger')
-                
-                if L == 25:
-                    plt.scatter(dissoc_speed_ups[RANGE3], assoc_slow_downs[RANGE3], c=colorsIn[RANGE3], s=(2 * MARKER_SIZE), alpha=1.0, marker='*', cmap=cm.jet)
+        log_fastest_assoc = np.max(log_kfs)
+        log_slowest_dissoc = np.min(log_krs)
+        dissoc_speed_ups = log_krs - log_slowest_dissoc
+        assoc_slow_downs = log_fastest_assoc - log_kfs
+        updown_range = round(max(max(dissoc_speed_ups), max(assoc_slow_downs)))
 
 
-            # Does secondary structure primarily speed up dissociation rather than slow down association?
-                
-            blueColors = np.array(['b' for x in range(TOTAL_NUM_OF_SEQ)])
-            finalPlots(dissoc_speed_ups, assoc_slow_downs, blueColors)
-            pdf.savefig()
-            plt.close()
-
-            finalPlots(dissoc_speed_ups, assoc_slow_downs, stem_dGs)
-            cb = plt.colorbar()
-            cb.set_label('stem strength (kcal/mol)')
-            cb.solids.set_edgecolor("face")
-            pdf.savefig()
-            plt.close()
+        def finalPlots(dissoc_speed_ups, assoc_slow_downs, colorsIn):
+                            
+            plt.figure(1)
+            plt.subplot(111)
             
-            finalPlots(dissoc_speed_ups, assoc_slow_downs, toe_dGs)
-            cb = plt.colorbar()
-            cb.solids.set_edgecolor("face")
-            pdf.savefig()
-            plt.close()
+            plt.scatter(dissoc_speed_ups[RANGE1], assoc_slow_downs[RANGE1], c=colorsIn[RANGE1], s=MARKER_SIZE, alpha=0.5, cmap=cm.jet)
+
+            if(len(dissoc_speed_ups)) > (N + OFFSET):
+                plt.scatter(dissoc_speed_ups[RANGE2], assoc_slow_downs[RANGE2], c=colorsIn[RANGE2], s=MARKER_SIZE, alpha=0.5, marker='D', cmap=cm.jet)
+                
+                                    
+            plt.plot([0, updown_range], [0, updown_range], 'r--')
+            plt.title("Secondary structure slows down association \n or speeds up dissociation?")
+            plt.ylabel("Log10 slow-down of k+ (relative to fastest)", fontsize='larger')
+            plt.yticks(fontsize='larger', va='bottom')
+            plt.xlabel("Log10 speed-up of k- (relative to slowest)", fontsize='larger')
+            plt.xticks(fontsize='larger')
+            
+            if L == 25:
+                plt.scatter(dissoc_speed_ups[RANGE3], assoc_slow_downs[RANGE3], c=colorsIn[RANGE3], s=(2 * MARKER_SIZE), alpha=1.0, marker='*', cmap=cm.jet)
 
 
-            finalPlots(dissoc_speed_ups, assoc_slow_downs, stem_dGs - toe_dGs)           
-            cb = plt.colorbar() 
-            cb.set_label('stem strength - toehold strength (kcal/mol)')
-            cb.solids.set_edgecolor("face")
-            pdf.savefig()
-            plt.close()
+        # Does secondary structure primarily speed up dissociation rather than slow down association?
             
-            
-            finalPlots(dissoc_speed_ups, assoc_slow_downs, stem_dGs - toe_dGs)           
-            cb = plt.colorbar() 
-            cb.set_label('stem strength - toehold strength (kcal/mol)')
-            cb.solids.set_edgecolor("face")
-            annotateThat(dissoc_speed_ups, assoc_slow_downs)
-            pdf.savefig()
-            plt.close()
-            
+        blueColors = np.array(['b' for x in range(TOTAL_NUM_OF_SEQ)])
+        finalPlots(dissoc_speed_ups, assoc_slow_downs, blueColors)
+        pdf.savefig()
+        plt.close()
+
+        finalPlots(dissoc_speed_ups, assoc_slow_downs, stem_dGs)
+        cb = plt.colorbar()
+        cb.set_label('stem strength (kcal/mol)')
+        cb.solids.set_edgecolor("face")
+        pdf.savefig()
+        plt.close()
+        
+        finalPlots(dissoc_speed_ups, assoc_slow_downs, toe_dGs)
+        cb = plt.colorbar()
+        cb.solids.set_edgecolor("face")
+        pdf.savefig()
+        plt.close()
+
+
+        finalPlots(dissoc_speed_ups, assoc_slow_downs, stem_dGs - toe_dGs)           
+        cb = plt.colorbar() 
+        cb.set_label('stem strength - toehold strength (kcal/mol)')
+        cb.solids.set_edgecolor("face")
+        pdf.savefig()
+        plt.close()
+        
+        
+        finalPlots(dissoc_speed_ups, assoc_slow_downs, stem_dGs - toe_dGs)           
+        cb = plt.colorbar() 
+        cb.set_label('stem strength - toehold strength (kcal/mol)')
+        cb.solids.set_edgecolor("face")
+        annotateThat(dissoc_speed_ups, assoc_slow_downs)
+        pdf.savefig()
+        plt.close()
+        

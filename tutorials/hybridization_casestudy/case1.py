@@ -282,9 +282,13 @@ def doInference(concentrations, trials):
        
     
     seqs = list()
-    seqs.append('TCGATG')
+#     seqs.append('TCGATG')
+#     seqs.append('TCGATGC')
+#     seqs.append('AGTCCTTTTTGG')
+    
     seqs.append('TCGATGC')
-    seqs.append('AGTCCTTTTTGG')
+    seqs.append('TCGATGCT')
+    seqs.append('TAGTCCCTTTTTGGG')
     
 
     for seq in seqs:

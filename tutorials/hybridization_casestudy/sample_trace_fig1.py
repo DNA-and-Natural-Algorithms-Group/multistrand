@@ -12,7 +12,6 @@ from multistrand.utils import pairType
 from multistrand.experiment import standardOptions, makeComplex
 
     
-ATIME_OUT = 0.001
 
 def printTrajectory(o):
     
@@ -56,7 +55,7 @@ def doSims(strandSeq, numTraj=2):
     o1.simulation_mode = Options.trajectory
     o1.num_simulations = numTraj
     o1.output_interval = 1 
-    o1.simulation_time = 0.00000005
+    o1.simulation_time = 0.000005
     o1.uniformRates()
 
     seq1 = "ACTGACTGACTG"
