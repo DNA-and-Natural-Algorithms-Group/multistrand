@@ -703,7 +703,7 @@ if __name__ == '__main__':
             for label, x, y in zip(range(len(toe_dGs[RANGE1])), toe_dGs[RANGE1], stem_dGs[RANGE1]):
                 plt.annotate(label, xy=[x, y], size=2)
                 
-            if(len(dissoc_speed_ups)) > (N + OFFSET):
+            if(len(toe_dGs)) > (N + OFFSET):
                for label, x, y in zip(range(len(toe_dGs[RANGE2])), toe_dGs[RANGE2], stem_dGs[RANGE2]):
                     plt.annotate(label, xy=[x, y], size=2)
                         

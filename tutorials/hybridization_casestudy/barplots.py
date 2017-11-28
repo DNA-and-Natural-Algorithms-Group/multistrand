@@ -13,10 +13,16 @@ from multistrand.options import Options
 from multistrand.utils import standardFileName
 from multistrand.concurrent import MergeSim
 
+import matplotlib
+matplotlib.use('agg')
 
 
 import matplotlib.pylab as plt
 import numpy as np
+
+
+
+
 
 A_TIME_OUT = 10.0 # 10 s timeout
 NUM_PROCESS = 8
@@ -253,17 +259,29 @@ def doBarplot(times, settings):
     observations = str(len(times))
     
     times = [1000 * ele for ele in times]
-    times = removeOutliers(times)
+ 
       
     fig = plt.figure(figsize=FIGURE_SIZE)
     ax = fig.gca()
+
+    myMin = min(times)
+    myMax = max(removeOutliers(times))
+    # compute the max for outliers removed.
+    binwidth = (myMax - myMin) / 40 
     
-    ax.hist(times, 50, alpha=0.20, log=1, normed=True)
+    myBins = np.arange(myMin, myMax + binwidth, binwidth)
+    
+    weights1 = np.empty_like(times)
+    weights1.fill(100.0/ len(times))
+
+    
+    ax.hist(times, alpha=0.20, log=1, bins=myBins, weights=weights1 )
     ax.set_title(settings.title)      
       
     ax = plt.gca()
-    ax.set_ylabel('Trajectory counts (total = ' + observations + ')')  
-    ax.set_ylim([0.001,4.0])
+    ax.set_ylabel('Trajectory pct (total = ' + observations + ')')  
+    ax.set_ylim([0.1, 40.0])
+    ax.set_xlim([0.0, myMax])
     
     
     survX, survY = computeCompletionLine(times)
@@ -271,6 +289,7 @@ def doBarplot(times, settings):
     ax2 = ax.twinx()
     ax2.plot(survX, survY, lw=2)
     ax2.set_ylabel('Cummulative completion pct')  
+    ax.set_xlim([0.0, myMax])
 
     setLabelAndClose(settings, plt, ax)
          
@@ -283,33 +302,37 @@ def doDoubleBarplot(times, times2, setting):
     times = [1000 * ele for ele in times]
     times2 = [1000 * ele for ele in times2]     
 
-    # now remove top 1% of data
-    times = removeOutliers(times)
-    times2 = removeOutliers(times2)
-
-
     fig = plt.figure(figsize=FIGURE_SIZE)
     ax = fig.gca()
     
     
     myMin = min(min(times), min(times2))
-    myMax = max(max(times), max(times2))
+    myMax = max(max(removeOutliers(times)), max(removeOutliers(times2)))
+    # compute the max for outliers removed.
     binwidth = (myMax - myMin) / 40 
     
     myBins = np.arange(myMin, myMax + binwidth, binwidth)
     
-    ax.hist(times,  alpha=0.20, log=1, histtype='bar', bins=myBins, normed=True)
-    ax.hist(times2, alpha=0.20, log=1, histtype='bar', bins=myBins, normed=True, stacked=True)
+    weights1 = np.empty_like(times)
+    weights1.fill(100.0/ len(times))
+    
+    weights2 = np.empty_like(times2)
+    weights2.fill(100.0/ len(times2))
+    
+    
+    ax.hist(times,  alpha=0.20, log=1, histtype='bar', bins=myBins, weights=weights1)
+    ax.hist(times2, alpha=0.20, log=1, histtype='bar', bins=myBins, weights=weights2, stacked=True)
             
     survX, survY = computeCompletionLine(times)
     survX2, survY2 = computeCompletionLine(times2)
     
     ax.set_title(setting.title)      
     ax = plt.gca()
-    ax.set_ylim([0.001,4.0])
+    ax.set_ylim([0.1, 40.0])
+    ax.set_xlim([0, myMax])
     
     if setting.type == enum_flamm or setting.type == enum_yurke:
-            ax.set_ylabel('Trajectory counts (' + observations + ' and ' + observations2 + ")")  
+            ax.set_ylabel('Trajectory pct (' + observations + ' and ' + observations2 + ")")  
     else:
         ax.set_ylabel('Trajectory counts (total = ' + observations + ')')  
     
@@ -317,6 +340,8 @@ def doDoubleBarplot(times, times2, setting):
     ax2.plot(survX, survY, lw=2)
     ax2.plot(survX2, survY2, lw=2)
     ax2.set_ylabel('Cummulative completion pct')  
+    ax2.set_xlim([0, myMax])
+
 
     
     setLabelAndClose(setting, plt, ax)
