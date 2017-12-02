@@ -178,7 +178,7 @@ def plotFirstTrajectory(filename, trajectories, length):
     
     f = open(filename + "-trajectories.txt", "w")
     
-    upTo = 3
+    upTo = 1
     
     if len(trajectories) < upTo:
         upTo = len(trajectories)

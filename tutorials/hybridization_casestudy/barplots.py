@@ -178,7 +178,7 @@ def simulationYurke2(trialsIn):
     complexAttached = Complex(strands=[strandQ, strandS, strandT], structure="(.+)(+).")
     
     
-    stopSuccess = StopCondition(Options.STR_SUCCESS, [(complexAttached, Options.looseMacrostate, 1)])
+    stopSuccess = StopCondition(Options.STR_SUCCESS, [(complexAttached, Options.looseMacrostate, 2)])
     
     stdOptions.start_state = [complexEndF, complexEndFC]
     stdOptions.stop_conditions = [stopSuccess]
@@ -386,8 +386,8 @@ if __name__ == '__main__':
         nTrialsMod = int(sys.argv[2])
 
         # by default, the first two examples get 10x more trajectories
-        setting_bonnet = settings(enum_bonnet, title_bonnet, True, 10 *  nTrialsMod)
-        setting_flamm = settings(enum_flamm, title_flamm, nTrials=10 *  nTrialsMod)
+        setting_bonnet = settings(enum_bonnet, title_bonnet, True, 5 *  nTrialsMod)
+        setting_flamm = settings(enum_flamm, title_flamm, nTrials=5 *  nTrialsMod)
         settings_yurke = settings(enum_yurke, title_yurke, nTrials= nTrialsMod)
         settings_yurke2 = settings(enum_yurke2, title_yurke2, nTrials= nTrialsMod)
 

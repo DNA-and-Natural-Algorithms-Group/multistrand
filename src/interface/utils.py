@@ -84,20 +84,21 @@ def pairType(ids, structs):
     # utility function
     def generatePairing(dotParen, stack, offset, output):
         
-        index = 0
-    
+        index = 1
+
         for c in dotParen:
             
             if c == '(':
                 # pushing the first end of the basepair
                 stack.append(offset + index)
+                
             elif c == ')':
                 # popping the stack, setting two locations
                 currIndex = offset + index
                 otherIndex = stack.pop()
                                 
-                output[currIndex]  = 1+ otherIndex
-                output[otherIndex] = 1+ currIndex
+                output[currIndex-1]  = otherIndex
+                output[otherIndex-1] =  currIndex
                 
             elif not c == '.':
                 raise Warning('There is an error in the dot paren structure -- PairType function') 
@@ -107,20 +108,23 @@ def pairType(ids, structs):
     
     idList = ids.split(',')
     dotParens = structs.split('+') 
+    N = len(dotParens)
     
     # the new ordering, for example: 3 0 1 2, so that idList[3] < idList[0] < idList[1] < idList[2]
     ordering = sorted(range(len(idList)), key=idList.__getitem__)    
     
-    myOffsets =  list()   # what will the offset be in the new ordering?
     idString = ''        
     
-    for i in range(len(idList)):
+    newLengths = [len(dotParens[ordering[i]]) for i in range(N)]   
+    newOffsets = [ sum(newLengths[0:i]) for i in range(N)] # the offsets under the new ordering
+    
+    offsets = [0, ] * N      # the new offsets under the old ordering
+    
+    for i in range(N):
         
         newPosition = ordering[i]
         
-        offsets = [ len(dotParens[ordering[index]]) for index in range(newPosition)]
-        myOffsets.append(sum(offsets))
-        
+        offsets[newPosition] = newOffsets[i]
         idString += idList[newPosition]
     
 
@@ -129,9 +133,9 @@ def pairType(ids, structs):
  
     myEnum = enumerate(idList)
           
-    for index, val in myEnum:      
-         
-        generatePairing(dotParens[index], myStack, myOffsets[index], output)
+    for index, val in myEnum:    
+          
+        generatePairing(dotParens[index], myStack, offsets[index], output)
 
      
     return  (idString, tuple(output))

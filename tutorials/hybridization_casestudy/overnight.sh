@@ -9,7 +9,7 @@ python sample_trace_fig1.py > sample_trace_fig1_output.txt;
 ## These are the first passage figure
 ## 8 processes, < 15 minutes
 
-python barplots.py 8 800 > barplots_output.txt;
+python barplots.py 8 2400 > barplots_output.txt;
 
 ## These are the comparison between first-step and trajectory mode
 ## 8 processes < 1 hr
@@ -20,7 +20,7 @@ python case1.py slowDownStudy 1600;
 ## These are the trajectory studies of P0, P3, P4.
 ## 8 processes, <24 hr
 
-python case3.py 8 1600 P4;			#<-- we got here.
+python case3.py 8 1600 P4;		
 python case3.py 8 1600 P3;
 python case3.py 8 1600 P0;
 
@@ -31,7 +31,7 @@ python case3.py 8 1600 P0;
 #python hybridization_F2.py generate iso-random 15 200 ir15-200;
 #python hybridization_F2.py generate iso-random 25 50 ir25-50;				
 
-python case2.py generate iso-random 15 500 ir15-500;
-python case2.py generate iso-random 25 500 ir25-500;				
+python case2.py generate iso-random 15 120 ir15-120;
+python case2.py generate iso-random 25 120 ir25-120;				
 
 

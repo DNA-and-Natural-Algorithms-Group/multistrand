@@ -346,10 +346,11 @@ if __name__ == '__main__':
             CONCENTRATION = 50e-9
             totalRates = FirstStepLeakRate()
 
+            requiredSuccess = 25
             nForward = 0;
             nReverse = 0;
             
-            while nForward < 25  and not timeOut[i] :  # this is a bit wasteful, but "only" by a factor of about 1.5.  Aims for 20% error bars on k1.
+            while nForward < requiredSuccess  and not timeOut[i] :  # this is a bit wasteful, but "only" by a factor of about 1.5.  Aims for 20% error bars on k1.
 
                 print 
                 batchRates, nF, nR = first_step_simulation(seq, trials, concentration=CONCENTRATION) 
@@ -367,8 +368,9 @@ if __name__ == '__main__':
                 nReverse = nReverse + nR
 
 
-                if totalRates.nReverse > 2000000:  # abort this by extrapolating the rate when 0.5 million trajectories have been run.                    
+                if totalRates.nReverse > 5000000:  # abort this by extrapolating the rate when 15.0 million trajectories have been run.                    
                     timeOut[i] = True
+                
 
                 if trials < 50000:  # memory problems running huge numbers of trials.  maybe we need to do better:  compress dataset incrementally...?
                     trials *= 2
@@ -376,6 +378,9 @@ if __name__ == '__main__':
                     
             print "Final statistics are "
             print totalRates
+
+            if (nForward < requiredSuccess):
+                timeOut[i] = True
 
             results.append([seq, nForward, nReverse, totalRates.k1()])
         
@@ -430,8 +435,6 @@ if __name__ == '__main__':
     
     # some old data files contain only (seq,kf); newer ones contains (seq, Nf, Nr, k1, k1p, k2, k2p); but here we only need kf == k1
     results = [ ((data[0], data[3]) if len(data) == 4 else (data[0], data[1])) for data in results ]  
-
-    
 
 
 
@@ -745,11 +748,21 @@ if __name__ == '__main__':
         print "duplex dG standard deviation = %g" % duplex_DG_std
 
 
-        log_fastest_assoc = np.max(log_kfs)
-        log_slowest_dissoc = np.min(log_krs)
-        dissoc_speed_ups = log_krs - log_slowest_dissoc
-        assoc_slow_downs = log_fastest_assoc - log_kfs
+        concatenated = RANGE1
+         
+        if(len(toe_dGs)) > (N + OFFSET):
+            concatenated = list(concatinated, RANGE2)
+ 
+        if L == 25:
+            concatenated = list(concatinated, RANGE3)
+
+        log_fastest_assoc = np.max(log_kfs[concatenated])
+        log_slowest_dissoc = np.min(log_krs[concatenated])
+        dissoc_speed_ups = log_krs[concatenated] - log_slowest_dissoc
+        assoc_slow_downs = log_fastest_assoc - log_kfs[concatenated]
         updown_range = round(max(max(dissoc_speed_ups), max(assoc_slow_downs)))
+        
+        print "Updown Range = " + str(updown_range)
 
 
         def finalPlots(dissoc_speed_ups, assoc_slow_downs, colorsIn):
@@ -774,12 +787,14 @@ if __name__ == '__main__':
                 plt.scatter(dissoc_speed_ups[RANGE3], assoc_slow_downs[RANGE3], c=colorsIn[RANGE3], s=(2 * MARKER_SIZE), alpha=1.0, marker='*', cmap=cm.jet)
 
 
-        # Does secondary structure primarily speed up dissociation rather than slow down association?
-            
-        blueColors = np.array(['b' for x in range(TOTAL_NUM_OF_SEQ)])
-        finalPlots(dissoc_speed_ups, assoc_slow_downs, blueColors)
-        pdf.savefig()
-        plt.close()
+#         # Does secondary structure primarily speed up dissociation rather than slow down association?
+#             
+#         blueColors = np.array(['b' for x in range(TOTAL_NUM_OF_SEQ)])
+#         finalPlots(dissoc_speed_ups, assoc_slow_downs, blueColors)
+#         pdf.savefig()
+#         plt.close()
+
+        
 
         finalPlots(dissoc_speed_ups, assoc_slow_downs, stem_dGs)
         cb = plt.colorbar()
