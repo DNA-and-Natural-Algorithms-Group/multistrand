@@ -32,6 +32,9 @@ class idTest(unittest.TestCase):
         uID1 = pairType(names1, struct1)
         uID2 = pairType(names2, struct2)
         
+        print str(uID1)
+        print str(uID2)
+        
         self.assertTrue(uID1 == uID2)
         
     def testTwo(self):
@@ -45,6 +48,9 @@ class idTest(unittest.TestCase):
         
         uID1 = pairType(names1, struct1)
         uID2 = pairType(names2, struct2)
+        
+        print str(uID1)
+        print str(uID2)
         
         self.assertTrue(not uID1 == uID2)
 

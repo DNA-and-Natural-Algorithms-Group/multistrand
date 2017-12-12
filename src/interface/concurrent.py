@@ -1031,6 +1031,10 @@ class MergeSim(object):
                     procs[i].join(timeout = 2)
                     procs[i].terminate()
 
+            self.runTime = (time.time() - startTime)
+            print("Done.  %.5f seconds -- now processing results \n" % (time.time() - startTime))
+
+
             # Leak - the below is a leak rates object
             # NB: Initialize with a dataset, but we merge with
             # a differrent rates object.
@@ -1096,6 +1100,7 @@ class MergeSim(object):
             if (self.nForward.value + self.nReverse.value) > self.settings.saveInterval:
                 saveResults()
 
+
         saveResults()
 
         # print final results to the user
@@ -1103,8 +1108,6 @@ class MergeSim(object):
         
         print self.results
 
-        self.runTime = (time.time() - startTime)
-        print("Done.  %.5f seconds \n" % (time.time() - startTime))
 
         if self.settings.bootstrap == True:
             self.results.doBootstrap(self.settings.bootstrapN)

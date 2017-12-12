@@ -22,8 +22,6 @@ import numpy as np
 
 
 
-
-
 A_TIME_OUT = 10.0 # 10 s timeout
 NUM_PROCESS = 8
 nTrialsMod = 4  # number of trials per process
@@ -85,7 +83,7 @@ def simulationHairpin(trialsIn, reverse):
 
 
 # Figure 8 of Flamm 2000 -- bistable. Compute transition time S0 -> S1
-def simulationFlamm2000(trialsIn):
+def simulationFlamm2000(trialsIn ):
     
     seq = "GGCCCCTTTGGGGGCCAGACCCCTAAAGGGGTC"
     
@@ -98,7 +96,6 @@ def simulationFlamm2000(trialsIn):
     stdOptions.substrate_type = Options.substrateRNA
     stdOptions.gt_enable = 1
     stdOptions.simulation_time = A_TIME_OUT
-#     stdOptions.JSDefault()
     stdOptions.uniformRates()
     
  
@@ -175,10 +172,10 @@ def simulationYurke2(trialsIn):
     complexEndF = Complex(strands=[strandT], structure="..")
     complexEndFC = Complex(strands=[strandQ, strandS], structure="(.+).")
     
-    complexAttached = Complex(strands=[strandQ, strandS, strandT], structure="(.+)(+).")
+    complexAttached = Complex(strands=[strandQ, strandS, strandT], structure="**+*(+)*")
     
     
-    stopSuccess = StopCondition(Options.STR_SUCCESS, [(complexAttached, Options.looseMacrostate, 2)])
+    stopSuccess = StopCondition(Options.STR_SUCCESS, [(complexAttached, Options.looseMacrostate, 1)])
     
     stdOptions.start_state = [complexEndF, complexEndFC]
     stdOptions.stop_conditions = [stopSuccess]
@@ -223,15 +220,16 @@ def computeHittingTimes(settings, reverse=False):
 
 
  
-def computeCompletionLine(results):
+def computeCompletionLine(results, N = None):
     
-    N = len(results)
+    if N == None:
+        N = len(results)
     
     if N == 0:
         exit("Number of results in zero")
     
     results.sort()
-    Y = (100.0 / N) + (100.0 / N) * np.array(range(N))
+    Y = (100.0 / N) + (100.0 / N) * np.array(range(len(results)))
     
     return results, Y
     
@@ -323,8 +321,10 @@ def doDoubleBarplot(times, times2, setting):
     ax.hist(times,  alpha=0.20, log=1, histtype='bar', bins=myBins, weights=weights1)
     ax.hist(times2, alpha=0.20, log=1, histtype='bar', bins=myBins, weights=weights2, stacked=True)
             
-    survX, survY = computeCompletionLine(times)
-    survX2, survY2 = computeCompletionLine(times2)
+    N = len(times) + len(times2)
+            
+    survX, survY = computeCompletionLine(times, N)
+    survX2, survY2 = computeCompletionLine(times2, N)
     
     ax.set_title(setting.title)      
     ax = plt.gca()
@@ -339,6 +339,7 @@ def doDoubleBarplot(times, times2, setting):
     ax2 = ax.twinx()
     ax2.plot(survX, survY, lw=2)
     ax2.plot(survX2, survY2, lw=2)
+    ax2.set_ylim([0.0, 100.0])
     ax2.set_ylabel('Cummulative completion pct')  
     ax2.set_xlim([0, myMax])
 
@@ -387,14 +388,14 @@ if __name__ == '__main__':
 
         # by default, the first two examples get 10x more trajectories
         setting_bonnet = settings(enum_bonnet, title_bonnet, True, 5 *  nTrialsMod)
-        setting_flamm = settings(enum_flamm, title_flamm, nTrials=5 *  nTrialsMod)
+        setting_flamm = settings(enum_flamm, title_flamm, nTrials= 5 *  nTrialsMod)
         settings_yurke = settings(enum_yurke, title_yurke, nTrials= nTrialsMod)
         settings_yurke2 = settings(enum_yurke2, title_yurke2, nTrials= nTrialsMod)
 
         
-        makePlots(setting_bonnet)
-        makePlots(setting_flamm)
-        makePlots(settings_yurke)
+#         makePlots(setting_bonnet)
+#         makePlots(setting_flamm)
+#         makePlots(settings_yurke)
         makePlots(settings_yurke2)
     
     else:

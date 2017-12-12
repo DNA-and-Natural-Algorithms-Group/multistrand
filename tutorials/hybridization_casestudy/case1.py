@@ -27,7 +27,7 @@ SCRIPT_DIR = "case1_first_step"
 TEMPERATURE = 20.0
 ATIME_OUT = 100.0
 BOOTSTRAP_RESAMPLE = 1000
-POINT_SIZE = 38     # size of markers in the plot
+POINT_SIZE = 38  # size of markers in the plot
 
 
 markers = ["8", ">", "D", "s", "*", "<", "^"] 
@@ -51,7 +51,7 @@ def first_step_simulation(strand_seq, trials, T=20.0, leak=False):
         return o
     
     myMultistrand.setOptionsFactory1(getOptions, trials)
-    myMultistrand.setFirstStepMode() # ensure the right results object is set.
+    myMultistrand.setFirstStepMode()  # ensure the right results object is set.
     if leak:
         myMultistrand.setLeakMode()
     myMultistrand.run()
@@ -141,26 +141,29 @@ def doFirstPassageTimeAssocation(seq, concentrations, T=20, numOfRuns=500):
     # for each concentration z, do one "first passage time" run for association, and get k_eff(z)
     Result = []
     times = list()
-    
-    
-    for concentration in concentrations:
-        
-        myRates = first_passage_association(seq, numOfRuns, concentration=concentration, T=T)
-        keff = myRates.log10KEff(concentration)
-        
-        myBootstrap = Bootstrap(myRates, N=BOOTSTRAP_RESAMPLE, concentration=concentration)
-        low, high = myBootstrap.ninetyFivePercentiles()
-        logStd = myBootstrap.logStd()
-        
 
+    for concentration in concentrations:
+ 
+        if len(seq) > 10 and concentration < 1e-5:
+             
+            keff = 5.5
+            low = 1e+5
+            high = 1e+6
+            logStd = -1.0
+             
+        else :
+                     
+            myRates = first_passage_association(seq, numOfRuns, concentration=concentration, T=T)
+            keff = myRates.log10KEff(concentration)
+            
+            myBootstrap = Bootstrap(myRates, N=BOOTSTRAP_RESAMPLE, concentration=concentration)
+            low, high = myBootstrap.ninetyFivePercentiles()
+            logStd = myBootstrap.logStd()
+                
         Result.append((keff, np.log10(low), np.log10(high), logStd))
         times.append((np.log10(myMultistrand.runTime), 0.0, 0.0))
-        
-        
-        print "keff = %g /M/s at %s" % (keff, concentration_string(concentration))
     
-    
-    print 
+    print "keff = %g /M/s at %s" % (keff, concentration_string(concentration))
     
     return Result, times
 
@@ -258,7 +261,8 @@ def doTimePlots(seqs, concentrations, results1, results2, trials):
 
 
 def basicResults(results1, results2, runTime1, runTime2, seq, concentrations, trials):
-              
+
+
     FSResult, times = doFirstStepMode(seq, concentrations, numOfRuns=trials)
     results1.append(FSResult)
     runTime1.append(times)
@@ -286,12 +290,13 @@ def doInference(concentrations, trials):
 #     seqs.append('TCGATGC')
 #     seqs.append('AGTCCTTTTTGG')
     
+    seqs.append('TAGTCCCTTTTTGGG')
     seqs.append('TCGATGC')
     seqs.append('TCGATGCT')
-    seqs.append('TAGTCCCTTTTTGGG')
     
 
     for seq in seqs:
+    
         basicResults(results1, results2, runTime1, runTime2, seq, concentrations, trials)
          
     # results1, resutls2 are identical but first passage time and first step    
@@ -301,13 +306,10 @@ def doInference(concentrations, trials):
    
 
 def doSlowdownStudy(trials):
-            
     
     def computeMeanStd(seq):
     
-        
-        result, times = doFirstStepMode(seq, [1.0e-6], T=20, numOfRuns=trials, leak=True) 
-        
+        result, times = doFirstStepMode(seq, [1.0e-6], T=20, numOfRuns=trials, leak=False) 
         return result[0]
     
     
@@ -366,7 +368,9 @@ if __name__ == '__main__':
 
 
         if toggle == "plots":     
-            doInference([1e0, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5], trials)                     
+            doInference([1e0, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6], trials)                     
+#             doInference([1e0, 1e-1, 1e-2, 1e-3], trials)                     
+
         
         if toggle == "slowDownStudy":
             doSlowdownStudy(trials)

@@ -748,19 +748,19 @@ if __name__ == '__main__':
         print "duplex dG standard deviation = %g" % duplex_DG_std
 
 
-        concatenated = RANGE1
+        fullRange = RANGE1
          
         if(len(toe_dGs)) > (N + OFFSET):
-            concatenated = list(concatinated, RANGE2)
+            fullRange = fullRange +  RANGE2
  
         if L == 25:
-            concatenated = list(concatinated, RANGE3)
+            fullRange = fullRange + RANGE3
 
-        log_fastest_assoc = np.max(log_kfs[concatenated])
-        log_slowest_dissoc = np.min(log_krs[concatenated])
-        dissoc_speed_ups = log_krs[concatenated] - log_slowest_dissoc
-        assoc_slow_downs = log_fastest_assoc - log_kfs[concatenated]
-        updown_range = round(max(max(dissoc_speed_ups), max(assoc_slow_downs)))
+        log_fastest_assoc = np.max(log_kfs[fullRange])
+        log_slowest_dissoc = np.min(log_krs[fullRange])
+        dissoc_speed_ups = log_krs - log_slowest_dissoc
+        assoc_slow_downs = log_fastest_assoc - log_kfs
+        updown_range = round(max(max(dissoc_speed_ups[fullRange]), max(assoc_slow_downs[fullRange])))
         
         print "Updown Range = " + str(updown_range)
 
