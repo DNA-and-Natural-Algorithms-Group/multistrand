@@ -203,6 +203,10 @@ Q: Can I simulate leak reactions using Multistrand?
 
 A: Yes. We have now added a preliminary tutorial, see /tutorials/leak_casestudy.
 
+Q: When I try to run any multistrand script, the console returns segfault 11. 
+
+A: Please make sure $NUPACKHOME is set. When you run 'echo $NUPACKHOME' in bash, it should return the directory of your nupack installation. 
+
 Q: How do I adjust the solvent salt concentrations?
 
 A: Like so. (units are M = mol / litre) 
