@@ -217,7 +217,7 @@ SEESAW_DELTA = 5
 # This method takes a gate output complex and its input and then calculate the rate of output production
 def seesaw_gate_output_production(options, gate, trials, supersample=25, doFirstPassage=False):
     two_input(options, gate.gate_output_complex, gate.input_complex,
-              gate.output_complex, trials, supersample, doFirstPassage=False)
+              gate.output_complex, trials, supersample, doFirstPassage=doFirstPassage)
 
 # Domain list as a list of strings, defined as follows input_sequence, base_sequence, output_sequence, fuel_sequence,
 # toehold_sequence, clamp_sequence which defaults to clamp_sequence
@@ -226,7 +226,7 @@ def seesaw_gate_output_production(options, gate, trials, supersample=25, doFirst
 
 def seesaw_gate_fuel_catalysis(options, gate, trials, supersample=25, doFirstPassage=False):
     two_input(options, gate.gate_input_complex, gate.fuel_complex,
-              gate.input_complex, trials, supersample, doFirstPassage=False)
+              gate.input_complex, trials, supersample, doFirstPassage=doFirstPassage)
 
 
 # Domain list as a list of strings, defined as follows input_sequence, base_sequence, output_sequence, fuel_sequence,
@@ -235,7 +235,7 @@ def seesaw_gate_fuel_catalysis(options, gate, trials, supersample=25, doFirstPas
 # the fuel displaces the output i.e. the rate of leak output production.
 def seesaw_gate_fuel_leak(options, gate, trials, supersample=25, doFirstPassage=False):
     two_input(options, gate.gate_output_complex, gate.fuel_complex,
-              gate.output_complex, trials, supersample, doFirstPassage=False)
+              gate.output_complex, trials, supersample, doFirstPassage=doFirstPassage)
 
 # Takes two gate objects and calcualtes their leak!
 def seesaw_gate_gate_leak(options, gateA, gateB, trials, supersample=25, doFirstPassage=False):
@@ -293,7 +293,7 @@ class ClampedSeesawGate(object):
     Gate_Count = 1
 
     def __init__(self, input_sequence, base_sequence, output_sequence, fuel_sequence,
-                 toehold_sequence, clamp_sequence="CG"):
+                 toehold_sequence, clamp_sequence="CG", sameID = False):
 
         count_str = str(ClampedSeesawGate.Gate_Count) + '_Cl '
         self.input_domain = Domain(
@@ -333,6 +333,15 @@ class ClampedSeesawGate(object):
             self.toehold_domain.C + self.clamp_domain + \
             self.base_domain.C + self.clamp_domain
         self.base_dom_strand = self.clamp_domain + self.base_domain + self.clamp_domain
+        
+        self.input_strand.name = "input"
+        self.fuel_strand.name = "fuel"
+        self.base_strand.name = "base" 
+        self.output_strand.name = "output" 
+        self.input_partial.name = "inputP" 
+        self.threshold_base.name = "thres"
+        self.base_dom_strand.name = "baseD"
+        
 
         self.gate_output_complex = Complex(strands=[self.base_strand,
                                                     self.output_strand],
@@ -356,4 +365,5 @@ class ClampedSeesawGate(object):
                                       structure='.' *
                                       len(self.output_strand.sequence))
 
-        ClampedSeesawGate.Gate_Count += 1
+        if not sameID :
+            ClampedSeesawGate.Gate_Count += 1

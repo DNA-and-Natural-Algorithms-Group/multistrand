@@ -120,7 +120,7 @@ def pairType(ids, structs):
     
     offsets = [0, ] * N      # the new offsets under the old ordering
     
-    for i in range(N):
+    for i in xrange(N):
         
         newPosition = ordering[i]
         

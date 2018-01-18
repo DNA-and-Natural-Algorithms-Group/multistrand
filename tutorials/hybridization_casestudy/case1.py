@@ -11,7 +11,7 @@
 from multistrand.objects import Strand
 from multistrand.experiment import standardOptions, hybridization
 from multistrand.utils import concentration_string, standardFileName
-from multistrand.concurrent import  FirstStepRate, FirstPassageRate, Bootstrap, myMultistrand
+from multistrand.concurrent import  FirstStepRate, FirstPassageRate, Bootstrap, myMultistrand, MergeSim
 from multistrand.options import Options
 
 
@@ -26,7 +26,7 @@ import time, sys
 SCRIPT_DIR = "case1_first_step"
 TEMPERATURE = 20.0
 ATIME_OUT = 100.0
-BOOTSTRAP_RESAMPLE = 1000
+BOOTSTRAP_RESAMPLE = 10000
 POINT_SIZE = 38  # size of markers in the plot
 
 
@@ -35,32 +35,47 @@ markers = ["8", ">", "D", "s", "*", "<", "^"]
 myMultistrand.setNumOfThreads(8) 
 
 
-def first_step_simulation(strand_seq, trials, T=20.0, leak=False):
+def first_step_simulation(strand_seq, trials, T=20.0):
 
+    myMultistrand = MergeSim()    
+    myMultistrand.setNumOfThreads(2) 
     print ("Running first step mode simulations for %s (with Boltzmann sampling)..." % (strand_seq))
-       
+    
     def getOptions(trials):
-       
        
         o = standardOptions(Options.firstStep, TEMPERATURE, trials, ATIME_OUT) 
         hybridization(o, strand_seq, trials)
         setSaltGao2006(o)
         o.uniformRates()
                
-        
         return o
     
-    myMultistrand.setOptionsFactory1(getOptions, trials)
+    throws = 10
+    
+    if strand_seq ==  'TAGTCCCTTTTTGGG':
+        throws = trials * (20000.0 / 240.0)
+        
+    if strand_seq == 'TCGATGC':
+        throws = trials * ( 900.0 / 240.0)
+        
+        
+    if strand_seq == 'TCGATGCT':
+        throws =  trials *( 1100.0 / 240.0)
+    
+    
+    myMultistrand.setOptionsFactory1(getOptions, throws )
     myMultistrand.setFirstStepMode()  # ensure the right results object is set.
-    if leak:
-        myMultistrand.setLeakMode()
+#     myMultistrand.setLeakMode()
+#     myMultistrand.setTerminationCriteria(terminationCount=trials)
     myMultistrand.run()
-    return myMultistrand.results
+    return myMultistrand
 
 
 
 def first_passage_association(strand_seq, trials, concentration, T=20.0):
 
+    myMultistrand = MergeSim()
+    myMultistrand.setNumOfThreads(2) 
     print "Running first passage time simulations for association of %s at %s..." % (strand_seq, concentration_string(concentration))
     
     def getOptions(trials):
@@ -78,17 +93,18 @@ def first_passage_association(strand_seq, trials, concentration, T=20.0):
     myMultistrand.setPassageMode()
     myMultistrand.run()
     
-    return myMultistrand.results
+    return myMultistrand
 
 
 
 
-def doFirstStepMode(seq, concentrations, T=20.0, numOfRuns=500, leak=False):
+def doFirstStepMode(seq, concentrations, T=20.0, numOfRuns=500):
     
     # track time for each kind of simulation, using time.time(), which has units of second
     # do one "first step mode" run, get k1, k2, etc, from which z_crit and k_eff(z) can be computed
 
-    myRates = first_step_simulation(seq, numOfRuns, T=T, leak=leak) 
+    myMultistrand = first_step_simulation(seq, numOfRuns, T=T) 
+    myRates = myMultistrand.results
     time2 = time.time()
     print str(myRates)
     
@@ -96,13 +112,10 @@ def doFirstStepMode(seq, concentrations, T=20.0, numOfRuns=500, leak=False):
     FSResult = list()
     
     for z in concentrations:
-        
-        if leak:
-            kEff = myRates.k1()
-        else:
-            kEff = myRates.kEff(z)
+
+        kEff = myRates.kEff(z)
             
-        myBootstrap = Bootstrap(myRates, N=BOOTSTRAP_RESAMPLE, concentration=z, computek1=leak)
+        myBootstrap = Bootstrap(myRates, N=BOOTSTRAP_RESAMPLE, concentration=z, computek1=True)
         
         low, high = myBootstrap.ninetyFivePercentiles()
         logStd = myBootstrap.logStd()
@@ -153,7 +166,8 @@ def doFirstPassageTimeAssocation(seq, concentrations, T=20, numOfRuns=500):
              
         else :
                      
-            myRates = first_passage_association(seq, numOfRuns, concentration=concentration, T=T)
+            myMultistrand = first_passage_association(seq, numOfRuns, concentration=concentration, T=T)
+            myRates = myMultistrand.results
             keff = myRates.log10KEff(concentration)
             
             myBootstrap = Bootstrap(myRates, N=BOOTSTRAP_RESAMPLE, concentration=concentration)
@@ -352,7 +366,7 @@ def doSlowdownStudy(trials):
     f = open(standardFileName(SCRIPT_DIR) + "relativeRates.txt", 'w')
     f.write(output)
     f.close()    
-
+    
 
 
 # # The actual main method
@@ -365,7 +379,6 @@ if __name__ == '__main__':
 
         toggle = str(sys.argv[1])
         trials = int(sys.argv[2])
-
 
         if toggle == "plots":     
             doInference([1e0, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6], trials)                     

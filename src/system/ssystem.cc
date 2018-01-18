@@ -360,6 +360,7 @@ void SimulationSystem::SimulationLoop_Trajectory() {
 		}
 
 		if (myTimer.stopoptions) {
+
 			stopFlag = false;
 			stopFlag = complexList->checkStopComplexList(first->citem);
 			traverse = first;
@@ -448,11 +449,12 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 			checkresult = false;
 			first = simOptions->getStopComplexes(0);
 			traverse = first;
+
 			for (int idx = 0; idx < myTimer.stopcount; idx++) {
 
 				checkresult = complexList->checkStopComplexList(traverse->citem);
 
-				if (checkresult && stop_entries[idx] == true) {
+				if (checkresult && stop_entries[idx]) {
 					// multiple stop states could suddenly be true, we add
 					// a status line entry for the first one found.
 					if (!stopFlag) {

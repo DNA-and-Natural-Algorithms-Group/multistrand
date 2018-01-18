@@ -29,7 +29,7 @@ import operator, sys
 
 SCRIPT_DIR = "case3_gao_study"
 TEMPERATURE = 20.0
-ATIME_OUT = 0.04
+ATIME_OUT = 10.0
 
 
 class hybridizationSimSettings(object):
@@ -82,7 +82,7 @@ def doPosPlotsPrimer(analysisResult, settings, extraTitle):
     selectedCount = analysisResult.pathCount.value
     trajectoryIn = analysisResult.initialTrajectory
     
-    doPosPlots(posDict, settings, extraTitle, selectedCount, "M1", analysisResult.structDict2, trajectory=trajectoryIn)
+    doPosPlots(posDict, settings, extraTitle, selectedCount, "----", analysisResult.structDict2, trajectory=trajectoryIn)
     
 
 def standardTitle(mySeq, extraTitle, selectedCount, runs):
@@ -106,7 +106,7 @@ def estimateSuccessProbability(popularStructure, settings):
  
     oldTrials = settings.trials
  
-    settings.trials = int(settings.trials / 3.0)
+    settings.trials = int(settings.trials / 50.0)
     settings.initialStructure = popularStructure
   
  
