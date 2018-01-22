@@ -136,6 +136,23 @@ struct hairpin_energies{
 };
 
 
+struct internal_energies{
+
+	// Internal Loop Info
+	double basic[31];
+	double mismatch[BASES][BASES][PAIRS_NUPACK];
+
+	double maximum_NINIO;
+	double ninio_correction[5];
+
+	/* special internal loop lookup tables */
+	double internal_1_1[PAIRS_NUPACK][PAIRS_NUPACK][BASES][BASES];
+	double internal_2_1[PAIRS_NUPACK][BASES][PAIRS_NUPACK][BASES][BASES];
+	double internal_2_2[PAIRS_NUPACK][PAIRS_NUPACK][BASES][BASES][BASES][BASES];
+
+};
+
+
 class NupackEnergyModel: public EnergyModel {
 
 public:
@@ -143,8 +160,6 @@ public:
 	NupackEnergyModel(PyObject* options);
 	NupackEnergyModel(SimOptions* options);
 	~NupackEnergyModel(void);
-	void processOptions();
-	FILE* openFiles(char*, string&, string&);
 
 	double returnRate(double start_energy, double end_energy, int enth_entr_toggle);
 	double returnRate(energyS &start_energy, energyS &end_energy);
@@ -158,51 +173,42 @@ public:
 	double BulgeEnergy(int i, int j, int p, int q, int bulgesize);
 	double InteriorEnergy(char *seq1, char *seq2, int size1, int size2);
 	double HairpinEnergy(char *seq, int size);
-	double HairpinEnergy(char *seq, int size, hairpin_energies&);
-
 	double MultiloopEnergy(int size, int *sidelen, char **sequences);
 	double OpenloopEnergy(int size, int *sidelen, char **sequences);
 
 	// FD jan 2018: adding the corresponding enthalpy functions
 	double StackEnthalpy(int i, int j, int p, int q);
+	double BulgeEnthalpy(int i, int j, int p, int q, int bulgesize);
+	double InteriorEnthalpy(char *seq1, char *seq2, int size1, int size2);
 	double HairpinEnthalpy(char *seq, int size);
 
+
 private:
+
+	void processOptions();
+	FILE* openFiles(char*, string&, string&);
+
+	// FD jan 2018: helper functions, now seperated out
+	double HairpinEnergy(char *seq, int size, hairpin_energies&);
+	double InteriorEnergy(char *seq1, char *seq2, int size1, int size2, internal_energies& internal);
+	double BulgeEnergy(int i, int j, int p, int q, int bulgesize, array<double,31>, array<array<double, PAIRS_NUPACK>, PAIRS_NUPACK> );
+
 
 	// All energy units are integers, in units of .01 kcal/mol, as used by ViennaRNA
 
 	// Stacking Info
-	double stack_37_dG[PAIRS_NUPACK][PAIRS_NUPACK]; // Delta G's for stacks, matrix form, at 37 degrees C.
-	int stack_37_dH[PAIRS_NUPACK][PAIRS_NUPACK]; // Delta H's for stacks, matrix form, for use comparing to dG at 37 deg C.
+	array<array<double, PAIRS_NUPACK>, PAIRS_NUPACK> stack_37_dG; // Delta G's for stacks, matrix form, at 37 degrees C.
+	array<array<double, PAIRS_NUPACK>, PAIRS_NUPACK> stack_37_dH; // Delta H's for stacks, matrix form, for use comparing to dG at 37 deg C.
 
 	// Hairpin Info
 	hairpin_energies hairpin_dG, hairpin_dH;
 
-
 	// Bulge Info
-	double bulge_37_dG[31];
-	int bulge_37_dH[31];
+	array<double,31> bulge_37_dG, bulge_37_dH;
 
 	// Internal Loop Info
-	double internal_37_dG[31];
-	double internal_mismatch_37_dG[BASES][BASES][PAIRS_NUPACK];
-	int internal_37_dH[31];
-	int internal_mismatch_37_dH[BASES][BASES][PAIRS_NUPACK];
+	internal_energies internal_dG, internal_dH;
 
-	double maximum_NINIO;
-	int maximum_NINIO_dH;
-	double ninio_correction_37[5];
-	int ninio_correction_37_dH[5];
-
-	/* special internal loop lookup tables */
-	double internal_1_1_37_dG[PAIRS_NUPACK][PAIRS_NUPACK][BASES][BASES];
-	int internal_1_1_37_dH[PAIRS_NUPACK][PAIRS_NUPACK][BASES][BASES];
-
-	double internal_2_1_37_dG[PAIRS_NUPACK][BASES][PAIRS_NUPACK][BASES][BASES];
-	int internal_2_1_37_dH[PAIRS_NUPACK][BASES][PAIRS_NUPACK][BASES][BASES];
-
-	double internal_2_2_37_dG[PAIRS_NUPACK][PAIRS_NUPACK][BASES][BASES][BASES][BASES];
-	int internal_2_2_37_dH[PAIRS_NUPACK][PAIRS_NUPACK][BASES][BASES][BASES][BASES];
 
 	// Multiloop Info
 	double multiloop_base;

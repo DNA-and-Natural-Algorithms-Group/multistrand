@@ -101,21 +101,33 @@ double NupackEnergyModel::StackEnthalpy(int i, int j, int p, int q) {
 
 double NupackEnergyModel::BulgeEnergy(int i, int j, int p, int q, int bulgesize) {
 
+	return this->BulgeEnergy(i, j, p, q,  bulgesize, bulge_37_dG, stack_37_dG);
+
+}
+
+double NupackEnergyModel::BulgeEnthalpy(int i, int j, int p, int q, int bulgesize) {
+
+	return this->BulgeEnergy(i, j, p, q,  bulgesize, bulge_37_dH, stack_37_dH);
+}
+
+
+double NupackEnergyModel::BulgeEnergy(int i, int j, int p, int q, int bulgesize, array<double,31> bulge, array<array<double, PAIRS_NUPACK>, PAIRS_NUPACK> stack) {
+
 	double energy = 0.0;
 
 	if (bulgesize <= 30) {
 
-		energy = bulge_37_dG[bulgesize];
+		energy = bulge[bulgesize];
 
 	} else {
 
-		energy = bulge_37_dG[30] + (log((double) bulgesize / 30.0) * log_loop_penalty / 100.0);
+		energy = bulge[30] + (log((double) bulgesize / 30.0) * log_loop_penalty / 100.0);
 
 	}
 
 	if (bulgesize == 1) { // add stacking term for single-base bulges.
 
-		energy += stack_37_dG[pairtypes[i][j] - 1][pairtypes[p][q] - 1];
+		energy += stack[pairtypes[i][j] - 1][pairtypes[p][q] - 1];
 
 	} else { // AU penalty doesn't apply if they stack.
 
@@ -129,7 +141,22 @@ double NupackEnergyModel::BulgeEnergy(int i, int j, int p, int q, int bulgesize)
 	return energy;
 }
 
+
 double NupackEnergyModel::InteriorEnergy(char *seq1, char *seq2, int size1, int size2) {
+
+	return this->InteriorEnergy(seq1, seq2, size1, size2, internal_dG);
+
+}
+
+
+double NupackEnergyModel::InteriorEnthalpy(char *seq1, char *seq2, int size1, int size2) {
+
+	return this->InteriorEnergy(seq1, seq2, size1, size2, internal_dH);
+
+}
+
+
+double NupackEnergyModel::InteriorEnergy(char *seq1, char *seq2, int size1, int size2, internal_energies& internal) {
 
 	double energy, ninio;
 
@@ -138,23 +165,23 @@ double NupackEnergyModel::InteriorEnergy(char *seq1, char *seq2, int size1, int 
 
 	// special case time. 1x1, 2x1 and 2x2's all get special cases.
 	if (size1 == 1 && size2 == 1)
-		return internal_1_1_37_dG[type1][type2][seq1[1]][seq2[size2]];
+		return internal.internal_1_1[type1][type2][seq1[1]][seq2[size2]];
 	if (size1 <= 2 && size2 <= 2)
 		if (size1 == 1 || size2 == 1) {
 			if (size1 == 1)
-				return internal_2_1_37_dG[type1][seq1[1]][type2][seq2[1]][seq2[size2]];
+				return internal.internal_2_1[type1][seq1[1]][type2][seq2[1]][seq2[size2]];
 			else
-				return internal_2_1_37_dG[basepair_sw_mfold_actual[type2 + 1] - 1][seq2[1]][basepair_sw_mfold_actual[type1 + 1] - 1][seq1[1]][seq1[size1]];
+				return internal.internal_2_1[basepair_sw_mfold_actual[type2 + 1] - 1][seq2[1]][basepair_sw_mfold_actual[type1 + 1] - 1][seq1[1]][seq1[size1]];
 		}
 	if (size1 == 2 && size2 == 2)
-		return internal_2_2_37_dG[type1][type2][seq1[1]][seq1[size1]][seq2[1]][seq2[size2]];
+		return  internal.internal_2_2[type1][type2][seq1[1]][seq1[size1]][seq2[1]][seq2[size2]];
 
 	// Generic case.
 
 	if (size1 + size2 <= 30) {
-		energy = internal_37_dG[size1 + size2];
+		energy = internal.basic[size1 + size2];
 	} else {
-		energy = internal_37_dG[30] + (log((double) (size1 + size2) / 30.0) * log_loop_penalty / 100.0);
+		energy = internal.basic[30] + (log((double) (size1 + size2) / 30.0) * log_loop_penalty / 100.0);
 	}
 
 	// NINIO term...
@@ -168,24 +195,24 @@ double NupackEnergyModel::InteriorEnergy(char *seq1, char *seq2, int size1, int 
 		asym = 4;
 	}
 
-	ninio = abs(size2 - size1) * ninio_correction_37[asym - 1];
+	ninio = abs(size2 - size1) * internal.ninio_correction[asym - 1];
 
-	if (maximum_NINIO < ninio) {
-		energy += maximum_NINIO;
+	if (internal.maximum_NINIO < ninio) {
+		energy += internal.maximum_NINIO;
 	} else {
 		energy += ninio;
 	}
 
 	// try gail params?
 	if (size1 == 1 || size2 == 1) {
-		energy += internal_mismatch_37_dG[1][1][type1] + internal_mismatch_37_dG[1][1][basepair_sw_mfold_actual[type2 + 1] - 1];
+		energy += internal.mismatch[1][1][type1] + internal.mismatch[1][1][basepair_sw_mfold_actual[type2 + 1] - 1];
 	} else {
-		energy += internal_mismatch_37_dG[seq1[1]][seq2[size2]][type1] + internal_mismatch_37_dG[seq2[1]][seq1[size1]][basepair_sw_mfold_actual[type2 + 1] - 1];
+		energy += internal.mismatch[seq1[1]][seq2[size2]][type1] + internal.mismatch[seq2[1]][seq1[size1]][basepair_sw_mfold_actual[type2 + 1] - 1];
 	}
 
 	// FD: adding the singlestranded stacking term.
-	energy += singleStrandedStacking(seq1, size1);
-	energy += singleStrandedStacking(seq2, size2);
+	energy += singleStrandedStacking(seq1, size1); // TODO: decide if these are dH or dS contributions.
+	energy += singleStrandedStacking(seq2, size2); // they are considered dH right now.
 
 	return energy;
 }
@@ -888,35 +915,33 @@ void NupackEnergyModel::processOptions() {
 		bulge_37_dG[loop] = T_scale(bulge_37_dG[loop], bulge_37_dH[loop], temperature);
 
 	for (loop = 0; loop < 31; loop++)
-		internal_37_dG[loop] = T_scale(internal_37_dG[loop], internal_37_dH[loop], temperature);
+		internal_dG.basic[loop] = T_scale(internal_dG.basic[loop], internal_dH.basic[loop], temperature);
 
 	for (loop = 0; loop < BASES; loop++)
-		//  for( loop = 0; loop < NUM_BASEPAIRS_NUPACK; loop++ )
 		for (loop2 = 0; loop2 < BASES; loop2++)
 			for (loop3 = 0; loop3 < PAIRS_NUPACK; loop3++)
-				//      for( loop3 = 0; loop3 < NUM_BASES; loop3++ )
-				internal_mismatch_37_dG[loop][loop2][loop3] = T_scale(internal_mismatch_37_dG[loop][loop2][loop3], internal_mismatch_37_dH[loop][loop2][loop3],
+				internal_dG.mismatch[loop][loop2][loop3] = T_scale(internal_dG.mismatch[loop][loop2][loop3], internal_dH.mismatch[loop][loop2][loop3],
 						temperature);
 
-	maximum_NINIO = T_scale(maximum_NINIO, maximum_NINIO_dH, temperature);
+	internal_dG.maximum_NINIO = T_scale(internal_dG.maximum_NINIO, internal_dH.maximum_NINIO, temperature);
 
 	for (loop = 0; loop < 5; loop++)
-		ninio_correction_37[loop] = T_scale(ninio_correction_37[loop], ninio_correction_37_dH[loop], temperature);
+		internal_dG.ninio_correction[loop] = T_scale(internal_dG.ninio_correction[loop], internal_dH.ninio_correction[loop], temperature);
 
 	for (loop = 0; loop < PAIRS_NUPACK; loop++)
 		for (loop2 = 0; loop2 < PAIRS_NUPACK; loop2++)
 			for (loop3 = 0; loop3 < BASES; loop3++)
 				for (loop4 = 0; loop4 < BASES; loop4++)
-					internal_1_1_37_dG[loop][loop2][loop3][loop4] = T_scale(internal_1_1_37_dG[loop][loop2][loop3][loop4],
-							internal_1_1_37_dH[loop][loop2][loop3][loop4], temperature);
+					internal_dG.internal_1_1[loop][loop2][loop3][loop4] = T_scale(internal_dG.internal_1_1[loop][loop2][loop3][loop4],
+							internal_dH.internal_1_1[loop][loop2][loop3][loop4], temperature);
 
 	for (loop = 0; loop < PAIRS_NUPACK; loop++)
 		for (loop5 = 0; loop5 < BASES; loop5++)
 			for (loop2 = 0; loop2 < PAIRS_NUPACK; loop2++)
 				for (loop3 = 0; loop3 < BASES; loop3++)
 					for (loop4 = 0; loop4 < BASES; loop4++)
-						internal_2_1_37_dG[loop][loop5][loop2][loop3][loop4] = T_scale(internal_2_1_37_dG[loop][loop5][loop2][loop3][loop4],
-								internal_2_1_37_dH[loop][loop5][loop2][loop3][loop4], temperature);
+						internal_dG.internal_2_1[loop][loop5][loop2][loop3][loop4] = T_scale(internal_dG.internal_2_1[loop][loop5][loop2][loop3][loop4],
+								internal_dH.internal_2_1[loop][loop5][loop2][loop3][loop4], temperature);
 
 	for (loop = 0; loop < PAIRS_NUPACK; loop++)
 		for (loop2 = 0; loop2 < PAIRS_NUPACK; loop2++)
@@ -924,8 +949,8 @@ void NupackEnergyModel::processOptions() {
 				for (loop4 = 0; loop4 < BASES; loop4++)
 					for (loop5 = 0; loop5 < BASES; loop5++)
 						for (loop6 = 0; loop6 < BASES; loop6++)
-							internal_2_2_37_dG[loop][loop2][loop3][loop4][loop5][loop6] = T_scale(internal_2_2_37_dG[loop][loop2][loop3][loop4][loop5][loop6],
-									internal_2_2_37_dH[loop][loop2][loop3][loop4][loop5][loop6], temperature);
+							 internal_dG.internal_2_2[loop][loop2][loop3][loop4][loop5][loop6] = T_scale( internal_dG.internal_2_2[loop][loop2][loop3][loop4][loop5][loop6],
+									 internal_dH.internal_2_2[loop][loop2][loop3][loop4][loop5][loop6], temperature);
 
 	multiloop_base = T_scale(multiloop_base, multiloop_base_dH, temperature);
 	multiloop_closing = T_scale(multiloop_closing, multiloop_closing_dH, temperature);
@@ -1010,13 +1035,13 @@ void NupackEnergyModel::internal_set_bulge_enthalpies(FILE *fp, char *buffer) {
 }
 
 void NupackEnergyModel::internal_set_interior_loop_energies(FILE *fp, char *buffer) {
-	internal_37_dG[0] = 0;
-	internal_read_array_data(fp, buffer, buffer, &internal_37_dG[1], 30);
+	internal_dG.basic[0] = 0;
+	internal_read_array_data(fp, buffer, buffer, &internal_dG.basic[1], 30);
 }
 
 void NupackEnergyModel::internal_set_interior_loop_enthalpies(FILE *fp, char *buffer) {
-	internal_37_dH[0] = 0;
-	internal_read_array_data(fp, buffer, buffer, &internal_37_dH[1], 30);
+	internal_dH.basic[0] = 0;
+	internal_read_array_data(fp, buffer, buffer, &internal_dH.basic[1], 30);
 }
 
 void NupackEnergyModel::internal_set_interior_1_1_energies(FILE *fp, char *buffer) {
@@ -1035,12 +1060,12 @@ void NupackEnergyModel::internal_set_interior_1_1_energies(FILE *fp, char *buffe
 				fgets(buffer, 2048, fp); // eat the lines with AT..AT, etc, just in case.
 
 			for (loop3 = 0; loop3 < BASES; loop3++) {
-				internal_1_1_37_dG[loop][loop2][loop3][0] = 0;
-				internal_1_1_37_dG[loop][loop2][0][loop3] = 0;
+				internal_dG.internal_1_1[loop][loop2][loop3][0] = 0;
+				internal_dG.internal_1_1[loop][loop2][0][loop3] = 0;
 			}
 
 			for (loop3 = 1; loop3 < BASES; loop3++) {
-				cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &internal_1_1_37_dG[loop][loop2][loop3][1], BASES - 1);
+				cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &internal_dG.internal_1_1[loop][loop2][loop3][1], BASES - 1);
 			}
 
 		}
@@ -1064,12 +1089,12 @@ void NupackEnergyModel::internal_set_interior_1_1_enthalpies(FILE *fp, char *buf
 			}
 
 			for (loop3 = 0; loop3 < BASES; loop3++) {
-				internal_1_1_37_dG[loop][loop2][loop3][0] = 0;
-				internal_1_1_37_dG[loop][loop2][0][loop3] = 0;
+				internal_dG.internal_1_1[loop][loop2][loop3][0] = 0;
+				internal_dG.internal_1_1[loop][loop2][0][loop3] = 0;
 			}
 
 			for (loop3 = 1; loop3 < BASES; loop3++) {
-				cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &internal_1_1_37_dH[loop][loop2][loop3][1], BASES - 1);
+				cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &internal_dH.internal_1_1[loop][loop2][loop3][1], BASES - 1);
 			}
 
 		}
@@ -1093,7 +1118,7 @@ void NupackEnergyModel::internal_set_interior_2_1_energies(FILE *fp, char *buffe
 
 			for (loop3 = 1; loop3 < BASES; loop3++) {
 				for (loop4 = 1; loop4 < BASES; loop4++) {
-					cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &internal_2_1_37_dG[loop][loop3][loop2][loop4][1], (BASES - 1));
+					cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &internal_dG.internal_2_1[loop][loop3][loop2][loop4][1], (BASES - 1));
 				}
 			}
 		}
@@ -1115,7 +1140,7 @@ void NupackEnergyModel::internal_set_interior_2_1_enthalpies(FILE *fp, char *buf
 
 			for (loop3 = 1; loop3 < BASES; loop3++) {
 				for (loop4 = 1; loop4 < BASES; loop4++)
-					cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &internal_2_1_37_dH[loop][loop3][loop2][loop4][1], (BASES - 1));
+					cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &internal_dH.internal_2_1[loop][loop3][loop2][loop4][1], (BASES - 1));
 			}
 		}
 	}
@@ -1137,7 +1162,7 @@ void NupackEnergyModel::internal_set_interior_2_2_energies(FILE *fp, char *buffe
 			for (loop3 = 1; loop3 < BASES; loop3++) {
 				for (loop4 = 1; loop4 < BASES; loop4++) {
 					for (loop5 = 1; loop5 < BASES; loop5++) {
-						cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &internal_2_2_37_dG[loop][loop2][loop3][loop4][loop5][1],
+						cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, & internal_dG.internal_2_2[loop][loop2][loop3][loop4][loop5][1],
 								BASES - 1);
 					}
 				}
@@ -1162,7 +1187,7 @@ void NupackEnergyModel::internal_set_interior_2_2_enthalpies(FILE *fp, char *buf
 			for (loop3 = 1; loop3 < BASES; loop3++) {
 				for (loop4 = 1; loop4 < BASES; loop4++) {
 					for (loop5 = 1; loop5 < BASES; loop5++) {
-						cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &internal_2_2_37_dH[loop][loop2][loop3][loop4][loop5][1],
+						cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &internal_dH.internal_2_2[loop][loop2][loop3][loop4][loop5][1],
 								BASES - 1);
 					}
 				}
@@ -1288,11 +1313,11 @@ void NupackEnergyModel::internal_set_ninio_parameters(FILE *fp, char *buffer) {
 	while (buffer[0] == '>')
 		fgets(buffer, 2048, fp);
 	internal_read_array_data(fp, buffer, buffer, temp, 5);
-	maximum_NINIO = temp[4];
-	ninio_correction_37[0] = temp[0];
-	ninio_correction_37[1] = temp[1];
-	ninio_correction_37[2] = temp[2];
-	ninio_correction_37[3] = temp[3];
+	internal_dG.maximum_NINIO = temp[4];
+	internal_dG.ninio_correction[0] = temp[0];
+	internal_dG.ninio_correction[1] = temp[1];
+	internal_dG.ninio_correction[2] = temp[2];
+	internal_dG.ninio_correction[3] = temp[3];
 }
 
 void NupackEnergyModel::internal_set_ninio_parameters_enthalpy(FILE *fp, char *buffer) {
@@ -1300,11 +1325,11 @@ void NupackEnergyModel::internal_set_ninio_parameters_enthalpy(FILE *fp, char *b
 	while (buffer[0] == '>')
 		fgets(buffer, 2048, fp);
 	internal_read_array_data(fp, buffer, buffer, temp, 5);
-	maximum_NINIO_dH = temp[4];
-	ninio_correction_37_dH[0] = temp[0];
-	ninio_correction_37_dH[1] = temp[1];
-	ninio_correction_37_dH[2] = temp[2];
-	ninio_correction_37_dH[3] = temp[3];
+	internal_dH.maximum_NINIO = temp[4];
+	internal_dH.ninio_correction[0] = temp[0];
+	internal_dH.ninio_correction[1] = temp[1];
+	internal_dH.ninio_correction[2] = temp[2];
+	internal_dH.ninio_correction[3] = temp[3];
 }
 
 void NupackEnergyModel::internal_set_hairpin_tetraloop_parameters(FILE *fp, char *buffer) {
@@ -1466,11 +1491,11 @@ void NupackEnergyModel::internal_set_interior_loop_mismatch_energies(FILE *fp, c
 	for (loop = 0; loop < BASES; loop++)
 		for (loop2 = 0; loop2 < BASES; loop2++)
 			for (loop3 = 0; loop3 < PAIRS_NUPACK; loop3++)
-				internal_mismatch_37_dG[loop][loop2][loop3] = 0;
+				internal_dG.mismatch[loop][loop2][loop3] = 0;
 
 	for (loop = 1; loop < BASES; loop++)
 		for (loop2 = 1; loop2 < BASES; loop2++) {
-			cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &internal_mismatch_37_dG[loop][loop2][0], PAIRS_NUPACK);
+			cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &internal_dG.mismatch[loop][loop2][0], PAIRS_NUPACK);
 		}
 
 }
@@ -1485,11 +1510,11 @@ void NupackEnergyModel::internal_set_interior_loop_mismatch_enthalpies(FILE *fp,
 	for (loop = 0; loop < BASES; loop++)
 		for (loop2 = 0; loop2 < BASES; loop2++)
 			for (loop3 = 0; loop3 < PAIRS_NUPACK; loop3++)
-				internal_mismatch_37_dH[loop][loop2][loop3] = 0;
+				internal_dH.mismatch[loop][loop2][loop3] = 0;
 
 	for (loop = 1; loop < BASES; loop++)
 		for (loop2 = 1; loop2 < BASES; loop2++) {
-			cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &internal_mismatch_37_dH[loop][loop2][0], PAIRS_NUPACK);
+			cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &internal_dH.mismatch[loop][loop2][0], PAIRS_NUPACK);
 		}
 }
 

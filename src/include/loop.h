@@ -148,6 +148,7 @@ private:
 class BulgeLoop: public Loop {
 public:
 	void calculateEnergy(void);
+	void calculateEnthalpy(void);
 	void generateMoves(void);
 	void generateDeleteMoves(void);
 	Move *getChoice(double *randnum, Loop *from);

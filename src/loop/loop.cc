@@ -3065,13 +3065,21 @@ Move *BulgeLoop::getChoice(double *randomchoice, Loop *from) {
 }
 
 void BulgeLoop::calculateEnergy(void) {
-	if (energyModel == NULL)
-		return; // we can't handle this error. I'm trying to work out a way around it, but generally if the loops try to get used before the energy model initializes, it's all over.
+
+	assert(energyModel != NULL);
 
 	energy = energyModel->BulgeEnergy(bulge_seq[0][0], bulge_seq[1][bulgesize[1] + 1], bulge_seq[0][bulgesize[0] + 1], bulge_seq[1][0],
 			bulgesize[0] + bulgesize[1]);
-	return;
 }
+
+void BulgeLoop::calculateEnthalpy(void) {
+
+	energy = energyModel->BulgeEnergy(bulge_seq[0][0], bulge_seq[1][bulgesize[1] + 1], bulge_seq[0][bulgesize[0] + 1], bulge_seq[1][0],
+			bulgesize[0] + bulgesize[1]);
+
+}
+
+
 
 double BulgeLoop::doChoice(Move *move, Loop **returnLoop) {
 	Loop *newLoop[2];
