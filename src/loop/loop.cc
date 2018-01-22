@@ -2593,7 +2593,6 @@ void StackLoop::calculateEnergy(void) {
 
 void StackLoop::calculateEnthalpy(void) {
 
-	assert(Loop::energyModel != NULL);
 	enthalpy = Loop::energyModel->StackEnthalpy(seqs[0][0], seqs[1][1], seqs[0][1], seqs[1][0]);
 
 }
@@ -2771,13 +2770,11 @@ void HairpinLoop::calculateEnergy(void) {
 	assert(energyModel != NULL);
 
 	energy = energyModel->HairpinEnergy(hairpin_seq, hairpinsize);
-	return;
 }
 
 void HairpinLoop::calculateEnthalpy(void) {
 
-	energy = energyModel->HairpinEnergy(hairpin_seq, hairpinsize);
-	return;
+	enthalpy = energyModel->HairpinEnthalpy(hairpin_seq, hairpinsize);
 }
 
 
@@ -3074,7 +3071,7 @@ void BulgeLoop::calculateEnergy(void) {
 
 void BulgeLoop::calculateEnthalpy(void) {
 
-	energy = energyModel->BulgeEnergy(bulge_seq[0][0], bulge_seq[1][bulgesize[1] + 1], bulge_seq[0][bulgesize[0] + 1], bulge_seq[1][0],
+	enthalpy = energyModel->BulgeEnthalpy(bulge_seq[0][0], bulge_seq[1][bulgesize[1] + 1], bulge_seq[0][bulgesize[0] + 1], bulge_seq[1][0],
 			bulgesize[0] + bulgesize[1]);
 
 }
@@ -3351,22 +3348,25 @@ Move *InteriorLoop::getChoice(double *randomchoice, Loop *from) {
 }
 
 void InteriorLoop::calculateEnergy(void) {
-	char mismatches[4];
+
+	assert(energyModel != NULL);
+
 	if (int_seq[0] == NULL || int_seq[1] == NULL)
 		return;
 
-// CHECK THESE
-	mismatches[0] = int_seq[0][1];
-	mismatches[1] = int_seq[1][sizes[1]];
-	mismatches[2] = int_seq[0][sizes[0]];
-	mismatches[3] = int_seq[1][1];
-
-	if (energyModel == NULL)
-		return; // we can't handle this error. I'm trying to work out a way around it, but generally if the loops try to get used before the energy model initializes, it's all over.
-
 	energy = energyModel->InteriorEnergy(int_seq[0], int_seq[1], sizes[0], sizes[1]);
-	return;
+
 }
+
+void InteriorLoop::calculateEnthalpy(void) {
+
+	if (int_seq[0] == NULL || int_seq[1] == NULL)
+		return;
+
+	enthalpy = energyModel->InteriorEnthalpy(int_seq[0], int_seq[1], sizes[0], sizes[1]);
+}
+
+
 
 double InteriorLoop::doChoice(Move *move, Loop **returnLoop) {
 	Loop *newLoop[2];
@@ -3760,12 +3760,18 @@ Move *MultiLoop::getChoice(double* randomchoice, Loop *from) {
 }
 
 void MultiLoop::calculateEnergy(void) {
-	if (energyModel == NULL)
-		return; // we can't handle this error. I'm trying to work out a way around it, but generally if the loops try to get used before the energy model initializes, it's all over.
 
+	assert(energyModel!=NULL);
 	energy = energyModel->MultiloopEnergy(numAdjacent, sidelen, seqs);
-	return;
+
 }
+
+void MultiLoop::calculateEnthalpy(void) {
+
+	enthalpy = energyModel->MultiloopEnthalpy(numAdjacent, sidelen, seqs);
+
+}
+
 
 double MultiLoop::doChoice(Move *move, Loop **returnLoop) {
 
@@ -4360,19 +4366,18 @@ string OpenLoop::typeInternalsToString(void) {
 
 void OpenLoop::calculateEnergy(void) {
 
-	if (energyModel == NULL)
-		return; // if the loops try to get used before the energy model initializes, it's all over.
-
+	assert(energyModel != NULL);
 	energy = energyModel->OpenloopEnergy(numAdjacent, sidelen, seqs);
 
-	if (utility::debugTraces) {
-		cout << "Computed openloop energy \n" << endl;
-		cout << this->typeInternalsToString();
-		cout << "Energy =" << energy << endl;
-	}
-
-	return;
 }
+
+
+void OpenLoop::calculateEnthalpy(void) {
+
+	enthalpy = energyModel->OpenloopEnthalpy(numAdjacent, sidelen, seqs);
+
+}
+
 
 Move *OpenLoop::getChoice(double *randomchoice, Loop *from) {
 	Move *stor;

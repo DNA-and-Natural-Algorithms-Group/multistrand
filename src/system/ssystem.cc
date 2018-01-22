@@ -628,7 +628,7 @@ void SimulationSystem::dumpCurrentStateToPython(void) {
 	temp = complexList->getFirst();
 	while (temp != NULL) {
 		temp->dumpComplexEntryToPython(&id, &names, &sequence, &structure, &energy, &enthalpy);
-		printComplexStateLine(simOptions->getPythonSettings(), current_seed, id, names, sequence, structure, energy);
+		printComplexStateLine(simOptions->getPythonSettings(), current_seed, id, names, sequence, structure, energy, enthalpy);
 		temp = temp->next;
 	}
 }
@@ -696,7 +696,7 @@ void SimulationSystem::sendTrajectory_CurrentStateToPython(double current_time, 
 
 		temp->dumpComplexEntryToPython(&id, &names, &sequence, &structure, &energy, &enthalpy);
 
-		pushTrajectoryComplex(system_options, current_seed, id, names, sequence, structure, energy);
+		pushTrajectoryComplex(system_options, current_seed, id, names, sequence, structure, energy, enthalpy);
 
 		temp = temp->next;
 	}

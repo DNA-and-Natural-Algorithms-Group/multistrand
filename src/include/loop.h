@@ -90,7 +90,8 @@ protected:
 
 	Loop** adjacentLoops;
 	int curAdjacent;
-	double energy, enthalpy;
+	double energy;
+	double enthalpy = 0;
 	bool energyComputed = false;
 	bool enthalpyComputed = false;
 	double totalRate;
@@ -171,6 +172,7 @@ private:
 class InteriorLoop: public Loop {
 public:
 	void calculateEnergy(void);
+	void calculateEnthalpy(void);
 	void generateMoves(void);
 	void generateDeleteMoves(void);
 	Move *getChoice(double *randnum, Loop *from);
@@ -194,6 +196,7 @@ private:
 class MultiLoop: public Loop {
 public:
 	void calculateEnergy(void);
+	void calculateEnthalpy(void);
 	void generateMoves(void);
 	void generateDeleteMoves(void);
 	Move *getChoice(double *randnum, Loop *from);
@@ -218,6 +221,7 @@ private:
 class OpenLoop: public Loop {
 public:
 	void calculateEnergy(void);
+	void calculateEnthalpy(void);
 	void generateMoves(void);
 	void generateDeleteMoves(void);
 	Move *getChoice(double *randomchoice, Loop *from);

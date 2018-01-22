@@ -64,7 +64,7 @@ public:
 	double singleStrandedStacking(char* sequence, int length);
 	double initializationPenalty(int, int, int);
 	double arrheniusLoopEnergy(char* seq, int size);
-	double saltCorrection(int size);
+	double saltCorrection(void);
 	void setArrheniusRate(double ratesArray[], EnergyOptions* options, double temperature, int left, int right);
 	void computeArrheniusRates(double temperature);
 	double applyPrefactors(double tempRate, MoveType left, MoveType right);

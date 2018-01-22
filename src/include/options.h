@@ -28,8 +28,8 @@ help@multistrand.org
 #define _m_prepStatusFirstTuple( seed, com_type, com_time, frate, tag) \
   Py_BuildValue("(lidds)", seed, com_type, com_time, frate, tag )
 
-#define _m_prepComplexStateTuple( seed, id, names, sequence, structure, energy ) \
-  Py_BuildValue("(lisssd)", seed, id, names, sequence, structure, energy )
+#define _m_prepComplexStateTuple( seed, id, names, sequence, structure, energy, enthalpy ) \
+  Py_BuildValue("(lisssdd)", seed, id, names, sequence, structure, energy, enthalpy )
 /* These four prep functions return a new reference via Py_BuildValue, error checking and reference counting is the caller's responsibility. */
 
 /* Accessors (ref counting caller responsibility */
@@ -126,11 +126,11 @@ help@multistrand.org
 #define printStatusLine_First_Bimolecular( obj,seed,com_type,com_time,frate,tag)  \
   _m_pushList( obj, _m_prepStatusFirstTuple( seed, com_type, com_time, frate, (char *)(tag)), add_result_status_line_firststep )
 
-#define printComplexStateLine( obj, seed, id, names, sequence, structure, energy ) \
-  _m_pushList( obj, _m_prepComplexStateTuple( seed, id, names, sequence, structure, energy ), add_complex_state_line )
+#define printComplexStateLine( obj, seed, id, names, sequence, structure, energy, enthalpy ) \
+  _m_pushList( obj, _m_prepComplexStateTuple( seed, id, names, sequence, structure, energy, enthalpy ), add_complex_state_line )
 
-#define pushTrajectoryComplex( obj, seed, id, names, sequence, structure, energy ) \
-  _m_pushList( obj, _m_prepComplexStateTuple( seed, id, names, sequence, structure, energy ), add_trajectory_complex )
+#define pushTrajectoryComplex( obj, seed, id, names, sequence, structure, energy, enthalpy ) \
+  _m_pushList( obj, _m_prepComplexStateTuple( seed, id, names, sequence, structure, energy, enthalpy ), add_trajectory_complex )
 
 #define pushTrajectoryInfo( obj, time ) \
   setDoubleAttr( obj, add_trajectory_current_time, time )
@@ -278,8 +278,8 @@ help@multistrand.org
 #define printStatusLine_First_Bimolecular( obj,seed,com_type,com_time,frate,tag)  \
   _m_d_pushList( obj, _m_prepStatusFirstTuple( seed, com_type, com_time, frate, (char *)(tag)), add_result_status_line_firststep )
 
-#define printComplexStateLine( obj, seed, id, names, sequence, structure, energy ) \
-  _m_d_pushList( obj, _m_prepComplexStateTuple( seed, id, names, sequence, structure, energy ), add_complex_state_line )
+#define printComplexStateLine( obj, seed, id, names, sequence, structure, energy, enthalpy ) \
+  _m_d_pushList( obj, _m_prepComplexStateTuple( seed, id, names, sequence, structure, energy, enthalpy ), add_complex_state_line )
 
 // This macro DECREFs the passed obj once it's done with it.
 #define pushTransitionInfo( options_obj, obj ) \

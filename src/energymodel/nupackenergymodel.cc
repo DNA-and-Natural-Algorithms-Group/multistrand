@@ -895,23 +895,16 @@ void NupackEnergyModel::processOptions() {
 	fclose(fp2);
 
 // Temperature change section.
-//  double getDoubleAttr(energy_options, temperature,&temperature);
 
 	_RT = kBoltzmann * current_temp;
 	log_loop_penalty = 100.0 * 1.75 * kBoltzmann * current_temp;
-
-	if (!  ((temperature < CELSIUS37_IN_KELVIN - .00001) || (temperature > CELSIUS37_IN_KELVIN + .00001))   ) {
-		current_temp = CELSIUS37_IN_KELVIN;
-		setupRates();
-		return;
-	}
 
 	for (loop = 0; loop < PAIRS_NUPACK; loop++){
 		for (loop2 = 0; loop2 < PAIRS_NUPACK; loop2++){
 
 			stack_37_dG[loop][loop2] = T_scale(stack_37_dG[loop][loop2], stack_37_dH[loop][loop2], temperature);
 			// now adjusting for a single salt correction term.
-			stack_37_dG[loop][loop2] += saltCorrection(2)* -temperature / 1000.0;
+			stack_37_dG[loop][loop2] += saltCorrection * -temperature / 1000.0;
 		}
 	}
 
@@ -977,12 +970,10 @@ void NupackEnergyModel::processOptions() {
 	multiloop_dG.internal = T_scale(multiloop_dG.internal, multiloop_dH.internal, temperature);
 
 	for (loop = 0; loop < PAIRS_NUPACK; loop++)
-		for (loop2 = 0; loop2 < BASES; loop2++)
+		for (loop2 = 0; loop2 < BASES; loop2++){
 			multiloop_dG.dangle_3[loop][loop2] = T_scale(multiloop_dG.dangle_3[loop][loop2], multiloop_dH.dangle_3[loop][loop2], temperature);
-
-	for (loop = 0; loop < PAIRS_NUPACK; loop++)
-		for (loop2 = 0; loop2 < BASES; loop2++)
 			multiloop_dG.dangle_5[loop][loop2] = T_scale(multiloop_dG.dangle_5[loop][loop2], multiloop_dH.dangle_5[loop][loop2], temperature);
+	}
 
 	terminal_AU = T_scale(terminal_AU, terminal_AU_dH, temperature);
 
@@ -1680,24 +1671,16 @@ void NupackEnergyModel::setupRates() {
 //          = C / W
 	EnergyOptions* eOptions = simOptions->getEnergyOptions();
 
-	double joinconc, joinrate_volume;
-	joinconc = eOptions->getJoinConcentration();
-// the concentration is now in M units, rather than the previous mM. The input parser converts to these.
-
 	biscale = eOptions->getBiScale();
 	uniscale = eOptions->getUniScale();
 
 // Two components to the join rate, the dG_assoc from mass action, and the dG_volume term which is related to the concentration. We compute each individually, following my derivation for the volume term, and the method used in Nupack for the dG_assoc term.
 
-// concentration units
-	dG_volume = _RT * log(1.0 / joinconc);
+// the concentration is now in M units, rather than the previous mM. The input parser converts to these.
+	dG_volume = _RT * log(1.0 / eOptions->getJoinConcentration());
 
-// concentration units
-	joinrate_volume = joinconc;
-
-// concentration units
 	dG_assoc = bimolecular_penalty; // already computed and scaled for water density.
 
-	joinrate = biscale * joinrate_volume;
+	joinrate = biscale * eOptions->getJoinConcentration();
 
 }
