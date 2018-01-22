@@ -105,11 +105,11 @@ public:
 
 	// FD January 2018: Adding the mimicking enthalpy functions
 	virtual double StackEnthalpy(int i, int j, int p, int q) = 0;
-//	virtual double BulgeEnthalpy(int i, int j, int p, int q, int bulgesize) = 0;
-//	virtual double InteriorEnthalpy(char *seq1, char *seq2, int size1, int size2) = 0;
-//	virtual double HairpinEnthalpy(char *seq, int size);
-//	virtual double MultiloopEnthalpy(int size, int *sidelen, char **sequences) = 0;
-//	virtual double OpenloopEnthalpy(int size, int *sidelen, char **sequences) = 0;
+	virtual double BulgeEnthalpy(int i, int j, int p, int q, int bulgesize) = 0;
+	virtual double InteriorEnthalpy(char *seq1, char *seq2, int size1, int size2) = 0;
+	virtual double HairpinEnthalpy(char *seq, int size) = 0;
+	virtual double MultiloopEnthalpy(int size, int *sidelen, char **sequences) = 0;
+	virtual double OpenloopEnthalpy(int size, int *sidelen, char **sequences) = 0;
 
 	SimOptions* simOptions;
 
@@ -153,6 +153,19 @@ struct internal_energies{
 };
 
 
+struct multiloop_energies{
+
+	double base;
+	double closing;
+	double internal;
+
+	// Dangle Info for multiloops and open loops
+	double dangle_3[PAIRS_NUPACK][BASES];
+	double dangle_5[PAIRS_NUPACK][BASES];
+
+};
+
+
 class NupackEnergyModel: public EnergyModel {
 
 public:
@@ -181,7 +194,8 @@ public:
 	double BulgeEnthalpy(int i, int j, int p, int q, int bulgesize);
 	double InteriorEnthalpy(char *seq1, char *seq2, int size1, int size2);
 	double HairpinEnthalpy(char *seq, int size);
-
+	double MultiloopEnthalpy(int size, int *sidelen, char **sequences);
+	double OpenloopEnthalpy(int size, int *sidelen, char **sequences);
 
 private:
 
@@ -192,7 +206,8 @@ private:
 	double HairpinEnergy(char *seq, int size, hairpin_energies&);
 	double InteriorEnergy(char *seq1, char *seq2, int size1, int size2, internal_energies& internal);
 	double BulgeEnergy(int i, int j, int p, int q, int bulgesize, array<double,31>, array<array<double, PAIRS_NUPACK>, PAIRS_NUPACK> );
-
+	double MultiloopEnergy(int size, int *sidelen, char **sequences, multiloop_energies& multiloop);
+	double OpenloopEnergy(int size, int *sidelen, char **sequences, multiloop_energies& multiloop);
 
 	// All energy units are integers, in units of .01 kcal/mol, as used by ViennaRNA
 
@@ -209,24 +224,8 @@ private:
 	// Internal Loop Info
 	internal_energies internal_dG, internal_dH;
 
-
 	// Multiloop Info
-	double multiloop_base;
-	double multiloop_closing;
-	double multiloop_internal;
-
-	int multiloop_base_dH;
-	int multiloop_closing_dH;
-	int multiloop_internal_dH;
-
-	// should this really not be tied to one of the others?
-	// it actually appears to be the scaling term for internal, hairpin and (the outdated) multiloop mismatches.
-
-	// Dangle Info for multiloops and open loops
-	double dangle_3_37_dG[PAIRS_NUPACK][BASES];
-	double dangle_5_37_dG[PAIRS_NUPACK][BASES];
-	int dangle_3_37_dH[PAIRS_NUPACK][BASES];
-	int dangle_5_37_dH[PAIRS_NUPACK][BASES];
+	multiloop_energies multiloop_dG, multiloop_dH;
 
 	// Terminal AU penalty for multiloops and open loops (included in mismatch penalties elsewhere
 	// Appears to be pure dH.
@@ -250,7 +249,6 @@ private:
 	double dG_volume;
 	double dG_assoc;
 
-//	double waterdensity;
 	double biscale;
 	double uniscale;
 

@@ -273,10 +273,20 @@ double NupackEnergyModel::HairpinEnergy(char *seq, int size, hairpin_energies& h
 
 
 
-
-
-
 double NupackEnergyModel::MultiloopEnergy(int size, int *sidelen, char **sequences) {
+
+	return MultiloopEnergy(size, sidelen, sequences, multiloop_dG);
+
+}
+
+double NupackEnergyModel::MultiloopEnthalpy(int size, int *sidelen, char **sequences) {
+
+	return MultiloopEnergy(size, sidelen, sequences, multiloop_dH);
+
+}
+
+
+double NupackEnergyModel::MultiloopEnergy(int size, int *sidelen, char **sequences, multiloop_energies& multiloop) {
 
 	// no dangle terms yet, this is equiv to dangles = 0;
 	int totallength = 0;
@@ -315,15 +325,15 @@ double NupackEnergyModel::MultiloopEnergy(int size, int *sidelen, char **sequenc
 	}
 
 
-	energy += size * multiloop_internal;
-	energy += multiloop_closing;
+	energy += size * multiloop.internal;
+	energy += multiloop.closing;
 
 	if (!logml) {
-		energy += multiloop_base * totallength;
+		energy += multiloop.base * totallength;
 	} else if (totallength <= 6) {
-		energy += multiloop_base * totallength;
+		energy += multiloop.base * totallength;
 	} else {
-		energy += multiloop_base * 6 + (log((double) totallength / 6.0) * log_loop_penalty / 100.0);
+		energy += multiloop.base * 6 + (log((double) totallength / 6.0) * log_loop_penalty / 100.0);
 	}
 
 	if (dangles == DANGLES_NONE) {
@@ -342,9 +352,8 @@ double NupackEnergyModel::MultiloopEnergy(int size, int *sidelen, char **sequenc
 			if (!(dangles == DANGLES_SOME && sidelen[loopminus1] == 0)) {
 
 
-
-				dangle5 = dangle_5_37_dG[pt][sequences[loopminus1][1]];
-				dangle3 = dangle_3_37_dG[rt_pt][sequences[loopminus1][sidelen[loopminus1]]];
+				dangle5 = multiloop.dangle_5[pt][sequences[loopminus1][1]];
+				dangle3 = multiloop.dangle_3[rt_pt][sequences[loopminus1][sidelen[loopminus1]]];
 
 				if (dangles == DANGLES_SOME && sidelen[loopminus1] == 1) {
 					energy += ((dangle3 < dangle5) ? dangle3 : dangle5); // minimum of two terms.
@@ -353,7 +362,6 @@ double NupackEnergyModel::MultiloopEnergy(int size, int *sidelen, char **sequenc
 					energy += dangle3 + dangle5;
 				}
 			}
-
 
 
 			loopminus1++;
@@ -369,6 +377,18 @@ double NupackEnergyModel::MultiloopEnergy(int size, int *sidelen, char **sequenc
 }
 
 double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequences) {
+
+	return OpenloopEnergy(size, sidelen, sequences, multiloop_dG);
+
+}
+
+double NupackEnergyModel::OpenloopEnthalpy(int size, int *sidelen, char **sequences) {
+
+	return OpenloopEnergy(size, sidelen, sequences, multiloop_dH);
+
+}
+
+double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequences, multiloop_energies& multiloop) {
 
 	if(debugTraces){
 		cout << "Computing OpenLoopEnergy, size = " << size << endl;
@@ -413,7 +433,7 @@ double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequence
 		if (sidelen[0] == 0)
 			dangle3 = 0.0;
 		else
-			dangle3 = dangle_3_37_dG[pt][sequences[0][sidelen[0]]];
+			dangle3 = multiloop.dangle_3[pt][sequences[0][sidelen[0]]];
 
 		energy += dangle3; // added for either dangle version.
 
@@ -425,8 +445,8 @@ double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequence
 		for (loop = 0; loop < size - 1; loop++) {
 
 			rt_pt = pairtypes[sequences[loop + 2][0]][sequences[loop + 1][sidelen[loop + 1] + 1]] - 1;
-			dangle5 = dangle_5_37_dG[pt][sequences[loop + 1][1]];
-			dangle3 = dangle_3_37_dG[rt_pt][sequences[loop + 1][sidelen[loop + 1]]];
+			dangle5 = multiloop.dangle_5[pt][sequences[loop + 1][1]];
+			dangle3 = multiloop.dangle_3[rt_pt][sequences[loop + 1][sidelen[loop + 1]]];
 			if (dangles == DANGLES_SOME && sidelen[loop + 1] == 1) {
 				energy += (dangle3 < dangle5 ? dangle3 : dangle5); // minimum of the two terms.
 			} else if (dangles == DANGLES_SOME && sidelen[loop + 1] == 0) {
@@ -449,7 +469,7 @@ double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequence
 		if (sidelen[size] == 0) {
 			dangle5 = 0.0;
 		} else {
-			dangle5 = dangle_5_37_dG[pt][sequences[size][1]];
+			dangle5 = multiloop.dangle_5[pt][sequences[size][1]];
 		}
 
 		energy += dangle5; // added for either dangle version.
@@ -952,17 +972,17 @@ void NupackEnergyModel::processOptions() {
 							 internal_dG.internal_2_2[loop][loop2][loop3][loop4][loop5][loop6] = T_scale( internal_dG.internal_2_2[loop][loop2][loop3][loop4][loop5][loop6],
 									 internal_dH.internal_2_2[loop][loop2][loop3][loop4][loop5][loop6], temperature);
 
-	multiloop_base = T_scale(multiloop_base, multiloop_base_dH, temperature);
-	multiloop_closing = T_scale(multiloop_closing, multiloop_closing_dH, temperature);
-	multiloop_internal = T_scale(multiloop_internal, multiloop_internal_dH, temperature);
+	multiloop_dG.base = T_scale(multiloop_dG.base, multiloop_dH.base, temperature);
+	multiloop_dG.closing = T_scale(multiloop_dG.closing, multiloop_dH.closing, temperature);
+	multiloop_dG.internal = T_scale(multiloop_dG.internal, multiloop_dH.internal, temperature);
 
 	for (loop = 0; loop < PAIRS_NUPACK; loop++)
 		for (loop2 = 0; loop2 < BASES; loop2++)
-			dangle_3_37_dG[loop][loop2] = T_scale(dangle_3_37_dG[loop][loop2], dangle_3_37_dH[loop][loop2], temperature);
+			multiloop_dG.dangle_3[loop][loop2] = T_scale(multiloop_dG.dangle_3[loop][loop2], multiloop_dH.dangle_3[loop][loop2], temperature);
 
 	for (loop = 0; loop < PAIRS_NUPACK; loop++)
 		for (loop2 = 0; loop2 < BASES; loop2++)
-			dangle_5_37_dG[loop][loop2] = T_scale(dangle_5_37_dG[loop][loop2], dangle_5_37_dH[loop][loop2], temperature);
+			multiloop_dG.dangle_5[loop][loop2] = T_scale(multiloop_dG.dangle_5[loop][loop2], multiloop_dH.dangle_5[loop][loop2], temperature);
 
 	terminal_AU = T_scale(terminal_AU, terminal_AU_dH, temperature);
 
@@ -1204,11 +1224,11 @@ void NupackEnergyModel::internal_set_dangle_5_energies(FILE *fp, char *buffer) {
 	int loop, loop2;
 	for (loop = 0; loop < PAIRS_NUPACK; loop++)
 		for (loop2 = 0; loop2 < BASES; loop2++)
-			dangle_5_37_dG[loop][loop2] = 0.0;
+			multiloop_dG.dangle_5[loop][loop2] = 0.0;
 
 	cur_bufspot = buffer;
 	for (loop = 0; loop < PAIRS_NUPACK; loop++)
-		cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &dangle_5_37_dG[loop][1], BASES - 1);
+		cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &multiloop_dG.dangle_5[loop][1], BASES - 1);
 }
 
 void NupackEnergyModel::internal_set_dangle_5_enthalpies(FILE *fp, char *buffer) {
@@ -1219,11 +1239,11 @@ void NupackEnergyModel::internal_set_dangle_5_enthalpies(FILE *fp, char *buffer)
 	int loop, loop2;
 	for (loop = 0; loop < PAIRS_NUPACK; loop++)
 		for (loop2 = 0; loop2 < BASES; loop2++)
-			dangle_5_37_dH[loop][loop2] = 0;
+			multiloop_dH.dangle_5[loop][loop2] = 0;
 
 	cur_bufspot = buffer;
 	for (loop = 0; loop < PAIRS_NUPACK; loop++)
-		cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &dangle_5_37_dH[loop][1], BASES - 1);
+		cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &multiloop_dH.dangle_5[loop][1], BASES - 1);
 }
 
 void NupackEnergyModel::internal_set_dangle_3_energies(FILE *fp, char *buffer) {
@@ -1234,11 +1254,11 @@ void NupackEnergyModel::internal_set_dangle_3_energies(FILE *fp, char *buffer) {
 	int loop, loop2;
 	for (loop = 0; loop < PAIRS_NUPACK; loop++)
 		for (loop2 = 0; loop2 < BASES; loop2++)
-			dangle_3_37_dG[loop][loop2] = 0.0;
+			multiloop_dG.dangle_3[loop][loop2] = 0.0;
 
 	cur_bufspot = buffer;
 	for (loop = 0; loop < PAIRS_NUPACK; loop++)
-		cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &dangle_3_37_dG[loop][1], BASES - 1);
+		cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &multiloop_dG.dangle_3[loop][1], BASES - 1);
 }
 
 void NupackEnergyModel::internal_set_dangle_3_enthalpies(FILE *fp, char *buffer) {
@@ -1249,11 +1269,11 @@ void NupackEnergyModel::internal_set_dangle_3_enthalpies(FILE *fp, char *buffer)
 	int loop, loop2;
 	for (loop = 0; loop < PAIRS_NUPACK; loop++)
 		for (loop2 = 0; loop2 < BASES; loop2++)
-			dangle_3_37_dH[loop][loop2] = 0;
+			multiloop_dH.dangle_3[loop][loop2] = 0;
 
 	cur_bufspot = buffer;
 	for (loop = 0; loop < PAIRS_NUPACK; loop++)
-		cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &dangle_3_37_dH[loop][1], BASES - 1);
+		cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &multiloop_dH.dangle_3[loop][1], BASES - 1);
 }
 
 void NupackEnergyModel::internal_set_multiloop_parameters(FILE *fp, char *buffer) {
@@ -1262,9 +1282,9 @@ void NupackEnergyModel::internal_set_multiloop_parameters(FILE *fp, char *buffer
 		fgets(buffer, 2048, fp);
 
 	internal_read_array_data(fp, buffer, buffer, temp, 3);
-	multiloop_base = temp[2];
-	multiloop_closing = temp[0];
-	multiloop_internal = temp[1];
+	multiloop_dG.base = temp[2];
+	multiloop_dG.closing = temp[0];
+	multiloop_dG.internal = temp[1];
 }
 
 void NupackEnergyModel::internal_set_multiloop_parameters_enthalpies(FILE *fp, char *buffer) {
@@ -1274,9 +1294,9 @@ void NupackEnergyModel::internal_set_multiloop_parameters_enthalpies(FILE *fp, c
 		fgets(buffer, 2048, fp);
 
 	internal_read_array_data(fp, buffer, buffer, temp, 3);
-	multiloop_base_dH = temp[2];
-	multiloop_closing_dH = temp[0];
-	multiloop_internal_dH = temp[1];
+	multiloop_dH.base= temp[2];
+	multiloop_dH.closing = temp[0];
+	multiloop_dH.internal = temp[1];
 }
 
 void NupackEnergyModel::internal_set_at_penalty(FILE *fp, char *buffer) {
