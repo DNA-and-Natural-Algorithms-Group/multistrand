@@ -623,11 +623,11 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 void SimulationSystem::dumpCurrentStateToPython(void) {
 	int id;
 	char *names, *sequence, *structure;
-	double energy;
+	double energy, enthalpy;
 	SComplexListEntry *temp;
 	temp = complexList->getFirst();
 	while (temp != NULL) {
-		temp->dumpComplexEntryToPython(&id, &names, &sequence, &structure, &energy);
+		temp->dumpComplexEntryToPython(&id, &names, &sequence, &structure, &energy, &enthalpy);
 		printComplexStateLine(simOptions->getPythonSettings(), current_seed, id, names, sequence, structure, energy);
 		temp = temp->next;
 	}
@@ -688,13 +688,13 @@ void SimulationSystem::sendTransitionStateVectorToPython(boolvector transition_s
 void SimulationSystem::sendTrajectory_CurrentStateToPython(double current_time, int arrType) {
 	int id;
 	char *names, *sequence, *structure;
-	double energy;
+	double energy, enthalpy;
 	SComplexListEntry *temp;
 
 	temp = complexList->getFirst();
 	while (temp != NULL) {
 
-		temp->dumpComplexEntryToPython(&id, &names, &sequence, &structure, &energy);
+		temp->dumpComplexEntryToPython(&id, &names, &sequence, &structure, &energy, &enthalpy);
 
 		pushTrajectoryComplex(system_options, current_seed, id, names, sequence, structure, energy);
 

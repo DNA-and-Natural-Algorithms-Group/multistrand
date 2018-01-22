@@ -34,6 +34,19 @@ inline double Loop::getEnergy(void) {
 	}
 }
 
+
+inline double Loop::getEnthalpy(void) {
+
+	if (enthalpyComputed)
+		return enthalpy;
+	else {
+		calculateEnthalpy();
+		enthalpyComputed = true;
+		return enthalpy;
+	}
+}
+
+
 char Loop::getType(void) {
 	return identity;
 }
@@ -77,6 +90,22 @@ double Loop::returnEnergies(Loop *comefrom) {
 
 	}
 	return total;
+}
+
+
+double Loop::returnEnthalpies(Loop *comefrom) {
+
+	double total = getEnthalpy();
+
+	for (int loop = 0; loop < curAdjacent; loop++) {
+
+		if (adjacentLoops[loop] != comefrom) {
+			total = total + adjacentLoops[loop]->returnEnthalpies(this);
+		}
+
+	}
+	return total;
+
 }
 
 double Loop::returnFlux(Loop *comefrom) {
@@ -2558,11 +2587,17 @@ Loop *Loop::performDeleteMove(Move *move) {
 void StackLoop::calculateEnergy(void) {
 
 	assert(Loop::energyModel != NULL);
-
 	energy = Loop::energyModel->StackEnergy(seqs[0][0], seqs[1][1], seqs[0][1], seqs[1][0]);
 
-	return;
 }
+
+void StackLoop::calculateEnthalpy(void) {
+
+	assert(Loop::energyModel != NULL);
+	enthalpy = Loop::energyModel->StackEnthalpy(seqs[0][0], seqs[1][1], seqs[0][1], seqs[1][0]);
+
+}
+
 
 void StackLoop::generateMoves(void) {
 	generateDeleteMoves();
@@ -2732,12 +2767,20 @@ string HairpinLoop::typeInternalsToString(void) {
 }
 
 void HairpinLoop::calculateEnergy(void) {
-	if (energyModel == NULL)
-		return; // we can't handle this error. I'm trying to work out a way around it, but generally if the loops try to get used before the energy model initializes, it's all over.
+
+	assert(energyModel != NULL);
 
 	energy = energyModel->HairpinEnergy(hairpin_seq, hairpinsize);
 	return;
 }
+
+void HairpinLoop::calculateEnthalpy(void) {
+
+	energy = energyModel->HairpinEnergy(hairpin_seq, hairpinsize);
+	return;
+}
+
+
 
 Move *HairpinLoop::getChoice(double *randomchoice, Loop *from) {
 	Move *stor;

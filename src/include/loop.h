@@ -40,11 +40,13 @@ struct RateArr {
 class Loop {
 public:
 	inline double getEnergy(void);
+	inline double getEnthalpy(void);
 	inline double getTotalRate(void);
 	char getType(void);
 	Loop(void);
 	virtual ~Loop(void);
 	virtual void calculateEnergy(void) = 0;
+	virtual void calculateEnthalpy(void){};	// TODO: implement this.
 	virtual void generateMoves(void) = 0;
 	virtual void generateDeleteMoves(void) = 0;
 	virtual Move *getChoice(double *randomchoice, Loop *from) = 0;
@@ -61,6 +63,7 @@ public:
 	int replaceAdjacent(Loop *loopToReplace, Loop *loopToReplaceWith);
 	void cleanupAdjacent(void); // sets adjacentLoops up to be deleted.
 	double returnEnergies(Loop *comefrom); // returns the total energy of all loops underneath this one.
+	double returnEnthalpies(Loop *comefrom); // sums the enthalpy of the contained loops.
 	double returnFlux(Loop *comefrom); // returns the total rate of all loops underneath this one.
 	void firstGen(Loop *comefrom);
 	static void SetEnergyModel(EnergyModel *newEnergyModel);
@@ -87,8 +90,9 @@ protected:
 
 	Loop** adjacentLoops;
 	int curAdjacent;
-	double energy;
+	double energy, enthalpy;
 	bool energyComputed = false;
+	bool enthalpyComputed = false;
 	double totalRate;
 	MoveContainer *moves;
 	char identity;
@@ -98,6 +102,7 @@ protected:
 class StackLoop: public Loop {
 public:
 	void calculateEnergy(void);
+	void calculateEnthalpy(void);
 	void generateMoves(void);
 	void generateDeleteMoves(void);
 	Move *getChoice(double *randnum, Loop *from);
@@ -119,6 +124,7 @@ private:
 class HairpinLoop: public Loop {
 public:
 	void calculateEnergy(void);
+	void calculateEnthalpy(void);
 	void generateMoves(void);
 	void generateDeleteMoves(void);
 	Move *getChoice(double *randnum, Loop *from);

@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2017 California Institute of Technology. All rights reserved.
-Multistrand nucleic acid kinetic simulator
-help@multistrand.org
-*/
+ Copyright (c) 2017 California Institute of Technology. All rights reserved.
+ Multistrand nucleic acid kinetic simulator
+ help@multistrand.org
+ */
 
 /* Energy Model class header */
 #ifndef __ENERGYMODEL_H__
@@ -15,6 +15,7 @@ help@multistrand.org
 #include <sequtil.h>
 
 using std::string;
+using std::array;
 
 class SimOptions;
 class Loop;
@@ -61,7 +62,7 @@ public:
 	// Implemented methods
 	bool useArrhenius(void);
 	double singleStrandedStacking(char* sequence, int length);
-	double initializationPenalty(int , int , int );
+	double initializationPenalty(int, int, int);
 	double arrheniusLoopEnergy(char* seq, int size);
 	double saltCorrection(int size);
 	void setArrheniusRate(double ratesArray[], EnergyOptions* options, double temperature, int left, int right);
@@ -72,7 +73,6 @@ public:
 	MoveType prefactorInternal(int, int);
 
 	void writeConstantsToFile(void);
-
 
 	// Virtual methods
 
@@ -103,17 +103,38 @@ public:
 	virtual double MultiloopEnergy(int size, int *sidelen, char **sequences) = 0;
 	virtual double OpenloopEnergy(int size, int *sidelen, char **sequences) = 0;
 
+	// FD January 2018: Adding the mimicking enthalpy functions
+	virtual double StackEnthalpy(int i, int j, int p, int q) = 0;
+//	virtual double BulgeEnthalpy(int i, int j, int p, int q, int bulgesize) = 0;
+//	virtual double InteriorEnthalpy(char *seq1, char *seq2, int size1, int size2) = 0;
+//	virtual double HairpinEnthalpy(char *seq, int size);
+//	virtual double MultiloopEnthalpy(int size, int *sidelen, char **sequences) = 0;
+//	virtual double OpenloopEnthalpy(int size, int *sidelen, char **sequences) = 0;
+
 	SimOptions* simOptions;
 
 	// for co-transcriptional, save the curent amount of activated nucleotides
 	int numActiveNT = NULL;
-
 
 protected:
 	long dangles;
 	double arrheniusRates[MOVETYPE_SIZE * MOVETYPE_SIZE];
 
 };
+
+struct hairpin_energies{
+
+	array<double, 31> basic;
+	array<array<array<double, BASES>, BASES>, PAIRS_NUPACK> mismatch;
+	array<double, 1024> triloop;
+	array<double, 4096> tetraloop;
+
+	hairpin_energies(){
+		basic[0] = 0.0;
+	}
+
+};
+
 
 class NupackEnergyModel: public EnergyModel {
 
@@ -137,31 +158,26 @@ public:
 	double BulgeEnergy(int i, int j, int p, int q, int bulgesize);
 	double InteriorEnergy(char *seq1, char *seq2, int size1, int size2);
 	double HairpinEnergy(char *seq, int size);
+	double HairpinEnergy(char *seq, int size, hairpin_energies&);
+
 	double MultiloopEnergy(int size, int *sidelen, char **sequences);
 	double OpenloopEnergy(int size, int *sidelen, char **sequences);
 
+	// FD jan 2018: adding the corresponding enthalpy functions
+	double StackEnthalpy(int i, int j, int p, int q);
+	double HairpinEnthalpy(char *seq, int size);
 
 private:
 
 	// All energy units are integers, in units of .01 kcal/mol, as used by ViennaRNA
 
 	// Stacking Info
-	double stack_37_dG[NUM_BASEPAIRS_NUPACK][NUM_BASEPAIRS_NUPACK]; // Delta G's for stacks, matrix form, at 37 degrees C.
-	int stack_37_dH[NUM_BASEPAIRS_NUPACK][NUM_BASEPAIRS_NUPACK]; // Delta H's for stacks, matrix form, for use comparing to dG at 37 deg C.
+	double stack_37_dG[PAIRS_NUPACK][PAIRS_NUPACK]; // Delta G's for stacks, matrix form, at 37 degrees C.
+	int stack_37_dH[PAIRS_NUPACK][PAIRS_NUPACK]; // Delta H's for stacks, matrix form, for use comparing to dG at 37 deg C.
 
 	// Hairpin Info
-	double hairpin_37_dG[31];
-	int hairpin_37_dH[31];
-	double hairpin_mismatch_37_dG[NUM_BASEPAIRS_NUPACK][NUM_BASES][NUM_BASES];
-	int hairpin_mismatch_37_dH[NUM_BASEPAIRS_NUPACK][NUM_BASES][NUM_BASES];
+	hairpin_energies hairpin_dG, hairpin_dH;
 
-	double hairpin_triloop_37_dG[1024];
-	int hairpin_triloop_37_dH[1024];
-	// This needs about 1024 doubles to store the entire matrix.
-	// lookups on this are then 4 shifts, 5adds, 5 dec 1s, but better than a strstr.
-
-	double hairpin_tetraloop_37_dG[4096];
-	int hairpin_tetraloop_37_dH[4096];
 
 	// Bulge Info
 	double bulge_37_dG[31];
@@ -169,9 +185,9 @@ private:
 
 	// Internal Loop Info
 	double internal_37_dG[31];
-	double internal_mismatch_37_dG[NUM_BASES][NUM_BASES][NUM_BASEPAIRS_NUPACK];
+	double internal_mismatch_37_dG[BASES][BASES][PAIRS_NUPACK];
 	int internal_37_dH[31];
-	int internal_mismatch_37_dH[NUM_BASES][NUM_BASES][NUM_BASEPAIRS_NUPACK];
+	int internal_mismatch_37_dH[BASES][BASES][PAIRS_NUPACK];
 
 	double maximum_NINIO;
 	int maximum_NINIO_dH;
@@ -179,14 +195,14 @@ private:
 	int ninio_correction_37_dH[5];
 
 	/* special internal loop lookup tables */
-	double internal_1_1_37_dG[NUM_BASEPAIRS_NUPACK][NUM_BASEPAIRS_NUPACK][NUM_BASES][NUM_BASES];
-	int internal_1_1_37_dH[NUM_BASEPAIRS_NUPACK][NUM_BASEPAIRS_NUPACK][NUM_BASES][NUM_BASES];
+	double internal_1_1_37_dG[PAIRS_NUPACK][PAIRS_NUPACK][BASES][BASES];
+	int internal_1_1_37_dH[PAIRS_NUPACK][PAIRS_NUPACK][BASES][BASES];
 
-	double internal_2_1_37_dG[NUM_BASEPAIRS_NUPACK][NUM_BASES][NUM_BASEPAIRS_NUPACK][NUM_BASES][NUM_BASES];
-	int internal_2_1_37_dH[NUM_BASEPAIRS_NUPACK][NUM_BASES][NUM_BASEPAIRS_NUPACK][NUM_BASES][NUM_BASES];
+	double internal_2_1_37_dG[PAIRS_NUPACK][BASES][PAIRS_NUPACK][BASES][BASES];
+	int internal_2_1_37_dH[PAIRS_NUPACK][BASES][PAIRS_NUPACK][BASES][BASES];
 
-	double internal_2_2_37_dG[NUM_BASEPAIRS_NUPACK][NUM_BASEPAIRS_NUPACK][NUM_BASES][NUM_BASES][NUM_BASES][NUM_BASES];
-	int internal_2_2_37_dH[NUM_BASEPAIRS_NUPACK][NUM_BASEPAIRS_NUPACK][NUM_BASES][NUM_BASES][NUM_BASES][NUM_BASES];
+	double internal_2_2_37_dG[PAIRS_NUPACK][PAIRS_NUPACK][BASES][BASES][BASES][BASES];
+	int internal_2_2_37_dH[PAIRS_NUPACK][PAIRS_NUPACK][BASES][BASES][BASES][BASES];
 
 	// Multiloop Info
 	double multiloop_base;
@@ -201,10 +217,10 @@ private:
 	// it actually appears to be the scaling term for internal, hairpin and (the outdated) multiloop mismatches.
 
 	// Dangle Info for multiloops and open loops
-	double dangle_3_37_dG[NUM_BASEPAIRS_NUPACK][NUM_BASES];
-	double dangle_5_37_dG[NUM_BASEPAIRS_NUPACK][NUM_BASES];
-	int dangle_3_37_dH[NUM_BASEPAIRS_NUPACK][NUM_BASES];
-	int dangle_5_37_dH[NUM_BASEPAIRS_NUPACK][NUM_BASES];
+	double dangle_3_37_dG[PAIRS_NUPACK][BASES];
+	double dangle_5_37_dG[PAIRS_NUPACK][BASES];
+	int dangle_3_37_dH[PAIRS_NUPACK][BASES];
+	int dangle_5_37_dH[PAIRS_NUPACK][BASES];
 
 	// Terminal AU penalty for multiloops and open loops (included in mismatch penalties elsewhere
 	// Appears to be pure dH.

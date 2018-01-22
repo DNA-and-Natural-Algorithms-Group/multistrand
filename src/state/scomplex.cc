@@ -683,10 +683,6 @@ char *StrandComplex::getStructure(void) {
 
 }
 
-double StrandComplex::getEthalpy(void){
-
-	return 0.0;
-}
 
 char *StrandComplex::getStrandNames(void) {
 	return ordering->getStrandNames();
@@ -721,6 +717,13 @@ double StrandComplex::getEnergy(void) {
 	return beginLoop->returnEnergies( NULL);
 
 }
+
+double StrandComplex::getEnthalpy(void) {
+
+	return beginLoop->returnEnthalpies( NULL);
+
+}
+
 
 void StrandComplex::generateMoves(void) {
 	beginLoop->firstGen( NULL);

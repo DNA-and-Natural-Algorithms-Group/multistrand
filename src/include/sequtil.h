@@ -19,14 +19,14 @@ using std::vector;
 // MFold/Nupack:  0 is AT, then CG, GC, TA, GT, TG
 // 0 is invalid, then A, C, G, U
 
-const int NUM_BASEPAIRS_VIENNA = 8;
-const int NUM_BASEPAIRS_NUPACK = 6;
-const int NUM_BASES = 5;
+const int PAIRS_VIENNA = 8;
+const int PAIRS_NUPACK = 6;
+const int BASES = 5;
 
 // FD: I keep having to remove 1 from the pairtype internal representation.
 // FD: In this regard, multistrand follows Vienna notation.
 // FD: So I added an offset to the tostring array.
-const static string basepairString[NUM_BASEPAIRS_NUPACK + 1] = { "VOID", "A/T", "C/G", "G/C", "T/A", "G/T", "T/G" };
+const static string basepairString[PAIRS_NUPACK + 1] = { "VOID", "A/T", "C/G", "G/C", "T/A", "G/T", "T/G" };
 
 enum BaseType {
 
