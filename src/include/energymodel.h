@@ -209,7 +209,9 @@ private:
 	double MultiloopEnergy(int size, int *sidelen, char **sequences, multiloop_energies& multiloop);
 	double OpenloopEnergy(int size, int *sidelen, char **sequences, multiloop_energies& multiloop);
 
-	// All energy units are integers, in units of .01 kcal/mol, as used by ViennaRNA
+	// JS: All energy units are integers, in units of .01 kcal/mol, as used by ViennaRNA
+	// FD: In 2.0, the units changed to 0.01 kcal/mol for dH and kcal/mol for dG.
+	// FD: as of jan 2018, dH and dG are now both kcal/mol.
 
 	// Stacking Info
 	array<array<double, PAIRS_NUPACK>, PAIRS_NUPACK> stack_37_dG; // Delta G's for stacks, matrix form, at 37 degrees C.
@@ -230,7 +232,7 @@ private:
 	// Terminal AU penalty for multiloops and open loops (included in mismatch penalties elsewhere
 	// Appears to be pure dH.
 	double terminal_AU;
-	int terminal_AU_dH;
+	double terminal_AU_dH;
 
 	// Logarithmic loop penalty. Doesn't seem to change for DNA/RNA?
 	double log_loop_penalty_37;
@@ -238,7 +240,7 @@ private:
 
 	// biomolecular penalty
 	double bimolecular_penalty;
-	int bimolecular_penalty_dH;
+	double bimolecular_penalty_dH;
 
 	// Kinetic rate toggle. 0 = kawasaki, 1 = metropolis, 2 = entropy/enthalpy, defaults to 2.
 	long kinetic_rate_method;
@@ -264,17 +266,14 @@ private:
 	void internal_set_hairpin_energies(FILE *fp, char *buffer);
 	void internal_set_hairpin_enthalpies(FILE *fp, char *buffer);
 	void internal_set_hairpin_mismatch_energies(FILE *fp, char *buffer);
-	void internal_set_hairpin_tetraloop_parameters(FILE *fp, char *buffer);
-	void internal_set_hairpin_triloop_parameters(FILE *fp, char *buffer);
+	void internal_set_hairpin_tetraloop_parameters(FILE *fp, char *buffer, hairpin_energies& );
+	void internal_set_hairpin_triloop_parameters(FILE *fp, char *buffer, hairpin_energies& );
 	void internal_set_hairpin_mismatch_enthalpies(FILE *fp, char *buffer);
-	void internal_set_hairpin_tetraloop_parameters_enthalpy(FILE *fp, char *buffer);
-	void internal_set_hairpin_triloop_parameters_enthalpy(FILE *fp, char *buffer);
 	void internal_set_bulge_energies(FILE *fp, char *buffer);
 	void internal_set_bulge_enthalpies(FILE *fp, char *buffer);
 	void internal_set_interior_loop_energies(FILE *fp, char *buffer);
 	void internal_set_interior_loop_enthalpies(FILE *fp, char *buffer);
-	void internal_set_interior_loop_mismatch_energies(FILE *fp, char *buffer);
-	void internal_set_interior_loop_mismatch_enthalpies(FILE *fp, char *buffer);
+	void internal_set_interior_loop_mismatch_energies(FILE *fp, char *buffer, internal_energies& );
 	void internal_set_interior_1_1_energies(FILE *fp, char *buffer);
 	void internal_set_interior_1_1_enthalpies(FILE *fp, char *buffer);
 	void internal_set_interior_2_1_energies(FILE *fp, char *buffer);
@@ -289,7 +288,6 @@ private:
 	void internal_set_ninio_parameters_enthalpy(FILE *fp, char *buffer);
 	void internal_set_bimolecular_penalty(FILE *fp, char *buffer);
 	void internal_set_bimolecular_penalty_dH(FILE *fp, char *buffer);
-	char *internal_read_array_data(FILE *fp, char *buffer, char* start_loc, int *read_loc, int size);
 	char *internal_read_array_data(FILE *fp, char *buffer, char* start_loc, double *read_loc, int size);
 	void internal_set_dangle_5_energies(FILE *fp, char *buffer);
 	void internal_set_dangle_3_energies(FILE *fp, char *buffer);
