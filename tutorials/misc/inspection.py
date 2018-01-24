@@ -15,12 +15,14 @@ def createOptions(start_complex, stop_complex, simMode):
                 simulation_time=0.00001,
                 rate_scaling='Calibrated',
                 verbosity=0,
-                join_concentration=1e-9,
+                join_concentration=1.0,
                 rate_method="Metropolis",
                 start_state=[start_complex],
                 stop_conditions=[full_sc])
    
-
+#     o1.DNA23Metropolis()
+#     o1._bimolecular_scaling = 777.0
+#     o1.bimolecular_scaling = 160000
     
     return o1
 
@@ -201,7 +203,40 @@ def create_test2():
     
     return createOptions(start_complex, stop_complex, "First Passage Time")
     
+def create_test2B():
+
+
+    top0 = "T"
+    top1 = "T"
+    top2 = "T"
+
+    bottom0 = "A"
+    bottom1 = "A"
+    bottom2 = "A"
+
+
+    # build complexes with domain-level information    
+    strand0 = Domain(name="toehold0", sequence=top0, length=1)
+    strand1 = Domain(name="toehold1", sequence=top1, length=1)
+    strand2 = Domain(name="toehold2", sequence=top2, length=1)
     
+    strand3 = Domain(name="toehold3", sequence=bottom0, length=1)
+    strand4 = Domain(name="toehold4", sequence=bottom1, length=1)
+    strand5 = Domain(name="toehold5", sequence=bottom2, length=1)
+   
+    substrate = strand3 + strand4 + strand5
+    invading = strand0 + strand1 + strand2
+    
+
+    start_complex = Complex(strands=[substrate, invading], structure=".(.+.).")
+    stop_complex = Complex(strands=[substrate, invading], structure="...+...") 
+    
+    o1 = createOptions(start_complex, stop_complex, "First Passage Time")
+#     o1.join_concentration = 8
+#     o1.bimolecular_scaling = 777.0
+#     o1.DNA23Metropolis()
+    
+    return o1
 
 
 
@@ -227,11 +262,11 @@ def create_test3():
 
     # Stop when the exact full duplex is achieved. (No breathing!)
     success_complex = Complex(strands=[top, bot], structure="(+)")
-    success_stop_condition = StopCondition("SUCCESS", [(success_complex, msUtil.Exact_Macrostate, 0)])
+    success_stop_condition = StopCondition("SUCCESS", [(success_complex, Options.exactMacrostate, 0)])
 
     # Declare the simulation unproductive if the strands become single-stranded again.
     failed_complex = Complex(strands=[top], structure=".")
-    failed_stop_condition = StopCondition("FAILURE", [(failed_complex, msUtil.Dissoc_Macrostate, 0)])
+    failed_stop_condition = StopCondition("FAILURE", [(failed_complex, Options.dissocMacrostate, 0)])
 
     o = Options(simulation_mode="First Step",
                 parameter_type="Nupack",
@@ -489,11 +524,14 @@ def main():
     
         
 #     o1 = create_test0()      # just a fully hybridized strand.
-    o1 = create_test0B()      # just a fully hybridized strand.
+#     o1 = create_test0B()      # just a fully hybridized strand.
 #     o1 = create_test0C()      # just a fully hybridized strand.
 #     o1 = create_test1()      # testing open-loop 
 #     o1 = create_test1B()      # testing open-loop with the initialiation penalty 
-#     o1 = create_test2()      # a very simple test
+#     o1 = create_test2()      # a very simple test  being    .(.+.).
+    o1 = create_test2B()      # a very simple test  being    .(.+.).
+#     o1.bimolecular_scaling = 777.0
+#     o1.DNA23Metropolis()
 #     o1 = create_test3()  # this is the  bi-molecular test
 #     o1 = create_test4()  # this is the lightbulb
 #     o1 = create_test5()      # testing multi-loop code
