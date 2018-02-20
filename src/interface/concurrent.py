@@ -16,7 +16,6 @@ import random
 
 from collections import Counter
 from multistrand.options import Options
-from multiprocessing import Pool, Manager
 import multiprocessing
 import numpy as np
 
@@ -749,35 +748,6 @@ def timeStamp(inTime=None):
 # In addition, users can populate the analysisFactory with an objec to custom
 # in-process analysis (for example, computing metrics on traces) 
 
-def mergesim_doSim(myFactory, aFactory, instanceSeed, mergesim):
-
-    myOptions = myFactory.new(instanceSeed)
-    myOptions.num_simulations = mergesim.trialsPerThread
-
-    s = SimSystem(myOptions)
-    s.start()
-
-    myFSR = mergesim.settings.rateFactory(myOptions.interface.results)
-    mergesim.nForward.value += myFSR.nForward + myFSR.nForwardAlt
-    mergesim.nReverse.value += myFSR.nReverse
-
-    if mergesim.settings.debug:
-
-        mergesim.printTrajectories(myOptions)
-
-    if not(aFactory == None):
-
-        aFactory.doAnalysis(myOptions)
-    
-        
-    return  myOptions.interface
-
-def mergesim_getSimulation( mergesim):
-    
-    instanceSeed = mergesim.seed + (time.time() * 10000) % (math.pow(2, 32) - 1)
-    return mergesim_doSim(mergesim.factory, mergesim.aFactory, instanceSeed, mergesim )                   
-
-
 
 class MergeSim(object):
 
@@ -788,7 +758,7 @@ class MergeSim(object):
 
         self.initializationTime = time.time()
         print("%s%s" % (timeStamp(),
-                        "  Starting Multistrand 2.1      (c) 2008-2018 Caltech      "))
+                        "  Starting Multistrand 2.1      (c) 2008-2017 Caltech      "))
 
         self.factory = optionsFactory
         self.aFactory = None
@@ -997,62 +967,108 @@ class MergeSim(object):
     def run(self):
 
         # The input0 is always trials.
-        self.trialsPerThread = int(math.ceil(float(self.factory.input0) / float(self.numOfThreads)))
+        self.trialsPerThread = int(
+            math.ceil(float(self.factory.input0) / float(self.numOfThreads)))
         startTime = time.time()
 
         assert(self.numOfThreads > 0)
 
         manager = multiprocessing.Manager()
 
-        self.managed_result = list() #manager.list()
+        self.managed_result = manager.list()
+        self.managed_endStates = manager.list()
         self.nForward = manager.Value('i', 0)
         self.nReverse = manager.Value('i', 0)
 
         self.results = self.settings.rateFactory()
         self.endStates = []
 
-        # simulate and store results.
-        def simRound():
+        def doSim(myFactory, aFactory, list0, list1, instanceSeed, nForwardIn, nReverseIn):
+
+            myOptions = myFactory.new(instanceSeed)
+            myOptions.num_simulations = self.trialsPerThread
+
+            s = SimSystem(myOptions)
+            s.start()
+
+            myFSR = self.settings.rateFactory(myOptions.interface.results)
+            nForwardIn.value += myFSR.nForward + myFSR.nForwardAlt
+            nReverseIn.value += myFSR.nReverse
+
+            for result in myOptions.interface.results:
+
+                list0.append(result)
+
+            for endState in myOptions.interface.end_states:
+
+                list1.append(endState)
+
+            if self.settings.debug:
+
+                self.printTrajectories(myOptions)
+
+            if not(aFactory == None):
+
+                aFactory.doAnalysis(myOptions)
+
+        def getSimulation(input):
             
-            p = Pool( processes = self.numOfThreads )
-            poolresults = []
-            
-            poolresults = p.map( mergesim_getSimulation, [self]* self.numOfThreads )
-            p.close()
-            p.join()
-            
-            for out in poolresults:
-                self.managed_result.extend(out.results)
-               
-                # save the terminal states if we are not in leak mode
-                if self.settings.resultsType != self.settings.RESULTTYPE2:
-                   self.endStates.extend(out.end_states)
+            instanceSeed = self.seed + input * 3 * 5 * 19 + (time.time() * 10000) % (math.pow(2, 32) - 1)
+            return multiprocessing.Process(target=doSim, args=(self.factory, self.aFactory, self.managed_result, self.managed_endStates, instanceSeed, self.nForward, self.nReverse))          
 
 
         # this saves the results generated so far as regular Python objects,
         # and clears the concurrent result lists.
         def saveResults():
+            
+            if self.settings.terminationCount == None:
+                # just let the threads join peacefully
+               for i in range(self.numOfThreads):
+                   procs[i].join()
+            else :
+                # join all running threads -- the process has 2 seconds to close or it will be terminated.
+                for i in range(self.numOfThreads):
+                    procs[i].join(timeout = 2)
+                    procs[i].terminate()
 
             self.runTime = (time.time() - startTime)
             print("Done.  %.5f seconds -- now processing results \n" % (time.time() - startTime))
 
-            self.results = self.settings.rateFactory(self.managed_result, self.endStates)
 
-            if self.settings.resultsType == self.settings.RESULTTYPE2:
-                #in case of studying leak reaction, expect few hits, and print out info more often.
+            # Leak - the below is a leak rates object
+            # NB: Initialize with a dataset, but we merge with
+            # a differrent rates object.
+            myFSR = self.settings.rateFactory(self.managed_result, self.managed_endStates)
+
+            self.results.merge(myFSR, deepCopy=True)
+
+            # save the terminal states if we are not in leak mode
+            if self.settings.resultsType != self.settings.RESULTTYPE2:
+                for endState in self.managed_endStates:
+                    self.endStates.append(copy.deepcopy(endState))
+            else: #in case of studying leak reaction, expect few hits, and print out info more often.
                 print self.results
 
             # reset the multiprocessing results lists.
+            self.managed_result = manager.list()
+            self.managed_endStates = manager.list()
             # this should also reset the 
             self.settings.saveInterval += self.settings.saveIncrement 
                 
-                
+             
+
         # give a print of the initial states and stopping conditions
         self.printStates()
+        # start the initial bulk
         print(self.startSimMessage())
         
-        # start the initial bulk
-        simRound()
+        procs = []
+
+        for i in range(self.numOfThreads):
+            
+            p = getSimulation(i)
+            procs.append(p)
+            p.start()
 
         printFlag = False
 
@@ -1064,9 +1080,25 @@ class MergeSim(object):
                 break
 
             printFlag = False
-            
-            simRound()
-            saveResults()
+
+            # find and re-start finished threads
+            for i in range(self.numOfThreads):
+
+                if not procs[i].is_alive():
+                        
+                    procs[i].join()
+                    procs[i].terminate()
+
+                    procs[i] = getSimulation(i)
+                    procs[i].start()
+
+                    printFlag = True
+
+            time.sleep(0.25)
+
+            # if >500 000 results have been generated, then store
+            if (self.nForward.value + self.nReverse.value) > self.settings.saveInterval:
+                saveResults()
 
 
         saveResults()

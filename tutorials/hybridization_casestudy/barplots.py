@@ -16,13 +16,10 @@ from multistrand.concurrent import MergeSim
 import matplotlib
 matplotlib.use('agg')
 
-
 import matplotlib.pylab as plt
 import numpy as np
 
-
-
-A_TIME_OUT = 10.0 # 10 s timeout
+A_TIME_OUT = 10.0  # 10 s timeout
 NUM_PROCESS = 8
 nTrialsMod = 4  # number of trials per process
 
@@ -35,7 +32,6 @@ YURK_T6E2003 = "ACTAATCCTCAGATCCAGCTAGTGTCCGTACT"
 YURKE2_CONCENTRATION = 0.0001  # 100 microMolar    
 
 FIGURE_SIZE = (6 * 0.93, 4 * 0.93)
-
 
 enum_bonnet = "bonnet"
 enum_flamm = "flamm"
@@ -51,14 +47,12 @@ title_yurke2 = "Toehold binding rate - Yurke and Mills"  # Yurke and Mills -- T6
 class settings(object):
     
     def __init__(self, enum, title, reverseIn=False, nTrials=10):
-        
     
         self.type = enum
         self.title = title
         self.nTrials = nTrials
 
         self.reverse = reverseIn
-
 
     def __str__(self):
         return self.title
@@ -77,27 +71,23 @@ def simulationHairpin(trialsIn, reverse):
     else:
         hairpinclosing(stdOptions, HAIRPIN_STEM, HAIRPIN_LOOP)
     
-    
     return stdOptions
 
 
-
 # Figure 8 of Flamm 2000 -- bistable. Compute transition time S0 -> S1
-def simulationFlamm2000(trialsIn ):
+def simulationFlamm2000(trialsIn):
     
     seq = "GGCCCCTTTGGGGGCCAGACCCCTAAAGGGGTC"
     
     structStart = "................................."
     struct0 = "((((((((((((((.....))))))))))))))" 
     struct1 = "((((((....)))))).((((((....))))))"
-
         
     stdOptions = standardOptions(simMode=Options.trajectory, trials=trialsIn, tempIn=37.0)
     stdOptions.substrate_type = Options.substrateRNA
     stdOptions.gt_enable = 1
     stdOptions.simulation_time = A_TIME_OUT
     stdOptions.uniformRates()
-    
  
     stemdomain1 = Domain(name="stemdomain1", sequence=seq)
     strand = Strand(name="top", domains=[stemdomain1])
@@ -113,7 +103,6 @@ def simulationFlamm2000(trialsIn ):
     stdOptions.start_state = [startComplex]
     stdOptions.stop_conditions = [stopSuccess0, stopSuccess1]
     
-    
     return stdOptions
 
     
@@ -125,7 +114,6 @@ def simulationYurke(trialsIn):
     stdOptions.simulation_time = A_TIME_OUT
 #     stdOptions.JSDefault()
     stdOptions.uniformRates()
-
    
     stdOptions.temperature = 25.0
 
@@ -133,14 +121,13 @@ def simulationYurke(trialsIn):
     domD = Domain(sequence="A", name="d_A")
     domT = Domain(sequence="CGTACT", name="d_T")
     
-    
     strandQ = Strand(domains=[domS, domD])
     strandT = Strand(domains=[domT, domS])
     strandS = strandT.C
 
     complexStart = Complex(strands=[strandQ, strandS, strandT], structure="(.+)(+).")
     complexEndS = Complex(strands=[strandQ], structure="..")
-    complexEndF = Complex(strands=[strandT], structure="..")    ## ALT_SUCCESS is dissociation
+    complexEndF = Complex(strands=[strandT], structure="..")  # # ALT_SUCCESS is dissociation
     
     stopSuccess = StopCondition(Options.STR_SUCCESS, [(complexEndS, Options.dissocMacrostate, 3)])
     stopFailed = StopCondition(Options.STR_ALT_SUCCESS, [(complexEndF, Options.dissocMacrostate, 3)])
@@ -174,6 +161,76 @@ def simulationYurke2(trialsIn):
     
     complexAttached = Complex(strands=[strandQ, strandS, strandT], structure="**+*(+)*")
     
+    stopSuccess = StopCondition(Options.STR_SUCCESS, [(complexAttached, Options.looseMacrostate, 1)])
+    
+    stdOptions.start_state = [complexEndF, complexEndFC]
+    stdOptions.stop_conditions = [stopSuccess]
+    
+    stdOptions.join_concentration = 0.0001  # 100 microMolar    
+    
+    return stdOptions
+
+
+'''
+An autonomous polymerization motor
+powered by DNA hybridization
+SUVIR VENKATARAMAN,
+ROBERT M. DIRKS,
+PAUL W. K. ROTHEMUND,
+ERIK WINFREE AND NILES A. PIERCE
+'''
+
+# domains a, b, c, x, y,         (lengths 6, 18, 6, 3, and 3)
+
+# H1: a b c b* x*
+# H1: ATTCAAGCGACACCGTGGACGTGCACCCACGCACGTCCACGGTGTCGCACC
+
+# dom_a = ATTCAA
+# dom b = GCGACACCGTGGACGTGC
+# dom c = ACCCAC
+# dom x = *(ACC) = GGT
+
+# H2: y* b* a* b c* 
+# H2: GTTGCACGTCCACGGTGTCGCTTGAATGCGACACCGTGGACGTGCGTGGGT
+
+# dom y = c(GTT) = AAC
+
+#  A: b* a*
+#  A: GCACGTCCACGGTGTCGCTTGAAT
+
+#  R: x b y
+#  R: GGTGCGACACCGTGGACGTGCAAC 
+
+
+def simulationRickettsia(trialsIn):
+    
+    stdOptions = standardOptions(simMode=Options.firstPassageTime, trials=trialsIn)
+    stdOptions.simulation_time = A_TIME_OUT
+    stdOptions.uniformRates()
+
+    dom_a = Domain(sequence="ATTCAA")  # length 6
+    dom_b = Domain(sequence="GCGACACCGTGGACGTGC")  # length 18
+    dom_c = Domain(sequence="ACCCAC")  # length 6
+    
+    dom_x = Domain(sequence="GGT")  # length 3
+    dom_y = Domain(sequence="AAC")  # length 3
+        
+    strand_H1 = Strand(domains=[dom_a, dom_b, dom_c, dom_b.C, dom_x.C])
+    strand_H2 = Strand(domains=[dom_y.C, dom_b.C, dom_a.C, dom_b, dom_c.C])
+    
+    strand_A = Strand(domains=[dom_b.C, dom_a.C])
+    strand_B = Strand(domains=[dom_x, dom_b, dom_y])
+
+
+    H1 = Complex(strands=[strand_H1], structure=".(.).")
+    H2 = Complex(strands=[strand_H2], structure=".(.).")
+    
+    state1 = Complex(strands=[strand_H1, strand_R, strand_A], structure="((.)(+)(.+))")
+    state3 = Complex(strands=[strand_H1, strand_R, strand_H2], structure="(((((+))(+)(.))+))")
+    state6 = Complex(strands=[strand_H1, strand_H1, strand_R, strand_H2, strand_A], structure="((((.+((.)(+)((+)))))+))")
+    
+    
+    complexAttached = Complex(strands=[strandQ, strandS, strandT], structure="**+*(+)*")
     
     stopSuccess = StopCondition(Options.STR_SUCCESS, [(complexAttached, Options.looseMacrostate, 1)])
     
@@ -185,16 +242,13 @@ def simulationYurke2(trialsIn):
     return stdOptions
 
 
-
 def computeHittingTimes(settings, reverse=False):
     
     myMultistrand = MergeSim()
     myMultistrand.setNumOfThreads(NUM_PROCESS)
     
-    
     if settings.type == enum_yurke2:
         myMultistrand.setOptionsFactory1(simulationYurke2, settings.nTrials)
-
     
     if settings.type == enum_bonnet:
         myMultistrand.setOptionsFactory2(simulationHairpin, settings.nTrials, reverse)
@@ -204,23 +258,19 @@ def computeHittingTimes(settings, reverse=False):
     
     if settings.type == enum_yurke:
         myMultistrand.setOptionsFactory1(simulationYurke, settings.nTrials)
-
     
     if settings.type == enum_bonnet or settings.type == enum_yurke2:
         myMultistrand.setPassageMode()  # using the pre-set success / fail
 
     if settings.type == enum_flamm or settings.type == enum_yurke:
         myMultistrand.setTrajectoryMode()  # non-first stepping mode, no need to store trajectory information
-    
-
         
     myMultistrand.run()
     
     return myMultistrand.results
 
-
  
-def computeCompletionLine(results, N = None):
+def computeCompletionLine(results, N=None):
     
     if N == None:
         N = len(results)
@@ -232,6 +282,7 @@ def computeCompletionLine(results, N = None):
     Y = (100.0 / N) + (100.0 / N) * np.array(range(len(results)))
     
     return results, Y
+
     
 def setLabelAndClose(settings, plt, ax):
     
@@ -247,9 +298,8 @@ def setLabelAndClose(settings, plt, ax):
 
 def removeOutliers(times):
     
-    times  = np.array(sorted(times))
-    return times[range(int(len(times)*0.98))]
-
+    times = np.array(sorted(times))
+    return times[range(int(len(times) * 0.98))]
     
 
 def doBarplot(times, settings):
@@ -257,7 +307,6 @@ def doBarplot(times, settings):
     observations = str(len(times))
     
     times = [1000 * ele for ele in times]
- 
       
     fig = plt.figure(figsize=FIGURE_SIZE)
     ax = fig.gca()
@@ -270,17 +319,15 @@ def doBarplot(times, settings):
     myBins = np.arange(myMin, myMax + binwidth, binwidth)
     
     weights1 = np.empty_like(times)
-    weights1.fill(100.0/ len(times))
-
+    weights1.fill(100.0 / len(times))
     
-    ax.hist(times, alpha=0.20, log=1, bins=myBins, weights=weights1 )
+    ax.hist(times, alpha=0.20, log=1, bins=myBins, weights=weights1)
     ax.set_title(settings.title)      
       
     ax = plt.gca()
     ax.set_ylabel('Trajectory % (total = ' + observations + ')')  
     ax.set_ylim([0.1, 40.0])
     ax.set_xlim([0.0, myMax])
-    
     
     survX, survY = computeCompletionLine(times)
              
@@ -295,14 +342,13 @@ def doBarplot(times, settings):
 def doDoubleBarplot(times, times2, setting):
      
     observations = str(len(times))
-    observations2 =  str(len(times2))
+    observations2 = str(len(times2))
      
     times = [1000 * ele for ele in times]
     times2 = [1000 * ele for ele in times2]     
 
     fig = plt.figure(figsize=FIGURE_SIZE)
     ax = fig.gca()
-    
     
     myMin = min(min(times), min(times2))
     myMax = max(max(removeOutliers(times)), max(removeOutliers(times2)))
@@ -312,13 +358,12 @@ def doDoubleBarplot(times, times2, setting):
     myBins = np.arange(myMin, myMax + binwidth, binwidth)
     
     weights1 = np.empty_like(times)
-    weights1.fill(100.0/ len(times))
+    weights1.fill(100.0 / len(times))
     
     weights2 = np.empty_like(times2)
-    weights2.fill(100.0/ len(times2))
+    weights2.fill(100.0 / len(times2))
     
-    
-    ax.hist(times,  alpha=0.20, log=1, histtype='bar', bins=myBins, weights=weights1)
+    ax.hist(times, alpha=0.20, log=1, histtype='bar', bins=myBins, weights=weights1)
     ax.hist(times2, alpha=0.20, log=1, histtype='bar', bins=myBins, weights=weights2, stacked=True)
             
     N = len(times) + len(times2)
@@ -342,22 +387,18 @@ def doDoubleBarplot(times, times2, setting):
     ax2.set_ylim([0.0, 100.0])
     ax2.set_ylabel('Cummulative completion %')  
     ax2.set_xlim([0, myMax])
-
-
     
     setLabelAndClose(setting, plt, ax)
 
 
 def makePlots(settings):
-    
 
     results = computeHittingTimes(settings)
     
     if settings.type == enum_yurke2 :
         
         doBarplot(results.times, settings)
-        print "rate toehold binding = " + str(settings.nTrials / (sum(results.times)) )
-    
+        print "rate toehold binding = " + str(settings.nTrials / (sum(results.times)))
     
     if settings.type == enum_bonnet :
         
@@ -373,7 +414,6 @@ def makePlots(settings):
         print "rate reaction 2 = " + str(len(times2) / sum(times2))
                 
         doDoubleBarplot(times, times2, settings)
-    
 
 
 # The actual main method
@@ -387,11 +427,10 @@ if __name__ == '__main__':
         nTrialsMod = int(sys.argv[2])
 
         # by default, the first two examples get 10x more trajectories
-        setting_bonnet = settings(enum_bonnet, title_bonnet, True, 5 *  nTrialsMod)
-        setting_flamm = settings(enum_flamm, title_flamm, nTrials= 5 *  nTrialsMod)
-        settings_yurke = settings(enum_yurke, title_yurke, nTrials= nTrialsMod)
-        settings_yurke2 = settings(enum_yurke2, title_yurke2, nTrials= nTrialsMod)
-
+        setting_bonnet = settings(enum_bonnet, title_bonnet, True, 5 * nTrialsMod)
+        setting_flamm = settings(enum_flamm, title_flamm, nTrials=5 * nTrialsMod)
+        settings_yurke = settings(enum_yurke, title_yurke, nTrials=nTrialsMod)
+        settings_yurke2 = settings(enum_yurke2, title_yurke2, nTrials=nTrialsMod)
         
 #         makePlots(setting_bonnet)
 #         makePlots(setting_flamm)

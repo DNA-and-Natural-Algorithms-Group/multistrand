@@ -13,23 +13,19 @@ def createOptions(start_complex, stop_complex, simMode):
                  parameter_type="Nupack", substrate_type="DNA", temperature=273.15 + 25.0,
                 num_simulations=10,
                 simulation_time=0.00001,
-                rate_scaling='Calibrated',
+#                 rate_scaling='Calibrated',
                 verbosity=0,
                 join_concentration=1.0,
                 rate_method="Metropolis",
                 start_state=[start_complex],
                 stop_conditions=[full_sc])
    
-#     o1.DNA23Metropolis()
-#     o1._bimolecular_scaling = 777.0
-#     o1.bimolecular_scaling = 160000
+    o1.DNA23Metropolis()
     
     return o1
-
         
 
 def create_test0():
-
 
     toehold_seq = "CCCC"
     domain_seq = "CATTAAC"
@@ -43,16 +39,11 @@ def create_test0():
     
     start_complex = Complex(strands=[incoming, substrate], structure="((+))")
     stop_complex = Complex(strands=[incoming, substrate], structure="..+..") 
-
     
     return createOptions(start_complex, stop_complex, "First Passage Time")
 
 
-
-
-
 def create_test0B():
-
 
     toehold_seq = "CC"
     domain_seq = "CAAC"
@@ -67,35 +58,28 @@ def create_test0B():
 #     start_complex = Complex(strands=[incoming, substrate], structure="..+..")
 #     stop_complex = Complex(strands=[incoming, substrate], structure="((+))") 
 
-
     start_complex = Complex(strands=[incoming, substrate], structure="((+))")
     stop_complex = Complex(strands=[incoming, substrate], structure="..+..") 
-
-    
     
     return createOptions(start_complex, stop_complex, "First Passage Time")
 
 
-
 def create_test0C():
-
 
     domain_seq = "AGT"
     domain_seq2 = "GTA"
 
-
     left = Domain(name="branch_migration", sequence=domain_seq, seq_length=3)
-    right =     Domain(name="branch_migration2", sequence=domain_seq2, seq_length=3)
+    right = Domain(name="branch_migration2", sequence=domain_seq2, seq_length=3)
         
     incoming = left + right
-    substrate =  incoming.C
+    substrate = incoming.C
         
     start_complex1 = Complex(strands=[incoming], structure="..") 
     start_complex2 = Complex(strands=[substrate], structure="..")
     stop_complex = Complex(strands=[incoming, substrate], structure="((+))")
 
     full_sc = StopCondition("CLOSED", [(stop_complex, Options.dissocMacrostate, 2)])  
-    
     
     o1 = Options(simulation_mode=Options.firstPassageTime,  # "First Passage Time", 
                 temperature=273.15 + 25.0,
@@ -111,10 +95,7 @@ def create_test0C():
     return o1
 
 
-
-
 def create_test1():
- 
  
     top0 = "ACT"
     top1 = "GAC"
@@ -130,7 +111,6 @@ def create_test1():
     substrate = toehold.C + branch0.C + toehold.C
     left = toehold + left_d
     right = right_d + toehold  
-     
  
     # Note that "+" is used to indicate strand breaks.  
     # So the initial structures represent the incoming strand bound by its toehold,
@@ -142,7 +122,6 @@ def create_test1():
     
     
 def create_test1B():
-
 
     top0 = "ACT"
     top1 = "GAC"
@@ -158,7 +137,6 @@ def create_test1B():
     substrate = toehold.C + branch0.C + toehold.C
     left = toehold + left_d
     right = right_d + toehold  
-    
 
     # Note that "+" is used to indicate strand breaks.  
     # So the initial structures represent the incoming strand bound by its toehold,
@@ -167,23 +145,17 @@ def create_test1B():
     stop_complex = Complex(strands=[left, right, substrate], structure="..+..+...") 
     
     return createOptions(start_complex, stop_complex, "First Passage Time")
-    
-
-
-
 
 
 def create_test2():
 
-
     top0 = "T"
-    top1 = "T"
+    top1 = "G"
     top2 = "G"
 
     bottom0 = "C"
-    bottom1 = "A"
-    bottom2 = "T"
-
+    bottom1 = "C"
+    bottom2 = "A"
 
     # build complexes with domain-level information    
     strand0 = Domain(name="toehold0", sequence=top0, length=1)
@@ -196,15 +168,16 @@ def create_test2():
    
     substrate = strand3 + strand4 + strand5
     invading = strand0 + strand1 + strand2
-    
 
-    start_complex = Complex(strands=[substrate, invading], structure=".(.+.).")
+#     start_complex = Complex(strands=[substrate, invading], structure="(..+..)")
+#     start_complex = Complex(strands=[substrate, invading], structure=".(.+.).")
+    start_complex = Complex(strands=[substrate, invading], structure="..(+)..")
     stop_complex = Complex(strands=[substrate, invading], structure="...+...") 
     
     return createOptions(start_complex, stop_complex, "First Passage Time")
+
     
 def create_test2B():
-
 
     top0 = "T"
     top1 = "T"
@@ -214,7 +187,6 @@ def create_test2B():
     bottom1 = "A"
     bottom2 = "A"
 
-
     # build complexes with domain-level information    
     strand0 = Domain(name="toehold0", sequence=top0, length=1)
     strand1 = Domain(name="toehold1", sequence=top1, length=1)
@@ -226,9 +198,8 @@ def create_test2B():
    
     substrate = strand3 + strand4 + strand5
     invading = strand0 + strand1 + strand2
-    
 
-    start_complex = Complex(strands=[substrate, invading], structure=".(.+.).")
+    start_complex = Complex(strands=[substrate, invading], structure="..(+)..")
     stop_complex = Complex(strands=[substrate, invading], structure="...+...") 
     
     o1 = createOptions(start_complex, stop_complex, "First Passage Time")
@@ -239,9 +210,7 @@ def create_test2B():
     return o1
 
 
-
 def create_test3():
-
     
     strand_seq = "CTGA"
     num_traj = 10
@@ -285,12 +254,8 @@ def create_test3():
     return o
 
 
-
-
-
-
-
 colors = ['blue', 'red', 'cyan', 'magenta', 'green', 'k', 'darkblue', 'darkred', 'darkcyan', 'darkmagenta', 'darkgreen']
+
 
 def create_test4():
 
@@ -315,22 +280,15 @@ def create_test4():
     full_sc = StopCondition("CLOSED", [(stop_complex, msUtil.Dissoc_Macrostate, 2)]) 
     
     return createOptions(start_complex, stop_complex, "First Passage Time")
-    
-
-
-
 
 
 def create_test5():
-
-
     
     top0 = "ACT"
     top1 = "GAC"
     toehold = "TG"
     bottom = "TG"
     connected = "ATA";
-    
 
     # build complexes with domain-level information    
     right_d = Domain(name="toehold0", sequence=top0, length=3)
@@ -342,7 +300,6 @@ def create_test5():
     substrate = toehold.C + branch0.C + toehold.C
     left = toehold + left_d + connect
     right = connect.C + right_d + toehold 
-    
 
     # Note that "+" is used to indicate strand breaks.  
     # So the initial structures represent the incoming strand bound by its toehold,
@@ -363,7 +320,6 @@ def create_test6():
     toehold = Domain(name="toehold", sequence=toehold_seq, length=4)
     toehold2 = Domain(name="toehold", sequence=toehold_seq2, length=3)
     branch_migration = Domain(name="branch_migration", sequence=domain_seq, seq_length=9)
-
         
     incoming = toehold2.C + branch_migration.C + toehold.C  
     substrate = toehold + branch_migration + toehold2
@@ -384,7 +340,6 @@ def create_test6B():
     toehold = Domain(name="toehold", sequence=toehold_seq, length=3)
     toehold2 = Domain(name="toehold", sequence=toehold_seq2, length=3)
     branch_migration = Domain(name="branch_migration", sequence=domain_seq, seq_length=2)
-
         
     incoming = toehold2.C + branch_migration.C + toehold.C  
     substrate = toehold + branch_migration + toehold2
@@ -393,8 +348,6 @@ def create_test6B():
     stop_complex = Complex(strands=[incoming, substrate], structure="...+...") 
     
     return createOptions(start_complex, stop_complex, "First Passage Time")
-
-
 
 
 def create_test7():
@@ -417,6 +370,7 @@ def create_test7():
     
     return createOptions(start_complex, stop_complex, "First Passage Time")
 
+
 def create_test8():
 
     toehold_seq = "CTGC"
@@ -428,7 +382,6 @@ def create_test8():
     dangle = Domain(name="branch_migration", sequence="T", seq_length=1) 
         
     incoming = toehold + branch_migration.C + toehold.C  
-
         
     start_complex = Complex(strands=[incoming], structure="(.)")
     stop_complex = Complex(strands=[incoming], structure="...") 
@@ -438,23 +391,18 @@ def create_test8():
 
 def create_test9():
 
-
     seq0 = "GTGT"
     seq1 = "T"
-    
-    
 
     # build complexes with domain-level information    
     branch = Domain(name="toehold0", sequence=seq0, length=3)
     toehold = Domain(name="toehold1", sequence=seq1, length=1)
            
     ghost = Domain(name="toeholdG", sequence="T", length=1)
-   
     
     substrate = toehold + branch
     left = toehold.C + ghost
     right = branch.C + ghost
-    
 
     # Note that "+" is used to indicate strand breaks.  
     # So the initial structures represent the incoming strand bound by its toehold,
@@ -467,32 +415,30 @@ def create_test9():
 
 def create_test10():
 
-
     seq0 = "GTCACTGCTTTT"
     seq1 = "GCAGTGAC"
     dotparen1 = "..((((((....+)))))).."
-    
     
     seq2 = "GTCACTGC"
     dotparen2 = "........"
     
     complex1 = makeComplex([seq0, seq1], dotparen1)
-    complex2 = makeComplex([seq2], dotparen2 )
+    complex2 = makeComplex([seq2], dotparen2)
         
     return createOptions(complex1, complex2, "First Passage Time")
 
+
 def create_test11():
     
-    seq0 =      "GTAAAGACCAGTGGTGTGAAGATAGGAAAGGTGTTGATTGGGATTAGGAAACC"
-    seq1 =      "CATCACTATCAATCATACATGGTTTCCTAATCCCAATCAACACC"
-    seq2 =      "CATCACTATCAATCATACATGGTTTCCTATCTTCACACCACTGG"
-    struc1 =    ".......((((((((((((((((((((((((((((((((((((((((((((((+....................))))))))))))))))))))))))+......................))))))))))))))))))))))"
+    seq0 = "GTAAAGACCAGTGGTGTGAAGATAGGAAAGGTGTTGATTGGGATTAGGAAACC"
+    seq1 = "CATCACTATCAATCATACATGGTTTCCTAATCCCAATCAACACC"
+    seq2 = "CATCACTATCAATCATACATGGTTTCCTATCTTCACACCACTGG"
+    struc1 = ".......((((((((((((((((((((((((((((((((((((((((((((((+....................))))))))))))))))))))))))+......................))))))))))))))))))))))"
     
     complex1 = makeComplex([seq0, seq1, seq2], struc1)
     complex2 = makeComplex([seq0, seq1, seq2], struc1)
 
     return createOptions(complex1, complex2, "First Passage Time")
-
 
 # This tests a certain secondary structure for wrong arrhenius rates.
 
@@ -503,12 +449,13 @@ def create_test11():
 # (.(...).....+).....((((((+))))))  GTAATGTCGGCG+CGCCGACATTAC+GTAATG      t=0.095381 ms,  dG=-1.51 kcal/mol, ArrType= 25
 # (...........+).....((((((+))))))  GTAATGTCGGCG+CGCCGACATTAC+GTAATG      t=0.095417 ms,  dG=-4.68 kcal/mol, ArrType= 25
 
+
 def create_test12():
     
-    seq0 =      "GTAATGTCGGCG"
-    seq1 =      "CGCCGACATTAC"
-    seq2 =      "GTAATG"
-    struc1 =    "(...........+).....((((((+))))))"
+    seq0 = "GTAATGTCGGCG"
+    seq1 = "CGCCGACATTAC"
+    seq2 = "GTAATG"
+    struc1 = "(...........+).....((((((+))))))"
 #     struc1 =    "(...........+).....((((((+))))))"
     
     complex1 = makeComplex([seq0, seq1, seq2], struc1)
@@ -520,16 +467,31 @@ def create_test12():
     return myOptions
 
 
-def main():
+def create_test13():
     
+    seq0 = "ACTGACTGACTG"
+    seq1 = "ACTG"
+    seq2 = "CATTCAGTACAGT"
+    struc1 = "((((((.(....+...(+)...).)).))))"
+    
+    complex1 = makeComplex([seq0, seq1, seq2], struc1)
+
+    myOptions = createOptions(complex1, complex1, "First Passage Time")
+    myOptions.join_concentration = 1.0e-9
+#     setArrheniusConstantsDNA23(myOptions)
+
+    return myOptions
+
+
+def main():
         
 #     o1 = create_test0()      # just a fully hybridized strand.
 #     o1 = create_test0B()      # just a fully hybridized strand.
 #     o1 = create_test0C()      # just a fully hybridized strand.
 #     o1 = create_test1()      # testing open-loop 
 #     o1 = create_test1B()      # testing open-loop with the initialiation penalty 
-#     o1 = create_test2()      # a very simple test  being    .(.+.).
-    o1 = create_test2B()      # a very simple test  being    .(.+.).
+#     o1 = create_test2()  # a very simple test  being    .(.+.).
+#     o1 = create_test2B()      # a very simple test  being    .(.+.).
 #     o1.bimolecular_scaling = 777.0
 #     o1.DNA23Metropolis()
 #     o1 = create_test3()  # this is the  bi-molecular test
@@ -543,28 +505,19 @@ def main():
 #     o1 = create_test10()      # half open duplex
 #     o1 = create_test11()      # Oscillator gate
 #     o1 = create_test12()      # displacement situation.
-
-
+    o1 = create_test13()    # this is a test for dissociation
 
 #     setArrheniusConstantsNM1(o1)
-    
+#     o1.DNA23Metropolis()
     s = SimSystem(o1)
     # s.start()
     s.initialInfo()
     # s.calculate_rate
 #     print "Testing loop internals"
-
     
     # s.start()
     # s.InitializeSystem()
 
 
 main()
-
-
-
-
-
-
-
 

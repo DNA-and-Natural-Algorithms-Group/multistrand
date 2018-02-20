@@ -4,6 +4,7 @@
 # This is important for hassing functions 
 
 import sys
+import numpy as np
 
 from multistrand.objects import Complex, Domain, Strand, StopCondition
 from multistrand.options import Options
@@ -26,6 +27,7 @@ def printTrajectory(o):
         newseqs = []
         structs = []
         dG = 0.0;
+        dGC = 0.0
         
         pairTypes = []
         
@@ -36,6 +38,13 @@ def printTrajectory(o):
             structs += [ state[4] ]  # similarly extract the secondary structures for each complex
             dG += dG + state[5]
             
+            dGC += (state[5] - (  o._temperature_kelvin * 0.0019872036 * np.log(  1.0 / o.join_concentration) * state[4].count("+") )) 
+            
+#             print "count is  " +  str(state[4].count("+"))
+#             print "join conc is " + str(o.join_concentration)
+#             print "dG-Complex is " + "%.2f" % dGC + " kcal/mol  for " + str(state[3]) 
+            
+            
         newseqstring = ' '.join(newseqs)  # make a space-separated string of complexes, to represent the whole tube system sequence
         tubestruct = ' '.join(structs)  # give the dot-paren secondary structure for the whole test tube
                  
@@ -44,7 +53,7 @@ def printTrajectory(o):
             print newseqstring
             seqstring = newseqstring  # because strand order can change upon association of dissociation, print it when it changes        
 
-        print tubestruct + ('   t=%.3f ns,  dG=%3.2f kcal/mol  ' % (time, dG)) 
+        print tubestruct + ('   t=%.3f ns,  dG=%3.2f kcal/mol, dGC=%3.2f kcal/mol   ' % (time, dG, dGC)) 
 
         
 
@@ -55,6 +64,8 @@ def doSims(strandSeq, numTraj=2):
     o1.simulation_mode = Options.trajectory
     o1.num_simulations = numTraj
     o1.output_interval = 1 
+#     o1.join_concentration = 1.0e-9
+    o1.join_concentration = 1.0
     o1.simulation_time = 0.000005
     o1.uniformRates()
 
