@@ -37,11 +37,13 @@ enum_bonnet = "bonnet"
 enum_flamm = "flamm"
 enum_yurke = "yurke"
 enum_yurke2 = "yurke2"  # this is to compute the hybridization rate of the toehold
+enum_rickettsia = "rickettsia"
 
 title_bonnet = "Hairpin closing and opening - Bonnet et al."
 title_flamm = "RNA kinetic trap - Flamm et al."  # figure 8
 title_yurke = "Threeway strand displacement - Yurke and Mills"  # Yurke and Mills -- T6 in table 1
 title_yurke2 = "Toehold binding rate - Yurke and Mills"  # Yurke and Mills -- T6 in table 1
+title_rickettsia = "Rickettsia"  # An autonomous polymerization motor powered by DNA hybridization SUVIR VENKATARAMAN, ROBERT M. DIRKS, PAUL W. K. ROTHEMUND, ERIK WINFREE AND NILES A. PIERCE
 
 
 class settings(object):
@@ -208,34 +210,32 @@ def simulationRickettsia(trialsIn):
     stdOptions.simulation_time = A_TIME_OUT
     stdOptions.uniformRates()
 
-    dom_a = Domain(sequence="ATTCAA")  # length 6
-    dom_b = Domain(sequence="GCGACACCGTGGACGTGC")  # length 18
-    dom_c = Domain(sequence="ACCCAC")  # length 6
+    dom_a = Domain(sequence="ATTCAA", name="a")  # length 6
+    dom_b = Domain(sequence="GCGACACCGTGGACGTGC", name="b")  # length 18
+    dom_c = Domain(sequence="ACCCAC", name="c")  # length 6
     
-    dom_x = Domain(sequence="GGT")  # length 3
-    dom_y = Domain(sequence="AAC")  # length 3
+    dom_x = Domain(sequence="GGT", name="x")  # length 3
+    dom_y = Domain(sequence="AAC", name="y")  # length 3
         
     strand_H1 = Strand(domains=[dom_a, dom_b, dom_c, dom_b.C, dom_x.C])
     strand_H2 = Strand(domains=[dom_y.C, dom_b.C, dom_a.C, dom_b, dom_c.C])
     
     strand_A = Strand(domains=[dom_b.C, dom_a.C])
     strand_B = Strand(domains=[dom_x, dom_b, dom_y])
-
+    strand_R = Strand(domains=[dom_x, dom_b, dom_y])
 
     H1 = Complex(strands=[strand_H1], structure=".(.).")
     H2 = Complex(strands=[strand_H2], structure=".(.).")
     
     state1 = Complex(strands=[strand_H1, strand_R, strand_A], structure="((.)(+)(.+))")
-    state3 = Complex(strands=[strand_H1, strand_R, strand_H2], structure="(((((+))(+)(.))+))")
+    state3 = Complex(strands=[strand_H1, strand_R, strand_H2, strand_A], structure="(((((+))(+)(.))+))")
     state6 = Complex(strands=[strand_H1, strand_H1, strand_R, strand_H2, strand_A], structure="((((.+((.)(+)((+)))))+))")
     
+    stopFailure = StopCondition(Options.STR_ALT_SUCCESS, [(state1, Options.dissocMacrostate, 0)])
+    stopSuccess = StopCondition(Options.STR_SUCCESS, [(state6, Options.dissocMacrostate, 0)])
     
-    complexAttached = Complex(strands=[strandQ, strandS, strandT], structure="**+*(+)*")
-    
-    stopSuccess = StopCondition(Options.STR_SUCCESS, [(complexAttached, Options.looseMacrostate, 1)])
-    
-    stdOptions.start_state = [complexEndF, complexEndFC]
-    stdOptions.stop_conditions = [stopSuccess]
+    stdOptions.start_state = [state3, H1]
+    stdOptions.stop_conditions = [stopSuccess, stopFailure]
     
     stdOptions.join_concentration = 0.0001  # 100 microMolar    
     
@@ -259,10 +259,13 @@ def computeHittingTimes(settings, reverse=False):
     if settings.type == enum_yurke:
         myMultistrand.setOptionsFactory1(simulationYurke, settings.nTrials)
     
+    if settings.type == enum_rickettsia:
+        myMultistrand.setOptionsFactory1(simulationRickettsia, settings.nTrials)
+    
     if settings.type == enum_bonnet or settings.type == enum_yurke2:
         myMultistrand.setPassageMode()  # using the pre-set success / fail
 
-    if settings.type == enum_flamm or settings.type == enum_yurke:
+    if settings.type == enum_flamm or settings.type == enum_yurke or settings.type == enum_rickettsia:
         myMultistrand.setTrajectoryMode()  # non-first stepping mode, no need to store trajectory information
         
     myMultistrand.run()
@@ -405,7 +408,7 @@ def makePlots(settings):
         results2 = computeHittingTimes(settings, True)
         doDoubleBarplot(results.times, results2.times, settings)
         
-    if settings.type == enum_flamm or settings.type == enum_yurke:
+    if settings.type == enum_flamm or settings.type == enum_yurke or settings.type == enum_rickettsia:
         
         times = [i.time for i in results.dataset if i.tag == Options.STR_SUCCESS]       
         times2 = [i.time for i in results.dataset if i.tag == Options.STR_ALT_SUCCESS]
@@ -431,11 +434,13 @@ if __name__ == '__main__':
         setting_flamm = settings(enum_flamm, title_flamm, nTrials=5 * nTrialsMod)
         settings_yurke = settings(enum_yurke, title_yurke, nTrials=nTrialsMod)
         settings_yurke2 = settings(enum_yurke2, title_yurke2, nTrials=nTrialsMod)
+        settings_rickettsia = settings(enum_rickettsia, title_rickettsia, nTrials=nTrialsMod)
         
 #         makePlots(setting_bonnet)
 #         makePlots(setting_flamm)
 #         makePlots(settings_yurke)
-        makePlots(settings_yurke2)
+#         makePlots(settings_yurke2)
+        makePlots(settings_rickettsia)
     
     else:
         

@@ -86,9 +86,10 @@ string SComplexListEntry::toString(EnergyModel *em) {
 	// more comparable to NUPACK  - - FD replace assoEnergy with 2.44
 	double printEnergy = (energy - (em->getVolumeEnergy() + em->getAssocEnergy()) * (thisComplex->getStrandCount() - 1));
 
-	ss << "Complex      : " << id << " \n";
-	ss << "seq, struc   : " << thisComplex->getSequence() << " - " << thisComplex->getStructure() << " \n";
-	ss << "energy,rate  : " << printEnergy << " - " << rate << "     (T=" << em->simOptions->energyOptions->getTemperature() << ")";
+	ss << "Complex         : " << id << " \n";
+	ss << "seq, struc      : " << thisComplex->getSequence() << " - " << thisComplex->getStructure() << " \n";
+	ss << "energy-ms       : " << energy;
+	ss << "energy-nu,rate  : " << printEnergy << " - " << rate << "     (T=" << em->simOptions->energyOptions->getTemperature() << ")";
 	ss << "\n";
 
 	// also print info on the openloop datastructures
@@ -649,7 +650,6 @@ JoinCriteria SComplexList::cycleForJoinChoiceArr(double choice) {
 							// we have determined the HalfContexts for the upper and lower strand.
 							int choice_int = floor(choice / joinRate);
 
-
 							for (BaseType base : { baseA, baseT, baseG, baseC }) {
 
 								int combinations = con.second.count[base] * ton.second.count[5 - base];
@@ -694,8 +694,6 @@ JoinCriteria SComplexList::cycleForJoinChoiceArr(double choice) {
 	return JoinCriteria();
 
 }
-
-
 
 /*
 
