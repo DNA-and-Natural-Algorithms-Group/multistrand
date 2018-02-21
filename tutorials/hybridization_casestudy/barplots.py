@@ -43,7 +43,7 @@ title_bonnet = "Hairpin closing and opening - Bonnet et al."
 title_flamm = "RNA kinetic trap - Flamm et al."  # figure 8
 title_yurke = "Threeway strand displacement - Yurke and Mills"  # Yurke and Mills -- T6 in table 1
 title_yurke2 = "Toehold binding rate - Yurke and Mills"  # Yurke and Mills -- T6 in table 1
-title_rickettsia = "Rickettsia"  # An autonomous polymerization motor powered by DNA hybridization SUVIR VENKATARAMAN, ROBERT M. DIRKS, PAUL W. K. ROTHEMUND, ERIK WINFREE AND NILES A. PIERCE
+title_rickettsia = "An autonomous polymerization motor powered \n by DNA hybridization - Venkataraman et al. "  # An autonomous polymerization motor powered by DNA hybridization SUVIR VENKATARAMAN, ROBERT M. DIRKS, PAUL W. K. ROTHEMUND, ERIK WINFREE AND NILES A. PIERCE
 
 
 class settings(object):
@@ -209,6 +209,9 @@ def simulationRickettsia(trialsIn):
     stdOptions = standardOptions(simMode=Options.firstPassageTime, trials=trialsIn)
     stdOptions.simulation_time = A_TIME_OUT
     stdOptions.uniformRates()
+    stdOptions.temperature = 25.0
+    stdOptions.magnesium = 0.0125
+    stdOptions.sodium = 0.1
 
     dom_a = Domain(sequence="ATTCAA", name="a")  # length 6
     dom_b = Domain(sequence="GCGACACCGTGGACGTGC", name="b")  # length 18
@@ -227,17 +230,17 @@ def simulationRickettsia(trialsIn):
     H1 = Complex(strands=[strand_H1], structure=".(.).")
     H2 = Complex(strands=[strand_H2], structure=".(.).")
     
-    state1 = Complex(strands=[strand_H1, strand_R, strand_A], structure="((.)(+)(.+))")
+    state1 = Complex(strands=[strand_H1, strand_R, strand_A], structure="((.)*+*(.+))")  # domain x does not have to be bound
     state3 = Complex(strands=[strand_H1, strand_R, strand_H2, strand_A], structure="(((((+))(+)(.))+))")
-    state6 = Complex(strands=[strand_H1, strand_H1, strand_R, strand_H2, strand_A], structure="((((.+((.)(+)((+)))))+))")
+    state6 = Complex(strands=[strand_H1, strand_H1, strand_R, strand_H2, strand_A], structure="((((.+((.)*+*((+)))))+))")  # domain x does not have to be bound
     
     stopFailure = StopCondition(Options.STR_ALT_SUCCESS, [(state1, Options.dissocMacrostate, 0)])
-    stopSuccess = StopCondition(Options.STR_SUCCESS, [(state6, Options.dissocMacrostate, 0)])
+    stopSuccess = StopCondition(Options.STR_SUCCESS, [(state6, Options.looseMacrostate, 4)])
     
     stdOptions.start_state = [state3, H1]
     stdOptions.stop_conditions = [stopSuccess, stopFailure]
     
-    stdOptions.join_concentration = 0.0001  # 100 microMolar    
+    stdOptions.join_concentration = 0.000001 
     
     return stdOptions
 
@@ -379,7 +382,7 @@ def doDoubleBarplot(times, times2, setting):
     ax.set_ylim([0.1, 40.0])
     ax.set_xlim([0, myMax])
     
-    if setting.type == enum_flamm or setting.type == enum_yurke:
+    if setting.type == enum_flamm or setting.type == enum_yurke or setting.type == enum_rickettsia:
             ax.set_ylabel('Trajectory counts (' + observations + ' and ' + observations2 + ")")  
     else:
         ax.set_ylabel('Trajectory counts (total = ' + observations + ')')  
@@ -412,9 +415,11 @@ def makePlots(settings):
         
         times = [i.time for i in results.dataset if i.tag == Options.STR_SUCCESS]       
         times2 = [i.time for i in results.dataset if i.tag == Options.STR_ALT_SUCCESS]
-        
-        print "rate reaction 1 = " + str(len(times) / sum(times))
-        print "rate reaction 2 = " + str(len(times2) / sum(times2))
+
+        if not sum(times) == 0:        
+            print "rate reaction 1 = " + str(len(times) / sum(times))
+        if not sum(times2) == 0:
+            print "rate reaction 2 = " + str(len(times2) / sum(times2))
                 
         doDoubleBarplot(times, times2, settings)
 
@@ -434,7 +439,7 @@ if __name__ == '__main__':
         setting_flamm = settings(enum_flamm, title_flamm, nTrials=5 * nTrialsMod)
         settings_yurke = settings(enum_yurke, title_yurke, nTrials=nTrialsMod)
         settings_yurke2 = settings(enum_yurke2, title_yurke2, nTrials=nTrialsMod)
-        settings_rickettsia = settings(enum_rickettsia, title_rickettsia, nTrials=nTrialsMod)
+        settings_rickettsia = settings(enum_rickettsia, title_rickettsia, nTrials= 2.0 * nTrialsMod)
         
 #         makePlots(setting_bonnet)
 #         makePlots(setting_flamm)
