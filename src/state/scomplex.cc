@@ -672,12 +672,12 @@ double StrandComplex::getTotalFlux(void) {
 	return beginLoop->returnFlux(NULL);
 }
 
-char *StrandComplex::getSequence(void) {
+string& StrandComplex::getSequence(void) {
 // ZIFNAB - use the ordering to return a valid character sequence representation for this complex.
 	return ordering->getSequence();
 }
 
-char *StrandComplex::getStructure(void) {
+string& StrandComplex::getStructure(void) {
 
 	return ordering->getStructure();
 

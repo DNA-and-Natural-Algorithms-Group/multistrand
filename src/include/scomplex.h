@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2017 California Institute of Technology. All rights reserved.
-Multistrand nucleic acid kinetic simulator
-help@multistrand.org
-*/
+ Copyright (c) 2017 California Institute of Technology. All rights reserved.
+ Multistrand nucleic acid kinetic simulator
+ help@multistrand.org
+ */
 
 /* StrandComplex class header. The Complex object contains information about a collection of strands, and has the loop structures contained within it. */
 #ifndef __SCOMPLEX_H__
@@ -32,8 +32,8 @@ public:
 	double getEnergy(void); // returns the energy of the complex
 	double getEnthalpy(void); // return the enthalpy of the complex
 	void generateMoves(void); // display function to output the dot-paren structure of all moves contained in this complex. Should be preceded by printing the sequence, possibly I should change it to just do that straight out. Used for testing purposes (comparing all moves adjacent and rates).
-	char *getSequence(void); // returns char representation of sequence
-	char *getStructure(void); // returns dot-paren notation structure for seq.
+	string& getSequence(void); // returns char representation of sequence
+	string& getStructure(void); // returns dot-paren notation structure for seq.
 	char *getStrandNames(void); // returns ordered list of strand names
 	BaseCount& getExteriorBases(HalfContext* = NULL);
 	int checkIDList(class identList *stoplist, int id_count);

@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2017 California Institute of Technology. All rights reserved.
-Multistrand nucleic acid kinetic simulator
-help@multistrand.org
-*/
+ Copyright (c) 2017 California Institute of Technology. All rights reserved.
+ Multistrand nucleic acid kinetic simulator
+ help@multistrand.org
+ */
 #ifndef __SCOMPLEXLIST_H__
 #define __SCOMPLEXLIST_H__
 
@@ -54,8 +54,8 @@ public:
 private:
 	bool checkStopComplexList_Bound(class complexItem *stoplist);
 	bool checkStopComplexList_Structure_Disassoc(class complexItem *stoplist);
-	bool checkLooseStructure(char *our_struc, char *stop_struc, int count);
-	bool checkCountStructure(char *our_struc, char *stop_struc, int count);
+	bool checkLooseStructure(const char *our_struc, const char *stop_struc, int count);
+	bool checkCountStructure(const char *our_struc, const char *stop_struc, int count);
 
 	int numOfComplexes = 0;
 	int idcounter = 0;
@@ -76,7 +76,8 @@ public:
 	void regenerateMoves(void);
 	void fillData(EnergyModel *em);
 	string toString(EnergyModel *em);
-	void dumpComplexEntryToPython(int *our_id, char **names, char **sequence, char **structure, double *our_energy, double *our_enthalpy);
+//	void dumpComplexEntryToPython(int *our_id, char **names, char **sequence, char **structure, double *our_energy, double *our_enthalpy);
+	void dumpComplexEntryToPython(int *our_id, char **names, string* sequence, string* structure, double *our_energy, double *our_enthalpy);
 
 	int id;
 	StrandComplex* thisComplex;

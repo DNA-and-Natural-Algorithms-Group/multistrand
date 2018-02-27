@@ -1,12 +1,11 @@
 /*
-Copyright (c) 2017 California Institute of Technology. All rights reserved.
-Multistrand nucleic acid kinetic simulator
-help@multistrand.org
-*/
+ Copyright (c) 2017 California Institute of Technology. All rights reserved.
+ Multistrand nucleic acid kinetic simulator
+ help@multistrand.org
+ */
 
 // FD  March 31, 2017. The following include fixes OSX compatibility issues.
 #include <Python.h>
-
 
 // StrandOrdering object
 // used to track sequences and structures within a complex for easy printing, etc.
@@ -73,10 +72,7 @@ StrandOrdering::~StrandOrdering(void) {
 
 	first = last = NULL;
 	count = 0;
-	if (seq != NULL)
-		delete[] seq;
-	if (struc != NULL)
-		delete[] struc;
+
 	if (strandnames != NULL)
 		delete[] strandnames;
 	return;
@@ -251,7 +247,7 @@ StrandOrdering::StrandOrdering(char *in_seq, char *in_structure, char *in_cseq, 
 	delete strandids;
 }
 
-StrandOrdering * StrandOrdering::joinOrdering(StrandOrdering *first, StrandOrdering *second) {
+StrandOrdering* StrandOrdering::joinOrdering(StrandOrdering *first, StrandOrdering *second) {
 
 	first->last->next = second->first;
 	second->first->prev = first->last;
@@ -259,14 +255,9 @@ StrandOrdering * StrandOrdering::joinOrdering(StrandOrdering *first, StrandOrder
 
 	first->count += second->count;
 
-	if (first->seq != NULL) {
-		delete[] first->seq;
-		first->seq = NULL;
-	}
-	if (first->struc != NULL) {
-		delete[] first->struc;
-		first->struc = NULL;
-	}
+	first->seq.clear();
+	first->struc.clear();
+
 	if (first->strandnames != NULL) {
 		delete[] first->strandnames;
 		first->strandnames = NULL;
@@ -330,14 +321,9 @@ void StrandOrdering::reorder(OpenLoop *index) {
 	first = traverse;
 	last = traverse_second;
 
-	if (seq != NULL) {
-		delete[] seq;
-		seq = NULL;
-	}
-	if (struc != NULL) {
-		delete[] struc;
-		struc = NULL;
-	}
+	seq.clear();
+	struc.clear();
+
 	if (strandnames != NULL) {
 		delete[] strandnames;
 		strandnames = NULL;
@@ -425,7 +411,7 @@ void StrandOrdering::generateFlatSequence(char **sequence, char **structure, cha
 
 	openInfo.upToDate = false;
 
-	for (index = 0; index < count; index++, traverse = traverse->next){
+	for (index = 0; index < count; index++, traverse = traverse->next) {
 		totallength += traverse->size;
 	}
 
@@ -455,7 +441,6 @@ void StrandOrdering::generateFlatSequence(char **sequence, char **structure, cha
 	}
 }
 
-
 // JS: converts an index into a flat char sequence returned by generateFlatSequence
 // into an appropriate pointer into the particular strand's code sequence.
 char* StrandOrdering::convertIndex(int index) {
@@ -465,7 +450,7 @@ char* StrandOrdering::convertIndex(int index) {
 
 	for (cpos = 0, cstrand = 0, traverse = first; cstrand < count; cstrand++, traverse = traverse->next) {
 
-		if (index < cpos + traverse->size){ // index is into the current strand
+		if (index < cpos + traverse->size) { // index is into the current strand
 			return &traverse->thisCodeSeq[index - cpos];
 		}
 
@@ -476,7 +461,6 @@ char* StrandOrdering::convertIndex(int index) {
 	return NULL;
 }
 
-
 // FD: repeat the computation and flag if the index is out of bounds.
 bool StrandOrdering::convertIndexCheckBounds(int index) {
 
@@ -485,7 +469,7 @@ bool StrandOrdering::convertIndexCheckBounds(int index) {
 
 	for (cpos = 0, cstrand = 0, traverse = first; cstrand < count; cstrand++, traverse = traverse->next) {
 
-		if (index < cpos + traverse->size){ // index is into the current strand
+		if (index < cpos + traverse->size) { // index is into the current strand
 
 			return ((index - cpos) < 0);
 		}
@@ -496,8 +480,6 @@ bool StrandOrdering::convertIndexCheckBounds(int index) {
 	fprintf(stderr, "strandordering.cc, convertIndexCheckBounds: index out of bounds.\n");
 	return NULL;
 }
-
-
 
 // Used for delete moves to get the actual Open loop and location within which is to be joined.
 OpenLoop* StrandOrdering::getIndex(JoinCriteria& crit, int site, char **location, bool useArr) {
@@ -602,7 +584,6 @@ OpenLoop* StrandOrdering::getIndex(JoinCriteria& crit, int site, char **location
 
 					*location = traverse->thisLoop->getBase(type, *index, crit.half[site]);
 
-
 					return traverse->thisLoop;
 
 				} else {
@@ -693,14 +674,9 @@ StrandOrdering *StrandOrdering::breakOrdering(Loop *firstOldBreak, Loop *secondO
 		count = count - numitems;
 	}
 
-	if (seq != NULL) {
-		delete[] seq;
-		seq = NULL;
-	}
-	if (struc != NULL) {
-		delete[] struc;
-		struc = NULL;
-	}
+	seq.clear();
+	struc.clear();
+
 	if (strandnames != NULL) {
 		delete[] strandnames;
 		strandnames = NULL;
@@ -713,69 +689,48 @@ StrandOrdering *StrandOrdering::breakOrdering(Loop *firstOldBreak, Loop *secondO
 	return newOrdering;
 }
 
-char *StrandOrdering::getSequence(void) {
-	if (seq != NULL)
-		return seq;
+void StrandOrdering::setSeqStruc(void) {
 
-	int totallength = 0, index = 0, cpos = 0;
+	int totallength = 0, index = 0;
 	orderingList *traverse = first;
+
 	for (index = 0; index < count; index++, traverse = traverse->next)
 		totallength += traverse->size;
 	totallength += count - 1;
 	//  printf("Total sequence length w/breaks: %d\n",totallength);
 
-	seq = new char[totallength + 1];
-	struc = new char[totallength + 1];
+	for (index = 0, traverse = first; index < count; index++, traverse = traverse->next) {
 
-	for (index = 0, cpos = 0, traverse = first; index < count; index++, traverse = traverse->next) {
-		strncpy(&(seq[cpos]), traverse->thisSeq, traverse->size);
-		strncpy(&(struc[cpos]), traverse->thisStruct, traverse->size);
-
-		cpos += traverse->size;
+		seq.append(traverse->thisSeq, traverse->size);
+		struc.append(traverse->thisStruct, traverse->size);
 
 		if (index != count - 1) {
-			seq[cpos] = '+';
-			struc[cpos] = '+';
-			cpos++;
+			seq.append("+");
+			struc.append("+");
+
 		} else {
-			seq[cpos] = '\0';
-			struc[cpos] = '\0';
+			seq.append("\0");
+			struc.append("\0");
 		}
 	}
 
+}
+
+string& StrandOrdering::getSequence(void) {
+
+	if (!seq.empty())
+		return seq;
+
+	this->setSeqStruc();
 	return seq;
 }
 
-char *StrandOrdering::getStructure(void) {
-	if (struc != NULL)
+string& StrandOrdering::getStructure(void) {
+
+	if (!struc.empty())
 		return struc;
 
-	int totallength = 0, index = 0, cpos = 0;
-	orderingList *traverse = first;
-	for (index = 0; index < count; index++, traverse = traverse->next)
-		totallength += traverse->size;
-	totallength += count - 1;
-	//  printf("Total sequence length w/breaks: %d\n",totallength);
-
-	seq = new char[totallength + 1];
-	struc = new char[totallength + 1];
-
-	for (index = 0, cpos = 0, traverse = first; index < count; index++, traverse = traverse->next) {
-		strncpy(&(seq[cpos]), traverse->thisSeq, traverse->size);
-		strncpy(&(struc[cpos]), traverse->thisStruct, traverse->size);
-
-		cpos += traverse->size;
-
-		if (index != count - 1) {
-			seq[cpos] = '+';
-			struc[cpos] = '+';
-			cpos++;
-		} else {
-			seq[cpos] = '\0';
-			struc[cpos] = '\0';
-		}
-	}
-
+	this->setSeqStruc();
 	return struc;
 }
 
@@ -926,14 +881,9 @@ void StrandOrdering::addBasepair(char *first_bp, char *second_bp) {
 	assert(*id[0] == '.' && *id[1] == '.');
 	*id[0] = '(';
 	*id[1] = ')';
-	if (seq != NULL) {
-		delete[] seq;
-		seq = NULL;
-	}
-	if (struc != NULL) {
-		delete[] struc;
-		struc = NULL;
-	}
+
+	seq.clear();
+	struc.clear();
 
 	return;
 }
@@ -950,7 +900,7 @@ void StrandOrdering::breakBasepair(char *first_bp, char *second_bp) {
 
 	for (traverse = first; traverse != NULL; traverse = traverse->next, iflag = 0) {
 
-		traverse->thisLoop->openInfo.upToDate  = false;
+		traverse->thisLoop->openInfo.upToDate = false;
 
 		if (((first_bp - traverse->thisCodeSeq) < traverse->size) && ((first_bp - traverse->thisCodeSeq) >= 0)) {
 			if (id[0] == NULL)
@@ -977,14 +927,9 @@ void StrandOrdering::breakBasepair(char *first_bp, char *second_bp) {
 	assert((*id[0] == '(' && *id[1] == ')'));
 	*id[0] = '.';
 	*id[1] = '.';
-	if (seq != NULL) {
-		delete[] seq;
-		seq = NULL;
-	}
-	if (struc != NULL) {
-		delete[] struc;
-		struc = NULL;
-	}
+
+	seq.clear();
+	struc.clear();
 
 	return;
 }

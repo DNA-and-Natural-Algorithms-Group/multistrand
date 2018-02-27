@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2017 California Institute of Technology. All rights reserved.
-Multistrand nucleic acid kinetic simulator
-help@multistrand.org
-*/
+ Copyright (c) 2017 California Institute of Technology. All rights reserved.
+ Multistrand nucleic acid kinetic simulator
+ help@multistrand.org
+ */
 
 #ifndef __STRANDORDERING_H__
 #define __STRANDORDERING_H__
@@ -66,8 +66,9 @@ public:
 	OpenLoop* getIndex(JoinCriteria&, int, char **location, bool);
 
 	// i/o routines and accessors for strandcomplex
-	char *getSequence(void);
-	char *getStructure(void);
+	void setSeqStruc(void);
+	string& getSequence(void);
+	string& getStructure(void);
 	char *getStrandNames(void);
 	Loop *getLoop(void);
 	int getStrandCount(void);
@@ -89,8 +90,8 @@ public:
 	OpenInfo openInfo;
 
 private:
-	char* seq = NULL;
-	char* struc = NULL;
+	string seq = string();
+	string struc = string();
 	char* strandnames = NULL;
 
 	int count = 0;

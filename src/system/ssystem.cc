@@ -14,7 +14,6 @@
 #include <vector>
 #include <iostream>
 
-
 SimTimer::SimTimer(SimOptions& myOptions) {
 
 	maxsimtime = myOptions.getMaxSimTime();
@@ -23,7 +22,6 @@ SimTimer::SimTimer(SimOptions& myOptions) {
 
 	// saving the pointer to enable access to cotranscriptional timing values
 	simOptions = &myOptions;
-
 
 }
 
@@ -36,9 +34,9 @@ void SimTimer::advanceTime(void) {
 }
 
 // returns TRUE if a new nucleotide is to be added to the chain
-bool SimTimer::checkForNewNucleotide(void){
+bool SimTimer::checkForNewNucleotide(void) {
 
-	if ( simOptions->cotranscriptional && stime > (nuclAdded + simOptions->initialActiveNT) * simOptions->cotranscriptional_rate ){
+	if (simOptions->cotranscriptional && stime > (nuclAdded + simOptions->initialActiveNT) * simOptions->cotranscriptional_rate) {
 
 		nuclAdded++;
 		return true;
@@ -46,8 +44,6 @@ bool SimTimer::checkForNewNucleotide(void){
 
 	return false;
 }
-
-
 
 std::ostream& operator<<(std::ostream& ss, SimTimer& timer) {
 
@@ -58,8 +54,6 @@ std::ostream& operator<<(std::ostream& ss, SimTimer& timer) {
 
 	return ss;
 }
-
-
 
 SimulationSystem::SimulationSystem(PyObject *system_o) {
 
@@ -317,13 +311,11 @@ void SimulationSystem::SimulationLoop_Trajectory() {
 	SimTimer myTimer(*simOptions);
 	stopComplexes *traverse = NULL, *first = NULL;
 
-
 	bool stopFlag = false;
 	long current_state_count = 0;
 
 	complexList->initializeList();
 	myTimer.rate = complexList->getTotalFlux();
-
 
 	if (myTimer.stopoptions) {
 		if (myTimer.stopcount <= 0) {
@@ -622,13 +614,15 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 ///////////////////////////////////////////////////////////
 void SimulationSystem::dumpCurrentStateToPython(void) {
 	int id;
-	char *names, *sequence, *structure;
+	char *names;
+	string sequence, structure;
 	double energy, enthalpy;
 	SComplexListEntry *temp;
 	temp = complexList->getFirst();
 	while (temp != NULL) {
 		temp->dumpComplexEntryToPython(&id, &names, &sequence, &structure, &energy, &enthalpy);
-		printComplexStateLine(simOptions->getPythonSettings(), current_seed, id, names, sequence, structure, energy, enthalpy);
+		printComplexStateLine(simOptions->getPythonSettings(), current_seed, id, names, sequence.c_str(), structure.c_str(), energy, enthalpy);
+
 		temp = temp->next;
 	}
 }
@@ -687,7 +681,8 @@ void SimulationSystem::sendTransitionStateVectorToPython(boolvector transition_s
 
 void SimulationSystem::sendTrajectory_CurrentStateToPython(double current_time, int arrType) {
 	int id;
-	char *names, *sequence, *structure;
+	char *names;
+	string sequence, structure;
 	double energy, enthalpy;
 	SComplexListEntry *temp;
 
@@ -695,8 +690,7 @@ void SimulationSystem::sendTrajectory_CurrentStateToPython(double current_time, 
 	while (temp != NULL) {
 
 		temp->dumpComplexEntryToPython(&id, &names, &sequence, &structure, &energy, &enthalpy);
-
-		pushTrajectoryComplex(system_options, current_seed, id, names, sequence, structure, energy, enthalpy);
+		pushTrajectoryComplex(system_options, current_seed, id, names, sequence.c_str(), structure.c_str(), energy, enthalpy);
 
 		temp = temp->next;
 	}

@@ -103,7 +103,7 @@ string SComplexListEntry::toString(EnergyModel *em) {
 
 }
 
-void SComplexListEntry::dumpComplexEntryToPython(int *our_id, char **names, char **sequence, char **structure, double *our_energy, double *our_enthalpy) {
+void SComplexListEntry::dumpComplexEntryToPython(int *our_id, char **names, string* sequence, string* structure, double *our_energy, double *our_enthalpy) {
 
 	*our_id = id;
 	*names = thisComplex->getStrandNames();
@@ -810,7 +810,7 @@ bool SComplexList::checkStopComplexList_Structure_Disassoc(class complexItem *st
 			if (entry_traverse->thisComplex->checkIDList(traverse->strand_ids, id_count) > 0) {
 				// if the system complex being checked has the correct circular permutation of strand ids, continue with our checks, otherwise it doesn't match.
 				if (traverse->type == STOPTYPE_STRUCTURE) {
-					if (strcmp(entry_traverse->thisComplex->getStructure(), traverse->structure) == 0) {
+					if (strcmp(entry_traverse->thisComplex->getStructure().c_str(), traverse->structure) == 0) {
 						// if the structures match exactly, we have a successful match.
 						successflag = true;
 					}
@@ -818,10 +818,10 @@ bool SComplexList::checkStopComplexList_Structure_Disassoc(class complexItem *st
 					// for DISASSOC type checking, we only need the strand id lists to match correctly.
 					successflag = true;
 				} else if (traverse->type == STOPTYPE_LOOSE_STRUCTURE) {
-					successflag = checkLooseStructure(entry_traverse->thisComplex->getStructure(), traverse->structure, traverse->count);
+					successflag = checkLooseStructure(entry_traverse->thisComplex->getStructure().c_str(), traverse->structure, traverse->count);
 					// the structure matches loosely (see definitions)
 				} else if (traverse->type == STOPTYPE_PERCENT_OR_COUNT_STRUCTURE) {
-					successflag = checkCountStructure(entry_traverse->thisComplex->getStructure(), traverse->structure, traverse->count);
+					successflag = checkCountStructure(entry_traverse->thisComplex->getStructure().c_str(), traverse->structure, traverse->count);
 					// this structure matches to within a % of the correct base pairs, note that %'s are converted to raw base counts by the IO system.
 				}
 			}
@@ -845,7 +845,7 @@ bool SComplexList::checkStopComplexList_Structure_Disassoc(class complexItem *st
 
  */
 
-bool SComplexList::checkLooseStructure(char *our_struc, char *stop_struc, int count) {
+bool SComplexList::checkLooseStructure(const char *our_struc, const char *stop_struc, int count) {
 	int loop, len;
 	intvec our_pairs, stop_pairs;
 	int remaining_distance = count;
@@ -902,7 +902,7 @@ bool SComplexList::checkLooseStructure(char *our_struc, char *stop_struc, int co
 	return true;
 }
 
-bool SComplexList::checkCountStructure(char *our_struc, char *stop_struc, int count) {
+bool SComplexList::checkCountStructure(const char *our_struc, const char *stop_struc, int count) {
 
 	int loop, len;
 	intvec our_pairs, stop_pairs;
