@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2017 California Institute of Technology. All rights reserved.
-Multistrand nucleic acid kinetic simulator
-help@multistrand.org
-*/
+ Copyright (c) 2017 California Institute of Technology. All rights reserved.
+ Multistrand nucleic acid kinetic simulator
+ help@multistrand.org
+ */
 
 // Contains all move-related utility as a base-class.
 #ifndef __MOVEUTIL_H__
@@ -51,7 +51,8 @@ int typeMult(MoveType left, MoveType right);
 struct ExportData {
 
 	int id = 0;
-	char* names = NULL;
+//	char* names = NULL;
+	string names;
 	string sequence;
 	string structure;
 	double energy = 0.0;
@@ -60,11 +61,57 @@ struct ExportData {
 	bool operator==(const ExportData &other) const {
 		return (id == other.id && sequence == other.sequence && structure == other.structure);
 	}
+
+	void merge(ExportData& other);
+
+};
+
+inline std::ostream & operator<<(std::ostream& str, const ExportData& k) {
+
+	str << k.names + " ";
+	str << k.sequence + " ";
+	str << k.structure + " ";
+	str << std::to_string(k.energy) + " ";
+	str << std::to_string(k.enthalpy) + "\n";
+
+	return str;
+}
+
+struct StateData {
+
+	vector<ExportData> state;
+
+	bool operator==(const StateData &other) const {
+
+		if (state.size() != other.state.size()) {
+			return false;
+		}
+
+		auto itA = state.begin();
+		auto itB = other.state.begin();
+
+		while (itA != state.end() || itB != other.state.end()) {
+
+			if (!((*itA) == (*itB))) {
+
+				return false;
+
+			}
+
+			itA++;
+			itB++;
+
+		}
+
+		return true;
+
+	}
+
 };
 
 struct ExportDataHasher {
 
-	std::size_t operator()(const ExportData& k) const {
+	std::size_t operator()(const ExportData k) const {
 		using std::size_t;
 		using std::hash;
 
@@ -79,8 +126,6 @@ struct ExportDataHasher {
 	}
 
 };
-
-
 
 struct HalfContext {
 
@@ -135,6 +180,5 @@ public:
 	bool upToDate = false;
 
 };
-
 
 #endif

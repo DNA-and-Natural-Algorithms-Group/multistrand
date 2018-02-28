@@ -55,7 +55,7 @@ public:
 	Builder();
 	Builder(SimOptions* options);
 
-	void addState(ExportData);
+	void addState(ExportData&);
 	void writeToFile(void);
 
 private:

@@ -106,7 +106,7 @@ string SComplexListEntry::toString(EnergyModel *em) {
 void SComplexListEntry::dumpComplexEntryToPython(ExportData& data) {
 
 	data.id = id;
-	data.names = thisComplex->getStrandNames();
+	data.names =  string(thisComplex->getStrandNames());
 	data.sequence = thisComplex->getSequence();
 	data.structure = thisComplex->getStructure();
 	data.energy = energy;

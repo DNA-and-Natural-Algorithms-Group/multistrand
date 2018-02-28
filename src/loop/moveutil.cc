@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2017 California Institute of Technology. All rights reserved.
-Multistrand nucleic acid kinetic simulator
-help@multistrand.org
-*/
+ Copyright (c) 2017 California Institute of Technology. All rights reserved.
+ Multistrand nucleic acid kinetic simulator
+ help@multistrand.org
+ */
 
 #include <moveutil.h>
 #include <sequtil.h>
@@ -18,7 +18,6 @@ using std::vector;
 using std::map;
 using std::cout;
 using std::stringstream;
-
 
 std::string quartContextString[HALFCONTEXT_SIZE] = { "end", "loop", "stack" };
 
@@ -199,7 +198,6 @@ double OpenInfo::crossRate(OpenInfo& other, EnergyModel& eModel) {
 				MoveType left = moveutil::combineBi(top.left, bot.right);
 				MoveType right = moveutil::combineBi(top.right, bot.left);
 
-
 				double joinRate = eModel.applyPrefactors(eModel.getJoinRate(), left, right);
 
 				double rate = crossings * joinRate;
@@ -314,6 +312,34 @@ MoveType moveutil::combineBi(QuartContext & one, QuartContext & two) {
 
 }
 
+/*
+ * When multiple complexes are used, we merge the data by summing the energies
+ * and concatinating the string representations
+ */
+
+void ExportData::merge(ExportData& other) {
+
+	if (sequence.empty()) {
+
+		names = other.names;
+		sequence = other.sequence;
+		structure = other.structure;
+
+		energy = other.energy;
+		enthalpy = other.enthalpy;
+
+	} else {
+
+		names = names + " " + other.names;
+		sequence = sequence + " " + other.sequence;
+		structure = structure + " " + other.structure;
+
+		energy += other.energy;
+		enthalpy += other.enthalpy;
+
+	}
+
+}
 
 HalfContext::HalfContext() {
 
@@ -337,7 +363,7 @@ std::ostream & operator<<(std::ostream & os, HalfContext & m) {
 
 bool HalfContext::operator==(const HalfContext& other) const {
 
-	return ((left == other.left) && (right == other.right)) || ((left == other.right) && (right == other.left)) ;
+	return ((left == other.left) && (right == other.right)) || ((left == other.right) && (right == other.left));
 
 }
 

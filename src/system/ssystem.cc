@@ -227,7 +227,15 @@ void SimulationSystem::finalizeSimulation(void) {
 
 	}
 
+	if (simOptions->statespaceActive) {
+
+		cout << "writing statespace";
+		builder.writeToFile();
+
+	}
+
 	cout << flush;
+
 }
 
 void SimulationSystem::SimulationLoop_Standard(void) {
@@ -684,24 +692,28 @@ void SimulationSystem::sendTransitionStateVectorToPython(boolvector transition_s
 void SimulationSystem::sendTrajectory_CurrentStateToPython(double current_time, int arrType) {
 
 	ExportData data;
+	ExportData mergedData;
+
 	SComplexListEntry *temp = complexList->getFirst();
 
 	while (temp != NULL) {
 
 		temp->dumpComplexEntryToPython(data);
 
-		if (simOptions->statespaceActive) {
-
-			builder.addState(data);
-
-		} else {
-
-			pushTrajectoryComplex(system_options, current_seed, data);
-
-		}
+		pushTrajectoryComplex(system_options, current_seed, data);
 
 		temp = temp->next;
+
+		mergedData.merge(data);
+
 	}
+
+	// for now, keep exporting the state to the regular interface too.
+	if (simOptions->statespaceActive) {
+		builder.addState(mergedData);
+	}
+
+
 
 	pushTrajectoryInfo(system_options, current_time);
 	pushTrajectoryInfo2(system_options, arrType);
@@ -831,7 +843,7 @@ void SimulationSystem::printAllMoves() {
 
 	complexList->initializeList();
 
-	// also generate the half contexts
+// also generate the half contexts
 	complexList->updateOpenInfo();
 
 	complexList->printComplexList();
@@ -849,7 +861,7 @@ void SimulationSystem::InitialInfo(void) {
 
 	printAllMoves();
 
-	// print info on bimolecular rates
+// print info on bimolecular rates
 	double biRate = complexList->getJoinFlux();
 
 	cout << "\n";

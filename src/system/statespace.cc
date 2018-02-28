@@ -16,6 +16,9 @@
 #include <statespace.h>
 #include <simoptions.h>
 
+#include <iostream>
+#include <fstream>
+
 Builder::Builder(void) {
 
 }
@@ -27,9 +30,10 @@ Builder::Builder(SimOptions* options) {
 }
 
 // Put the statespace in memory
-//
+// Note: this copies the contents of the input.
+// Should use shared pointer to prevent this.
 
-void Builder::addState(ExportData data) {
+void Builder::addState(ExportData& data) {
 
 	protoSpace.insert(data);
 
@@ -39,7 +43,22 @@ void Builder::addState(ExportData data) {
 //
 void Builder::writeToFile(void) {
 
-	string filename = string(to_string(simOptions->getSeed()));
+	unordered_set<ExportData, ExportDataHasher>::iterator itr;
+
+	string filename = "protospace-" + string(to_string(simOptions->getSeed())) + ".txt";
+
+	std::ofstream myfile;
+	myfile.open(filename);
+
+	for (auto element : protoSpace) {
+
+		myfile << element;
+	}
+
+	myfile.close();
+
+	// now clear the map
+	protoSpace.clear();
 
 }
 
