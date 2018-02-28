@@ -129,8 +129,11 @@ help@multistrand.org
 #define printComplexStateLine( obj, seed, id, names, sequence, structure, energy, enthalpy ) \
   _m_pushList( obj, _m_prepComplexStateTuple( seed, id, names, sequence, structure, energy, enthalpy ), add_complex_state_line )
 
-#define pushTrajectoryComplex( obj, seed, id, names, sequence, structure, energy, enthalpy ) \
-  _m_pushList( obj, _m_prepComplexStateTuple( seed, id, names, sequence, structure, energy, enthalpy ), add_trajectory_complex )
+#define printComplexStateLine( obj, seed, data ) \
+  _m_pushList( obj, _m_prepComplexStateTuple( seed, data.id, data.names, data.sequence.c_str(), data.structure.c_str(), data.energy, data.enthalpy  ), add_complex_state_line )
+
+#define pushTrajectoryComplex( obj, seed, data ) \
+  _m_pushList( obj, _m_prepComplexStateTuple( seed, data.id, data.names, data.sequence.c_str(), data.structure.c_str(), data.energy, data.enthalpy ), add_trajectory_complex )
 
 #define pushTrajectoryInfo( obj, time ) \
   setDoubleAttr( obj, add_trajectory_current_time, time )

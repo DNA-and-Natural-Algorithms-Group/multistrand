@@ -8,28 +8,38 @@
  *  Created on: Feb 23, 2018
  *      Author: Frits Dannenberg
  *
- *      This class collects every visisted state, and transitions between visited states.
+ *      This class collects every visited state, and transitions between visited states.
  *      After the simulation is done, the set is exported to a text file.
  *
  */
 
 #include <statespace.h>
+#include <simoptions.h>
 
-Builder::Builder(SimOptions& options) {
-
-	simOptions = &options;
+Builder::Builder(void) {
 
 }
 
-// Write the statespaces to file and reset the hashmaps.
+Builder::Builder(SimOptions* options) {
+
+	simOptions = options;
+
+}
+
+// Put the statespace in memory
 //
-void addState(SComplexList* state, int arrType) {
+
+void Builder::addState(ExportData data) {
+
+	protoSpace.insert(data);
 
 }
 
 // Write the statespaces to file and reset the hashmaps.
 //
 void Builder::writeToFile(void) {
+
+	string filename = string(to_string(simOptions->getSeed()));
 
 }
 

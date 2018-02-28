@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2017 California Institute of Technology. All rights reserved.
-Multistrand nucleic acid kinetic simulator
-help@multistrand.org
-*/
+ Copyright (c) 2017 California Institute of Technology. All rights reserved.
+ Multistrand nucleic acid kinetic simulator
+ help@multistrand.org
+ */
 
 /* SimulationSystem class header. This is the main object which controls the entire simulated system. */
 
@@ -16,15 +16,17 @@ help@multistrand.org
 
 #include "energymodel.h"
 #include "scomplexlist.h"
+#include "statespace.h"
+#include "moveutil.h"
 
 typedef std::vector<bool> boolvector;
 typedef std::vector<bool>::iterator boolvector_iterator;
 
-// structs
+
 
 
 // Some simulation datapoints
-class SimTimer{
+class SimTimer {
 
 public:
 	SimTimer(SimOptions& myOptions);
@@ -48,10 +50,7 @@ private:
 
 	SimOptions* simOptions = NULL;
 
-
 };
-
-
 
 class SimulationSystem {
 public:
@@ -119,6 +118,8 @@ private:
 	int noInitialMoves = 0;
 	int timeOut = 0;
 
+	// A builder object that is only used if export is toggled
+	Builder builder;
 
 };
 

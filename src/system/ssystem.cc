@@ -7,6 +7,7 @@
 #include "options.h"
 #include "ssystem.h"
 #include "simoptions.h"
+#include "statespace.h"
 
 #include <string.h>
 #include <time.h>
@@ -95,6 +96,8 @@ void SimulationSystem::construct(void) {
 	// move these to sim_settings
 	exportStatesInterval = (simOptions->getOInterval() >= 0);
 	exportStatesTime = (simOptions->getOTime() >= 0);
+
+	builder = Builder(simOptions);
 
 }
 
@@ -613,15 +616,14 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 // Helper function to send current state to python side. //
 ///////////////////////////////////////////////////////////
 void SimulationSystem::dumpCurrentStateToPython(void) {
-	int id;
-	char *names;
-	string sequence, structure;
-	double energy, enthalpy;
-	SComplexListEntry *temp;
-	temp = complexList->getFirst();
+
+	SComplexListEntry *temp = complexList->getFirst();
+	ExportData data;
+
 	while (temp != NULL) {
-		temp->dumpComplexEntryToPython(&id, &names, &sequence, &structure, &energy, &enthalpy);
-		printComplexStateLine(simOptions->getPythonSettings(), current_seed, id, names, sequence.c_str(), structure.c_str(), energy, enthalpy);
+
+		temp->dumpComplexEntryToPython(data);
+		printComplexStateLine(simOptions->getPythonSettings(), current_seed, data);
 
 		temp = temp->next;
 	}
@@ -680,17 +682,23 @@ void SimulationSystem::sendTransitionStateVectorToPython(boolvector transition_s
 ///////////////////////////////////////////////////////////
 
 void SimulationSystem::sendTrajectory_CurrentStateToPython(double current_time, int arrType) {
-	int id;
-	char *names;
-	string sequence, structure;
-	double energy, enthalpy;
-	SComplexListEntry *temp;
 
-	temp = complexList->getFirst();
+	ExportData data;
+	SComplexListEntry *temp = complexList->getFirst();
+
 	while (temp != NULL) {
 
-		temp->dumpComplexEntryToPython(&id, &names, &sequence, &structure, &energy, &enthalpy);
-		pushTrajectoryComplex(system_options, current_seed, id, names, sequence.c_str(), structure.c_str(), energy, enthalpy);
+		temp->dumpComplexEntryToPython(data);
+
+		if (simOptions->statespaceActive) {
+
+			builder.addState(data);
+
+		} else {
+
+			pushTrajectoryComplex(system_options, current_seed, data);
+
+		}
 
 		temp = temp->next;
 	}
@@ -744,7 +752,7 @@ void SimulationSystem::InitializeRNG(void) {
 	FILE *fp = NULL;
 
 	if (simOptions->useFixedRandomSeed()) {
-		current_seed = simOptions->getInitialSeed();
+		current_seed = simOptions->getSeed();
 	} else {
 		if ((fp = fopen("/dev/urandom", "r")) != NULL) { // if urandom exists, use it to provide a seed
 			long deviceseed;

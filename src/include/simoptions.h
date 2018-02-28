@@ -47,7 +47,7 @@ public:
 
 	// Non-virtual
 	bool useFixedRandomSeed();
-	long getInitialSeed();
+	long getSeed();
 	EnergyOptions* getEnergyOptions();
 	long getSimulationMode();
 	long getSimulationCount();
@@ -87,6 +87,7 @@ public:
 	vector<complex_input>* myComplexes = NULL;
 	EnergyOptions* energyOptions = NULL;
 
+	const bool statespaceActive = false;
 
 protected:
 

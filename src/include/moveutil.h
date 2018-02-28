@@ -47,6 +47,41 @@ int typeMult(MoveType left, MoveType right);
 
 // UTILITY STRUCTS
 
+// structs
+struct ExportData {
+
+	int id = 0;
+	char* names = NULL;
+	string sequence;
+	string structure;
+	double energy = 0.0;
+	double enthalpy = 0.0;
+
+	bool operator==(const ExportData &other) const {
+		return (id == other.id && sequence == other.sequence && structure == other.structure);
+	}
+};
+
+struct ExportDataHasher {
+
+	std::size_t operator()(const ExportData& k) const {
+		using std::size_t;
+		using std::hash;
+
+		// Compute individual hash values for first, second and third
+		// https://stackoverflow.com/questions/17016175/c-unordered-map-using-a-custom-class-type-as-the-key
+		size_t res = 17;
+		res = res * 31 + hash<string>()(k.sequence);
+		res = res * 31 + hash<string>()(k.structure);
+		res = res * 31 + hash<int>()(k.id);
+		return res;
+
+	}
+
+};
+
+
+
 struct HalfContext {
 
 	HalfContext();

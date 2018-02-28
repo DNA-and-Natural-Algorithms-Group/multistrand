@@ -21,6 +21,7 @@ sources = ["src/system/utility.cc",
            "src/energymodel/energymodel.cc",
            "src/state/scomplex.cc",
            "src/state/scomplexlist.cc",
+           "src/system/statespace.cc",
            "src/system/simoptions.cc",
            "src/system/ssystem.cc",
            "src/state/strandordering.cc"

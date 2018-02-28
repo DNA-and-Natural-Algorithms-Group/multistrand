@@ -126,7 +126,7 @@ bool SimOptions::useFixedRandomSeed() {
 
 }
 
-long SimOptions::getInitialSeed() {
+long SimOptions::getSeed() {
 
 	return seed;
 

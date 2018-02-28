@@ -103,18 +103,17 @@ string SComplexListEntry::toString(EnergyModel *em) {
 
 }
 
-void SComplexListEntry::dumpComplexEntryToPython(int *our_id, char **names, string* sequence, string* structure, double *our_energy, double *our_enthalpy) {
+void SComplexListEntry::dumpComplexEntryToPython(ExportData& data) {
 
-	*our_id = id;
-	*names = thisComplex->getStrandNames();
-	*sequence = thisComplex->getSequence();
-	*structure = thisComplex->getStructure();
-	*our_energy = energy;
-
-	// now also compute enthalpy
-	*our_enthalpy = thisComplex->getEnthalpy();
+	data.id = id;
+	data.names = thisComplex->getStrandNames();
+	data.sequence = thisComplex->getSequence();
+	data.structure = thisComplex->getStructure();
+	data.energy = energy;
+	data.enthalpy = thisComplex->getEnthalpy();
 
 }
+
 
 ///////////////////////////////////////////////////////////////////////
 //                                                                   //
