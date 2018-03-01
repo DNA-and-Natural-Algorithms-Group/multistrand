@@ -56,11 +56,39 @@ void Builder::addState(ExportData& data, int arrType) {
 
 }
 
+// export the final state to the appropriate map.
+void Builder::stopResultNormal(double endtime, string tag) {
+
+	if (lastState.complex_count > 0) {
+
+		auto element = protoFinalStates.find(lastState);
+
+		if (element == protoFinalStates.end()) {
+
+			ExportFinal newEntry = ExportFinal();
+			newEntry.tag = tag;
+			newEntry.observation_count++;
+
+			protoFinalStates[std::move(lastState)] = std::move(newEntry);
+
+		} else {
+
+			(*element).second.observation_count++;
+
+		}
+
+	}
+
+	// now wipe the last state because we have moved the contents
+	lastState = ExportData();
+
+}
+
 // Write the statespaces to file and reset the hashmaps.
 //
 void Builder::writeToFile(void) {
 
-	// states
+// states
 
 	unordered_set<ExportData>::iterator itr;
 	string filename = "protospace-" + string(to_string(simOptions->getSeed())) + ".txt";
@@ -75,10 +103,24 @@ void Builder::writeToFile(void) {
 
 	myfile.close();
 
-	// now clear the map
+// final states
+
+	filename = "protofinalstates-" + string(to_string(simOptions->getSeed())) + ".txt";
+	myfile.open(filename);
+
+	for (auto element : protoFinalStates) {
+
+		myfile << element.first;
+		myfile << element.second;
+
+	}
+
+	myfile.close();
+
+// now clear the map
 	protoSpace.clear();
 
-	// transitions
+// transitions
 
 	filename = "prototransitions-" + string(to_string(simOptions->getSeed())) + ".txt";
 	myfile.open(filename);

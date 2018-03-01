@@ -66,26 +66,30 @@ struct ExportData {
 
 	void merge(ExportData& other);
 
-	friend std::ostream & operator<<(std::ostream& str, const ExportData& k) ;
+	friend std::ostream & operator<<(std::ostream& str, const ExportData& k);
 
 };
 
+struct ExportFinal {
 
+	string tag;
+	int observation_count = 0;
 
+	friend std::ostream& operator<<(std::ostream& str, const ExportFinal& k);
+
+};
 
 struct ExportTransition {
 
 	ExportData state1, state2;
 	size_t type;
 
-
 	bool operator==(const ExportTransition &other) const {
 		return (type == other.type && state1 == other.state1 && state2 == other.state2);
 	}
 
-	friend std::ostream & operator<<(std::ostream& str, const ExportTransition& k) ;
+	friend std::ostream & operator<<(std::ostream& str, const ExportTransition& k);
 };
-
 
 namespace std {
 
@@ -103,7 +107,6 @@ template<> struct hash<ExportData> {
 	}
 };
 
-
 template<> struct hash<ExportTransition> {
 	size_t operator()(const ExportTransition& k) const {
 
@@ -118,9 +121,7 @@ template<> struct hash<ExportTransition> {
 	}
 };
 
-
 }
-
 
 struct HalfContext {
 

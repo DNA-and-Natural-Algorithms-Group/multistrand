@@ -386,6 +386,8 @@ void SimulationSystem::SimulationLoop_Trajectory() {
 	} else if (stopFlag) {
 
 		simOptions->stopResultNormal(current_seed, myTimer.stime, traverse->tag);
+		// now export the tag to the builder as well
+		builder.stopResultNormal(myTimer.stime, string(traverse->tag));
 
 	} else {
 

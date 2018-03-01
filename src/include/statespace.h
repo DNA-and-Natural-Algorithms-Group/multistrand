@@ -24,6 +24,7 @@
 using std::unordered_map;
 using std::unordered_set;
 
+
 class SimOptions;
 
 /*
@@ -44,6 +45,7 @@ public:
 	Builder(SimOptions* options);
 
 	void addState(ExportData&, int arrType);
+	void stopResultNormal(double, string);
 	void writeToFile(void);
 
 	ExportData lastState;
@@ -54,6 +56,8 @@ private:
 
 	unordered_set<ExportData> protoSpace;
 	unordered_set<ExportTransition> protoTransitions;
+
+	unordered_map<ExportData, ExportFinal> protoFinalStates;
 
 };
 

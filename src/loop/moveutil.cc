@@ -358,6 +358,15 @@ std::ostream& operator<<(std::ostream& str, const ExportData& k) {
 	return str;
 }
 
+std::ostream& operator<<(std::ostream& str, const ExportFinal& k) {
+
+	str << k.tag << " ";
+	str << std::to_string(k.observation_count) << "\n";
+
+	return str;
+
+}
+
 std::ostream& operator<<(std::ostream& str, const ExportTransition& k) {
 
 	str << std::to_string(k.type) << "\n";
