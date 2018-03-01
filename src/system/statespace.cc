@@ -37,14 +37,29 @@ void Builder::addState(ExportData& data) {
 
 	protoSpace.insert(data);
 
+	// also record the transition itself.
+	if (lastState.complex_count > 0) {
+
+		ExportTransition trans;
+		trans.state1 = lastState;
+		trans.state2 = data;
+		trans.type = 99;
+
+		protoTransitions.insert(trans);
+
+	}
+
+	lastState = data;
+
 }
 
 // Write the statespaces to file and reset the hashmaps.
 //
 void Builder::writeToFile(void) {
 
-	unordered_set<ExportData, ExportDataHasher>::iterator itr;
+	// states
 
+	unordered_set<ExportData>::iterator itr;
 	string filename = "protospace-" + string(to_string(simOptions->getSeed())) + ".txt";
 
 	std::ofstream myfile;
@@ -59,6 +74,23 @@ void Builder::writeToFile(void) {
 
 	// now clear the map
 	protoSpace.clear();
+
+
+	// transitions
+
+	filename = "prototransitions-" + string(to_string(simOptions->getSeed())) + ".txt";
+	myfile.open(filename);
+
+	for (auto element : protoTransitions) {
+
+		myfile << element;
+
+	}
+
+	myfile.close();
+
+
+
 
 }
 

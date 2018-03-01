@@ -51,12 +51,14 @@ int typeMult(MoveType left, MoveType right);
 struct ExportData {
 
 	int id = 0;
-//	char* names = NULL;
 	string names;
 	string sequence;
 	string structure;
 	double energy = 0.0;
 	double enthalpy = 0.0;
+
+	// describes the number of complexes in this representation.
+	uint8_t complex_count = 0;
 
 	bool operator==(const ExportData &other) const {
 		return (id == other.id && sequence == other.sequence && structure == other.structure);
@@ -64,56 +66,32 @@ struct ExportData {
 
 	void merge(ExportData& other);
 
+	friend std::ostream & operator<<(std::ostream& str, const ExportData& k) ;
+
 };
 
-inline std::ostream & operator<<(std::ostream& str, const ExportData& k) {
 
-	str << k.names + " ";
-	str << k.sequence + " ";
-	str << k.structure + " ";
-	str << std::to_string(k.energy) + " ";
-	str << std::to_string(k.enthalpy) + "\n";
 
-	return str;
-}
 
-struct StateData {
+struct ExportTransition {
 
-	vector<ExportData> state;
 
-	bool operator==(const StateData &other) const {
+	ExportData state1, state2;
+	size_t type;
 
-		if (state.size() != other.state.size()) {
-			return false;
-		}
 
-		auto itA = state.begin();
-		auto itB = other.state.begin();
-
-		while (itA != state.end() || itB != other.state.end()) {
-
-			if (!((*itA) == (*itB))) {
-
-				return false;
-
-			}
-
-			itA++;
-			itB++;
-
-		}
-
-		return true;
-
+	bool operator==(const ExportTransition &other) const {
+		return (type == other.type && state1 == other.state1 && state2 == other.state2);
 	}
 
+	friend std::ostream & operator<<(std::ostream& str, const ExportTransition& k) ;
 };
 
-struct ExportDataHasher {
 
-	std::size_t operator()(const ExportData k) const {
-		using std::size_t;
-		using std::hash;
+namespace std {
+
+template<> struct hash<ExportData> {
+	size_t operator()(const ExportData& k) const {
 
 		// Compute individual hash values for first, second and third
 		// https://stackoverflow.com/questions/17016175/c-unordered-map-using-a-custom-class-type-as-the-key
@@ -124,8 +102,26 @@ struct ExportDataHasher {
 		return res;
 
 	}
-
 };
+
+
+template<> struct hash<ExportTransition> {
+	size_t operator()(const ExportTransition& k) const {
+
+		// Compute individual hash values for first, second and third
+		// https://stackoverflow.com/questions/17016175/c-unordered-map-using-a-custom-class-type-as-the-key
+		size_t res = 17;
+		res = res * 31 + hash<ExportData>()(k.state1);
+		res = res * 31 + hash<ExportData>()(k.state2);
+		res = res * 31 + hash<int>()(k.type);
+		return res;
+
+	}
+};
+
+
+}
+
 
 struct HalfContext {
 

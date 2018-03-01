@@ -723,8 +723,8 @@ void SimulationSystem::sendTrajectory_CurrentStateToPython(double current_time, 
 // FD: OK to have alternate_start = NULL
 int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
 
-	class StrandComplex *tempcomplex;
-	class identList *id;
+	StrandComplex *tempcomplex;
+	identList *id;
 
 	simOptions->generateComplexes(alternate_start, current_seed);
 

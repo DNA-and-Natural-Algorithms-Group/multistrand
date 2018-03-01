@@ -24,24 +24,12 @@
 using std::unordered_map;
 using std::unordered_set;
 
-
 class SimOptions;
 
-
-struct ExportTransition {
-
-	ExportData state1, state2;
-
-};
-
-
-
 /*
- *		key: states. Value: energy
- * 		self.protoSpace = dict()
+ * 		protoSpace : map with states as entries
  *
- *		key: transitions. Value: ArrheniusType (negative if it is a bimolecular transition)
- *		self.protoTransitions = dict()
+ *		protoTransitions: map with transitions as entries
  *
  *		key: states. Value: a initCountFlux object that tells how many times the state has been the initial state and the join flux (rate)
  *		self.protoInitialStates = dict()
@@ -63,11 +51,9 @@ private:
 	ExportData lastState;
 	SimOptions* simOptions = NULL;
 
-	unordered_set<ExportData,  ExportDataHasher> protoSpace;
-//	unordered_map<transition, double> protoTransitions;
-
+	unordered_set<ExportData> protoSpace;
+	unordered_set<ExportTransition> protoTransitions;
 
 };
-
 
 #endif

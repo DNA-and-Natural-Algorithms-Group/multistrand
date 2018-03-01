@@ -19,6 +19,9 @@ using std::map;
 using std::cout;
 using std::stringstream;
 
+using std::size_t;
+using std::hash;
+
 std::string quartContextString[HALFCONTEXT_SIZE] = { "end", "loop", "stack" };
 
 int moveutil::typeMult(MoveType left, MoveType right) {
@@ -339,6 +342,29 @@ void ExportData::merge(ExportData& other) {
 
 	}
 
+	complex_count++;
+
+}
+
+std::ostream& operator<<(std::ostream& str, const ExportData& k) {
+
+	str << std::to_string(k.complex_count) << " ";
+	str << k.names << " ";
+	str << k.sequence << " ";
+	str << k.structure << " ";
+	str << std::to_string(k.energy) << " ";
+	str << std::to_string(k.enthalpy) << "\n";
+
+	return str;
+}
+
+std::ostream& operator<<(std::ostream& str, const ExportTransition& k) {
+
+	str << std::to_string(k.type) << "\n";
+	str << k.state1;
+	str << k.state2 << "\n";
+
+	return str;
 }
 
 HalfContext::HalfContext() {
