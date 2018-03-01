@@ -43,12 +43,13 @@ public:
 	Builder();
 	Builder(SimOptions* options);
 
-	void addState(ExportData&);
+	void addState(ExportData&, int arrType);
 	void writeToFile(void);
+
+	ExportData lastState;
 
 private:
 
-	ExportData lastState;
 	SimOptions* simOptions = NULL;
 
 	unordered_set<ExportData> protoSpace;

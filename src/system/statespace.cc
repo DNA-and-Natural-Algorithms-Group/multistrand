@@ -31,9 +31,12 @@ Builder::Builder(SimOptions* options) {
 
 // Put the statespace in memory
 // Note: this copies the contents of the input.
-// Should use shared pointer to prevent this.
+// Could use shared pointer to prevent this,
+// but statespace building will only be used during inference anyhow.
+// also note the copy only occurs if the state / transition is not found already
+// this is a relatively rare event for a typicall simulation.
 
-void Builder::addState(ExportData& data) {
+void Builder::addState(ExportData& data, int arrType) {
 
 	protoSpace.insert(data);
 
@@ -43,9 +46,9 @@ void Builder::addState(ExportData& data) {
 		ExportTransition trans;
 		trans.state1 = lastState;
 		trans.state2 = data;
-		trans.type = 99;
+		trans.type = arrType;
 
-		protoTransitions.insert(trans);
+		protoTransitions.insert(std::move(trans));
 
 	}
 
@@ -75,7 +78,6 @@ void Builder::writeToFile(void) {
 	// now clear the map
 	protoSpace.clear();
 
-
 	// transitions
 
 	filename = "prototransitions-" + string(to_string(simOptions->getSeed())) + ".txt";
@@ -88,9 +90,6 @@ void Builder::writeToFile(void) {
 	}
 
 	myfile.close();
-
-
-
 
 }
 

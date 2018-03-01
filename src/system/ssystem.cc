@@ -212,6 +212,10 @@ void SimulationSystem::finalizeRun(void) {
 	pingAttr(system_options, increment_trajectory_count);
 
 	generateNextRandom();
+
+	// also ensure the builder does not remember the previous state
+	builder.lastState = ExportData();
+
 }
 
 void SimulationSystem::finalizeSimulation(void) {
@@ -710,10 +714,8 @@ void SimulationSystem::sendTrajectory_CurrentStateToPython(double current_time, 
 
 	// for now, keep exporting the state to the regular interface too.
 	if (simOptions->statespaceActive) {
-		builder.addState(mergedData);
+		builder.addState(mergedData, arrType);
 	}
-
-
 
 	pushTrajectoryInfo(system_options, current_time);
 	pushTrajectoryInfo2(system_options, arrType);

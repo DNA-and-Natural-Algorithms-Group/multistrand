@@ -75,7 +75,6 @@ struct ExportData {
 
 struct ExportTransition {
 
-
 	ExportData state1, state2;
 	size_t type;
 
