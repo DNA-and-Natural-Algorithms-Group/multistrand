@@ -36,7 +36,7 @@ Builder::Builder(SimOptions* options) {
 // also note the copy only occurs if the state / transition is not found already
 // this is a relatively rare event for a typicall simulation.
 
-void Builder::addState(ExportData& data, int arrType) {
+void Builder::addState(ExportData& data, const double arrType) {
 
 	protoSpace.insert(data);
 
@@ -50,9 +50,27 @@ void Builder::addState(ExportData& data, int arrType) {
 
 		protoTransitions.insert(std::move(trans));
 
+	} else { // set the initial state
+
+		auto element = protoInitialStates.find(data);
+
+		if (element == protoInitialStates.end()) {
+
+			ExportInitial newEntry = ExportInitial();
+			newEntry.join_rate = arrType; // overloading arrType to be join rate
+			newEntry.observation_count++;
+
+			protoInitialStates[data] = std::move(newEntry);
+
+		} else {
+
+			(*element).second.observation_count++;
+
+		}
+
 	}
 
-	lastState = data;
+	lastState = std::move(data);
 
 }
 
@@ -84,17 +102,25 @@ void Builder::stopResultNormal(double endtime, string tag) {
 
 }
 
+string Builder::filename(string input) {
+
+	return string(to_string(simOptions->getSeed())) + "/" + input + ".txt";
+
+}
+
 // Write the statespaces to file and reset the hashmaps.
 //
 void Builder::writeToFile(void) {
 
-// states
+	// create dir
+	// system call to create a directory  TODO fix this to use experimental/filesystem
+	system((string("mkdir -p ") + to_string(simOptions->getSeed())).c_str());
 
+	// states
 	unordered_set<ExportData>::iterator itr;
-	string filename = "protospace-" + string(to_string(simOptions->getSeed())) + ".txt";
 
 	std::ofstream myfile;
-	myfile.open(filename);
+	myfile.open(filename("protospace"));
 
 	for (auto element : protoSpace) {
 
@@ -103,10 +129,31 @@ void Builder::writeToFile(void) {
 
 	myfile.close();
 
-// final states
+	// transitions
+	myfile.open(filename("prototransitions"));
 
-	filename = "protofinalstates-" + string(to_string(simOptions->getSeed())) + ".txt";
-	myfile.open(filename);
+	for (auto element : protoTransitions) {
+
+		myfile << element;
+
+	}
+
+	myfile.close();
+
+	// init
+	myfile.open(filename("protoinitialstates"));
+
+	for (auto element : protoInitialStates) {
+
+		myfile << element.first;
+		myfile << element.second;
+
+	}
+
+	myfile.close();
+
+	// final states
+	myfile.open(filename("protofinalstates"));
 
 	for (auto element : protoFinalStates) {
 
@@ -117,21 +164,11 @@ void Builder::writeToFile(void) {
 
 	myfile.close();
 
-// now clear the map
+	// now clear the maps
 	protoSpace.clear();
-
-// transitions
-
-	filename = "prototransitions-" + string(to_string(simOptions->getSeed())) + ".txt";
-	myfile.open(filename);
-
-	for (auto element : protoTransitions) {
-
-		myfile << element;
-
-	}
-
-	myfile.close();
+	protoTransitions.clear();
+	protoFinalStates.clear();
+	protoInitialStates.clear();
 
 }
 

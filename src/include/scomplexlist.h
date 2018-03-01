@@ -43,11 +43,11 @@ public:
 	double *getEnergy(int volume_flag);
 	void printComplexList();
 	SComplexListEntry *getFirst(void);
-	int doBasicChoice(SimTimer& timer);
+	double doBasicChoice(SimTimer& timer);
 	JoinCriteria cycleForJoinChoice(double choice);
 	JoinCriteria cycleForJoinChoiceArr(double choice);
 	JoinCriteria findJoinNucleotides(BaseType, int, BaseCount&, SComplexListEntry*, HalfContext* = NULL);
-	int doJoinChoice(double choice);
+	double doJoinChoice(double choice);
 	void doJoinChoiceArr(double choice);
 	bool checkStopComplexList(class complexItem *stoplist);
 	string toString(void);

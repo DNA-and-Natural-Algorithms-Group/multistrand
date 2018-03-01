@@ -36,7 +36,7 @@ const static double valuesPrime[MOVETYPE_SIZE + 1] = { 3, 5, 7, 11, 13, 17, 19, 
 const static string MoveToString[MOVETYPE_SIZE] = { "End", "Loop", "Stack", "StackStack", "LoopEnd", "StackEnd", "StackLoop" };
 const static string MoveToString2[MOVETYPE_SIZE] = { "       ", "      ", "     ", "", "   ", "  ", " " };
 
-int getPrimeCode(MoveType, MoveType);
+double getPrimeCode(MoveType, MoveType);
 string primeToDesc(int);
 
 QuartContext getContext(char input);
@@ -70,6 +70,15 @@ struct ExportData {
 
 };
 
+struct ExportInitial{
+
+	double join_rate = 0.0;
+	int observation_count = 0;
+
+	friend std::ostream& operator<<(std::ostream& str, const ExportInitial& k);
+
+};
+
 struct ExportFinal {
 
 	string tag;
@@ -82,7 +91,7 @@ struct ExportFinal {
 struct ExportTransition {
 
 	ExportData state1, state2;
-	size_t type;
+	double type;
 
 	bool operator==(const ExportTransition &other) const {
 		return (type == other.type && state1 == other.state1 && state2 == other.state2);
@@ -147,7 +156,7 @@ struct JoinCriteria {
 
 	// arrhenius rates only
 	HalfContext half[2] = { HalfContext(), HalfContext() };
-	int arrType = 0; // used for returning the chosen movetype.
+	double arrType = 0.0; // used for returning the chosen movetype.
 
 };
 

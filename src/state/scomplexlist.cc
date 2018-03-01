@@ -106,14 +106,13 @@ string SComplexListEntry::toString(EnergyModel *em) {
 void SComplexListEntry::dumpComplexEntryToPython(ExportData& data) {
 
 	data.id = id;
-	data.names =  string(thisComplex->getStrandNames());
+	data.names = string(thisComplex->getStrandNames());
 	data.sequence = thisComplex->getSequence();
 	data.structure = thisComplex->getStructure();
 	data.energy = energy;
 	data.enthalpy = thisComplex->getEnthalpy();
 
 }
-
 
 ///////////////////////////////////////////////////////////////////////
 //                                                                   //
@@ -397,12 +396,12 @@ int SComplexList::getCount(void) {
 	return numOfComplexes;
 }
 
-int SComplexList::doBasicChoice(SimTimer& myTimer) {
+double SComplexList::doBasicChoice(SimTimer& myTimer) {
 
 	SComplexListEntry *temp, *temp2 = first;
 	StrandComplex* newComplex = NULL;
 	Move *tempmove;
-	int arrType;
+	double arrType;
 
 	if (utility::debugTraces) {
 
@@ -476,7 +475,7 @@ int SComplexList::doBasicChoice(SimTimer& myTimer) {
  SComplexList::doJoinChoice( double choice )
  */
 
-int SComplexList::doJoinChoice(double choice) {
+double SComplexList::doJoinChoice(double choice) {
 
 	// this function will return the arrType move;
 
@@ -502,8 +501,9 @@ int SComplexList::doJoinChoice(double choice) {
 
 	// before we do anything, print crit (this is for debugging!)
 	if (utility::debugTraces) {
+//	if (true) {
 		cout << "Found a criteria to join: \n";
-		cout << crit;
+		cout << crit.arrType;
 	}
 
 	assert(crit.complexes[0]!=NULL);
@@ -662,7 +662,7 @@ JoinCriteria SComplexList::cycleForJoinChoiceArr(double choice) {
 									crit.half[0] = ton.first;
 									crit.half[1] = con.first;
 
-									crit.arrType = moveutil::getPrimeCode(left, right);
+									crit.arrType = (double) moveutil::getPrimeCode(left, right);
 
 									return crit;
 

@@ -17,13 +17,14 @@
 
 //#include <simoptions.h>
 #include <scomplexlist.h>
-
+//#include <experimental/filesystem>
 #include <unordered_map>
 #include <unordered_set>
 
 using std::unordered_map;
 using std::unordered_set;
 
+//namespace fs = std::experimental::filesystem;
 
 class SimOptions;
 
@@ -35,7 +36,7 @@ class SimOptions;
  *		key: states. Value: a initCountFlux object that tells how many times the state has been the initial state and the join flux (rate)
  *		self.protoInitialStates = dict()
  *
- *		key: states: Value: the result of this final state can be SUCCES or FAILURE
+ *		key: states: Value: the result of this final state is typically SUCCES or FAILURE (tag)
  *		self.protoFinalStates = dict()
  */
 class Builder {
@@ -44,9 +45,10 @@ public:
 	Builder();
 	Builder(SimOptions* options);
 
-	void addState(ExportData&, int arrType);
+	void addState(ExportData&, const double arrType);
 	void stopResultNormal(double, string);
 	void writeToFile(void);
+	string filename(string);
 
 	ExportData lastState;
 
@@ -58,6 +60,7 @@ private:
 	unordered_set<ExportTransition> protoTransitions;
 
 	unordered_map<ExportData, ExportFinal> protoFinalStates;
+	unordered_map<ExportData, ExportInitial> protoInitialStates;
 
 };
 

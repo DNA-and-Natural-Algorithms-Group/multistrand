@@ -358,7 +358,7 @@ void SimulationSystem::SimulationLoop_Trajectory() {
 			exportTime(myTimer.stime, myTimer.last_trajectory_time);
 		}
 
-		int ArrMoveType = complexList->doBasicChoice(myTimer);
+		double ArrMoveType = complexList->doBasicChoice(myTimer);
 		myTimer.rate = complexList->getTotalFlux();
 		current_state_count += 1;
 
@@ -695,7 +695,7 @@ void SimulationSystem::sendTransitionStateVectorToPython(boolvector transition_s
 // Helper function to send current state to python side. //
 ///////////////////////////////////////////////////////////
 
-void SimulationSystem::sendTrajectory_CurrentStateToPython(double current_time, int arrType) {
+void SimulationSystem::sendTrajectory_CurrentStateToPython(double current_time, double arrType) {
 
 	ExportData data;
 	ExportData mergedData;
@@ -833,7 +833,7 @@ void SimulationSystem::exportTime(double& simTime, double& lastExportTime) {
 
 }
 
-void SimulationSystem::exportInterval(double simTime, int transitionCount, int arrType) {
+void SimulationSystem::exportInterval(double simTime, int transitionCount, double arrType) {
 
 	if ((transitionCount % simOptions->getOInterval()) == 0) {
 

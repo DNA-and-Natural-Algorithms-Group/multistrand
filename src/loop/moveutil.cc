@@ -44,7 +44,7 @@ QuartContext moveutil::getContext(char input) {
 
 }
 
-int moveutil::getPrimeCode(MoveType left, MoveType right) {
+double moveutil::getPrimeCode(MoveType left, MoveType right) {
 
 	return valuesPrime[left] * valuesPrime[right];
 
@@ -227,6 +227,7 @@ std::ostream & operator<<(std::ostream & ss, JoinCriteria & m) {
 
 	ss << " criteria \n";
 
+	ss << "arrType = " << m.arrType;
 	ss << "Types = " << (int) m.types[0] << " " << (int) m.types[1] << "\n";
 	ss << "Index = " << m.index[0] << " " << m.index[1] << " \n";
 	ss << "Half = " << m.half[0] << " " << m.half[1] << "\n";
@@ -356,6 +357,15 @@ std::ostream& operator<<(std::ostream& str, const ExportData& k) {
 	str << std::to_string(k.enthalpy) << "\n";
 
 	return str;
+}
+
+std::ostream& operator<<(std::ostream& str, const ExportInitial& k) {
+
+	str << std::to_string(k.join_rate) << " ";
+	str << std::to_string(k.observation_count) << "\n";
+
+	return str;
+
 }
 
 std::ostream& operator<<(std::ostream& str, const ExportFinal& k) {

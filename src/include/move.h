@@ -34,7 +34,7 @@ public:
 	string toString(bool);
 
 	double rate;
-	int arrType = -444;
+	double arrType = -444.0;
 
 };
 
