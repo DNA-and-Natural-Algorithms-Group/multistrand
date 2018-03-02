@@ -361,8 +361,8 @@ std::ostream& operator<<(std::ostream& str, const ExportData& k) {
 
 std::ostream& operator<<(std::ostream& str, const ExportInitial& k) {
 
-	str << std::to_string(k.join_rate) << " ";
-	str << std::to_string(k.observation_count) << "\n";
+//	str << std::to_string(k.join_rate) << " ";
+	str << std::to_string(k.observation_count) << " ";
 
 	return str;
 
