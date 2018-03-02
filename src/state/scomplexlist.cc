@@ -616,7 +616,7 @@ JoinCriteria SComplexList::findJoinNucleotides(BaseType base, int choice, BaseCo
 
 JoinCriteria SComplexList::cycleForJoinChoiceArr(double choice) {
 
-	// Like the non-arrhenius version, but this time, we have to cycle over all he
+	// Like the non-arrhenius version, but this time, we have to cycle over all the
 	// possible local structures.
 
 	OpenInfo baseSum = getOpenInfo();
@@ -663,6 +663,10 @@ JoinCriteria SComplexList::cycleForJoinChoiceArr(double choice) {
 									crit.half[1] = con.first;
 
 									crit.arrType = (double) moveutil::getPrimeCode(left, right);
+
+									cout << "Joining two complexes, found the arrtype to be " << crit.arrType << "\n";
+									cout << "Found the contexts to be " << moveutil::MoveToString[left] << "  " << moveutil::MoveToString[right] << "\n";
+									cout.flush();
 
 									return crit;
 

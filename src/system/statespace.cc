@@ -145,7 +145,7 @@ void Builder::writeToFile(void) {
 
 	for (auto element : protoInitialStates) {
 
-		myfile << element.second;
+		myfile << element.second << "\n";
 		myfile << element.first;
 
 	}

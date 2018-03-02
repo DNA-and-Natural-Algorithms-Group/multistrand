@@ -156,7 +156,7 @@ struct JoinCriteria {
 
 	// arrhenius rates only
 	HalfContext half[2] = { HalfContext(), HalfContext() };
-	double arrType = 0.0; // used for returning the chosen movetype.
+	double arrType = -1.0; // used for returning the chosen movetype.
 
 };
 

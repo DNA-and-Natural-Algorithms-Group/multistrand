@@ -706,7 +706,9 @@ void SimulationSystem::sendTrajectory_CurrentStateToPython(double current_time, 
 
 		temp->dumpComplexEntryToPython(data);
 
-		pushTrajectoryComplex(system_options, current_seed, data);
+		if (!simOptions->statespaceActive) {
+			pushTrajectoryComplex(system_options, current_seed, data);
+		}
 
 		temp = temp->next;
 
