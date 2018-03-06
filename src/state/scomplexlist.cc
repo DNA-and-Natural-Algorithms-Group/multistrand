@@ -664,9 +664,9 @@ JoinCriteria SComplexList::cycleForJoinChoiceArr(double choice) {
 
 									crit.arrType = (double) moveutil::getPrimeCode(left, right);
 
-									cout << "Joining two complexes, found the arrtype to be " << crit.arrType << "\n";
-									cout << "Found the contexts to be " << moveutil::MoveToString[left] << "  " << moveutil::MoveToString[right] << "\n";
-									cout.flush();
+//									cout << "Joining two complexes, found the arrtype to be " << crit.arrType << "\n";
+//									cout << "Found the contexts to be " << moveutil::MoveToString[left] << "  " << moveutil::MoveToString[right] << "\n";
+//									cout.flush();
 
 									return crit;
 

@@ -85,15 +85,15 @@ void SimulationSystem::construct(void) {
 	simulation_mode = simOptions->getSimulationMode();
 	simulation_count_remaining = simOptions->getSimulationCount();
 
-	if (Loop::GetEnergyModel() == NULL) {
-		energyModel = NULL;
-		energyModel = new NupackEnergyModel(simOptions->getPythonSettings());
-		Loop::SetEnergyModel(energyModel);
-	} else {
-		energyModel = Loop::GetEnergyModel();
-	}
+//	if (Loop::GetEnergyModel() == NULL) {
+//		energyModel = NULL;
+	energyModel = new NupackEnergyModel(simOptions->getPythonSettings());
+	Loop::SetEnergyModel(energyModel);
+//	} else {
+//		energyModel = Loop::GetEnergyModel();
+//	}
 
-	// move these to sim_settings
+// move these to sim_settings
 	exportStatesInterval = (simOptions->getOInterval() >= 0);
 	exportStatesTime = (simOptions->getOTime() >= 0);
 
@@ -233,7 +233,7 @@ void SimulationSystem::finalizeSimulation(void) {
 
 	if (simOptions->statespaceActive) {
 
-		cout << "writing statespace";
+//		cout << "writing statespace";
 		builder.writeToFile();
 
 	}

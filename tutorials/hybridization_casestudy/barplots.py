@@ -19,7 +19,7 @@ matplotlib.use('agg')
 import matplotlib.pylab as plt
 import numpy as np
 
-A_TIME_OUT = 10.0  # 10 s timeout
+A_TIME_OUT = 200.0  # 10 s timeout
 NUM_PROCESS = 8
 nTrialsMod = 4  # number of trials per process
 
@@ -230,17 +230,20 @@ def simulationRickettsia(trialsIn):
     H1 = Complex(strands=[strand_H1], structure=".(.).")
     H2 = Complex(strands=[strand_H2], structure=".(.).")
     
-    state1 = Complex(strands=[strand_H1, strand_R, strand_A], structure="((.)*+*(.+))")  # domain x does not have to be bound
-    state3 = Complex(strands=[strand_H1, strand_R, strand_H2, strand_A], structure="(((((+))(+)(.))+))")
-    state6 = Complex(strands=[strand_H1, strand_H1, strand_R, strand_H2, strand_A], structure="((((.+((.)*+*((+)))))+))")  # domain x does not have to be bound
+#     state1 = Complex(strands=[strand_H1, strand_R, strand_A], structure="((.)*+*(.+))")  # domain x does not have to be bound
+    state2 = Complex(strands=[strand_H1, strand_R, strand_A], structure="((.((+)).+))")
+#     state3 = Complex(strands=[strand_H1, strand_R, strand_H2, strand_A], structure="(((((+))(+)(.))+))")
+    state4 = Complex(strands=[strand_H1, strand_R, strand_H2, strand_A], structure="(((((+)((+)).))+))")
+#     state6 = Complex(strands=[strand_H1, strand_H1, strand_R, strand_H2, strand_A], structure="((((.+((.)*+*((+)))))+))")  # domain x does not have to be bound
+    state7 = Complex(strands=[strand_H1, strand_H1, strand_R, strand_H2, strand_A], structure="((((.+((.(*+*)*+*))))+))")
     
-    stopFailure = StopCondition(Options.STR_ALT_SUCCESS, [(state1, Options.dissocMacrostate, 0)])
-    stopSuccess = StopCondition(Options.STR_SUCCESS, [(state6, Options.looseMacrostate, 4)])
+    stopFailure = StopCondition(Options.STR_ALT_SUCCESS, [(state2, Options.dissocMacrostate, 0)])
+    stopSuccess = StopCondition(Options.STR_SUCCESS, [(state7, Options.looseMacrostate, 10)])
     
-    stdOptions.start_state = [state3, H1]
+    stdOptions.start_state = [state4, H1]
     stdOptions.stop_conditions = [stopSuccess, stopFailure]
     
-    stdOptions.join_concentration = 0.000001 
+    stdOptions.join_concentration = 0.0001 
     
     return stdOptions
 
@@ -439,7 +442,7 @@ if __name__ == '__main__':
         setting_flamm = settings(enum_flamm, title_flamm, nTrials=5 * nTrialsMod)
         settings_yurke = settings(enum_yurke, title_yurke, nTrials=nTrialsMod)
         settings_yurke2 = settings(enum_yurke2, title_yurke2, nTrials=nTrialsMod)
-        settings_rickettsia = settings(enum_rickettsia, title_rickettsia, nTrials= 2.0 * nTrialsMod)
+        settings_rickettsia = settings(enum_rickettsia, title_rickettsia, nTrials= 0.04 * nTrialsMod)
         
 #         makePlots(setting_bonnet)
 #         makePlots(setting_flamm)

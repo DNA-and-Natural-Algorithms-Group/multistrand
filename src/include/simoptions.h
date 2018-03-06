@@ -87,7 +87,7 @@ public:
 	vector<complex_input>* myComplexes = NULL;
 	EnergyOptions* energyOptions = NULL;
 
-	const bool statespaceActive = true;
+	bool statespaceActive = false;
 
 protected:
 

@@ -77,6 +77,7 @@ PSimOptions::PSimOptions(PyObject* input) :
 	getDoubleAttr(python_settings, cotranscriptional_rate, &cotranscriptional_rate);
 
 
+	getBoolAttr(python_settings, activestatespace, &statespaceActive);
 
 	debug = false;	// this is the main switch for simOptions debug, for now.
 

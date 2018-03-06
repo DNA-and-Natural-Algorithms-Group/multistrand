@@ -8,7 +8,6 @@ from interface import Interface
 from ..objects import Strand, Complex, RestingState, StopCondition
 # from ..utils import JSKawasaki25, JSKawasaki37, JSMetropolis25, JSMetropolis37, JSDefault     # this is for 2.0 support only
 
-
 import copy
 
 
@@ -24,7 +23,6 @@ class Options(object):
     STR_FAILURE = "FAILURE"
     STR_SUCCESS = "SUCCESS"
     STR_ALT_SUCCESS = "ALT_SUCCESS"
-
     
     # rate_method
     metropolis = 1
@@ -32,8 +30,8 @@ class Options(object):
     RateMethodToString = [ "None", "Metropolis", "Kawasaki"]
 
     # Nupack dangle options
-    none =  0
-    some =  1
+    none = 0
+    some = 1
     all = 2
     dangleToString = [ "None", "Some", "All"]
 
@@ -48,19 +46,17 @@ class Options(object):
     substrateToString = [ "Invalid", "RNA", "DNA"]    
     
     # Simulation mode
-    firstPassageTime =  16 # 0x0010
-    firstStep =         48 # 0x0030
-    transition =        256 # 0x0100
-    trajectory =        128 # 0x0080
-      
+    firstPassageTime = 16  # 0x0010
+    firstStep = 48  # 0x0030
+    transition = 256  # 0x0100
+    trajectory = 128  # 0x0080
     
     # translation
-    simulationMode  ={  "Normal"    :               firstPassageTime,
+    simulationMode = {  "Normal"    :               firstPassageTime,
                         "First Step":               firstStep,
                         "Transition":               transition,
                         "Trajectory":               trajectory,
                         "First Passage Time":       firstPassageTime}
-
     
     # for StopCondition and Macrostate definitions:
     exactMacrostate = 0  # match a secondary structure exactly (i.e. any system state that has a complex with this exact structure)
@@ -72,7 +68,7 @@ class Options(object):
     
     cotranscriptional_rate_default = 0.001  # 1 nt added every 1 ms
     
-    
+    activestatespace = False;
     
     def __init__(self, *args, **kargs):
         """
@@ -97,7 +93,6 @@ class Options(object):
         useArrRates     [type=bool]  -- if TRUE, use Arrhenius rate model. If using, please set lnAEnd, lnALoop, lnAStack, lnAStackStack, lnALoopEnd, lnAStackEnd, lnAStackLoop
 EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value).
         """
-            
 
         ##################################################
         #                                                #
@@ -146,9 +141,6 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         """
         By default, the cotranscriptional mode adds one nucleotide every 1 millisecond.
         """
-
-
-        
         
         #############################################
         #                                           #
@@ -191,7 +183,6 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         
         self.bimolecular_scaling = -1.0 
         """ Rate scaling factor for bimolecular reactions."""
-
 
         self.rate_method = self.kawasaki
         """ Choice of methods for determining forward/reverse rates. """
@@ -288,15 +279,12 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         self.EStackEnd = -0.1;
         self.EStackLoop = -0.1; 
         
-        
         self.dSA = -0.0;
         self.dHA = -0.0;
 
         # Buffer conditions
         self.sodium = 1.0;
         self.magnesium = 0.0;
-              
-    
         
         ####################
         #
@@ -380,7 +368,6 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         
         self.interface = Interface()
         
-        
         ##############################
         #
         # End of __init__: call the keyword hook fn. 
@@ -389,32 +376,30 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
 
         self.__init_keyword_args(self, *args, **kargs)
 
-
     def legacyRates(self):
                     
         warningmsg = "Warning! rate_scaling is set, enabling support for legacy code. Now setting rate defaults for "
                 
         if (self.temperature == 298.15) & (self.rate_method == self.kawasaki) :
-            warningmsg +=  "Kawasaki 25 C"
+            warningmsg += "Kawasaki 25 C"
             self.JSKawasaki25()
-        elif (self.temperature == 310.15) & (self.rate_method ==  self.kawasaki) :
-            warningmsg +=  "Kawasaki 37 C"
+        elif (self.temperature == 310.15) & (self.rate_method == self.kawasaki) :
+            warningmsg += "Kawasaki 37 C"
             self.JSKawasaki37()
-        elif (self.temperature == 298.15) & (self.rate_method ==  self.metropolis) :
-            warningmsg +=  "Metropolis 25 C"
+        elif (self.temperature == 298.15) & (self.rate_method == self.metropolis) :
+            warningmsg += "Metropolis 25 C"
             self.JSMetropolis25()
-        elif (self.temperature == 310.15) & (self.rate_method ==  self.metropolis) :
-            warningmsg +=  "Metropolis 37 C"
+        elif (self.temperature == 310.15) & (self.rate_method == self.metropolis) :
+            warningmsg += "Metropolis 37 C"
             self.JSMetropolis37()
         else:
-            warningmsg +=  "JS-Default"
+            warningmsg += "JS-Default"
             self.JSDefault()
             
         print warningmsg 
         self.rate_scaling = None       
         
-        
-    #FD, May 5th 2017
+    # FD, May 5th 2017
     # Supplying rate options for Metropolis and Kawasaki methods,
     # all using the dangles = some option. Also:  one general default,
     # and one setting for Metropolis rates derived for DNA23. 
@@ -422,10 +407,8 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
     def JSDefault(self): 
         """ Default rates from Joseph Schaeffer's thesis  """
         
-        self.unimolecular_scaling =1.50e+08;
+        self.unimolecular_scaling = 1.50e+08;
         self.bimolecular_scaling = 1.38e+06;
-        
-        
     
     def JSMetropolis25(self): 
         """ Default rates for Metropolis at 25 degree Celcius, from Joseph Schaeffer's thesis
@@ -434,7 +417,6 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         
         self.unimolecular_scaling = 4.4e8;
         self.bimolecular_scaling = 1.26e6;
-        
     
     def JSKawasaki25(self): 
         """ Default rates for Kawasaki at 25 degree Celcius, from Joseph Schaeffer's thesis
@@ -443,8 +425,6 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         
         self.unimolecular_scaling = 6.1e7;
         self.bimolecular_scaling = 1.29e6;
-        
-        
     
     def JSKawasaki37(self):
         """ Default rates for Kawasaki at 37 degree Celcius, from Joseph Schaeffer's thesis
@@ -452,7 +432,6 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         
         self.unimolecular_scaling = 1.5e8;
         self.bimolecular_scaling = 1.38e6;
-        
     
     def JSMetropolis37(self): 
         """ Default rates for Metropolis at 37 degree Celcius, from Joseph Schaeffer's thesis
@@ -460,25 +439,25 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         
         self.unimolecular_scaling = 7.3e8;
         self.bimolecular_scaling = 1.40e6;
-        
-         
     
     def DNA23Metropolis(self):
         """ A default rate for Metropolis at 25 degree Celcius, from the DNA23 conference
         """
 
-        self.unimolecular_scaling = 5.0e6;
-        self.bimolecular_scaling = 1.4e6;
-     
+        # FD march 2018: Setting these to be the 55th walker from the dna23 inference
+        # previous values:
+#         self.unimolecular_scaling = 5.0e6;
+#         self.bimolecular_scaling = 1.4e6;
+        
+        self.unimolecular_scaling = 2.41686715e+06;
+        self.bimolecular_scaling = 8.01171383e+05 ;
      
     def uniformRates(self):
         """ uniform rates without a source
         """
             
         self.unimolecular_scaling = 1.0e6;
-        self.bimolecular_scaling =  1.0e6;
- 
-        
+        self.bimolecular_scaling = 1.0e6;
 
 # FD: We are implementing an observer pattern. 
 # FD: After temperature, substrate (RNA/DNA) or danlges is updated, we attempt to update boltzmann samples.
@@ -487,8 +466,6 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         if len(self._start_state) > 0:
             for c, s in self._start_state:
                 c.set_boltzmann_parameters(self.dangleToString[self.dangles], self.substrateToString[self.substrate_type], self._temperature_celsius)
-
-    
     
 #     FD: We are using shadow variables for biscale, uniscale only because we want to 
 #     flag a warning when rate_scaling is used
@@ -504,7 +481,6 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
     def bimolecular_scaling(self, val):
                   
         self._bimolecular_scaling = float(val)
- 
  
     @property
     def unimolecular_scaling(self):
@@ -529,8 +505,8 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         self._dangles = int(val)
         self.updateBoltzmannSamples
         
-#FD: shadow parameter sothat boltzmann samples can be updated when this parameter is set
-#FD: In a better control flow, complexes themselves might fetch the right constants just before evaluating their boltzmann samples 
+# FD: shadow parameter so that boltzmann samples can be updated when this parameter is set
+# FD: In a better control flow, complexes themselves might fetch the right constants just before evaluating their boltzmann samples 
     @property
     def substrate_type(self):
         return self._substrate_type
@@ -577,6 +553,7 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         This should be used by ssystem.cc to get the (potentially sampled) 
         start state.
         """
+
         #        import pdb
         #        pdb.set_trace()
         def process_state(x):
@@ -639,7 +616,6 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
     @property
     def initial_seed_flag(self):
         return self.initial_seed != None
-
     
     @property
     def stop_conditions(self):
@@ -652,7 +628,6 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         trajectories know when to end.
         """
         return self._stop_conditions
-    
     
     @stop_conditions.setter
     def stop_conditions(self, stop_list):
@@ -680,7 +655,6 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         self.stop_count = len(stop_list)
         self._stop_conditions = stop_list
         self._use_stop_conditions = True
-
 
     @property
     def use_stop_conditions(self):
@@ -726,10 +700,6 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
 
         return None
 
-
-
-
-
     @property
     def temperature(self):
         """
@@ -755,7 +725,6 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         place, a message is added to the Options object's errorlog.
         """
         return self._temperature_kelvin
-
 
     @temperature.setter
     def temperature(self, val):
@@ -792,7 +761,6 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
             self.updateBoltzmannSamples
             self.errorlog.append("Warning: Temperature was set at the value [{0}]. This is outside the normal range of temperatures we expect, so it was assumed to be in Kelvin.\n".format(val))
             raise Warning("Temperature did not fall in the usual expected ranges. Temperatures should be in units Kelvin, though the range [0,100] is assumed to mean units of Celsius.")
-        
     
     def make_unique(self, strand):
         """Returns a new Strand object with a unique identifier replacing the 
@@ -856,7 +824,6 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         if self.verbosity > 0:
             print("{0[0]}: [{0[1]}] '{0[2]}': {0[5]} \n{0[3]}\n{0[4]}\n".format(val))
 
-
     @property
     def add_transition_info(self):
         return None
@@ -894,7 +861,6 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         self.full_trajectory_times.append(self.trajectory_current_time)
         self.trajectory_complexes = []
         
-        
     @property
     def add_trajectory_arrType(self):
         return None
@@ -902,7 +868,6 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
     @add_trajectory_arrType.setter
     def add_trajectory_arrType(self, val):
         self.full_trajectory_arrType.append(val)
-
         
     @property
     def interface_current_seed(self):
@@ -944,7 +909,6 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
             self.interface.transition_lists.append(self._current_transition_list)
             self._current_transition_list = []
 
-
     def __init_keyword_args(self, *args, **kargs):
         """ Helper subfunction. """
         
@@ -982,8 +946,6 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
             'concentration': lambda x: self.__setattr__('join_concentration', x)
             }
         
-                
-        
         # FD: Start throwing errors if not in the right format
         # FD: This does not prevent the user to set them to ints after options 
         # FD: initialization (could use overloading via @property to prevent this).
@@ -1000,35 +962,31 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
             if key == "unimolecular_scaling":
                 if not isinstance(value, (float)):
                     raise Warning("Please provide unimolecular_scaling as float")
-
-        
         
         for k in kargs.keys():
             
             if k in arg_lookup_table:
                 arg_lookup_table[k](kargs[k])          
-            
-            
                 
-            #FD: Do some additional parsing for legacy support            
-            #FD: This code simply translates the string calls to the numerical constants 
+            # FD: Do some additional parsing for legacy support            
+            # FD: This code simply translates the string calls to the numerical constants 
             elif k == 'rate_method':
-                if isinstance(kargs[k],basestring):
+                if isinstance(kargs[k], basestring):
                     self.rate_method = self.RateMethodToString.index(kargs[k])
                     
             elif k == 'dangles':
-                if isinstance(kargs[k],basestring):
+                if isinstance(kargs[k], basestring):
                     self.dangles = self.dangleToString.index(kargs[k])
 
             elif k == 'parameter_type':
-                if isinstance(kargs[k],basestring):
+                if isinstance(kargs[k], basestring):
                     self.parameter_type = self.parameterTypeToString.index(kargs[k])
 
             elif k == 'substrate_type':
-                if isinstance(kargs[k],basestring):
+                if isinstance(kargs[k], basestring):
                     self.substrate_type = self.substrateToString.index(kargs[k])
                     
-            elif (k == 'simulation_mode') &  (isinstance(kargs[k],basestring)):
+            elif (k == 'simulation_mode') & (isinstance(kargs[k], basestring)):
                     self.simulation_mode = self.simulationMode[kargs[k]]
 
             else:
