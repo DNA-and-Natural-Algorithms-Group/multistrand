@@ -52,6 +52,8 @@ public:
 
 	ExportData lastState;
 
+	static const string the_dir;
+
 private:
 
 	SimOptions* simOptions = NULL;

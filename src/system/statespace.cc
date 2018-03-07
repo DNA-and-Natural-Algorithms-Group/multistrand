@@ -19,6 +19,8 @@
 #include <iostream>
 #include <fstream>
 
+const string Builder::the_dir = "p_statespace/";
+
 Builder::Builder(void) {
 
 }
@@ -104,7 +106,7 @@ void Builder::stopResultNormal(double endtime, string tag) {
 
 string Builder::filename(string input) {
 
-	return string(to_string(simOptions->getSeed())) + "/" + input + ".txt";
+	return string(Builder::the_dir + to_string(simOptions->getSeed())) + "/" + input + ".txt";
 
 }
 
@@ -114,7 +116,7 @@ void Builder::writeToFile(void) {
 
 	// create dir
 	// system call to create a directory  TODO fix this to use experimental/filesystem
-	system((string("mkdir -p ") + to_string(simOptions->getSeed())).c_str());
+	system((string("mkdir -p ") + Builder::the_dir + to_string(simOptions->getSeed())).c_str());
 
 	// states
 	unordered_set<ExportData>::iterator itr;
