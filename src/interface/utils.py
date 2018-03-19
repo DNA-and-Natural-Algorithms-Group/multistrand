@@ -1,5 +1,31 @@
-import random
-import os
+
+import os, random
+
+import numpy as np
+
+from _objects.strand import Strand
+from nupack import mfe
+
+""" Returns the melting temperature in Kelvin for a duplex of the given sequence.
+    Sequences should be at least 8 nt long for the SantaLucia model to reasonably apply.
+    For shorter sequences, see notes on "Melting Temperature (Tm) Calculation" by biophp.org
+    Specifically, look at basicTm vs Base-stacking Tm. FD mar 2018
+"""
+
+
+def meltingTemperature(seq, concentration=1.0e-9):
+        
+        GAS_CONSTANT = 0.001987 
+        
+        strand = Strand(sequence=seq)
+
+        energy20 = float(mfe([strand.sequence, strand.C.sequence ], material='dna', T=20.0)[0][1]) + GAS_CONSTANT * (273.15 + 20) * np.log(55.5)
+        energy30 = float(mfe([strand.sequence, strand.C.sequence ], material='dna', T=30.0)[0][1]) + GAS_CONSTANT * (273.15 + 30) * np.log(55.5)
+        
+        dS = (energy20 - energy30) / 10.0  # kcal/ K mol
+        dH = energy30 + (273.15 + 30.0) * dS  # kcal/mol
+        
+        return  (dH / (dS + GAS_CONSTANT * np.log(concentration / 4.0))) 
 
 
 def concentration_string(concentration):
@@ -50,11 +76,7 @@ def standardFileName(SCRIPT_DIR, mySeq=None, extraTitle=None, runs=None):
             if exc.errno != errno.EEXIST:
                 raise
 
-
     return fileName
-
-
-
 
 
 # Takes a list of ids and structures, and computes the pairtype for each of the complexes. 
@@ -69,7 +91,7 @@ def uniqueStateID(idsList, structsList):
         pairTypes.append(myPairType)
 
     # now sort the list of lists by the first element of each list (which is 
-    mySortedList = sorted(pairTypes, key = lambda x: x[0])
+    mySortedList = sorted(pairTypes, key=lambda x: x[0])
     
     # to make this hashable, we make it into a tuple.
     return tuple(mySortedList)
@@ -97,14 +119,13 @@ def pairType(ids, structs):
                 currIndex = offset + index
                 otherIndex = stack.pop()
                                 
-                output[currIndex-1]  = otherIndex
-                output[otherIndex-1] =  currIndex
+                output[currIndex - 1] = otherIndex
+                output[otherIndex - 1] = currIndex
                 
             elif not c == '.':
                 raise Warning('There is an error in the dot paren structure -- PairType function') 
             
             index += 1
-    
     
     idList = ids.split(',')
     dotParens = structs.split('+') 
@@ -116,9 +137,9 @@ def pairType(ids, structs):
     idString = ''        
     
     newLengths = [len(dotParens[ordering[i]]) for i in range(N)]   
-    newOffsets = [ sum(newLengths[0:i]) for i in range(N)] # the offsets under the new ordering
+    newOffsets = [ sum(newLengths[0:i]) for i in range(N)]  # the offsets under the new ordering
     
-    offsets = [0, ] * N      # the new offsets under the old ordering
+    offsets = [0, ] * N  # the new offsets under the old ordering
     
     for i in xrange(N):
         
@@ -126,7 +147,6 @@ def pairType(ids, structs):
         
         offsets[newPosition] = newOffsets[i]
         idString += idList[newPosition]
-    
 
     myStack = []
     output = [0, ] * sum([len(dp) for dp in dotParens])
@@ -136,26 +156,23 @@ def pairType(ids, structs):
     for index, val in myEnum:    
           
         generatePairing(dotParens[index], myStack, offsets[index], output)
-
      
     return  (idString, tuple(output))
-    
 
 
-
-def generate_sequence( n, allowed_bases = ['G','C','T','A'], base_probability = None ):
+def generate_sequence(n, allowed_bases=['G', 'C', 'T', 'A'], base_probability=None):
     """ Generate a sequence of N base pairs.
 
     Bases are chosen from the allowed_bases [any sequence type], and
     according to the probability distribution base_probability - if
     none is specified, uses uniform distribution."""
-
     
     result = ""
     if base_probability is None:
-        return result.join([random.choice( allowed_bases ) for i in range(n)])
+        return result.join([random.choice(allowed_bases) for i in range(n)])
     else:
-        def uniform_seq( r ):
+
+        def uniform_seq(r):
             """ This function returns a lambda to be used on a sequence of tuples of
             (p,item) e.g. via reduce(uniform_seq(.75), seq, (0.0,'none')).
 
@@ -171,10 +188,11 @@ def generate_sequence( n, allowed_bases = ['G','C','T','A'], base_probability = 
             any input r >= 1.0 (assuming the sequence given sums to
             1.0) will give the final element as the result which is technically incorrect.
             """
-            return lambda x,y: (x[0]+y[0],y[1]) if r>=x[0] else (x[0],x[1])
-        return result.join( [reduce( uniform_seq( random.random() ),
-                              zip(base_probability,allowed_bases),
-                              (0.0,'Invalid Probabilities'))[1] 
+            return lambda x, y: (x[0] + y[0], y[1]) if r >= x[0] else (x[0], x[1])
+
+        return result.join([reduce(uniform_seq(random.random()),
+                              zip(base_probability, allowed_bases),
+                              (0.0, 'Invalid Probabilities'))[1] 
                               # note this subscript [1] pulls out the item
                               # selected by the reduce since the result was a tuple.
                       for i in range(n)]

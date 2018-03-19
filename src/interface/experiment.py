@@ -88,9 +88,6 @@ def hybridization(options, mySeq, myTrials=0, doFirstPassage=False):
 # Note: for long sequences, this could result in a timeout.
 
 
-
-
-
 def dissociation(options, mySeq, myTrials=0):
 
     # Using domain representation makes it easier to write secondary structures.
@@ -115,21 +112,20 @@ def dissociation(options, mySeq, myTrials=0):
 
 
 #
-def threewayDisplacement(options, toeholdSeq, domainSeq, myTrials=0, mySuperSample = 1):
+def threewayDisplacement(options, toeholdSeq, domainSeq, doFirstPassage=False, myTrials=0, mySuperSample=1):
     
-    toeholdDomain = Domain(name="toehold", sequence = toeholdSeq)
-    disDomain = Domain(name="displacement", sequence = domainSeq)
-    
+    toeholdDomain = Domain(name="toehold", sequence=toeholdSeq)
+    disDomain = Domain(name="displacement", sequence=domainSeq)
         
-    topS = Strand(name="top", domains = [disDomain])
-    invaderS = Strand(name="invader", domains = [disDomain, toeholdDomain])
+    topS = Strand(name="top", domains=[disDomain])
+    invaderS = Strand(name="invader", domains=[disDomain, toeholdDomain])
     botS = invaderS.C
     
-    startComplex   = Complex(strands= [topS,botS], structure ="(+.)")
-    invaderComplex = Complex(strands= [invaderS], structure ="..")
-    successComplex = Complex(strands= [botS,invaderS], structure="((+))" )
+    startComplex = Complex(strands=[topS, botS], structure="(+.)")
+    invaderComplex = Complex(strands=[invaderS], structure="..")
+    successComplex = Complex(strands=[botS, invaderS], structure="((+))")
     
-    if(myTrials > 0 ):
+    if(myTrials > 0):
         setBoltzmann(startComplex, myTrials, mySuperSample)
         setBoltzmann(invaderComplex, myTrials, mySuperSample)
         
@@ -139,32 +135,32 @@ def threewayDisplacement(options, toeholdSeq, domainSeq, myTrials=0, mySuperSamp
     # Declare the simulation unproductive if the invader becomes single-stranded again.
     stopFailed = StopCondition(Options.STR_FAILURE, [(invaderComplex, Options.dissocMacrostate, 0)])
     
-    #set the starting and stopping conditions
+    # set the starting and stopping conditions
     options.start_state = [startComplex, invaderComplex]
-    options.stop_conditions = [stopFailed,stopSuccess]
 
+    if doFirstPassage:
+        options.stop_conditions = [stopSuccess]
+    else:
+        options.stop_conditions = [stopFailed, stopSuccess]
 
-
-
-## Strandlist -- stem domain is first argument
-## Strandlist -- loop domain is second argument
-## Try:   ['ACGTGGA', 'TTTTT']
+# # Strandlist -- stem domain is first argument
+# # Strandlist -- loop domain is second argument
+# # Try:   ['ACGTGGA', 'TTTTT']
 
 # def hairpinclosing(options,strands_list, myTrials=0):
 #     return hairpinclosing(options, strands_list[0], strands_list[1], myTrials=0);
     
 
-def hairpinclosing(options,stemSeq, loopSeq, myTrials=0):
+def hairpinclosing(options, stemSeq, loopSeq, myTrials=0):
 
     # Using domain representation makes it easier to write secondary structures.
     stemdomain1 = Domain(name="stemdomain1", sequence=stemSeq)
     loopdomain = Domain(name="loopdomain", sequence=loopSeq)
     stemdomain2 = stemdomain1.C
     
-    strand = Strand(name="top", domains=[stemdomain1,loopdomain, stemdomain2])
+    strand = Strand(name="top", domains=[stemdomain1, loopdomain, stemdomain2])
     start_complex = Complex(strands=[strand], structure="...")
     success_complex = Complex(strands=[strand], structure="(.)")
-
 
     # N.B.: myTrials input signature is considered "default", 
     # but in no circumstance will we enable Boltzmann sampling
@@ -173,21 +169,18 @@ def hairpinclosing(options,stemSeq, loopSeq, myTrials=0):
     stopSuccess = StopCondition(Options.STR_SUCCESS, [(
         success_complex, Options.exactMacrostate, 0)])
 
-
     options.start_state = [start_complex]
     options.stop_conditions = [stopSuccess]
 
 
-
-
-def hairpinopening(options, stemSeq, loopSeq, myTrials = 0):
+def hairpinopening(options, stemSeq, loopSeq, myTrials=0):
     
     # Using domain representation makes it easier to write secondary structures.
     stemdomain1 = Domain(name="stemdomain1", sequence=stemSeq)
     loopdomain = Domain(name="loopdomain", sequence=loopSeq)
     stemdomain2 = stemdomain1.C
     
-    strand = Strand(name="top", domains=[stemdomain1,loopdomain, stemdomain2])
+    strand = Strand(name="top", domains=[stemdomain1, loopdomain, stemdomain2])
     start_complex = Complex(strands=[strand], structure="(.)")
     success_complex = Complex(strands=[strand], structure="...")
 
@@ -198,12 +191,8 @@ def hairpinopening(options, stemSeq, loopSeq, myTrials = 0):
     stopSuccess = StopCondition(Options.STR_SUCCESS, [(
         success_complex, Options.exactMacrostate, 0)])
 
-
     options.start_state = [start_complex]
     options.stop_conditions = [stopSuccess]
-
-
-
 
 
 # Aug 2017: this is Mrinanks' implementation of the clamped seesaw gate.
@@ -237,10 +226,11 @@ def seesaw_gate_fuel_leak(options, gate, trials, supersample=25, doFirstPassage=
     two_input(options, gate.gate_output_complex, gate.fuel_complex,
               gate.output_complex, trials, supersample, doFirstPassage=doFirstPassage)
 
+
 # Takes two gate objects and calcualtes their leak!
 def seesaw_gate_gate_leak(options, gateA, gateB, trials, supersample=25, doFirstPassage=False):
     two_input_two_success(options, gateA.gate_output_complex, gateB.gate_output_complex,
-                          gateA.output_complex, gateB.output_complex, trials,  supersample, doFirstPassage)
+                          gateA.output_complex, gateB.output_complex, trials, supersample, doFirstPassage)
 
 
 def two_input(options, input_complex_A, input_complex_B, output_complex, trials=0, supersample=25, doFirstPassage=False):
@@ -282,7 +272,7 @@ def two_input_two_success(trials, options, input_complex_A, input_complex_B, out
     # Point the options to the right objects
     if not doFirstPassage:
         options.stop_conditions = [successful_stop_condition,
-                                   alt_successful_stop_condition,  failure_stop_condition]
+                                   alt_successful_stop_condition, failure_stop_condition]
     else:
         options.stop_conditions = [
             successful_stop_condition, alt_successful_stop_condition]
@@ -293,7 +283,7 @@ class ClampedSeesawGate(object):
     Gate_Count = 1
 
     def __init__(self, input_sequence, base_sequence, output_sequence, fuel_sequence,
-                 toehold_sequence, clamp_sequence="CG", sameID = False):
+                 toehold_sequence, clamp_sequence="CG", sameID=False):
 
         count_str = str(ClampedSeesawGate.Gate_Count) + '_Cl '
         self.input_domain = Domain(
@@ -341,7 +331,6 @@ class ClampedSeesawGate(object):
         self.input_partial.name = "inputP" 
         self.threshold_base.name = "thres"
         self.base_dom_strand.name = "baseD"
-        
 
         self.gate_output_complex = Complex(strands=[self.base_strand,
                                                     self.output_strand],
@@ -356,13 +345,13 @@ class ClampedSeesawGate(object):
                                                   self.base_dom_strand],
                                          structure="...(((+)))")
         self.input_complex = Complex(strands=[self.input_strand],
-                                     structure='.' *
+                                     structure='.' * 
                                      len(self.input_strand.sequence))
         self.fuel_complex = Complex(strands=[self.fuel_strand],
-                                    structure='.' *
+                                    structure='.' * 
                                     len(self.fuel_strand.sequence))
         self.output_complex = Complex(strands=[self.output_strand],
-                                      structure='.' *
+                                      structure='.' * 
                                       len(self.output_strand.sequence))
 
         if not sameID :
