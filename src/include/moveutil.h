@@ -70,7 +70,7 @@ struct ExportData {
 
 };
 
-struct ExportInitial{
+struct ExportInitial {
 
 	double join_rate = 0.0;
 	int observation_count = 0;
@@ -105,13 +105,7 @@ namespace std {
 template<> struct hash<ExportData> {
 	size_t operator()(const ExportData& k) const {
 
-		// Compute individual hash values for first, second and third
-		// https://stackoverflow.com/questions/17016175/c-unordered-map-using-a-custom-class-type-as-the-key
-		size_t res = 17;
-		res = res * 31 + hash<string>()(k.sequence);
-		res = res * 31 + hash<string>()(k.structure);
-		res = res * 31 + hash<int>()(k.id);
-		return res;
+		return hash<string>()(k.sequence) ^ hash<string>()(k.structure) ^ hash<int>()(k.id);
 
 	}
 };
@@ -119,13 +113,7 @@ template<> struct hash<ExportData> {
 template<> struct hash<ExportTransition> {
 	size_t operator()(const ExportTransition& k) const {
 
-		// Compute individual hash values for first, second and third
-		// https://stackoverflow.com/questions/17016175/c-unordered-map-using-a-custom-class-type-as-the-key
-		size_t res = 17;
-		res = res * 31 + hash<ExportData>()(k.state1);
-		res = res * 31 + hash<ExportData>()(k.state2);
-		res = res * 31 + hash<int>()(k.type);
-		return res;
+		return hash<ExportData>()(k.state1) ^ hash<ExportData>()(k.state2) ^ hash<int>()(k.type);
 
 	}
 };
