@@ -199,7 +199,7 @@ def create_test2B():
     substrate = strand3 + strand4 + strand5
     invading = strand0 + strand1 + strand2
 
-    start_complex = Complex(strands=[substrate, invading], structure="..(+)..")
+    start_complex = Complex(strands=[substrate, invading], structure=".(.+.).")
     stop_complex = Complex(strands=[substrate, invading], structure="...+...") 
     
     o1 = createOptions(start_complex, stop_complex, "First Passage Time")
@@ -491,9 +491,9 @@ def main():
 #     o1 = create_test1()      # testing open-loop 
 #     o1 = create_test1B()      # testing open-loop with the initialiation penalty 
 #     o1 = create_test2()  # a very simple test  being    .(.+.).
-#     o1 = create_test2B()      # a very simple test  being    .(.+.).
+    o1 = create_test2B()      # a very simple test  being    .(.+.).
 #     o1.bimolecular_scaling = 777.0
-#     o1.DNA23Metropolis()
+    o1.DNA23Metropolis()
 #     o1 = create_test3()  # this is the  bi-molecular test
 #     o1 = create_test4()  # this is the lightbulb
 #     o1 = create_test5()      # testing multi-loop code
@@ -505,7 +505,7 @@ def main():
 #     o1 = create_test10()      # half open duplex
 #     o1 = create_test11()      # Oscillator gate
 #     o1 = create_test12()      # displacement situation.
-    o1 = create_test13()    # this is a test for dissociation
+#     o1 = create_test13()    # this is a test for dissociation
 
 #     setArrheniusConstantsNM1(o1)
 #     o1.DNA23Metropolis()

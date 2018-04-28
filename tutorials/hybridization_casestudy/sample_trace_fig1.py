@@ -67,7 +67,7 @@ def doSims(strandSeq, numTraj=2):
 #     o1.join_concentration = 1.0e-9
     o1.join_concentration = 1.0
     o1.simulation_time = 0.000005
-    o1.uniformRates()
+    o1.DNA23Metropolis()
 
     seq1 = "ACTGACTGACTG"
     seq2 = "ACTG"

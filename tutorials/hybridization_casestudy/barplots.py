@@ -64,7 +64,7 @@ def simulationHairpin(trialsIn, reverse):
     
     stdOptions = standardOptions(simMode=Options.trajectory, trials=trialsIn)
 #     stdOptions.JSDefault()
-    stdOptions.uniformRates()
+    stdOptions.DNA23Metropolis()
     stdOptions.simulation_time = A_TIME_OUT
     stdOptions.temperature = 50.0
     
@@ -89,7 +89,7 @@ def simulationFlamm2000(trialsIn):
     stdOptions.substrate_type = Options.substrateRNA
     stdOptions.gt_enable = 1
     stdOptions.simulation_time = A_TIME_OUT
-    stdOptions.uniformRates()
+    stdOptions.DNA23Metropolis()
  
     stemdomain1 = Domain(name="stemdomain1", sequence=seq)
     strand = Strand(name="top", domains=[stemdomain1])
@@ -114,8 +114,7 @@ def simulationYurke(trialsIn):
     
     stdOptions = standardOptions(simMode=Options.firstPassageTime, trials=trialsIn)
     stdOptions.simulation_time = A_TIME_OUT
-#     stdOptions.JSDefault()
-    stdOptions.uniformRates()
+    stdOptions.DNA23Metropolis()
    
     stdOptions.temperature = 25.0
 
@@ -146,8 +145,7 @@ def simulationYurke2(trialsIn):
     
     stdOptions = standardOptions(simMode=Options.firstPassageTime, trials=trialsIn)
     stdOptions.simulation_time = A_TIME_OUT
-#     stdOptions.JSDefault()
-    stdOptions.uniformRates()
+    stdOptions.DNA23Metropolis()
 
     domS = Domain(sequence="ACTAATCCTCAGATCCAGCTAGTGTC", name="d_S")
     domD = Domain(sequence="A", name="d_A")
@@ -208,7 +206,7 @@ def simulationRickettsia(trialsIn):
     
     stdOptions = standardOptions(simMode=Options.firstPassageTime, trials=trialsIn)
     stdOptions.simulation_time = A_TIME_OUT
-    stdOptions.uniformRates()
+    stdOptions.DNA23Metropolis()
     stdOptions.temperature = 25.0
     stdOptions.magnesium = 0.0125
     stdOptions.sodium = 0.1
