@@ -12,6 +12,7 @@ from multistrand.objects import StopCondition, Complex, Domain, Strand
 from multistrand.options import Options
 from multistrand.utils import standardFileName
 from multistrand.concurrent import MergeSim
+from multistrand.system import SimSystem
 
 import matplotlib
 matplotlib.use('agg')
@@ -19,7 +20,7 @@ matplotlib.use('agg')
 import matplotlib.pylab as plt
 import numpy as np
 
-A_TIME_OUT = 200.0  # 10 s timeout
+A_TIME_OUT = 2000.0  # 10 s timeout
 NUM_PROCESS = 8
 nTrialsMod = 4  # number of trials per process
 
@@ -225,23 +226,26 @@ def simulationRickettsia(trialsIn):
     strand_B = Strand(domains=[dom_x, dom_b, dom_y])
     strand_R = Strand(domains=[dom_x, dom_b, dom_y])
 
-    H1 = Complex(strands=[strand_H1], structure=".(.).")
-    H2 = Complex(strands=[strand_H2], structure=".(.).")
+    H1 = Complex(strands=[strand_H1], structure=".(.).", name="H1")
+    H2 = Complex(strands=[strand_H2], structure=".(.).", name="H2")
     
 #     state1 = Complex(strands=[strand_H1, strand_R, strand_A], structure="((.)*+*(.+))")  # domain x does not have to be bound
-    state2 = Complex(strands=[strand_H1, strand_R, strand_A], structure="((.((+)).+))")
-#     state3 = Complex(strands=[strand_H1, strand_R, strand_H2, strand_A], structure="(((((+))(+)(.))+))")
-    state4 = Complex(strands=[strand_H1, strand_R, strand_H2, strand_A], structure="(((((+)((+)).))+))")
+    state2 = Complex(strands=[strand_H1, strand_R, strand_A], structure="((.((+)).+))", name="state2")
+    state3 = Complex(strands=[strand_H1, strand_R, strand_H2, strand_A], structure="(((((+))(+)(.))+))")
+#     state4 = Complex(strands=[strand_H1, strand_R, strand_H2, strand_A], structure="(((((+)((+)).))+))", name = "state4")
+    state5 = Complex(strands=[strand_H1, strand_R, strand_H2, strand_A], structure="((((.+.((+)).))+))", name="state5")
 #     state6 = Complex(strands=[strand_H1, strand_H1, strand_R, strand_H2, strand_A], structure="((((.+((.)*+*((+)))))+))")  # domain x does not have to be bound
-    state7 = Complex(strands=[strand_H1, strand_H1, strand_R, strand_H2, strand_A], structure="((((.+((.(*+*)*+*))))+))")
-    
+#     state6 = Complex(strands=[strand_H1, strand_H1, strand_R, strand_H2, strand_A], structure="((((.+((.).+.((+)))))+))", name = "state6")
+
+#     state7 = Complex(strands=[strand_H1, strand_H1, strand_R, strand_H2, strand_A], structure="((((.+((.((+))*+*))))+))", name = "state7")
+
     stopFailure = StopCondition(Options.STR_ALT_SUCCESS, [(state2, Options.dissocMacrostate, 0)])
-    stopSuccess = StopCondition(Options.STR_SUCCESS, [(state7, Options.looseMacrostate, 10)])
+    stopSuccess = StopCondition(Options.STR_SUCCESS, [(state5, Options.looseMacrostate, 6)])
     
-    stdOptions.start_state = [state4, H1]
+    stdOptions.start_state = [state3]
     stdOptions.stop_conditions = [stopSuccess, stopFailure]
     
-    stdOptions.join_concentration = 0.0001 
+    stdOptions.join_concentration = 0.001
     
     return stdOptions
 
@@ -265,6 +269,7 @@ def computeHittingTimes(settings, reverse=False):
     
     if settings.type == enum_rickettsia:
         myMultistrand.setOptionsFactory1(simulationRickettsia, settings.nTrials)
+#         myMultistrand.setTerminationCriteria(terminationCount=2)
     
     if settings.type == enum_bonnet or settings.type == enum_yurke2:
         myMultistrand.setPassageMode()  # using the pre-set success / fail
@@ -412,17 +417,83 @@ def makePlots(settings):
         results2 = computeHittingTimes(settings, True)
         doDoubleBarplot(results.times, results2.times, settings)
         
-    if settings.type == enum_flamm or settings.type == enum_yurke or settings.type == enum_rickettsia:
+    if settings.type == enum_flamm or settings.type == enum_yurke or settings.type == enum_rickettsia :
         
         times = [i.time for i in results.dataset if i.tag == Options.STR_SUCCESS]       
         times2 = [i.time for i in results.dataset if i.tag == Options.STR_ALT_SUCCESS]
 
-        if not sum(times) == 0:        
+        if not len(times) == 0 and not sum(times) == 0:        
             print "rate reaction 1 = " + str(len(times) / sum(times))
-        if not sum(times2) == 0:
+        if not len(times2) and not sum(times2) == 0:
             print "rate reaction 2 = " + str(len(times2) / sum(times2))
-                
-        doDoubleBarplot(times, times2, settings)
+            
+        if settings.type == enum_rickettsia:
+            
+            if not len(times) ==0:
+                settings.type = enum_rickettsia + "-1"
+                doBarplot(times, settings)
+            if not len(times2) ==0:
+                settings.type = enum_rickettsia + "-2"
+                doBarplot(times2, settings)
+            
+            settings.type = enum_rickettsia 
+            
+        else:
+            doDoubleBarplot(times, times2, settings)
+
+
+def printTrajectory(o):
+    
+    seqstring = ""
+    
+    for i in range(len(o.full_trajectory)):
+    
+        time = 1e9 * o.full_trajectory_times[i]
+        states = o.full_trajectory[i]
+        
+        ids = []
+        newseqs = []
+        structs = []
+        dG = 0.0;
+        dGC = 0.0
+        
+        pairTypes = []
+        
+        for state in states: 
+            
+            ids += [ str(state[2]) ]
+            newseqs += [ state[3] ]  # extract the strand sequences in each complex (joined by "+" for multistranded complexes)
+            structs += [ state[4] ]  # similarly extract the secondary structures for each complex
+            dG += dG + state[5]
+            
+            dGC += (state[5] - (o._temperature_kelvin * 0.0019872036 * np.log(1.0 / o.join_concentration) * state[4].count("+"))) 
+            
+#             print "count is  " +  str(state[4].count("+"))
+#             print "join conc is " + str(o.join_concentration)
+#             print "dG-Complex is " + "%.2f" % dGC + " kcal/mol  for " + str(state[3]) 
+            
+        newseqstring = ' '.join(newseqs)  # make a space-separated string of complexes, to represent the whole tube system sequence
+        tubestruct = ' '.join(structs)  # give the dot-paren secondary structure for the whole test tube
+        
+        if not newseqstring == seqstring : 
+            print newseqstring
+            seqstring = newseqstring  # because strand order can change upon association of dissociation, print it when it changes        
+
+        print tubestruct + ('   t=%.3f ns,  dG=%3.2f kcal/mol, dGC=%3.2f kcal/mol   ' % (time, dG, dGC)) 
+
+
+def debugTester():
+        """" Debug tester. """
+             
+        options = simulationRickettsia(trialsIn=1)
+        options.simulation_mode = Options.trajectory
+        options.output_interval = 10000
+        options.temperature = 25.0
+        options.simulation_time = 5.0e-1
+        options.join_concentration = 0.1
+        s = SimSystem(options)
+        s.start()
+        printTrajectory(options)    
 
 
 # The actual main method
@@ -430,25 +501,38 @@ if __name__ == '__main__':
 
     print sys.argv
 
-    if len(sys.argv) > 1:
+    if len(sys.argv) > 2:
         
         NUM_PROCESS = int(sys.argv[1])
-        nTrialsMod = int(sys.argv[2])
+        nTrials = int(sys.argv[2])
+        type = sys.argv[3]
 
         # by default, the first two examples get 10x more trajectories
-        setting_bonnet = settings(enum_bonnet, title_bonnet, True, 5 * nTrialsMod)
-        setting_flamm = settings(enum_flamm, title_flamm, nTrials=5 * nTrialsMod)
-        settings_yurke = settings(enum_yurke, title_yurke, nTrials=nTrialsMod)
-        settings_yurke2 = settings(enum_yurke2, title_yurke2, nTrials=nTrialsMod)
-        settings_rickettsia = settings(enum_rickettsia, title_rickettsia, nTrials= 0.04 * nTrialsMod)
+        # For rickettsia, nTrials is the number of succesful trajectoires.
+        settings_bonnet = settings(enum_bonnet, title_bonnet, True, 5 * nTrials)
+        settings_flamm = settings(enum_flamm, title_flamm, nTrials=5 * nTrials)
+        settings_yurke = settings(enum_yurke, title_yurke, nTrials=nTrials)
+        settings_yurke2 = settings(enum_yurke2, title_yurke2, nTrials=nTrials)
+        settings_rickettsia = settings(enum_rickettsia, title_rickettsia, nTrials=0.02 * nTrials)
         
-#         makePlots(setting_bonnet)
-#         makePlots(setting_flamm)
-#         makePlots(settings_yurke)
-#         makePlots(settings_yurke2)
-        makePlots(settings_rickettsia)
-    
+        switcher = {
+            
+            enum_bonnet : settings_bonnet,
+            enum_flamm : settings_flamm,
+            enum_yurke : settings_yurke,
+            enum_yurke2 : settings_yurke2,
+            enum_rickettsia : settings_rickettsia,
+            
+            }
+        
+#         debugTester()
+        makePlots(switcher[type])
+        
+#         
+
+#     
     else:
         
-        print "Please supply the number of processes and total number of trajectories to simulate per case study \n"
-        print "Example: python barplot.py 2 20"
+        print "Please supply the number of processes and total number of trajectories to simulate per case study, and the type \n"
+        print "Example: python barplot.py 2 20 bonnet"
+        print "Allowed <type> :     bonnet, flamm, yurke, yurke2, rickettsia"

@@ -63,9 +63,9 @@ def doSims(strandSeq, numTraj=2):
     
     o1.simulation_mode = Options.trajectory
     o1.num_simulations = numTraj
-    o1.output_interval = 1 
-#     o1.join_concentration = 1.0e-9
-    o1.join_concentration = 1.0
+    o1.output_interval = 1
+    o1.join_concentration = 1.0e-9
+#     o1.join_concentration = 1.0
     o1.simulation_time = 0.000005
     o1.DNA23Metropolis()
 
