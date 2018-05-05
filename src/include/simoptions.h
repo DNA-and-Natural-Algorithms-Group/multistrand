@@ -89,6 +89,8 @@ public:
 
 	bool statespaceActive = false;
 
+	long verbosity  = 1;
+
 protected:
 
 	long simulation_mode = 0;
@@ -103,6 +105,7 @@ protected:
 	stopComplexes* myStopComplexes = NULL;
 
 	bool printInitialFirstStep = false;
+
 
 };
 

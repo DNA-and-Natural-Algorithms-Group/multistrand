@@ -120,10 +120,11 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         self.trajectory_current_time = 0.0
         self.current_graph = None
 
-        self.verbosity = 0
+        self.verbosity = 1
         """ Indicates how much output will be generated for each trajectory run.
-        Value  = 0:  no end state reporting
-        Value >= 1:  end state reports to stdout
+        Value = 0:  No end state reported, no warnings for timeout and nonitial steps
+        Value = 1:  No end states reports, warnings active   
+        Value = 2:  warnings and end states reports to stdout
         """
         
         self.print_initial_first_step = False
@@ -821,7 +822,7 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
             Adds this data to the interface's results object."""
 
         self._current_end_state.append(val)
-        if self.verbosity > 0:
+        if self.verbosity > 1:
             print("{0[0]}: [{0[1]}] '{0[2]}': {0[5]} \n{0[3]}\n{0[4]}\n".format(val))
 
     @property

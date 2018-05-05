@@ -85,13 +85,8 @@ void SimulationSystem::construct(void) {
 	simulation_mode = simOptions->getSimulationMode();
 	simulation_count_remaining = simOptions->getSimulationCount();
 
-//	if (Loop::GetEnergyModel() == NULL) {
-//		energyModel = NULL;
 	energyModel = new NupackEnergyModel(simOptions->getPythonSettings());
 	Loop::SetEnergyModel(energyModel);
-//	} else {
-//		energyModel = Loop::GetEnergyModel();
-//	}
 
 // move these to sim_settings
 	exportStatesInterval = (simOptions->getOInterval() >= 0);
@@ -220,12 +215,12 @@ void SimulationSystem::finalizeRun(void) {
 
 void SimulationSystem::finalizeSimulation(void) {
 
-	if (noInitialMoves > 0) {
+	if (noInitialMoves > 0 and simOptions->verbosity) {
 
 		cout << "No initial moves for this first step simulation x" << noInitialMoves << "\n";
 	}
 
-	if (timeOut > 0) {
+	if (timeOut > 0 and simOptions->verbosity) {
 
 		cout << "time-out detected x" << timeOut << "\n";
 

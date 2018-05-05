@@ -102,7 +102,7 @@ def pairType(ids, structs):
     """Given identifiers and dot-parens for a complex, 
         pairType returns a unique identifier for that secondary structure
     """
-    
+
     # utility function
     def generatePairing(dotParen, stack, offset, output):
         
@@ -156,7 +156,10 @@ def pairType(ids, structs):
     for index, val in myEnum:    
           
         generatePairing(dotParens[index], myStack, offsets[index], output)
-     
+    
+#     str_output = ''.join([str(x) for x in output])
+#     return (idString, str_output)
+    
     return  (idString, tuple(output))
 
 

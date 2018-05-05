@@ -458,7 +458,7 @@ class FirstPassageRate(MergeResult):
             for i in self.timeouts:
                 assert (i.type_name == 'Time')
                 assert (i.tag == None)
-                assert (i.time >= 10.0)
+#                 assert (i.time >= 10.0)
 
         mean = np.mean(self.times)
         kEff = np.float(1.0) / (mean * concentration)
@@ -1026,9 +1026,9 @@ class MergeSim(object):
                for i in range(self.numOfThreads):
                    procs[i].join()
             else :
-                # join all running threads -- the process has 2 seconds to close or it will be terminated.
+                # join all running threads -- the process has 999 seconds to close or it will be terminated.
                 for i in range(self.numOfThreads):
-                    procs[i].join(timeout = 2)
+                    procs[i].join(timeout = 999)
                     procs[i].terminate()
 
             self.runTime = (time.time() - startTime)

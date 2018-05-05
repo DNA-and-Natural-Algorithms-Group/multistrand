@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2017 California Institute of Technology. All rights reserved.
-Multistrand nucleic acid kinetic simulator
-help@multistrand.org
-*/
+ Copyright (c) 2017 California Institute of Technology. All rights reserved.
+ Multistrand nucleic acid kinetic simulator
+ help@multistrand.org
+ */
 
 #include <string.h>
 #include <stdlib.h>
@@ -19,10 +19,7 @@ help@multistrand.org
 // FD: Jan 2018, moved dH over to doubles
 static double T_scale(double dG, double dH, double T) {
 
-//	if (std::abs(dG)> 30 or std::abs(dH) > 30){
-//		std::cout << "dG =" << dG << "  dH = " << dH << "\n";
-//	}
-	return (dH +  T* (dG - dH)/310.15);
+	return (dH + T * (dG - dH) / 310.15);
 
 }
 
@@ -40,8 +37,6 @@ NupackEnergyModel::~NupackEnergyModel(void) {
 	// TODO: is anything allocated now? Don't think so, all arrays are static still.
 	// nothing is allocated within an energy model.
 }
-
-
 
 double NupackEnergyModel::returnRate(double start_energy, double end_energy, int enth_entr_toggle) {
 
@@ -101,20 +96,19 @@ double NupackEnergyModel::StackEnthalpy(int i, int j, int p, int q) {
 
 }
 
-
 double NupackEnergyModel::BulgeEnergy(int i, int j, int p, int q, int bulgesize) {
 
-	return this->BulgeEnergy(i, j, p, q,  bulgesize, bulge_37_dG, stack_37_dG);
+	return this->BulgeEnergy(i, j, p, q, bulgesize, bulge_37_dG, stack_37_dG);
 
 }
 
 double NupackEnergyModel::BulgeEnthalpy(int i, int j, int p, int q, int bulgesize) {
 
-	return this->BulgeEnergy(i, j, p, q,  bulgesize, bulge_37_dH, stack_37_dH);
+	return this->BulgeEnergy(i, j, p, q, bulgesize, bulge_37_dH, stack_37_dH);
 }
 
-
-double NupackEnergyModel::BulgeEnergy(int i, int j, int p, int q, int bulgesize, array<double,31> bulge, array<array<double, PAIRS_NUPACK>, PAIRS_NUPACK> stack) {
+double NupackEnergyModel::BulgeEnergy(int i, int j, int p, int q, int bulgesize, array<double, 31> bulge,
+		array<array<double, PAIRS_NUPACK>, PAIRS_NUPACK> stack) {
 
 	double energy = 0.0;
 
@@ -144,20 +138,17 @@ double NupackEnergyModel::BulgeEnergy(int i, int j, int p, int q, int bulgesize,
 	return energy;
 }
 
-
 double NupackEnergyModel::InteriorEnergy(char *seq1, char *seq2, int size1, int size2) {
 
 	return this->InteriorEnergy(seq1, seq2, size1, size2, internal_dG);
 
 }
 
-
 double NupackEnergyModel::InteriorEnthalpy(char *seq1, char *seq2, int size1, int size2) {
 
 	return this->InteriorEnergy(seq1, seq2, size1, size2, internal_dH);
 
 }
-
 
 double NupackEnergyModel::InteriorEnergy(char *seq1, char *seq2, int size1, int size2, internal_energies& internal) {
 
@@ -177,7 +168,7 @@ double NupackEnergyModel::InteriorEnergy(char *seq1, char *seq2, int size1, int 
 				return internal.internal_2_1[basepair_sw_mfold_actual[type2 + 1] - 1][seq2[1]][basepair_sw_mfold_actual[type1 + 1] - 1][seq1[1]][seq1[size1]];
 		}
 	if (size1 == 2 && size2 == 2)
-		return  internal.internal_2_2[type1][type2][seq1[1]][seq1[size1]][seq2[1]][seq2[size2]];
+		return internal.internal_2_2[type1][type2][seq1[1]][seq1[size1]][seq2[1]][seq2[size2]];
 
 	// Generic case.
 
@@ -226,15 +217,13 @@ double NupackEnergyModel::HairpinEnergy(char *seq, int size) {
 
 }
 
-
 double NupackEnergyModel::HairpinEnthalpy(char *seq, int size) {
 
-	return  HairpinEnergy(seq, size, hairpin_dH);
+	return HairpinEnergy(seq, size, hairpin_dH);
 
 }
 
-
-double NupackEnergyModel::HairpinEnergy(char *seq, int size, hairpin_energies& hairpin ) {
+double NupackEnergyModel::HairpinEnergy(char *seq, int size, hairpin_energies& hairpin) {
 
 	double energy = 0.0;
 	int lookup_index = 0;
@@ -243,7 +232,7 @@ double NupackEnergyModel::HairpinEnergy(char *seq, int size, hairpin_energies& h
 		energy = hairpin.basic[size];
 	} else {
 		energy = hairpin.basic[30];
-		energy +=  (log((double) size / 30.0) * log_loop_penalty / 100.0);
+		energy += (log((double) size / 30.0) * log_loop_penalty / 100.0);
 
 	}
 
@@ -274,8 +263,6 @@ double NupackEnergyModel::HairpinEnergy(char *seq, int size, hairpin_energies& h
 	return energy;
 }
 
-
-
 double NupackEnergyModel::MultiloopEnergy(int size, int *sidelen, char **sequences) {
 
 	return MultiloopEnergy(size, sidelen, sequences, multiloop_dG);
@@ -287,7 +274,6 @@ double NupackEnergyModel::MultiloopEnthalpy(int size, int *sidelen, char **seque
 	return MultiloopEnergy(size, sidelen, sequences, multiloop_dH);
 
 }
-
 
 double NupackEnergyModel::MultiloopEnergy(int size, int *sidelen, char **sequences, multiloop_energies& multiloop) {
 
@@ -322,11 +308,9 @@ double NupackEnergyModel::MultiloopEnergy(int size, int *sidelen, char **sequenc
 
 	}
 
-
-	if(debugTraces){
+	if (debugTraces) {
 		cout << "Mid MultiLoop -- Energy is now " << energy << endl;
 	}
-
 
 	energy += size * multiloop.internal;
 	energy += multiloop.closing;
@@ -354,7 +338,6 @@ double NupackEnergyModel::MultiloopEnergy(int size, int *sidelen, char **sequenc
 
 			if (!(dangles == DANGLES_SOME && sidelen[loopminus1] == 0)) {
 
-
 				dangle5 = multiloop.dangle_5[pt][sequences[loopminus1][1]];
 				dangle3 = multiloop.dangle_3[rt_pt][sequences[loopminus1][sidelen[loopminus1]]];
 
@@ -365,7 +348,6 @@ double NupackEnergyModel::MultiloopEnergy(int size, int *sidelen, char **sequenc
 					energy += dangle3 + dangle5;
 				}
 			}
-
 
 			loopminus1++;
 			if (loopminus1 == size) {
@@ -393,7 +375,7 @@ double NupackEnergyModel::OpenloopEnthalpy(int size, int *sidelen, char **sequen
 
 double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequences, multiloop_energies& multiloop) {
 
-	if(debugTraces){
+	if (debugTraces) {
 		cout << "Computing OpenLoopEnergy, size = " << size << endl;
 	}
 
@@ -415,12 +397,11 @@ double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequence
 		// FD: adding singlestranded stacking.
 		energy += singleStrandedStacking(sequences[loop], sidelen[loop]);
 		// FD: initialization of branch migration penalty.
-		energy +=  initializationPenalty(sidelen[loop], loop, size);
-
+		energy += initializationPenalty(sidelen[loop], loop, size);
 
 	}
 
-	if(debugTraces){
+	if (debugTraces) {
 		cout << "Mid OpenLoop -- Energy is now " << energy << endl;
 	}
 
@@ -440,8 +421,7 @@ double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequence
 
 		energy += dangle3; // added for either dangle version.
 
-
-		if(debugTraces){
+		if (debugTraces) {
 			cout << "Mid2 OpenLoop -- Energy is now " << energy << endl;
 		}
 
@@ -454,17 +434,15 @@ double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequence
 				energy += (dangle3 < dangle5 ? dangle3 : dangle5); // minimum of the two terms.
 			} else if (dangles == DANGLES_SOME && sidelen[loop + 1] == 0) {
 				energy += 0.0; // dangles=DANGLES_SOME has no stacking when 0 bases between.
-							 // dangles=DANGLES_ALL, however, does. Weird, eh?
+							   // dangles=DANGLES_ALL, however, does. Weird, eh?
 			} else {
 				energy += dangle3 + dangle5;
 			}
 
-
 			pt = rt_pt;
 		}
 
-
-		if(debugTraces){
+		if (debugTraces) {
 			cout << "Mid3 OpenLoop -- Energy is now " << energy << endl;
 		}
 
@@ -478,7 +456,7 @@ double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequence
 		energy += dangle5; // added for either dangle version.
 	}
 
-	if(debugTraces){
+	if (debugTraces) {
 		cout << "End OpenLoop -- Energy is now " << energy << endl;
 	}
 
@@ -513,9 +491,8 @@ NupackEnergyModel::NupackEnergyModel(SimOptions* options) :
 	computeArrheniusRates(current_temp);
 }
 
-
 // returns a FILE pointer or prints an error message.
-FILE* NupackEnergyModel::openFiles(char* nupackhome, string& paramPath, string& fileName){
+FILE* NupackEnergyModel::openFiles(char* nupackhome, string& paramPath, string& fileName) {
 
 	char fullpath[512];
 	FILE* fp = NULL;
@@ -547,7 +524,6 @@ FILE* NupackEnergyModel::openFiles(char* nupackhome, string& paramPath, string& 
 
 }
 
-
 void NupackEnergyModel::processOptions() {
 
 	// 	This is the tough part, performing all read/input duties.
@@ -566,7 +542,6 @@ void NupackEnergyModel::processOptions() {
 	logml = myEnergyOptions->getLogml();
 	gtenable = myEnergyOptions->getGtenable();
 	kinetic_rate_method = myEnergyOptions->getKineticRateMethod();
-
 
 	for (loop = 0; loop < BASES; loop++)
 		pairs[loop] = pairs_mfold[loop];
@@ -603,16 +578,16 @@ void NupackEnergyModel::processOptions() {
 
 		nupackhome = getenv("NUPACKHOME");
 
-		if(myEnergyOptions->compareSubstrateType(SUBSTRATE_DNA)){
+		if (myEnergyOptions->compareSubstrateType(SUBSTRATE_DNA)) {
 
-			file_dG =  "dna1998.dG";
-			file_dH =  "dna1998.dH";
+			file_dG = "dna1998.dG";
+			file_dH = "dna1998.dH";
 
 		} else {
 
 			// FD: updating this to the new NUPACK parameter filenames
-			file_dG =  "rna1995.dG"; 	// "RNA_mfold2.3.dG";
-			file_dH =  "rna1995.dH";	// "RNA_mfold2.3.dH";
+			file_dG = "rna1995.dG"; 	// "RNA_mfold2.3.dG";
+			file_dH = "rna1995.dH";	// "RNA_mfold2.3.dH";
 
 		}
 
@@ -900,20 +875,19 @@ void NupackEnergyModel::processOptions() {
 // Temperature change section.
 
 	_RT = kBoltzmann * current_temp;
+
 	log_loop_penalty = 100.0 * 1.75 * kBoltzmann * current_temp;
 
 	double saltCorrection = 0.368 * log(myEnergyOptions->sodium + 3.3 * sqrt(myEnergyOptions->magnesium));
 
-
-	for (loop = 0; loop < PAIRS_NUPACK; loop++){
-		for (loop2 = 0; loop2 < PAIRS_NUPACK; loop2++){
+	for (loop = 0; loop < PAIRS_NUPACK; loop++) {
+		for (loop2 = 0; loop2 < PAIRS_NUPACK; loop2++) {
 
 			stack_37_dG[loop][loop2] = T_scale(stack_37_dG[loop][loop2], stack_37_dH[loop][loop2], temperature);
 			// now adjusting for a single salt correction term.
 			stack_37_dG[loop][loop2] += (saltCorrection * -temperature) / 1000.0;
 		}
 	}
-
 
 	for (loop = 0; loop < 31; loop++)
 		hairpin_dG.basic[loop] = T_scale(hairpin_dG.basic[loop], hairpin_dH.basic[loop], temperature);
@@ -925,10 +899,10 @@ void NupackEnergyModel::processOptions() {
 						temperature);
 
 	for (loop = 0; loop < 4096; loop++)
-		hairpin_dG.tetraloop[loop] = T_scale(hairpin_dG.tetraloop[loop], hairpin_dH.tetraloop[loop],temperature);
+		hairpin_dG.tetraloop[loop] = T_scale(hairpin_dG.tetraloop[loop], hairpin_dH.tetraloop[loop], temperature);
 
 	for (loop = 0; loop < 1024; loop++)
-		hairpin_dG.triloop[loop] = T_scale( hairpin_dG.triloop[loop], hairpin_dH.triloop[loop], temperature);
+		hairpin_dG.triloop[loop] = T_scale(hairpin_dG.triloop[loop], hairpin_dH.triloop[loop], temperature);
 
 	for (loop = 0; loop < 31; loop++)
 		bulge_37_dG[loop] = T_scale(bulge_37_dG[loop], bulge_37_dH[loop], temperature);
@@ -968,18 +942,19 @@ void NupackEnergyModel::processOptions() {
 				for (loop4 = 0; loop4 < BASES; loop4++)
 					for (loop5 = 0; loop5 < BASES; loop5++)
 						for (loop6 = 0; loop6 < BASES; loop6++)
-							 internal_dG.internal_2_2[loop][loop2][loop3][loop4][loop5][loop6] = T_scale( internal_dG.internal_2_2[loop][loop2][loop3][loop4][loop5][loop6],
-									 internal_dH.internal_2_2[loop][loop2][loop3][loop4][loop5][loop6], temperature);
+							internal_dG.internal_2_2[loop][loop2][loop3][loop4][loop5][loop6] = T_scale(
+									internal_dG.internal_2_2[loop][loop2][loop3][loop4][loop5][loop6],
+									internal_dH.internal_2_2[loop][loop2][loop3][loop4][loop5][loop6], temperature);
 
 	multiloop_dG.base = T_scale(multiloop_dG.base, multiloop_dH.base, temperature);
 	multiloop_dG.closing = T_scale(multiloop_dG.closing, multiloop_dH.closing, temperature);
 	multiloop_dG.internal = T_scale(multiloop_dG.internal, multiloop_dH.internal, temperature);
 
 	for (loop = 0; loop < PAIRS_NUPACK; loop++)
-		for (loop2 = 0; loop2 < BASES; loop2++){
+		for (loop2 = 0; loop2 < BASES; loop2++) {
 			multiloop_dG.dangle_3[loop][loop2] = T_scale(multiloop_dG.dangle_3[loop][loop2], multiloop_dH.dangle_3[loop][loop2], temperature);
 			multiloop_dG.dangle_5[loop][loop2] = T_scale(multiloop_dG.dangle_5[loop][loop2], multiloop_dH.dangle_5[loop][loop2], temperature);
-	}
+		}
 
 	terminal_AU = T_scale(terminal_AU, terminal_AU_dH, temperature);
 
@@ -987,6 +962,7 @@ void NupackEnergyModel::processOptions() {
 // need additional conversion as well
 
 	_RT = kBoltzmann * temperature;
+
 	current_temp = temperature;
 
 	//FD: adding cotranscriptional initialziation
@@ -1179,7 +1155,7 @@ void NupackEnergyModel::internal_set_interior_2_2_energies(FILE *fp, char *buffe
 			for (loop3 = 1; loop3 < BASES; loop3++) {
 				for (loop4 = 1; loop4 < BASES; loop4++) {
 					for (loop5 = 1; loop5 < BASES; loop5++) {
-						cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, & internal_dG.internal_2_2[loop][loop2][loop3][loop4][loop5][1],
+						cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &internal_dG.internal_2_2[loop][loop2][loop3][loop4][loop5][1],
 								BASES - 1);
 					}
 				}
@@ -1291,7 +1267,7 @@ void NupackEnergyModel::internal_set_multiloop_parameters_enthalpies(FILE *fp, c
 		fgets(buffer, 2048, fp);
 
 	internal_read_array_data(fp, buffer, buffer, temp, 3);
-	multiloop_dH.base= temp[2];
+	multiloop_dH.base = temp[2];
 	multiloop_dH.closing = temp[0];
 	multiloop_dH.internal = temp[1];
 }
@@ -1377,7 +1353,6 @@ void NupackEnergyModel::internal_set_hairpin_tetraloop_parameters(FILE *fp, char
 	fprintf(stderr,"Tetraloop Paramaters (MFOLD): %d read.\n",tetra_index);
 #endif
 }
-
 
 void NupackEnergyModel::internal_set_hairpin_triloop_parameters(FILE *fp, char *buffer, hairpin_energies& hairpin) {
 	int buf_index = 0;
@@ -1495,7 +1470,7 @@ char *NupackEnergyModel::internal_read_array_data(FILE *fp, char *buffer, char *
 					cout << " we have an error. ERROR" << endl;
 					abort();
 				} else
-					read_loc[loop] = read_loc[loop - 1] +  0.01 *  (double)  rint(log_loop_penalty * log(((double) loop) / ((double) (loop - 1))));
+					read_loc[loop] = read_loc[loop - 1] + 0.01 * (double) rint(log_loop_penalty * log(((double) loop) / ((double) (loop - 1))));
 				cur_bufspot = temp_char + 1;
 			} else // we need to check for leading characters
 			{
@@ -1564,5 +1539,6 @@ void NupackEnergyModel::setupRates() {
 	dG_assoc = bimolecular_penalty; // already computed and scaled for water density.
 
 	joinrate = biscale * eOptions->getJoinConcentration();
+
 
 }

@@ -323,7 +323,7 @@ def doSlowdownStudy(trials):
     
     def computeMeanStd(seq):
     
-        result, times = doFirstStepMode(seq, [1.0e-6], T=20, numOfRuns=trials, leak=False) 
+        result, times = doFirstStepMode(seq, [1.0e-6], T=20, numOfRuns=trials) 
         return result[0]
     
     

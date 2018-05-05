@@ -45,6 +45,45 @@ def makeComplex(seq, dotparen):
 makeComplex.counter = 0
 
 
+
+def leakInvasion(options, mySeq, myTrials=0, doFirstPassage=False):
+    
+    onedomain = Domain(name="d1", sequence=mySeq)
+    top = Strand(name="top", domains=[onedomain])
+    bot = top.C
+
+    initial_complex = Complex(strands=[top, bot], structure="(+)")
+    invader_top = Complex(strands=[top], structure=".")
+
+    # Turns Boltzmann sampling on for this complex and also does sampling more efficiently by sampling 'trials' states.
+    if(myTrials > 0):
+        setBoltzmann(initial_complex, myTrials)
+        setBoltzmann(invader_top, myTrials)
+
+    # Stop when the exact full duplex is achieved.
+    stopSuccess = StopCondition(Options.STR_SUCCESS, [(
+        success_complex, Options.exactMacrostate, 0)])
+
+    # Declare the simulation unproductive if the strands become single-stranded again.
+    failed_complex = Complex(strands=[top], structure=".")
+    stopFailed = StopCondition(Options.STR_FAILURE, [(
+        failed_complex, Options.dissocMacrostate, 0)])
+
+    options.start_state = [startTop, startBot]
+
+    # Point the options to the right objects
+    if not doFirstPassage:
+
+        options.stop_conditions = [stopSuccess, stopFailed]
+
+    else:
+
+        options.stop_conditions = [stopSuccess]
+    
+    
+
+
+
 def hybridization(options, mySeq, myTrials=0, doFirstPassage=False):
 
     # Using domain representation makes it easier to write secondary structures.
