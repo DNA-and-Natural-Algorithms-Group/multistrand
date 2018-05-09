@@ -24,6 +24,14 @@ class Options(object):
     STR_SUCCESS = "SUCCESS"
     STR_ALT_SUCCESS = "ALT_SUCCESS"
     
+    """
+         protected results may occupy the [x.tag in a x in options.interface.results]
+    """
+    STR_TIMEOUT = "timeout"
+    STR_NOINITIAL = "noinitial"
+    STR_NAN = "nan"
+    STR_ERROR = "error"
+        
     # rate_method
     metropolis = 1
     kawasaki = 2

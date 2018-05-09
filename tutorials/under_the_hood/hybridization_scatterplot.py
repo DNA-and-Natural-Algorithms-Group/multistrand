@@ -147,11 +147,10 @@ def compute_rate_constants(dataset, concentration, printit=True):
     forward_collision_rates[:] = [i.collision_rate for i in forward]
 
     # When Boltzmann sampling, it is possible that the two complexes have no possible first base-pairs to form,
-    # for example, if they are both blunt-ended hairpins.  In this case, i.collision_rate will be 0, i.type_name will be 'No Moves' (rather
-    # than the usual 'Forward') and i.tag will be 'None'.  Since the other way that i.tag can be 'None' is when a simulation doesn't
+    # for example, if they are both blunt-ended hairpins.  In this case, i.collision_rate will be 0, i.tag "noinitial"
+    # Since the other way that i.tag can be 'None' is when a simulation doesn't
     # reach any StopCondition before timing out by exceeding o.simulation_time, and since both of those cases should be considered "failures"
-    # for the attempted reaction, we just look at i.tag and ignore i.type_name.
-    reverse = [i for i in dataset if i.tag == "FAILURE" or i.tag == None]
+    reverse = [i for i in dataset if i.tag == "FAILURE" or i.tag == Options.STR_NOINITIAL or i.tag == Options.STR_TIMEOUT]
     reverse_times = np.zeros( len(reverse))
     reverse_times[:] = [i.time for i in reverse]
     reverse_collision_rates = np.zeros( len(reverse))

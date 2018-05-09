@@ -21,7 +21,7 @@ from constantsgao import goa2006_P0, goa2006_P3, goa2006_P4, setSaltGao2006, col
 
 from matplotlib.collections import LineCollection
 import matplotlib
-matplotlib.use('Agg') # multiprocessing errors?
+matplotlib.use('Agg')  # multiprocessing errors?
 import matplotlib.pylab as plt
 import numpy as np
 import operator, sys
@@ -42,7 +42,6 @@ class hybridizationSimSettings(object):
         self.cutOff = cutOff
         self.trials = trials
         
-        
     def __str__(self):
         
         output = "mySeq=" + self.mySeq
@@ -51,7 +50,7 @@ class hybridizationSimSettings(object):
         return output
 
     
-def getOptions(trials , settings): #start_complex_top, start_complex_bot, success_stop_condition, failed_stop_condition
+def getOptions(trials , settings):  # start_complex_top, start_complex_bot, success_stop_condition, failed_stop_condition
       
     options = standardOptions("First Step", TEMPERATURE, settings.trials, ATIME_OUT)
 
@@ -75,7 +74,6 @@ def first_step_simulation(multistrandObject, settings):
     multistrandObject.run()  
     
     return 0
-    
   
 
 def doPosPlotsPrimer(analysisResult, settings, extraTitle):
@@ -110,16 +108,13 @@ def estimateSuccessProbability(popularStructure, settings):
  
     settings.trials = int(settings.trials / 50.0)
     settings.initialStructure = popularStructure
-  
  
     first_step_simulation(newMultistrand, settings)
     settings.trials = oldTrials
     
     output = np.float(newMultistrand.nForward.value) / np.float(newMultistrand.trialsPerThread * newMultistrand.numOfThreads)
     
-    
     return output
-    
     
 
 def computeWinProb(f2, pos, structDict2, settings):
@@ -136,9 +131,9 @@ def computeWinProb(f2, pos, structDict2, settings):
     f2.write(str(pos) + " " + popularStructure + "\n")
 
     return estimateSuccessProbability(popularStructure, settings)
+
     
 def plotMostFrequentStructure(posDict, length):
-    
     
             # # Add a spline interpolation of the most popular state per column
         mostFreq = list()
@@ -153,7 +148,6 @@ def plotMostFrequentStructure(posDict, length):
             
             if val > currMax:
                 mostFreq[x] = [y, val]
-        
             
         # # determine highest x value for which there are observations
         maxX = max([pos.posX for pos in posDict])
@@ -175,6 +169,7 @@ def plotMostFrequentStructure(posDict, length):
         
         return mostFreq, maxX
 
+
 def plotFirstTrajectory(filename, trajectories, length):
 # Add an interpolation of the first four trajectories
     
@@ -184,8 +179,6 @@ def plotFirstTrajectory(filename, trajectories, length):
     
     if len(trajectories) < upTo:
         upTo = len(trajectories)
-        
-        
 
     for j in range(upTo):
 
@@ -212,10 +205,10 @@ def plotFirstTrajectory(filename, trajectories, length):
     
     f.close()
 
+
 def doPosPlots(posDict, settings, extraTitle, selectedCount, extraSettings, structDict2=None, trajectory=None):
     
     fileName = standardFileName(SCRIPT_DIR, settings.mySeq, extraTitle, settings.trials) 
-    
     
     length = len(settings.mySeq) + 1
     
@@ -226,12 +219,10 @@ def doPosPlots(posDict, settings, extraTitle, selectedCount, extraSettings, stru
     for i in range(nrows):
         for j in range(ncols):
             image[i + nrows * j] = -990.0
-            
 
     myMax = -5.0
     myMin = myMax - 7.0        
     corrector = 1.0;
-    
     
     goodPosDict = dict(posDict)
     
@@ -246,7 +237,6 @@ def doPosPlots(posDict, settings, extraTitle, selectedCount, extraSettings, stru
     if ("M1" in extraSettings):
         extraTitle = "-ModeOne-" + extraTitle    
         corrector = settings.trials
-
         
     for pos, val in goodPosDict.iteritems():
  
@@ -299,7 +289,6 @@ def doPosPlots(posDict, settings, extraTitle, selectedCount, extraSettings, stru
 
         winProb = list()
         plotRange = range(1, maxX)
-
         
         f2 = open(fileName + "-mostPopularStructs.txt", 'w')
         
@@ -317,10 +306,6 @@ def doPosPlots(posDict, settings, extraTitle, selectedCount, extraSettings, stru
         plt.fill_between(plotRange, 0.0, winProb, facecolor='orange', edgecolor='orange', alpha=0.5)
         plt.savefig(fileName + '-structSample.pdf')
 
-    
-        
-        
-
 
 def writeStructFile(analysisResult, settings, extraTitle):
     
@@ -328,8 +313,7 @@ def writeStructFile(analysisResult, settings, extraTitle):
     f = open(fileName + "-struct.txt", 'w')    
      
 #     goodDict =  copy.deepcopy(dict(analysisResult.posDict))
-    goodDict =  dict(analysisResult.posDict)
-
+    goodDict = dict(analysisResult.posDict)
      
     for pos, val in goodDict.iteritems():
         
@@ -345,7 +329,6 @@ def writeStructFile(analysisResult, settings, extraTitle):
         
 #         goodDict = copy.deepcopy(dict(analysisResult.structDict2[i]))
         goodDict = (dict(analysisResult.structDict2[i]))
-
         
         # only print the top 20 of structures found
         goodDict = dict(sorted(goodDict.iteritems(), key=operator.itemgetter(1), reverse=True)[:20])
@@ -361,15 +344,13 @@ def writeStructFile(analysisResult, settings, extraTitle):
   
     f.close()
     
-    
 
 def doProbabilitySuccesPlot(settings, extraTitle):
-    
         
     winPosDict = dict()
      
-    goodDict =  (dict(myMultistrand.aFactory.result1.countDict))
-    goodDictOther =  (dict(myMultistrand.aFactory.result2.countDict))
+    goodDict = (dict(myMultistrand.aFactory.result1.countDict))
+    goodDictOther = (dict(myMultistrand.aFactory.result2.countDict))
 
     print("Dict size is ", len(goodDict)) 
 
@@ -379,7 +360,6 @@ def doProbabilitySuccesPlot(settings, extraTitle):
          
         if(goodDictOther.has_key(key)):
             valueOther = goodDictOther[key]
-         
         
         denom = np.float(goodDict[key]) + np.float(valueOther)         
         newVal = np.float(value) / np.float(denom)
@@ -394,9 +374,8 @@ def doBinaryProbabilityPlot(settings, extraTitle):
      
     def genPlots(settings, extraTitle, selectedCounts, result, extrastr): 
      
-        goodDict =  (dict(result.binaryDict))
+        goodDict = (dict(result.binaryDict))
         plottingDict = dict()
-        
         
         for key, value in goodDict.iteritems():
                         
@@ -413,15 +392,13 @@ def doBinaryProbabilityPlot(settings, extraTitle):
     genPlots(settings, extraTitle, myFact.result2.pathCount.value, myFact.result2, Options.STR_FAILURE)    
 
 
-
 def simulationTimeBarplot(settings, extraTitle):
     
     fname = standardFileName(SCRIPT_DIR, settings.mySeq, extraTitle, settings.trials)
     
     all_times = np.array([i.time for i in myMultistrand.results])
     forward_times = np.array([i.time for i in myMultistrand.results if i.tag == Options.STR_SUCCESS])
-    reverse_times = np.array([i.time for i in myMultistrand.results if i.tag == Options.STR_FAILURE  or i.tag == None])
-    
+    reverse_times = np.array([i.time for i in myMultistrand.results if i.tag == Options.STR_FAILURE  or i.tag == Options.STR_TIMEOUT or i.tag == Options.STR_NOINITIAL])
    
     def makeFig(selector, times):
         
@@ -441,12 +418,9 @@ def simulationTimeBarplot(settings, extraTitle):
         plt.savefig(fname + "-bar" + "-" + selector + '.pdf')
         plt.close()
         
-        
-        
     makeFig(Options.STR_ALL, all_times) 
     makeFig(Options.STR_SUCCESS, forward_times)
     makeFig(Options.STR_FAILURE, reverse_times)
-
     
     plt.figure()
     
@@ -496,27 +470,20 @@ def makeAlignmentSuccessTable(analysis, settings, extraTitle):
     
     output += "\n"
     
-    
     output += "aligned " + str(aligned) + "\n"
     output += "non-aligned " + str(nonaligned) + "\n"
     
     output += "\n"
-    
 
     if aligned > 0 :
         output += "Aligned succes prob (%) =  " + str(100.0 * np.float(alignedSuccess) / np.float(aligned)) + "\n"
     if nonaligned > 0 :
         output += "Non aligned succes prob (%) =  " + str(100.0 * np.float(nonalignedSuccess) / np.float(nonaligned)) + "\n"
 
-
     f.write(output)
-    
-    
-
 
 
 def doInference(mySeq, extraTitle, cutOff, runs):
-    
     
     settings = hybridizationSimSettings(mySeq, cutOff, runs)
     
@@ -543,11 +510,10 @@ def doInference(mySeq, extraTitle, cutOff, runs):
     # # Write the alignment - success table
     makeAlignmentSuccessTable(myMultistrand.aFactory, settings, extraTitle)
 #     myMultistrand.clear()
-    
-
 
 
 if __name__ == '__main__':
+
     
     if len(sys.argv) < 1:
         print """Usage:
@@ -563,7 +529,6 @@ if __name__ == '__main__':
     toggle = str(sys.argv[3])
 
     myMultistrand.setNumOfThreads(numOfThreads)
-  
     
     if toggle == "test":
         doInference('TACCGT', "P0-test", 10, numOfPaths)  # P0
@@ -576,10 +541,4 @@ if __name__ == '__main__':
         doInference(goa2006_P3, toggle, 14, numOfPaths)  # P3
     if toggle == "P4":
         doInference(goa2006_P4, toggle, 14, numOfPaths)  # P4
-
-
-
-        
-
-
         

@@ -94,8 +94,7 @@ def plot_histograms_complete_vs_failed( result_list, colors=['b','m'], figure=1 
     if len(neither)>0 :
         print "some trajectories did not finish, one way nor the other..."
         for i in neither :
-            assert (i.type_name=='Time')
-            assert (i.tag == None )
+            assert (i.tag == Options.STR_TIMEOUT)
 
     if len(times_complete)>0 and len(times_failed)>0 :
         min_time = np.min( [np.min(times_complete),np.min(times_failed)] )

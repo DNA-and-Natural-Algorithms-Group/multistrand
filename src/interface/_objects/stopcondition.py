@@ -1,6 +1,10 @@
+
+
 class StopCondition(object):
     """Represents a trajectory stopping condition.  Plug-and-play equivalent to a Macrostate."""
     
+   
+                 
     def __init__(self, tag, complex_items):
         """ __init__(self, tag, complex_items)
             tag is the reported name for this stop condition (string)
@@ -23,6 +27,13 @@ class StopCondition(object):
         """
         self.tag = str(tag)
         self.complex_items = complex_items  # List of (complex, stoptype, count) tuples
+
+        """ Need to prevent circular import """
+        from ..options import Options       
+        protected = [ Options.STR_NOINITIAL, Options.STR_ERROR, Options.STR_NAN, Options.STR_TIMEOUT ]
+
+        if self.tag in protected:
+            raise ValueError('Please do not use a protected simulation result tag as a name for a stopping condition \n Protected are: ' + str(protected))
 
     def __str__(self):
         str_ret = "Stop Condition, tag:" + self.tag

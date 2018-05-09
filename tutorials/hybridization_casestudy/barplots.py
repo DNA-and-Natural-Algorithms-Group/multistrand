@@ -519,7 +519,7 @@ if __name__ == '__main__':
         settings_flamm = settings(enum_flamm, title_flamm, nTrials=5 * nTrials)
         settings_yurke = settings(enum_yurke, title_yurke, nTrials=nTrials)
         settings_yurke2 = settings(enum_yurke2, title_yurke2, nTrials=nTrials)
-        settings_rickettsia = settings(enum_rickettsia, title_rickettsia, nTrials=0.1 * nTrials)
+        settings_rickettsia = settings(enum_rickettsia, title_rickettsia, nTrials=0.2 * nTrials)
         
         switcher = {
             

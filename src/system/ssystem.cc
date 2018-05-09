@@ -535,7 +535,7 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 
 		noInitialMoves++;
 
-		simOptions->stopResultBimolecular("NoMoves", current_seed, 0.0, 0.0, NULL);
+		simOptions->stopResultFirstStep(current_seed, 0.0, 0.0, result_type::STR_NOINITIAL.c_str());
 		return;
 	}
 
@@ -605,16 +605,12 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 
 	if (stopFlag) {
 		dumpCurrentStateToPython();
-		if (strcmp(traverse->tag, "REVERSE") == 0)
-			simOptions->stopResultBimolecular("Reverse", current_seed, myTimer.stime, frate, traverse->tag);
-		else
-			simOptions->stopResultBimolecular("Forward", current_seed, myTimer.stime, frate, traverse->tag);
+		simOptions->stopResultFirstStep(current_seed, myTimer.stime, frate, traverse->tag);
 		delete first;
 	} else {
 		timeOut++;
 		dumpCurrentStateToPython();
-		simOptions->stopResultBimolecular("FTime", current_seed, myTimer.stime, frate,
-		NULL);
+		simOptions->stopResultFirstStep(current_seed, myTimer.stime, frate, result_type::STR_TIMEOUT.c_str());
 	}
 
 }

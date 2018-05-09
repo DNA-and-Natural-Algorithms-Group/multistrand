@@ -23,6 +23,15 @@ typedef std::vector<bool> boolvector;
 typedef std::vector<bool>::iterator boolvector_iterator;
 
 
+namespace result_type {
+
+const static std::string STR_ERROR = "error";
+const static std::string STR_NAN = "nan";
+const static std::string STR_NOINITIAL = "noinitial";
+const static std::string STR_TIMEOUT = "timeout";
+
+}
+
 
 
 // Some simulation datapoints

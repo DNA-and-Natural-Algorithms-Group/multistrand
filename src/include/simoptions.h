@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2017 California Institute of Technology. All rights reserved.
-Multistrand nucleic acid kinetic simulator
-help@multistrand.org
-*/
+ Copyright (c) 2017 California Institute of Technology. All rights reserved.
+ Multistrand nucleic acid kinetic simulator
+ help@multistrand.org
+ */
 
 /*
  *
@@ -30,13 +30,11 @@ using namespace utility;
 
 class EnergyOptions;
 
-
 // FD: SimOptions contains an EnergyOptions object.
 // Both simOptions and energyOptions are meant to contain static values.
 // EnergyModel contains all precomputed maps AND relevant energy functions.
 //
 // hiarchy: energy model > simoptions > energyoptions.
-
 
 class SimOptions {
 public:
@@ -72,7 +70,10 @@ public:
 	virtual void stopResultNan(long) = 0;
 	virtual void stopResultNormal(long, double, char*) = 0;
 	virtual void stopResultTime(long, double) = 0;
-	virtual void stopResultBimolecular(string, long, double, double, char*) = 0;
+
+	// For a first step result, also report the collision rate.
+	virtual void stopResultFirstStep(long, double, double, const char*) = 0;
+
 
 // IO Methods
 	string toString(void);
@@ -83,13 +84,12 @@ public:
 
 	const int initialActiveNT = 8;	// initial number of active nucleotides.
 
-
 	vector<complex_input>* myComplexes = NULL;
 	EnergyOptions* energyOptions = NULL;
 
 	bool statespaceActive = false;
 
-	long verbosity  = 1;
+	long verbosity = 1;
 
 protected:
 
@@ -105,7 +105,6 @@ protected:
 	stopComplexes* myStopComplexes = NULL;
 
 	bool printInitialFirstStep = false;
-
 
 };
 
@@ -124,7 +123,7 @@ public:
 	void stopResultNan(long);
 	void stopResultNormal(long, double, char*);
 	void stopResultTime(long, double);
-	void stopResultBimolecular(string, long, double, double, char*);
+	void stopResultFirstStep(long, double, double, const char*);
 
 protected:
 	bool debug;
@@ -148,7 +147,7 @@ public:
 	void stopResultNan(long);
 	void stopResultNormal(long, double, char*);
 	void stopResultTime(long, double);
-	void stopResultBimolecular(string, long, double, double, char*);
+	void stopResultFirstStep(long, double, double, const char*);
 
 protected:
 	bool debug;

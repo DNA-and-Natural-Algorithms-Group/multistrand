@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2017 California Institute of Technology. All rights reserved.
-Multistrand nucleic acid kinetic simulator
-help@multistrand.org
-*/
+ Copyright (c) 2017 California Institute of Technology. All rights reserved.
+ Multistrand nucleic acid kinetic simulator
+ help@multistrand.org
+ */
 
 /*
  *
@@ -79,8 +79,6 @@ PSimOptions::PSimOptions(PyObject* input) :
 	getLongAttr(python_settings, verbosity, &verbosity);
 
 	getBoolAttr(python_settings, activestatespace, &statespaceActive);
-
-
 
 	debug = false;	// this is the main switch for simOptions debug, for now.
 
@@ -184,11 +182,10 @@ double SimOptions::getMaxSimTime(void) {
 
 }
 
-bool SimOptions::getPrintIntialFirstStep(){
+bool SimOptions::getPrintIntialFirstStep() {
 
 	return printInitialFirstStep;
 }
-
 
 bool SimOptions::usingArrhenius(void) {
 
@@ -295,14 +292,14 @@ stopComplexes* PSimOptions::getStopComplexes(int) {
 
 void PSimOptions::stopResultError(long seed) {
 
-	printStatusLine(python_settings, seed, STOPRESULT_ERROR, 0.0, NULL);
+	printStatusLine(python_settings, seed, STOPRESULT_ERROR, 0.0, result_type::STR_ERROR.c_str());
 	return;
 
 }
 
 void PSimOptions::stopResultNan(long seed) {
 
-	printStatusLine(python_settings, seed, STOPRESULT_NAN, 0.0, NULL);
+	printStatusLine(python_settings, seed, STOPRESULT_NAN, 0.0, result_type::STR_NAN.c_str());
 	return;
 
 }
@@ -316,31 +313,17 @@ void PSimOptions::stopResultNormal(long seed, double time, char* message) {
 
 void PSimOptions::stopResultTime(long seed, double time) {
 
-	printStatusLine(python_settings, seed, STOPRESULT_TIME, time, NULL);
+	printStatusLine(python_settings, seed, STOPRESULT_TIME, time, result_type::STR_TIMEOUT.c_str());
 	return;
 
 }
 
-void PSimOptions::stopResultBimolecular(string type, long seed, double stopTime, double rate, char* message) {
+void PSimOptions::stopResultFirstStep(long seed, double stopTime, double rate, const char* message) {
 
-	if (type.compare("Reverse")) {
-
-		printStatusLine_First_Bimolecular(python_settings, seed, STOPRESULT_REVERSE, stopTime, rate, message);
-
-	} else if (type.compare("Forward")) {
-
-		printStatusLine_First_Bimolecular(python_settings, seed, STOPRESULT_FORWARD, stopTime, rate, message);
-
-	} else if (type.compare("FTime")) {
-
-		printStatusLine_First_Bimolecular(python_settings, seed, STOPRESULT_FTIME, stopTime, rate, NULL);
-
-	} else if (type.compare("NoMoves")) {
-		printStatusLine_First_Bimolecular(python_settings, seed, STOPRESULT_NOMOVES, stopTime, rate, NULL);
-
-	}
+	printStatusLine_First_Bimolecular(python_settings, seed, STOPRESULT_NORMAL, stopTime, rate, message);
 
 }
+
 
 ///// CSIMOPTIONS
 CSimOptions::CSimOptions(void) {
@@ -421,7 +404,7 @@ void CSimOptions::stopResultTime(long seed, double time) {
 
 }
 
-void CSimOptions::stopResultBimolecular(string type, long seed, double stopTime, double rate, char* message) {
+void CSimOptions::stopResultFirstStep(long seed, double stopTime, double rate, const char* message) {
 
 	cout << "stopResultBimolecular, cannot send to python \n";
 
