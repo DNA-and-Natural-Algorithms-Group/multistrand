@@ -325,7 +325,7 @@ class Complex(object):
         f.close()
         os.remove(tmp.name) # was created by us [NamedTemporaryFile] and
                             # used by the sampler, thus we need to clean it up.
-        if not ("NUPACK 3.0" in lines[0] or 'NUPACK 3.2.0' in lines[0]):
+        if not ("NUPACK 3.0" in lines[0] or 'NUPACK 3.2' in lines[0]):
             raise IOError("Boltzmann sample function is not up to date. NUPACK 3.2.0 or greater needed.")
         
         self._boltzmann_queue = lines[14:] * self.boltzmann_supersample

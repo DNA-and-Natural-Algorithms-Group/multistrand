@@ -89,7 +89,7 @@ void SimulationSystem::construct(void) {
 	Loop::SetEnergyModel(energyModel);
 
 // move these to sim_settings
-	exportStatesInterval = (simOptions->getOInterval() >= 0);
+	exportStatesInterval = (simOptions->getOInterval() > 0);
 	exportStatesTime = (simOptions->getOTime() >= 0);
 
 	builder = Builder(simOptions);
