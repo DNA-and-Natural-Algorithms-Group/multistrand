@@ -13,9 +13,12 @@ import matplotlib.lines as lines
 from matplotlib.ticker import ScalarFormatter
 
 # multistrand
-from multistrand.concurrent import myMultistrand
+from multistrand.concurrent import MergeSim
 from case2 import genOptions, Experiment, setupSimulationOptions, runExperiment, CL_LONG_GATE_A_SEQ, CL_LONG_GATE_B_SEQ
 from multistrand.experiment import ClampedSeesawGate
+
+
+myMultistrand = MergeSim()
 
 
 # For a greater understanding of how this specific code actually runs, please see case2.py

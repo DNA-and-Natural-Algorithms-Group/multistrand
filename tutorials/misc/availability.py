@@ -8,11 +8,10 @@
 
 from multistrand.objects import StopCondition, Domain, Complex, Strand
 from multistrand.options import Options
-from multistrand.concurrent import myMultistrand
+from multistrand.concurrent import MergeSim
 from multistrand.experiment import makeComplex, standardOptions, setBoltzmann
 
 
-myMultistrand.setNumOfThreads(8)
 
 def doExperiment(trials):
 
@@ -73,6 +72,7 @@ def doExperiment(trials):
     
 # actually calling multistrand
 
+myMultistrand = MergeSim()
 myMultistrand.setOptionsFactory1(doExperiment, 5*20*4)
 myMultistrand.setTerminationCriteria(terminationCount=6)
 myMultistrand.setLeakMode()

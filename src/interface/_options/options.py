@@ -57,14 +57,28 @@ class Options(object):
                         "Transition":               transition,
                         "Trajectory":               trajectory,
                         "First Passage Time":       firstPassageTime}
-    
-    # for StopCondition and Macrostate definitions:
-    exactMacrostate = 0  # match a secondary structure exactly (i.e. any system state that has a complex with this exact structure)
-    boundMacrostate = 1  # match any system state in which the given strand is bound to another strand
-    dissocMacrostate = 2  # match any system state in which there exists a complex with exactly the given strands, in that order
-    looseMacrostate = 3  # match a secondary structure with "don't care"s, allowing a certain number of disagreements
-    countMacrostate = 4  # match a secondary structure, allowing a certain number of disagreements
-    # see Schaeffer's PhD thesis, chapter 7.2, for more information
+
+
+    """
+        FD, May 8th, 2018:
+        
+        StopCondition and Macrostate definitions:
+            Exact - match a secondary structure exactly (i.e. any system state that has a complex with this exact structure)
+            Bound - match any system state in which the given strand is bound to another strand
+            Dissoc - match any system state in which there exists a complex with exactly the given strands, in that order
+            Loose - match a secondary structure, allowing a certain number of disagreements, allowing domain state to be unspecified (* notation)
+            Count - match a secondary structure, allowing a certain number of disagreements
+            
+            Compuational expense, low to high :           dissoc -- exact -- count -- loose     
+    """
+
+    exactMacrostate = 0  # 
+    boundMacrostate = 1  # 
+    dissocMacrostate = 2  # 
+    looseMacrostate = 3  # 
+    countMacrostate = 4  # 
+
+
     
     cotranscriptional_rate_default = 0.001  # 1 nt added every 1 ms
     

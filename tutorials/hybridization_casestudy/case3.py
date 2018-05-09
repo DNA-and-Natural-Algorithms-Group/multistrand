@@ -13,7 +13,7 @@ Some routines are ommited for testing purposes, use:
 """
 
 from multistrand.options import Options
-from multistrand.concurrent import myMultistrand, MergeSim
+from multistrand.concurrent import  MergeSim
 from multistrand.utils import standardFileName
 from multistrand.experiment import  hybridization, standardOptions
 
@@ -30,6 +30,8 @@ import operator, sys
 SCRIPT_DIR = "case3_gao_study"
 TEMPERATURE = 20.0
 ATIME_OUT = 10.0
+
+myMultistrand = MergeSim()
 
 
 class hybridizationSimSettings(object):

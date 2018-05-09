@@ -38,4 +38,4 @@ else:
 
 
 
-print ("Computing took %.4f s" % (time.time() - start_time))
+# print ("Computing took %.4f s" % (time.time() - start_time))

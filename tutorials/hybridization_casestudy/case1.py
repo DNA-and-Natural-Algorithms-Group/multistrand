@@ -11,7 +11,7 @@
 from multistrand.objects import Strand
 from multistrand.experiment import standardOptions, hybridization
 from multistrand.utils import concentration_string, standardFileName
-from multistrand.concurrent import  FirstStepRate, FirstPassageRate, Bootstrap, myMultistrand, MergeSim
+from multistrand.concurrent import  FirstStepRate, FirstPassageRate, Bootstrap, MergeSim
 from multistrand.options import Options
 
 
@@ -26,19 +26,19 @@ import time, sys
 SCRIPT_DIR = "case1_first_step"
 TEMPERATURE = 20.0
 ATIME_OUT = 100.0
-BOOTSTRAP_RESAMPLE = 10000
+BOOTSTRAP_RESAMPLE = 1000
 POINT_SIZE = 38  # size of markers in the plot
 
 
 markers = ["8", ">", "D", "s", "*", "<", "^"] 
  
-myMultistrand.setNumOfThreads(8) 
+# myMultistrand.setNumOfThreads(8) 
 
 
 def first_step_simulation(strand_seq, trials, T=20.0):
 
-    myMultistrand = MergeSim()    
-    myMultistrand.setNumOfThreads(8) 
+    myMS = MergeSim()    
+    myMS.setNumOfThreads(8) 
     print ("Running first step mode simulations for %s (with Boltzmann sampling)..." % (strand_seq))
     
     def getOptions(trials):
@@ -63,19 +63,19 @@ def first_step_simulation(strand_seq, trials, T=20.0):
         throws =  trials *( 1100.0 / 240.0)
     
     
-    myMultistrand.setOptionsFactory1(getOptions, throws )
-    myMultistrand.setFirstStepMode()  # ensure the right results object is set.
+    myMS.setOptionsFactory1(getOptions, throws )
+    myMS.setFirstStepMode()  # ensure the right results object is set.
 #     myMultistrand.setLeakMode()
 #     myMultistrand.setTerminationCriteria(terminationCount=trials)
-    myMultistrand.run()
-    return myMultistrand
+    myMS.run()
+    return myMS
 
 
 
 def first_passage_association(strand_seq, trials, concentration, T=20.0):
 
-    myMultistrand = MergeSim()
-    myMultistrand.setNumOfThreads(8) 
+    thisMS = MergeSim()
+    thisMS.setNumOfThreads(8) 
     print "Running first passage time simulations for association of %s at %s..." % (strand_seq, concentration_string(concentration))
     
     def getOptions(trials):
@@ -89,11 +89,11 @@ def first_passage_association(strand_seq, trials, concentration, T=20.0):
 
         return o
     
-    myMultistrand.setOptionsFactory1(getOptions, trials)
-    myMultistrand.setPassageMode()
-    myMultistrand.run()
+    thisMS.setOptionsFactory1(getOptions, trials)
+    thisMS.setPassageMode()
+    thisMS.run()
     
-    return myMultistrand
+    return thisMS
 
 
 
@@ -105,6 +105,9 @@ def doFirstStepMode(seq, concentrations, T=20.0, numOfRuns=500):
 
     myMultistrand = first_step_simulation(seq, numOfRuns, T=T) 
     myRates = myMultistrand.results
+    
+#     print myRates.dataset
+    
     time2 = time.time()
     print str(myRates)
     
@@ -168,6 +171,9 @@ def doFirstPassageTimeAssocation(seq, concentrations, T=20, numOfRuns=500):
                      
             myMultistrand = first_passage_association(seq, numOfRuns, concentration=concentration, T=T)
             myRates = myMultistrand.results
+            
+#             print myRates.dataset
+                        
             keff = myRates.log10KEff(concentration)
             
             myBootstrap = Bootstrap(myRates, N=BOOTSTRAP_RESAMPLE, concentration=concentration)
@@ -382,7 +388,7 @@ if __name__ == '__main__':
 
         if toggle == "plots":     
             doInference([1e0, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6], trials)                     
-#             doInference([1e0, 1e-1, 1e-2, 1e-3], trials)                     
+#             doInference([1e0, 1e-1, 1e-2], trials)
 
         
         if toggle == "slowDownStudy":

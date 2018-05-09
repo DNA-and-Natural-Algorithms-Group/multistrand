@@ -1,8 +1,16 @@
 """
-Frits Dannenberg, May 17th, 2017.
-This module has two parts.
-1) Given multistrand results, compute reaction rate constants.
-2) A module for running multistrand concurrently. Results are merged automatically
+
+    Frits Dannenberg, May 17th, 2017.
+    This module has three main classes
+
+    MergeResult: Given multistrand results, compute reaction rate constants.
+    MergeSim:    A class for running multistrand concurrently 
+    Bootstrap:   A convenience class to compute bootstrapped confidence bounds.
+
+    MergeResult children: FirstStepRate, FirstStepLeakRate, FirstPassageRate
+
+    The MergeSim.run() method always returns of the MergeResult sub-classes.
+    
 """
 import operator
 import os
@@ -14,29 +22,71 @@ import copy
 import sys
 import random
 
-from collections import Counter
 from multistrand.options import Options
 import multiprocessing
 import numpy as np
 
 from multistrand.system import SimSystem
 
-
 MINIMUM_RATE = 1e-36
 
-# # Rate-computation classes start here
 
-
-# Shared class methods
 class MergeResult(object):
 
-    myBootstrap = None
-    nForward = 0
-    nReverse = 0
-    nForwardAlt = 0
-    nTotal = 0
+    """ Endstates are not saved for first step leak mode """
 
-    dataset = []
+#     
+    def __init__(self, dataset=None, endStates=None):
+         
+        if dataset == None:
+            dataset = []
+ 
+        if endStates == None:
+            endStates = []
+ 
+        # save the dataset for re-sampling and merging results. Also needed for certain rates
+        self.myBootstrap = None
+         
+        self.nForward = 0
+        self.nReverse = 0
+        self.nForwardAlt = 0
+        self.nTotal = 0
+         
+        self.dataset = dataset
+        self.endStates = endStates
+         
+        self.generateCounts()
+            
+    def generateCounts(self):
+
+        # Pre-computing some metrics
+        self.nForward = sum([i.tag == Options.STR_SUCCESS for i in self.dataset])
+        self.nReverse = sum([i.tag == Options.STR_FAILURE for i in self.dataset])
+        self.nForwardAlt = sum([i.tag == Options.STR_ALT_SUCCESS for i in self.dataset])
+
+        self.nTotal = len(self.dataset)
+        
+    def merge(self, that, deepCopy=False):
+
+        # Now merge the existing datastructures with the ones from the new dataset
+        if deepCopy:
+            
+            for data in that.dataset:
+                self.dataset.append(data)
+            for state in that.endStates:
+                self.endStates.append(copy.deepcopy(state))                
+
+        else:
+            self.dataset.append(that.dataset)
+            self.endStates.append(that.endStates)
+        
+        self.generateCounts()
+        
+    """ Convenience methods  """
+
+    def doBootstrap(self, NIn=1000):
+        self.myBootstrap = Bootstrap(self, N=NIn, computek1=True)
+        return self.myBootstrap.ninetyFivePercentiles()
 
     def log10KEff(self, concentration):
         return np.log10(self.kEff(concentration))
@@ -44,40 +94,15 @@ class MergeResult(object):
     def testForTwoStateness(self, concentration):
         print "Test for two-stateness is not implemented for this object (type: " + type(self).__name__ + ")\n"
 
-    # Convenience.
-    def doBootstrap(self, NIn=10000):
-        self.myBootstrap = Bootstrap(self, N=NIn,  computek1=True)
-        return self.myBootstrap.ninetyFivePercentiles()
-
     def __str__(self):
         if self.myBootstrap != None:
             return self.myBootstrap.__str__() + "\n"
         else:
             return ""
 
+
 # # Migration rates for first step
 class FirstStepRate(MergeResult):
-
-    def __init__(self, dataset=None):
-
-        if dataset == None:
-            dataset = []
-
-        # save the dataset for re-sampling and merging results. Also needed for certain rates
-        self.dataset = dataset
-        self.generateRates()
-
-    def generateRates(self):
-
-        # Pre-computing some metrics
-        self.nForward = sum(
-            [i.tag == Options.STR_SUCCESS for i in self.dataset])
-        self.nReverse = sum(
-            [i.tag == Options.STR_FAILURE for i in self.dataset])
-        self.nForwardAlt = sum(
-            [i.tag == Options.STR_ALT_SUCCESS for i in self.dataset])
-
-        self.nTotal = len(self.dataset)
 
     def sumCollisionForward(self):
         return sum([np.float(i.collision_rate) for i in self.dataset if i.tag == Options.STR_SUCCESS])
@@ -207,20 +232,13 @@ class FirstStepRate(MergeResult):
         self.was_success = np.array(self.was_success)
         self.was_failure = np.array(self.was_failure)
 
-    def merge(self, that, deepCopy=False):
-        
-        # Now merge the existing datastructures with the ones from the new dataset
-        if deepCopy:
-            for result in that.dataset:
-                self.dataset.append(copy.deepcopy(result))
-        else:
-            self.dataset.append(that.dataset)
-
     # # override toString
     def __str__(self):
 
-        output = "nForward = " + str(self.nForward) + " \n"
-        output += "nReverse = " + str(self.nReverse) + " \n \n"
+        print "nForward = " + str(self.nForward) 
+        print "nReverse = " + str(self.nReverse) 
+        
+        output = ""
 
         if(self.nForward > 0):
             output += "k1       = %.2e  /M /s  \n" % self.k1()
@@ -234,7 +252,7 @@ class FirstStepRate(MergeResult):
         if(self.nReverse > 0):
             output += "k2'      = %.2e /M /s \n" % self.k2Prime()
 
-        output+= super(FirstStepRate, self).__str__()
+        output += super(FirstStepRate, self).__str__()
 
         # suc = (x for x in self.dataset if (x.tag==Options.STR_SUCCESS or x.tag==Options.STR_FAILURE))
         # for x in suc:
@@ -254,30 +272,16 @@ class FirstStepRate(MergeResult):
 
         return output
 
-    def typeName(self):
-        return "First Step Rate"
-
 
 class FirstStepLeakRate(MergeResult):
-
-    # take a dataset with failed trajectories, save only the important information.
-    def __init__(self, dataset=None, generate_rates=True):
-
-        if dataset == None:
-            dataset = []
-
-        c = Counter(x.tag for x in dataset)
-
-        self.nForward = c[Options.STR_SUCCESS]
-        self.nForwardAlt = c[Options.STR_ALT_SUCCESS]
-        self.nReverse = c[Options.STR_FAILURE]
-        self.nTotal = len(dataset)
-
-        self.dataset = [x for x in dataset if (
-            (x.tag == Options.STR_SUCCESS) or x.tag == Options.STR_ALT_SUCCESS)]
-
-    def generateRates(self, dataset=None):
-        pass
+    
+    def __init__(self, dataset=None, endStates=None):
+        super(FirstStepLeakRate, self).__init__(dataset, endStates)
+    
+        """ Now discard all non-success data """
+        self.dataset = [x for x in self.dataset if ((x.tag == Options.STR_SUCCESS) or x.tag == Options.STR_ALT_SUCCESS)]
+        
+        self.generateCounts()
 
     def sumCollisionForward(self):
         return sum([np.float(i.collision_rate) for i in self.dataset if i.tag == Options.STR_SUCCESS])
@@ -340,9 +344,6 @@ class FirstStepLeakRate(MergeResult):
 
         output = "nForward = " + str(self.nForward) + " \n"
         output += "nReverse = " + str(self.nReverse) + " \n \n"
-
-        # for x in self.dataset:
-        #     output+= x.__str__() +"\n\n"
         
         if self.nForwardAlt > 0:
             output += "nForwardAlt = " + str(self.nForwardAlt) + "\n"
@@ -350,15 +351,10 @@ class FirstStepLeakRate(MergeResult):
         if(self.nForward > 0):
             output += "k1       = %.2e  /M /s  \n\n" % self.k1()
 
-
         if(self.nForwardAlt > 0):
             output += "k1Alt       = %.2e  /M /s  \n" % self.k1Alt()
-            
-        
-            
 
-        output+= super(FirstStepLeakRate, self).__str__() + "\n"
-        
+        output += super(FirstStepLeakRate, self).__str__() + "\n"
         
         return output
 
@@ -374,170 +370,51 @@ class FirstStepLeakRate(MergeResult):
 
         if(self.nForwardAlt > 0):
             output += "k1Alt       = %.2e  /M /s  \n" % self.k1Alt()
-
        
         return output
 
-# Like migrationrate, but uses data from first passage time rather than first step mode
+
+""" Uses data from first passage time rather than first step mode"""
+
+
 class FirstPassageRate(MergeResult):
-
-    def __init__(self, dataset=None):
-
-        if dataset == None:
-            # set up for resampling
-            self.dataset = []
-            self.times = []
-            self.timeouts = []
-
-        else:
-            self.process(dataset)
-            self.generateRates()
-
-    def process(self, dataset):
-
-        self.times = np.array([i.time for i in dataset])
-        self.timeouts = [
-            i for i in dataset if not i.tag == Options.STR_SUCCESS]
-
-    def castToNumpyArray(self):
-
-        self.times = np.array(self.times)
 
     def resample(self):
 
-        # avoid resampling time-outs.
-        newRates = FirstPassageRate()
+        newData = []
 
-        N = len(self.times)
+        N = len(self.dataset)
 
         # generate random between 0 and N-1
         for i in range(N):
 
             index = int(np.floor(np.random.uniform(high=N)))
-            newRates.times.append(self.times[index])
+            newData.append(self.dataset[index])
 
-        newRates.castToNumpyArray()
-        newRates.generateRates()
-
-        return newRates
-
-    def merge(self, that, deepCopy=False):
-
-        # Now merge the existing datastructures with the ones from the new dataset
-        if deepCopy:
-            for time in that.times:
-                self.times.append(copy.deepcopy(time))
-            for timeout in that.timeouts:
-                self.timeouts.append(copy.deepcopy(timeout))
-        else:
-            self.times.append(that.times)
-            self.timeouts.append(that.timesouts)
-        
-        self.generateRates()
-            
-    def generateRates(self):
-            
-        self.nForward = len(self.times) - len(self.timeouts) 
+        return FirstPassageRate(newData)
 
     def k1(self):
         
-        mean = np.mean(self.times)
+        mean = np.mean([i.time for i in self.dataset])
         return np.float(1.0) / (mean)
-        
 
     def kEff(self, concentration):
 
-        if len(self.timeouts) > 0:
-
-            print("# association trajectories did not finish =",
-                  str(len(self.timeouts)))
-
-            for timeout in self.timeouts:
-                print timeout
-
-            for i in self.timeouts:
-                assert (i.type_name == 'Time')
-                assert (i.tag == None)
-#                 assert (i.time >= 10.0)
-
-        mean = np.mean(self.times)
+        mean = np.mean([i.time for i in self.dataset])
         kEff = np.float(1.0) / (mean * concentration)
 
         return kEff
 
     def __str__(self):
         output = "nForward: %d \n" % self.nForward
-        output+= "k1 = %.3g \n" % self.k1()
-        output+= super(FirstPassageRate, self).__str__() 
+        output += "k1 = %.3g \n" % self.k1()
+        output += super(FirstPassageRate, self).__str__() 
         return output
-
-
-# Like FirstStepRate, but the collected data is from trajectory mode. 
-# Currently, this only saves the final state.
-class TrajectoryMerge(MergeResult):
-
-    def __init__(self, dataset=None, endStates = None):
-
-        if dataset == None:
-            # set up for resampling
-            self.dataset = []
-            self.endStates = []
-        else :
-            self.dataset = dataset
-            self.endStates = endStates
-
-    def resample(self):
-
-        # avoid resampling time-outs.
-        newRates = TrajectoryMerge()
-
-        return newRates
-
-    def merge(self, that, deepCopy=False):
-        
-        # Now merge the existing datastructures with the ones from the new dataset
-        if deepCopy:
-            for result in that.dataset:
-                self.dataset.append(copy.deepcopy(result))
-            for state in that.endStates:
-                self.endStates.append(copy.deepcopy(result))
-                
-        else:
-            self.dataset.append(that.dataset)
-            self.endStates.append(that.endStates)
-            
-    def generateRates(self):
-            
-        self.nForward = 0;
-
-    def k1(self):
-        
-        return 0;
-        
-
-    def kEff(self, concentration):
-
-        return 0;
-
-    def __str__(self):
-
-        nSucc = len([i for i in self.dataset if i.tag == Options.STR_SUCCESS])
-        nSuccAlt = len([i for i in self.dataset if i.tag == Options.STR_ALT_SUCCESS])
-        nFail = len([i for i in self.dataset if i.tag == Options.STR_FAILURE])
-
-        output = "Trajectory Rate, size = %d \n" % len(self.dataset)
-        output = output + "nSucc = " + str(nSucc) + "\n"
-        if nSuccAlt > 0 :
-            output = output + "nAltS = " + str(nSuccAlt)     + "\n"
-        output = output +  "  nFail " + str(nFail)  + "\n"
-        return output
-
-
 
 
 class Bootstrap():
 
-    def __init__(self, myRates, N=10000, concentration=None, computek1=False, computek1Alt=False):
+    def __init__(self, myRates, N=1000, concentration=None, computek1=False, computek1Alt=False):
 
         self.myRates = myRates
 
@@ -607,7 +484,7 @@ class Bootstrap():
     def __str__(self):
         if len(self.effectiveRates) > 0 : 
             low, high = self.ninetyFivePercentiles()    
-            output= "95%% Confidence Interval: [%.3g /M /s, %.3g /M /s] with N=%d" % (low, high, self.N)
+            output = "95%% Confidence Interval: [%.3g /M /s, %.3g /M /s] with N=%d" % (low, high, self.N)
             return output
         else :
             return "No successful reactions observed "
@@ -664,34 +541,33 @@ class MergeSimSettings(object):
     RESULTTYPE1 = "FirstStepRate"
     RESULTTYPE2 = "FirstStepLeakRate"
     RESULTTYPE3 = "FirstPassageRate"
-    RESULTTYPE4 = "TrajectoryMerge"
     
     DEFAULT_OUTPUT_FILE = "mergesim_output.log"
 
-    debug = False
-    resultsType = RESULTTYPE1
-    terminationCount = None
-    max_trials = 250000000
-    timeOut = 24*60*60
+    def __init__(self):
+
+        self.debug = False
+        self.resultsType = self.RESULTTYPE1
+        self.terminationCount = None
+        self.max_trials = 250000000
+        self.timeOut = 24 * 60 * 60
+        
+        self.saveInterval = 500000
+        self.saveIncrement = self.saveInterval
     
-    saveInterval = 500000
-    saveIncrement = saveInterval
+        self.outputFile = self.DEFAULT_OUTPUT_FILE
+    
+        self.bootstrap = False
+        self.bootstrapN = 0
 
-    outputFile = DEFAULT_OUTPUT_FILE
-
-    bootstrap = False
-    bootstrapN = 0
-
-    def rateFactory(self, dataset=None, endStates= None):
+    def rateFactory(self, dataset=None, endStates=None):
         
         if self.resultsType == self.RESULTTYPE1:
-            return FirstStepRate(dataset=dataset)
+            return FirstStepRate(dataset, endStates)
         if self.resultsType == self.RESULTTYPE2:
-            return FirstStepLeakRate(dataset=dataset)
+            return FirstStepLeakRate(dataset)
         if self.resultsType == self.RESULTTYPE3:
-            return FirstPassageRate(dataset=dataset)
-        if self.resultsType == self.RESULTTYPE4:
-            return TrajectoryMerge(dataset, endStates)
+            return FirstPassageRate(dataset, endStates)
 
     def shouldTerminate(self, printFlag, nForwardIn, nReverseIn, timeStart):
 
@@ -701,33 +577,31 @@ class MergeSimSettings(object):
             if printFlag:
                 print "nForward = %i " % nForwardIn.value
                 print "nReverse = %i \n" % nReverseIn.value
-
        
             if(nForwardIn.value >= self.terminationCount):
                 print "Found " + str(nForwardIn.value) + " successful trials, terminating."
                 return True
 
             elif((nForwardIn.value + nReverseIn.value) > self.max_trials):
-                print "Simulated " + str(nForwardIn.value + nReverseIn.value) +  " trials, terminating."
+                print "Simulated " + str(nForwardIn.value + nReverseIn.value) + " trials, terminating."
                 return True
             
-            elif( time.time() - timeStart  > self.timeOut):
+            elif(time.time() - timeStart > self.timeOut):
                 print "Runtime exeeded " + str(self.timeOut) + " seconds, terminating."
                 return True
-
 
             else:
                 return False
 
-
-    def setOutputFile(self,filetitle):
+    def setOutputFile(self, filetitle):
             # sets flags and updates the file title but not more than this.
             # Here, we will wish to append to the file in the future but not normally.
-            self.outputFile = filetitle + time.strftime("-%d-%m-%y+%H-%M-%S")+".log"
+            self.outputFile = filetitle + time.strftime("-%d-%m-%y+%H-%M-%S") + ".log"
 
     def setBootstrap(self, doBootstrap, numIn):
         self.bootstrap = doBootstrap
         self.bootstrapN = numIn
+
 
 def timeStamp(inTime=None):
 
@@ -735,8 +609,6 @@ def timeStamp(inTime=None):
         inTime = time.time()
 
     return str(datetime.datetime.fromtimestamp(inTime).strftime('%Y-%m-%d %H:%M:%S'))
-
-
 
 # This class has two modus operandi:
 # 1) self.settings.resultsType == self.settings.RESULTTYPE4  (default)
@@ -773,14 +645,11 @@ class MergeSim(object):
     def setFirstStepMode(self):
         self.settings.resultsType = self.settings.RESULTTYPE1
 
-    def setLeakMode(self): # leak mode is a  type of First Step mode
+    def setLeakMode(self):  # leak mode is a  type of First Step mode
         self.settings.resultsType = self.settings.RESULTTYPE2
 
     def setPassageMode(self):
         self.settings.resultsType = self.settings.RESULTTYPE3
-
-    def setTrajectoryMode(self):
-        self.settings.resultsType = self.settings.RESULTTYPE4
 
     def setOutputFile(self, title):
         self.settings.setOutputFile(title)
@@ -789,7 +658,7 @@ class MergeSim(object):
         self.settings.setBootstrap(bootstrapIn, num)
 
     def timeSinceStart(self):
-        print("Time since creating object %.5f seconds" %
+        print("Time since creating object %.5f seconds" % 
               (time.time() - self.initializationTime))
 
     def setDebug(self, value):
@@ -894,38 +763,35 @@ class MergeSim(object):
 
         return welcomeMessage
 
-
     def createOutputMessage(self):
         
-        outputString="Trials:              " + str(self.factory.input0) + "\n"
-        outputString+="Max Trials:          " + str(self.settings.max_trials) + "\n"
-        outputString+="Termination  Count:  " + str(self.settings.terminationCount) + "\n"
-        outputString+="Num. of Threads:     " + str(self.numOfThreads) + "\n"
-        outputString+="Run Time:            " + str(self.runTime) + "s \n"
-        outputString+="Using Results Type:  " + self.settings.resultsType + "\n\n"
+        outputString = "Trials:              " + str(self.factory.input0) + "\n"
+        outputString += "Max Trials:          " + str(self.settings.max_trials) + "\n"
+        outputString += "Termination  Count:  " + str(self.settings.terminationCount) + "\n"
+        outputString += "Num. of Threads:     " + str(self.numOfThreads) + "\n"
+        outputString += "Run Time:            " + str(self.runTime) + "s \n"
+        outputString += "Using Results Type:  " + self.settings.resultsType + "\n\n"
 
         def hiddenPrint(myString):
             
             options = self.factory.new(0)
-            myString+="Temperature: " + str(options.temperature) +  "K \n\n"
+            myString += "Temperature: " + str(options.temperature) + "K \n\n"
     
-            myString+="Start States\n"
+            myString += "Start States\n"
             for x in options.start_state:
-                myString+=x.__str__()+"\n\n"
+                myString += x.__str__() + "\n\n"
     
             for x in options.stop_conditions:
-                myString+=x.__str__()+"\n"
+                myString += x.__str__() + "\n"
 
-
-        myProc = multiprocessing.Process(target=hiddenPrint,  args= [outputString])
+        myProc = multiprocessing.Process(target=hiddenPrint, args=[outputString])
         myProc.start()
         myProc.join()
         myProc.terminate()
 
-        outputString+="\n"+self.results.__str__() + "\n"
+        outputString += "\n" + self.results.__str__() + "\n"
         
         return outputString
-
     
     def writeToFile(self):
         
@@ -941,8 +807,6 @@ class MergeSim(object):
             
         f.write(outputString)
         f.close()
-           
-
           
     def printStates(self):
         
@@ -956,13 +820,11 @@ class MergeSim(object):
             for i in self.factory.new(0).stop_conditions:
                 print i
                 print "\n"
-
              
-        myProc = multiprocessing.Process(target=actualPrint,  args= [])
+        myProc = multiprocessing.Process(target=actualPrint, args=[])
         myProc.start()
         myProc.join()
         myProc.terminate()
-                
 
     def run(self):
 
@@ -1016,7 +878,6 @@ class MergeSim(object):
             instanceSeed = self.seed + input * 3 * 5 * 19 + (time.time() * 10000) % (math.pow(2, 32) - 1)
             return multiprocessing.Process(target=doSim, args=(self.factory, self.aFactory, self.managed_result, self.managed_endStates, instanceSeed, self.nForward, self.nReverse))          
 
-
         # this saves the results generated so far as regular Python objects,
         # and clears the concurrent result lists.
         def saveResults():
@@ -1028,12 +889,11 @@ class MergeSim(object):
             else :
                 # join all running threads -- the process has 999 seconds to close or it will be terminated.
                 for i in range(self.numOfThreads):
-                    procs[i].join(timeout = 999)
+                    procs[i].join(timeout=999)
                     procs[i].terminate()
 
             self.runTime = (time.time() - startTime)
             print("Done.  %.5f seconds -- now processing results \n" % (time.time() - startTime))
-
 
             # Leak - the below is a leak rates object
             # NB: Initialize with a dataset, but we merge with
@@ -1043,10 +903,7 @@ class MergeSim(object):
             self.results.merge(myFSR, deepCopy=True)
 
             # save the terminal states if we are not in leak mode
-            if self.settings.resultsType != self.settings.RESULTTYPE2:
-                for endState in self.managed_endStates:
-                    self.endStates.append(copy.deepcopy(endState))
-            else: #in case of studying leak reaction, expect few hits, and print out info more often.
+            if self.settings.resultsType == self.settings.RESULTTYPE2:
                 print self.results
 
             # reset the multiprocessing results lists.
@@ -1054,8 +911,6 @@ class MergeSim(object):
             self.managed_endStates = manager.list()
             # this should also reset the 
             self.settings.saveInterval += self.settings.saveIncrement 
-                
-             
 
         # give a print of the initial states and stopping conditions
         self.printStates()
@@ -1100,14 +955,14 @@ class MergeSim(object):
             if (self.nForward.value + self.nReverse.value) > self.settings.saveInterval:
                 saveResults()
 
-
         saveResults()
 
         # print final results to the user
-        self.results.generateRates()
+        """ is not cleak """
+        if not self.settings.resultsType == MergeSimSettings.RESULTTYPE2:
+            self.results.generateCounts()
         
         print self.results
-
 
         if self.settings.bootstrap == True:
             self.results.doBootstrap(self.settings.bootstrapN)
@@ -1115,9 +970,5 @@ class MergeSim(object):
         self.writeToFile()    
         return 0
 
-
-
-
-
 # # The default multistrand object
-myMultistrand = MergeSim()
+# myMultistrand = MergeSim()

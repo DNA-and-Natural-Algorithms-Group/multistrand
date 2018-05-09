@@ -14,12 +14,12 @@ import numpy as np
 
 from matplotlib.ticker import ScalarFormatter
 
-from multistrand.concurrent import myMultistrand, FirstStepRate, Bootstrap
+from multistrand.concurrent import MergeSim, FirstStepRate, Bootstrap
 from multistrand.experiment import standardOptions, setBoltzmann
 from multistrand.objects import StopCondition, Domain, Complex, Strand
 from multistrand.options import Options
 
-
+myMultistrand = MergeSim()
 myMultistrand.setNumOfThreads(8)
 
 # Figure 2d has 3x12 = 36 rates plotted. 

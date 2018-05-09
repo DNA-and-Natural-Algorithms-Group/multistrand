@@ -239,7 +239,7 @@ def simulationRickettsia(trialsIn):
 
 #     state7 = Complex(strands=[strand_H1, strand_H1, strand_R, strand_H2, strand_A], structure="((((.+((.((+))*+*))))+))", name = "state7")
 
-    stopFailure = StopCondition(Options.STR_ALT_SUCCESS, [(state2, Options.dissocMacrostate, 0)])
+    stopFailure = StopCondition(Options.STR_FAILURE, [(state2, Options.dissocMacrostate, 0)])
     stopSuccess = StopCondition(Options.STR_SUCCESS, [(state5, Options.looseMacrostate, 6)])
     
     stdOptions.start_state = [state3]
@@ -268,14 +268,15 @@ def computeHittingTimes(settings, reverse=False):
         myMultistrand.setOptionsFactory1(simulationYurke, settings.nTrials)
     
     if settings.type == enum_rickettsia:
-        myMultistrand.setOptionsFactory1(simulationRickettsia, settings.nTrials)
-#         myMultistrand.setTerminationCriteria(terminationCount=2)
+        myMultistrand.setOptionsFactory1(simulationRickettsia, 12 * settings.nTrials)
+        myMultistrand.setTerminationCriteria(terminationCount=settings.nTrials)
     
     if settings.type == enum_bonnet or settings.type == enum_yurke2:
         myMultistrand.setPassageMode()  # using the pre-set success / fail
 
     if settings.type == enum_flamm or settings.type == enum_yurke or settings.type == enum_rickettsia:
-        myMultistrand.setTrajectoryMode()  # non-first stepping mode, no need to store trajectory information
+        # non-first stepping mode, no need to store trajectory information
+        myMultistrand.setPassageMode()
         
     myMultistrand.run()
     
@@ -317,6 +318,8 @@ def removeOutliers(times):
 def doBarplot(times, settings):
 
     observations = str(len(times))
+    print "Number of observations is " + str(observations)
+    
     
     times = [1000 * ele for ele in times]
       
@@ -406,16 +409,19 @@ def doDoubleBarplot(times, times2, setting):
 def makePlots(settings):
 
     results = computeHittingTimes(settings)
+    times = [i.time for i in results.dataset if i.tag == Options.STR_SUCCESS]
     
     if settings.type == enum_yurke2 :
         
-        doBarplot(results.times, settings)
-        print "rate toehold binding = " + str(settings.nTrials / (sum(results.times)))
+        doBarplot(times, settings)
+        print "rate toehold binding = " + str(settings.nTrials / (sum(times)))
     
     if settings.type == enum_bonnet :
         
         results2 = computeHittingTimes(settings, True)
-        doDoubleBarplot(results.times, results2.times, settings)
+        times2 = [i.time for i in results2.dataset if i.tag == Options.STR_SUCCESS]
+        
+        doDoubleBarplot(times, times2, settings)
         
     if settings.type == enum_flamm or settings.type == enum_yurke or settings.type == enum_rickettsia :
         
@@ -424,15 +430,15 @@ def makePlots(settings):
 
         if not len(times) == 0 and not sum(times) == 0:        
             print "rate reaction 1 = " + str(len(times) / sum(times))
-        if not len(times2) and not sum(times2) == 0:
+        if not len(times2) == 0 and not sum(times2) == 0:
             print "rate reaction 2 = " + str(len(times2) / sum(times2))
             
         if settings.type == enum_rickettsia:
             
-            if not len(times) ==0:
+            if len(times) > 0:
                 settings.type = enum_rickettsia + "-1"
                 doBarplot(times, settings)
-            if not len(times2) ==0:
+            if len(times2) > 0:
                 settings.type = enum_rickettsia + "-2"
                 doBarplot(times2, settings)
             
@@ -513,7 +519,7 @@ if __name__ == '__main__':
         settings_flamm = settings(enum_flamm, title_flamm, nTrials=5 * nTrials)
         settings_yurke = settings(enum_yurke, title_yurke, nTrials=nTrials)
         settings_yurke2 = settings(enum_yurke2, title_yurke2, nTrials=nTrials)
-        settings_rickettsia = settings(enum_rickettsia, title_rickettsia, nTrials=0.02 * nTrials)
+        settings_rickettsia = settings(enum_rickettsia, title_rickettsia, nTrials=0.1 * nTrials)
         
         switcher = {
             

@@ -11,15 +11,18 @@
 
 from multistrand.objects import StopCondition, Domain, Complex, Strand
 from multistrand.options import Options
-from multistrand.concurrent import myMultistrand
-
+from multistrand.concurrent import MergeSim
+from multistrand._options.interface import FirstStepResult
 
 import numpy as np
-from multistrand._options.interface import FirstStepResult
+
+
 ATIME_OUT = 10.0
 
+myMultistrand = MergeSim()
 myMultistrand.setNumOfThreads(8) 
 myMultistrand.setLeakMode()
+
 
 def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
 

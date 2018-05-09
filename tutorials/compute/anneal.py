@@ -1,18 +1,16 @@
 from __future__ import print_function
 
-from multistrand.concurrent import myMultistrand, FirstStepRate, Bootstrap
+from multistrand.concurrent import MergeSim, FirstStepRate, Bootstrap
 from multistrand.experiment import standardOptions, hybridization
 from multistrand.options import Options
 from multistrand.utils import seqComplement
-
-
-# from rawdata.readensemble import setArrParams
 
 import sys, time, math
 
 A_CONCENTRATION = 50e-9;
 GAS_CONSTANT_R = 0.0019872036
 
+myMultistrand = MergeSim()
    
  
 def first_step_simulation(strand_seq, trials, temperature=25.0, sodium = 1.0, material="DNA"):

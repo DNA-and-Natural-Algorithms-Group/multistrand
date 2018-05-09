@@ -217,12 +217,12 @@ void SimulationSystem::finalizeSimulation(void) {
 
 	if (noInitialMoves > 0 and simOptions->verbosity) {
 
-		cout << "No initial moves for this first step simulation x" << noInitialMoves << "\n";
+		cout << "No initial moves x" << noInitialMoves << "   (set verbosity = 0 to suppress) \n";
 	}
 
 	if (timeOut > 0 and simOptions->verbosity) {
 
-		cout << "time-out detected x" << timeOut << "\n";
+		cout << "time-out detected x" << timeOut << "   (set verbosity = 0 to suppress) \n";
 
 	}
 

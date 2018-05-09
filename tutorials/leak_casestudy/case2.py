@@ -3,11 +3,12 @@
 import time
 from enum import Enum
 
-from multistrand.concurrent import myMultistrand, MergeSim, FirstStepRate, Bootstrap
+from multistrand.concurrent import MergeSim, FirstStepRate, Bootstrap
 from multistrand.objects import StopCondition
 from multistrand.options import Options
 from multistrand.experiment import ClampedSeesawGate, seesaw_gate_fuel_catalysis, seesaw_gate_gate_leak, seesaw_gate_output_production, seesaw_gate_fuel_leak, standardOptions
 
+myMultistrand = MergeSim()
 
 class Experiment(Enum):
     GATE_OUTPUT_PRODUCTION = 0

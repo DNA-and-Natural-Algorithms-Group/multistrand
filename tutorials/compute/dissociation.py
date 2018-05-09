@@ -1,11 +1,12 @@
 from __future__ import print_function
 
 from multistrand.options import Options
-from multistrand.concurrent import myMultistrand, FirstStepRate, Bootstrap
+from multistrand.concurrent import MergeSim, FirstStepRate, Bootstrap
 from multistrand.experiment import standardOptions, dissociation
 
 import sys, time
 
+myMultistrand = MergeSim()
    
 # Frits Dannenberg, Aug 2017.
 # In order to compute dissociation rates for duplex, we can either compute the forward rate k+

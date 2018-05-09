@@ -1,7 +1,7 @@
-# Erik Winfree and Frits Dannenberg
-# May 2017
-
 """
+Erik Winfree and Frits Dannenberg
+May 2017
+
 Call this using arguments 
 
 generate iso-random 15 10 ir15-10
@@ -10,11 +10,9 @@ generate iso-structured-random 15 5 5 10 sr15-5-5-10
 generate iso-structured-random 25 5 4 17 sr25-5-4-17
 generate structured-random 25 3 4 10 sr25-10
 """
-# from msUtil import myMultistrand
-
 
 from multistrand.experiment import hybridization, standardOptions
-from multistrand.concurrent import FirstStepRate,FirstStepLeakRate,  myMultistrand
+from multistrand.concurrent import FirstStepRate,FirstStepLeakRate,  MergeSim
 from constantsgao import goa2006_P0, goa2006_P3, goa2006_P4, setSaltGao2006
 
 import matplotlib.pyplot as plt
@@ -30,6 +28,8 @@ import sys, os
 
 
 SCRIPT_DIR = 'case2_scatterplots/'
+
+myMultistrand = MergeSim()
 myMultistrand.setNumOfThreads(8)
 
 GLOBAL_TEMPERATURE = 20.0
@@ -342,7 +342,7 @@ if __name__ == '__main__':
                     (i, sys.argv[2], seq, toeholds(seq)[0], toeholds(seq)[1], stemsize(seq), strand_dG(seq), strand_dG(WC(seq)), duplex_dG(seq))
 
             # Accumulate statistics from all the runs, until enough succesful simulations are collected.
-            trials = 60
+            trials = 120
             CONCENTRATION = 50e-9
             totalRates = FirstStepLeakRate()
 
@@ -653,14 +653,10 @@ if __name__ == '__main__':
         plt.close()
         
         
-#         def filter(array, range):
-#          
-#             return array[timeOut[range] == False]
         
         def genericScatter(toe, stem, rates):
             
             plt.figure(1)
-#             ax = plt.subplot(111)  
             
             plt.scatter(toe_dGs[RANGE1], stem_dGs[RANGE1], s=MARKER_SIZE, c=log_kfs[RANGE1], alpha=0.5, cmap=cm.jet)
 

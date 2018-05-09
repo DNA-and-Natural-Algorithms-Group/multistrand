@@ -17,12 +17,13 @@ import matplotlib.pyplot as plt
 import matplotlib.lines as lines
 from matplotlib.ticker import ScalarFormatter
 
-from multistrand.concurrent import myMultistrand, FirstStepRate, Bootstrap
+from multistrand.concurrent import MeregSim, FirstStepRate, Bootstrap
 from multistrand.experiment import standardOptions, setBoltzmann
 from multistrand.objects import StopCondition, Domain, Complex, Strand
 from multistrand.options import Options
 
 import numpy as np
+
 
 
 REL_DATA_DIR = 'data/table-s5.xlsx'
@@ -37,6 +38,7 @@ MAGNESIUM_COL = 12
 TEMP_COL = 5
 MEASURED_RATE_COL = 7
 
+myMultistrand = MergeSim()
 myMultistrand.setNumOfThreads(8)
 
 def changeComplex(options, expirement_type=NORMAL, trials=500):
