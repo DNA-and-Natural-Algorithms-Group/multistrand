@@ -5,8 +5,7 @@
 # Frits Dannenberg                                                             
 
 from interface import Interface
-from ..objects import Strand, Complex, RestingState, StopCondition
-# from ..utils import JSKawasaki25, JSKawasaki37, JSMetropolis25, JSMetropolis37, JSDefault     # this is for 2.0 support only
+from ..objects import Strand, Complex, StopCondition
 
 import copy
 
@@ -99,7 +98,7 @@ class Options(object):
         Keyword Arguments:
         dangles -- Specifies the dangle terms used in the energy model.
                    Can be the strings 'None', 'Some', or 'All'.
-        start_state  [type=list]     -- A list of Complex or RestingStates to
+        start_state  [type=list]     -- A list of Complexes to 
                                         use as the initial state of the system.
         simulation_time [type=float] -- Cap on the maximum simulation time.
         num_simulations [type=int]   -- Number of trajectories to run
@@ -317,20 +316,6 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         
         # See accessors below
         self._start_state = []
-        
-        self.use_resting_states = False
-        """ Indicates whether the start state will be determined by sampling
-        from resting states or by using single structures.
-        
-        Type         Default
-        boolean      False
-        
-        Automatically set to True if RestingState objects are given as the 
-        start state.
-        """
-
-        # See accessors below.
-        self._boltzmann_sample = None
                 
         # See accessors below
         self._stop_conditions = []
@@ -541,31 +526,15 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
 
     @property
     def boltzmann_sample(self):
-        """ Indicates whether the start state will be determined by Boltzmann
-        sampling or by using exact structures.
         
-        Type         Default
-        boolean      False
+        raise ValueError('Options.boltzmann_sample is now depreciated. Use Complex.boltzman_sample instead.')
         
-        Must be set to True when RestingState objects are given as the
-        start state in order to activate the boltzmann sampling.
-        """
-        if self._boltzmann_sample is None:
-            return False
-        else:
-            return self._boltzmann_sample
-
     @boltzmann_sample.setter
     def boltzmann_sample(self, val):
-        # Set all resting states to use this boltzmann flag.
-        if not isinstance(val, bool):
-            raise ValueError("the boltzmann_sample property can only be a boolean, sorry. When set, it applies globally to all resting state used in the start complexes, unless they have already been set.")
-        for c, s in self._start_state:
-            if s is not None:
-                s.boltzmann_sample = val
-            else:
-                c.boltzmann_sample = val 
-    
+        
+        raise ValueError('Options.boltzmann_sample is now depreciated. Use Complex.boltzman_sample instead.')
+        
+            
     @property
     def start_state(self):
         """ Get the start state, i.e. a list of Complex objects.
@@ -590,7 +559,7 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
     
     @start_state.setter
     def start_state(self, *args):
-        """ Set the start state, i.e. a list of Complex or RestingState objects.
+        """ Set the start state, i.e. a list of Complex objects.
         
         Type         Default
         list         []
@@ -607,7 +576,7 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         # deduce our input from the type of args[0].
         # Copy the input list because it's easy to do and it's safer
         
-        if isinstance(args[0], Complex) or isinstance(args[0], RestingState):
+        if isinstance(args[0], Complex):
             # args is a list of complexes or resting states.
             vals = copy.deepcopy(args) 
         elif len(args) == 1 and hasattr(args[0], "__iter__"):
@@ -619,8 +588,8 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         # it complexes or resting states.
         
         for i in vals:
-            if not isinstance(i, Complex) and not isinstance(i, RestingState):
-                raise ValueError("Start states must be Complexes or RestingStates. Received something of type {0}.".format(type(i)))
+            if not isinstance(i, Complex) :
+                raise ValueError("Start states must be complexes. Received something of type {0}.".format(type(i)))
         
             self._add_start_complex(i)
 
@@ -629,12 +598,7 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
             self._start_state.append((item, None))
             item.set_boltzmann_parameters(self.dangleToString[self.dangles], self.substrateToString[self.substrate_type], self._temperature_celsius)
         else:
-            self._start_state.append((item[0], item))
-            # JS 8/30/2014 Not entirely sure about this one. If I remember right, resting states may have more than one
-            # component, so setting only the first to have proper Boltzmann sampling might be an error.
-            # 
-            # If so, it should probably be 'for i in item: i.set_boltzmann_parameters'... {etc}
-            item[0].set_boltzmann_parameters(self.dangleToString[self.dangles], self.substrateToString[self.substrate_type], self._temperature_celsius)
+            raise ValueError('Expected a Complex as starting state.')
 
     @property
     def initial_seed_flag(self):
@@ -957,7 +921,7 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         biscale           | [bimolecular_scaling] Bimolecular scaling constant
         uniscale          | [unimolecular_scaling] Unimolecular scaling constant
 
-        start_state       |  List of Complex or RestingState
+        start_state       |  List of Complexes
 
         ...
         More to come!"""

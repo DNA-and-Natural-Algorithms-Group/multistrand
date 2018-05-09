@@ -10,5 +10,5 @@
 #                                                                  #
 ####################################################################
 
-__all__ = ['Complex','Domain','RestingState','StopCondition','Strand']
+__all__ = ['Complex','Domain','StopCondition','Strand']
 __module__ = 'multistrand.objects'
