@@ -421,13 +421,19 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 	complexList->initializeList();
 
 	first = simOptions->getStopComplexes(0);
-	traverse = first;
-	checkresult = false;
 	for (int idx = 0; idx < myTimer.stopcount; idx++) {
+
+		traverse = first;
+		checkresult = false;
+
 		if (strstr(traverse->tag, "stop:") == traverse->tag)
 			stop_entries[idx] = true;
 
 		checkresult = complexList->checkStopComplexList(traverse->citem);
+		while (traverse->next != NULL && !checkresult) {
+			traverse = traverse->next;
+			checkresult = complexList->checkStopComplexList(traverse->citem);
+		}
 
 		transition_states[idx] = checkresult;
 		traverse = traverse->next;
@@ -450,13 +456,18 @@ void SimulationSystem::SimulationLoop_Transition(void) {
 			myTimer.rate = complexList->getTotalFlux();
 
 			// check if our transition state membership vector has changed
-			checkresult = false;
 			first = simOptions->getStopComplexes(0);
-			traverse = first;
 
 			for (int idx = 0; idx < myTimer.stopcount; idx++) {
 
+				checkresult = false;
+				traverse = first;
+
 				checkresult = complexList->checkStopComplexList(traverse->citem);
+				while (traverse->next != NULL && !checkresult) {
+					traverse = traverse->next;
+					checkresult = complexList->checkStopComplexList(traverse->citem);
+				}
 
 				if (checkresult && stop_entries[idx]) {
 					// multiple stop states could suddenly be true, we add
