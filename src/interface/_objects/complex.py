@@ -8,7 +8,7 @@ class Complex(object):
     """
     unique_id = 0
     
-    def __init__(self, structure, sequence = None, strands = None, name = None, boltzmann_sample = False, id = None):
+    def __init__(self, structure, sequence = None, strands = None, name = None, boltzmann_sample = False):
         """
         Initialization:
         
@@ -21,16 +21,9 @@ class Complex(object):
         boltzmann_sample [type=bool] -- Whether we should boltzmann sample this
                                         complex.
         
-        You must include both of the required keyword arguments to create a Complex with the new style init, or pass it the old style arguments used in `old_init`.
+        You must include both of the required keyword arguments to create a Complex with the new style init.
         """
         
-
-        ## id is provided if and only if the old initialization is
-        ## desired, so it can be used as a switch for the old init
-        if id:
-            self.old_init(id, name, strands, structure, boltzmann_sample = False)
-            return
-
 
         if sequence and not strands:
             self.strand_list = [Strand(sequence=i) for i in sequence.split("+")]
@@ -55,32 +48,13 @@ class Complex(object):
         self._dangles = None
         self._substrate_type = None
         self._temperature = None
+        self._sodium = None
+        self._magnesium = None
         # Taken to be 1, unless it is EXPLICITLY stated otherwise!
         self.boltzmann_supersample = 1
         Complex.unique_id += 1
     
     
-    def old_init( self, id, name, strand_list, structure, boltzmann_sample = False):
-        """ Initializes a Complex using a fixed argument list.
-        
-        Arguments:
-        id          -- unique identifier for this complex [Should not be used].
-        name        -- name of this complex
-        strand_list -- list of Strand objects in this complex (ordered)
-        structure   -- flat dot-paren structure of this complex
-        boltzmann_sample [default=False] -- whether we should call a sampler when
-            retrieving a structure from this complex.
-        """
-        self.id = id
-        # what is this id?
-        self.name = str(name)
-        # what is this name?
-        self.strand_list = strand_list
-        self._fixed_structure = str(structure)
-        self._last_boltzmann_structure = False
-        self._boltzmann_sizehint = 1
-        self._boltzmann_queue = []
-        self.boltzmann_sample = boltzmann_sample
     
     def __str__( self ):
         return "Complex: {fieldnames[0]:>9}: '{0.name}'\n\
@@ -220,7 +194,7 @@ class Complex(object):
         """ The calculated 'flat' sequence for this complex. """
         return "+".join([strand.sequence for strand in self.strand_list])
     
-    def set_boltzmann_parameters(self, dangles, substrate_type, temperature ):
+    def set_boltzmann_parameters(self, dangles, substrate_type, temperature, sodium, magnesium ):
         """
         Sets the parameters to be passed on to NUPACK for Boltzmann sampling of this complex.
         Uses the private properties which are then read by generate_boltzmann_structure.
@@ -230,6 +204,8 @@ class Complex(object):
         self._dangles = dangles
         self._substrate_type = substrate_type
         self._temperature = temperature
+        self._sodium = sodium
+        self._magnesium = magnesium
     
     def generate_boltzmann_structure(self):
         """
@@ -301,14 +277,26 @@ class Complex(object):
             pass
         else:
             temperature = ['-T', '{0}'.format( self._temperature )]
-        
+            
+        sodium = []
+        if self._sodium == None:
+            pass
+        else:
+            sodium = ['-sodium', '{0}'.format( self._sodium )]
+            
+            
+        magnesium = []
+        if self._magnesium == None:
+            pass
+        else:
+            magnesium = ['-magnesium', '{0}'.format( self._magnesium )]            
+
         
         # editing here by EW 1/26/2014 to update from NUPACK 2.1 command line options & output to NUPACK 3.0.2
-        popen_params = [sample_exec, "-multi"] + material + dangles + temperature + ["-samples", str(count)]
+        #  FD 2018: added sodium , magnesium 
+        popen_params = [sample_exec, "-multi"] + material + dangles + temperature + sodium + magnesium + ["-samples", str(count)]
         p = subprocess.Popen( popen_params,stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         
-#         print("printing popen_params")
-#         print(popen_params)
         
         # new: NUPACK 3.0.2 takes the file name as user input
         input_str = "{0}\n{1}\n{2}\n{3}\n".format( tmp.name[:-7],

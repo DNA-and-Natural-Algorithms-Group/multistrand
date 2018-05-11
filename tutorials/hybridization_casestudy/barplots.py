@@ -320,7 +320,6 @@ def doBarplot(times, settings):
     observations = str(len(times))
     print "Number of observations is " + str(observations)
     
-    
     times = [1000 * ele for ele in times]
       
     fig = plt.figure(figsize=FIGURE_SIZE)
@@ -423,7 +422,7 @@ def makePlots(settings):
         
         doDoubleBarplot(times, times2, settings)
         
-    if settings.type == enum_flamm or settings.type == enum_yurke or settings.type == enum_rickettsia :
+    if settings.type == enum_flamm or settings.type == enum_yurke:
         
         times = [i.time for i in results.dataset if i.tag == Options.STR_SUCCESS]       
         times2 = [i.time for i in results.dataset if i.tag == Options.STR_ALT_SUCCESS]
@@ -432,20 +431,27 @@ def makePlots(settings):
             print "rate reaction 1 = " + str(len(times) / sum(times))
         if not len(times2) == 0 and not sum(times2) == 0:
             print "rate reaction 2 = " + str(len(times2) / sum(times2))
+
+        doDoubleBarplot(times, times2, settings)
+
+    if settings.type == enum_rickettsia:
             
-        if settings.type == enum_rickettsia:
+        times = [i.time for i in results.dataset if i.tag == Options.STR_SUCCESS]       
+        times2 = [i.time for i in results.dataset if i.tag == Options.STR_FAILURE]
+
+        if not len(times) == 0 and not sum(times) == 0:        
+            print "rate reaction 1 = " + str(len(times) / sum(times))
+        if not len(times2) == 0 and not sum(times2) == 0:
+            print "rate reaction 2 = " + str(len(times2) / sum(times2))
             
-            if len(times) > 0:
-                settings.type = enum_rickettsia + "-1"
-                doBarplot(times, settings)
-            if len(times2) > 0:
-                settings.type = enum_rickettsia + "-2"
-                doBarplot(times2, settings)
+        if len(times) > 0:
+            settings.type = enum_rickettsia + "-1"
+            doBarplot(times, settings)
+        if len(times2) > 0:
+            settings.type = enum_rickettsia + "-2"
+            doBarplot(times2, settings)
             
-            settings.type = enum_rickettsia 
-            
-        else:
-            doDoubleBarplot(times, times2, settings)
+        settings.type = enum_rickettsia 
 
 
 def printTrajectory(o):

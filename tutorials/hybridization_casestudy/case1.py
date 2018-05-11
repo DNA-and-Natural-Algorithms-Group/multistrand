@@ -31,6 +31,12 @@ POINT_SIZE = 38  # size of markers in the plot
 
 
 markers = ["8", ">", "D", "s", "*", "<", "^"] 
+
+
+SEQ1 = "TAGTCCCTTTTTGGG"
+SEQ2 = "TCGATGCT"
+SEQ3 = "TCGATGC"
+
  
 # myMultistrand.setNumOfThreads(8) 
 
@@ -50,23 +56,25 @@ def first_step_simulation(strand_seq, trials, T=20.0):
                
         return o
     
-    throws = 10
+#     throws = trials
     
-    if strand_seq ==  'TAGTCCCTTTTTGGG':
-        throws = trials * 1.1 *  (20000.0 / 240.0)
-        
-    if strand_seq == 'TCGATGC':
-        throws = trials * ( 900.0 / 240.0)
-        
-        
-    if strand_seq == 'TCGATGCT':
-        throws =  trials *( 1100.0 / 240.0)
+#     if strand_seq ==  SEQ1:
+#         throws = trials * 1.1 *  (20000.0 / 240.0)
+#         
+#     if strand_seq == SEQ2 :
+#         throws =  trials *( 1100.0 / 240.0)
+# 
+#     if strand_seq == SEQ3:
+#         throws = trials * ( 900.0 / 240.0)
+#         
+#         
+#     
     
     
-    myMS.setOptionsFactory1(getOptions, throws )
+    myMS.setOptionsFactory1(getOptions, trials)
     myMS.setFirstStepMode()  # ensure the right results object is set.
 #     myMultistrand.setLeakMode()
-#     myMultistrand.setTerminationCriteria(terminationCount=trials)
+    myMS.setTerminationCriteria(terminationCount=trials)
     myMS.run()
     return myMS
 

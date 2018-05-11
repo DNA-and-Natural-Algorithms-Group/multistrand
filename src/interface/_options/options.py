@@ -304,7 +304,12 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         self.dSA = -0.0;
         self.dHA = -0.0;
 
-        # Buffer conditions
+        """ 
+            Buffer conditions 
+            Like substrate_type, temperature, and dangles,
+            these follow a listener pattern to propagate settings to dangles.
+            (as opposed to copying settings at the last possible moment)
+        """
         self.sodium = 1.0;
         self.magnesium = 0.0;
         
@@ -350,8 +355,8 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         int          -1
         
         A value of -1 corresponds to not basing outputs on output_interval
-        (but perhaps outputting based on some other condition). A value of 0 
-        means output every state, 1 means every other state, and so on.
+        (but perhaps outputting based on some other condition). A value of 1 
+        means output every state, 2 means every other state, and so on.
         """
         
         self.current_interval = 0
@@ -473,7 +478,7 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
 
         if len(self._start_state) > 0:
             for c, s in self._start_state:
-                c.set_boltzmann_parameters(self.dangleToString[self.dangles], self.substrateToString[self.substrate_type], self._temperature_celsius)
+                c.set_boltzmann_parameters(self.dangleToString[self.dangles], self.substrateToString[self.substrate_type], self._temperature_celsius, self.sodium, self.magnesium)
     
 #     FD: We are using shadow variables for biscale, uniscale only because we want to 
 #     flag a warning when rate_scaling is used
@@ -524,6 +529,29 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         self._substrate_type = int(value)
         self.updateBoltzmannSamples
 
+    """ FD: Following same listener pattern for sodium, magnesium, 
+            so that changes are propagated to complexes."""
+    @property
+    def sodium(self):
+        return self._sodium
+    
+    @sodium.setter
+    def sodium(self, value):
+        self._sodium = float(value)
+        self.updateBoltzmannSamples
+    
+    @property
+    def magnesium(self):
+        return self._magnesium
+    
+    @magnesium.setter
+    def magnesium(self, value):
+        self._magnesium = float(value)
+        self.updateBoltzmannSamples
+        
+        
+    """ FD: Setting boltzmann sample in options could be used to propagate this setting to all starting states. 
+            But we do not support this, and sampling is a property of each individual complex instead. """
     @property
     def boltzmann_sample(self):
         
@@ -596,7 +624,7 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
     def _add_start_complex(self, item):
         if isinstance(item, Complex):
             self._start_state.append((item, None))
-            item.set_boltzmann_parameters(self.dangleToString[self.dangles], self.substrateToString[self.substrate_type], self._temperature_celsius)
+            item.set_boltzmann_parameters(self.dangleToString[self.dangles], self.substrateToString[self.substrate_type], self._temperature_celsius, self._sodium, self._magnesium)
         else:
             raise ValueError('Expected a Complex as starting state.')
 
@@ -949,6 +977,7 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
             if key == "unimolecular_scaling":
                 if not isinstance(value, (float)):
                     raise Warning("Please provide unimolecular_scaling as float")
+                
         
         for k in kargs.keys():
             
