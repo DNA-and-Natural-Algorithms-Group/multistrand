@@ -779,16 +779,9 @@ bool SComplexList::checkStopComplexList_Bound(class complexItem *stoplist) {
 bool SComplexList::checkStopComplexList_Structure_Disassoc(class complexItem *stoplist) {
 	class SComplexListEntry *entry_traverse = first;
 	class complexItem *traverse = stoplist;
-	int id_count = 0, max_complexes = 0;
+	int id_count = 0;
 	bool successflag = false;
 	class identList *id_traverse = stoplist->strand_ids;
-
-	while (traverse != NULL) {
-		max_complexes++;
-		traverse = traverse->next;
-	}
-	if (max_complexes > numOfComplexes)
-		return 0; // can't match more entries than we have complexes.
 
 	traverse = stoplist;
 	while (traverse != NULL) {
