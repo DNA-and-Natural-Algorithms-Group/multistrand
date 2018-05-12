@@ -38,6 +38,9 @@ def setup_ext( ):
                           )
     return multi_ext
 
+
+
+""" To update versioning, change here and in src/interface/__init__.py, and README.md """
 if __name__ == '__main__':
 
     multi_ext = setup_ext( )

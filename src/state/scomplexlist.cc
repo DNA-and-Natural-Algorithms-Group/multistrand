@@ -783,14 +783,16 @@ bool SComplexList::checkStopComplexList_Structure_Disassoc(class complexItem *st
 	bool successflag = false;
 	class identList *id_traverse = stoplist->strand_ids;
 
+	// We are checking each entry in the list of stop complexes, verifying that it exists within our list of complexes.
+	// So the outer iteration is over the stop complexes, and the inner iteration is over the complexes existant in our system.
+	// If we reach the end of the iteration successfully, we have every stop complex represented by at least one complex within the system.
+	// This intentionally allows a single complex within the system to satisfy two (or more) stop complexes.
+
 	traverse = stoplist;
 	while (traverse != NULL) {
-// We are checking each entry in the list of stop complexes, verifying that it exists within our list of complexes. So the outer iteration is over the stop complexes, and the inner iteration is over the complexes existant in our system.
-// If we reach the end of the iteration successfully, we have every stop complex represented by at least one complex within the system.
-// WARNING:: this intentionally allows a single complex within the system to satisfy two (or more) stop complexes. We need to think further about such complicated stop conditions and what they might represent.
-// WARNING (cont): One exception is we can't match a list of stop complexes that has more complexes than the system currently does. This is somewhat arbitrary and could be removed.
 
-// count how many strands are in the stop complex. This gets used as a fast check later.
+
+		// count how many strands are in the stop complex. This gets used as a fast check later.
 		id_count = 0;
 		id_traverse = traverse->strand_ids;
 

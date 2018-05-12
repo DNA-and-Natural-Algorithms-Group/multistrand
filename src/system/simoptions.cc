@@ -62,6 +62,7 @@ PSimOptions::PSimOptions(PyObject* input) :
 
 	energyOptions = new PEnergyOptions(python_settings);
 
+
 	getLongAttr(python_settings, simulation_mode, &simulation_mode);
 	getLongAttr(python_settings, num_simulations, &simulation_count);
 	getLongAttr(python_settings, output_interval, &o_interval);
@@ -77,8 +78,8 @@ PSimOptions::PSimOptions(PyObject* input) :
 	getDoubleAttr(python_settings, cotranscriptional_rate, &cotranscriptional_rate);
 
 	getLongAttr(python_settings, verbosity, &verbosity);
-
 	getBoolAttr(python_settings, activestatespace, &statespaceActive);
+	getDoubleAttr(python_settings, ms_version, &ms_version);
 
 	debug = false;	// this is the main switch for simOptions debug, for now.
 

@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2017 California Institute of Technology. All rights reserved.
-Multistrand nucleic acid kinetic simulator
-help@multistrand.org
-*/
+ Copyright (c) 2017 California Institute of Technology. All rights reserved.
+ Multistrand nucleic acid kinetic simulator
+ help@multistrand.org
+ */
 
 #include "energymodel.h"
 #include "simoptions.h"
@@ -13,7 +13,6 @@ help@multistrand.org
 
 #include <iostream>
 #include <fstream>
-
 
 bool printedRates = false; // to print the constants to file once
 
@@ -79,26 +78,25 @@ void EnergyModel::computeArrheniusRates(double temperature) {
 void EnergyModel::writeConstantsToFile() {
 
 	// Print constants to file.
-
 	std::stringstream ss;
+
+	ss << "Multistrand " << simOptions->ms_version << " \n \n";
 
 	ss << "Sodium      :  " << simOptions->energyOptions->sodium << " M \n";
 	ss << "Magnesium   :  " << simOptions->energyOptions->magnesium << " M \n";
 	ss << "Temperature :  " << simOptions->energyOptions->getTemperature() << " K" << endl;
 	ss << "Rate method :  " << simOptions->energyOptions->getKineticRateMethod() << "           (1: Metropolis, 2: Kawasaki)" << endl;
-	ss << "useArr      :  " << simOptions->energyOptions->usingArrhenius()  <<  "           (0: disabled)"<< endl;
-	ss << "dangles     :  " << simOptions->energyOptions->getDangles()   <<  "           (0: none, 1: some, 2: all)" << endl;
-//	ss << "substrate   :  " << simOptions->energyOptions->compareSubstrateType(SUBSTRATE_DNA) <<   "           (1: DNA)" << endl;
+	ss << "useArr      :  " << simOptions->energyOptions->usingArrhenius() << "           (0: disabled)" << endl;
+	ss << "dangles     :  " << simOptions->energyOptions->getDangles() << "           (0: none, 1: some, 2: all)" << endl;
+//	ss << "substrate   :  " << simOptions->energyOptions->compareSubstrateType(simOptions->energyOptions->) <<   "           (1: DNA)" << endl;
 	ss << "GT pairing  :  " << simOptions->energyOptions->getGtenable() << "           (0: disabled)" << endl;
 	ss << "" << endl;
 
 	if (!simOptions->energyOptions->usingArrhenius()) {
 
-		ss << " biScale     kUni    \n";
-		ss << " " << simOptions->energyOptions->getBiScale();
-		ss << "     " << simOptions->energyOptions->getUniScale();
+		ss << "unimolecular_scaling :   " << std::setprecision(6) << simOptions->energyOptions->getUniScale() << " / s \n";
+		ss << "bimolecular_scaling  :   " << std::setprecision(6) << simOptions->energyOptions->getBiScale() << "/M /s \n";
 
-		ss << "\n";
 
 	} else {
 
@@ -161,7 +159,6 @@ void EnergyModel::writeConstantsToFile() {
 		}
 
 	}
-
 
 	if (!printedRates) {
 
@@ -394,10 +391,8 @@ int lookuphelper[26] = { 1, 0, 2, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 // // helper function to convert to numerical base format.
 int baseLookup(char base) {
 
-
-
 	char temp = std::toupper(base);
-	if (temp < 'A' || temp > 'Z'){
+	if (temp < 'A' || temp > 'Z') {
 //		cout << "Warning! Trying to cast a non-base, value is " << ((int) base) << " and  temp is " << (int) (temp)  << endl;
 		return base;
 	}

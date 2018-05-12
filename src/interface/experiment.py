@@ -14,7 +14,6 @@ def setBoltzmann(complexIn, trials, supersample=1):
 def standardOptions(simMode=Options.firstStep, tempIn=25.0, trials=10, timeOut=0.1):
 
     output = Options(simulation_mode=simMode,
-                     rate_method=Options.metropolis,
                      num_simulations=trials,
                      simulation_time=timeOut,
                      temperature=tempIn

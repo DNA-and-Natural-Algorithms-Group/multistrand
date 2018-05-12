@@ -39,6 +39,7 @@ class EnergyOptions;
 class SimOptions {
 public:
 
+
 	// Constructors
 	SimOptions(void);
 	virtual ~SimOptions(void) =0;
@@ -78,18 +79,17 @@ public:
 // IO Methods
 	string toString(void);
 
-	// actual option values
+	// Cotranscriptional folding settings.
 	bool cotranscriptional = false;
 	double cotranscriptional_rate = 0.002; // delay between adding nucleotides (seconds)
-
 	const int initialActiveNT = 8;	// initial number of active nucleotides.
 
 	vector<complex_input>* myComplexes = NULL;
 	EnergyOptions* energyOptions = NULL;
 
 	bool statespaceActive = false;
-
 	long verbosity = 1;
+	double ms_version = 0.0;
 
 protected:
 
@@ -105,6 +105,7 @@ protected:
 	stopComplexes* myStopComplexes = NULL;
 
 	bool printInitialFirstStep = false;
+
 
 };
 

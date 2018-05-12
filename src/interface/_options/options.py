@@ -6,6 +6,7 @@
 
 from interface import Interface
 from ..objects import Strand, Complex, StopCondition
+from ..__init__ import __version__
 
 import copy
 
@@ -122,6 +123,10 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         #                                                #
         #                                                #
         ##################################################
+        
+        
+        """ Pipe to let Multistrand know the version from ../__init__.py """
+        self.ms_version = float(__version__)  
         
         self.errorlog = []
         """ Keeps lines relating to possible errors or warnings that
