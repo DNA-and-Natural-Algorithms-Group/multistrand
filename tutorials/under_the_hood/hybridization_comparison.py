@@ -73,7 +73,7 @@ if False:  # only needed if you're having trouble with your Multistrand installa
 
 try:
     from multistrand.objects import *
-    from multistrand.options import Options
+    from multistrand.options import Options, Literals
     from multistrand.system import SimSystem, initialize_energy_model
 
 except ImportError:
@@ -148,7 +148,7 @@ def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
    was_success = np.array([1 if i.tag=="SUCCESS" else 0 for i in dataset])
    was_failure = np.array([0 if i.tag=="SUCCESS" else 1 for i in dataset])
    forward_times = np.array( [i.time for i in dataset if i.tag == "SUCCESS"] )
-   reverse_times = np.array( [i.time for i in dataset if i.tag == "FAILURE" or i.tag == Options.STR_NOINITIAL or i.tag == Options.STR_TIMEOUT] )
+   reverse_times = np.array( [i.time for i in dataset if i.tag == "FAILURE" or i.tag == Literals.no_initial_moves or i.tag == Literals.time_out] )
 
    # Calculate first-order rate constants for the duration of the reactions (both productive and unproductive).
    k2 = 1.0/np.mean(forward_times)
@@ -194,7 +194,7 @@ def first_passage_dissociation(strand_seq, trials, T=25, material="DNA"):
    if len(timeouts)>0 :
         print "Warning: %d of %d dissociation trajectories did not finishin allotted %g seconds..." % (len(timeouts),len(times),10.0)
         for i in timeouts :
-            assert (i.tag == Options.STR_TIMEOUT)
+            assert (i.tag == Literals.time_out)
             assert (i.time >= 10.0)
    
    krev = 1.0/np.mean( times )
@@ -239,7 +239,7 @@ def first_passage_association(strand_seq, trials, concentration, T=25, material=
    if len(timeouts)>0 :
         print "some association trajectories did not finish..."
         for i in timeouts :
-            assert (i.tag == Options.STR_TIMEOUT)
+            assert (i.tag == Literals.time_out)
             assert (i.time >= 10.0)
    
    print "average completion time = %g seconds at %s" % (np.mean(times),concentration_string(concentration))

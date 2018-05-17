@@ -699,15 +699,15 @@ if __name__ == '__main__':
             
         def annotateThat(toe_dGs, stem_dGs):
             
-            for label, x, y in zip(range(len(toe_dGs[RANGE1])), toe_dGs[RANGE1], stem_dGs[RANGE1]):
+            for label, x, y in zip(RANGE1, toe_dGs[RANGE1], stem_dGs[RANGE1]):
                 plt.annotate(label, xy=[x, y], size=2)
                 
             if(len(toe_dGs)) > (N + OFFSET):
-               for label, x, y in zip(range(len(toe_dGs[RANGE2])), toe_dGs[RANGE2], stem_dGs[RANGE2]):
+               for label, x, y in zip(RANGE2, toe_dGs[RANGE2], stem_dGs[RANGE2]):
                     plt.annotate(label, xy=[x, y], size=2)
                         
             if L == 25:
-               for label, x, y in zip(range(len(toe_dGs[RANGE3])), toe_dGs[RANGE3], stem_dGs[RANGE3]):
+               for label, x, y in zip(RANGE3, toe_dGs[RANGE3], stem_dGs[RANGE3]):
                     plt.annotate(label, xy=[x, y], size=2)
         
         

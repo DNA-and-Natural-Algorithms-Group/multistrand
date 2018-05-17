@@ -4,13 +4,15 @@ import math
 
 from multistrand.objects import Strand, Complex, Domain
 from multistrand.options import Options
-from multistrand.concurrent import myMultistrand
+from multistrand.concurrent import MergeSim
 
 import math
 from nupack import *
 
 # FD: This test attempts to compare the long-run partition function obtained from Multistrand and Nupack 
 
+
+myMultistrand = MergeSim()
 
 numOfPaths = 400.0
 kBoltzmann = .00198717  # units of kcal/(mol*K)

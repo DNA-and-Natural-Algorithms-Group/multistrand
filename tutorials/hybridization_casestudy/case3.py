@@ -12,12 +12,12 @@ Some routines are ommited for testing purposes, use:
 2 24 test2
 """
 
-from multistrand.options import Options
+from multistrand.options import Options, Literals
 from multistrand.concurrent import  MergeSim
 from multistrand.utils import standardFileName
 from multistrand.experiment import  hybridization, standardOptions
 
-from constantsgao import goa2006_P0, goa2006_P3, goa2006_P4, setSaltGao2006, colors, position, pathProperties, analysisFactory, analysisResult
+from constantsgao import goa2006_P0, goa2006_P3, goa2006_P4, setSaltGao2006, colors, position, pathProperties, analysisFactory, analysisResult, STR_ALL
 
 from matplotlib.collections import LineCollection
 import matplotlib
@@ -82,7 +82,7 @@ def doPosPlotsPrimer(analysisResult, settings, extraTitle):
     selectedCount = analysisResult.pathCount.value
     trajectoryIn = analysisResult.initialTrajectory
     
-    doPosPlots(posDict, settings, extraTitle, selectedCount, "----", analysisResult.structDict2, trajectory=trajectoryIn)
+    doPosPlots(posDict, settings, extraTitle, selectedCount, "-M1-", analysisResult.structDict2, trajectory=trajectoryIn)
     
 
 def standardTitle(mySeq, extraTitle, selectedCount, runs):
@@ -256,11 +256,12 @@ def doPosPlots(posDict, settings, extraTitle, selectedCount, extraSettings, stru
     col_labels = range(ncols)
     plt.matshow(image, cmap=plt.cm.gray_r, vmin=myMin, vmax=myMax)   
     
-    if("M1" in extraSettings):
-        
+    if("M2" in extraSettings):
+        pass
 #         if not "test" in extraTitle:
-        mostFreq, maxX = plotMostFrequentStructure(goodPosDict, length)
+#         mostFreq, maxX = plotMostFrequentStructure(goodPosDict, length)
         
+    if("M1" in extraSettings):
         if not (trajectory == None):
             plotFirstTrajectory(fileName, trajectory, length)
     
@@ -283,26 +284,26 @@ def doPosPlots(posDict, settings, extraTitle, selectedCount, extraSettings, stru
     
     # Now generate a new plot for probability of success of the most common structures
     
-    if("M1" in extraSettings and (Options.STR_SUCCESS in extraTitle or Options.STR_FAILURE in extraTitle)  and  not "test" in extraTitle) :           
-            
+    if("M3" in extraSettings and (Literals.success in extraTitle or Literals.failure in extraTitle)  and  not "test" in extraTitle) :           
+             
         fileName = standardFileName(SCRIPT_DIR, settings.mySeq, extraTitle + "", settings.trials)
-
+ 
         winProb = list()
         plotRange = range(1, maxX)
-        
+         
         f2 = open(fileName + "-mostPopularStructs.txt", 'w')
-        
+         
         for x in plotRange:
-            
+             
             y = mostFreq[x][0]
             myPos = position(x, y)
-            
+             
             winProb.append(100.0 * computeWinProb(f2, myPos, structDict2, settings))
-
+ 
         f2.close()
-        
+         
         fig = plt.figure()
-
+ 
         plt.fill_between(plotRange, 0.0, winProb, facecolor='orange', edgecolor='orange', alpha=0.5)
         plt.savefig(fileName + '-structSample.pdf')
 
@@ -388,8 +389,8 @@ def doBinaryProbabilityPlot(settings, extraTitle):
     myFact = myMultistrand.aFactory
 
     genPlots(settings, extraTitle, myFact.result0.pathCount.value, myFact.result0, "")
-    genPlots(settings, extraTitle, myFact.result1.pathCount.value, myFact.result1, Options.STR_SUCCESS)
-    genPlots(settings, extraTitle, myFact.result2.pathCount.value, myFact.result2, Options.STR_FAILURE)    
+    genPlots(settings, extraTitle, myFact.result1.pathCount.value, myFact.result1, Literals.success)
+    genPlots(settings, extraTitle, myFact.result2.pathCount.value, myFact.result2, Literals.failure)    
 
 
 def simulationTimeBarplot(settings, extraTitle):
@@ -397,8 +398,8 @@ def simulationTimeBarplot(settings, extraTitle):
     fname = standardFileName(SCRIPT_DIR, settings.mySeq, extraTitle, settings.trials)
     
     all_times = np.array([i.time for i in myMultistrand.results])
-    forward_times = np.array([i.time for i in myMultistrand.results if i.tag == Options.STR_SUCCESS])
-    reverse_times = np.array([i.time for i in myMultistrand.results if i.tag == Options.STR_FAILURE  or i.tag == Options.STR_TIMEOUT or i.tag == Options.STR_NOINITIAL])
+    forward_times = np.array([i.time for i in myMultistrand.results if i.tag == Literals.success])
+    reverse_times = np.array([i.time for i in myMultistrand.results if i.tag == Literals.failure or i.tag == Literals.time_out or i.tag == Literals.no_initial_moves])
    
     def makeFig(selector, times):
         
@@ -418,9 +419,9 @@ def simulationTimeBarplot(settings, extraTitle):
         plt.savefig(fname + "-bar" + "-" + selector + '.pdf')
         plt.close()
         
-    makeFig(Options.STR_ALL, all_times) 
-    makeFig(Options.STR_SUCCESS, forward_times)
-    makeFig(Options.STR_FAILURE, reverse_times)
+    makeFig(STR_ALL, all_times) 
+    makeFig(Literals.success, forward_times)
+    makeFig(Literals.failure, reverse_times)
     
     plt.figure()
     

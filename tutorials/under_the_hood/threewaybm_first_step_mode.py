@@ -46,7 +46,7 @@ if False:  # only needed if you're having trouble with your Multistrand installa
 
 try:
     from multistrand.objects import *
-    from multistrand.options import Options
+    from multistrand.options import Options, Literals
     from multistrand.system import SimSystem
 
 except ImportError:
@@ -210,7 +210,7 @@ def process_dataset(dataset):
     forward_array[:] = [i.time for i in forward]
 
     # if after 10 simulated seconds, the simulation didn't reach either stop state, its tag is "None", and it is lumped with failures.
-    reverse = [i for i in dataset if i.tag == "FAILURE" or i.tag == Options.STR_NOINITIAL or i.tag == Options.STR_TIMEOUT]  
+    reverse = [i for i in dataset if i.tag == "FAILURE" or i.tag == Literals.no_initial_moves or i.tag == Literals.time_out]  
     reverse_array = np.zeros(len(reverse))
     reverse_array[:] = [i.time for i in reverse]
 

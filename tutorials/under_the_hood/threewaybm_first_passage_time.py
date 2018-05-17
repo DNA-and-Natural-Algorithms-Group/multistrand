@@ -17,7 +17,7 @@ if False:  # only needed if you're having trouble with your Multistrand installa
 
 try:
     from multistrand.objects import *
-    from multistrand.options import Options
+    from multistrand.options import Options, Literals
     from multistrand.system import SimSystem
 
 except ImportError:
@@ -94,7 +94,7 @@ def plot_histograms_complete_vs_failed( result_list, colors=['b','m'], figure=1 
     if len(neither)>0 :
         print "some trajectories did not finish, one way nor the other..."
         for i in neither :
-            assert (i.tag == Options.STR_TIMEOUT)
+            assert (i.tag == Literals.time_out)
 
     if len(times_complete)>0 and len(times_failed)>0 :
         min_time = np.min( [np.min(times_complete),np.min(times_failed)] )

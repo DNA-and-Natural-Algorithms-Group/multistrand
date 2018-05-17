@@ -29,8 +29,8 @@ class StopCondition(object):
         self.complex_items = complex_items  # List of (complex, stoptype, count) tuples
 
         """ Need to prevent circular import """
-        from ..options import Options       
-        protected = [ Options.STR_NOINITIAL, Options.STR_ERROR, Options.STR_NAN, Options.STR_TIMEOUT ]
+        from ..options import Literals    
+        protected = [ Literals.no_initial_moves, Literals.sim_error, Literals.time_out]
 
         if self.tag in protected:
             raise ValueError('Please do not use a protected simulation result tag as a name for a stopping condition \n Protected are: ' + str(protected))

@@ -7,7 +7,7 @@
 
 
 from multistrand.objects import StopCondition, Domain, Complex, Strand
-from multistrand.options import Options
+from multistrand.options import Options, Literals
 from multistrand.concurrent import MergeSim
 from multistrand.experiment import makeComplex, standardOptions, setBoltzmann
 
@@ -43,8 +43,8 @@ def doExperiment(trials):
     # we use dissocMacrostate - this only checks the presence of strands in the complex, and 
     # does not depend on dotparens structure.
     
-    successStopping = StopCondition(Options.STR_SUCCESS, [(myLeakedSignal, Options.dissocMacrostate, 0)])
-    failedStopping = StopCondition(Options.STR_FAILURE, [(myFuel, Options.dissocMacrostate, 0)])
+    successStopping = StopCondition(Literals.success, [(myLeakedSignal, Options.dissocMacrostate, 0)])
+    failedStopping = StopCondition(Literals.failure, [(myFuel, Options.dissocMacrostate, 0)])
     
     
     # options

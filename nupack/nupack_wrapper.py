@@ -389,4 +389,4 @@ def sample(sequences, samples, ordering = None, material = 'rna',
   sampled = [l.strip() for l in output[14:]]
   return sampled
 
-print "Python interface to NUPACK 3.0 (Pierce lab, Caltech, www.nupack.org) loaded."
+# print "Python interface to NUPACK 3.0 (Pierce lab, Caltech, www.nupack.org) loaded."

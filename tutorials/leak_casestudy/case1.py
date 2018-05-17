@@ -10,7 +10,7 @@
 # FD: The results of this study heavily depend on the parameterization of the Metropolis model: JS or DNA23 (see below).
 
 from multistrand.objects import StopCondition, Domain, Complex, Strand
-from multistrand.options import Options
+from multistrand.options import Options, Literals
 from multistrand.concurrent import MergeSim
 from multistrand._options.interface import FirstStepResult
 
@@ -26,8 +26,7 @@ myMultistrand.setLeakMode()
 
 def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
 
-    print ("Running first step mode simulations for %s (with Boltzmann sampling)..." % (
-        strand_seq))
+    print ("Running first step mode simulations for %s (with Boltzmann sampling)..." % (strand_seq))
 
     # Using domain representation makes it easier to write secondary structures.
     onedomain = Domain(name="onedomain", sequence=strand_seq)
@@ -43,8 +42,8 @@ def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
 
 
     # Declare the simulation complete if the strands become a perfect duplex.
-    success_stop_condition = StopCondition(Options.STR_SUCCESS, [(duplex_invaded, Options.dissocMacrostate, 0)])
-    failed_stop_condition = StopCondition(Options.STR_FAILURE, [(duplex_complex, Options.dissocMacrostate, 0)])
+    success_stop_condition = StopCondition(Literals.success, [(duplex_invaded, Options.dissocMacrostate, 0)])
+    failed_stop_condition = StopCondition(Literals.failure, [(duplex_complex, Options.dissocMacrostate, 0)])
 
     for x in [duplex_complex, invader_complex]:
         x.boltzmann_count = trials

@@ -2,16 +2,16 @@ import operator
 import multiprocessing
 import numpy as np
 
-from multistrand.options import Options
+from multistrand.options import Options, Literals
 
 colors = ['blue', 'red', 'cyan', 'magenta', 'green', 'k', 'darkblue', 'darkred', 'darkcyan', 'darkmagenta', 'darkgreen']
-
 
 
 goa2006_P0 = 'GTTGTCAAGATGCTACCGTTCAGAG'
 goa2006_P3 = 'AGATCAGTGCGTCTGTACTAGCAGT'
 goa2006_P4 = 'AGATCAGTGCGTCTGTACTAGCACA'
 
+STR_ALL = "ALL"
 
 def setSaltGao2006(o):
     
@@ -173,7 +173,7 @@ class analysisFactory(object):
         self.mySeq = inSeq
         self.cutOff = inCutOff
 
-        self.selectors = [Options.STR_ALL, Options.STR_SUCCESS, Options.STR_FAILURE]
+        self.selectors = [STR_ALL, Literals.success, Literals.failure]
 
         self.result0 = analysisResult(self.selectors[0])
         self.result1 = analysisResult(self.selectors[1])
@@ -300,9 +300,9 @@ class analysisFactory(object):
 
         
         if tubeStruct == succesStruct:
-            prop.tag = Options.STR_SUCCESS
+            prop.tag = Literals.success
         else:
-            prop.tag = Options.STR_FAILURE
+            prop.tag = Literals.failure
                 
         
     

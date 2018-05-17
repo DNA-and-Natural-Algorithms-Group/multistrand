@@ -1,8 +1,12 @@
-# Frits Dannenberg, July 2017
+"""
 
-# Simulation of Figure 2d in 
-# Programmable energy landscapes for kinetic control of DNA strand displacement
-# RRF Machinek, TE Ouldridge, NEC Haley, J Bath & AJ Turberfield. Nature communications
+ Frits Dannenberg, July 2017
+
+ Simulation of Figure 2d in 
+ Programmable energy landscapes for kinetic control of DNA strand displacement
+ RRF Machinek, TE Ouldridge, NEC Haley, J Bath & AJ Turberfield. Nature communications
+
+"""
 
 import sys, os
 
@@ -17,20 +21,23 @@ from matplotlib.ticker import ScalarFormatter
 from multistrand.concurrent import MergeSim, FirstStepRate, Bootstrap
 from multistrand.experiment import standardOptions, setBoltzmann
 from multistrand.objects import StopCondition, Domain, Complex, Strand
-from multistrand.options import Options
+from multistrand.options import Options, Literals
 
 myMultistrand = MergeSim()
 myMultistrand.setNumOfThreads(8)
 
-# Figure 2d has 3x12 = 36 rates plotted. 
-# Input: 0 <= selector < 36  
 
-# range 0 -11:  6 nt toehold
-# range 12-23:  7 nt toehold
-# range 24-36: 10 nt toehold
+"""
+ Figure 2d has 3x12 = 36 rates plotted. 
+ Input: 0 <= selector < 36  
 
-# order of mismatch position:
-# perfect - 2 - 3 - 4 - 5 - 6 - 7 - 8 - 9 -10 - 12 - 14
+ range 0 -11:  6 nt toehold
+ range 12-23:  7 nt toehold
+ range 24-36: 10 nt toehold
+
+ order of mismatch position:
+ perfect - 2 - 3 - 4 - 5 - 6 - 7 - 8 - 9 -10 - 12 - 14
+"""
 
 positionSelector = [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14]   
 
@@ -140,8 +147,8 @@ def machinek2014(options, selector, trialsIn):
         initialComplex.boltzmann_supersample = 25
         initialInvader.boltzmann_supersample = 25
 
-    stopSuccess = StopCondition(Options.STR_SUCCESS, [(successComplex, Options.dissocMacrostate, 0)])
-    stopFailed = StopCondition(Options.STR_FAILURE, [(initialComplex, Options.dissocMacrostate, 0)])
+    stopSuccess = StopCondition(Literals.success, [(successComplex, Options.dissocMacrostate, 0)])
+    stopFailed = StopCondition(Literals.failure, [(initialComplex, Options.dissocMacrostate, 0)])
     
     # actually set the intial and stopping states    
     options.start_state = [initialComplex, initialInvader]

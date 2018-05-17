@@ -22,7 +22,7 @@ import copy
 import sys
 import random
 
-from multistrand.options import Options
+from multistrand.options import Options, Literals
 import multiprocessing
 import numpy as np
 
@@ -60,9 +60,9 @@ class MergeResult(object):
     def generateCounts(self):
 
         # Pre-computing some metrics
-        self.nForward = sum([i.tag == Options.STR_SUCCESS for i in self.dataset])
-        self.nReverse = sum([i.tag == Options.STR_FAILURE for i in self.dataset])
-        self.nForwardAlt = sum([i.tag == Options.STR_ALT_SUCCESS for i in self.dataset])
+        self.nForward = sum([i.tag == Literals.success for i in self.dataset])
+        self.nReverse = sum([i.tag == Literals.failure for i in self.dataset])
+        self.nForwardAlt = sum([i.tag == Literals.alt_success for i in self.dataset])
 
         self.nTotal = len(self.dataset)
         
@@ -105,20 +105,20 @@ class MergeResult(object):
 class FirstStepRate(MergeResult):
 
     def sumCollisionForward(self):
-        return sum([np.float(i.collision_rate) for i in self.dataset if i.tag == Options.STR_SUCCESS])
+        return sum([np.float(i.collision_rate) for i in self.dataset if i.tag == Literals.success])
 
     def sumCollisionForwardAlt(self):
-        return sum([np.float(i.collision_rate) for i in self.dataset if i.tag == Options.STR_ALT_SUCCESS])
+        return sum([np.float(i.collision_rate) for i in self.dataset if i.tag == Literals.alt_success])
 
     def sumCollisionReverse(self):
-        return sum([np.float(i.collision_rate) for i in self.dataset if i.tag == Options.STR_FAILURE])
+        return sum([np.float(i.collision_rate) for i in self.dataset if i.tag == Literals.failure])
 
     def weightedForwardUni(self):
 
         mean_collision_forward = np.float(
             self.sumCollisionForward()) / np.float(self.nForward)
         weightedForwardUni = sum([np.float(i.collision_rate) * np.float(i.time)
-                                  for i in self.dataset if i.tag == Options.STR_SUCCESS])
+                                  for i in self.dataset if i.tag == Literals.success])
 
         return weightedForwardUni / (mean_collision_forward * np.float(self.nForward))
 
@@ -130,7 +130,7 @@ class FirstStepRate(MergeResult):
         mean_collision_reverse = np.float(
             self.sumCollisionReverse()) / np.float(self.nReverse)
         weightedReverseUni = sum([np.float(i.collision_rate) * np.float(i.time)
-                                  for i in self.dataset if i.tag == Options.STR_FAILURE])
+                                  for i in self.dataset if i.tag == Literals.failure])
 
         return weightedReverseUni / (mean_collision_reverse * np.float(self.nReverse))
 
@@ -254,7 +254,7 @@ class FirstStepRate(MergeResult):
 
         output += super(FirstStepRate, self).__str__()
 
-        # suc = (x for x in self.dataset if (x.tag==Options.STR_SUCCESS or x.tag==Options.STR_FAILURE))
+        # suc = (x for x in self.dataset if (x.tag==Literals.success or x.tag==Literals.failure))
         # for x in suc:
         #     output+= x.__str__() +"\n\n"
         return output
@@ -279,15 +279,14 @@ class FirstStepLeakRate(MergeResult):
         super(FirstStepLeakRate, self).__init__(dataset, endStates)
     
         """ Now discard all non-success data """
-        self.dataset = [x for x in self.dataset if ((x.tag == Options.STR_SUCCESS) or x.tag == Options.STR_ALT_SUCCESS)]
+        self.dataset = [x for x in self.dataset if ((x.tag == Literals.success) or x.tag == Literals.alt_success)]
         
-        self.generateCounts()
 
     def sumCollisionForward(self):
-        return sum([np.float(i.collision_rate) for i in self.dataset if i.tag == Options.STR_SUCCESS])
+        return sum([np.float(i.collision_rate) for i in self.dataset if i.tag == Literals.success])
 
     def sumCollisionForwardAlt(self):
-        return sum([np.float(i.collision_rate) for i in self.dataset if i.tag == Options.STR_ALT_SUCCESS])
+        return sum([np.float(i.collision_rate) for i in self.dataset if i.tag == Literals.alt_success])
 
     def k1(self):
         if self.nForward == 0:

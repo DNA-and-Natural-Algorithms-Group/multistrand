@@ -9,7 +9,7 @@ import sys
 
 from multistrand.experiment import standardOptions, hairpinclosing, hairpinopening
 from multistrand.objects import StopCondition, Complex, Domain, Strand
-from multistrand.options import Options
+from multistrand.options import Options, Literals
 from multistrand.utils import standardFileName
 from multistrand.concurrent import MergeSim
 from multistrand.system import SimSystem
@@ -100,8 +100,8 @@ def simulationFlamm2000(trialsIn):
     successComplex1 = Complex(strands=[strand], structure=struct1)
 
     # Stop when the exact full duplex is achieved.
-    stopSuccess0 = StopCondition(Options.STR_SUCCESS, [(successComplex0, Options.exactMacrostate, 0)])
-    stopSuccess1 = StopCondition(Options.STR_ALT_SUCCESS, [(successComplex1, Options.exactMacrostate, 0)])
+    stopSuccess0 = StopCondition(Literals.success, [(successComplex0, Options.exactMacrostate, 0)])
+    stopSuccess1 = StopCondition(Literals.alt_success, [(successComplex1, Options.exactMacrostate, 0)])
     
     stdOptions.start_state = [startComplex]
     stdOptions.stop_conditions = [stopSuccess0, stopSuccess1]
@@ -131,8 +131,8 @@ def simulationYurke(trialsIn):
     complexEndS = Complex(strands=[strandQ], structure="..")
     complexEndF = Complex(strands=[strandT], structure="..")  # # ALT_SUCCESS is dissociation
     
-    stopSuccess = StopCondition(Options.STR_SUCCESS, [(complexEndS, Options.dissocMacrostate, 3)])
-    stopFailed = StopCondition(Options.STR_ALT_SUCCESS, [(complexEndF, Options.dissocMacrostate, 3)])
+    stopSuccess = StopCondition(Literals.success, [(complexEndS, Options.dissocMacrostate, 3)])
+    stopFailed = StopCondition(Literals.alt_success, [(complexEndF, Options.dissocMacrostate, 3)])
     
     stdOptions.start_state = [complexStart]
     stdOptions.stop_conditions = [stopSuccess, stopFailed]    
@@ -162,7 +162,7 @@ def simulationYurke2(trialsIn):
     
     complexAttached = Complex(strands=[strandQ, strandS, strandT], structure="**+*(+)*")
     
-    stopSuccess = StopCondition(Options.STR_SUCCESS, [(complexAttached, Options.looseMacrostate, 1)])
+    stopSuccess = StopCondition(Literals.success, [(complexAttached, Options.looseMacrostate, 1)])
     
     stdOptions.start_state = [complexEndF, complexEndFC]
     stdOptions.stop_conditions = [stopSuccess]
@@ -239,8 +239,8 @@ def simulationRickettsia(trialsIn):
 
 #     state7 = Complex(strands=[strand_H1, strand_H1, strand_R, strand_H2, strand_A], structure="((((.+((.((+))*+*))))+))", name = "state7")
 
-    stopFailure = StopCondition(Options.STR_FAILURE, [(state2, Options.dissocMacrostate, 0)])
-    stopSuccess = StopCondition(Options.STR_SUCCESS, [(state5, Options.looseMacrostate, 6)])
+    stopFailure = StopCondition(Literals.failure, [(state2, Options.dissocMacrostate, 0)])
+    stopSuccess = StopCondition(Literals.success, [(state5, Options.looseMacrostate, 6)])
     
     stdOptions.start_state = [state3]
     stdOptions.stop_conditions = [stopSuccess, stopFailure]
@@ -408,7 +408,7 @@ def doDoubleBarplot(times, times2, setting):
 def makePlots(settings):
 
     results = computeHittingTimes(settings)
-    times = [i.time for i in results.dataset if i.tag == Options.STR_SUCCESS]
+    times = [i.time for i in results.dataset if i.tag == Literals.success]
     
     if settings.type == enum_yurke2 :
         
@@ -418,14 +418,14 @@ def makePlots(settings):
     if settings.type == enum_bonnet :
         
         results2 = computeHittingTimes(settings, True)
-        times2 = [i.time for i in results2.dataset if i.tag == Options.STR_SUCCESS]
+        times2 = [i.time for i in results2.dataset if i.tag == Literals.success]
         
         doDoubleBarplot(times, times2, settings)
         
     if settings.type == enum_flamm or settings.type == enum_yurke:
         
-        times = [i.time for i in results.dataset if i.tag == Options.STR_SUCCESS]       
-        times2 = [i.time for i in results.dataset if i.tag == Options.STR_ALT_SUCCESS]
+        times = [i.time for i in results.dataset if i.tag == Literals.success]       
+        times2 = [i.time for i in results.dataset if i.tag == Literals.alt_success]
 
         if not len(times) == 0 and not sum(times) == 0:        
             print "rate reaction 1 = " + str(len(times) / sum(times))
@@ -436,8 +436,8 @@ def makePlots(settings):
 
     if settings.type == enum_rickettsia:
             
-        times = [i.time for i in results.dataset if i.tag == Options.STR_SUCCESS]       
-        times2 = [i.time for i in results.dataset if i.tag == Options.STR_FAILURE]
+        times = [i.time for i in results.dataset if i.tag == Literals.success]       
+        times2 = [i.time for i in results.dataset if i.tag == Literals.failure]
 
         if not len(times) == 0 and not sum(times) == 0:        
             print "rate reaction 1 = " + str(len(times) / sum(times))

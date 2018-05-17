@@ -88,7 +88,7 @@ import os
 
 try:
     from multistrand.objects import *
-    from multistrand.options import Options
+    from multistrand.options import Options, Literals
     from multistrand.system import SimSystem, initialize_energy_model
 
 except ImportError:
@@ -182,7 +182,7 @@ def compute_rate_constants(dataset, concentration, printit=True):
     # for example, if they are both blunt-ended hairpins.  In this case, i.collision_rate will be 0, i.tag will be 'noinitial'.  
     # Since the other way that i.tag can be 'None' is when a simulation doesn't
     # reach any StopCondition before timing out by exceeding o.simulation_time, and since both of those cases should be considered "failures"
-    reverse = [i for i in dataset if i.tag == "FAILURE" or i.tag == Options.STR_NOINITIAL or i.tag == Options.STR_TIMEOUT]
+    reverse = [i for i in dataset if i.tag == "FAILURE" or i.tag == Literals.no_initial_moves or i.tag == Literals.time_out]
     reverse_times = np.zeros( len(reverse))
     reverse_times[:] = [i.time for i in reverse]
     reverse_collision_rates = np.zeros( len(reverse))

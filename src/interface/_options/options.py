@@ -11,6 +11,28 @@ from ..__init__ import __version__
 import copy
 
 
+""" Literals for Multistrand"""
+class  Literals(object):
+    
+    """
+    Preset tags that are used in the MergeResult objects (FirstStepRate, FirstStepLeakRate, FirstPassageRate)
+    and multistrand.experiment  
+    """
+
+    failure = "FAILURE"
+    success = "SUCCESS"
+    alt_success = "ALT_SUCCESS"
+    
+    
+    """
+     protected results may occupy the [x.tag in a x in options.interface.results]
+    """
+    time_out = "timeout"
+    no_initial_moves = "noinitial"
+    sim_error = "error"
+    
+    
+    
 class Options(object):
     """ The main wrapper for controlling a Multistrand simulation. Has an interface for returning results. """
        
@@ -18,19 +40,7 @@ class Options(object):
     # FD: some could be enums, using constants instead.
     
     ZERO_C_IN_K = 273.15
-    
-    STR_ALL = "ALL"
-    STR_FAILURE = "FAILURE"
-    STR_SUCCESS = "SUCCESS"
-    STR_ALT_SUCCESS = "ALT_SUCCESS"
-    
-    """
-         protected results may occupy the [x.tag in a x in options.interface.results]
-    """
-    STR_TIMEOUT = "timeout"
-    STR_NOINITIAL = "noinitial"
-    STR_NAN = "nan"
-    STR_ERROR = "error"
+
         
     # rate_method
     metropolis = 1
@@ -560,12 +570,12 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
     @property
     def boltzmann_sample(self):
         
-        raise ValueError('Options.boltzmann_sample is now depreciated. Use Complex.boltzman_sample instead.')
+        raise ValueError('Options.boltzmann_sample is now depreciated. Use Complex.boltzmann_sample instead.')
         
     @boltzmann_sample.setter
     def boltzmann_sample(self, val):
         
-        raise ValueError('Options.boltzmann_sample is now depreciated. Use Complex.boltzman_sample instead.')
+        raise ValueError('Options.boltzmann_sample is now depreciated. Use Complex.boltzmann_sample instead.')
         
             
     @property

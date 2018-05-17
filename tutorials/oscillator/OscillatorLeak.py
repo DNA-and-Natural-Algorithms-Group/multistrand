@@ -20,7 +20,7 @@ from matplotlib.ticker import ScalarFormatter
 from multistrand.concurrent import MeregSim, FirstStepRate, Bootstrap
 from multistrand.experiment import standardOptions, setBoltzmann
 from multistrand.objects import StopCondition, Domain, Complex, Strand
-from multistrand.options import Options
+from multistrand.options import Options, Literals
 
 import numpy as np
 
@@ -90,12 +90,10 @@ def changeComplex(options, expirement_type=NORMAL, trials=500):
         setBoltzmann(produce_complex, trials, 75)
         setBoltzmann(helper_complex, trials, 75)
 
-    success_stop_cond = StopCondition(
-        Options.STR_SUCCESS, [(leak_complex, Options.dissocMacrostate, 0)])
+    success_stop_cond = StopCondition(Literals.success, [(leak_complex, Options.dissocMacrostate, 0)])
     # the leak has failed if we end up with our initial complexes again.
     # check if we end up with a free helper complex
-    failure_stop_cond = StopCondition(
-        Options.STR_FAILURE, [(helper_complex, Options.dissocMacrostate, 0)])
+    failure_stop_cond = StopCondition(Literals.failure, [(helper_complex, Options.dissocMacrostate, 0)])
 
     options.start_state = [produce_complex, helper_complex]
     options.stop_conditions = [success_stop_cond, failure_stop_cond]
