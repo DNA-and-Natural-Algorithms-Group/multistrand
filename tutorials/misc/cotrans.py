@@ -3,7 +3,7 @@
 import sys
 
 from multistrand.objects import Complex, Domain, Strand, StopCondition
-from multistrand.options import Options
+from multistrand.options import Options, Literals
 from multistrand.system import SimSystem
 from multistrand.utils import pairType
 from multistrand.experiment import standardOptions, hybridization
@@ -60,8 +60,8 @@ def doSims(strandSeq, numTraj=2):
     o1.output_time = 0.0004# 0.2 ms output
     o1.simulation_time = 0.52 # 10 ms
     o1.gt_enable = 1;
-    o1.substrate_type = Options.substrateRNA
-    o1.simulation_mode = Options.trajectory
+    o1.substrate_type = Literals.substrateRNA
+    o1.simulation_mode = Literals.trajectory
     o1.cotranscriptional = True; # enables the strand growing on the 3' end.
 
 #     onedomain = Domain(name="itall", sequence="GGAACCGUCUCCCUCUGCCAAAAGGUAGAGGGAGAUGGAGCAUCUCUCUCUACGAAGCAGAGAGAGACGAAGG")    

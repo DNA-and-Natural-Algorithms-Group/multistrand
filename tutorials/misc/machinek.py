@@ -147,8 +147,8 @@ def machinek2014(options, selector, trialsIn):
         initialComplex.boltzmann_supersample = 25
         initialInvader.boltzmann_supersample = 25
 
-    stopSuccess = StopCondition(Literals.success, [(successComplex, Options.dissocMacrostate, 0)])
-    stopFailed = StopCondition(Literals.failure, [(initialComplex, Options.dissocMacrostate, 0)])
+    stopSuccess = StopCondition(Literals.success, [(successComplex, Options.dissoc_macrostate, 0)])
+    stopFailed = StopCondition(Literals.failure, [(initialComplex, Options.dissoc_macrostate, 0)])
     
     # actually set the intial and stopping states    
     options.start_state = [initialComplex, initialInvader]

@@ -12,7 +12,7 @@ from multistrand.objects import Strand
 from multistrand.experiment import standardOptions, hybridization
 from multistrand.utils import concentration_string, standardFileName
 from multistrand.concurrent import  FirstStepRate, FirstPassageRate, Bootstrap, MergeSim
-from multistrand.options import Options
+from multistrand.options import Options, Literals
 
 
 from constantsgao import goa2006_P0, goa2006_P3, goa2006_P4, setSaltGao2006, colors
@@ -49,7 +49,7 @@ def first_step_simulation(strand_seq, trials, T=20.0):
     
     def getOptions(trials):
        
-        o = standardOptions(Options.firstStep, TEMPERATURE, trials, ATIME_OUT) 
+        o = standardOptions(Literals.first_step, TEMPERATURE, trials, ATIME_OUT) 
         hybridization(o, strand_seq, trials)
         setSaltGao2006(o)
         o.DNA23Metropolis()
@@ -88,7 +88,7 @@ def first_passage_association(strand_seq, trials, concentration, T=20.0):
     
     def getOptions(trials):
 
-        o = standardOptions(Options.firstPassageTime, TEMPERATURE, trials, ATIME_OUT) 
+        o = standardOptions(Literals.first_passage_time, TEMPERATURE, trials, ATIME_OUT) 
         
         hybridization(o, strand_seq, trials, True)
         setSaltGao2006(o)

@@ -5,14 +5,11 @@ import matplotlib.pylab as plt
 import numpy as np
 
 
-
 from multistrand.objects import Complex, Domain, Strand, StopCondition
-from multistrand.options import Options 
+from multistrand.options import Options, Literals
 from multistrand.system import SimSystem
 
-
 colors = ['blue', 'red', 'cyan', 'magenta', 'green', 'k', 'darkblue', 'darkred', 'darkcyan', 'darkmagenta', 'darkgreen']
-
 
 
 """ Start : Migration """
@@ -27,7 +24,7 @@ def setup_options_hairpin(trials, stem_seq, hairpin_seq):
     # We give domain-level structures for the open and closed hairpin configurations
     start_complex = Complex(strands=[s], structure="...")
     stop_complex = Complex(strands=[s], structure="(.)")
-    full_sc = StopCondition("CLOSED", [(stop_complex, Options.exactMacrostate, 0)])
+    full_sc = StopCondition("CLOSED", [(stop_complex, Literals.exact_macrostate, 0)])
     # Note: unlike in Transition Mode, in First Passage Time Mode, no "stop:" prefix is needed in the macrostate name
     # in order for the StopCondition to trigger the end of the simulation.
 
@@ -135,7 +132,7 @@ def show_interesting_trajectories(result_lists, seqs, type='fastest'):
         s1 = Strand(name="hairpin", sequence=seq)
         c1 = Complex(strands=[s1], structure=16 * '.')  # hard-coded length 16
         c2 = Complex(strands=[s1], structure="((((((....))))))")  # hard-coded stem length 6, loop length 4
-        sc = StopCondition("CLOSED", [(c2, Options.exactMacrostate, 0)])
+        sc = StopCondition("CLOSED", [(c2, Literals.exact_macrostate, 0)])
         # For future reference, StopConditions and Macrostates (same thing) are provided as a list of match conditions,
         # all of which must be matched.  I.e. there is an implicit AND being evaluated.  E.g. 
         # sc = StopCondition( "EXAMPLE", [(c2,Loose_Macrostate,8), (c1,Loose_Macrostate,4)]
@@ -229,7 +226,7 @@ def create_setup(trials, toehold_seq, toehold_seq2, domain_seq):
     # and we'll see that either it completes strand displacement, or it dissociates.
     start_complex = Complex(strands=[incoming, substrate, incumbent], structure=".(+)((+))")
     stop_complex = Complex(strands=[incoming, substrate, incumbent], structure="((+))(+).")
-    full_sc = StopCondition("CLOSED", [(stop_complex, Options.exactMacrostate, 0)])
+    full_sc = StopCondition("CLOSED", [(stop_complex, Literals.exact_macrostate, 0)])
     
     
     o1 = Options(simulation_mode="First Passage Time", parameter_type="Nupack", substrate_type="DNA", temperature=273.15 + 25.0,
@@ -358,8 +355,7 @@ def create_setup_interal(toehold_seq, toehold_seq2, domain_seq, domain_length):
     start_complex = Complex(strands=[incoming, substrate, incumbent], structure=".(+)((+))")
     stop_complex = Complex(strands=[incoming, substrate], structure="((+)).") 
     
-    full_sc = StopCondition("CLOSED", [(stop_complex, Options.dissocMacrostate, 2)])  # Exact_Macrostate,0)])
-    
+    full_sc = StopCondition("CLOSED", [(stop_complex, Literals.dissoc_macrostate, 2)])  # Exact_Macrostate,0)])
     
     o1 = Options(simulation_mode="First Passage Time", parameter_type="Nupack", substrate_type="DNA", temperature=273.15 + 25.0,
                 num_simulations=10, simulation_time=0.00001, rate_scaling='Calibrated', verbosity=0,
@@ -369,18 +365,13 @@ def create_setup_interal(toehold_seq, toehold_seq2, domain_seq, domain_length):
 
 
 
-
 def main2():
     
-        
     o1 = create_setup_interal(toehold_t, toehold_dd, domain_R, 25)
     
     s = SimSystem(o1)
     s.initialInfo()
     print "Testing loop internals"
-
-    
-
 
 
 

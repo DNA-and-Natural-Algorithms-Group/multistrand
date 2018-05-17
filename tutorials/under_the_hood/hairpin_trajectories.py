@@ -14,7 +14,7 @@ if False:  # only needed if you're having trouble with your Multistrand installa
 
 try:
     from multistrand.objects import *
-    from multistrand.options import Options
+    from multistrand.options import Options, Literals
     from multistrand.system import SimSystem, energy
 
 except ImportError:
@@ -54,7 +54,7 @@ o = Options(temperature=25.0,
             simulation_time = 0.0000001,  # 0.1 microseconds
             num_simulations = 1,  # don't play it again, Sam
             output_interval = 1,  # record every single step
-            rate_method = Options.metropolis, # the default is 'Kawasaki' (numerically, these are 1 and 2 respectively)
+            rate_method = Literals.metropolis, # the default is 'Kawasaki' (numerically, these are 1 and 2 respectively)
             rate_scaling = 'Calibrated', # this is the same as 'Default'.  'Unitary' gives values 1.0 to both.  
             simulation_mode = 'Trajectory')  # numerically 128.  See interface/_options/constants.py for more info about all this.
 

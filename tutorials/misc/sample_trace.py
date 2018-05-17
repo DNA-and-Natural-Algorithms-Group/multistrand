@@ -56,12 +56,8 @@ def doSims(strandSeq, numTraj=2):
     o1.num_simulations = numTraj
     o1.output_interval = 1 
     o1.simulation_time = ATIME_OUT
-#     o1.substrate_type = Options.substrateRNA
-       
     
     hybridization(o1, strandSeq )
-    
-    
     
     o1.initial_seed = 1777+6
 

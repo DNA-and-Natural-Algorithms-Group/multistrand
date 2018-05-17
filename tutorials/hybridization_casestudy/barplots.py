@@ -63,7 +63,7 @@ class settings(object):
 
 def simulationHairpin(trialsIn, reverse):
     
-    stdOptions = standardOptions(simMode=Options.trajectory, trials=trialsIn)
+    stdOptions = standardOptions(simMode=Literals.trajectory, trials=trialsIn)
 #     stdOptions.JSDefault()
     stdOptions.DNA23Metropolis()
     stdOptions.simulation_time = A_TIME_OUT
@@ -86,8 +86,8 @@ def simulationFlamm2000(trialsIn):
     struct0 = "((((((((((((((.....))))))))))))))" 
     struct1 = "((((((....)))))).((((((....))))))"
         
-    stdOptions = standardOptions(simMode=Options.trajectory, trials=trialsIn, tempIn=37.0)
-    stdOptions.substrate_type = Options.substrateRNA
+    stdOptions = standardOptions(simMode=Literals.trajectory, trials=trialsIn, tempIn=37.0)
+    stdOptions.substrate_type = Literals.substrateRNA
     stdOptions.gt_enable = 1
     stdOptions.simulation_time = A_TIME_OUT
     stdOptions.DNA23Metropolis()
@@ -100,8 +100,8 @@ def simulationFlamm2000(trialsIn):
     successComplex1 = Complex(strands=[strand], structure=struct1)
 
     # Stop when the exact full duplex is achieved.
-    stopSuccess0 = StopCondition(Literals.success, [(successComplex0, Options.exactMacrostate, 0)])
-    stopSuccess1 = StopCondition(Literals.alt_success, [(successComplex1, Options.exactMacrostate, 0)])
+    stopSuccess0 = StopCondition(Literals.success, [(successComplex0, Literals.exact_macrostate, 0)])
+    stopSuccess1 = StopCondition(Literals.alt_success, [(successComplex1, Literals.exact_macrostate, 0)])
     
     stdOptions.start_state = [startComplex]
     stdOptions.stop_conditions = [stopSuccess0, stopSuccess1]
@@ -113,7 +113,7 @@ def simulationFlamm2000(trialsIn):
 # # because the toehold is on the 3' end
 def simulationYurke(trialsIn):
     
-    stdOptions = standardOptions(simMode=Options.firstPassageTime, trials=trialsIn)
+    stdOptions = standardOptions(simMode=Literals.first_passage_time, trials=trialsIn)
     stdOptions.simulation_time = A_TIME_OUT
     stdOptions.DNA23Metropolis()
    
@@ -131,8 +131,8 @@ def simulationYurke(trialsIn):
     complexEndS = Complex(strands=[strandQ], structure="..")
     complexEndF = Complex(strands=[strandT], structure="..")  # # ALT_SUCCESS is dissociation
     
-    stopSuccess = StopCondition(Literals.success, [(complexEndS, Options.dissocMacrostate, 3)])
-    stopFailed = StopCondition(Literals.alt_success, [(complexEndF, Options.dissocMacrostate, 3)])
+    stopSuccess = StopCondition(Literals.success, [(complexEndS, Literals.dissoc_macrostate, 3)])
+    stopFailed = StopCondition(Literals.alt_success, [(complexEndF, Literals.dissoc_macrostate, 3)])
     
     stdOptions.start_state = [complexStart]
     stdOptions.stop_conditions = [stopSuccess, stopFailed]    
@@ -144,7 +144,7 @@ def simulationYurke(trialsIn):
 # # because the toehold is on the 3' end
 def simulationYurke2(trialsIn):
     
-    stdOptions = standardOptions(simMode=Options.firstPassageTime, trials=trialsIn)
+    stdOptions = standardOptions(simMode=Literals.first_passage_time, trials=trialsIn)
     stdOptions.simulation_time = A_TIME_OUT
     stdOptions.DNA23Metropolis()
 
@@ -162,7 +162,7 @@ def simulationYurke2(trialsIn):
     
     complexAttached = Complex(strands=[strandQ, strandS, strandT], structure="**+*(+)*")
     
-    stopSuccess = StopCondition(Literals.success, [(complexAttached, Options.looseMacrostate, 1)])
+    stopSuccess = StopCondition(Literals.success, [(complexAttached, Literals.loose_macrostate, 1)])
     
     stdOptions.start_state = [complexEndF, complexEndFC]
     stdOptions.stop_conditions = [stopSuccess]
@@ -205,7 +205,7 @@ ERIK WINFREE AND NILES A. PIERCE
 
 def simulationRickettsia(trialsIn):
     
-    stdOptions = standardOptions(simMode=Options.firstPassageTime, trials=trialsIn)
+    stdOptions = standardOptions(simMode=Literals.first_passage_time, trials=trialsIn)
     stdOptions.simulation_time = A_TIME_OUT
     stdOptions.DNA23Metropolis()
     stdOptions.temperature = 25.0
@@ -239,8 +239,8 @@ def simulationRickettsia(trialsIn):
 
 #     state7 = Complex(strands=[strand_H1, strand_H1, strand_R, strand_H2, strand_A], structure="((((.+((.((+))*+*))))+))", name = "state7")
 
-    stopFailure = StopCondition(Literals.failure, [(state2, Options.dissocMacrostate, 0)])
-    stopSuccess = StopCondition(Literals.success, [(state5, Options.looseMacrostate, 6)])
+    stopFailure = StopCondition(Literals.failure, [(state2, Literals.dissoc_macrostate, 0)])
+    stopSuccess = StopCondition(Literals.success, [(state5, Literals.loose_macrostate, 6)])
     
     stdOptions.start_state = [state3]
     stdOptions.stop_conditions = [stopSuccess, stopFailure]
@@ -498,7 +498,7 @@ def debugTester():
         """" Debug tester. """
              
         options = simulationRickettsia(trialsIn=1)
-        options.simulation_mode = Options.trajectory
+        options.simulation_mode = Literals.trajectory
         options.output_interval = 10000
         options.temperature = 25.0
         options.simulation_time = 5.0e-1

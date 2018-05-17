@@ -43,8 +43,8 @@ def doExperiment(trials):
     # we use dissocMacrostate - this only checks the presence of strands in the complex, and 
     # does not depend on dotparens structure.
     
-    successStopping = StopCondition(Literals.success, [(myLeakedSignal, Options.dissocMacrostate, 0)])
-    failedStopping = StopCondition(Literals.failure, [(myFuel, Options.dissocMacrostate, 0)])
+    successStopping = StopCondition(Literals.success, [(myLeakedSignal, Options.dissoc_macrostate, 0)])
+    failedStopping = StopCondition(Literals.failure, [(myFuel, Options.dissoc_macrostate, 0)])
     
     
     # options

@@ -7,7 +7,7 @@ import sys
 import numpy as np
 
 from multistrand.objects import Complex, Domain, Strand, StopCondition
-from multistrand.options import Options
+from multistrand.options import Options, Literals
 from multistrand.system import SimSystem
 from multistrand.utils import pairType
 from multistrand.experiment import standardOptions, makeComplex
@@ -61,7 +61,7 @@ def doSims(strandSeq, numTraj=2):
 
     o1 = standardOptions()
     
-    o1.simulation_mode = Options.trajectory
+    o1.simulation_mode = Literals.trajectory
     o1.num_simulations = numTraj
     o1.output_interval = 1
     o1.join_concentration = 1.0e-9

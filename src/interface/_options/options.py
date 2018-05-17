@@ -23,7 +23,6 @@ class  Literals(object):
     success = "SUCCESS"
     alt_success = "ALT_SUCCESS"
     
-    
     """
      protected results may occupy the [x.tag in a x in options.interface.results]
     """
@@ -32,51 +31,27 @@ class  Literals(object):
     sim_error = "error"
     
     
-    
-class Options(object):
-    """ The main wrapper for controlling a Multistrand simulation. Has an interface for returning results. """
-       
-    '''Constants:'''
-    # FD: some could be enums, using constants instead.
-    
-    ZERO_C_IN_K = 273.15
-
-        
-    # rate_method
+    """ rate_method    """
     metropolis = 1
     kawasaki = 2
-    RateMethodToString = [ "None", "Metropolis", "Kawasaki"]
-
-    # Nupack dangle options
-    none = 0
-    some = 1
-    all = 2
-    dangleToString = [ "None", "Some", "All"]
-
-    # Parameter type. Vienna is depreciated.
-    viennaModel = 0 
-    nupackModel = 1 
-    parameterTypeToString = [ "Vienna", "Nupack" ]
-
-    # Substrate type.
+    
+    
+    """ Nupack dangle options """
+    dangles_none = 0
+    dangles_some = 1
+    dangles_all = 2
+    
+    """ Substrate type.    """
     substrateRNA = 1
     substrateDNA = 2
-    substrateToString = [ "Invalid", "RNA", "DNA"]    
     
-    # Simulation mode
-    firstPassageTime = 16  # 0x0010
-    firstStep = 48  # 0x0030
+    
+    """ Simulation modes """        
+    first_passage_time = 16  # 0x0010
+    first_step = 48  # 0x0030
     transition = 256  # 0x0100
     trajectory = 128  # 0x0080
     
-    # translation
-    simulationMode = {  "Normal"    :               firstPassageTime,
-                        "First Step":               firstStep,
-                        "Transition":               transition,
-                        "Trajectory":               trajectory,
-                        "First Passage Time":       firstPassageTime}
-
-
     """
         FD, May 8th, 2018:
         
@@ -90,11 +65,42 @@ class Options(object):
             Compuational expense, low to high :           dissoc -- exact -- count -- loose     
     """
 
-    exactMacrostate = 0  # 
-    boundMacrostate = 1  # 
-    dissocMacrostate = 2  # 
-    looseMacrostate = 3  # 
-    countMacrostate = 4  # 
+    exact_macrostate = 0  # 
+    bound_macrostate = 1  # 
+    dissoc_macrostate = 2  # 
+    loose_macrostate = 3  # 
+    count_macrostate = 4  # 
+    
+    
+class Options(object):
+    """ The main wrapper for controlling a Multistrand simulation. Has an interface for returning results. """
+       
+    '''Constants:'''
+    # FD: some could be enums, using constants instead.
+    
+    ZERO_C_IN_K = 273.15
+        
+
+    RateMethodToString = [ "None", "Metropolis", "Kawasaki"]
+
+    dangleToString = [ "None", "Some", "All"]
+
+    # Parameter type. Vienna is depreciated.
+    viennaModel = 0 
+    nupackModel = 1 
+    parameterTypeToString = [ "Vienna", "Nupack" ]
+
+
+    substrateToString = [ "Invalid", "RNA", "DNA"]    
+    
+    # translation
+    simulationMode = {  "Normal"    :               Literals.first_passage_time,
+                        "First Step":               Literals.first_step,
+                        "Transition":               Literals.transition,
+                        "Trajectory":               Literals.trajectory,
+                        "First Passage Time":       Literals.first_passage_time}
+
+
 
 
     
@@ -221,10 +227,10 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         self.bimolecular_scaling = -1.0 
         """ Rate scaling factor for bimolecular reactions."""
 
-        self.rate_method = self.kawasaki
+        self.rate_method = Literals.kawasaki
         """ Choice of methods for determining forward/reverse rates. """
 
-        self.dangles = self.some
+        self.dangles = Literals.dangles_some
         """ Dangles options for the energy model.
         
         None [0]: Do not include any dangles terms in the energy model.
@@ -240,7 +246,7 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
                     nearly the same as mfold style files.
         """
 
-        self.substrate_type = self.substrateDNA
+        self.substrate_type = Literals.substrateDNA
         """ What substrate's parameter files to use. 
 
         Invalid [0]: Indicates we should not auto-search for a param file.
@@ -267,7 +273,7 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         #
         ####################
         
-        self.simulation_mode = self.firstPassageTime
+        self.simulation_mode = Literals.first_passage_time
         """ The simulation mode: how we want the simulation system to
         perform the main loop.
         """
@@ -408,16 +414,16 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
                     
         warningmsg = "Warning! rate_scaling is set, enabling support for legacy code. Now setting rate defaults for "
                 
-        if (self.temperature == 298.15) & (self.rate_method == self.kawasaki) :
+        if (self.temperature == 298.15) & (self.rate_method == Literals.kawasaki) :
             warningmsg += "Kawasaki 25 C"
             self.JSKawasaki25()
-        elif (self.temperature == 310.15) & (self.rate_method == self.kawasaki) :
+        elif (self.temperature == 310.15) & (self.rate_method == Literals.kawasaki) :
             warningmsg += "Kawasaki 37 C"
             self.JSKawasaki37()
-        elif (self.temperature == 298.15) & (self.rate_method == self.metropolis) :
+        elif (self.temperature == 298.15) & (self.rate_method == Literals.metropolis) :
             warningmsg += "Metropolis 25 C"
             self.JSMetropolis25()
-        elif (self.temperature == 310.15) & (self.rate_method == self.metropolis) :
+        elif (self.temperature == 310.15) & (self.rate_method == Literals.metropolis) :
             warningmsg += "Metropolis 37 C"
             self.JSMetropolis37()
         else:

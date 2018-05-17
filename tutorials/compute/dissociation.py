@@ -1,6 +1,6 @@
 from __future__ import print_function
 
-from multistrand.options import Options
+from multistrand.options import Options, Literals
 from multistrand.concurrent import MergeSim, FirstStepRate, Bootstrap
 from multistrand.experiment import standardOptions, dissociation
 
@@ -20,7 +20,7 @@ def first_step_simulation(strand_seq, trials, temperature):
         
     def getOptions(trials):
          
-        o = standardOptions(Options.firstPassageTime, temperature, trials, timeOut = 1000.0) 
+        o = standardOptions(Literals.first_passage_time, temperature, trials, timeOut = 1000.0) 
         dissociation(o, strand_seq, trials)
         o.DNA23Metropolis()
 #         setArrheniusConstantsDNA23(o) # unreleased parameterization

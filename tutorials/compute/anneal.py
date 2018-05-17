@@ -2,7 +2,7 @@ from __future__ import print_function
 
 from multistrand.concurrent import MergeSim, FirstStepRate, Bootstrap
 from multistrand.experiment import standardOptions, hybridization
-from multistrand.options import Options
+from multistrand.options import Options, Literals
 from multistrand.utils import seqComplement
 
 import sys, time, math
@@ -19,7 +19,7 @@ def first_step_simulation(strand_seq, trials, temperature=25.0, sodium = 1.0, ma
         
     def getOptions(trials, material, temperature=25.0, sodium = 1.0):
          
-        o = standardOptions(Options.firstStep, tempIn=temperature, trials=200, timeOut = 1.0)
+        o = standardOptions(Literals.first_step, tempIn=temperature, trials=200, timeOut = 1.0)
         o.sodium = sodium 
         hybridization(o, strand_seq, trials)
         o.DNA23Metropolis()

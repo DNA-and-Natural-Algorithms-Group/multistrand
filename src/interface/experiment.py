@@ -11,7 +11,7 @@ def setBoltzmann(complexIn, trials, supersample=1):
 
 
 # easy handle for options creation
-def standardOptions(simMode=Options.firstStep, tempIn=25.0, trials=10, timeOut=0.1):
+def standardOptions(simMode=Literals.first_step, tempIn=25.0, trials=10, timeOut=0.1):
 
     output = Options(simulation_mode=simMode,
                      num_simulations=trials,
@@ -20,7 +20,7 @@ def standardOptions(simMode=Options.firstStep, tempIn=25.0, trials=10, timeOut=0
                      )
 
     output.DNA23Metropolis()
-    output.rate_method = Options.metropolis
+    output.rate_method = Literals.metropolis
 
     return output
 
@@ -59,11 +59,11 @@ def leakInvasion(options, mySeq, myTrials=0, doFirstPassage=False):
         setBoltzmann(invader_top, myTrials)
 
     # Stop when the exact full duplex is achieved.
-    stopSuccess = StopCondition(Literals.success, [(success_complex, Options.exactMacrostate, 0)])
+    stopSuccess = StopCondition(Literals.success, [(success_complex, Literals.exact_macrostate, 0)])
 
     # Declare the simulation unproductive if the strands become single-stranded again.
     failed_complex = Complex(strands=[top], structure=".")
-    stopFailed = StopCondition(Literals.failure, [(failed_complex, Options.dissocMacrostate, 0)])
+    stopFailed = StopCondition(Literals.failure, [(failed_complex, Literals.dissoc_macrostate, 0)])
 
     options.start_state = [startTop, startBot]
 
@@ -95,11 +95,11 @@ def hybridization(options, mySeq, myTrials=0, doFirstPassage=False):
 
     # Stop when the exact full duplex is achieved.
     success_complex = Complex(strands=[top, bot], structure="(+)")
-    stopSuccess = StopCondition(Literals.success, [(success_complex, Options.exactMacrostate, 0)])
+    stopSuccess = StopCondition(Literals.success, [(success_complex, Literals.exact_macrostate, 0)])
 
     # Declare the simulation unproductive if the strands become single-stranded again.
     failed_complex = Complex(strands=[top], structure=".")
-    stopFailed = StopCondition(Literals.failure, [(failed_complex, Options.dissocMacrostate, 0)])
+    stopFailed = StopCondition(Literals.failure, [(failed_complex, Literals.dissoc_macrostate, 0)])
 
     options.start_state = [startTop, startBot]
 
@@ -134,7 +134,7 @@ def dissociation(options, mySeq, myTrials=0):
 
     # Stop when the strands fall apart.
     successComplex = Complex(strands=[top], structure=".")
-    stopSuccess = StopCondition(Literals.success, [(successComplex, Options.dissocMacrostate, 0)])
+    stopSuccess = StopCondition(Literals.success, [(successComplex, Literals.dissoc_macrostate, 0)])
 
     options.start_state = [duplex]
     options.stop_conditions = [stopSuccess]
@@ -159,10 +159,10 @@ def threewayDisplacement(options, toeholdSeq, domainSeq, doFirstPassage=False, m
         setBoltzmann(invaderComplex, myTrials, mySuperSample)
         
     # stop when the invasion is complete, or when the invader dissociates
-    stopSuccess = StopCondition(Literals.success, [(successComplex, Options.dissocMacrostate, 0)])
+    stopSuccess = StopCondition(Literals.success, [(successComplex, Literals.dissoc_macrostate, 0)])
     
     # Declare the simulation unproductive if the invader becomes single-stranded again.
-    stopFailed = StopCondition(Literals.failure, [(invaderComplex, Options.dissocMacrostate, 0)])
+    stopFailed = StopCondition(Literals.failure, [(invaderComplex, Literals.dissoc_macrostate, 0)])
     
     # set the starting and stopping conditions
     options.start_state = [startComplex, invaderComplex]
@@ -195,7 +195,7 @@ def hairpinclosing(options, stemSeq, loopSeq, myTrials=0):
     # but in no circumstance will we enable Boltzmann sampling
 
     # Stop when the exact full duplex is achieved.
-    stopSuccess = StopCondition(Literals.success, [(success_complex, Options.exactMacrostate, 0)])
+    stopSuccess = StopCondition(Literals.success, [(success_complex, Literals.exact_macrostate, 0)])
 
     options.start_state = [start_complex]
     options.stop_conditions = [stopSuccess]
@@ -216,7 +216,7 @@ def hairpinopening(options, stemSeq, loopSeq, myTrials=0):
     # but in no circumstance will we enable Boltzmann sampling
 
     # Stop when the exact full duplex is achieved.
-    stopSuccess = StopCondition(Literals.success, [(success_complex, Options.exactMacrostate, 0)])
+    stopSuccess = StopCondition(Literals.success, [(success_complex, Literals.exact_macrostate, 0)])
 
     options.start_state = [start_complex]
     options.stop_conditions = [stopSuccess]
@@ -266,8 +266,8 @@ def two_input(options, input_complex_A, input_complex_B, output_complex, trials=
         for x in [input_complex_A, input_complex_B]:
             setBoltzmann(x, trials, supersample)
 
-    successful_stop_condition = StopCondition(Literals.success, [(output_complex, Options.dissocMacrostate, 0)])
-    failure_stop_condition = StopCondition(Literals.failure, [(input_complex_B, Options.dissocMacrostate, 0)])
+    successful_stop_condition = StopCondition(Literals.success, [(output_complex, Literals.dissoc_macrostate, 0)])
+    failure_stop_condition = StopCondition(Literals.failure, [(input_complex_B, Literals.dissoc_macrostate, 0)])
 
     options.start_state = [input_complex_A, input_complex_B]
 
@@ -285,9 +285,9 @@ def two_input_two_success(trials, options, input_complex_A, input_complex_B, out
         for x in [input_complex_A, input_complex_B]:
             setBoltzmann(x, trials, supersample)
 
-    successful_stop_condition = StopCondition(Literals.success, [(output_complex_A, Options.dissocMacrostate, 0)])
-    alt_successful_stop_condition = StopCondition(Literals.alt_success, [(output_complex_B, Options.dissocMacrostate, 0)])
-    failure_stop_condition = StopCondition(Literals.failure, [(input_complex_B, Options.dissocMacrostate, 0)])
+    successful_stop_condition = StopCondition(Literals.success, [(output_complex_A, Literals.dissoc_macrostate, 0)])
+    alt_successful_stop_condition = StopCondition(Literals.alt_success, [(output_complex_B, Literals.dissoc_macrostate, 0)])
+    failure_stop_condition = StopCondition(Literals.failure, [(input_complex_B, Literals.dissoc_macrostate, 0)])
 
     options.start_state = [input_complex_A, input_complex_B]
 
