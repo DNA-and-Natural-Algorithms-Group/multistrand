@@ -25,7 +25,13 @@ class Complex(object):
         You must include both of the required keyword arguments to create a Complex with the new style init.
         """
         
-        self.sampleSelector = None   # set this if you want to discard certain Boltzmann sampled sequences.
+        
+        """  
+            Set sampleSelect if you want to discard certain Boltzmann sampled secondary structures. 
+            The function input is a string-concatenated secondary structure.
+            The function should return True for accepted structures.
+        """
+        self.sampleSelect = None   
 
         if sequence and not strands:
             self.strand_list = [Strand(sequence=i) for i in sequence.split("+")]
@@ -132,8 +138,8 @@ class Complex(object):
         if self.boltzmann_sample:
             self.generate_boltzmann_structure()
             
-            if not self.sampleSelector == None:
-                while not self.sampleSelector(self._last_boltzmann_structure):
+            if not self.sampleSelect == None:
+                while not self.sampleSelect(self._last_boltzmann_structure):
                     self.generate_boltzmann_structure()
             
             # puts the generated structure in self._last_boltzmann_structure
