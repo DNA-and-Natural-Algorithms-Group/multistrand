@@ -1,5 +1,6 @@
 from strand import Strand
 
+
 class Complex(object):
 
     MAX_SAMPLES_AT_ONCE = 200
@@ -8,7 +9,7 @@ class Complex(object):
     """
     unique_id = 0
     
-    def __init__(self, structure, sequence = None, strands = None, name = None, boltzmann_sample = False):
+    def __init__(self, structure, sequence=None, strands=None, name=None, boltzmann_sample=False):
         """
         Initialization:
         
@@ -24,6 +25,7 @@ class Complex(object):
         You must include both of the required keyword arguments to create a Complex with the new style init.
         """
         
+        self.sampleSelector = None   # set this if you want to discard certain Boltzmann sampled sequences.
 
         if sequence and not strands:
             self.strand_list = [Strand(sequence=i) for i in sequence.split("+")]
@@ -54,20 +56,16 @@ class Complex(object):
         self.boltzmann_supersample = 1
         Complex.unique_id += 1
     
-    
-    
-    def __str__( self ):
+    def __str__(self):
         return "Complex: {fieldnames[0]:>9}: '{0.name}'\n\
            : {fieldnames[1]:>9}: {0.sequence}\n\
            : {fieldnames[2]:>9}: {0.structure}\n\
            : {fieldnames[3]:>9}: {1}\n\
            : {fieldnames[4]:>9}: {0.boltzmann_sample}\n\
-           : {fieldnames[5]:>9}: {0.boltzmann_supersample}".format(self,[i.name for i in self.strand_list],
-           fieldnames =('Name','Sequence','Structure','Strands','Boltzmann', 'Supersample') )
-
-
+           : {fieldnames[5]:>9}: {0.boltzmann_supersample}".format(self, [i.name for i in self.strand_list],
+           fieldnames=('Name', 'Sequence', 'Structure', 'Strands', 'Boltzmann', 'Supersample'))
     
-    def _init_parse_structure( self, structure ):
+    def _init_parse_structure(self, structure):
         strand_count = len(self.strand_list)
         base_count = sum(len(s.sequence) for s in self.strand_list)
         total_flat_length = base_count + strand_count - 1
@@ -82,23 +80,22 @@ class Complex(object):
                     error_msg += "Expected a structure composed of characters from '.()+' \
                     and with either length [{0}] for a complete structure, or length [{1}] \
                     for a domain-level structure. If giving a domain-level structure, it \
-                    should have the layout [{2}].".format( total_flat_length,
+                    should have the layout [{2}].".format(total_flat_length,
                         domain_count + strand_count - 1,
                         "+".join(''.join('x' for d in s.domain_list)\
                                  for s in self.strand_list))
                 else:
                         error_msg += " Could not parse the dot-paren structure. Expected string composed of ()+."
-                raise ValueError( error_msg )
+                raise ValueError(error_msg)
             else:
-                matched_list = zip( structure,
-                                    reduce( lambda x,y: x+[d.length for d in y.domain_list] + [1], self.strand_list,[]))
+                matched_list = zip(structure,
+                                    reduce(lambda x, y: x + [d.length for d in y.domain_list] + [1], self.strand_list, []))
                                     # the reduce just composes the
                                     # domain_lists into one big ordered list
                                     # of domains
-                self._fixed_structure = "".join(i[0]*i[1] for i in matched_list)
+                self._fixed_structure = "".join(i[0] * i[1] for i in matched_list)
     
-    
-    def get_unique_ids( self ):
+    def get_unique_ids(self):
         """
         Produce the set of unique strands in this Complex
         
@@ -107,7 +104,7 @@ class Complex(object):
         """
         return set([i.id for i in self.strand_list])
     
-    def canonical_strand( self ):
+    def canonical_strand(self):
         """Return the name of the `canonical` strand for this complex.
         
         This is either the strand name which appears first alphabetically,
@@ -125,16 +122,20 @@ class Complex(object):
         return len(self.strand_list)
     
     @property
-    def sequence_length( self ):
+    def sequence_length(self):
         """ The total length of all contained strands. """
         return len("".join([i.sequence for i in self.strand_list]))
-    
     
     @property
     def structure(self):
         """ If this complex is set to use boltzmann sampling, this property returns a newly sampled structure. Otherwise it gets the fixed structure for the complex."""
         if self.boltzmann_sample:
             self.generate_boltzmann_structure()
+            
+            if not self.sampleSelector == None:
+                while not self.sampleSelector(self._last_boltzmann_structure):
+                    self.generate_boltzmann_structure()
+            
             # puts the generated structure in self._last_boltzmann_structure
             # for use by other properties as well.
             return self._last_boltzmann_structure
@@ -142,7 +143,7 @@ class Complex(object):
             return self._fixed_structure
     
     @structure.setter
-    def structure(self,value):
+    def structure(self, value):
         # I include the following due to the 'normal' use cases of Complex
         # involve it immediately being deepcopy'd (e.g. in starting
         # states, etc). So allowing someone to set the fixed structure
@@ -161,7 +162,7 @@ class Complex(object):
         # # anyways!
         #
         import warnings
-        warnings.warn("Setting a Complex's structure does not [usually] change existing uses of this Complex, so the object returned is a NEW object to avoid any confusion as to how it may affect previous usages.",SyntaxWarning)
+        warnings.warn("Setting a Complex's structure does not [usually] change existing uses of this Complex, so the object returned is a NEW object to avoid any confusion as to how it may affect previous usages.", SyntaxWarning)
         import copy
         retval = copy.deepcopy(self)
         retval._fixed_structure = value
@@ -183,7 +184,7 @@ class Complex(object):
         return self._boltzmann_sizehint
     
     @boltzmann_count.setter
-    def boltzmann_count(self,value):
+    def boltzmann_count(self, value):
         if value >= 1:
             self._boltzmann_sizehint = value
         else:
@@ -194,7 +195,7 @@ class Complex(object):
         """ The calculated 'flat' sequence for this complex. """
         return "+".join([strand.sequence for strand in self.strand_list])
     
-    def set_boltzmann_parameters(self, dangles, substrate_type, temperature, sodium, magnesium ):
+    def set_boltzmann_parameters(self, dangles, substrate_type, temperature, sodium, magnesium):
         """
         Sets the parameters to be passed on to NUPACK for Boltzmann sampling of this complex.
         Uses the private properties which are then read by generate_boltzmann_structure.
@@ -223,7 +224,7 @@ class Complex(object):
         
         import subprocess, tempfile, os
         
-        tmp = tempfile.NamedTemporaryFile(delete=False,suffix=".sample")
+        tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".sample")
         tmp.close()
         # we close it here as some OS's have issues opening the same file
         # simultaneous. Will reopen it later to get the data back out.
@@ -253,9 +254,9 @@ class Complex(object):
         
         if 'NUPACKHOME' in os.environ:
             if '3.0' in os.environ['NUPACKHOME']:
-                sample_exec = os.environ['NUPACKHOME']+'/bin/sample'
+                sample_exec = os.environ['NUPACKHOME'] + '/bin/sample'
             if '3.2' in os.environ['NUPACKHOME']:
-                sample_exec = os.environ['NUPACKHOME']+'/build/bin/sample'
+                sample_exec = os.environ['NUPACKHOME'] + '/build/bin/sample'
         else:
             sample_exec = 'sample' 
         
@@ -270,48 +271,44 @@ class Complex(object):
         if self._dangles == None:
             pass
         else:
-            dangles = ['-dangles', self._dangles.lower()]   # Note that self._dangles should always be the string as long as the calls to the setter always invert the int back into string form. NUPACK appears to use the lowercase string name as the dangles names.
+            dangles = ['-dangles', self._dangles.lower()]  # Note that self._dangles should always be the string as long as the calls to the setter always invert the int back into string form. NUPACK appears to use the lowercase string name as the dangles names.
         
         temperature = []
         if self._temperature == None:
             pass
         else:
-            temperature = ['-T', '{0}'.format( self._temperature )]
+            temperature = ['-T', '{0}'.format(self._temperature)]
             
         sodium = []
         if self._sodium == None:
             pass
         else:
-            sodium = ['-sodium', '{0}'.format( self._sodium )]
-            
+            sodium = ['-sodium', '{0}'.format(self._sodium)]
             
         magnesium = []
         if self._magnesium == None:
             pass
         else:
-            magnesium = ['-magnesium', '{0}'.format( self._magnesium )]            
-
+            magnesium = ['-magnesium', '{0}'.format(self._magnesium)]            
         
         # editing here by EW 1/26/2014 to update from NUPACK 2.1 command line options & output to NUPACK 3.0.2
         #  FD 2018: added sodium , magnesium 
         popen_params = [sample_exec, "-multi"] + material + dangles + temperature + sodium + magnesium + ["-samples", str(count)]
-        p = subprocess.Popen( popen_params,stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        
+        p = subprocess.Popen(popen_params, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         
         # new: NUPACK 3.0.2 takes the file name as user input
-        input_str = "{0}\n{1}\n{2}\n{3}\n".format( tmp.name[:-7],
+        input_str = "{0}\n{1}\n{2}\n{3}\n".format(tmp.name[:-7],
                                                    len(self.strand_list),
-                                                   "\n".join( [i.sequence for i in self.strand_list] ),
-                                                   " ".join( [str(i+1) for i in range( len( self.strand_list ))])
+                                                   "\n".join([i.sequence for i in self.strand_list]),
+                                                   " ".join([str(i + 1) for i in range(len(self.strand_list))])
                                                  )
         result = p.communicate(input_str)[0]
-        
         
         f = open(tmp.name, "rt")
         lines = f.readlines()
         
         f.close()
-        os.remove(tmp.name) # was created by us [NamedTemporaryFile] and
+        os.remove(tmp.name)  # was created by us [NamedTemporaryFile] and
                             # used by the sampler, thus we need to clean it up.
         if not ("NUPACK 3.0" in lines[0] or 'NUPACK 3.2' in lines[0]):
             raise IOError("Boltzmann sample function is not up to date. NUPACK 3.2.0 or greater needed.")
@@ -320,9 +317,8 @@ class Complex(object):
         if len(self._boltzmann_queue) < 1:
             raise IOError("Did not get any results back from the Boltzmann sample function.")
         
-        #print "This is the (length %d) queue:" % len(self._boltzmann_queue)
-        #print lines[14:]
-        
+        # print "This is the (length %d) queue:" % len(self._boltzmann_queue)
+        # print lines[14:]
 
         self._pop_boltzmann()
     
