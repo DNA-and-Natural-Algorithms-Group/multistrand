@@ -191,7 +191,7 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         #                                           #
         #############################################
         
-        self.gt_enable = False
+        self.gt_enable = True
         """ Allow GT base pairs? If not, penalize by 10000 kcal/mol.
             False (0) : Do not allow GT base pairs.
         """

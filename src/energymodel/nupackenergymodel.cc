@@ -492,20 +492,20 @@ NupackEnergyModel::NupackEnergyModel(SimOptions* options) :
 }
 
 // returns a FILE pointer or prints an error message.
-FILE* NupackEnergyModel::openFiles(char* nupackhome, string& paramPath, string& fileName) {
+FILE* NupackEnergyModel::openFiles(char* nupackhome, string& paramPath, string& fileName, int select) {
 
-	char fullpath[512];
+	string& fullpath = paramFiles[select];
 	FILE* fp = NULL;
 
-	if (nupackhome == NULL) {
-		strcpy(fullpath, fileName.c_str());
-	} else {
-		strcpy(fullpath, nupackhome);
-		strcat(fullpath, paramPath.c_str());
-		strcat(fullpath, fileName.c_str());
+	if (nupackhome == NULL){
+		fullpath = fileName;
+	} else{
+		fullpath = nupackhome;
+		fullpath += paramPath;
+		fullpath += fileName;
 	}
 
-	fp = fopen(fullpath, "rt");
+	fp = fopen(fullpath.c_str(), "rt");
 
 	if (fp == NULL) {
 		fp = fopen(fileName.c_str(), "rt");
@@ -593,8 +593,8 @@ void NupackEnergyModel::processOptions() {
 
 		std::string paramPath = "/parameters/";
 
-		fp = openFiles(nupackhome, paramPath, file_dG);
-		fp2 = openFiles(nupackhome, paramPath, file_dH);
+		fp = openFiles(nupackhome, paramPath, file_dG, 0);
+		fp2 = openFiles(nupackhome, paramPath, file_dH, 1);
 
 	}
 

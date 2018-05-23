@@ -115,10 +115,8 @@ class FirstStepRate(MergeResult):
 
     def weightedForwardUni(self):
 
-        mean_collision_forward = np.float(
-            self.sumCollisionForward()) / np.float(self.nForward)
-        weightedForwardUni = sum([np.float(i.collision_rate) * np.float(i.time)
-                                  for i in self.dataset if i.tag == Literals.success])
+        mean_collision_forward = np.float(self.sumCollisionForward()) / np.float(self.nForward)
+        weightedForwardUni = sum([np.float(i.collision_rate) * np.float(i.time) for i in self.dataset if i.tag == Literals.success])
 
         return weightedForwardUni / (mean_collision_forward * np.float(self.nForward))
 
@@ -127,10 +125,8 @@ class FirstStepRate(MergeResult):
         if self.nReverse == 0:
             return np.float(0)
 
-        mean_collision_reverse = np.float(
-            self.sumCollisionReverse()) / np.float(self.nReverse)
-        weightedReverseUni = sum([np.float(i.collision_rate) * np.float(i.time)
-                                  for i in self.dataset if i.tag == Literals.failure])
+        mean_collision_reverse = np.float(self.sumCollisionReverse()) / np.float(self.nReverse)
+        weightedReverseUni = sum([np.float(i.collision_rate) * np.float(i.time) for i in self.dataset if i.tag == Literals.failure])
 
         return weightedReverseUni / (mean_collision_reverse * np.float(self.nReverse))
 
@@ -185,10 +181,8 @@ class FirstStepRate(MergeResult):
         # the expected rate for a collision
         collTime = self.k1() + self.k1Prime()
 
-        dTForward = np.float(1.0) / self.k2() + \
-            np.float(1.0) / (concentration * collTime)
-        dTReverse = np.float(1.0) / self.k2Prime() + \
-            np.float(1.0) / (concentration * collTime)
+        dTForward = np.float(1.0) / self.k2() + np.float(1.0) / (concentration * collTime)
+        dTReverse = np.float(1.0) / self.k2Prime() + np.float(1.0) / (concentration * collTime)
 
         dT = dTReverse * multiple + dTForward
 

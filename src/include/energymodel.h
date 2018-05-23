@@ -116,6 +116,9 @@ public:
 	// for co-transcriptional, save the curent amount of activated nucleotides
 	int numActiveNT = NULL;
 
+	// keep track of the used paths to parameter files
+	string paramFiles[2] = {"unset",  "unset"};
+
 protected:
 	long dangles;
 	double arrheniusRates[MOVETYPE_SIZE * MOVETYPE_SIZE];
@@ -200,7 +203,7 @@ public:
 private:
 
 	void processOptions();
-	FILE* openFiles(char*, string&, string&);
+	FILE* openFiles(char*, string&, string&, int);
 
 	// FD jan 2018: helper functions, now seperated out
 	double HairpinEnergy(char *seq, int size, hairpin_energies&);
