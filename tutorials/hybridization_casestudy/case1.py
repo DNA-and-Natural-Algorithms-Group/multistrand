@@ -373,8 +373,8 @@ if __name__ == '__main__':
         trials = int(sys.argv[2])
 
         if toggle == "plots":     
-#             doInference([1e0, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6], trials)                     
-            doInference([1e0, 1e-1, 1e-2], trials)
+            doInference([1e0, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6], trials)                     
+#             doInference([1e0, 1e-1, 1e-2], trials)
 
         
         if toggle == "slowDownStudy":

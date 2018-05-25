@@ -9,6 +9,7 @@ from ..objects import Strand, Complex, StopCondition
 from ..__init__ import __version__
 
 import copy
+import warnings
 
 
 """ Literals for Multistrand"""
@@ -190,6 +191,8 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         # Data Members: Energy Model                #
         #                                           #
         #############################################
+        # See accessors below
+        self._start_state = []
         
         self.gt_enable = True
         """ Allow GT base pairs? If not, penalize by 10000 kcal/mol.
@@ -340,8 +343,7 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         #
         ####################
         
-        # See accessors below
-        self._start_state = []
+
                 
         # See accessors below
         self._stop_conditions = []
@@ -498,8 +500,13 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
     def updateBoltzmannSamples(self):
 
         if len(self._start_state) > 0:
+                        
             for c, s in self._start_state:
                 c.set_boltzmann_parameters(self.dangleToString[self.dangles], self.substrateToString[self.substrate_type], self._temperature_celsius, self.sodium, self.magnesium)
+    
+                if c.boltzmann_sample and not self.gt_enable:
+                    raise Warning("Attempting to use Boltzmann sampling but GT pairing is disabled. Energy model of Multistrand will not match that of the NUPACK sampling method.")
+
     
 #     FD: We are using shadow variables for biscale, uniscale only because we want to 
 #     flag a warning when rate_scaling is used
@@ -537,7 +544,7 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
     @dangles.setter
     def dangles(self, val):
         self._dangles = int(val)
-        self.updateBoltzmannSamples
+        self.updateBoltzmannSamples()
         
 # FD: shadow parameter so that boltzmann samples can be updated when this parameter is set
 # FD: In a better control flow, complexes themselves might fetch the right constants just before evaluating their boltzmann samples 
@@ -548,7 +555,7 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
     @substrate_type.setter
     def substrate_type(self, value):
         self._substrate_type = int(value)
-        self.updateBoltzmannSamples
+        self.updateBoltzmannSamples()
 
     """ FD: Following same listener pattern for sodium, magnesium, 
             so that changes are propagated to complexes."""
@@ -559,7 +566,7 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
     @sodium.setter
     def sodium(self, value):
         self._sodium = float(value)
-        self.updateBoltzmannSamples
+        self.updateBoltzmannSamples()
     
     @property
     def magnesium(self):
@@ -568,7 +575,7 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
     @magnesium.setter
     def magnesium(self, value):
         self._magnesium = float(value)
-        self.updateBoltzmannSamples
+        self.updateBoltzmannSamples()
         
         
     """ FD: Setting boltzmann sample in options could be used to propagate this setting to all starting states. 
@@ -646,6 +653,10 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         if isinstance(item, Complex):
             self._start_state.append((item, None))
             item.set_boltzmann_parameters(self.dangleToString[self.dangles], self.substrateToString[self.substrate_type], self._temperature_celsius, self._sodium, self._magnesium)
+            
+            if not self.gt_enable and item.boltzmann_sample:
+                raise Warning("Attempting to use Boltzmann sampling but GT pairing is disabled. Energy model of Multistrand will not match that of the NUPACK sampling method.")
+            
         else:
             raise ValueError('Expected a Complex as starting state.')
 
@@ -709,9 +720,9 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
 
     @use_stop_conditions.setter
     def use_stop_conditions(self, val):
+        
         if val == True and len(self._stop_conditions) == 0:
-            import warnings
-            warnings.warn("Options.use_stop_conditions was set to True, but no stop conditions have been defined!")
+             raise Warning("Options.use_stop_conditions was set to True, but no stop conditions have been defined!")
 
         self._use_stop_conditions = val
     
@@ -783,18 +794,18 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         if 273.0 < val < 373.0:
             self._temperature_kelvin = val
             self._temperature_celsius = val - self.ZERO_C_IN_K
-            self.updateBoltzmannSamples
+            self.updateBoltzmannSamples()
 
         elif 0.0 < val < 100.0:
             self._temperature_celsius = val
             self._temperature_kelvin = val + self.ZERO_C_IN_K
-            self.updateBoltzmannSamples
+            self.updateBoltzmannSamples()
             self.errorlog.append("Warning: Temperature was set at the value [{0}]. We expected a value in Kelvin, or with appropriate units.\n         Temperature was automatically converted to [{1}] degrees Kelvin.\n".format(val, self._temperature_kelvin))
 
         else:
             self._temperature_kelvin = val
             self._temperature_celsius = val - self.ZERO_C_IN_K
-            self.updateBoltzmannSamples
+            self.updateBoltzmannSamples()
             self.errorlog.append("Warning: Temperature was set at the value [{0}]. This is outside the normal range of temperatures we expect, so it was assumed to be in Kelvin.\n".format(val))
             raise Warning("Temperature did not fall in the usual expected ranges. Temperatures should be in units Kelvin, though the range [0,100] is assumed to mean units of Celsius.")
     
