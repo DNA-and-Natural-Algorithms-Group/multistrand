@@ -210,14 +210,8 @@ class FirstStepRate(MergeResult):
     def resample(self):
         # returns a new rates object with resampled data
 
-        newDataset = []
         N = len(self.dataset)
-
-        for i in range(N):
-            # generate random between 0 and N-1
-            index = int(np.floor(np.random.uniform(high=N)))
-            newDataset.append(self.dataset[index])
-
+        newDataset = np.random.choice(self.dataset, N, True).tolist()
         return FirstStepRate(newDataset)
 
     def castToNumpyArray(self):
@@ -306,8 +300,7 @@ class FirstStepLeakRate(MergeResult):
         # use random.choice rather than random.sample because this samples
         # WITH REPLACEMENT, as required.
         if success > 0:
-            new_dataset = np.random.choice(
-                self.dataset, success, True).tolist()
+            new_dataset = np.random.choice(self.dataset, success, True).tolist()
         else:
             new_dataset = []
 
@@ -374,17 +367,10 @@ class FirstPassageRate(MergeResult):
 
     def resample(self):
 
-        newData = []
-
         N = len(self.dataset)
+        newDataset = np.random.choice(self.dataset, N, True).tolist()
 
-        # generate random between 0 and N-1
-        for i in range(N):
-
-            index = int(np.floor(np.random.uniform(high=N)))
-            newData.append(self.dataset[index])
-
-        return FirstPassageRate(newData)
+        return FirstPassageRate(newDataset)
 
     def k1(self):
         

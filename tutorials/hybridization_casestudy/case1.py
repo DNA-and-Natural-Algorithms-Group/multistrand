@@ -33,13 +33,6 @@ POINT_SIZE = 38  # size of markers in the plot
 markers = ["8", ">", "D", "s", "*", "<", "^"] 
 
 
-SEQ1 = "TAGTCCCTTTTTGGG"
-SEQ2 = "TCGATGCT"
-SEQ3 = "TCGATGC"
-
- 
-# myMultistrand.setNumOfThreads(8) 
-
 
 def first_step_simulation(strand_seq, trials, T=20.0):
 
@@ -55,21 +48,6 @@ def first_step_simulation(strand_seq, trials, T=20.0):
         o.DNA23Metropolis()
                
         return o
-    
-#     throws = trials
-    
-#     if strand_seq ==  SEQ1:
-#         throws = trials * 1.1 *  (20000.0 / 240.0)
-#         
-#     if strand_seq == SEQ2 :
-#         throws =  trials *( 1100.0 / 240.0)
-# 
-#     if strand_seq == SEQ3:
-#         throws = trials * ( 900.0 / 240.0)
-#         
-#         
-#     
-    
     
     myMS.setOptionsFactory1(getOptions, trials)
     myMS.setFirstStepMode()  # ensure the right results object is set.
@@ -126,7 +104,7 @@ def doFirstStepMode(seq, concentrations, T=20.0, numOfRuns=500):
 
         kEff = myRates.kEff(z)
             
-        myBootstrap = Bootstrap(myRates, N=BOOTSTRAP_RESAMPLE, concentration=z, computek1=True)
+        myBootstrap = Bootstrap(myRates, N=BOOTSTRAP_RESAMPLE, concentration=z, computek1=False)
         
         low, high = myBootstrap.ninetyFivePercentiles()
         logStd = myBootstrap.logStd()
@@ -233,8 +211,8 @@ def addPoints(results, i, alp, seqs, concentrations, lineStyle, extraOptions=Non
         yLow = np.array([ (r[1])  for r in results[i]])
         yHigh = np.array([ (r[2]) for r in results[i]])
                 
-        plt.errorbar(xVal, yVal, yerr=[yLow - yVal, yLow - yVal], linestyle="None", color=colors[i], alpha=alp , label=str(seqs[i]))
-#     
+        plt.errorbar(xVal, yVal, yerr=[yVal - yHigh, yLow - yVal], color=colors[i], linestyle=lineStyle, alpha=alp, capsize = 6,  label=str(seqs[i]))
+
 
 def doPlots(seqs, concentrations, results1, results2, trials):
        
@@ -319,7 +297,7 @@ def doInference(concentrations, trials):
 #     seqs.append('AGTCCTTTTTGG')
     
     seqs.append('TAGTCCCTTTTTGGG')
-    seqs.append('TCGATGC')
+#     seqs.append('TCGATGC')
     seqs.append('TCGATGCT')
     
 
@@ -395,8 +373,8 @@ if __name__ == '__main__':
         trials = int(sys.argv[2])
 
         if toggle == "plots":     
-            doInference([1e0, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6], trials)                     
-#             doInference([1e0, 1e-1, 1e-2], trials)
+#             doInference([1e0, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6], trials)                     
+            doInference([1e0, 1e-1, 1e-2], trials)
 
         
         if toggle == "slowDownStudy":
