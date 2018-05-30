@@ -126,10 +126,15 @@ PEnergyOptions::PEnergyOptions(PyObject* input) :
 	getDoubleAttr(python_settings, bimolecular_scaling, &biScale);
 	getDoubleAttr(python_settings, unimolecular_scaling, &uniScale);
 
-// not sure if these are for both models or not;
 	getDoubleAttr(python_settings, join_concentration, &joinConcentration);
 
-	getBoolAttr(python_settings, useArrRates, &useArrRates);
+	// FD: If using the Arrhenius model, switch back to Metropolis and toggle useArr
+	// FD: Fix this to directly check for Arrhenius instead.
+	if(3 == kinetic_rate_method){
+		kinetic_rate_method = 1;
+		useArrRates = true;
+	}
+
 
 	if(!useArrRates && biScale < 0.0){
 		cout << "Warning! bimolecular_scaling is unset or negative!" << endl;

@@ -35,7 +35,7 @@ class  Literals(object):
     """ rate_method    """
     metropolis = 1
     kawasaki = 2
-    
+    arrhenius = 3
     
     """ Nupack dangle options """
     dangles_none = 0
@@ -128,9 +128,12 @@ class Options(object):
         substrate_type               -- Whether we want 'DNA' or 'RNA' energy
                                         parameters.
         rate_method                  -- Whether we want 'Kawasaki' or 'Metropolis'
-                                        rate method for unimolecular steps.
-        useArrRates     [type=bool]  -- if TRUE, use Arrhenius rate model. If using, please set lnAEnd, lnALoop, lnAStack, lnAStackStack, lnALoopEnd, lnAStackEnd, lnAStackLoop
-EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value).
+                                        or 'Arrhenius' rate method for unimolecular steps.
+                                        
+        If rate_method == Literals.Arrhenius, please set lnAEnd, lnALoop, lnAStack, 
+                                lnAStackStack, lnALoopEnd, lnAStackEnd, lnAStackLoop, 
+                                EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, 
+                                EStackLoop and bimolecular_rate(double value).
         """
 
         ##################################################
@@ -308,8 +311,6 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         are added.
         """
         
-        self.useArrRates = False;
-        
         self.lnAEnd = -0.1;
         self.lnALoop = -0.1;
         self.lnAStack = -0.1;
@@ -324,7 +325,9 @@ EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, EStackLoop (double value)
         self.ELoopEnd = -0.1;
         self.EStackEnd = -0.1;
         self.EStackLoop = -0.1; 
-        
+         
+        """ These are undocumented adjustments to the energy model """
+
         self.dSA = -0.0;
         self.dHA = -0.0;
 

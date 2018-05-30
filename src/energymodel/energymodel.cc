@@ -82,11 +82,10 @@ void EnergyModel::writeConstantsToFile() {
 
 	ss << "Multistrand " << simOptions->ms_version << " \n \n";
 
-	ss << "Sodium      :  " << simOptions->energyOptions->sodium << " M \n";
-	ss << "Magnesium   :  " << simOptions->energyOptions->magnesium << " M \n";
-	ss << "Temperature :  " << simOptions->energyOptions->getTemperature() << " K" << endl;
-	ss << "Rate method :  " << simOptions->energyOptions->getKineticRateMethod() << "           (1: Metropolis, 2: Kawasaki)" << endl;
-	ss << "useArr      :  " << simOptions->energyOptions->usingArrhenius() << "           (0: disabled)" << endl;
+	ss << "sodium      :  " << simOptions->energyOptions->sodium << " M \n";
+	ss << "magnesium   :  " << simOptions->energyOptions->magnesium << " M \n";
+	ss << "temperature :  " << simOptions->energyOptions->getTemperature() << " K" << endl;
+	ss << "rate method :  " << simOptions->energyOptions->getKineticRateMethod() << "           (1: Metropolis, 2: Kawasaki, 3: Arrhenius)" << endl;
 	ss << "dangles     :  " << simOptions->energyOptions->getDangles() << "           (0: none, 1: some, 2: all)" << endl;
 	ss << "GT pairing  :  " << simOptions->energyOptions->getGtenable() << "           (0: disabled)" << endl;
 	ss << "" << endl;
@@ -96,8 +95,8 @@ void EnergyModel::writeConstantsToFile() {
 
 	if (!simOptions->energyOptions->usingArrhenius()) {
 
-		ss << "unimolecular_scaling :   " << std::setprecision(6) << simOptions->energyOptions->getUniScale() << " / s \n";
-		ss << "bimolecular_scaling  :   " << std::setprecision(6) << simOptions->energyOptions->getBiScale() << "/M /s \n";
+		ss << "unimolecular_scaling :   " << std::setprecision(6) << simOptions->energyOptions->getUniScale() << " /s \n";
+		ss << "bimolecular_scaling  :   " << std::setprecision(6) << simOptions->energyOptions->getBiScale() << " /M/s \n";
 
 
 	} else {

@@ -1,10 +1,13 @@
 # FD, May 29th, 2018 
-# This file demonstrates arrhenius kinetics
+# This file demonstrates arrhenius kinetics.
+# The interface is not finalized.
+
+
 
 import sys
 
 from multistrand.objects import Complex, Domain, Strand, StopCondition
-from multistrand.options import Options
+from multistrand.options import Options, Literals
 from multistrand.system import SimSystem
 from multistrand.utils import pairType
 from multistrand.experiment import standardOptions, hybridization
@@ -59,7 +62,9 @@ def doSims(strandSeq, numTraj=2):
     
     hybridization(o1, strandSeq )
    
-    o1.useArr = True
+    o1.rate_method  = Literals.arrhenius
+
+
 
     o1.lnAStack =     1.41839430e+01
     o1.EStack =     5.28692038e+00
