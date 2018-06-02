@@ -1,15 +1,13 @@
 ####################################################################
 #                                                                  #
 #                                                                  #
-#   Copyright (c) 2010 Caltech. All rights reserved.               #
+#   Copyright (c) 2018 Caltech. All rights reserved.               #
 #   Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)         #
-#                                                                  #
-#                                                                  #
-# Main package layout.
+#             Frits Dannenberg (fdann@caltech.edu)                 #
 #                                                                  #
 #                                                                  #
 ####################################################################
 
-__all__ = ['objects','options','system','utils','experiment', 'concurrent']
 # defines what 'from multistrand import *' means.
+__all__ = ['objects','options','system','utils','experiment', 'concurrent', 'builder']
 __version__ = "2.1"
