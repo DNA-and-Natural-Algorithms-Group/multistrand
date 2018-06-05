@@ -240,35 +240,27 @@ class Builder(object):
     
     """ Runs genAndSavePathsFile until convergence is reach in number of states"""
     
+    
     def genUntilConvergence(self, precision):
         
         crit = ConvergeCrit()
         crit.precision = precision
         
-        prevTime = -1000.0
         currTime = -1.0
         
         while not crit.converged(currTime) :
             
             self.genAndSavePathsFile()
-
+            
             if self.verbosity:
                 print "Size     = %i " % len(self.protoSpace)
-    
-    #             rateTime = time.time()
+
             builderRate = BuilderRate(self)
-    #             print "Constructing builderRate rate is now done, %.2f " % (time.time() - rateTime)
             currTime = builderRate.averageTimeFromInitial()
 
-            if self.verbosity:
-                print "Computed rate = %.2f " % ((1.0) / float(currTime))
-                
-            if abs(currTime - prevTime) < 10.0:
-                break
-            else:
-                prevTime = currTime
+        if self.verbosity:
+            print "Size     = %i " % len(self.protoSpace)
     
-        print "Size     = %i " % len(self.protoSpace)
     
     def genAndSavePathsFile(self, ignoreInitialState=False):
     

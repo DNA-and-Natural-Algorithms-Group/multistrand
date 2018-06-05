@@ -19,17 +19,29 @@ import numpy as np
 A_TIME_OUT = 1000.0
 RESULT_DIR = "suyama"
 NUM_OF_REPEATS = 6
+DO_CONVERGENCE = True
+CONVERGENCE_CRIT = 0.05
+
 
 enum_hybridization = "hybridization"
 title_hybridization = "Hybridization of "
 
 suyamaT = 25.0
-suyamaC = 50e-5
+suyamaC = 50e-7
 suyamaNa = 0.195
 
-suyama16 = ["GCCCACACTCTTACTTATCGACT", "AGAGGCTTATAACTGTGTCGGGT", "TGTTCTAAGATTATCCTCCCGCC", "GGCGGCTATAACAATTTCATCCA", "TAGCCCAGTGATTTATGACATGC", "GCATCTACACTCAATACCCAGCC",
-            "GCCCGTACTGTTGAGATTATGGT", "GCACCTCCAAATAAAAACTCCGC", "AGATCAGAGATAGTTACGCCGCA", "TATGTTCCTTACCCCGTTTACCA", "TAGCCAACTCTAAATAACGGACG", "GAAGGAATGTTAAAATCGTCGCG",
-            "TTTGTTTTCCTTATGAGCCAGCC", "GCCCCGATATCTATTTTAGGACG", "CGCAGGAGAGTTAAACGAAAGCA", "GGCTCTATACGATTAAACTCCCC"]
+
+# suyama16 = ["GCCCACACTCTTACTTATCGACT", "AGAGGCTTATAACTGTGTCGGGT", "TGTTCTAAGATTATCCTCCCGCC", "GGCGGCTATAACAATTTCATCCA", "TAGCCCAGTGATTTATGACATGC", "GCATCTACACTCAATACCCAGCC",
+#             "GCCCGTACTGTTGAGATTATGGT", "GCACCTCCAAATAAAAACTCCGC", "AGATCAGAGATAGTTACGCCGCA", "TATGTTCCTTACCCCGTTTACCA", "TAGCCAACTCTAAATAACGGACG", "GAAGGAATGTTAAAATCGTCGCG",
+#             "TTTGTTTTCCTTATGAGCCAGCC", "GCCCCGATATCTATTTTAGGACG", "CGCAGGAGAGTTAAACGAAAGCA", "GGCTCTATACGATTAAACTCCCC"]
+
+suyama16 = ["GCCCACACTCTTACTTATCGACT", "AGAGGCTTATAACTGTGTCGGGT", "TGTTCTAAGATTATCCTCCCGCC", "GGCGGCTATAACAATTTCATCCA"] #"TAGCCCAGTGATTTATGACATGC", "GCATCTACACTCAATACCCAGCC"]
+
+suyama0 = "GCCCACACTCTTACTTATCGACT"
+suyama1 = "AGAGGCTTATAACTGTGTCGGGT"
+
+morrison = ["TTGGTGATCC", "AGATTAGCAGGTTTCCCACC"]
+
 
 test2 = ["GCCCACACGC", "AGAGGCTGC"]
 
@@ -46,17 +58,24 @@ class resultsHybridization(object):
         self.rates = []
         self.buildTime = []
         self.matrixTime = []
+        self.nStates = []
         
     def __str__(self):
         
-        ratesSD = (np.std(self.rates), 100.0 * np.std(self.rates)*NUM_OF_REPEATS/sum(self.rates))
+        ratesSD = np.std(self.rates)
         buildSD = (np.std(self.buildTime), 100.0 *np.std(self.buildTime)*NUM_OF_REPEATS/sum(self.buildTime))
         matrixSD = (np.std(self.matrixTime), 100.0 * np.std(self.matrixTime)*NUM_OF_REPEATS/sum(self.matrixTime))    
+        nStatesSD = (np.std(self.nStates), 100.0 * np.std(self.nStates)*NUM_OF_REPEATS/sum(self.nStates))
         
-        output = "Rates, build times, matrix solve times \n"
-        output += ",  ".join(["%3.1E" % x for x in self.rates]) + "         s.d. = %0.2E,       rel s.d. = %.1f %% " % ratesSD   + "\n"
+        averages = (sum(self.rates) / NUM_OF_REPEATS , sum(self.buildTime) / NUM_OF_REPEATS , sum(self.matrixTime) / NUM_OF_REPEATS, sum(self.nStates) / NUM_OF_REPEATS  )
+        
+        output = "Rates, build times, matrix solve times, number of states \n"
+        output += "%.2f   -   %.2f   -   %.2f   -  %d  \n" % averages
+        output += ",     ".join(["%.2f" % x for x in self.rates]) + "                s.d. = %0.2f,       " % ratesSD   + "\n"
         output += ",     ".join(["%.2f" % x for x in self.buildTime]) + "            s.d. = %0.2E,       rel s.d. = %.1f %%" % buildSD   + "\n"
-        output += ",     ".join(["%.2f" % x for x in self.matrixTime]) + "            s.d. = %0.2E,       rel s.d. = %.1f %%" % matrixSD   + "\n"
+        output += ",     ".join(["%.2f" % x for x in self.matrixTime]) + "           s.d. = %0.2E,       rel s.d. = %.1f %%" % matrixSD   + "\n"
+        output += ",     ".join(["%d" % x for x in self.nStates]) + "                s.d. = %0.2E,       rel s.d. = %.1f %%" % nStatesSD   + "\n"
+        
         
         output += ""
         
@@ -81,6 +100,9 @@ class Settings(object):
         
         output = self.type + "_" + str(self.arguments) + "_T=" 
         
+        if DO_CONVERGENCE:
+            output += "convergence" + str(CONVERGENCE_CRIT)
+        
         if not self.tempOverMelt == 0.0:
             output += "_" + "_dT=" + "%.1f" % self.tempOverMelt
         
@@ -100,6 +122,8 @@ def doReactionAssociation(arguments, output=True):
 
     stdOptions = standardOptions()
 
+    stdOptions.simulation_mode = Literals.trajectory
+    
     stdOptions.num_simulations = arguments[0]
     stdOptions.temperature = arguments[1]
     stdOptions.join_concentration = arguments[2]
@@ -136,8 +160,13 @@ def timings(settings):
 #             print "Starting to make the statespace \n"
             startTime = time.time()
 
-            myBuilder = Builder(settings.function, settings.arguments)            
-            myBuilder.genAndSavePathsFile()
+            myBuilder = Builder(settings.function, settings.arguments)
+            
+            if DO_CONVERGENCE:
+                myBuilder.genUntilConvergence(CONVERGENCE_CRIT)
+            else:            
+                myBuilder.genAndSavePathsFile()
+                
             builderRate = BuilderRate(myBuilder) 
             
             output.buildTime.append(time.time() - startTime)
@@ -145,8 +174,10 @@ def timings(settings):
 #             print "Solving the matrix equation \n"       
             startTime = time.time()
             
-            output.rates.append(1.0 / builderRate.averageTimeFromInitial(bimolecular=True))
+            output.rates.append(np.log10(1.0 / builderRate.averageTimeFromInitial(bimolecular=True)))
             output.matrixTime.append(time.time() - startTime)
+            
+            output.nStates.append(len(builderRate.statespace))
             
 
     
@@ -160,7 +191,7 @@ def genFile(mySeqs, nTrials, toggle):
     def association_comparison(seq):
         return Settings(doReactionAssociation, [nTrials, suyamaT, suyamaC, seq], enum_hybridization, title_hybridization)
     
-    mf = file(RESULT_DIR + "/comparison_" + toggle  +".txt", "w")
+    mf = file(RESULT_DIR + "/comparison_" + toggle + "-" + str(nTrials) +".txt", "w")
     
     for seq in mySeqs:
         
@@ -183,7 +214,6 @@ if __name__ == '__main__':
         os.makedirs(RESULT_DIR)
     
     print sys.argv
-    numOfPaths = 5000;
     
     if len(sys.argv) > 2:
         
@@ -199,5 +229,13 @@ if __name__ == '__main__':
     elif toggle == "suyama":
         genFile(suyama16, nTrials, toggle)
 
+    elif toggle == "suyama0":
+        genFile([suyama0], nTrials, toggle)
+        
+    elif toggle == "suyama1":
+        genFile([suyama1], nTrials, toggle)
+        
+    elif toggle == "morrison":
+        genFile(morrison, nTrials, toggle)
 
     
