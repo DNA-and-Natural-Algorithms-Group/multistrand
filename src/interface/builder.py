@@ -15,17 +15,55 @@ Created on Oct 2, 2017
 import time, copy
 
 from multistrand.system import SimSystem
-from multistrand.utils import uniqueStateID
+from multistrand.utils import uniqueStateID, seqComplement
 from multistrand.options import Options, Literals
-from multistrand.experiment import standardOptions
+from multistrand.experiment import standardOptions, makeComplex
 
 from scipy.sparse import csr_matrix, coo_matrix, csc_matrix
 from scipy.sparse.linalg import spsolve, bicg, bicgstab, cg, cgs, gmres, lgmres, qmr, inv
 
 import numpy as np
 
-""" This records the type of transition and the local context (L,R)
-    A bimolecular-out transition means the complex breaks. """
+"""
+    Constructs a surface of  N *  ( N -1 ) / 2 points along the reaction frontier.
+    This method returns a list of starting states that should be used as initial states for the string method.
+    A starting state is a list of complexes.
+"""
+def hybridizationString(seq):
+    
+    N = len(seq)
+    output = []
+    
+    """ start with the seperated, zero-bp state """
+    dotparen1 = "."*N + "+" + "."*N
+    
+    seperated = [makeComplex([seq], "."*N), makeComplex([seqComplement(seq)], "."*N)]
+    output.append(seperated)
+    
+    """ 
+        bps is the number of basepairs between the strands
+        offset is the offset of where the pairing starts
+    """
+
+    dotparen0 = [seq, seqComplement(seq)]
+    
+    for bps in range(1,N+1):
+         
+        for offset in range(N):
+             
+            dotparen1 = list("."*N + "+" + "."*N) 
+             
+            if bps + offset < (N + 1):
+                 
+                for i in range(bps):
+                     
+                    dotparen1[offset + i] = "("
+                    dotparen1[ 2 * N - offset - i ] = ")"
+                     
+                dotparen1 = "".join(dotparen1)
+                output.append([makeComplex(dotparen0, dotparen1)])
+                
+    return output
 
 
 class ConvergeCrit(object):
@@ -174,7 +212,6 @@ class Builder(object):
         
         self.the_dir = "p_statespace/"
     
-    
     def __str__(self):
         
         output = "states / transitions / initS / finalS      \n "
@@ -240,7 +277,6 @@ class Builder(object):
     
     """ Runs genAndSavePathsFile until convergence is reach in number of states"""
     
-    
     def genUntilConvergence(self, precision):
         
         crit = ConvergeCrit()
@@ -260,7 +296,6 @@ class Builder(object):
 
         if self.verbosity:
             print "Size     = %i " % len(self.protoSpace)
-    
     
     def genAndSavePathsFile(self, ignoreInitialState=False):
     
@@ -398,7 +433,7 @@ class Builder(object):
             go_on = True
             
             if len(myLines) == 0:
-                raise ValueError( "No succesful final states found -- mean first passage time would be infinite ")
+                raise ValueError("No succesful final states found -- mean first passage time would be infinite ")
                 go_on = False
             
             while go_on:
