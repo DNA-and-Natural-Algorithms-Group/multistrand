@@ -12,7 +12,7 @@ Created on Oct 2, 2017
     
 '''
 
-import time, copy
+import time, copy, os
 
 from multistrand.system import SimSystem
 from multistrand.utils import uniqueStateID, seqComplement
@@ -29,6 +29,8 @@ import numpy as np
     This method returns a list of starting states that should be used as initial states for the string method.
     A starting state is a list of complexes.
 """
+
+
 def hybridizationString(seq):
     
     N = len(seq)
@@ -37,8 +39,20 @@ def hybridizationString(seq):
     """ start with the seperated, zero-bp state """
     dotparen1 = "."*N + "+" + "."*N
     
-    seperated = [makeComplex([seq], "."*N), makeComplex([seqComplement(seq)], "."*N)]
+    complex0 = makeComplex([seq], "."*N)
+    complex1 =  makeComplex([seqComplement(seq)], "."*N)
+    seperated = [complex0, complex1]
+    
+    i = 65
+    for complex in seperated:
+        for strand in complex.strand_list:
+            strand.id = i
+            strand.name = "auto_" + str(i)
+            i += 1
+        
     output.append(seperated)
+
+
     
     """ 
         bps is the number of basepairs between the strands
@@ -47,7 +61,7 @@ def hybridizationString(seq):
 
     dotparen0 = [seq, seqComplement(seq)]
     
-    for bps in range(1,N+1):
+    for bps in range(1, N + 1):
          
         for offset in range(N):
              
@@ -61,7 +75,15 @@ def hybridizationString(seq):
                     dotparen1[ 2 * N - offset - i ] = ")"
                      
                 dotparen1 = "".join(dotparen1)
-                output.append([makeComplex(dotparen0, dotparen1)])
+                complex = makeComplex(dotparen0, dotparen1)
+            
+                i = 65
+                for strand in complex.strand_list:
+                    strand.id = i
+                    strand.name = "auto_" + str(i)
+                    i += 1
+                        
+                output.append([complex])
                 
     return output
 
@@ -238,13 +260,22 @@ class Builder(object):
                 overlap += 1
         
         print "The overlap is " + str(100.0 * overlap / N) + " percent. "
+
+
+    def mergeSet(self, this, that):
         
-    def merge(self, this, that):
+            for key, val in that.iteritems():
+                
+                if not key in this:
+                    this[key] = val;
+
+    def mergeBuilder(self, other):
     
-        for key, val in that.iteritems():
-            
-            if not key in this:
-                this[key] = val;
+        self.mergeSet(self.protoSpace, other.protoSpace)
+        self.mergeSet(self.protoTransitions, other.protoTransitions)
+        self.mergeSet(self.protoInitialStates, other.protoInitialStates)
+        self.mergeSet(self.protoFinalStates, other.protoFinalStates)
+    
                 
     def parseState(self, line, simulatedTemperature, simulatedConc):
         
@@ -274,9 +305,8 @@ class Builder(object):
         energyvals = energy(dG, dH, simulatedTemperature, simulatedConc, n_complexes, n_strands)
     
         return uniqueID, energyvals
-    
-    """ Runs genAndSavePathsFile until convergence is reach in number of states"""
-    
+         
+    """ Runs genAndSavePathsFile until convergence is reached"""
     def genUntilConvergence(self, precision):
         
         crit = ConvergeCrit()
@@ -297,7 +327,48 @@ class Builder(object):
         if self.verbosity:
             print "Size     = %i " % len(self.protoSpace)
     
-    def genAndSavePathsFile(self, ignoreInitialState=False):
+    """ Runs genAndSavePathsFile until convergence is reached,
+        given a list of initial states"""
+    def genUntilConvergenceWithInitialState(self, precision, initialStates, printMeanTime= False):
+         
+        crit = ConvergeCrit()
+        crit.precision = precision
+         
+        currTime = -1.0
+        
+        ignoreInitial = False
+         
+        while not crit.converged(currTime) :
+
+            otherBuilder = Builder(self.optionsFunction, self.optionsArgs)
+
+            """ Only the first state will count towards the set of initial states """
+            for state in initialStates:
+               otherBuilder.genAndSavePathsFile(supplyInitialState = state, ignoreInitialState= ignoreInitial)
+            
+            ignoreInitial = True   
+            
+            
+            self.mergeBuilder(otherBuilder)
+             
+            if self.verbosity or printMeanTime:
+                print "Size     = %i " % len(self.protoSpace)
+ 
+             
+            builderRate = BuilderRate(self)
+            currTime = builderRate.averageTimeFromInitial()
+            
+            if printMeanTime:
+                print "Mean first passage time = %.2E" % currTime
+ 
+        if self.verbosity:
+            print "Size     = %i " % len(self.protoSpace)
+
+    
+    """
+    supplyInitialState : this needs to be a list of complexes if used.
+    """
+    def genAndSavePathsFile(self, ignoreInitialState=False, supplyInitialState=None):
     
         self.startTime = time.time()
     
@@ -313,6 +384,10 @@ class Builder(object):
     
             myOptions = optionsF(optionsArgs)
             myOptions.activestatespace = True
+        
+            if not supplyInitialState == None:
+                myOptions.start_state = supplyInitialState
+
         
             simTime = time.time()
         
@@ -433,7 +508,7 @@ class Builder(object):
             go_on = True
             
             if len(myLines) == 0:
-                raise ValueError("No succesful final states found -- mean first passage time would be infinite ")
+#                 raise ValueError("No succesful final states found -- mean first passage time would be infinite ")
                 go_on = False
             
             while go_on:
@@ -450,6 +525,12 @@ class Builder(object):
                 if not uID1 in finalStates:
                     finalStates[uID1] = tag
     
+            """ Now delete the files as they can get quite large """
+            os.remove(self.the_dir + str(myOptions.interface.current_seed) + "/protospace.txt")
+            os.remove(self.the_dir + str(myOptions.interface.current_seed) + "/prototransitions.txt")
+            os.remove(self.the_dir + str(myOptions.interface.current_seed) + "/protoinitialstates.txt")
+            os.remove(self.the_dir + str(myOptions.interface.current_seed) + "/protofinalstates.txt")
+    
     #             print "Loading is now done,                     time = %.2f" % (time.time() - loadTime)
     
         runPaths(self.optionsFunction, inputArgs, space, transitions, initStates, finalStates)
@@ -457,9 +538,9 @@ class Builder(object):
     #         mergeTime = time.time()
     
         # do not forget to merge the objects back
-        self.merge(self.protoSpace, space)
-        self.merge(self.protoTransitions, transitions) 
-        self.merge(self.protoFinalStates, finalStates)
+        self.mergeSet(self.protoSpace, space)
+        self.mergeSet(self.protoTransitions, transitions) 
+        self.mergeSet(self.protoFinalStates, finalStates)
         
     #         print "Done statespace merging!                 time = %.2f " % (time.time() - mergeTime)
     
@@ -492,11 +573,11 @@ class BuilderRate(object):
         if self.debugPrinter:
             print str(self.build)
         
-        stdOptions = standardOptions()
-        stdOptions.DNA23Metropolis()
+#         stdOptions = standardOptions()
+#         stdOptions.DNA23Metropolis()
         
-        self.unimolecular_scaling = stdOptions.unimolecular_scaling
-        self.bimolecular_scaling = stdOptions.bimolecular_scaling
+#         self.unimolecular_scaling = stdOptions.unimolecular_scaling
+#         self.bimolecular_scaling = stdOptions.bimolecular_scaling
         
 #         print "Starting to process states"
 #         processTime = time.time()
@@ -661,9 +742,9 @@ class BuilderRate(object):
         if transitionlist[0] == transitiontype.unimolecular:
             
             if dG1 > dG2 :  # state2 is more stable (negative), dG1 - dG2 is positive
-                return self.unimolecular_scaling  , self.unimolecular_scaling * np.e ** (-(dG1 - dG2) / RT)
+                return self.build.options.unimolecular_scaling  , self.build.options.unimolecular_scaling * np.e ** (-(dG1 - dG2) / RT)
             else:  # state2 is less or equally stable (negative), dG1 - dG2 is negative
-                return self.unimolecular_scaling * np.e ** ((dG1 - dG2) / RT), self.unimolecular_scaling   
+                return self.build.options.unimolecular_scaling * np.e ** ((dG1 - dG2) / RT), self.build.options.unimolecular_scaling   
         
         else:  # bimolecular rate
             

@@ -62,7 +62,6 @@ PSimOptions::PSimOptions(PyObject* input) :
 
 	energyOptions = new PEnergyOptions(python_settings);
 
-
 	getLongAttr(python_settings, simulation_mode, &simulation_mode);
 	getLongAttr(python_settings, num_simulations, &simulation_count);
 	getLongAttr(python_settings, output_interval, &o_interval);
@@ -227,6 +226,11 @@ void PSimOptions::generateComplexes(PyObject *alternate_start, long current_seed
 		// doesn't need reference counting for this size call.
 		// the getlistattr call we decref later.
 
+		if (start_count == 0){	// FD Jun 2018: adding throw if no initial state is set.
+			throw std::invalid_argument("Initial state was not set.");
+		}
+
+
 		for (int index = 0; index < start_count; index++) {
 
 			// #ifndef DEBUG_MACROS
@@ -324,7 +328,6 @@ void PSimOptions::stopResultFirstStep(long seed, double stopTime, double rate, c
 	printStatusLine_First_Bimolecular(python_settings, seed, STOPRESULT_NORMAL, stopTime, rate, message);
 
 }
-
 
 ///// CSIMOPTIONS
 CSimOptions::CSimOptions(void) {

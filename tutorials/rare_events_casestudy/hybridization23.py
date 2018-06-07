@@ -18,7 +18,7 @@ import numpy as np
 
 A_TIME_OUT = 1000.0
 RESULT_DIR = "suyama"
-NUM_OF_REPEATS = 6
+NUM_OF_REPEATS = 2
 DO_CONVERGENCE = True
 CONVERGENCE_CRIT = 0.05
 
@@ -51,7 +51,7 @@ test2 = ["GCCCACACGC", "AGAGGCTGC"]
     .buildTime        - Time to simulate, create Builder and BuilderRate 
     .matrixTime       - Time to solve the matrix.                
 """
-class resultsHybridization(object):
+class ResultsHybridization(object):
     
     def __init__(self):
     
@@ -153,31 +153,31 @@ def doReactionAssociation(arguments, output=True):
 
 def timings(settings):
     
-    output = resultsHybridization()
+    output = ResultsHybridization()
     
     for i in range(NUM_OF_REPEATS):
         
 #             print "Starting to make the statespace \n"
-            startTime = time.time()
+        startTime = time.time()
 
-            myBuilder = Builder(settings.function, settings.arguments)
+        myBuilder = Builder(settings.function, settings.arguments)
+        
+        if DO_CONVERGENCE:
+            myBuilder.genUntilConvergence(CONVERGENCE_CRIT)
+        else:            
+            myBuilder.genAndSavePathsFile()
             
-            if DO_CONVERGENCE:
-                myBuilder.genUntilConvergence(CONVERGENCE_CRIT)
-            else:            
-                myBuilder.genAndSavePathsFile()
-                
-            builderRate = BuilderRate(myBuilder) 
-            
-            output.buildTime.append(time.time() - startTime)
+        builderRate = BuilderRate(myBuilder) 
+        
+        output.buildTime.append(time.time() - startTime)
 
 #             print "Solving the matrix equation \n"       
-            startTime = time.time()
-            
-            output.rates.append(np.log10(1.0 / builderRate.averageTimeFromInitial(bimolecular=True)))
-            output.matrixTime.append(time.time() - startTime)
-            
-            output.nStates.append(len(builderRate.statespace))
+        startTime = time.time()
+        
+        output.rates.append(np.log10(1.0 / builderRate.averageTimeFromInitial(bimolecular=True)))
+        output.matrixTime.append(time.time() - startTime)
+        
+        output.nStates.append(len(builderRate.statespace))
             
 
     
