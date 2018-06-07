@@ -336,17 +336,16 @@ class Builder(object):
          
         currTime = -1.0
         
-        ignoreInitial = False
          
         while not crit.converged(currTime) :
 
             otherBuilder = Builder(self.optionsFunction, self.optionsArgs)
 
             """ Only the first state will count towards the set of initial states """
+            ignoreInitial = False
             for state in initialStates:
                otherBuilder.genAndSavePathsFile(supplyInitialState = state, ignoreInitialState= ignoreInitial)
-            
-            ignoreInitial = True   
+               ignoreInitial = True   
             
             
             self.mergeBuilder(otherBuilder)

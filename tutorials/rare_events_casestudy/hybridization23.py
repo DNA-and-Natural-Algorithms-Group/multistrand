@@ -17,8 +17,8 @@ from multistrand.experiment import standardOptions, hybridization
 import numpy as np
 
 A_TIME_OUT = 1000.0
-RESULT_DIR = "suyama"
-NUM_OF_REPEATS = 2
+RESULT_DIR = "hybridization23"
+NUM_OF_REPEATS = 6
 DO_CONVERGENCE = True
 CONVERGENCE_CRIT = 0.05
 
@@ -43,7 +43,7 @@ suyama1 = "AGAGGCTTATAACTGTGTCGGGT"
 morrison = ["TTGGTGATCC", "AGATTAGCAGGTTTCCCACC"]
 
 
-test2 = ["GCCCACACGC", "AGAGGCTGC"]
+testSeq = ["GCCTTCA"] #,"TTGGTGATCC", "AGATTAGCAGGTTTCCCACC" ]
 
 """ 
     results holds three arrays:
@@ -224,7 +224,7 @@ if __name__ == '__main__':
         raise ValueError( "Expected two input arguments, example:   test 500  ")
     
     if toggle == "test":
-        genFile(test2, nTrials, toggle)
+        genFile(testSeq, nTrials, toggle)
         
     elif toggle == "suyama":
         genFile(suyama16, nTrials, toggle)

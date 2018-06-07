@@ -1,5 +1,5 @@
 
-from hybridization23 import Settings, ResultsHybridization, suyamaT, suyamaC, enum_hybridization, title_hybridization
+from hybridization23 import Settings, ResultsHybridization, suyamaT, suyamaC, enum_hybridization, title_hybridization, testSeq
 from multistrand.system import SimSystem
 from multistrand.builder import hybridizationString, Builder, BuilderRate
 from multistrand.options import Options, Literals
@@ -14,8 +14,8 @@ A_TIME_OUT = 2e-3
 CONVERGENCE_CRIT = 0.01
 NUM_OF_REPEATS = 2
 
-test = ["ACTGTGA", "CTGTGAC"]
 morrison = ["TTGGTGATCC", "AGATTAGCAGGTTTCCCACC"]
+
 
 """ We will omit the starting state, somewhat unusual"""
 def associationNoInit(arguments): 
@@ -58,11 +58,9 @@ def timings(seq, nTrials):
         startTime = time.time()
         
         myBuilder = Builder(sett.function, sett.arguments)
-        myBuilder.genUntilConvergenceWithInitialState(CONVERGENCE_CRIT, startStates[:(len(startStates) - 1)], printMeanTime = True)
-    
-    
+        myBuilder.genUntilConvergenceWithInitialState(CONVERGENCE_CRIT, startStates[:(len(startStates) - 1)], printMeanTime = False)
+
         builderRate = BuilderRate(myBuilder)
-     
         output.buildTime.append(time.time() - startTime)
      
         startTime = time.time()
@@ -82,7 +80,7 @@ def iterateResults(seqs, nTrials):
         mf.write(seq + "\n");
         
         result = timings(seq, nTrials)
-        print result
+#         print result
         mf.write(str(result))
         mf.write("\n\n")
         mf.flush()
@@ -113,7 +111,7 @@ if __name__ == '__main__':
     
     if toggle == "test":
 
-        iterateResults(test, nTrials)
+        iterateResults(testSeq, nTrials)
 
 #             
         
