@@ -1,5 +1,5 @@
 
-from hybridization23 import Settings, ResultsHybridization, suyamaT, suyamaC, enum_hybridization, title_hybridization, testSeq
+from hybridization23 import Settings, ResultsHybridization, suyamaT, suyamaC, enum_hybridization, title_hybridization, testSeq, NUM_OF_REPEATS, CONVERGENCE_CRIT
 from multistrand.system import SimSystem
 from multistrand.builder import hybridizationString, Builder, BuilderRate
 from multistrand.options import Options, Literals
@@ -10,18 +10,24 @@ import sys, os, time
 import numpy as np
 
 RESULT_DIR = "test_string_method"
-A_TIME_OUT = 2e-3
-CONVERGENCE_CRIT = 0.01
-NUM_OF_REPEATS = 2
+A_TIME_OUT = 4e-3
 
-morrison = ["TTGGTGATCC", "AGATTAGCAGGTTTCCCACC"]
+morrison = ["TTGGTGATCC", "AGATTAGCAGGTTTCCCACC", "GCCCACACTCTTACTTATCGACT", "AGAGGCTTATAACTGTGTCGGGT", "TGTTCTAAGATTATCCTCCCGCC", "GGCGGCTATAACAATTTCATCCA"]
+
+morrison0 = ["TTGGTGATCC"]
+morrison1 = ["AGATTAGCAGGTTTCCCACC"]
+
+longdomain = ["AGAGGCTTATAACTGTGTCGGGT"]
 
 
 """ We will omit the starting state, somewhat unusual"""
+
+
 def associationNoInit(arguments): 
 
     stdOptions = standardOptions()
     stdOptions.simulation_mode = Literals.trajectory
+    stdOptions.verbosity = True
 
     stdOptions.num_simulations = arguments[0]
     stdOptions.temperature = arguments[1]
@@ -49,7 +55,7 @@ def timings(seq, nTrials):
     startStates = hybridizationString(seq)
     
     endState = startStates[-1]
-    startState = startStates[0]
+    # startState = startStates[0]
 
     sett = association_comparison(seq, endState[0])
 
@@ -58,14 +64,14 @@ def timings(seq, nTrials):
         startTime = time.time()
         
         myBuilder = Builder(sett.function, sett.arguments)
-        myBuilder.genUntilConvergenceWithInitialState(CONVERGENCE_CRIT, startStates[:(len(startStates) - 1)], printMeanTime = False)
+        myBuilder.genUntilConvergenceWithInitialState(CONVERGENCE_CRIT, startStates[:(len(startStates) - 1)], printMeanTime=True)
 
         builderRate = BuilderRate(myBuilder)
         output.buildTime.append(time.time() - startTime)
      
         startTime = time.time()
         output.rates.append(np.log10(1.0 / builderRate.averageTimeFromInitial(bimolecular=True)))
-        print "Rate = %.2E " % output.rates[-1]
+        print "Rate = %.2E, time =  %.2f" % (output.rates[-1], output.buildTime[-1])
         output.matrixTime.append(time.time() - startTime)
         output.nStates.append(len(builderRate.statespace))
      
@@ -74,17 +80,17 @@ def timings(seq, nTrials):
 
 def iterateResults(seqs, nTrials):
     
-    mf = file(RESULT_DIR + "/comparison_" + toggle + "-" + str(nTrials) +".txt", "w")
+    mf = file(RESULT_DIR + "/comparison_" + toggle + "-" + str(nTrials) + ".txt", "w")
+    mf.write("The timeout = %f" % A_TIME_OUT)
     
     for seq in seqs:
-        mf.write(seq + "\n");
+        mf.write(seq + "\n")
         
         result = timings(seq, nTrials)
 #         print result
         mf.write(str(result))
         mf.write("\n\n")
         mf.flush()
-        
         
     mf.close()
 
@@ -108,10 +114,23 @@ if __name__ == '__main__':
     if toggle == "morrison":
     
         iterateResults(morrison, nTrials)
+        
+    if toggle == "morrison0":
     
+        iterateResults(morrison0, nTrials)
+    
+    if toggle == "morrison1":
+        
+        iterateResults(morrison1, nTrials)
+
     if toggle == "test":
 
         iterateResults(testSeq, nTrials)
+
+    if toggle == "longdomain":
+
+        iterateResults(longdomain, nTrials)
+
 
 #             
         

@@ -20,7 +20,7 @@ A_TIME_OUT = 1000.0
 RESULT_DIR = "hybridization23"
 NUM_OF_REPEATS = 6
 DO_CONVERGENCE = True
-CONVERGENCE_CRIT = 0.05
+CONVERGENCE_CRIT = 0.01
 
 
 enum_hybridization = "hybridization"
@@ -43,7 +43,7 @@ suyama1 = "AGAGGCTTATAACTGTGTCGGGT"
 morrison = ["TTGGTGATCC", "AGATTAGCAGGTTTCCCACC"]
 
 
-testSeq = ["GCCTTCA"] #,"TTGGTGATCC", "AGATTAGCAGGTTTCCCACC" ]
+testSeq = ["TTGGTGATCC"] #,"TTGGTGATCC", "AGATTAGCAGGTTTCCCACC" ]
 
 """ 
     results holds three arrays:
@@ -195,7 +195,7 @@ def genFile(mySeqs, nTrials, toggle):
     
     for seq in mySeqs:
         
-        mf.write(seq + "\n");
+        mf.write(seq + "\n")
         results = timings(association_comparison(seq))
         
 #         print results.rates

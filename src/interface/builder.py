@@ -12,7 +12,7 @@ Created on Oct 2, 2017
     
 '''
 
-import time, copy, os
+import time, copy, os, sys
 
 from multistrand.system import SimSystem
 from multistrand.utils import uniqueStateID, seqComplement
@@ -33,6 +33,8 @@ import numpy as np
 
 def hybridizationString(seq):
     
+    cutoff = 0.45    
+    
     N = len(seq)
     output = []
     
@@ -40,7 +42,7 @@ def hybridizationString(seq):
     dotparen1 = "."*N + "+" + "."*N
     
     complex0 = makeComplex([seq], "."*N)
-    complex1 =  makeComplex([seqComplement(seq)], "."*N)
+    complex1 = makeComplex([seqComplement(seq)], "."*N)
     seperated = [complex0, complex1]
     
     i = 65
@@ -51,8 +53,6 @@ def hybridizationString(seq):
             i += 1
         
     output.append(seperated)
-
-
     
     """ 
         bps is the number of basepairs between the strands
@@ -67,7 +67,8 @@ def hybridizationString(seq):
              
             dotparen1 = list("."*N + "+" + "."*N) 
              
-            if bps + offset < (N + 1):
+            if (bps + offset < (N + 1)) and bps < np.ceil(cutoff * N):
+#             if (bps + offset < (N + 1)):
                  
                 for i in range(bps):
                      
@@ -85,6 +86,18 @@ def hybridizationString(seq):
                         
                 output.append([complex])
                 
+    """ We always require the final state to be the success state"""
+    complex0 = makeComplex(dotparen0, "("*N + "+" + ")"*N)
+         
+    i = 65
+    for strand in complex0.strand_list:
+        strand.id = i
+        strand.name = "auto_" + str(i)
+        i += 1
+         
+    output.append([complex0])
+#     
+                
     return output
 
 
@@ -93,7 +106,7 @@ class ConvergeCrit(object):
     iit = 0
     currRate = -1.0
     
-    period = 4  # average out over past 4 increases.
+    period = 4  # average out over past X increases.
     array = [-99.0] * period
     precision = 0.05
     
@@ -105,10 +118,8 @@ class ConvergeCrit(object):
         conv1 = rateIn > averageL
         conv2 = rateIn < averageH 
         
-#         print "Average %.4f" % (sum(self.array) / self.period)
-                
         self.array[self.iit % self.period] = rateIn
-        self.iit = self.iit + 1;
+        self.iit += 1;
         
         return (conv1 and conv2)
     
@@ -261,7 +272,6 @@ class Builder(object):
         
         print "The overlap is " + str(100.0 * overlap / N) + " percent. "
 
-
     def mergeSet(self, this, that):
         
             for key, val in that.iteritems():
@@ -275,7 +285,6 @@ class Builder(object):
         self.mergeSet(self.protoTransitions, other.protoTransitions)
         self.mergeSet(self.protoInitialStates, other.protoInitialStates)
         self.mergeSet(self.protoFinalStates, other.protoFinalStates)
-    
                 
     def parseState(self, line, simulatedTemperature, simulatedConc):
         
@@ -307,6 +316,7 @@ class Builder(object):
         return uniqueID, energyvals
          
     """ Runs genAndSavePathsFile until convergence is reached"""
+
     def genUntilConvergence(self, precision):
         
         crit = ConvergeCrit()
@@ -329,44 +339,56 @@ class Builder(object):
     
     """ Runs genAndSavePathsFile until convergence is reached,
         given a list of initial states"""
-    def genUntilConvergenceWithInitialState(self, precision, initialStates, printMeanTime= False):
+
+    def genUntilConvergenceWithInitialState(self, precision, initialStates, printMeanTime=False):
          
         crit = ConvergeCrit()
         crit.precision = precision
          
         currTime = -1.0
-        
          
         while not crit.converged(currTime) :
 
             otherBuilder = Builder(self.optionsFunction, self.optionsArgs)
 
+            startTime = time.time()
+
             """ Only the first state will count towards the set of initial states """
             ignoreInitial = False
             for state in initialStates:
-               otherBuilder.genAndSavePathsFile(supplyInitialState = state, ignoreInitialState= ignoreInitial)
+               otherBuilder.genAndSavePathsFile(supplyInitialState=state, ignoreInitialState=ignoreInitial)
                ignoreInitial = True   
-            
             
             self.mergeBuilder(otherBuilder)
              
             if self.verbosity or printMeanTime:
-                print "Size     = %i " % len(self.protoSpace)
- 
+                print "Size     = %i    ---  bytesize = %f mb" % (len(self.protoSpace), sys.getsizeof (self.protoSpace) / (1024 * 1024))
+                print "Size T   = %i    ---  bytesize = %f mb" % (len(self.protoTransitions), sys.getsizeof (self.protoTransitions) / (1024 * 1024))
+                print "Time = %f" % (time.time() - startTime) 
+                
+            del otherBuilder
              
             builderRate = BuilderRate(self)
-            currTime = builderRate.averageTimeFromInitial()
+            currTime = builderRate.averageTimeFromInitial(printMeanTime)
             
             if printMeanTime:
                 print "Mean first passage time = %.2E" % currTime
  
         if self.verbosity:
             print "Size     = %i " % len(self.protoSpace)
-
+    
+    
+    
+    def deltaPruning(self, delta):
+        
+        0
+        
+    
     
     """
     supplyInitialState : this needs to be a list of complexes if used.
     """
+
     def genAndSavePathsFile(self, ignoreInitialState=False, supplyInitialState=None):
     
         self.startTime = time.time()
@@ -386,7 +408,10 @@ class Builder(object):
         
             if not supplyInitialState == None:
                 myOptions.start_state = supplyInitialState
-
+                
+            """ Set longer searching time for the initial state. """
+            if not ignoreInitialState:
+                myOptions.simulation_time = myOptions.simulation_time * 10.0 
         
             simTime = time.time()
         
@@ -896,12 +921,17 @@ class BuilderRate(object):
         firstpassagetimes = spsolve(self.rate_matrix_csr, self.b)
         return firstpassagetimes
         
-    def averageTimeFromInitial(self, bimolecular=False, cutCrit=0.01):
+    def averageTimeFromInitial(self, bimolecular=False, cutCrit=0.01, printMeanTime=True):
 
         startTime = time.time()
 
         if self.build.verbosity:
             print "Starting to solve the matrix equation.."
+            
+        if printMeanTime:
+            print "The size of the matrix is %f mb " % ( sys.getsizeof(self.rate_matrix_csr) / (1024  * 1024))
+            
+            
             
         firstpassagetimes = self.averageTime()  # spsolve(self.rate_matrix_csr  , self.b)        
 
@@ -918,7 +948,7 @@ class BuilderRate(object):
         
         self.matrixTime = time.time() - startTime
         
-        if self.build.verbosity:
+        if self.build.verbosity or printMeanTime:
             print "Solving matrix took %.2f s" % self.matrixTime
         
         cuttOff = cutCrit * (sumTime / sumStart)
