@@ -6,19 +6,18 @@
 #ifndef __SCOMPLEXLIST_H__
 #define __SCOMPLEXLIST_H__
 
+#include <stdio.h>
+#include <iostream>
+
 #include "scomplex.h"
 #include "energymodel.h"
 #include "optionlists.h"
-#include <stdio.h>
-
-#include <iostream>
 
 using std::cout;
 
 class SComplexListEntry;
 class JoinCriterea;
 class SimTimer;
-
 
 
 class SComplexList {

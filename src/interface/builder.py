@@ -377,13 +377,46 @@ class Builder(object):
         if self.verbosity:
             print "Size     = %i " % len(self.protoSpace)
     
-    
-    
-    def deltaPruning(self, delta):
+    """
+    Computes the mean first pasasage times, 
+    then selects states that are delta-close 
+    to the set of final states. 
+    Those states are then added to the set of final states. 
+    This reduces the size of the matrix that is constructed.
+    """
+
+    def deltaPruning(self, delta = 0.01, printCount = False):
         
-        0
+        builderRate = BuilderRate(self)
+        firstpassagetimes = builderRate.averageTime() 
         
-    
+        sumTime = 0.0
+        sumStart = 0.0
+        
+        for state in builderRate.statespace:
+            
+            stateindex = builderRate.stateIndex[state]
+            sumTime += builderRate.initial_states[state].count * firstpassagetimes[stateindex]
+            sumStart += builderRate.initial_states[state].count
+        
+        
+        averagedMFPT = sumTime / sumStart
+        
+        """Now add states that are delta close to the set of final states"""
+        
+        for state in builderRate.statespace:
+        
+            if state not in builder.protoFinalStates:
+                
+                stateindex = builderRate.stateIndex[state]
+                
+                if firstpassagetimes[stateindex] < delta * averagedMFPT:
+                    
+                    builder.protoFinalStates[state] = Literals.success       
+                    
+                    
+        if printCount:
+            print "Number of final states was %i but now is %i" % (beforeN, len(self.protoFinalStates))
     
     """
     supplyInitialState : this needs to be a list of complexes if used.
@@ -921,17 +954,12 @@ class BuilderRate(object):
         firstpassagetimes = spsolve(self.rate_matrix_csr, self.b)
         return firstpassagetimes
         
-    def averageTimeFromInitial(self, bimolecular=False, cutCrit=0.01, printMeanTime=True):
+    def averageTimeFromInitial(self, bimolecular=False, printMeanTime=True):
 
         startTime = time.time()
 
         if self.build.verbosity:
             print "Starting to solve the matrix equation.."
-            
-        if printMeanTime:
-            print "The size of the matrix is %f mb " % ( sys.getsizeof(self.rate_matrix_csr) / (1024  * 1024))
-            
-            
             
         firstpassagetimes = self.averageTime()  # spsolve(self.rate_matrix_csr  , self.b)        
 
@@ -950,10 +978,6 @@ class BuilderRate(object):
         
         if self.build.verbosity or printMeanTime:
             print "Solving matrix took %.2f s" % self.matrixTime
-        
-        cuttOff = cutCrit * (sumTime / sumStart)
-        
-        self.reducedSize = len([ x < cuttOff for x in firstpassagetimes])
         
         if not bimolecular:
                     return sumTime / sumStart

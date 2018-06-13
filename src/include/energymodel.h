@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <python2.7/Python.h>
 #include <string>
+#include <array>
 #include <moveutil.h>
 #include <sequtil.h>
 
