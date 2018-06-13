@@ -393,7 +393,10 @@ class Builder(object):
         sumTime = 0.0
         sumStart = 0.0
         
-        for state in builderRate.statespace:
+        if printCount:
+            beforeN = len(self.protoFinalStates)
+        
+        for state in builderRate.initial_states:
             
             stateindex = builderRate.stateIndex[state]
             sumTime += builderRate.initial_states[state].count * firstpassagetimes[stateindex]
@@ -406,13 +409,13 @@ class Builder(object):
         
         for state in builderRate.statespace:
         
-            if state not in builder.protoFinalStates:
+            if state not in self.protoFinalStates:
                 
                 stateindex = builderRate.stateIndex[state]
                 
                 if firstpassagetimes[stateindex] < delta * averagedMFPT:
                     
-                    builder.protoFinalStates[state] = Literals.success       
+                    self.protoFinalStates[state] = Literals.success       
                     
                     
         if printCount:
@@ -616,7 +619,6 @@ class Builder(object):
 class BuilderRate(object):
     
     debugPrinter = False;
-    
     solveToggle = 2
 
     # input function returns the multistrand options object for which to build the statespace
@@ -630,20 +632,8 @@ class BuilderRate(object):
         if self.debugPrinter:
             print str(self.build)
         
-#         stdOptions = standardOptions()
-#         stdOptions.DNA23Metropolis()
-        
-#         self.unimolecular_scaling = stdOptions.unimolecular_scaling
-#         self.bimolecular_scaling = stdOptions.bimolecular_scaling
-        
-#         print "Starting to process states"
-#         processTime = time.time()
         self.processStates()  # prunes statespace and creates objects that can be used to create the rate matrx
-#         print "Prunning states is done,  %.2f" % (time.time() - processTime) 
-#         print "Starting to build matrix"
-#         matrixTime = time.time()
         self.setMatrix()  # generates the matrix for the current temperature
-#         print "Building matrix is now done, %.2f" % (time.time() - matrixTime)
     
     """ Generates the state space by traversing from the final states """
 
@@ -730,17 +720,14 @@ class BuilderRate(object):
         startT = time.time()    
         # generate a list of neighbors for each state  -- output is placed in self.neighbors
         self.neighbors = self.genNeighborsTransitive(self.build.protoTransitions, self.build.protoSpace)
-#         print "done generating list of neighbors             time = %.2f" % (time.time() - startT) 
 
         startT = time.time()
         # now prune the statespace to only include states that can reach the final state
         self.statespace = self.findConnectedStates(self.final_states, self.neighbors)
-#         print "done pruning the statespace via connected     time = %.2f" % (time.time() - startT) 
         
         startT = time.time()
         # Now re-generated the neighbors, but only for states in the statespace -- and only "forward" transitions instead of both ways.
         self.neighbors = self.genNeighbors(self.build.protoTransitions, self.build.protoSpace)
-#         print "done re-generating the neighbors               time = %.2f" % (time.time() - startT) 
 
         # Update the initial states to only include those connected states
         for state in self.build.protoInitialStates:
