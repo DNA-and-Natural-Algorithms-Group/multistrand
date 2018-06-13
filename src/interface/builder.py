@@ -956,25 +956,24 @@ class BuilderRate(object):
         self.matrixTime = time.time() - startTime
         return firstpassagetimes
 
-    def averageTimeFromInitial(self, bimolecular=False, printMeanTime=True):
+    def averageTimeFromInitial(self, bimolecular=False, printMeanTime=False ):
 
         if self.build.verbosity:
             print "Starting to solve the matrix equation.."
-        firstpassagetimes = self.averageTime()  # spsolve(self.rate_matrix_csr  , self.b)
-        mfpt = self.averageTimeFromInitial_givenfirstpassagetimes(firstpassagetimes =firstpassagetimes, bimolecular =bimolecular, printMeanTime =printMeanTime)
+        times = self.averageTime()  # spsolve(self.rate_matrix_csr  , self.b)
+        if self.build.verbosity or printMeanTime:
+            print "Solving matrix took %.2f s" % self.matrixTime
+        mfpt = self.weightedPassageTime(times =times, bimolecular =bimolecular)
         return mfpt
 
-    def averageTimeFromInitial_givenfirstpassagetimes(self, firstpassagetimes, bimolecular = False, printMeanTime=  True) :
+    def weightedPassageTime(self, times, bimolecular = False) :
         sumTime = 0.0
         sumStart = 0.0
         for state in self.initial_states:
             stateindex = self.stateIndex[state]
-            sumTime += self.initial_states[state].count * firstpassagetimes[stateindex]
+            sumTime += self.initial_states[state].count * times[stateindex]
             sumStart += self.initial_states[state].count
         #             print "Initial: " + str(state) +  "Count = " + str(self.initial_states[state].count)
-        if self.build.verbosity or printMeanTime:
-            print "Solving matrix took %.2f s" % self.matrixTime
-
         if not bimolecular:
             return sumTime / sumStart
         else:
