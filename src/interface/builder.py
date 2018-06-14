@@ -185,8 +185,8 @@ class energy(object):
 def codeToDesc(code):
     
     output = []
-    primes = [5, 7, 11, 13, 17, 19]
-    primesq = [25, 49, 121, 169, 289, 361]
+    primes = [3, 5, 7, 11, 13, 17, 19]
+    primesq = [9, 25, 49, 121, 169, 289, 361]
 
     for i in range(len(primes)):
 
@@ -385,7 +385,7 @@ class Builder(object):
     This reduces the size of the matrix that is constructed.
     """
 
-    def deltaPruning(self, delta = 0.01, printCount = False):
+    def deltaPruning(self, delta=0.01, printCount=False):
         
         builderRate = BuilderRate(self)
         firstpassagetimes = builderRate.averageTime() 
@@ -402,7 +402,6 @@ class Builder(object):
             sumTime += builderRate.initial_states[state].count * firstpassagetimes[stateindex]
             sumStart += builderRate.initial_states[state].count
         
-        
         averagedMFPT = sumTime / sumStart
         
         """Now add states that are delta close to the set of final states"""
@@ -416,7 +415,6 @@ class Builder(object):
                 if firstpassagetimes[stateindex] < delta * averagedMFPT:
                     
                     self.protoFinalStates[state] = Literals.success       
-                    
                     
         if printCount:
             print "Number of final states was %i but now is %i" % (beforeN, len(self.protoFinalStates))
@@ -456,8 +454,6 @@ class Builder(object):
             
             if self.verbosity:
                  print "Multistrand simulation is now done,      time = %.2f" % (time.time() - simTime)
-            
-#             loadTime = time.time()
             
             """ load the space """
             myFile = open(self.the_dir + str(myOptions.interface.current_seed) + "/protospace.txt", "r")
@@ -591,19 +587,14 @@ class Builder(object):
             os.remove(self.the_dir + str(myOptions.interface.current_seed) + "/protoinitialstates.txt")
             os.remove(self.the_dir + str(myOptions.interface.current_seed) + "/protofinalstates.txt")
     
-    #             print "Loading is now done,                     time = %.2f" % (time.time() - loadTime)
     
         runPaths(self.optionsFunction, inputArgs, space, transitions, initStates, finalStates)
-    
-    #         mergeTime = time.time()
     
         # do not forget to merge the objects back
         self.mergeSet(self.protoSpace, space)
         self.mergeSet(self.protoTransitions, transitions) 
         self.mergeSet(self.protoFinalStates, finalStates)
         
-    #         print "Done statespace merging!                 time = %.2f " % (time.time() - mergeTime)
-    
         if not ignoreInitialState:    
             
             for key, val in initStates.iteritems():
@@ -745,76 +736,87 @@ class BuilderRate(object):
         else :
             return self.metropolis_rate(state1, state2, transitionlist)
 
-    """Uses the Arrhenius kinetic model to calculate the transition rate from state1 to state and the transition rate from state2 to state1. 
+    """
+    Uses the Arrhenius kinetic model to calculate transition rates. 
     Returns the transition rate from state1 to state2 
-    and then also the reverse rate, from state2 to state1 """
+    and then also the reverse rate, from state2 to state1 
+    """
 
-    def halfcontext_parameter(self,codename):
-        if codename == localtype.stack:
+    def halfcontext_parameter(self, localContext):
+        
+        if localContext == localtype.stack:
             return 	self.build.options.lnAStack , self.build.options.EStack
-        elif codename == localtype.loop :
+        
+        elif localContext == localtype.loop :
             return self.build.options.lnALoop, self.build.options.ELoop
-        elif codename == localtype.end:
+        
+        elif localContext == localtype.end:
             return self.build.options.lnAEnd, self.build.options.EEnd
-        elif codename == localtype.stackloop:
+        
+        elif localContext == localtype.stackloop:
             return self.build.options.lnAStackLoop, self.build.options.EStackLoop
-        elif codename == localtype.stackend :
+        
+        elif localContext == localtype.stackend :
             return self.build.options.lnAStackEnd, self.build.options.EStackEnd
-        elif codename == localtype.loopend :
+        
+        elif localContext == localtype.loopend :
             return self.build.options.lnALoopEnd, self.build.options.ELoopEnd
-        elif codename == localtype.stackstack:
-
+        
+        elif localContext == localtype.stackstack:
             return self.build.options.lnAStackStack, self.build.options.EStackStack
+        
         else :
             raise ValueError('The transition code name is unexpected ')
 
     def arrhenius_rate(self, state1, state2, transitionlist):
-        print "In arrhenius_rate, transition list " ,  transitionlist
-        lnA_left, E_left =self.halfcontext_parameter( transitionlist[1] )
-        if len(transitionlist) == 2:
-            print "length of transition list is 2!! causing error"
-            raise ValueError ('Length of transition list should not be 2')
-        lnA_right, E_right =self.halfcontext_parameter(transitionlist[2] )
+        
+        if build.verbosity:
+            print "In arrhenius_rate, transition list " , transitionlist
+        
+        lnA_left, E_left = self.halfcontext_parameter(transitionlist[1])        
+        lnA_right, E_right = self.halfcontext_parameter(transitionlist[2])
+        
         lnA = lnA_left + lnA_right
-        E =   E_left + E_right
+        E = E_left + E_right
+        
         bimolecular_scaling = self.build.options.bimolecular_scaling
         concentration = self.build.options.join_concentration
+        
         myT = self.build.options._temperature_kelvin
         dG1 = self.build.protoSpace[state1].dG(myT)
         dG2 = self.build.protoSpace[state2].dG(myT)
 
-        DeltaG= dG2 - dG1
+        DeltaG = dG2 - dG1
         DeltaG2 = -DeltaG
 
         RT = energy.GAS_CONSTANT * myT
         if  transitionlist[0] == transitiontype.unimolecular   :
             if DeltaG > 0.0:
-                rate1 = np.e **(lnA - (DeltaG + E) / RT)
+                rate1 = np.e ** (lnA - (DeltaG + E) / RT)
                 rate2 = np.e ** (lnA - E / RT)
             else:
                 rate1 = np.e ** (lnA - E / RT)
-                rate2 = np.e **(lnA - (DeltaG2 + E) / RT)
+                rate2 = np.e ** (lnA - (DeltaG2 + E) / RT)
         elif transitionlist[0] == transitiontype.bimolecularIn   :
 
-            rate1 = bimolecular_scaling * concentration *  (np.e  ** (lnA - E / RT) )
-            rate2 =	bimolecular_scaling * ( np.e ** (lnA - (DeltaG2 + E) / RT ) )
+            rate1 = bimolecular_scaling * concentration * (np.e ** (lnA - E / RT))
+            rate2 = 	bimolecular_scaling * (np.e ** (lnA - (DeltaG2 + E) / RT))
         elif transitionlist[0] == transitiontype.bimolecularOut  :
-            rate1 =	bimolecular_scaling * ( np.e ** (lnA - (DeltaG + E) / RT) )
-            rate2 = 	bimolecular_scaling* concentration * ( np.e  ** (lnA - E / RT) )
+            rate1 = 	bimolecular_scaling * (np.e ** (lnA - (DeltaG + E) / RT))
+            rate2 = 	bimolecular_scaling * concentration * (np.e ** (lnA - E / RT))
         else :
             raise ValueError('Exception, fix this in Arrhenius_rate function.  Check transition rate calculations!')
         return rate1, rate2
         """    Returns the transition rate from state1 to state2 and then also the reverse rate, from state2 to state1 """
 
-
     def metropolis_rate(self, state1, state2, transitionlist):
 
         myT = self.build.options._temperature_kelvin
+        RT = energy.GAS_CONSTANT * myT
 
         dG1 = self.build.protoSpace[state1].dG(myT)
         dG2 = self.build.protoSpace[state2].dG(myT)
         
-        RT = energy.GAS_CONSTANT * myT
         
         if transitionlist[0] == transitiontype.unimolecular:
             
@@ -927,48 +929,70 @@ class BuilderRate(object):
         self.n_states = N
         self.n_transitions = len(rates)
 
+    """ 
+        Computes the first passage times
+    """
 
-    def averageTime(self, x0 = None):
-        # now solve for the first passagetimes
-        startTime  = time.time()
+    def averageTime(self, x0=None):
+        
+        startTime = time.time()
+        
         if self.solveToggle == 1:
-            firstpassagetimes, info = bicg(self.rate_matrix_csr, self.b, x0 = x0)
+            firstpassagetimes, info = bicg(self.rate_matrix_csr, self.b, x0=x0)
+            
         elif self.solveToggle == 2:
-            firstpassagetimes, info = bicg(self.rate_matrix_csr, self.b, M=self.rate_matrix_inverse,  x0 = x0)
+            firstpassagetimes, info = bicg(self.rate_matrix_csr, self.b, M=self.rate_matrix_inverse, x0=x0)
+            
         elif self.solveToggle == 3:
-            firstpassagetimes, info = bicgstab(self.rate_matrix_csr, self.b ,  x0 = x0)
+            firstpassagetimes, info = bicgstab(self.rate_matrix_csr, self.b , x0=x0)
+            
         elif self.solveToggle == 4:
-            firstpassagetimes, info = bicgstab(self.rate_matrix_csr, self.b, M=self.rate_matrix_inverse,  x0 = x0)
+            firstpassagetimes, info = bicgstab(self.rate_matrix_csr, self.b, M=self.rate_matrix_inverse, x0=x0)
+            
         elif self.solveToggle == 5:
-            firstpassagetimes, info = gmres(self.rate_matrix_csr, self.b,  x0 = x0)
+            firstpassagetimes, info = gmres(self.rate_matrix_csr, self.b, x0=x0)
+        
         elif self.solveToggle == 6:
-            firstpassagetimes, info = gmres(self.rate_matrix_csr, self.b, M=self.rate_matrix_inverse,  x0 = x0)
+            firstpassagetimes, info = gmres(self.rate_matrix_csr, self.b, M=self.rate_matrix_inverse, x0=x0)
+        
         elif self.solveToggle == 7:
-            firstpassagetimes, info = cg(self.rate_matrix_csr, self.b,  x0 = x0)
+            firstpassagetimes, info = cg(self.rate_matrix_csr, self.b, x0=x0)
+        
         elif self.solveToggle == 8:
-            firstpassagetimes, info = cg(self.rate_matrix_csr, self.b, M=self.rate_matrix_inverse,  x0 = x0)
+            firstpassagetimes, info = cg(self.rate_matrix_csr, self.b, M=self.rate_matrix_inverse, x0=x0)
+        
         elif self.solveToggle == 9:
-            firstpassagetimes, info = lgmres(self.rate_matrix_csr, self.b,  x0 = x0)
+            firstpassagetimes, info = lgmres(self.rate_matrix_csr, self.b, x0=x0)
+        
         elif self.solveToggle == 10:
-            firstpassagetimes, info = lgmres(self.rate_matrix_csr, self.b, M=self.rate_matrix_inverse,  x0 = x0)
+            firstpassagetimes, info = lgmres(self.rate_matrix_csr, self.b, M=self.rate_matrix_inverse, x0=x0)
+        
         else:
             firstpassagetimes = spsolve(self.rate_matrix_csr, self.b)
+        
         self.matrixTime = time.time() - startTime
+        
         return firstpassagetimes
 
-    def averageTimeFromInitial(self, bimolecular=False, printMeanTime=False ):
+    def averageTimeFromInitial(self, bimolecular=False, printMeanTime=False):
 
-        if self.build.verbosity:
-            print "Starting to solve the matrix equation.."
-        times = self.averageTime()  # spsolve(self.rate_matrix_csr  , self.b)
+        times = self.averageTime() 
+        
         if self.build.verbosity or printMeanTime:
             print "Solving matrix took %.2f s" % self.matrixTime
-        mfpt = self.weightedPassageTime(times =times, bimolecular =bimolecular)
+        
+        mfpt = self.weightedPassageTime(times=times, bimolecular=bimolecular)
+        
         return mfpt
 
-    def weightedPassageTime(self, times, bimolecular = False) :
+    """ Weights the solution vector by the frequency of the initial states 
+    """
+
+    def weightedPassageTime(self, times, bimolecular=False):
+        
         sumTime = 0.0
         sumStart = 0.0
+        
         for state in self.initial_states:
             stateindex = self.stateIndex[state]
             sumTime += self.initial_states[state].count * times[stateindex]

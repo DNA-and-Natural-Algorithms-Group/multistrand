@@ -11,8 +11,9 @@ from ..__init__ import __version__
 import copy
 import warnings
 
-
 """ Literals for Multistrand"""
+
+
 class  Literals(object):
     
     """
@@ -31,7 +32,6 @@ class  Literals(object):
     no_initial_moves = "noinitial"
     sim_error = "error"
     
-    
     """ rate_method    """
     metropolis = 1
     kawasaki = 2
@@ -46,7 +46,6 @@ class  Literals(object):
     substrateRNA = 1
     substrateDNA = 2
     
-    
     """ Simulation modes """        
     first_passage_time = 16  # 0x0010
     first_step = 48  # 0x0030
@@ -59,7 +58,7 @@ class  Literals(object):
         StopCondition and Macrostate definitions:
             Exact - match a secondary structure exactly (i.e. any system state that has a complex with this exact structure)
             Bound - match any system state in which the given strand is bound to another strand
-            Dissoc - match any system state in which there exists a complex with exactly the given strands, in that order
+            Ordered - match any system state in which there exists a complex with exactly the given strands, in that order (previous name: dissoc macrostate)
             Loose - match a secondary structure, allowing a certain number of disagreements, allowing domain state to be unspecified (* notation)
             Count - match a secondary structure, allowing a certain number of disagreements
             
@@ -69,6 +68,7 @@ class  Literals(object):
     exact_macrostate = 0  # 
     bound_macrostate = 1  # 
     dissoc_macrostate = 2  # 
+    ordered_macrostate = 2 
     loose_macrostate = 3  # 
     count_macrostate = 4  # 
     
@@ -77,20 +77,15 @@ class Options(object):
     """ The main wrapper for controlling a Multistrand simulation. Has an interface for returning results. """
        
     '''Constants:'''
-    # FD: some could be enums, using constants instead.
-    
     ZERO_C_IN_K = 273.15
-        
 
     RateMethodToString = [ "None", "Metropolis", "Kawasaki"]
-
     dangleToString = [ "None", "Some", "All"]
 
     # Parameter type. Vienna is depreciated.
     viennaModel = 0 
     nupackModel = 1 
     parameterTypeToString = [ "Vienna", "Nupack" ]
-
 
     substrateToString = [ "Invalid", "RNA", "DNA"]    
     
@@ -100,10 +95,6 @@ class Options(object):
                         "Transition":               Literals.transition,
                         "Trajectory":               Literals.trajectory,
                         "First Passage Time":       Literals.first_passage_time}
-
-
-
-
     
     cotranscriptional_rate_default = 0.001  # 1 nt added every 1 ms
     
@@ -143,7 +134,6 @@ class Options(object):
         #                                                #
         #                                                #
         ##################################################
-        
         
         """ Pipe to let Multistrand know the version from ../__init__.py """
         self.ms_version = float(__version__)  
@@ -345,8 +335,6 @@ class Options(object):
         # BEGIN startstop
         #
         ####################
-        
-
                 
         # See accessors below
         self._stop_conditions = []
@@ -479,27 +467,43 @@ class Options(object):
         self.unimolecular_scaling = 7.3e8;
         self.bimolecular_scaling = 1.40e6;
     
-    def DNA23Metropolis(self):
-        """ A default rate for Metropolis at 25 degree Celcius, from the DNA23 conference
-        """
 
-        # FD march 2018: Setting these to be the 55th walker from the dna23 inference
-        # previous values:
-#         self.unimolecular_scaling = 5.0e6;
-#         self.bimolecular_scaling = 1.4e6;
-        
+    def DNA23Metropolis(self):
+        """ 
+        Parameters for Metropolis at 25 degree Celcius, from the DNA23 conference (55th walker)
+        """
+       
         self.unimolecular_scaling = 2.41686715e+06;
         self.bimolecular_scaling = 8.01171383e+05 ;
-     
-    def uniformRates(self):
-        """ uniform rates without a source
-        """
-            
-        self.unimolecular_scaling = 1.0e6;
-        self.bimolecular_scaling = 1.0e6;
+    
+    def DNA23Arrhenius(self):
+        
+        self.rate_method = Literals.arrhenius
 
-# FD: We are implementing an observer pattern. 
-# FD: After temperature, substrate (RNA/DNA) or danlges is updated, we attempt to update boltzmann samples.
+        self.lnAStack = 1.41839430e+01
+        self.EStack = 5.28692038e+00
+
+        self.lnAEnd = 1.64236969e+01
+        self.EEnd = 4.46143369e+00
+
+        self.lnALoop = 1.29648159e+01
+        self.ELoop = 3.49798154e+00
+
+        self.lnAStackLoop = 5.81061725e+00
+        self.EStackLoop = -1.12763854e+00
+
+        self.lnAStackEnd = 1.75235569e+01
+        self.EStackEnd = 2.65589869e+00
+        
+        self.lnALoopEnd = 2.42237267e+00
+        self.ELoopEnd = 8.49339120e-02
+        
+        self.lnAStackStack = 8.04573830e+00
+        self.EStackStack = -6.27121400e-01
+        
+        self.bimolecular_scaling = 1.60062641e-02
+ 
+    # FD: After temperature, substrate (RNA/DNA) or danlges is updated, we attempt to update boltzmann samples.
     def updateBoltzmannSamples(self):
 
         if len(self._start_state) > 0:
@@ -509,10 +513,7 @@ class Options(object):
     
                 if c.boltzmann_sample and not self.gt_enable:
                     raise Warning("Attempting to use Boltzmann sampling but GT pairing is disabled. Energy model of Multistrand will not match that of the NUPACK sampling method.")
-
     
-#     FD: We are using shadow variables for biscale, uniscale only because we want to 
-#     flag a warning when rate_scaling is used
     @property
     def bimolecular_scaling(self):
 
@@ -562,6 +563,7 @@ class Options(object):
 
     """ FD: Following same listener pattern for sodium, magnesium, 
             so that changes are propagated to complexes."""
+
     @property
     def sodium(self):
         return self._sodium
@@ -580,9 +582,9 @@ class Options(object):
         self._magnesium = float(value)
         self.updateBoltzmannSamples()
         
-        
     """ FD: Setting boltzmann sample in options could be used to propagate this setting to all starting states. 
             But we do not support this, and sampling is a property of each individual complex instead. """
+
     @property
     def boltzmann_sample(self):
         
@@ -592,7 +594,6 @@ class Options(object):
     def boltzmann_sample(self, val):
         
         raise ValueError('Options.boltzmann_sample is now depreciated. Use Complex.boltzmann_sample instead.')
-        
             
     @property
     def start_state(self):
@@ -605,8 +606,6 @@ class Options(object):
         start state.
         """
 
-        #        import pdb
-        #        pdb.set_trace()
         def process_state(x):
             cmplx, rest_state = x
             if rest_state is None:
@@ -1012,7 +1011,6 @@ class Options(object):
             if key == "unimolecular_scaling":
                 if not isinstance(value, (float)):
                     raise Warning("Please provide unimolecular_scaling as float")
-                
         
         for k in kargs.keys():
             
