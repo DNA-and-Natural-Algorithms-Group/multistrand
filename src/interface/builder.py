@@ -420,7 +420,8 @@ class Builder(object):
             print "Number of final states was %i but now is %i" % (beforeN, len(self.protoFinalStates))
     
     """
-    supplyInitialState : this needs to be a list of complexes if used.
+    supplyInitialState : a Complex that serves as initial state for that simulation
+    ignoreIntiialState: The initial state is not added to the set of initial states
     """
 
     def genAndSavePathsFile(self, ignoreInitialState=False, supplyInitialState=None):
@@ -587,7 +588,6 @@ class Builder(object):
             os.remove(self.the_dir + str(myOptions.interface.current_seed) + "/protoinitialstates.txt")
             os.remove(self.the_dir + str(myOptions.interface.current_seed) + "/protofinalstates.txt")
     
-    
         runPaths(self.optionsFunction, inputArgs, space, transitions, initStates, finalStates)
     
         # do not forget to merge the objects back
@@ -609,7 +609,6 @@ class Builder(object):
 # starting in an initial state and reaching a final state. 
 class BuilderRate(object):
     
-    debugPrinter = False;
     solveToggle = 2
 
     # input function returns the multistrand options object for which to build the statespace
@@ -619,9 +618,6 @@ class BuilderRate(object):
 
         if len(self.build.protoFinalStates) == 0 :
             raise ValueError('No final states found.')
-        
-        if self.debugPrinter:
-            print str(self.build)
         
         self.processStates()  # prunes statespace and creates objects that can be used to create the rate matrx
         self.setMatrix()  # generates the matrix for the current temperature
@@ -725,17 +721,6 @@ class BuilderRate(object):
             if state in self.statespace:
                 self.initial_states[state] = self.build.protoInitialStates[state]
 
-    """Use the builder options object to determine which rates to compute """
-
-    def get_rate(self, state1, state2):
-        
-        transitionlist = self.build.protoTransitions[(state1, state2)]
-        
-        if self.build.options.rate_method == Literals.arrhenius:
-            return self.arrhenius_rate(state1, state2, transitionlist)
-        else :
-            return self.metropolis_rate(state1, state2, transitionlist)
-
     """
     Uses the Arrhenius kinetic model to calculate transition rates. 
     Returns the transition rate from state1 to state2 
@@ -768,46 +753,18 @@ class BuilderRate(object):
         else :
             raise ValueError('The transition code name is unexpected ')
 
-    def arrhenius_rate(self, state1, state2, transitionlist):
-        
-        if build.verbosity:
-            print "In arrhenius_rate, transition list " , transitionlist
-        
-        lnA_left, E_left = self.halfcontext_parameter(transitionlist[1])        
-        lnA_right, E_right = self.halfcontext_parameter(transitionlist[2])
-        
-        lnA = lnA_left + lnA_right
-        E = E_left + E_right
-        
-        bimolecular_scaling = self.build.options.bimolecular_scaling
-        concentration = self.build.options.join_concentration
-        
-        myT = self.build.options._temperature_kelvin
-        dG1 = self.build.protoSpace[state1].dG(myT)
-        dG2 = self.build.protoSpace[state2].dG(myT)
+    """Use the builder options object to determine which rates to compute """
 
-        DeltaG = dG2 - dG1
-        DeltaG2 = -DeltaG
-
-        RT = energy.GAS_CONSTANT * myT
-        if  transitionlist[0] == transitiontype.unimolecular   :
-            if DeltaG > 0.0:
-                rate1 = np.e ** (lnA - (DeltaG + E) / RT)
-                rate2 = np.e ** (lnA - E / RT)
-            else:
-                rate1 = np.e ** (lnA - E / RT)
-                rate2 = np.e ** (lnA - (DeltaG2 + E) / RT)
-        elif transitionlist[0] == transitiontype.bimolecularIn   :
-
-            rate1 = bimolecular_scaling * concentration * (np.e ** (lnA - E / RT))
-            rate2 = 	bimolecular_scaling * (np.e ** (lnA - (DeltaG2 + E) / RT))
-        elif transitionlist[0] == transitiontype.bimolecularOut  :
-            rate1 = 	bimolecular_scaling * (np.e ** (lnA - (DeltaG + E) / RT))
-            rate2 = 	bimolecular_scaling * concentration * (np.e ** (lnA - E / RT))
+    def get_rate(self, state1, state2):
+        
+        transitionlist = self.build.protoTransitions[(state1, state2)]
+        
+        if self.build.options.rate_method == Literals.arrhenius:
+            return self.arrhenius_rate(state1, state2, transitionlist)
         else :
-            raise ValueError('Exception, fix this in Arrhenius_rate function.  Check transition rate calculations!')
-        return rate1, rate2
-        """    Returns the transition rate from state1 to state2 and then also the reverse rate, from state2 to state1 """
+            return self.metropolis_rate(state1, state2, transitionlist)
+
+    """    Returns the transition rate from state1 to state2 and then also the reverse rate, from state2 to state1 """
 
     def metropolis_rate(self, state1, state2, transitionlist):
 
@@ -816,7 +773,6 @@ class BuilderRate(object):
 
         dG1 = self.build.protoSpace[state1].dG(myT)
         dG2 = self.build.protoSpace[state2].dG(myT)
-        
         
         if transitionlist[0] == transitiontype.unimolecular:
             
@@ -841,6 +797,50 @@ class BuilderRate(object):
             
             else: 
                 raise ValueError('The transition code is unexpected ')
+            
+    def arrhenius_rate(self, state1, state2, transitionlist):
+        
+        if self.build.verbosity:
+            print "In arrhenius_rate, transition list " , transitionlist
+        
+        lnA_left, E_left = self.halfcontext_parameter(transitionlist[1])        
+        lnA_right, E_right = self.halfcontext_parameter(transitionlist[2])
+        
+        lnA = lnA_left + lnA_right
+        E = E_left + E_right
+        
+        bimolecular_scaling = self.build.options.bimolecular_scaling
+        concentration = self.build.options.join_concentration
+        
+        myT = self.build.options._temperature_kelvin
+        RT = energy.GAS_CONSTANT * myT
+        dG1 = self.build.protoSpace[state1].dG(myT)
+        dG2 = self.build.protoSpace[state2].dG(myT)
+
+        DeltaG = dG2 - dG1
+        DeltaG2 = -DeltaG
+        
+        if transitionlist[0] == transitiontype.unimolecular:
+            if DeltaG > 0.0:
+                rate1 = np.e ** (lnA - (DeltaG + E) / RT)
+                rate2 = np.e ** (lnA - E / RT)
+            else:
+                rate1 = np.e ** (lnA - E / RT)
+                rate2 = np.e ** (lnA - (DeltaG2 + E) / RT)
+                
+        elif transitionlist[0] == transitiontype.bimolecularIn:
+
+            rate1 = bimolecular_scaling * concentration * (np.e ** (lnA - E / RT))
+            rate2 = bimolecular_scaling * (np.e ** (lnA - (DeltaG2 + E) / RT))
+
+        elif transitionlist[0] == transitiontype.bimolecularOut:
+            
+            rate1 = bimolecular_scaling * (np.e ** (lnA - (DeltaG + E) / RT))
+            rate2 = bimolecular_scaling * concentration * (np.e ** (lnA - E / RT))
+        else :
+            raise ValueError('Exception in transition rate calculations.')
+        
+        return rate1, rate2
         
     """Set the rate matrix for this transition. If the target state is a final state, only subtract the outgoing rate from the diagonal. """
 
@@ -857,9 +857,6 @@ class BuilderRate(object):
                 rates.append(rate)
                 iArray.append(stateIndex[state])         
                 jArray.append(stateIndex[neighbor])
-                
-#                 iArray.append(stateIndex[neighbor])         
-#                 jArray.append(stateIndex[state])
 
     """ given the statespace, the initial states and final states, and the original builder object,
     build rate matrix for the current temperature. """
@@ -893,8 +890,6 @@ class BuilderRate(object):
         # post: N is the size of the statespace
         # post: rates[stateIndex[state]] is the diagonal for that state
 
-#         print "Setting all transitions, temperature is now " + str(self.build.options._temperature_kelvin)
-
         # first, set all transitions
         for state in self.statespace:
                 
@@ -903,7 +898,7 @@ class BuilderRate(object):
                 myRate, revRate = self.get_rate(state, neighbor)
 
                 if myRate < 0.0 or revRate < 0.0:
-                    print "FOUND negative rate!!"
+                    ValueError('Negative transition rate found.')
 
                 # This handles either state being a final state (in which case, subtract from the non-final state diagonal,
                 # but do not add the transition rate.
@@ -994,15 +989,14 @@ class BuilderRate(object):
         sumStart = 0.0
         
         for state in self.initial_states:
+            
             stateindex = self.stateIndex[state]
             sumTime += self.initial_states[state].count * times[stateindex]
             sumStart += self.initial_states[state].count
-        #             print "Initial: " + str(state) +  "Count = " + str(self.initial_states[state].count)
+
         if not bimolecular:
             return sumTime / sumStart
         else:
-            if self.build.verbosity:
-                print "Computing concentration-adjusted concentration: " + str(self.build.options.join_concentration)
             return (sumTime / sumStart) * (self.build.options.join_concentration)
 
     def __str__(self):
