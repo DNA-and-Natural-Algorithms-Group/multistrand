@@ -248,11 +248,11 @@ StrandComplex * StrandComplex::doChoice(Move * move) {
 }
 
 // used by generateLoops to handle loop traversals well.
-struct intlist {
+struct generateLoopsData {
 	int data;
 	int seqlen;
-	Loop *predec;
-	struct intlist *next;
+	Loop *predec = NULL;
+	struct generateLoopsData *next = NULL;
 };
 
 // ZIFNAB NEEDS CHANGE FOR SEQUENCE?STRUCTURE
@@ -263,7 +263,8 @@ int StrandComplex::generateLoops(void) {
 	int olseqlen = 0;
 	int openloopcount; // used to track the offset for setting up adjacencies in the open loop.
 	int depth = 0;
-	struct intlist *stacklist, *stacklisttail, *templist = NULL, *templisttail = NULL, *temp_intlist;
+	generateLoopsData *stacklist, *stacklisttail, *temp_intlist;
+	generateLoopsData *templist = NULL, *templisttail = NULL;
 	Loop *newLoop;
 	char *sequence, *structure, *charsequence;
 
@@ -289,16 +290,13 @@ int StrandComplex::generateLoops(void) {
 
 	}
 
-
 	int *pairlist = (int *) new int[strlen(sequence) + 1];
 	char *newstruc = (char *) new char[strlen(sequence) + 1];
 	char *newseq = (char *) new char[strlen(sequence) + 1];
 
-	stacklist = new struct intlist;
+	stacklist = new generateLoopsData;
 	stacklist->data = -1;
 	stacklist->seqlen = 0;
-	stacklist->predec = NULL;
-	stacklist->next = NULL;
 	stacklisttail = stacklist;
 
 	strcpy(newstruc, structure);
@@ -321,7 +319,6 @@ int StrandComplex::generateLoops(void) {
 			depth--;
 		}
 	}
-
 
 	if (depth != 0) {
 		printf("Mismatched Parens in Start Structure.");
@@ -361,12 +358,10 @@ int StrandComplex::generateLoops(void) {
 						{
 					traverse = pairlist[startpos + 1] + 1; // add one otherwise we take the same link backwards when the while loops starts.
 					startpos = startpos + 1;
-					templist = (struct intlist *) new struct intlist;
+					templist = new struct generateLoopsData;
 					templisttail = templist;
 					templist->data = startpos;
 					templist->seqlen = 0;
-					templist->predec = NULL;
-					templist->next = NULL;
 					// CHECK to make sure startpos+1 is the right index. FIXME 5/26
 					listlength++;
 				} else // we have unpaired bases after the initiating branch
@@ -410,7 +405,7 @@ int StrandComplex::generateLoops(void) {
 				if (pairlist[traverse] + 1 != startpos) // make sure this is not the initial pairing
 						{
 					if (templisttail == NULL) {
-						templist = (struct intlist *) new struct intlist;
+						templist = new struct generateLoopsData;
 						templisttail = templist;
 						templist->data = traverse;
 						templist->seqlen = seqlen;
@@ -418,7 +413,7 @@ int StrandComplex::generateLoops(void) {
 						templist->next = NULL;
 						seqlen = 0;
 					} else {
-						templisttail->next = (struct intlist *) new struct intlist;
+						templisttail->next = new struct generateLoopsData;
 						templisttail->next->data = traverse;
 						templisttail->next->seqlen = seqlen;
 						templisttail->next->predec = NULL;
@@ -438,8 +433,7 @@ int StrandComplex::generateLoops(void) {
 		// JS: classification of loop type time.
 		// classification should end up with a pointer to the new loop, newLoop.
 
-		if (olflag != -1){			// 'internal' open loop
-
+		if (olflag != -1) {			// 'internal' open loop
 
 			int *OL_sidelengths;
 			char **OL_sequences;
@@ -471,7 +465,7 @@ int StrandComplex::generateLoops(void) {
 			{
 				temp_intlist = templist;
 				for (int loop = 0; loop < listlength - 1; loop++, temp_intlist = temp_intlist->next) {
-					if (temp_intlist->data > olflag){ // this data item is after the nick.
+					if (temp_intlist->data > olflag) { // this data item is after the nick.
 						break; // cause this loop to end.
 					}
 					// temp_intlist will then be the first pairing after the nick.
@@ -698,7 +692,6 @@ string& StrandComplex::getStructure(void) {
 
 }
 
-
 char *StrandComplex::getStrandNames(void) {
 	return ordering->getStrandNames();
 }
@@ -738,7 +731,6 @@ double StrandComplex::getEnthalpy(void) {
 	return beginLoop->returnEnthalpies( NULL);
 
 }
-
 
 void StrandComplex::generateMoves(void) {
 	beginLoop->firstGen( NULL);
