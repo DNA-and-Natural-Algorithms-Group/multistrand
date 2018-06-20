@@ -258,11 +258,7 @@ struct intlist {
 // ZIFNAB NEEDS CHANGE FOR SEQUENCE?STRUCTURE
 int StrandComplex::generateLoops(void) {
 
-	int *pairlist;
-	char *newstruc;
-	char *newseq;
-
-	int loop, loop2, startpos, traverse, listlength, seqlen;
+	int startpos, traverse, listlength, seqlen;
 	int olflag = -1; // set to non -1 for internal open loops.
 	int olseqlen = 0;
 	int openloopcount; // used to track the offset for setting up adjacencies in the open loop.
@@ -294,9 +290,9 @@ int StrandComplex::generateLoops(void) {
 	}
 
 
-	pairlist = (int *) new int[strlen(sequence) + 1];
-	newstruc = (char *) new char[strlen(sequence) + 1];
-	newseq = (char *) new char[strlen(sequence) + 1];
+	int *pairlist = (int *) new int[strlen(sequence) + 1];
+	char *newstruc = (char *) new char[strlen(sequence) + 1];
+	char *newseq = (char *) new char[strlen(sequence) + 1];
 
 	stacklist = new struct intlist;
 	stacklist->data = -1;
@@ -307,13 +303,13 @@ int StrandComplex::generateLoops(void) {
 
 	strcpy(newstruc, structure);
 
-	for (loop = 0; loop < strlen(sequence); loop++) {
+	for (int loop = 0; loop < strlen(sequence); loop++) {
 		newseq[loop] = baseLookup(charsequence[loop]);
 		pairlist[loop] = -1;
 		if (structure[loop] == '(')
 			depth++;
 		else if (structure[loop] == ')') {
-			for (loop2 = loop; loop2 >= 0; loop2--) {
+			for (int loop2 = loop; loop2 >= 0; loop2--) {
 				if (newstruc[loop2] == '(') {
 					newstruc[loop2] = '.';
 					newstruc[loop] = '.';
@@ -351,6 +347,7 @@ int StrandComplex::generateLoops(void) {
 
 	while (stacklist != NULL) // as long as we have unexplored base pairs on the stack, keep going.
 	{
+
 		templist = NULL;
 		templisttail = NULL;
 		listlength = 0;
@@ -473,7 +470,7 @@ int StrandComplex::generateLoops(void) {
 				   //    adjacent to the nick.
 			{
 				temp_intlist = templist;
-				for (loop = 0; loop < listlength - 1; loop++, temp_intlist = temp_intlist->next) {
+				for (int loop = 0; loop < listlength - 1; loop++, temp_intlist = temp_intlist->next) {
 					if (temp_intlist->data > olflag){ // this data item is after the nick.
 						break; // cause this loop to end.
 					}
@@ -485,7 +482,7 @@ int StrandComplex::generateLoops(void) {
 					OL_sidelengths[0] = seqlen - olseqlen;
 				else
 					OL_sidelengths[0] = temp_intlist->seqlen - olseqlen;
-				for (loop = 0; loop < listlength; loop++) {
+				for (int loop = 0; loop < listlength; loop++) {
 					if (temp_intlist == NULL) {
 						temp_intlist = templist;
 						openloopcount = -openloopcount - 1;
@@ -533,7 +530,7 @@ int StrandComplex::generateLoops(void) {
 				// Possibly a problem here, need to make sure sequences get paired correctly with lengths. FIXME
 				OL_sequences[0] = ordering->convertIndex(stacklist->data);
 				OL_sidelengths[listlength] = seqlen;
-				for (loop = 0; loop < listlength; loop++, temp_intlist = temp_intlist->next) {
+				for (int loop = 0; loop < listlength; loop++, temp_intlist = temp_intlist->next) {
 					OL_sidelengths[loop] = temp_intlist->seqlen;
 					OL_sequences[loop + 1] = ordering->convertIndex(pairlist[temp_intlist->data]);
 				}
@@ -563,7 +560,7 @@ int StrandComplex::generateLoops(void) {
 			// JS: new code for pairtypes, sidelengths, seqs for multiloop, matching sequencing correctly.
 			ML_sidelengths[0] = temp_intlist->seqlen;
 			ML_sequences[1] = ordering->convertIndex(pairlist[temp_intlist->data]);
-			for (loop = 1; loop < listlength; loop++) {
+			for (int loop = 1; loop < listlength; loop++) {
 				temp_intlist = temp_intlist->next;
 				if (loop == listlength - 1) {
 					ML_sidelengths[loop] = seqlen;

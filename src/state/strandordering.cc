@@ -606,7 +606,7 @@ OpenLoop* StrandOrdering::getIndex(JoinCriteria& crit, int site, char **location
 // void addOpenLoop( OpenLoop *newLoop, int index)
 // 
 
-void StrandOrdering::addOpenLoop(OpenLoop *newLoop, int index) {
+void StrandOrdering::addOpenLoop(OpenLoop *newLoop, const int index) {
 
 	openInfo.upToDate = false;
 

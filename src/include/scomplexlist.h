@@ -77,9 +77,7 @@ public:
 	void regenerateMoves(void);
 	void fillData(EnergyModel *em);
 	string toString(EnergyModel *em);
-//	void dumpComplexEntryToPython(int *our_id, char **names, char **sequence, char **structure, double *our_energy, double *our_enthalpy);
 	void dumpComplexEntryToPython(ExportData& data);
-//	void dumpComplexEntryToPython(int *our_id, char **names, string* sequence, string* structure, double *our_energy, double *our_enthalpy);
 
 	int id;
 	StrandComplex* thisComplex;

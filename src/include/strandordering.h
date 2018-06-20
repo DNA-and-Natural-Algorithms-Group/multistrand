@@ -55,7 +55,7 @@ public:
 	bool convertIndexCheckBounds(int index);
 
 	// addOpenLoop links up the appropriate strand with the open loop involving the nick immediately before that strand in the ordering.
-	void addOpenLoop(OpenLoop *newLoop, int index);
+	void addOpenLoop(OpenLoop *newLoop, const int index);
 
 	// end functions for SComplex::generateLoops()
 
