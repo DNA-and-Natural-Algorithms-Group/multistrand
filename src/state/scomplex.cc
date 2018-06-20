@@ -267,8 +267,7 @@ int StrandComplex::generateLoops(void) {
 	int olseqlen = 0;
 	int openloopcount; // used to track the offset for setting up adjacencies in the open loop.
 	int depth = 0;
-	struct intlist *stacklist, *stacklisttail, *templist = NULL, *templisttail =
-	NULL, *temp_intlist;
+	struct intlist *stacklist, *stacklisttail, *templist = NULL, *templisttail = NULL, *temp_intlist;
 	Loop *newLoop;
 	char *sequence, *structure, *charsequence;
 
@@ -574,8 +573,9 @@ int StrandComplex::generateLoops(void) {
 				{
 			newLoop = new BulgeLoop(templist->seqlen, seqlen, ordering->convertIndex(startpos - 1), ordering->convertIndex(pairlist[templist->data]), NULL,
 			NULL);
-		} else if (1) // Error-generating Loop
-		{
+		} else {
+
+			throw std::bad_alloc();
 			// This should never happen.
 		}
 

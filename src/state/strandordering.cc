@@ -443,7 +443,7 @@ void StrandOrdering::generateFlatSequence(char **sequence, char **structure, cha
 
 // JS: converts an index into a flat char sequence returned by generateFlatSequence
 // into an appropriate pointer into the particular strand's code sequence.
-char* StrandOrdering::convertIndex(int index) {
+char* StrandOrdering::convertIndex(const int index) {
 
 	int cpos, cstrand;
 	orderingList *traverse;
