@@ -441,8 +441,9 @@ int StrandComplex::generateLoops(void) {
 		// JS: classification of loop type time.
 		// classification should end up with a pointer to the new loop, newLoop.
 
-		if (olflag != -1)			// 'internal' open loop
-				{
+		if (olflag != -1){			// 'internal' open loop
+
+
 			int *OL_sidelengths;
 			char **OL_sequences;
 
