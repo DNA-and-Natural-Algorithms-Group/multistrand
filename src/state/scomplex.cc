@@ -271,11 +271,28 @@ int StrandComplex::generateLoops(void) {
 	Loop *newLoop;
 	char *sequence, *structure, *charsequence;
 
+	if (utility::debugTraces) {
+		cout << "generating flat sequences. \n " << flush;
+	}
+
 	// ZIFNAB: begin work here 8/2.
 	// ZIFNAB: done, completed change to convertIndex notation.
 	// ZIFNAB: more work 8/22: sequence, charsequence are used oddly, which one is actually the character sequence? do loops get the character sequence or the code sequence pointer?
 	// ZIFNAB: completed: sequence is the code sequence, which has translated A/G/C/T but non translated special characters. get index should be returning into the code sequence.
 	ordering->generateFlatSequence(&charsequence, &structure, &sequence);
+
+	if (utility::debugTraces) {
+		cout << "\n Generating loops for cseq = " << string(charsequence) << ", struct =  " << string(structure) << " seq = ";
+
+		for (int loop = 0; loop < strlen(sequence); loop++) {
+
+			cout << (int) sequence[loop] << " - ";
+
+		}
+		cout << endl << flush;
+
+	}
+
 
 	pairlist = (int *) new int[strlen(sequence) + 1];
 	newstruc = (char *) new char[strlen(sequence) + 1];
