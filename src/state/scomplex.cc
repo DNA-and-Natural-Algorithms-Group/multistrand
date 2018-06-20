@@ -352,10 +352,11 @@ int StrandComplex::generateLoops(void) {
 		startpos = stacklist->data;
 
 		if (startpos != -1) {
+
 			if (pairlist[startpos] != -1) {
 
-				if (pairlist[startpos + 1] != -1) // there was an immediate connection after the starting position. Stack or bulge, typically.
-						{
+				if (pairlist[startpos + 1] != -1) { // there was an immediate connection after the starting position. Stack or bulge, typically.
+
 					traverse = pairlist[startpos + 1] + 1; // add one otherwise we take the same link backwards when the while loops starts.
 					startpos = startpos + 1;
 					templist = new struct generateLoopsData;
@@ -364,20 +365,26 @@ int StrandComplex::generateLoops(void) {
 					templist->seqlen = 0;
 					// CHECK to make sure startpos+1 is the right index. FIXME 5/26
 					listlength++;
-				} else // we have unpaired bases after the initiating branch
-				{
+
+				} else { // we have unpaired bases after the initiating branch
+
 					traverse = startpos + 2;
 					startpos++;
 					seqlen++;
 				}
+
 			} else {
+
 				traverse = startpos + 1;
 				seqlen++;
 			}
-		} else // startpos == -1
-		{
+
+		} else { // startpos == -1
+
 			traverse = startpos + 1;
+
 		}
+
 		if (startpos >= 0)
 			if (sequence[startpos] == '_' || sequence[startpos] == '+') {
 				//	    printf("Open Loop at olflag = %d\n",startpos);
@@ -409,15 +416,11 @@ int StrandComplex::generateLoops(void) {
 						templisttail = templist;
 						templist->data = traverse;
 						templist->seqlen = seqlen;
-						templist->predec = NULL;
-						templist->next = NULL;
 						seqlen = 0;
 					} else {
 						templisttail->next = new struct generateLoopsData;
 						templisttail->next->data = traverse;
 						templisttail->next->seqlen = seqlen;
-						templisttail->next->predec = NULL;
-						templisttail->next->next = NULL;
 						seqlen = 0;
 						templisttail = templisttail->next;
 					}
@@ -621,11 +624,12 @@ int StrandComplex::generateLoops(void) {
 		templist->next = NULL;
 		delete templist;
 
-		// newLoop = NULL;   // uncomment this when all forks are implemented.
+		newLoop = NULL;   // uncomment this when all forks are implemented.
 	}
 	delete[] pairlist;
 	delete[] newstruc;
 	delete[] newseq;
+
 	if (sequence != NULL)
 		delete[] sequence;
 	if (structure != NULL)
