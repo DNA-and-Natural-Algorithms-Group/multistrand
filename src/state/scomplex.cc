@@ -288,12 +288,13 @@ int StrandComplex::generateLoops(void) {
 		}
 		cout << endl << flush;
 		cout << "strlen(sequence) is " << strlen(sequence) << endl << flush;
+		cout << "sizeof(sequence) is " << sizeof(sequence) << endl << flush;
 
 	}
 
-//	const int mySize =
-	int *pairlist = (int *) new int[strlen(sequence) + 1];
-//	std::array<int, sizeof(sequence)+1> pairlist{};
+//	int *pairlist = (int *) new int[strlen(sequence) + 1];
+	std::array<int, sizeof(sequence) + 2> pairlist;
+	pairlist[sizeof(sequence) + 1] = 0;
 
 	char *newstruc = (char *) new char[strlen(sequence) + 1];
 	char *newseq = (char *) new char[strlen(sequence) + 1];
