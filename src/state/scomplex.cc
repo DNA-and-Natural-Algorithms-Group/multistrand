@@ -283,18 +283,17 @@ int StrandComplex::generateLoops(void) {
 
 		for (int loop = 0; loop < strlen(sequence); loop++) {
 
-			cout << (int) sequence[loop] << " - ";
+			cout << (int) sequence[loop] << ",  ";
 
 		}
 		cout << endl << flush;
 		cout << "strlen(sequence) is " << strlen(sequence) << endl << flush;
-		cout << "sizeof(sequence) is " << sizeof(sequence) << endl << flush;
 
 	}
 
-//	int *pairlist = (int *) new int[strlen(sequence) + 1];
-	std::array<int, sizeof(sequence) + 2> pairlist;
-	pairlist[sizeof(sequence) + 1] = 0;
+	int *pairlist = (int *) new int[strlen(sequence) + 1];
+//	std::vector<int> pairlist (strlen(sequence) + 1);
+//	pairlist[sizeof(sequence) + 1] = 0;
 
 	char *newstruc = (char *) new char[strlen(sequence) + 1];
 	char *newseq = (char *) new char[strlen(sequence) + 1];
@@ -336,9 +335,31 @@ int StrandComplex::generateLoops(void) {
 
 		for (int loop = 0; loop < (strlen(sequence) + 1); loop++) {
 
-			cout << pairlist[loop] << " - ";
+			cout << pairlist[loop] << ", ";
 
 		}
+
+		cout << endl << flush;
+
+
+//		cout << "newstruc = ";
+//
+//		for (int loop = 0; loop < (strlen(sequence) + 1); loop++) {
+//
+//			cout << newstruc[loop] << ", ";
+//
+//		}
+//
+//		cout << endl << flush;
+//
+//
+//		cout << "newseq = ";
+//
+//		for (int loop = 0; loop < (strlen(sequence) + 1); loop++) {
+//
+//			cout << (int) newseq[loop] << ", ";
+//
+//		}
 
 		cout << endl << flush;
 

@@ -71,7 +71,7 @@ def doSims(strandSeq, numTraj=2):
 if __name__ == '__main__':
     
     print sys.argv
-    doSims( "GCGTTTCAC",1)
+    doSims( "GCGT",1)
          
         
         
