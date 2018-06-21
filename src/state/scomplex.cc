@@ -441,6 +441,8 @@ int StrandComplex::generateLoops(void) {
 			int *OL_sidelengths;
 			char **OL_sequences;
 
+//			cout << "List length = " << listlength << endl << flush;
+
 			openloopcount = 0;
 			// listlength is at least one.
 			OL_sidelengths = (int *) new int[listlength + 1];
@@ -474,7 +476,7 @@ int StrandComplex::generateLoops(void) {
 					// temp_intlist will then be the first pairing after the nick.
 				}
 
-				OL_sequences[0] = ordering->convertIndex(olflag);
+				OL_sequences[0] = ordering->convertIndex(olflag); // label a
 				if (temp_intlist == NULL)
 					OL_sidelengths[0] = seqlen - olseqlen;
 				else

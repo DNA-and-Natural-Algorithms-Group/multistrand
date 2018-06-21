@@ -421,6 +421,10 @@ void StrandOrdering::generateFlatSequence(char **sequence, char **structure, cha
 	*structure = new char[totallength];
 	*code_sequence = new char[totallength];
 
+	if (utility::debugTraces){
+		cout << "Total length = " << totallength << endl << flush;
+	}
+
 	for (index = 0, cpos = 0, traverse = first; index < count; index++, traverse = traverse->next) {
 		strncpy(&((*sequence)[cpos]), traverse->thisSeq, traverse->size);
 		strncpy(&((*structure)[cpos]), traverse->thisStruct, traverse->size);
