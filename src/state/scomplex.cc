@@ -287,10 +287,14 @@ int StrandComplex::generateLoops(void) {
 
 		}
 		cout << endl << flush;
+		cout << "strlen(sequence) is " << strlen(sequence) << endl << flush;
 
 	}
 
+//	const int mySize =
 	int *pairlist = (int *) new int[strlen(sequence) + 1];
+//	std::array<int, sizeof(sequence)+1> pairlist{};
+
 	char *newstruc = (char *) new char[strlen(sequence) + 1];
 	char *newseq = (char *) new char[strlen(sequence) + 1];
 
@@ -323,6 +327,20 @@ int StrandComplex::generateLoops(void) {
 	if (depth != 0) {
 		printf("Mismatched Parens in Start Structure.");
 		return -1;
+	}
+
+	if (utility::debugTraces) {
+
+		cout << "pairlist = ";
+
+		for (int loop = 0; loop < (strlen(sequence) + 1); loop++) {
+
+			cout << pairlist[loop] << " - ";
+
+		}
+
+		cout << endl << flush;
+
 	}
 
 	/* Algorithm which the following while loop implements:
@@ -628,7 +646,7 @@ int StrandComplex::generateLoops(void) {
 
 		newLoop = NULL;   // uncomment this when all forks are implemented.
 	}
-	delete[] pairlist;
+//	delete[] pairlist;
 	delete[] newstruc;
 	delete[] newseq;
 
