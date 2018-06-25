@@ -34,7 +34,7 @@ def setup_ext( ):
                           include_dirs=["./src/include"],
                           language="c++",
                         undef_macros=['NDEBUG'],
-                        extra_compile_args = ['-O3','-g', '-w', "-std=c++11", ], #FD: adding c++11 flag 
+                        extra_compile_args = ['-O3', '-w', "-std=c++11", ], #FD: adding c++11 flag 
                           )
     return multi_ext
 

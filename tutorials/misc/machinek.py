@@ -24,7 +24,7 @@ from multistrand.objects import StopCondition, Domain, Complex, Strand
 from multistrand.options import Options, Literals
 
 myMultistrand = MergeSim()
-myMultistrand.setNumOfThreads(8)
+myMultistrand.setNumOfThreads(2)
 
 
 """
@@ -144,11 +144,11 @@ def machinek2014(options, selector, trialsIn):
     if(trialsIn > 0):
         setBoltzmann(initialComplex, trialsIn)
         setBoltzmann(initialInvader, trialsIn)
-        initialComplex.boltzmann_supersample = 25
-        initialInvader.boltzmann_supersample = 25
+        initialComplex.boltzmann_supersample = 1
+        initialInvader.boltzmann_supersample = 1
 
-    stopSuccess = StopCondition(Literals.success, [(successComplex, Options.dissoc_macrostate, 0)])
-    stopFailed = StopCondition(Literals.failure, [(initialComplex, Options.dissoc_macrostate, 0)])
+    stopSuccess = StopCondition(Literals.success, [(successComplex, Literals.dissoc_macrostate, 0)])
+    stopFailed = StopCondition(Literals.failure, [(initialComplex, Literals.dissoc_macrostate, 0)])
     
     # actually set the intial and stopping states    
     options.start_state = [initialComplex, initialInvader]
@@ -164,7 +164,7 @@ def openDocument(document):
 # trials has to be the first argument.
 def genOptions(trialsIn, select):
 
-    stdOptions = standardOptions(Options.firstStep, tempIn=23.0, trials=trialsIn, timeOut=0.1)
+    stdOptions = standardOptions(Literals.first_step, tempIn=23.0, trials=trialsIn, timeOut=100.0)
     stdOptions.sodium = expSodium(select)
     stdOptions.magnesium = expMagnesium(select)
     stdOptions.join_concentration = 5e-9
@@ -236,7 +236,7 @@ def generateGraph(trials=15):
     simRates = []
     realRates = []
     
-    for select in range(0,12):
+    for select in range(12,24):
         simRates.append( np.log10(computeRate(select, trials)))
         realRates.append( np.log10(measuredRate(select)))
         
