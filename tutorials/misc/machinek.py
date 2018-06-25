@@ -16,6 +16,9 @@ import matplotlib.lines as lines
 
 import numpy as np
 
+import matplotlib
+matplotlib.use('Agg')
+
 from matplotlib.ticker import ScalarFormatter
 
 from multistrand.concurrent import MergeSim, FirstStepRate, Bootstrap
@@ -24,7 +27,7 @@ from multistrand.objects import StopCondition, Domain, Complex, Strand
 from multistrand.options import Options, Literals
 
 myMultistrand = MergeSim()
-myMultistrand.setNumOfThreads(2)
+myMultistrand.setNumOfThreads(8)
 
 
 """
@@ -144,8 +147,6 @@ def machinek2014(options, selector, trialsIn):
     if(trialsIn > 0):
         setBoltzmann(initialComplex, trialsIn)
         setBoltzmann(initialInvader, trialsIn)
-        initialComplex.boltzmann_supersample = 1
-        initialInvader.boltzmann_supersample = 1
 
     stopSuccess = StopCondition(Literals.success, [(successComplex, Literals.dissoc_macrostate, 0)])
     stopFailed = StopCondition(Literals.failure, [(initialComplex, Literals.dissoc_macrostate, 0)])
@@ -179,7 +180,7 @@ def genOptions(trialsIn, select):
 def computeRate(select, trials):
     
     myMultistrand.setOptionsFactory2(genOptions, trials, select) 
-    myMultistrand.setTerminationCriteria(5)
+    myMultistrand.setTerminationCriteria(12)
     myMultistrand.setLeakMode() # the new leak object -- faster bootstrapping.
     myMultistrand.run()
     
@@ -236,7 +237,7 @@ def generateGraph(trials=15):
     simRates = []
     realRates = []
     
-    for select in range(12,24):
+    for select in range(0,12):
         simRates.append( np.log10(computeRate(select, trials)))
         realRates.append( np.log10(measuredRate(select)))
         
@@ -263,7 +264,7 @@ if __name__ == '__main__':
         print("No commandline arguments required. Aborting program.")
         exit()
     
-    generateGraph(80)
+    generateGraph(240)
 
 
 
