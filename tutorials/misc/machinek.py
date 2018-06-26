@@ -10,11 +10,18 @@
 
 import sys, os
 
+
+import matplotlib
+matplotlib.use('Agg')
+
+
+
 import xlrd
 import matplotlib.pyplot as plt
 import matplotlib.lines as lines
 
 import numpy as np
+
 
 from matplotlib.ticker import ScalarFormatter
 
@@ -141,11 +148,9 @@ def machinek2014(options, selector, trialsIn):
     if(trialsIn > 0):
         setBoltzmann(initialComplex, trialsIn)
         setBoltzmann(initialInvader, trialsIn)
-        initialComplex.boltzmann_supersample = 25
-        initialInvader.boltzmann_supersample = 25
 
-    stopSuccess = StopCondition(Literals.success, [(successComplex, Options.dissoc_macrostate, 0)])
-    stopFailed = StopCondition(Literals.failure, [(initialComplex, Options.dissoc_macrostate, 0)])
+    stopSuccess = StopCondition(Literals.success, [(successComplex, Literals.dissoc_macrostate, 0)])
+    stopFailed = StopCondition(Literals.failure, [(initialComplex, Literals.dissoc_macrostate, 0)])
     
     # actually set the intial and stopping states    
     options.start_state = [initialComplex, initialInvader]
@@ -162,14 +167,17 @@ def openDocument(document):
 # trials has to be the first argument.
 def genOptions(trialsIn, select):
 
-    stdOptions = standardOptions(Options.firstStep, tempIn=23.0, trials=trialsIn, timeOut=0.1)
+    stdOptions = standardOptions(Literals.first_step, tempIn=23.0, trials=trialsIn, timeOut=100.0)
     stdOptions.sodium = expSodium(select)
     stdOptions.magnesium = expMagnesium(select)
     stdOptions.join_concentration = 5e-9
     
     # set the DNA23 parameters
-    stdOptions.DNA23Metropolis()
-    
+#    stdOptions.DNA23Metropolis()
+    stdOptions.DNA23Arrhenius()   
+
+
+ 
     machinek2014(stdOptions, select, trialsIn)
     return stdOptions
 
@@ -177,8 +185,8 @@ def genOptions(trialsIn, select):
 def computeRate(select, trials):
     
     myMultistrand.setOptionsFactory2(genOptions, trials, select) 
-    myMultistrand.setTerminationCriteria(5)
-    myMultistrand.setLeakMode()  # the new leak object -- faster bootstrapping.
+    myMultistrand.setTerminationCriteria(12)
+    myMultistrand.setLeakMode() # the new leak object -- faster bootstrapping.
     myMultistrand.run()
     
     myFSR = myMultistrand.results  
@@ -273,5 +281,5 @@ if __name__ == '__main__':
         print("No commandline arguments required. Aborting program.")
         exit()
     
-    generateGraph(80)
+    generateGraph(240)
 
