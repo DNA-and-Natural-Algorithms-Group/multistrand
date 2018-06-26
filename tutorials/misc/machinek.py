@@ -10,14 +10,18 @@
 
 import sys, os
 
+
+import matplotlib
+matplotlib.use('Agg')
+
+
+
 import xlrd
 import matplotlib.pyplot as plt
 import matplotlib.lines as lines
 
 import numpy as np
 
-import matplotlib
-matplotlib.use('Agg')
 
 from matplotlib.ticker import ScalarFormatter
 
@@ -171,8 +175,11 @@ def genOptions(trialsIn, select):
     stdOptions.join_concentration = 5e-9
     
     # set the DNA23 parameters
-    stdOptions.DNA23Metropolis()
-    
+#    stdOptions.DNA23Metropolis()
+    stdOptions.DNA23Arrhenius()   
+
+
+ 
     machinek2014(stdOptions, select, trialsIn)
     return stdOptions
 
