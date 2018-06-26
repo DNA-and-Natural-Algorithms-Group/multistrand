@@ -186,8 +186,7 @@ def computeRate(select, trials):
     myFSR = myMultistrand.results  
     low, high = myFSR.doBootstrap()
     
-    
-    return myFSR.k1()
+    return myFSR.k1(), low, high 
 
 def excelSelect(select):
     # Flip the row -- simply how the excell is formatted
@@ -234,17 +233,25 @@ def generateGraph(trials=15):
     plt.xlabel('Mismatch position (nt)',fontsize = 19)
     
     simRates = []
+    simlow = []
+    simHigh = []
     realRates = []
     
     for select in range(0,12):
-        simRates.append( np.log10(computeRate(select, trials)))
+                
+        rate, low, high = computeRate(select, trials)
+        
+        simRates.append( np.log10(rate))
+        simLow.append( np.log10(low))
+        simHigh.append(np.log10(high))  
+        
         realRates.append( np.log10(measuredRate(select)))
         
     print simRates
     print realRates
     
     ax.plot(positionSelector, realRates, linewidth=2)
-    ax.plot(positionSelector, simRates, linewidth=2, linestyle = '--')
+    ax.plot(positionSelector, simRates, yerr = [simLow, simHigh], linewidth=2, linestyle = '--')
         
     #plt.show()
     
