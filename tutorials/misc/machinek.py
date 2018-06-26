@@ -26,7 +26,6 @@ from multistrand.options import Options, Literals
 myMultistrand = MergeSim()
 myMultistrand.setNumOfThreads(8)
 
-
 """
  Figure 2d has 3x12 = 36 rates plotted. 
  Input: 0 <= selector < 36  
@@ -64,7 +63,6 @@ def machinek2014(options, selector, trialsIn):
     if toeholdSelect == 2 :
         toeholdSeq = "ATGTGGAGGG"  # 10 nt toehold option
 
-
     # determine the incumbent, target and invader sequences
     # FD: copy-pasting supplementary Table 6 directly
 
@@ -93,7 +91,6 @@ def machinek2014(options, selector, trialsIn):
         incumbent = "TGGTGTTTGTGGGTGTGGTGAGTTTGAGTGAGT"
         target = "CCCTCCACATACTCACTCAAACTCACC"
         invader = "GGTGAGTTTGAGTCAGT"
-
 
     if mismatchSelect == 5:
         incumbent = "TGGTGTTTGTGGGTGTGGTGAGTTTGATGAGGT"
@@ -161,6 +158,7 @@ def openDocument(document):
     row = reader.sheet_by_index(0)
     return row            
 
+
 # trials has to be the first argument.
 def genOptions(trialsIn, select):
 
@@ -180,7 +178,7 @@ def computeRate(select, trials):
     
     myMultistrand.setOptionsFactory2(genOptions, trials, select) 
     myMultistrand.setTerminationCriteria(5)
-    myMultistrand.setLeakMode() # the new leak object -- faster bootstrapping.
+    myMultistrand.setLeakMode()  # the new leak object -- faster bootstrapping.
     myMultistrand.run()
     
     myFSR = myMultistrand.results  
@@ -188,13 +186,15 @@ def computeRate(select, trials):
     
     return myFSR.k1(), low, high 
 
+
 def excelSelect(select):
     # Flip the row -- simply how the excell is formatted
     toeholdSelect = select / 12 
     mismatchSelect = select % 12
     
-    #offset one for header
+    # offset one for header
     return 1 + 12 * (2 - toeholdSelect) + mismatchSelect
+
 
 def excelFind(row, col):
     dir = os.path.dirname(__file__)
@@ -203,63 +203,66 @@ def excelFind(row, col):
     
     return myDoc.cell(row, col).value
 
+
 def expSodium(select):
-    return excelFind(excelSelect(select),13)
+    return excelFind(excelSelect(select), 13)
+
 
 def expMagnesium(select):
-    return excelFind(excelSelect(select),14)
+    return excelFind(excelSelect(select), 14)
+
 
 def measuredRate(select):
-    return excelFind(excelSelect(select),9)
+    return excelFind(excelSelect(select), 9)
 
 
 def generateGraph(trials=15):
     
-    
-    fig , ax= plt.subplots() 
-    plt.title  ("Machinek Plot" , fontsize = 24) 
-    plt.ylabel ( r"$\mathregular{K(M^{-1}s^{-1})}$",  fontsize = 19)
-
+    fig , ax = plt.subplots() 
+    plt.title  ("Machinek Plot" , fontsize=24) 
+    plt.ylabel (r"$\mathregular{K(M^{-1}s^{-1})}$", fontsize=19)
 
     ax.xaxis.set_major_formatter(ScalarFormatter())
-    plt.xticks([1,2,4,6,8,10,12,14,16])
+    plt.xticks([1, 2, 4, 6, 8, 10, 12, 14, 16])
     xticks = ax.xaxis.get_major_ticks()
     xticks[0].label1.set_visible(False)
     
     axes = plt.gca()
-#    axes.set_ylim([10**2,10**8])
-    axes.set_ylim([2,8])
-    #plt.yticks(np.arange(100, 10**7 ,  2))
-    plt.xlabel('Mismatch position (nt)',fontsize = 19)
+    axes.set_ylim([2, 8])
+    plt.xlabel('Mismatch position (nt)', fontsize=19)
+
+    colors = ['green', 'blue', 'black']
     
-    simRates = []
-    simlow = []
-    simHigh = []
-    realRates = []
-    
-    for select in range(0,12):
-                
-        rate, low, high = computeRate(select, trials)
+    for i in range(3):
+
+        simRates = []
+        simlow = []
+        simHigh = []
+        realRates = []
+
+        for select in range(12 * i + 0, 12 * i + 12):
+                    
+            rate, low, high = computeRate(select, trials)
+            
+            simRates.append(np.log10(rate))
+            simLow.append(np.log10(low))
+            simHigh.append(np.log10(high))  
+            
+            realRates.append(np.log10(measuredRate(select)))
+            
+        print simRates
+        print realRates
         
-        simRates.append( np.log10(rate))
-        simLow.append( np.log10(low))
-        simHigh.append(np.log10(high))  
+        ax.plot(positionSelector, realRates, linewidth=2, color=colors[i])
+        ax.plot(positionSelector, simRates, yerr=[simLow, simHigh], linewidth=2, linestyle='--', color=colors[i])
         
-        realRates.append( np.log10(measuredRate(select)))
-        
-    print simRates
-    print realRates
-    
-    ax.plot(positionSelector, realRates, linewidth=2)
-    ax.plot(positionSelector, simRates, yerr = [simLow, simHigh], linewidth=2, linestyle = '--')
-        
-    #plt.show()
+    # plt.show()
     
     filename = "plot" 
     if not os.path.exists(filename):
         os.makedirs(filename)
         
-    plt.savefig(filename +'/machinek2014'+'.pdf', bbox_inches='tight')
+    plt.savefig(filename + '/machinek2014' + '.pdf', bbox_inches='tight')
     plt.close(fig) 
     
     
@@ -271,30 +274,4 @@ if __name__ == '__main__':
         exit()
     
     generateGraph(80)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
