@@ -928,39 +928,39 @@ class BuilderRate(object):
         Computes the first passage times
     """
 
-    def averageTime(self, x0=None):
+    def averageTime(self, x0=None,  maxiter=None):
         
         startTime = time.time()
         
         if self.solveToggle == 1:
-            firstpassagetimes, info = bicg(self.rate_matrix_csr, self.b, x0=x0)
+            firstpassagetimes, info = bicg(self.rate_matrix_csr, self.b, x0=x0,  maxiter=maxiter)
             
         elif self.solveToggle == 2:
-            firstpassagetimes, info = bicg(self.rate_matrix_csr, self.b, M=self.rate_matrix_inverse, x0=x0)
+            firstpassagetimes, info = bicg(self.rate_matrix_csr, self.b, M=self.rate_matrix_inverse, x0=x0,  maxiter=maxiter)
             
         elif self.solveToggle == 3:
-            firstpassagetimes, info = bicgstab(self.rate_matrix_csr, self.b , x0=x0)
+            firstpassagetimes, info = bicgstab(self.rate_matrix_csr, self.b , x0=x0,  maxiter=maxiter)
             
         elif self.solveToggle == 4:
-            firstpassagetimes, info = bicgstab(self.rate_matrix_csr, self.b, M=self.rate_matrix_inverse, x0=x0)
+            firstpassagetimes, info = bicgstab(self.rate_matrix_csr, self.b, M=self.rate_matrix_inverse, x0=x0,  maxiter=maxiter)
             
         elif self.solveToggle == 5:
-            firstpassagetimes, info = gmres(self.rate_matrix_csr, self.b, x0=x0)
+            firstpassagetimes, info = gmres(self.rate_matrix_csr, self.b, x0=x0,  maxiter=maxiter)
         
         elif self.solveToggle == 6:
-            firstpassagetimes, info = gmres(self.rate_matrix_csr, self.b, M=self.rate_matrix_inverse, x0=x0)
+            firstpassagetimes, info = gmres(self.rate_matrix_csr, self.b, M=self.rate_matrix_inverse, x0=x0,  maxiter=maxiter)
         
         elif self.solveToggle == 7:
-            firstpassagetimes, info = cg(self.rate_matrix_csr, self.b, x0=x0)
+            firstpassagetimes, info = cg(self.rate_matrix_csr, self.b, x0=x0,  maxiter=maxiter)
         
         elif self.solveToggle == 8:
-            firstpassagetimes, info = cg(self.rate_matrix_csr, self.b, M=self.rate_matrix_inverse, x0=x0)
+            firstpassagetimes, info = cg(self.rate_matrix_csr, self.b, M=self.rate_matrix_inverse, x0=x0,  maxiter=maxiter)
         
         elif self.solveToggle == 9:
-            firstpassagetimes, info = lgmres(self.rate_matrix_csr, self.b, x0=x0)
+            firstpassagetimes, info = lgmres(self.rate_matrix_csr, self.b, x0=x0,  maxiter=maxiter)
         
         elif self.solveToggle == 10:
-            firstpassagetimes, info = lgmres(self.rate_matrix_csr, self.b, M=self.rate_matrix_inverse, x0=x0)
+            firstpassagetimes, info = lgmres(self.rate_matrix_csr, self.b, M=self.rate_matrix_inverse, x0=x0,  maxiter=maxiter)
         
         else:
             firstpassagetimes = spsolve(self.rate_matrix_csr, self.b)
