@@ -64,7 +64,7 @@ def timings(seq, nTrials, deltaPruning=None):
         startTime = time.time()
         
         myBuilder = Builder(sett.function, sett.arguments)
-        myBuilder.genUntilConvergenceWithInitialState(CONVERGENCE_CRIT, startStates[:(len(startStates) - 1)], printMeanTime=True)
+        myBuilder.genUntilConvergenceWithInitialState(CONVERGENCE_CRIT , startStates[:(len(startStates) - 1)], printMeanTime=True)
 
         if not deltaPruning == None:
             print "Going to delta prune with %.2E" %deltaPruning
@@ -75,7 +75,8 @@ def timings(seq, nTrials, deltaPruning=None):
      
         startTime = time.time()
         output.rates.append(np.log10(1.0 / builderRate.averageTimeFromInitial(bimolecular=True)))
-        print "Rate = %.2E, time =  %.2f" % (output.rates[-1], output.buildTime[-1])
+        pruned_mfpt = builderRate.averageTimeFromInitial(bimolecular = False )
+        print "Rate = %.2E, MFPT = %.2E, compute_time =  %.2f \n\n " % (output.rates[-1], pruned_mfpt,  output.buildTime[-1])
         output.matrixTime.append(time.time() - startTime)
         output.nStates.append(len(builderRate.statespace))
      
