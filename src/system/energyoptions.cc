@@ -67,7 +67,7 @@ double EnergyOptions::getJoinConcentration(void) {
 
 bool EnergyOptions::usingArrhenius(void) {
 
-	return useArrRates;
+	return (3 == kinetic_rate_method);
 
 }
 
@@ -79,7 +79,7 @@ double EnergyOptions::getBiScale(void) {
 
 double EnergyOptions::getUniScale(void) {
 
-	if (useArrRates) {
+	if (usingArrhenius()) {
 		return 1.0;
 	} else {
 		return uniScale;
@@ -128,15 +128,8 @@ PEnergyOptions::PEnergyOptions(PyObject* input) :
 
 	getDoubleAttr(python_settings, join_concentration, &joinConcentration);
 
-	// FD: If using the Arrhenius model, switch back to Metropolis and toggle useArr
-	// FD: Fix this to directly check for Arrhenius instead.
-	if(3 == kinetic_rate_method){
-		kinetic_rate_method = 1;
-		useArrRates = true;
-	}
 
-
-	if(!useArrRates && biScale < 0.0){
+	if(!usingArrhenius() && biScale < 0.0){
 		cout << "Warning! bimolecular_scaling is unset or negative!" << endl;
 		cout <<	"Please set them using multistrand::utils::XPMetropolis37() or similar,"<< endl;
 		cout <<	"or set Options.bimolecular_scaling directly."<< endl;
@@ -146,7 +139,7 @@ PEnergyOptions::PEnergyOptions(PyObject* input) :
 
 	}
 
-	if(!useArrRates && uniScale < 0.0){
+	if(!usingArrhenius() && uniScale < 0.0){
 		cout << "Warning! unimolecular_scaling is unset or negative!"<< endl;
 		cout <<	"Please set them using multistrand::utils::XPMetropolis37() or similar,"<< endl;
 		cout <<	"or set Options.bimolecular_scaling directly."<< endl;
@@ -156,7 +149,7 @@ PEnergyOptions::PEnergyOptions(PyObject* input) :
 
 	}
 
-	if (useArrRates) {
+	if (usingArrhenius()){
 
 		uniScale = 1.0;
 
@@ -210,7 +203,6 @@ PEnergyOptions::PEnergyOptions(PyObject* input) :
 	}
 
 	// ionic conditions
-
 	getDoubleAttr(python_settings, sodium, &sodium);
 	getDoubleAttr(python_settings, magnesium, &magnesium);
 
@@ -255,8 +247,8 @@ CEnergyOptions::CEnergyOptions() :
 	temperature = 310.15;
 	dangles = 1;
 	logml = 0;
-	gtenable = 0;
-	kinetic_rate_method = 2;
+	gtenable = 1;
+	kinetic_rate_method = 1;
 
 	biScale = 1.38e+06;
 	uniScale = 1.5e+08;

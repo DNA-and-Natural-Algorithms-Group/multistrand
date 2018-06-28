@@ -51,7 +51,7 @@ double NupackEnergyModel::returnRate(double start_energy, double end_energy, int
 
 		return uniscale * exp(-0.5 * dE / _RT);
 
-	} else if (kinetic_rate_method == RATE_METHOD_METROPOLIS) {
+	} else if (kinetic_rate_method == RATE_METHOD_METROPOLIS or RATE_METHOD_ARRHENIUS == kinetic_rate_method) {
 		// Metropolis
 		if (dE < 0) {
 			return uniscale * 1.0;

@@ -80,18 +80,22 @@ void EnergyModel::writeConstantsToFile() {
 	// Print constants to file.
 	std::stringstream ss;
 
+
 	ss << "Multistrand " << simOptions->ms_version << " \n \n";
 
-	ss << "sodium      :  " << simOptions->energyOptions->sodium << " M \n";
-	ss << "magnesium   :  " << simOptions->energyOptions->magnesium << " M \n";
-	ss << "temperature :  " << simOptions->energyOptions->getTemperature() << " K" << endl;
-	ss << "rate method :  " << simOptions->energyOptions->getKineticRateMethod() << "           (1: Metropolis, 2: Kawasaki, 3: Arrhenius)" << endl;
-	ss << "dangles     :  " << simOptions->energyOptions->getDangles() << "           (0: none, 1: some, 2: all)" << endl;
-	ss << "GT pairing  :  " << simOptions->energyOptions->getGtenable() << "           (0: disabled)" << endl;
+	ss << "sodium        :  " << simOptions->energyOptions->sodium << " M \n";
+	ss << "magnesium     :  " << simOptions->energyOptions->magnesium << " M \n";
+	ss << "temperature   :  " << simOptions->energyOptions->getTemperature() << " K" << endl;
+	ss << "rate method   :  " << simOptions->energyOptions->getKineticRateMethod() << "           (1: Metropolis, 2: Kawasaki, 3: Arrhenius)" << endl;
+	ss << "dangles       :  " << simOptions->energyOptions->getDangles() << "           (0: none, 1: some, 2: all)" << endl;
+	ss << "GT pairing    :  " << simOptions->energyOptions->getGtenable() << "           (0: disabled)" << endl;
+	ss << "concentration :  " << simOptions->energyOptions->getJoinConcentration() << " M \n";
 	ss << "" << endl;
-	ss << "path_dG     :  " << paramFiles[0] <<  endl;
-	ss << "path_dH     :  " << paramFiles[1] <<  endl;
+	ss << "path_dG      :  " << paramFiles[0] <<  endl;
+	ss << "path_dH      :  " << paramFiles[1] <<  endl;
 	ss << "" << endl;
+
+	ss << std::scientific;
 
 	if (!simOptions->energyOptions->usingArrhenius()) {
 
@@ -101,16 +105,17 @@ void EnergyModel::writeConstantsToFile() {
 
 	} else {
 
+
 		ss << "type      ";
 
 		for (int i = 0; i < MOVETYPE_SIZE; i++) {
 
 			ss << moveutil::MoveToString[i];
-			ss << moveutil::MoveToString2[i] << " ";
+			ss << moveutil::MoveToString2[i] << "     ";
 
 		}
 
-		ss << setprecision(8);
+		ss << setprecision(4);
 
 		ss << "\nA         ";
 
@@ -132,26 +137,28 @@ void EnergyModel::writeConstantsToFile() {
 
 		for (int i = 0; i < MOVETYPE_SIZE; i++) {
 
-			ss << arrheniusRates[MOVETYPE_SIZE * i + i] << "  ";
+			ss << arrheniusRates[MOVETYPE_SIZE * i + i] << "      ";
 
 		}
 
 		ss << " \n \n";
-		ss << "    dS_A     dH_A        biScale     kUni    \n";
-		ss << "    " << simOptions->energyOptions->dSA;
-		ss << "     " << simOptions->energyOptions->dHA;
-		ss << "     " << simOptions->energyOptions->getBiScale();
-		ss << "     " << simOptions->energyOptions->getUniScale();
+		ss << "  dS_A           dH_A          biScale          kUni    \n";
+		ss << " " << simOptions->energyOptions->dSA;
+		ss << "   " << simOptions->energyOptions->dHA;
+		ss << "    " << simOptions->energyOptions->getBiScale();
+		ss << "    " << simOptions->energyOptions->getUniScale();
 
-		ss << "\n";
+		ss << "\n\n\n";
 
 		// now dumping the rate matrix too,
+
+		ss << "Concentration . k_bi . k_uni(l,r) \n\n";
 
 		for (int i = 0; i < MOVETYPE_SIZE; i++) {
 
 			for (int j = 0; j < MOVETYPE_SIZE; j++) {
 
-				ss << getJoinRate() * arrheniusRates[MOVETYPE_SIZE * i + j] << "  ";
+				ss << getJoinRate() * arrheniusRates[MOVETYPE_SIZE * i + j] << "      ";
 
 			}
 
@@ -167,10 +174,7 @@ void EnergyModel::writeConstantsToFile() {
 		myfile.open("multistrandRun.log");
 
 		myfile << ss.str();
-
 		myfile.close();
-
-//		cout << "Wrote constants to multistrandRun.log" << endl;
 
 		printedRates = true;
 

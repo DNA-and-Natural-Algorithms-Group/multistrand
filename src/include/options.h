@@ -437,6 +437,7 @@ class identList *getID_list(PyObject *options, int index, PyObject *alternate_st
 const int RATE_METHOD_INVALID = 0x00;
 const int RATE_METHOD_METROPOLIS = 0x01;
 const int RATE_METHOD_KAWASAKI = 0x02;
+const int RATE_METHOD_ARRHENIUS = 0x03;
 
 
 /* WARNING: If you change the following defines, you must also
