@@ -714,8 +714,12 @@ void SimulationSystem::sendTrajectory_CurrentStateToPython(double current_time, 
 		builder.addState(mergedData, arrType);
 	}
 
-	pushTrajectoryInfo(system_options, current_time);
-	pushTrajectoryInfo2(system_options, arrType);
+    if (!simOptions->statespaceActive) {
+
+        pushTrajectoryInfo(system_options, current_time);
+        pushTrajectoryInfo2(system_options, arrType);
+
+    }
 
 }
 
