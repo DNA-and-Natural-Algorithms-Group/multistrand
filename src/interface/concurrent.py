@@ -828,6 +828,12 @@ class MergeSim(object):
 
             myOptions = myFactory.new(instanceSeed)
             myOptions.num_simulations = self.trialsPerThread
+            
+            """ Overwrite the result factory method if we are not using First Step Mode.
+                By default, the results object is a First Step object.
+            """
+            if not myOptions.simulation_mode == Literals.first_step:
+                self.settings.rateFactory.first_passage_time = MergeSimSettings.RESULTTYPE3
 
             s = SimSystem(myOptions)
             s.start()
