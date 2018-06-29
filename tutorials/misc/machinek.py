@@ -10,18 +10,14 @@
 
 import sys, os
 
-
 import matplotlib
 matplotlib.use('Agg')
-
-
 
 import xlrd
 import matplotlib.pyplot as plt
 import matplotlib.lines as lines
 
 import numpy as np
-
 
 from matplotlib.ticker import ScalarFormatter
 
@@ -31,7 +27,7 @@ from multistrand.objects import StopCondition, Domain, Complex, Strand
 from multistrand.options import Options, Literals
 
 myMultistrand = MergeSim()
-myMultistrand.setNumOfThreads(8)
+myMultistrand.setNumOfThreads(2)
 
 """
  Figure 2d has 3x12 = 36 rates plotted. 
@@ -46,6 +42,13 @@ myMultistrand.setNumOfThreads(8)
 """
 
 positionSelector = [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14]   
+
+KINETICMETHOD = 1
+NUMOFTHREADS = 2
+NUMOFPATHS = 400
+TERMINATIONCRIT = 2
+
+DUMMYRUN = False
 
 
 def machinek2014(options, selector, trialsIn):
@@ -173,20 +176,23 @@ def genOptions(trialsIn, select):
     stdOptions.join_concentration = 5e-9
     
     # set the DNA23 parameters
-#    stdOptions.DNA23Metropolis()
-    stdOptions.DNA23Arrhenius()   
-
-
+    if KINETICMETHOD == 1:
+        stdOptions.DNA23Metropolis()
+    if KINETICMETHOD == 2:
+        stdOptions.DNA23Arrhenius()   
+    if KINETICMETHOD == 3:
+        stdOptions.JSDefault()
  
     machinek2014(stdOptions, select, trialsIn)
     return stdOptions
 
 
-def computeRate(select, trials):
+def computeRate(select):
     
-    myMultistrand.setOptionsFactory2(genOptions, trials, select) 
-    myMultistrand.setTerminationCriteria(12)
-    myMultistrand.setLeakMode() # the new leak object -- faster bootstrapping.
+    myMultistrand.setOptionsFactory2(genOptions, NUMOFPATHS, select) 
+    myMultistrand.setNumOfThreads(NUMOFTHREADS)
+    myMultistrand.setTerminationCriteria(TERMINATIONCRIT)
+    myMultistrand.setLeakMode()  # the new leak object -- faster bootstrapping.
     myMultistrand.run()
     
     myFSR = myMultistrand.results  
@@ -224,10 +230,10 @@ def measuredRate(select):
     return excelFind(excelSelect(select), 9)
 
 
-def generateGraph(trials=15):
+def generateGraph():
     
     fig , ax = plt.subplots() 
-    plt.title  ("Machinek Plot" , fontsize=24) 
+    plt.title  ("Threeway strand displacement invasion mismatch \n Machinek et al." , fontsize=18) 
     plt.ylabel (r"$\mathregular{K(M^{-1}s^{-1})}$", fontsize=19)
 
     ax.xaxis.set_major_formatter(ScalarFormatter())
@@ -244,17 +250,24 @@ def generateGraph(trials=15):
     for i in range(3):
 
         simRates = []
-        simlow = []
+        simLow = []
         simHigh = []
         realRates = []
 
         for select in range(12 * i + 0, 12 * i + 12):
-                    
-            rate, low, high = computeRate(select, trials)
+
+            if select % 12 < 11 and DUMMYRUN:
+                 
+                rate = float(i+1) * (10 ** 5)
+                low = float(i+1) * (10 ** 4)
+                high = float(i+1) * (10 ** 6)
+             
+            else:
+                rate, low, high = computeRate(select)
             
             simRates.append(np.log10(rate))
-            simLow.append(np.log10(low))
-            simHigh.append(np.log10(high))  
+            simLow.append(np.log10(rate) - np.log10(low))
+            simHigh.append(np.log10(high) - np.log10(rate))  
             
             realRates.append(np.log10(measuredRate(select)))
             
@@ -262,24 +275,45 @@ def generateGraph(trials=15):
         print realRates
         
         ax.plot(positionSelector, realRates, linewidth=2, color=colors[i])
-        ax.plot(positionSelector, simRates, yerr=[simLow, simHigh], linewidth=2, linestyle='--', color=colors[i])
-        
+        ax.plot(positionSelector, simRates, linewidth=2, linestyle='--', color=colors[i])
+        ax.errorbar(positionSelector, y=simRates, yerr=[simLow, simHigh], color=colors[i])
     # plt.show()
     
     filename = "plot" 
     if not os.path.exists(filename):
         os.makedirs(filename)
         
-    plt.savefig(filename + '/machinek2014' + '.pdf', bbox_inches='tight')
+    plt.savefig(filename + '/machinek2014-' + str(KINETICMETHOD) + "-" + str(TERMINATIONCRIT) + "-" +str(DUMMYRUN) + '.pdf', bbox_inches='tight')
     plt.close(fig) 
     
     
 # The actual main method
 if __name__ == '__main__':
 
-    if len(sys.argv) > 1:
-        print("No commandline arguments required. Aborting program.")
+    if len(sys.argv) < 4:
+        print("Please specify the kinetic method, number of successful trials, and number of threads and number of trials.")
+        print("Example: python machinek.py metropolis 2 2 80")
         exit()
+
+    if sys.argv[1] == "metropolis":
+        KINETICMETHOD = 1
+        
+    if sys.argv[1] == "arrhenius":
+        KINETICMETHOD = 2
+
+    if sys.argv[1] == "jsdefault":
+        KINETICMETHOD = 3
+
     
-    generateGraph(240)
+    TERMINATIONCRIT = int(sys.argv[2])
+    NUMOFTHREADS = int(sys.argv[3])
+    NUMOFPATHS = int(sys.argv[4])
+    
+    if len(sys.argv) > 5 and sys.argv[5] == "DUMMY":
+        DUMMYRUN = True
+        
+    
+    generateGraph()
+
+
 
