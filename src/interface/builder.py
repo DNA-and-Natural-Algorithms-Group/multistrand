@@ -103,14 +103,24 @@ def hybridizationString(seq):
 
 class ConvergeCrit(object):
 
-    iit = 0
-    currRate = -1.0
+    period = 4 # average out over past X increases.
 
-    period = 4  # average out over past X increases.
-    array = [-99.0] * period
-    precision = 0.05
+    def __init__(self):
+        
+        self.maximumIterations = 1000
+        self.minimumStateIncrement = 4
+        
+        self.currIteration = 0
+        self.currStates = -99
+
+        self.precision = 0.05
+        self.array = [-99.0] * self.period
+
 
     def converged(self, rateIn= None, statespace_size = None):  # also saves the rateIn
+        
+        if self.currIteration > self.maximumIterations:
+            return True
 
         if self.precision < 1.0 :
             averageL = (sum(self.array) / self.period) * (1.0 - self.precision)
@@ -119,11 +129,17 @@ class ConvergeCrit(object):
             conv1 = rateIn > averageL
             conv2 = rateIn < averageH
 
-            self.array[self.iit % self.period] = rateIn
-            self.iit += 1;
+            self.array[self.currIteration % self.period] = rateIn
+            self.currIteration += 1;
             return (conv1 and conv2)
 
         else:
+            
+            if statespace_size - self.currStates < self.minimumStateIncrement:
+                return True
+                        
+            self.currStates = statespace_size;
+            
             return statespace_size >= self.precision
 
     def __str__(self):
@@ -364,8 +380,8 @@ class Builder(object):
             self.mergeBuilder(otherBuilder)
 
             if self.verbosity or printMeanTime:
-                print "Size     = %i    ---  bytesize = %f " % (len(self.protoSpace), sys.getsizeof (self.protoSpace) )
-                print "Size T   = %i    ---  bytesize = %f " % (len(self.protoTransitions), sys.getsizeof (self.protoTransitions) )
+                print "Size     = %i    ---  bytesize = %i " % (len(self.protoSpace), sys.getsizeof (self.protoSpace) )
+                print "Size T   = %i    ---  bytesize = %i " % (len(self.protoTransitions), sys.getsizeof (self.protoTransitions) )
                 print "Time = %f" % (time.time() - startTime)
 
             del otherBuilder
