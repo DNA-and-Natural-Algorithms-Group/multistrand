@@ -268,7 +268,6 @@ class FirstStepLeakRate(MergeResult):
     
         """ Now discard all non-success data """
         self.dataset = [x for x in self.dataset if ((x.tag == Literals.success) or x.tag == Literals.alt_success)]
-        
 
     def sumCollisionForward(self):
         return sum([np.float(i.collision_rate) for i in self.dataset if i.tag == Literals.success])
@@ -901,29 +900,27 @@ class MergeSim(object):
         
         try:
             self.printStates()
-        except Exception as e:
-            raise e
+        except:
+            raise ValueError("Could not print initial states")
         # start the initial bulk
         print(self.startSimMessage())
         
         procs = []
 
         try:
-             
             for i in range(self.numOfThreads):
             
                 p = getSimulation(i)
                 procs.append(p)
                 p.start()
-        except Exception as e:
-            raise e
+
+        except:
+            raise ValueError("Error in multiprocessing multistrand.")
                 
         printFlag = False
 
-        noExceptions = True
-        
         # check for stop conditions, restart sims if needed
-        while noExceptions:
+        while True:
 
             if self.settings.shouldTerminate(printFlag, self.nForward, self.nReverse, startTime):
                 
@@ -932,6 +929,7 @@ class MergeSim(object):
             printFlag = False
 
             try: 
+                
                 # find and re-start finished threads
                 for i in range(self.numOfThreads):
     
@@ -941,21 +939,19 @@ class MergeSim(object):
                         procs[i].terminate()
     
                         procs[i] = getSimulation(i)
+                        procs[i].check_call(['dcon'], stdout=fh, stderr=fh)
                         procs[i].start()
                         
                         printFlag = True
 
-            except Exception as e:
-                noExceptions = False
-                raise e
+            except:
+                raise ValueError("Error in multiprocessing multistrand.")
 
             time.sleep(0.25)
 
             # if >500 000 results have been generated, then store
             if (self.nForward.value + self.nReverse.value) > self.settings.saveInterval:
                 saveResults()
-
-
 
         saveResults()
 
