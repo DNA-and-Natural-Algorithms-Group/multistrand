@@ -31,6 +31,104 @@ import numpy as np
 """
 
 
+def threewayString(strands_list):
+	# The Zhang and Winfree paper has an addition alpha domain on the incumbent!
+	cutoff = 0.45
+	output = []
+	""" start with the seperated, zero-bp state """
+	toehold = strands_list[0 ]
+	displacement = strands_list[1]
+	dangle = strands_list [2]
+
+	toehold_len = len( toehold)
+	displacement_len = len( displacement)
+	dangle_len = len(dangle)
+
+	startComplex   =    makeComplex([dangle +displacement, seqComplement(  toehold + displacement)], "."*dangle_len + "(" * displacement_len+"+"+"." * toehold_len + ")"*displacement_len)
+	invaderComplex = makeComplex([toehold +displacement ], "."* ( toehold_len + displacement_len))
+	print "starting at "
+	print [dangle +displacement, seqComplement(  toehold + displacement)], "."*dangle_len + "(" * displacement_len+"+"+"." * toehold_len + ")"*displacement_len
+	print [toehold +displacement ], "."* ( toehold_len + displacement_len)
+	seperated  = [startComplex, invaderComplex]
+	i = 65
+
+	for complex in seperated:
+		for strand in complex.strand_list:
+			strand.id = i
+			strand.name = "auto_" + str(i)
+			i += 1
+	output.append(seperated)
+
+	""" 
+		bps is the number of basepairs between the strands
+		offset is the offset of where the pairing starts
+	"""
+	#incumbent+ substrate + invader
+	sequence = [ dangle +displacement, seqComplement(  toehold + displacement)      ,   toehold + displacement]
+	print toehold_len
+	print "Attaching invader  to substrate with different base pair sizes"
+	for bps in range (1, toehold_len  + 1 ):
+		for offset in range( toehold_len  ):
+			dotparen = "."* dangle_len + "(" *displacement_len+ "+" + ")"*displacement_len + "." * toehold_len +"+"+ "."*( toehold_len+displacement_len )
+			for i in range(bps):
+				if offset  + i  >= toehold_len :
+					continue
+				dotparen = list(dotparen)
+				dotparen[ dangle_len +displacement_len+displacement_len+ offset + i +1 ] = "("
+				dotparen[dangle_len +displacement_len+ displacement_len + toehold_len+toehold_len -offset-i +1] = ")"
+				dotparen = "".join(dotparen)
+			complex = makeComplex(sequence, dotparen)
+			print sequence, dotparen
+			print "*************"
+			i = 65
+			for strand in complex.strand_list:
+				strand.id = i
+				strand.name = "auto_" + str(i)
+				i += 1
+			output.append([complex])
+	print "Attaching incumbent to substrate with different base pair sizes"
+	print
+	sequence = [ dangle +displacement, seqComplement(  toehold + displacement)      ,   toehold  +displacement]
+	dotparen = "."* dangle_len + "(" *displacement_len+ "+" + ")"*displacement_len + "(" * toehold_len +"+"+ ")"*toehold_len+ "."*displacement_len
+	for offset in range( displacement_len):
+		for notation in [".", "("]:
+			dotparen = list(dotparen)
+			if notation == ".":
+				#breaking basepair between incumbent and substrant
+				dotparen[ dangle_len + offset ] =  "."
+				dotparen[dangle_len +displacement_len+ displacement_len -  offset ] = "."
+			if notation == "(" :
+				#adding basepair between substrate and invader
+				dotparen[dangle_len +displacement_len+ displacement_len -  offset ] = "("
+				dotparen[dangle_len +displacement_len+displacement_len+toehold_len + toehold_len +  offset  +2 ] = ")"
+			dotparen = "".join(dotparen)
+			complex = makeComplex(sequence, dotparen)
+			i = 65
+			for strand in complex.strand_list:
+				strand.id = i
+				strand.name = "auto_" + str(i)
+				i += 1
+			output.append([complex])
+			print sequence, dotparen
+			print "*************"
+	#Becaues in the last one the incumbent is still attached and will give errror, popping it , and will correct below
+	output.pop()
+	""" We always require the final state to be the success state"""
+	#We only care that invader is fully attached to incumbent
+	finishComplex   =   makeComplex([ seqComplement(  toehold + displacement),  toehold +displacement], "(" * ( displacement_len+toehold_len)  +  "+" + ")" * ( toehold_len+displacement_len))
+	print "final structure is actually this one , the preivous one is wrong so popped it"
+	print [ seqComplement(  toehold + displacement),  toehold +displacement], "(" * ( displacement_len+toehold_len)  +  "+" + ")" * ( toehold_len+displacement_len)
+	seperated  = [finishComplex]
+	for complex in seperated:
+		for strand in complex.strand_list:
+			strand.id = i
+			strand.name = "auto_" + str(i)
+			i += 1
+
+	output.append(seperated)
+	return output
+
+
 def hybridizationString(seq):
 
     cutoff = 0.45
