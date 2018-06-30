@@ -923,7 +923,7 @@ class MergeSim(object):
         noExceptions = True
         
         # check for stop conditions, restart sims if needed
-        while True and noExceptions:
+        while noExceptions:
 
             if self.settings.shouldTerminate(printFlag, self.nForward, self.nReverse, startTime):
                 
@@ -944,7 +944,6 @@ class MergeSim(object):
                         procs[i].start()
                         
                         printFlag = True
-                        noExceptions = False
 
             except Exception as e:
                 noExceptions = False
