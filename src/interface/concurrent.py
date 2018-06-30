@@ -898,22 +898,32 @@ class MergeSim(object):
             self.settings.saveInterval += self.settings.saveIncrement 
 
         # give a print of the initial states and stopping conditions
-        self.printStates()
+        
+        try:
+            self.printStates()
+        except Exception as e:
+            raise e
         # start the initial bulk
         print(self.startSimMessage())
         
         procs = []
 
-        for i in range(self.numOfThreads):
+        try:
+             
+            for i in range(self.numOfThreads):
             
-            p = getSimulation(i)
-            procs.append(p)
-            p.start()
-
+                p = getSimulation(i)
+                procs.append(p)
+                p.start()
+        except Exception as e:
+            raise e
+                
         printFlag = False
 
+        noExceptions = True
+        
         # check for stop conditions, restart sims if needed
-        while True:
+        while True and noExceptions:
 
             if self.settings.shouldTerminate(printFlag, self.nForward, self.nReverse, startTime):
                 
@@ -921,24 +931,32 @@ class MergeSim(object):
 
             printFlag = False
 
-            # find and re-start finished threads
-            for i in range(self.numOfThreads):
-
-                if not procs[i].is_alive():
+            try: 
+                # find and re-start finished threads
+                for i in range(self.numOfThreads):
+    
+                    if not procs[i].is_alive() and noExceptions:
+                            
+                        procs[i].join()
+                        procs[i].terminate()
+    
+                        procs[i] = getSimulation(i)
+                        procs[i].start()
                         
-                    procs[i].join()
-                    procs[i].terminate()
+                        printFlag = True
+                        noExceptions = False
 
-                    procs[i] = getSimulation(i)
-                    procs[i].start()
-
-                    printFlag = True
+            except Exception as e:
+                noExceptions = False
+                raise e
 
             time.sleep(0.25)
 
             # if >500 000 results have been generated, then store
             if (self.nForward.value + self.nReverse.value) > self.settings.saveInterval:
                 saveResults()
+
+
 
         saveResults()
 
