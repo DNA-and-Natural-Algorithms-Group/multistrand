@@ -933,13 +933,12 @@ class MergeSim(object):
                 # find and re-start finished threads
                 for i in range(self.numOfThreads):
     
-                    if not procs[i].is_alive() and noExceptions:
+                    if not procs[i].is_alive():
                             
                         procs[i].join()
                         procs[i].terminate()
     
                         procs[i] = getSimulation(i)
-                        procs[i].check_call(['dcon'], stdout=fh, stderr=fh)
                         procs[i].start()
                         
                         printFlag = True
