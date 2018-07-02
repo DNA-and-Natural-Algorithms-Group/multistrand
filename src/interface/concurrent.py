@@ -815,6 +815,7 @@ class MergeSim(object):
 
         manager = multiprocessing.Manager()
 
+        self.exceptionFlag = manager.Value('b', True)
         self.managed_result = manager.list()
         self.managed_endStates = manager.list()
         self.nForward = manager.Value('i', 0)
@@ -825,8 +826,13 @@ class MergeSim(object):
 
         def doSim(myFactory, aFactory, list0, list1, instanceSeed, nForwardIn, nReverseIn):
 
-            myOptions = myFactory.new(instanceSeed)
-            myOptions.num_simulations = self.trialsPerThread
+            try:
+                myOptions = myFactory.new(instanceSeed)
+                myOptions.num_simulations = self.trialsPerThread
+            except:
+                self.exceptionFlag.value = False
+                return
+                
             
             """ Overwrite the result factory method if we are not using First Step Mode.
                 By default, the results object is a First Step object.
@@ -834,8 +840,12 @@ class MergeSim(object):
             if not myOptions.simulation_mode == Literals.first_step:
                 self.settings.rateFactory.first_passage_time = MergeSimSettings.RESULTTYPE3
 
-            s = SimSystem(myOptions)
-            s.start()
+            try:
+                s = SimSystem(myOptions)
+                s.start()
+            except:
+                self.exceptionFlag.value = False
+                return
 
             myFSR = self.settings.rateFactory(myOptions.interface.results)
             nForwardIn.value += myFSR.nForward + myFSR.nForwardAlt
@@ -898,29 +908,24 @@ class MergeSim(object):
 
         # give a print of the initial states and stopping conditions
         
-        try:
-            self.printStates()
-        except:
-            raise ValueError("Could not print initial states")
+        self.printStates()
+
         # start the initial bulk
         print(self.startSimMessage())
         
         procs = []
 
-        try:
-            for i in range(self.numOfThreads):
-            
-                p = getSimulation(i)
-                procs.append(p)
-                p.start()
+        for i in range(self.numOfThreads):
+        
+            p = getSimulation(i)
+            procs.append(p)
+            p.start()
 
-        except:
-            raise ValueError("Error in multiprocessing multistrand.")
                 
         printFlag = False
 
         # check for stop conditions, restart sims if needed
-        while True:
+        while self.exceptionFlag.value:
 
             if self.settings.shouldTerminate(printFlag, self.nForward, self.nReverse, startTime):
                 
@@ -928,29 +933,29 @@ class MergeSim(object):
 
             printFlag = False
 
-            try: 
-                
-                # find and re-start finished threads
-                for i in range(self.numOfThreads):
-    
-                    if not procs[i].is_alive():
-                            
-                        procs[i].join()
-                        procs[i].terminate()
-    
-                        procs[i] = getSimulation(i)
-                        procs[i].start()
-                        
-                        printFlag = True
+            # find and re-start finished threads
+            for i in range(self.numOfThreads):
 
-            except:
-                raise ValueError("Error in multiprocessing multistrand.")
+                if not procs[i].is_alive():
+                        
+                    procs[i].join()
+                    procs[i].terminate()
+
+                    procs[i] = getSimulation(i)
+                    procs[i].start()
+                    
+                    printFlag = True
+
 
             time.sleep(0.25)
 
             # if >500 000 results have been generated, then store
             if (self.nForward.value + self.nReverse.value) > self.settings.saveInterval:
                 saveResults()
+
+        if not self.exceptionFlag.value:
+            raise Exception("MergeSim: exception found in child process.")
+
 
         saveResults()
 
@@ -967,5 +972,3 @@ class MergeSim(object):
         self.writeToFile()    
         return 0
 
-# # The default multistrand object
-# myMultistrand = MergeSim()
