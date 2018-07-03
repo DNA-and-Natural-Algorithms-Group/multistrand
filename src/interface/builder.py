@@ -101,9 +101,126 @@ def hybridizationString(seq):
     return output
 
 
+def dissociationString(seq):
+
+    ''' Exactly like the association, but swap the initial and final states '''
+    
+    myList = hybridizationString(seq)
+    
+    first = myList[0]
+    last = myList[-1]
+    
+    myList[0] = last
+    myList[-1] = first
+
+    return myList
+
+    
+def addStateToList(myList, myState):
+
+    i = 65
+    
+    for complex in myState:
+        for strand in complex.strand_list:
+            strand.id = i
+            strand.name = "auto_" + str(i)
+            i += 1
+
+    myList.append(myState)
+
+
+''' returns a list of strings pairs that represent the hybridization steps 
+    for toeholds / domains during pathway elaboration method    '''
+
+    
+def weave(M):
+    
+    output = []
+
+    for bps in range(1, M + 1):
+
+        for offset in range(M):
+
+            leftStr = list("."*M)
+            rightStr = list("."*M)
+
+            if (bps + offset < (M + 1)):
+    
+                for i in range(bps):
+    
+                    leftStr[offset + i] = "("
+                    rightStr[ M - offset - i - 1 ] = ")"
+    
+                leftStr = "".join(leftStr)
+                rightStr = "".join(rightStr)
+                output.append([leftStr, rightStr])
+
+    return output
+
+
+def threewaybmString(lefttoe, displace, righttoe):
+
+    ''' toehold switch around in the substrate '''
+    N = len(displace)
+    rT = len(lefttoe)
+    lT = len(righttoe) 
+    
+    output = list()
+    
+    invaderSq = lefttoe + displace + righttoe
+    incumbentSq = displace
+    substrateSq = seqComplement(invaderSq)
+    
+    """ start with the separated, zero-bp state """
+    complex0 = makeComplex([invaderSq], "."*(lT + N + rT))
+    complex1 = makeComplex([incumbentSq, substrateSq], "(" * N + "+" + "."* lT + ")" * N + "." *rT)
+    seperated = [complex0, complex1]
+    
+    addStateToList(output, seperated)
+
+    ''' left invasion toehold '''
+    seqsL = [invaderSq, substrateSq, incumbentSq]
+    weaving = weave(lT)
+    
+    for pair in weaving:
+        dotparen = "."*(N + rT) + pair[0] + "+" + pair[1] + "("*N + "."*rT + "+" + ")"*N 
+        addStateToList(output, [makeComplex(seqsL, dotparen)])
+        
+    ''' the dotparen of the weave is the fully hybridized toehold.
+        Toggle the basepairs one step at a time.
+    '''
+    for invasion in range(N - 1):
+        parenList = list(dotparen)
+        parenList[rT + N - 1 - invasion] = "("
+        parenList[lT + N + rT + 1 + lT + invasion ] = ")"
+        parenList[-invasion - 1] = "."
+        dotparen = "".join(parenList)
+        addStateToList(output, [makeComplex(seqsL, dotparen)])
+        
+    ''' right invasion toehold '''
+    seqsR = [invaderSq, incumbentSq, substrateSq]
+    weaving = weave(rT)
+    
+    for pair in weaving:
+        dotparen = pair[0] + "."*(N + lT) + "+" + "("*N + "+" + "."*lT + ")"*N + pair[1] 
+        addStateToList(output, [makeComplex(seqsR, dotparen)])
+
+    ''' 
+        Toggle the basepairs one step at a time.
+    '''
+    for invasion in range(N - 1):
+        parenList = list(dotparen)
+        parenList[rT + invasion] = "("
+        parenList[lT + N + rT + 1 + invasion ] = "."
+        dotparen = "".join(parenList)
+        addStateToList(output, [makeComplex(seqsR, dotparen)])
+
+    return output
+
+
 class ConvergeCrit(object):
 
-    period = 4 # average out over past X increases.
+    period = 4  # average out over past X increases.
 
     def __init__(self):
         
@@ -116,8 +233,7 @@ class ConvergeCrit(object):
         self.precision = 0.05
         self.array = [-99.0] * self.period
 
-
-    def converged(self, rateIn= None, statespace_size = None):  # also saves the rateIn
+    def converged(self, rateIn=None, statespace_size=None):  # also saves the rateIn
         
         if self.currIteration > self.maximumIterations:
             return True
@@ -343,7 +459,7 @@ class Builder(object):
 
         currTime = -1.0
 
-        while not crit.converged(currTime,  len(self.protoSpace)):
+        while not crit.converged(currTime, len(self.protoSpace)):
             self.genAndSavePathsFile()
 
             if self.verbosity:
@@ -365,7 +481,7 @@ class Builder(object):
 
         currTime = -1.0
 
-        while not crit.converged(currTime, len(self.protoSpace) ) :
+        while not crit.converged(currTime, len(self.protoSpace)) :
 
             otherBuilder = Builder(self.optionsFunction, self.optionsArgs)
 
@@ -380,8 +496,8 @@ class Builder(object):
             self.mergeBuilder(otherBuilder)
 
             if self.verbosity or printMeanTime:
-                print "Size     = %i    ---  bytesize = %i " % (len(self.protoSpace), sys.getsizeof (self.protoSpace) )
-                print "Size T   = %i    ---  bytesize = %i " % (len(self.protoTransitions), sys.getsizeof (self.protoTransitions) )
+                print "Size     = %i    ---  bytesize = %i " % (len(self.protoSpace), sys.getsizeof (self.protoSpace))
+                print "Size T   = %i    ---  bytesize = %i " % (len(self.protoTransitions), sys.getsizeof (self.protoTransitions))
                 print "Time = %f" % (time.time() - startTime)
 
             del otherBuilder
@@ -946,39 +1062,39 @@ class BuilderRate(object):
         Computes the first passage times
     """
 
-    def averageTime(self, x0=None,  maxiter=None):
+    def averageTime(self, x0=None, maxiter=None):
 
         startTime = time.time()
 
         if self.solveToggle == 1:
-            firstpassagetimes, info = bicg(self.rate_matrix_csr, self.b, x0=x0,maxiter=maxiter)
+            firstpassagetimes, info = bicg(self.rate_matrix_csr, self.b, x0=x0, maxiter=maxiter)
 
         elif self.solveToggle == 2:
-            firstpassagetimes, info = bicg(self.rate_matrix_csr, self.b, M=self.rate_matrix_inverse, x0=x0,  maxiter=maxiter)
+            firstpassagetimes, info = bicg(self.rate_matrix_csr, self.b, M=self.rate_matrix_inverse, x0=x0, maxiter=maxiter)
 
         elif self.solveToggle == 3:
-            firstpassagetimes, info = bicgstab(self.rate_matrix_csr, self.b , x0=x0,  maxiter=maxiter)
+            firstpassagetimes, info = bicgstab(self.rate_matrix_csr, self.b , x0=x0, maxiter=maxiter)
 
         elif self.solveToggle == 4:
-            firstpassagetimes, info = bicgstab(self.rate_matrix_csr, self.b, M=self.rate_matrix_inverse, x0=x0,  maxiter=maxiter)
+            firstpassagetimes, info = bicgstab(self.rate_matrix_csr, self.b, M=self.rate_matrix_inverse, x0=x0, maxiter=maxiter)
 
         elif self.solveToggle == 5:
-            firstpassagetimes, info = gmres(self.rate_matrix_csr, self.b, x0=x0,  maxiter=maxiter)
+            firstpassagetimes, info = gmres(self.rate_matrix_csr, self.b, x0=x0, maxiter=maxiter)
 
         elif self.solveToggle == 6:
-            firstpassagetimes, info = gmres(self.rate_matrix_csr, self.b, M=self.rate_matrix_inverse, x0=x0,  maxiter=maxiter)
+            firstpassagetimes, info = gmres(self.rate_matrix_csr, self.b, M=self.rate_matrix_inverse, x0=x0, maxiter=maxiter)
 
         elif self.solveToggle == 7:
-            firstpassagetimes, info = cg(self.rate_matrix_csr, self.b, x0=x0,  maxiter=maxiter)
+            firstpassagetimes, info = cg(self.rate_matrix_csr, self.b, x0=x0, maxiter=maxiter)
 
         elif self.solveToggle == 8:
-            firstpassagetimes, info = cg(self.rate_matrix_csr, self.b, M=self.rate_matrix_inverse, x0=x0,  maxiter=maxiter)
+            firstpassagetimes, info = cg(self.rate_matrix_csr, self.b, M=self.rate_matrix_inverse, x0=x0, maxiter=maxiter)
 
         elif self.solveToggle == 9:
-            firstpassagetimes, info = lgmres(self.rate_matrix_csr, self.b, x0=x0,  maxiter=maxiter)
+            firstpassagetimes, info = lgmres(self.rate_matrix_csr, self.b, x0=x0, maxiter=maxiter)
 
         elif self.solveToggle == 10:
-            firstpassagetimes, info = lgmres(self.rate_matrix_csr, self.b, M=self.rate_matrix_inverse, x0=x0,  maxiter=maxiter)
+            firstpassagetimes, info = lgmres(self.rate_matrix_csr, self.b, M=self.rate_matrix_inverse, x0=x0, maxiter=maxiter)
 
         else:
             firstpassagetimes = spsolve(self.rate_matrix_csr, self.b)
