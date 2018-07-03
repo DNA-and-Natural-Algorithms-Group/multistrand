@@ -290,7 +290,7 @@ class localtype(object):
     array = [end, loop, stack, stackstack, loopend, stackend, stackloop]
 
 
-class energy(object):
+class Energy(object):
 
     GAS_CONSTANT = 0.0019872036  # kcal / K mol
 
@@ -316,7 +316,7 @@ class energy(object):
         return "dH= " + str(self.dH) + " dS= " + str(self.dS)
 
     def __eq__(self, that):
-        if isinstance(that, energy):
+        if isinstance(that, Energy):
             return self.dH == that.dH and self.dS == that.dS
         else:
             raise Exception("Not an acceptible argument", "__eq__", that)
@@ -340,7 +340,7 @@ def codeToDesc(code):
     return output
 
 
-class initCountFlux(object):
+class InitCountFlux(object):
 
     def __init__(self):
         self.count = 0;
@@ -371,9 +371,9 @@ class Builder(object):
         self.printTimer = True
         self.numOfThreads = 8
 
-        self.protoSpace = dict()  # key: states. Value: energy
+        self.protoSpace = dict()  # key: states. Value: Energy
         self.protoTransitions = dict()  # key: transitions. Value: ArrheniusType (negative if it is a bimolecular transition)
-        self.protoInitialStates = dict()  # key: states. Value: a initCountFlux object that tells how many times the state has been the initial state and the join flux (rate)
+        self.protoInitialStates = dict()  # key: states. Value: a InitCountFlux object that tells how many times the state has been the initial state and the join flux (rate)
         self.protoFinalStates = dict()  # key: states: Value: the result of this final state can be SUCCES or FAILURE
 
         self.firstStepMode = True
@@ -451,7 +451,7 @@ class Builder(object):
         dG = float(mywords[1 + 3 * n_complexes])
         dH = float(mywords[1 + 3 * n_complexes + 1])
 
-        energyvals = energy(dG, dH, simulatedTemperature, simulatedConc, n_complexes, n_strands)
+        energyvals = Energy(dG, dH, simulatedTemperature, simulatedConc, n_complexes, n_strands)
 
         return uniqueID, energyvals
 
@@ -579,6 +579,7 @@ class Builder(object):
 
             myOptions = optionsF(optionsArgs)
             myOptions.activestatespace = True
+            myOptions.output_interval = 1
 
             if not supplyInitialState == None:
                 myOptions.start_state = supplyInitialState
@@ -608,7 +609,7 @@ class Builder(object):
 
                 elif not space[uniqueID] == energyvals:
 
-                    print "My hashmap contains " + str(uniqueID) + " with energy " + str(space[uniqueID]) + " but found: " + str(energyvals)
+                    print "My hashmap contains " + str(uniqueID) + " with Energy " + str(space[uniqueID]) + " but found: " + str(energyvals)
                     print "Line = " + line
 
             """ load the transitions """
@@ -686,7 +687,7 @@ class Builder(object):
 
                 if not uID1 in initStates:
 
-                    newEntry = initCountFlux()
+                    newEntry = InitCountFlux()
                     newEntry.count = count
                     newEntry.flux = 777777  # arrType is the flux, and is unique to the initial state
 
@@ -908,7 +909,7 @@ class BuilderRate(object):
     def metropolis_rate(self, state1, state2, transitionlist):
 
         myT = self.build.options._temperature_kelvin
-        RT = energy.GAS_CONSTANT * myT
+        RT = Energy.GAS_CONSTANT * myT
 
         dG1 = self.build.protoSpace[state1].dG(myT)
         dG2 = self.build.protoSpace[state2].dG(myT)
@@ -952,7 +953,7 @@ class BuilderRate(object):
         concentration = self.build.options.join_concentration
 
         myT = self.build.options._temperature_kelvin
-        RT = energy.GAS_CONSTANT * myT
+        RT = Energy.GAS_CONSTANT * myT
         dG1 = self.build.protoSpace[state1].dG(myT)
         dG2 = self.build.protoSpace[state2].dG(myT)
 

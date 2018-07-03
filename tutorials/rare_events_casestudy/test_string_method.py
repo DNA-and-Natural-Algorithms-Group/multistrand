@@ -40,8 +40,6 @@ def associationNoInit(arguments):
     stopSuccess = StopCondition(Literals.success, [(endComplex, Literals.exact_macrostate, 0)])
     stdOptions.stop_conditions = [stopSuccess]
    
-    stdOptions.output_interval = 1
-    
     return stdOptions
 
 
