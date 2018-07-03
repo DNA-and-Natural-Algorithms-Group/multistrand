@@ -214,6 +214,11 @@ def threewaybmString(lefttoe, displace, righttoe):
         parenList[lT + N + rT + 1 + invasion ] = "."
         dotparen = "".join(parenList)
         addStateToList(output, [makeComplex(seqsR, dotparen)])
+        
+    ''' Do not forget to set the final state.
+        This is just the displaced strand floating freely.
+        '''
+    addStateToList(output, [makeComplex([incumbentSq], "."*N)])
 
     return output
 
@@ -1121,6 +1126,9 @@ class BuilderRate(object):
 
         sumTime = 0.0
         sumStart = 0.0
+
+        if len(self.initial_states) == 0:
+            raise ValueError("The number of initial states connected to a final state is zero.")
 
         for state in self.initial_states:
 
