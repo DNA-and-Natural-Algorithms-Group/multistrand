@@ -1,7 +1,8 @@
 
 from hybridization23 import Settings, ResultsHybridization, suyamaT, suyamaC, enum_hybridization, title_hybridization, testSeq, NUM_OF_REPEATS, CONVERGENCE_CRIT
 from multistrand.system import SimSystem
-from multistrand.builder import hybridizationString, Builder, BuilderRate
+from multistrand.builder import hybridizationString, Builder, BuilderRate,\
+    threewaybmString
 from multistrand.options import Options, Literals
 from multistrand.experiment import standardOptions
 from multistrand.objects import StopCondition
@@ -11,6 +12,9 @@ import numpy as np
 
 RESULT_DIR = "test_delta_pruning"
 A_TIME_OUT = 4e-3
+
+EXP_TOGGLE = 1
+
 
 morrison = ["TTGGTGATCC", "AGATTAGCAGGTTTCCCACC", "GCCCACACTCTTACTTATCGACT", "AGAGGCTTATAACTGTGTCGGGT", "TGTTCTAAGATTATCCTCCCGCC", "GGCGGCTATAACAATTTCATCCA"]
 
@@ -50,11 +54,13 @@ def timings(seq, nTrials, deltaPruning=None):
     def association_comparison(seq, endComplex):
         return Settings(associationNoInit, [nTrials, suyamaT, suyamaC, endComplex], enum_hybridization, title_hybridization)
 
-    startStates = hybridizationString(seq)
+    if EXP_TOGGLE == 1:
+        startStates = hybridizationString(seq)
+    if EXP_TOGGLE == 2:
+        startStates = threewaybmString("A", seq, "ACTAGG")
     
     endState = startStates[-1]
-    # startState = startStates[0]
-
+    
     sett = association_comparison(seq, endState[0])
 
     for i in range(NUM_OF_REPEATS):
@@ -147,7 +153,7 @@ if __name__ == '__main__':
 
     if toggle == "test":
 
-        iterateResults(testSeq, nTrials, deltaPruning=deltaPruning)
+        iterateResults("ACTAGGGG", nTrials, deltaPruning=deltaPruning)
 
     if toggle == "longdomain":
 

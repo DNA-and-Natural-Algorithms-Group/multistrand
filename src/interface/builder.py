@@ -34,6 +34,7 @@ import numpy as np
 def hybridizationString(seq):
 
     cutoff = 0.45
+    ids = [65, 66]
 
     N = len(seq)
     output = []
@@ -41,16 +42,9 @@ def hybridizationString(seq):
     """ start with the seperated, zero-bp state """
     dotparen1 = "."*N + "+" + "."*N
 
-    complex0 = makeComplex([seq], "."*N)
-    complex1 = makeComplex([seqComplement(seq)], "."*N)
+    complex0 = makeComplex([seq], "."*N, [ids[0]])
+    complex1 = makeComplex([seqComplement(seq)], "."*N, [ids[1]])
     seperated = [complex0, complex1]
-
-    i = 65
-    for complex in seperated:
-        for strand in complex.strand_list:
-            strand.id = i
-            strand.name = "auto_" + str(i)
-            i += 1
 
     output.append(seperated)
 
@@ -76,27 +70,14 @@ def hybridizationString(seq):
                     dotparen1[ 2 * N - offset - i ] = ")"
 
                 dotparen1 = "".join(dotparen1)
-                complex = makeComplex(dotparen0, dotparen1)
-
-                i = 65
-                for strand in complex.strand_list:
-                    strand.id = i
-                    strand.name = "auto_" + str(i)
-                    i += 1
+                complex = makeComplex(dotparen0, dotparen1, ids)
 
                 output.append([complex])
 
     """ We always require the final state to be the success state"""
-    complex0 = makeComplex(dotparen0, "("*N + "+" + ")"*N)
-
-    i = 65
-    for strand in complex0.strand_list:
-        strand.id = i
-        strand.name = "auto_" + str(i)
-        i += 1
-
+    
+    complex0 = makeComplex(dotparen0, "("*N + "+" + ")"*N, ids)
     output.append([complex0])
-    #
 
     return output
 
@@ -116,19 +97,6 @@ def dissociationString(seq):
     return myList
 
     
-def addStateToList(myList, myState):
-
-    i = 65
-    
-    for complex in myState:
-        for strand in complex.strand_list:
-            strand.id = i
-            strand.name = "auto_" + str(i)
-            i += 1
-
-    myList.append(myState)
-
-
 ''' returns a list of strings pairs that represent the hybridization steps 
     for toeholds / domains during pathway elaboration method    '''
 
@@ -171,20 +139,25 @@ def threewaybmString(lefttoe, displace, righttoe):
     incumbentSq = displace
     substrateSq = seqComplement(invaderSq)
     
+    invaderID = 65
+    incumbentID = 66
+    substrateID = 67    
+    
     """ start with the separated, zero-bp state """
-    complex0 = makeComplex([invaderSq], "."*(lT + N + rT))
-    complex1 = makeComplex([incumbentSq, substrateSq], "(" * N + "+" + "."* lT + ")" * N + "." *rT)
+    complex0 = makeComplex([invaderSq], "."*(lT + N + rT), [invaderID])
+    complex1 = makeComplex([incumbentSq, substrateSq], "(" * N + "+" + "."* lT + ")" * N + "." *rT, [incumbentID, substrateID])
     seperated = [complex0, complex1]
     
-    addStateToList(output, seperated)
+    output.append(seperated)
 
     ''' left invasion toehold '''
     seqsL = [invaderSq, substrateSq, incumbentSq]
+    idsL = [invaderID, substrateID, incumbentID]
     weaving = weave(lT)
     
     for pair in weaving:
         dotparen = "."*(N + rT) + pair[0] + "+" + pair[1] + "("*N + "."*rT + "+" + ")"*N 
-        addStateToList(output, [makeComplex(seqsL, dotparen)])
+        output.append([makeComplex(seqsL, dotparen, idsL)])
         
     ''' the dotparen of the weave is the fully hybridized toehold.
         Toggle the basepairs one step at a time.
@@ -195,15 +168,16 @@ def threewaybmString(lefttoe, displace, righttoe):
         parenList[lT + N + rT + 1 + lT + invasion ] = ")"
         parenList[-invasion - 1] = "."
         dotparen = "".join(parenList)
-        addStateToList(output, [makeComplex(seqsL, dotparen)])
+        output.append([makeComplex(seqsL, dotparen, idsL)])
         
     ''' right invasion toehold '''
     seqsR = [invaderSq, incumbentSq, substrateSq]
+    idsR = [invaderID, incumbentID, substrateID]
     weaving = weave(rT)
     
     for pair in weaving:
         dotparen = pair[0] + "."*(N + lT) + "+" + "("*N + "+" + "."*lT + ")"*N + pair[1] 
-        addStateToList(output, [makeComplex(seqsR, dotparen)])
+        output.append([makeComplex(seqsR, dotparen, idsR)])
 
     ''' 
         Toggle the basepairs one step at a time.
@@ -213,13 +187,13 @@ def threewaybmString(lefttoe, displace, righttoe):
         parenList[rT + invasion] = "("
         parenList[lT + N + rT + 1 + invasion ] = "."
         dotparen = "".join(parenList)
-        addStateToList(output, [makeComplex(seqsR, dotparen)])
+        output.append([makeComplex(seqsR, dotparen, idsR)])
         
     ''' Do not forget to set the final state.
         This is just the displaced strand floating freely.
         '''
-    addStateToList(output, [makeComplex([incumbentSq], "."*N)])
-
+    output.append([makeComplex([incumbentSq], "."*N, [incumbentID])])
+    
     return output
 
 

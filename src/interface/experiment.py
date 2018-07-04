@@ -25,20 +25,30 @@ def standardOptions(simMode=Literals.first_step, tempIn=25.0, trials=10, timeOut
     return output
 
 
-def makeComplex(seq, dotparen):
+''' Creates a Complex when given a list of sequences and a dotparen
+    When ids are set, the strands will be given an ID after creation, 
+    which is important when combining Builder objects: Strands should have equal 
+    names and IDs in order to merge the statespaces correctly.
+'''
+
+
+def makeComplex(sequences, dotparen, ids=None):
 
     strandList = []
 
-    for seq in seq:
+    for i in range(len(sequences)):
 
-        onedomain = Domain(
-            name="domain" + str(makeComplex.counter), sequence=seq)
+        onedomain = Domain(name="domain" + str(makeComplex.counter), sequence=sequences[i])
         makeComplex.counter += 1
 
         onestrand = Strand(domains=[onedomain])
         strandList.append(onestrand)
 
-    return Complex(strands=strandList, structure=dotparen)
+        if not ids == None:
+            onestrand.id = ids[i]
+            onestrand.name = "a_" + str(ids[i])
+
+    return  Complex(strands=strandList, structure=dotparen)
 
 
 makeComplex.counter = 0

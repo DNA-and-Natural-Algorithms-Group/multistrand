@@ -152,7 +152,6 @@ class Options(object):
         self.trajectory_state_count = 0
         self._current_end_state = []
         self._current_transition_list = []
-        self.special_count = 0
         self.trajectory_current_time = 0.0
         self.current_graph = None
 
