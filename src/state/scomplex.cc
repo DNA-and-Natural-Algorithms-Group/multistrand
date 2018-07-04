@@ -224,7 +224,7 @@ StrandComplex * StrandComplex::doChoice(Move * move) {
 		return (new StrandComplex(newOrdering)); // newComplex
 
 	} else {
-		if (move->getType() & MOVE_CREATE)	 // FD: test if we have a create-basepair move
+		if (move->getType() & MOVE_CREATE) // FD: test if we have a create-basepair move
 			ordering->addBasepair(move->getAffected(0)->getLocation(move, 0), move->getAffected(0)->getLocation(move, 1));
 		else if (move->getType() & MOVE_DELETE) // FD: test if we have a delete-basepair move
 			ordering->breakBasepair(move->getAffected(0)->getLocation(move, 0), move->getAffected(1)->getLocation(move, 1));
@@ -310,7 +310,6 @@ int StrandComplex::generateLoops(void) {
 		}
 	}
 
-
 	if (depth != 0) {
 		printf("Mismatched Parens in Start Structure.");
 		return -1;
@@ -386,7 +385,7 @@ int StrandComplex::generateLoops(void) {
 		while (traverse != startpos && traverse < strlen(sequence)) {
 			if (sequence[traverse] == '_' || sequence[traverse] == '+') {
 				//printf("Open Loop at olflag = %d\n",traverse);
-				if (olflag != -1)			// error, we shouldn't have more than one open loop specifier in a loop.
+				if (olflag != -1)		// error, we shouldn't have more than one open loop specifier in a loop.
 					printf("Multiple open loop specifiers in one loop!\n");
 
 				olflag = traverse;
@@ -457,7 +456,7 @@ int StrandComplex::generateLoops(void) {
 			{
 				temp_intlist = templist;
 				for (loop = 0; loop < listlength - 1; loop++, temp_intlist = temp_intlist->next) {
-					if (temp_intlist->data > olflag){ // this data item is after the nick.
+					if (temp_intlist->data > olflag) { // this data item is after the nick.
 						break; // cause this loop to end.
 					}
 					// temp_intlist will then be the first pairing after the nick.
@@ -672,6 +671,10 @@ double StrandComplex::getTotalFlux(void) {
 	return beginLoop->returnFlux(NULL);
 }
 
+uint16_t StrandComplex::getMoveCount(void) {
+	return beginLoop->getMoveCount(NULL);
+}
+
 string& StrandComplex::getSequence(void) {
 // ZIFNAB - use the ordering to return a valid character sequence representation for this complex.
 	return ordering->getSequence();
@@ -682,7 +685,6 @@ string& StrandComplex::getStructure(void) {
 	return ordering->getStructure();
 
 }
-
 
 char *StrandComplex::getStrandNames(void) {
 	return ordering->getStrandNames();
@@ -723,7 +725,6 @@ double StrandComplex::getEnthalpy(void) {
 	return beginLoop->returnEnthalpies( NULL);
 
 }
-
 
 void StrandComplex::generateMoves(void) {
 	beginLoop->firstGen( NULL);

@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2017 California Institute of Technology. All rights reserved.
-Multistrand nucleic acid kinetic simulator
-help@multistrand.org
-*/
+ Copyright (c) 2017 California Institute of Technology. All rights reserved.
+ Multistrand nucleic acid kinetic simulator
+ help@multistrand.org
+ */
 
 /*
  *
@@ -15,8 +15,6 @@ help@multistrand.org
 #include <sstream>
 #include "move.h"
 #include <energymodel.h>
-
-
 
 char* utility::copyToCharArray(string& myString) {
 
@@ -34,17 +32,15 @@ string utility::sequenceToString(char* sequence, int size) {
 	std::stringstream ss;
 
 	int preBase = (int) sequence[0];
-	int postBase = (int) sequence[size+1];
+	int postBase = (int) sequence[size + 1];
 
-	if( preBase < 0 || preBase > 5){
+	if (preBase < 0 || preBase > 5) {
 		cout << "Warning! prebase is outside of range" << endl;
 	}
 
-	if( postBase < 0 || postBase > 5){
+	if (postBase < 0 || postBase > 5) {
 		cout << "Warning! postbase is outside of range" << endl;
 	}
-
-
 
 	ss << "";
 	ss << baseTypeString[(int) sequence[0]];

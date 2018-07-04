@@ -19,15 +19,13 @@ public:
 	// Constructors. Still not sure on exactly how I want to do these. For now, they take a character sequence and structure.
 	StrandComplex(char *seq, char *struc);
 	StrandComplex(char *seq, char *struc, class identList *id_list);
-
 	StrandComplex(StrandOrdering *newOrdering);
-
-	// Destructor, basic.
 	~StrandComplex(void);
 	void cleanup(void);
 
-	// information retreival functions
+	// information retrieval functions
 	double getTotalFlux(void); // returns total flux for all moves within the complex
+	uint16_t getMoveCount(void); // returns total number of transitions in the complex
 	int getStrandCount(void); // # of strands in the complex.
 	double getEnergy(void); // returns the energy of the complex
 	double getEnthalpy(void); // return the enthalpy of the complex
@@ -58,8 +56,6 @@ public:
 	StrandOrdering* ordering;
 private:
 	Loop *beginLoop;
-
-//	double totalFlux = 0.0; // Total flux contained within this complex.
 
 };
 

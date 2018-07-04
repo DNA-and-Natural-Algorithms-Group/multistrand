@@ -65,6 +65,7 @@ public:
 	double returnEnergies(Loop *comefrom); // returns the total energy of all loops underneath this one.
 	double returnEnthalpies(Loop *comefrom); // sums the enthalpy of the contained loops.
 	double returnFlux(Loop *comefrom); // returns the total rate of all loops underneath this one.
+	uint16_t getMoveCount(Loop *comefrom); // returns the number of transitions in this loop.
 	void firstGen(Loop *comefrom);
 	static void SetEnergyModel(EnergyModel *newEnergyModel);
 	static EnergyModel *GetEnergyModel(void);

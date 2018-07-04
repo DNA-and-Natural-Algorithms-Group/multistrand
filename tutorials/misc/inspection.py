@@ -7,7 +7,7 @@ from multistrand.experiment import makeComplex
 
 def createOptions(start_complex, stop_complex, simMode):
 
-    full_sc = StopCondition("CLOSED", [(stop_complex, Options.dissoc_macrostate, 2)])    
+    full_sc = StopCondition("CLOSED", [(stop_complex, Literals.dissoc_macrostate, 2)])    
     
     o1 = Options(simulation_mode=simMode,  # "First Passage Time", 
                  parameter_type="Nupack", substrate_type="DNA", temperature=273.15 + 25.0,
@@ -79,7 +79,7 @@ def create_test0C():
     start_complex2 = Complex(strands=[substrate], structure="..")
     stop_complex = Complex(strands=[incoming, substrate], structure="((+))")
 
-    full_sc = StopCondition("CLOSED", [(stop_complex, Options.dissoc_macrostate, 2)])  
+    full_sc = StopCondition("CLOSED", [(stop_complex, Literals.dissoc_macrostate, 2)])  
     
     o1 = Options(simulation_mode=Literals.first_passage_time, 
                 temperature=273.15 + 25.0,
@@ -231,11 +231,11 @@ def create_test3():
 
     # Stop when the exact full duplex is achieved. (No breathing!)
     success_complex = Complex(strands=[top, bot], structure="(+)")
-    success_stop_condition = StopCondition("SUCCESS", [(success_complex, Options.exact_macrostate, 0)])
+    success_stop_condition = StopCondition("SUCCESS", [(success_complex, Literals.exact_macrostate, 0)])
 
     # Declare the simulation unproductive if the strands become single-stranded again.
     failed_complex = Complex(strands=[top], structure=".")
-    failed_stop_condition = StopCondition("FAILURE", [(failed_complex, Options.dissoc_macrostate, 0)])
+    failed_stop_condition = StopCondition("FAILURE", [(failed_complex, Literals.dissoc_macrostate, 0)])
 
     o = Options(simulation_mode="First Step",
                 parameter_type="Nupack",

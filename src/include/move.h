@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2017 California Institute of Technology. All rights reserved.
-Multistrand nucleic acid kinetic simulator
-help@multistrand.org
-*/
+ Copyright (c) 2017 California Institute of Technology. All rights reserved.
+ Multistrand nucleic acid kinetic simulator
+ help@multistrand.org
+ */
 
 /* Move class and Move Tree class header */
 
@@ -78,18 +78,17 @@ public:
 	virtual ~MoveContainer(void);
 	virtual void addMove(Move *newmove) = 0;
 	double getRate(void);
+
 	virtual void resetDeleteMoves(void) = 0;
 	virtual Move *getChoice(double *rnd) = 0;
 	virtual Move *getMove(Move *iterator) = 0;
-
+	virtual uint16_t getCount(void) = 0;
 	virtual void printAllMoves(bool) = 0;
 
 protected:
 	double totalrate;
 
 };
-
-
 
 class MoveList: public MoveContainer {
 public:
@@ -98,19 +97,19 @@ public:
 	void addMove(Move *newmove);
 	Move *getChoice(double *rnd);
 	Move *getMove(Move *iterator);
+	uint16_t getCount(void);
 	void resetDeleteMoves(void);
-
 	void printAllMoves(bool);
 
 	//  friend class Move;
 private:
 	Move **moves;
 	Move **del_moves;
-	int moves_size;
-	int moves_index;
-	int del_moves_size;
-	int del_moves_index;
-	int int_index;
+	uint16_t moves_size;
+	uint16_t moves_index;
+	uint16_t del_moves_size;
+	uint16_t del_moves_index;
+	uint16_t int_index;
 };
 
 #endif

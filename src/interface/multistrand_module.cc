@@ -29,8 +29,6 @@ typedef struct {
 	PyObject* options;
 } SimSystemObject;
 
-
-
 static PyObject *SimSystemObject_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
 
 	SimSystemObject *self;
@@ -91,7 +89,21 @@ static PyObject *SimSystemObject_initialInfo(SimSystemObject *self, PyObject *ar
 		PyErr_SetString(PyExc_AttributeError, "The associated SimulationSystem [C++] object no longer exists, cannot query the system.");
 		return NULL;
 	}
-	self->ob_system->InitialInfo();
+	self->ob_system->initialInfo();
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *SimSystemObject_localTransitions(SimSystemObject *self, PyObject *args) {
+	if (!PyArg_ParseTuple(args, ":localTransitions"))
+		return NULL;
+
+	if (self->ob_system == NULL) {
+		PyErr_SetString(PyExc_AttributeError, "The associated SimulationSystem [C++] object no longer exists, cannot query the system.");
+		return NULL;
+	}
+	self->ob_system->localTransitions();
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -138,6 +150,12 @@ SimSystem.initialInfo( self )\n\
 \n\
 Query information about the initial state. \n";
 
+const char docstring_SimSystem_localTransitions[] =
+		"\
+SimSystem.localTransitions( self )\n\
+\n\
+Given the initial state, traverses into each transition once. \n";
+
 const char docstring_SimSystem_init[] =
 		"\
 :meth:`multistrand.system.SimSystem.__init__( self, *args )`\n\
@@ -152,7 +170,8 @@ options [type=:class:`multistrand.options.Options`]  -- The options to use for\n
 
 static PyMethodDef SimSystemObject_methods[] = { { "__init__", (PyCFunction) SimSystemObject_init, METH_COEXIST | METH_VARARGS, PyDoc_STR(
 		docstring_SimSystem_init) }, { "start", (PyCFunction) SimSystemObject_start, METH_VARARGS, PyDoc_STR(docstring_SimSystem_start) }, { "initialInfo",
-		(PyCFunction) SimSystemObject_initialInfo, METH_VARARGS, PyDoc_STR(docstring_SimSystem_initialInfo) }, { NULL, NULL } /* Sentinel */
+		(PyCFunction) SimSystemObject_initialInfo, METH_VARARGS, PyDoc_STR(docstring_SimSystem_initialInfo) }, { "localTransitions",
+		(PyCFunction) SimSystemObject_localTransitions, METH_VARARGS, PyDoc_STR(docstring_SimSystem_localTransitions) }, { NULL, NULL } /* Sentinel */
 /* Note that the dealloc, etc methods are not
  defined here, they're in the type object's
  methods table, not the basic methods table. */

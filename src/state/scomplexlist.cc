@@ -294,6 +294,25 @@ double SComplexList::getJoinFlux(void) {
 
 }
 
+
+uint16_t SComplexList::getMoveCount(void){
+
+	uint16_t output = 0;
+
+	for (SComplexListEntry* temp = first; temp != NULL; temp = temp->next) {
+
+		output += temp->thisComplex->getMoveCount();
+
+	}
+
+	return output;
+
+
+
+}
+
+
+
 // FD: We need to re-write this for the Arrhenius routine
 
 // General strategy: A quick summation of all possible rates.

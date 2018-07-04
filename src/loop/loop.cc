@@ -34,7 +34,6 @@ inline double Loop::getEnergy(void) {
 	}
 }
 
-
 inline double Loop::getEnthalpy(void) {
 
 	if (enthalpyComputed)
@@ -45,7 +44,6 @@ inline double Loop::getEnthalpy(void) {
 		return enthalpy;
 	}
 }
-
 
 char Loop::getType(void) {
 	return identity;
@@ -92,7 +90,6 @@ double Loop::returnEnergies(Loop *comefrom) {
 	return total;
 }
 
-
 double Loop::returnEnthalpies(Loop *comefrom) {
 
 	double total = getEnthalpy();
@@ -125,6 +122,23 @@ double Loop::returnFlux(Loop *comefrom) {
 		assert(adjacentLoops[loop] != NULL);
 	}
 	return total;
+}
+
+uint16_t Loop::getMoveCount(Loop* comefrom) {
+
+	assert(moves != NULL);
+	uint16_t output = moves->getCount();
+
+	for (int loop = 0; loop < curAdjacent; loop++) {
+
+		if (adjacentLoops[loop] != comefrom) {
+			output = output + adjacentLoops[loop]->getMoveCount(this);
+		}
+
+		assert(adjacentLoops[loop] != NULL);
+	}
+	return output;
+
 }
 
 void Loop::firstGen(Loop *comefrom) {
@@ -2597,7 +2611,6 @@ void StackLoop::calculateEnthalpy(void) {
 
 }
 
-
 void StackLoop::generateMoves(void) {
 	generateDeleteMoves();
 }
@@ -2776,8 +2789,6 @@ void HairpinLoop::calculateEnthalpy(void) {
 
 	enthalpy = energyModel->HairpinEnthalpy(hairpin_seq, hairpinsize);
 }
-
-
 
 Move *HairpinLoop::getChoice(double *randomchoice, Loop *from) {
 	Move *stor;
@@ -3076,8 +3087,6 @@ void BulgeLoop::calculateEnthalpy(void) {
 
 }
 
-
-
 double BulgeLoop::doChoice(Move *move, Loop **returnLoop) {
 	Loop *newLoop[2];
 	int pt, loop, loop2;
@@ -3365,8 +3374,6 @@ void InteriorLoop::calculateEnthalpy(void) {
 
 	enthalpy = energyModel->InteriorEnthalpy(int_seq[0], int_seq[1], sizes[0], sizes[1]);
 }
-
-
 
 double InteriorLoop::doChoice(Move *move, Loop **returnLoop) {
 	Loop *newLoop[2];
@@ -3772,7 +3779,6 @@ void MultiLoop::calculateEnthalpy(void) {
 
 }
 
-
 double MultiLoop::doChoice(Move *move, Loop **returnLoop) {
 
 	Loop *newLoop[2];
@@ -4092,7 +4098,7 @@ void MultiLoop::generateMoves(void) {
 
 						energies[0] = energyModel->StackEnergy(seqs[loop3][loop], seqs[loop4][loop2], seqs[loop3][sidelen[loop3] + 1], seqs[loop4][0]);
 
-					} else if (loop == sidelen[loop3] || loop2 == 1) { 			// #2b: bulge
+					} else if (loop == sidelen[loop3] || loop2 == 1) { // #2b: bulge
 
 						if (loop2 == 1) {
 							energies[0] = energyModel->BulgeEnergy(seqs[loop3][loop], seqs[loop4][loop2], seqs[loop3][sidelen[loop3] + 1], seqs[loop4][0],
@@ -4371,13 +4377,11 @@ void OpenLoop::calculateEnergy(void) {
 
 }
 
-
 void OpenLoop::calculateEnthalpy(void) {
 
 	enthalpy = energyModel->OpenloopEnthalpy(numAdjacent, sidelen, seqs);
 
 }
-
 
 Move *OpenLoop::getChoice(double *randomchoice, Loop *from) {
 	Move *stor;
@@ -4635,7 +4639,6 @@ void OpenLoop::generateMoves(void) {
 // i'd like to optimize so they don't need to be created/deleted very often
 // but i'm  not sure of a good way of handling that yet.
 
-
 // FD Oct 19 2017.
 // We are going to implement a function that prevents moves from being added if the nucleotides are not yet "active".
 // The purpose is to simulate co-transcriptional folding. For this we may assume that there is only a single strand.
@@ -4646,17 +4649,14 @@ void OpenLoop::generateMoves(void) {
 // where T is the current time of the simulation.
 // DNA/RNA notation convention is 5' to 3' end. Enzymes can only attach new nucleotides at the 3' end.
 
-
 	int *sideLengths = NULL;
 	char **sequences = NULL;
 
 	sideLengths = new int[numAdjacent + 2];
 	sequences = new char *[numAdjacent + 2];
 
-
 // for cotranscriptional mode, assume a single sequence
 	const char* initialPointer = &seqs[0][0];
-
 
 // Case #1: Single Side only Creation Moves
 	for (loop3 = 0; loop3 < numAdjacent + 1; loop3++) {
@@ -4670,7 +4670,7 @@ void OpenLoop::generateMoves(void) {
 				pairType = pairtypes[mySequence[loop]][mySequence[loop2]];
 
 				// FD: Allowed combinations are non-zero.  G-T stacks are sometimes allowed. Hairpin loops are size 3 or more.
-				if (pairType != 0 && nucleotideIsActive(mySequence, initialPointer, loop, loop2) ) {
+				if (pairType != 0 && nucleotideIsActive(mySequence, initialPointer, loop, loop2)) {
 
 					energies[0] = energyModel->HairpinEnergy(&mySequence[loop], loop2 - loop - 1);
 
@@ -4711,16 +4711,17 @@ void OpenLoop::generateMoves(void) {
 
 				pairType = pairtypes[seqs[loop3][loop]][seqs[loop3 + 1][loop2]];
 
-				if (pairType != 0 && this->nucleotideIsActive(seqs[loop3], initialPointer, loop) && this->nucleotideIsActive(seqs[loop3 + 1], initialPointer, loop2) ) {
+				if (pairType != 0 && this->nucleotideIsActive(seqs[loop3], initialPointer, loop)
+						&& this->nucleotideIsActive(seqs[loop3 + 1], initialPointer, loop2)) {
 
 					// three cases for which type of move:
 					MoveType leftMove = stackMove;
 
-					if (loop == sidelen[loop3] && loop2 == 1) { 					// #2a: stack
+					if (loop == sidelen[loop3] && loop2 == 1) { // #2a: stack
 
 						energies[0] = energyModel->StackEnergy(seqs[loop3][loop], seqs[loop3 + 1][loop2], seqs[loop3][sidelen[loop3] + 1], seqs[loop3 + 1][0]);
 
-					} else if (loop == sidelen[loop3] || loop2 == 1) { 			// #2b: bulge
+					} else if (loop == sidelen[loop3] || loop2 == 1) { // #2b: bulge
 
 						if (loop2 == 1) {
 
@@ -4787,7 +4788,8 @@ void OpenLoop::generateMoves(void) {
 
 					pairType = pairtypes[seqs[loop3][loop]][seqs[loop4][loop2]];
 
-					if (pairType != 0 && this->nucleotideIsActive(seqs[loop3], initialPointer, loop) && this->nucleotideIsActive(seqs[loop4], initialPointer, loop2)) { // result is a multiloop and open loop.
+					if (pairType != 0 && this->nucleotideIsActive(seqs[loop3], initialPointer, loop)
+							&& this->nucleotideIsActive(seqs[loop4], initialPointer, loop2)) { // result is a multiloop and open loop.
 
 						for (temploop = 0, tempindex = 0; temploop < (loop4 - loop3 + 1); tempindex++) { // note that loop4 - loop3 is the number of pairings that got included in the multiloop. The extra closing pair makes the +1.
 
@@ -5269,25 +5271,22 @@ HalfContext OpenLoop::getHalfContext(int loop, int loop2) {
 
 }
 
-
-bool OpenLoop::nucleotideIsActive(const char* sequence, const char* initial, const int pos1,  const int pos2 ){
+bool OpenLoop::nucleotideIsActive(const char* sequence, const char* initial, const int pos1, const int pos2) {
 
 	return nucleotideIsActive(sequence, initial, pos1) && nucleotideIsActive(sequence, initial, pos2);
 
 }
 
-
-
-bool OpenLoop::nucleotideIsActive(const char* sequence, const char* initial, const int pos1){
+bool OpenLoop::nucleotideIsActive(const char* sequence, const char* initial, const int pos1) {
 
 //	// needed: time and a pointer to the first entry.
-	if (energyModel->simOptions->cotranscriptional){
+	if (energyModel->simOptions->cotranscriptional) {
 
 		const char* seqPointer = &sequence[pos1];
-		const int distance =  seqPointer - initial;
+		const int distance = seqPointer - initial;
 //		cout << "Comparing nt distance " << distance << " and active " <<  energyModel->numActiveNT  << endl;
 
-		if(distance > energyModel->numActiveNT){
+		if (distance > energyModel->numActiveNT) {
 
 			return false;
 		}
@@ -5295,8 +5294,6 @@ bool OpenLoop::nucleotideIsActive(const char* sequence, const char* initial, con
 
 	return true;
 }
-
-
 
 void OpenLoop::parseLocalContext(int index) {
 

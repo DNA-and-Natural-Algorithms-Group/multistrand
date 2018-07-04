@@ -714,12 +714,12 @@ void SimulationSystem::sendTrajectory_CurrentStateToPython(double current_time, 
 		builder.addState(mergedData, arrType);
 	}
 
-    if (!simOptions->statespaceActive) {
+	if (!simOptions->statespaceActive) {
 
-        pushTrajectoryInfo(system_options, current_time);
-        pushTrajectoryInfo2(system_options, arrType);
+		pushTrajectoryInfo(system_options, current_time);
+		pushTrajectoryInfo2(system_options, arrType);
 
-    }
+	}
 
 }
 
@@ -856,7 +856,7 @@ void SimulationSystem::printAllMoves() {
 }
 
 // FD: a simple peak into the initial state
-void SimulationSystem::InitialInfo(void) {
+void SimulationSystem::initialInfo(void) {
 
 	if (InitializeSystem() != 0) {
 		return;
@@ -864,13 +864,11 @@ void SimulationSystem::InitialInfo(void) {
 
 	printAllMoves();
 
-// print info on bimolecular rates
+	// print info on bimolecular rates
 	double biRate = complexList->getJoinFlux();
 
 	cout << "\n";
 	cout << "JoinFlux is " << biRate << "\n";
-
-//	complexList->doJoinChoice(0.99999 * biRate);
 
 	biRate = biRate / energyModel->applyPrefactors(energyModel->getJoinRate(), loopMove, loopMove);
 
@@ -879,19 +877,19 @@ void SimulationSystem::InitialInfo(void) {
 	cout << "joinrate is " << energyModel->applyPrefactors(energyModel->getJoinRate(), loopMove, loopMove) << " /s" << endl;
 	cout << "join concentration is " << energyModel->simOptions->energyOptions->getJoinConcentration() << endl;
 
-//	for (int i = 0; i < MOVETYPE_SIZE; i++) {
-//
-//		for (int j = 0; j < MOVETYPE_SIZE; j++) {
-//
-//			int primeVal = moveutil::getPrimeCode((MoveType) i, (MoveType) j);
-//
-//			string desc = moveutil::primeToDesc(primeVal);
-//
-//			cout << primeVal << " : \" " << desc << " \n" << " \" ," << "\n";
-//
-//		}
-//
-//	}
+}
+
+// FD: Build the statespace by taking N transitions, where N is the number of transitions out of the state
+// If you call this function, the system will assume the active statespace toggle is set.
+void SimulationSystem::localTransitions(void) {
+
+	if (InitializeSystem() != 0) {
+		return;
+	}
+
+	uint16_t N = complexList->getJoinFlux();
+
+	cout << "The number of moves in this state is " << N << endl;
 
 }
 

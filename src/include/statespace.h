@@ -15,16 +15,12 @@
 #ifndef __STATESPACE_H__
 #define __STATESPACE_H__
 
-//#include <simoptions.h>
 #include <scomplexlist.h>
-//#include <experimental/filesystem>
 #include <unordered_map>
 #include <unordered_set>
 
 using std::unordered_map;
 using std::unordered_set;
-
-//namespace fs = std::experimental::filesystem;
 
 class SimOptions;
 

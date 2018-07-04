@@ -36,7 +36,7 @@ Builder::Builder(SimOptions* options) {
 // Could use shared pointer to prevent this,
 // but statespace building will only be used during inference anyhow.
 // also note the copy only occurs if the state / transition is not found already
-// this is a relatively rare event for a typicall simulation.
+// this is a relatively rare event for a typical simulation.
 
 void Builder::addState(ExportData& data, const double arrType) {
 

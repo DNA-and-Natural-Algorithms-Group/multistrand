@@ -22,7 +22,6 @@
 typedef std::vector<bool> boolvector;
 typedef std::vector<bool>::iterator boolvector_iterator;
 
-
 namespace result_type {
 
 const static std::string STR_ERROR = "error";
@@ -31,8 +30,6 @@ const static std::string STR_NOINITIAL = "noinitial";
 const static std::string STR_TIMEOUT = "timeout";
 
 }
-
-
 
 // Some simulation datapoints
 class SimTimer {
@@ -73,8 +70,9 @@ public:
 	~SimulationSystem(void);
 
 	void StartSimulation(void);
-	void InitialInfo(void);	// printing function
+	void initialInfo(void);	// printing function
 	void printTransition(double); // printing function
+	void localTransitions(void); // builds all transitions in local statespace
 
 	PyObject *calculateEnergy(PyObject *start_state, int typeflag);
 	int isEnergymodelNull(void);

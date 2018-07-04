@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2017 California Institute of Technology. All rights reserved.
-Multistrand nucleic acid kinetic simulator
-help@multistrand.org
-*/
+ Copyright (c) 2017 California Institute of Technology. All rights reserved.
+ Multistrand nucleic acid kinetic simulator
+ help@multistrand.org
+ */
 
 // TEST
 #include <stdio.h>
@@ -145,7 +145,6 @@ Move::Move(int mtype, RateEnv mrate, Loop *affected_1, int *indexarray) {
 
 }
 
-
 Move::~Move(void) {
 	/* destruction of a move does not imply destruction of the associated loops */
 	affected[0] = affected[1] = NULL;
@@ -181,7 +180,6 @@ Loop *Move::doChoice(void) {
 	} else
 		return NULL;
 }
-
 
 string Move::toString(bool useArr) {
 
@@ -308,7 +306,6 @@ void MoveList::printAllMoves(bool useArr) {
 void MoveList::addMove(Move *newmove) {
 	int type = newmove->getType();
 
-
 	if (!(type & MOVE_DELETE)) {
 
 		moves[moves_index] = newmove;
@@ -409,5 +406,11 @@ MoveContainer::~MoveContainer(void) {
 
 double MoveContainer::getRate(void) {
 	return totalrate;
+}
+
+uint16_t MoveList::getCount(void) {
+
+	return moves_index + del_moves_index;
+
 }
 
