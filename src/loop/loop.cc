@@ -2646,8 +2646,6 @@ void StackLoop::printMove(Loop *comefrom, char *structure_p, char *seq_p) {
 Move *StackLoop::getChoice(SimTimer& timer, Loop *from) {
 
 	Move *stor;
-//	assert(randomchoice != NULL);
-//	assert(*randomchoice >= 0.0); // never should see a negative choice value.
 
 	if (timer.wouldBeHit(totalRate)) // something was chosen, do this
 		return moves->getChoice(timer);
