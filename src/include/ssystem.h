@@ -31,33 +31,6 @@ const static std::string STR_TIMEOUT = "timeout";
 
 }
 
-// Some simulation datapoints
-class SimTimer {
-
-public:
-	SimTimer(SimOptions& myOptions);
-
-	void advanceTime(void);
-	bool checkForNewNucleotide(void);
-	friend std::ostream& operator<<(std::ostream&, SimTimer&);
-
-	double rchoice = 0.0;
-	double rate = 0.0;
-	double stime = 0.0;
-	double maxsimtime = 0.0;
-	double last_trajectory_time = 0.0;
-	long stopcount = 0;
-	long stopoptions = 0;
-
-	int nuclAdded = 0;
-	int numActiveNucl = 0; // for co-transcriptional folding.
-
-private:
-
-	SimOptions* simOptions = NULL;
-
-};
-
 class SimulationSystem {
 public:
 	SimulationSystem(SimOptions* options);
@@ -71,7 +44,6 @@ public:
 
 	void StartSimulation(void);
 	void initialInfo(void);	// printing function
-	void printTransition(double); // printing function
 	void localTransitions(void); // builds all transitions in local statespace
 
 	PyObject *calculateEnergy(PyObject *start_state, int typeflag);

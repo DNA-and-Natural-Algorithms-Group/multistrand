@@ -10,6 +10,7 @@ config_vars = distutils.sysconfig.get_config_vars()
 
 sources = ["src/system/utility.cc",
            "src/system/sequtil.cc",
+           "src/system/simtimer.cc",
            "src/interface/multistrand_module.cc",
            "src/interface/optionlists.cc",
            "src/interface/options.cc",

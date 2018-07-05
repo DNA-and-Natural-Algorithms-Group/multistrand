@@ -363,30 +363,33 @@ Move *MoveList::getMove(Move *iterator) {
 	return moves[int_index++];
 }
 
-Move *MoveList::getChoice(double *rnd) {
+Move *MoveList::getChoice(SimTimer& timer) {
 
 	double tmp;
 
 	for (int index = 0; index < moves_index + del_moves_index; index++) {
 
 		if (index < moves_index) {
+
 			tmp = moves[index]->getRate();
+
 		} else {
 			tmp = del_moves[index - moves_index]->getRate();
+
 		}
-		if (*rnd < tmp && index < moves_index) {
+		if (timer.wouldBeHit(tmp) && index < moves_index) {
+
 			return moves[index];
-		} else if (*rnd < tmp) {
-//			// TODO
-//			cout << "Returning delete move!! \n ";
-//			cout << del_moves[index - moves_index]->toString(true);
-//			cout.flush();
+
+		} else if (timer.wouldBeHit(tmp)) {
+
 			return del_moves[index - moves_index];
+
 		} else {
-			*rnd -= tmp;
+			timer.checkHit(tmp);
 		}
 	}
-	assert(*rnd > 0);
+//	assert(*rnd > 0);
 	assert(0); // should never call for a move from a container unless it will get one.
 	return NULL;
 }

@@ -2643,22 +2643,23 @@ void StackLoop::printMove(Loop *comefrom, char *structure_p, char *seq_p) {
 // for now, Stack loops also don't have deletion moves.
 }
 
-Move *StackLoop::getChoice(double *randomchoice, Loop *from) {
-	Move *stor;
-	assert(randomchoice != NULL);
-	assert(*randomchoice >= 0.0); // never should see a negative choice value.
+Move *StackLoop::getChoice(SimTimer& timer, Loop *from) {
 
-	if (*randomchoice < totalRate) // something was chosen, do this
-		return moves->getChoice(randomchoice);
+	Move *stor;
+//	assert(randomchoice != NULL);
+//	assert(*randomchoice >= 0.0); // never should see a negative choice value.
+
+	if (timer.wouldBeHit(totalRate)) // something was chosen, do this
+		return moves->getChoice(timer);
 	else {
-		*randomchoice -= totalRate;
+		timer.checkHit(totalRate);
 		if (adjacentLoops[0] != from) {
-			stor = adjacentLoops[0]->getChoice(randomchoice, this);
+			stor = adjacentLoops[0]->getChoice(timer, this);
 			if (stor != NULL)
 				return stor;
 		}
 		if (adjacentLoops[1] != from) {
-			stor = adjacentLoops[1]->getChoice(randomchoice, this);
+			stor = adjacentLoops[1]->getChoice(timer, this);
 			if (stor != NULL)
 				return stor;
 		}
@@ -2790,18 +2791,16 @@ void HairpinLoop::calculateEnthalpy(void) {
 	enthalpy = energyModel->HairpinEnthalpy(hairpin_seq, hairpinsize);
 }
 
-Move *HairpinLoop::getChoice(double *randomchoice, Loop *from) {
+Move *HairpinLoop::getChoice(SimTimer& timer, Loop *from) {
 	Move *stor;
-	assert(randomchoice != NULL);
-	assert(*randomchoice >= 0.0); // never should see a negative choice value.
 
-	if (*randomchoice < totalRate) // something was chosen, do this
-		return moves->getChoice(randomchoice);
+	if (timer.wouldBeHit(totalRate)) // something was chosen, do this
+		return moves->getChoice(timer);
 	else {
-		*randomchoice -= totalRate;
+		timer.checkHit(totalRate);
 		if (adjacentLoops[0] != from) // should not occur, can remove later. FIXME
 				{
-			stor = adjacentLoops[0]->getChoice(randomchoice, this);
+			stor = adjacentLoops[0]->getChoice(timer, this);
 			if (stor != NULL)
 				return stor;
 		}
@@ -3049,22 +3048,20 @@ string BulgeLoop::typeInternalsToString(void) {
 
 }
 
-Move *BulgeLoop::getChoice(double *randomchoice, Loop *from) {
+Move *BulgeLoop::getChoice(SimTimer& timer, Loop *from) {
 	Move *stor;
-	assert(randomchoice != NULL);
-	assert(*randomchoice >= 0.0); // never should see a negative choice value.
 
-	if (*randomchoice < totalRate) // something was chosen, do this
-		return moves->getChoice(randomchoice);
+	if (timer.wouldBeHit(totalRate)) // something was chosen, do this
+		return moves->getChoice(timer);
 	else {
-		*randomchoice -= totalRate;
+		timer.checkHit(totalRate);
 		if (adjacentLoops[0] != from) {
-			stor = adjacentLoops[0]->getChoice(randomchoice, this);
+			stor = adjacentLoops[0]->getChoice(timer, this);
 			if (stor != NULL)
 				return stor;
 		}
 		if (adjacentLoops[1] != from) {
-			stor = adjacentLoops[1]->getChoice(randomchoice, this);
+			stor = adjacentLoops[1]->getChoice(timer, this);
 			if (stor != NULL)
 				return stor;
 		}
@@ -3333,22 +3330,20 @@ string InteriorLoop::typeInternalsToString(void) {
 
 }
 
-Move *InteriorLoop::getChoice(double *randomchoice, Loop *from) {
+Move *InteriorLoop::getChoice(SimTimer& timer, Loop *from) {
 	Move *stor;
-	assert(randomchoice != NULL);
-	assert(*randomchoice >= 0.0); // never should see a negative choice value.
 
-	if (*randomchoice < totalRate) // something was chosen, do this
-		return moves->getChoice(randomchoice);
+	if (timer.wouldBeHit(totalRate)) // something was chosen, do this
+		return moves->getChoice(timer);
 	else {
-		*randomchoice -= totalRate;
+		timer.checkHit(totalRate);
 		if (adjacentLoops[0] != from) {
-			stor = adjacentLoops[0]->getChoice(randomchoice, this);
+			stor = adjacentLoops[0]->getChoice(timer, this);
 			if (stor != NULL)
 				return stor;
 		}
 		if (adjacentLoops[1] != from) {
-			stor = adjacentLoops[1]->getChoice(randomchoice, this);
+			stor = adjacentLoops[1]->getChoice(timer, this);
 			if (stor != NULL)
 				return stor;
 		}
@@ -3745,20 +3740,17 @@ string MultiLoop::typeInternalsToString(void) {
 
 }
 
-Move *MultiLoop::getChoice(double* randomchoice, Loop *from) {
+Move *MultiLoop::getChoice(SimTimer& timer, Loop *from) {
 
 	Move *stor;
 
-	assert(randomchoice != NULL);
-	assert(*randomchoice >= 0.0); // never should see a negative choice value.
-
-	if (*randomchoice < totalRate) // something was chosen, do this
-		return moves->getChoice(randomchoice);
+	if (timer.wouldBeHit(totalRate)) // something was chosen, do this
+		return moves->getChoice(timer);
 	else {
-		*randomchoice -= totalRate;
+		timer.checkHit(totalRate);
 		for (int loop = 0; loop < curAdjacent; loop++)
 			if (adjacentLoops[loop] != from) {
-				stor = adjacentLoops[loop]->getChoice(randomchoice, this);
+				stor = adjacentLoops[loop]->getChoice(timer, this);
 				if (stor != NULL)
 					return stor;
 			}
@@ -4383,18 +4375,17 @@ void OpenLoop::calculateEnthalpy(void) {
 
 }
 
-Move *OpenLoop::getChoice(double *randomchoice, Loop *from) {
-	Move *stor;
-	assert(randomchoice != NULL);
-	assert(*randomchoice >= 0.0); // never should see a negative choice value.
+Move *OpenLoop::getChoice(SimTimer& timer, Loop *from) {
 
-	if (*randomchoice < totalRate) { // something was chosen, do this
-		return moves->getChoice(randomchoice);
+	Move *stor;
+
+	if (timer.wouldBeHit(totalRate)) { // something was chosen, do this
+		return moves->getChoice(timer);
 	} else {
-		*randomchoice -= totalRate;
+		timer.checkHit(totalRate);
 		for (int loop = 0; loop < curAdjacent; loop++) {
 			if (adjacentLoops[loop] != from) {
-				stor = adjacentLoops[loop]->getChoice(randomchoice, this);
+				stor = adjacentLoops[loop]->getChoice(timer, this);
 				if (stor != NULL)
 					return stor;
 			}

@@ -11,6 +11,7 @@
 #include <iostream>
 #include <sstream>
 #include "scomplex.h"
+#include "simtimer.h"
 
 #include <utility.h>
 
@@ -730,8 +731,8 @@ void StrandComplex::generateMoves(void) {
 	beginLoop->firstGen( NULL);
 }
 
-Move *StrandComplex::getChoice(double *rand_choice) {
-	return beginLoop->getChoice(rand_choice, NULL);
+Move *StrandComplex::getChoice(SimTimer& timer) {
+	return beginLoop->getChoice(timer, NULL);
 }
 
 int StrandComplex::getStrandCount(void) {

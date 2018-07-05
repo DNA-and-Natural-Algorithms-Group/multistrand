@@ -15,47 +15,6 @@
 #include <vector>
 #include <iostream>
 
-SimTimer::SimTimer(SimOptions& myOptions) {
-
-	maxsimtime = myOptions.getMaxSimTime();
-	stopcount = myOptions.getStopCount();
-	stopoptions = myOptions.getStopOptions();
-
-	// saving the pointer to enable access to cotranscriptional timing values
-	simOptions = &myOptions;
-
-}
-
-// advances the simulation time according to the set rate
-void SimTimer::advanceTime(void) {
-
-	rchoice = rate * drand48();
-	stime += (log(1. / (1.0 - drand48())) / rate);
-
-}
-
-// returns TRUE if a new nucleotide is to be added to the chain
-bool SimTimer::checkForNewNucleotide(void) {
-
-	if (simOptions->cotranscriptional && stime > (nuclAdded + simOptions->initialActiveNT) * simOptions->cotranscriptional_rate) {
-
-		nuclAdded++;
-		return true;
-	}
-
-	return false;
-}
-
-std::ostream& operator<<(std::ostream& ss, SimTimer& timer) {
-
-	ss << "rchoice ";
-	ss << timer.rchoice << "  rate  ";
-	ss << timer.rate << "  simTime  ";
-	ss << timer.stime << "\n";
-
-	return ss;
-}
-
 SimulationSystem::SimulationSystem(PyObject *system_o) {
 
 	system_options = system_o;
@@ -228,7 +187,6 @@ void SimulationSystem::finalizeSimulation(void) {
 
 	if (simOptions->statespaceActive) {
 
-//		cout << "writing statespace";
 		builder.writeToFile();
 
 	}
@@ -541,9 +499,10 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 		return;
 	}
 
-	myTimer.rchoice = myTimer.rate * drand48();
+	myTimer.advanceTime(); // select an rchoice
+	myTimer.stime = 0.0; // but reset the jump in time, because first step mode.
 
-	int ArrMoveType = complexList->doJoinChoice(myTimer.rchoice);
+	int ArrMoveType = complexList->doJoinChoice(myTimer);
 
 	if (exportStatesInterval) {
 		exportInterval(myTimer.stime, current_state_count, ArrMoveType);
@@ -551,9 +510,6 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 
 // store the forward rate used for the initial step so we can record it.
 	frate = myTimer.rate * energyModel->getJoinRate_NoVolumeTerm() / energyModel->getJoinRate();
-
-// rate is the total flux across all join moves - this is exactly equal to total_move_count *
-// dnaEnergyModel->getJoinRate()
 
 // This join rate is the dG_volume * bimolecular scaling constant
 // used for forward transitions.  What we actually need is the
@@ -811,14 +767,6 @@ PyObject *SimulationSystem::calculateEnergy(PyObject *start_state, int typeflag)
 	delete[] values;
 
 	return retval;
-}
-
-void SimulationSystem::printTransition(double input) {
-
-	cout << "Using RNG =" << input;
-	Move* myMove = startState->getChoice(&input);
-	cout << ", we selected move: \n " << myMove->toString(simOptions->energyOptions) << " \n ";
-
 }
 
 void SimulationSystem::exportTime(double& simTime, double& lastExportTime) {

@@ -12,13 +12,13 @@
 #include "scomplex.h"
 #include "energymodel.h"
 #include "optionlists.h"
+#include "simtimer.h"
+#include "strandordering.h"
 
 using std::cout;
 
 class SComplexListEntry;
 class JoinCriterea;
-class SimTimer;
-
 
 class SComplexList {
 public:
@@ -44,10 +44,10 @@ public:
 	void printComplexList();
 	SComplexListEntry *getFirst(void);
 	double doBasicChoice(SimTimer& timer);
-	JoinCriteria cycleForJoinChoice(double choice);
-	JoinCriteria cycleForJoinChoiceArr(double choice);
+	JoinCriteria cycleForJoinChoice(SimTimer& timer);
+	JoinCriteria cycleForJoinChoiceArr(SimTimer& timer);
 	JoinCriteria findJoinNucleotides(BaseType, int, BaseCount&, SComplexListEntry*, HalfContext* = NULL);
-	double doJoinChoice(double choice);
+	double doJoinChoice(SimTimer& choice);
 	void doJoinChoiceArr(double choice);
 	bool checkStopComplexList(class complexItem *stoplist);
 	string toString(void);

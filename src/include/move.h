@@ -19,6 +19,8 @@ const int MOVE_3 = 32;
 
 #include <string>
 #include <moveutil.h>
+#include "simtimer.h"
+
 using std::string;
 
 class Loop;
@@ -80,7 +82,7 @@ public:
 	double getRate(void);
 
 	virtual void resetDeleteMoves(void) = 0;
-	virtual Move *getChoice(double *rnd) = 0;
+	virtual Move *getChoice(SimTimer& timer) = 0;
 	virtual Move *getMove(Move *iterator) = 0;
 	virtual uint16_t getCount(void) = 0;
 	virtual void printAllMoves(bool) = 0;
@@ -95,7 +97,7 @@ public:
 	MoveList(int initial_size);
 	~MoveList(void);
 	void addMove(Move *newmove);
-	Move *getChoice(double *rnd);
+	Move *getChoice(SimTimer& timer);
 	Move *getMove(Move *iterator);
 	uint16_t getCount(void);
 	void resetDeleteMoves(void);

@@ -13,6 +13,7 @@ help@multistrand.org
 #include "energymodel.h"
 #include "move.h"
 #include "moveutil.h"
+//#include "simtimer.h"
 
 using std::vector;
 
@@ -49,7 +50,7 @@ public:
 	virtual void calculateEnthalpy(void){};	// TODO: implement this.
 	virtual void generateMoves(void) = 0;
 	virtual void generateDeleteMoves(void) = 0;
-	virtual Move *getChoice(double *randomchoice, Loop *from) = 0;
+	virtual Move *getChoice(SimTimer& timer, Loop *from) = 0;
 	virtual double doChoice(Move *move, Loop **returnLoop) = 0;
 	virtual char *getLocation(Move *move, int index) =0;
 	virtual char *verifyLoop(char *incoming_sequence, Loop *from) =0;
@@ -107,7 +108,7 @@ public:
 	void calculateEnthalpy(void);
 	void generateMoves(void);
 	void generateDeleteMoves(void);
-	Move *getChoice(double *randnum, Loop *from);
+	Move *getChoice(SimTimer& timer, Loop *from);
 	double doChoice(Move *move, Loop **returnLoop);
 	void printMove(Loop *comefrom, char *structure_p, char *seq_p);
 	char *getLocation(Move *move, int index);
@@ -129,7 +130,7 @@ public:
 	void calculateEnthalpy(void);
 	void generateMoves(void);
 	void generateDeleteMoves(void);
-	Move *getChoice(double *randnum, Loop *from);
+	Move *getChoice(SimTimer& timer, Loop *from);
 	double doChoice(Move *move, Loop **returnLoop);
 	void printMove(Loop *comefrom, char *structure_p, char *seq_p);
 	char *getLocation(Move *move, int index);
@@ -153,7 +154,7 @@ public:
 	void calculateEnthalpy(void);
 	void generateMoves(void);
 	void generateDeleteMoves(void);
-	Move *getChoice(double *randnum, Loop *from);
+	Move *getChoice(SimTimer& timer, Loop *from);
 	double doChoice(Move *move, Loop **returnLoop);
 	void printMove(Loop *comefrom, char *structure_p, char *seq_p);
 	char *getLocation(Move *move, int index);
@@ -176,7 +177,7 @@ public:
 	void calculateEnthalpy(void);
 	void generateMoves(void);
 	void generateDeleteMoves(void);
-	Move *getChoice(double *randnum, Loop *from);
+	Move *getChoice(SimTimer& timer, Loop *from);
 	double doChoice(Move *move, Loop **returnLoop);
 	void printMove(Loop *comefrom, char *structure_p, char *seq_p);
 	char *getLocation(Move *move, int index);
@@ -200,7 +201,7 @@ public:
 	void calculateEnthalpy(void);
 	void generateMoves(void);
 	void generateDeleteMoves(void);
-	Move *getChoice(double *randnum, Loop *from);
+	Move *getChoice(SimTimer& timer, Loop *from);
 	double doChoice(Move *move, Loop **returnLoop);
 	void printMove(Loop *comefrom, char *structure_p, char *seq_p);
 	char *getLocation(Move *move, int index);
@@ -225,7 +226,7 @@ public:
 	void calculateEnthalpy(void);
 	void generateMoves(void);
 	void generateDeleteMoves(void);
-	Move *getChoice(double *randomchoice, Loop *from);
+	Move *getChoice(SimTimer& timer, Loop *from);
 	double doChoice(Move *move, Loop **returnLoop);
 	void printMove(Loop *comefrom, char *structure_p, char *seq_p);
 	char *getLocation(Move *move, int index);

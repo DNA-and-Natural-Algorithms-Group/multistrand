@@ -294,8 +294,7 @@ double SComplexList::getJoinFlux(void) {
 
 }
 
-
-uint16_t SComplexList::getMoveCount(void){
+uint16_t SComplexList::getMoveCount(void) {
 
 	uint16_t output = 0;
 
@@ -307,11 +306,7 @@ uint16_t SComplexList::getMoveCount(void){
 
 	return output;
 
-
-
 }
-
-
 
 // FD: We need to re-write this for the Arrhenius routine
 
@@ -429,13 +424,13 @@ double SComplexList::doBasicChoice(SimTimer& myTimer) {
 
 	}
 
-	if (myTimer.rchoice < joinRate) {
+	if (myTimer.wouldBeHit(joinRate)) {
 
-		return doJoinChoice(myTimer.rchoice);
+		return doJoinChoice(myTimer);
 
 	} else {
 
-		myTimer.rchoice -= joinRate;
+		myTimer.checkHit(joinRate);
 
 	}
 
@@ -443,13 +438,13 @@ double SComplexList::doBasicChoice(SimTimer& myTimer) {
 	StrandComplex *pickedComplex = NULL;
 
 	while (temp != NULL) {
-		if (myTimer.rchoice < temp->rate && pickedComplex == NULL) {
+		if (myTimer.wouldBeHit(temp->rate) && pickedComplex == NULL) {
 			pickedComplex = temp->thisComplex;
 			temp2 = temp;
 		}
 		if (pickedComplex == NULL) {
 
-			myTimer.rchoice -= temp->rate;
+			myTimer.checkHit(temp->rate);
 
 		}
 		temp = temp->next;
@@ -458,7 +453,7 @@ double SComplexList::doBasicChoice(SimTimer& myTimer) {
 
 	assert(pickedComplex != NULL);
 
-	tempmove = pickedComplex->getChoice(&myTimer.rchoice);
+	tempmove = pickedComplex->getChoice(myTimer);
 	arrType = tempmove->getArrType();
 
 	newComplex = pickedComplex->doChoice(tempmove);
@@ -494,7 +489,7 @@ double SComplexList::doBasicChoice(SimTimer& myTimer) {
  SComplexList::doJoinChoice( double choice )
  */
 
-double SComplexList::doJoinChoice(double choice) {
+double SComplexList::doJoinChoice(SimTimer& timer) {
 
 	// this function will return the arrType move;
 
@@ -510,11 +505,11 @@ double SComplexList::doJoinChoice(double choice) {
 
 	if (!eModel->useArrhenius()) {
 
-		crit = cycleForJoinChoice(choice);
+		crit = cycleForJoinChoice(timer);
 
 	} else {
 
-		crit = cycleForJoinChoiceArr(choice);
+		crit = cycleForJoinChoiceArr(timer);
 
 	}
 
@@ -566,9 +561,9 @@ double SComplexList::doJoinChoice(double choice) {
 
 }
 
-JoinCriteria SComplexList::cycleForJoinChoice(double choice) {
+JoinCriteria SComplexList::cycleForJoinChoice(SimTimer& timer) {
 
-	int int_choice = (int) floor(choice / eModel->applyPrefactors(eModel->getJoinRate(), loopMove, loopMove));
+	int choice = timer.checkHitBi(eModel->applyPrefactors(eModel->getJoinRate(), loopMove, loopMove));
 	BaseCount baseSum = getExposedBases();
 
 	for (SComplexListEntry* temp = first; temp != NULL; temp = temp->next) {
@@ -580,13 +575,13 @@ JoinCriteria SComplexList::cycleForJoinChoice(double choice) {
 
 			int combinations = baseSum.count[base] * external.count[5 - base];
 
-			if (int_choice < combinations) {
+			if (choice < combinations) {
 
 				// break both loops, because the right bases are identified.
-				return findJoinNucleotides(base, int_choice, external, temp);
+				return findJoinNucleotides(base, choice, external, temp);
 
 			} else {
-				int_choice -= combinations;
+				choice -= combinations;
 			}
 
 		}
@@ -633,7 +628,7 @@ JoinCriteria SComplexList::findJoinNucleotides(BaseType base, int choice, BaseCo
 	return crit;
 }
 
-JoinCriteria SComplexList::cycleForJoinChoiceArr(double choice) {
+JoinCriteria SComplexList::cycleForJoinChoiceArr(SimTimer& timer) {
 
 	// Like the non-arrhenius version, but this time, we have to cycle over all the
 	// possible local structures.
@@ -663,10 +658,10 @@ JoinCriteria SComplexList::cycleForJoinChoiceArr(double choice) {
 
 						double rate = joinRate * combinations;
 
-						if (choice < rate) {
+						if (timer.wouldBeHit(rate)) {
 
 							// we have determined the HalfContexts for the upper and lower strand.
-							int choice_int = floor(choice / joinRate);
+							int choice_int = timer.checkHitBi(joinRate);
 
 							for (BaseType base : { baseA, baseT, baseG, baseC }) {
 
@@ -683,10 +678,6 @@ JoinCriteria SComplexList::cycleForJoinChoiceArr(double choice) {
 
 									crit.arrType = (double) moveutil::getPrimeCode(left, right);
 
-//									cout << "Joining two complexes, found the arrtype to be " << crit.arrType << "\n";
-//									cout << "Found the contexts to be " << moveutil::MoveToString[left] << "  " << moveutil::MoveToString[right] << "\n";
-//									cout.flush();
-
 									return crit;
 
 								} else {
@@ -697,7 +688,7 @@ JoinCriteria SComplexList::cycleForJoinChoiceArr(double choice) {
 
 						} else {
 
-							choice = choice - rate;
+							timer.checkHit(rate);
 
 						}
 
@@ -710,8 +701,7 @@ JoinCriteria SComplexList::cycleForJoinChoiceArr(double choice) {
 		}
 	}
 
-	cout << "Failing. Remaining rate= " << choice << "\n";
-
+	cout << "Failing. Remaining rate= " << timer << "\n";
 	assert(0);
 	return JoinCriteria();
 
@@ -809,7 +799,6 @@ bool SComplexList::checkStopComplexList_Structure_Disassoc(class complexItem *st
 
 	traverse = stoplist;
 	while (traverse != NULL) {
-
 
 		// count how many strands are in the stop complex. This gets used as a fast check later.
 		id_count = 0;
