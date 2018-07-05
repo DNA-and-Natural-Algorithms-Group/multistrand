@@ -65,7 +65,7 @@ private:
 	SComplexListEntry* first = NULL;
 	EnergyModel* eModel = NULL;
 
-	double joinRate = 0.0;
+	double joinRate = 0.0;	// joinrate is the sum of collision rates in the state.
 
 }
 ;

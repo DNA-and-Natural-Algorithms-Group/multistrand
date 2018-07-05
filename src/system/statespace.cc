@@ -31,6 +31,14 @@ Builder::Builder(SimOptions* options) {
 
 }
 
+std::ostream& operator<<(std::ostream& ss, Builder& b) {
+
+	ss << "nStates = " << b.protoSpace.size();
+	ss << "   nTransitions = " << b.protoTransitions.size();
+
+	return ss;
+}
+
 // Put the statespace in memory
 // Note: this copies the contents of the input.
 // Could use shared pointer to prevent this,

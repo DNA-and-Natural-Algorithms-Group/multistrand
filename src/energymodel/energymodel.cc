@@ -80,7 +80,6 @@ void EnergyModel::writeConstantsToFile() {
 	// Print constants to file.
 	std::stringstream ss;
 
-
 	ss << "Multistrand " << simOptions->ms_version << " \n \n";
 
 	ss << "sodium        :  " << simOptions->energyOptions->sodium << " M \n";
@@ -91,8 +90,8 @@ void EnergyModel::writeConstantsToFile() {
 	ss << "GT pairing    :  " << simOptions->energyOptions->getGtenable() << "           (0: disabled)" << endl;
 	ss << "concentration :  " << simOptions->energyOptions->getJoinConcentration() << " M \n";
 	ss << "" << endl;
-	ss << "path_dG      :  " << paramFiles[0] <<  endl;
-	ss << "path_dH      :  " << paramFiles[1] <<  endl;
+	ss << "path_dG      :  " << paramFiles[0] << endl;
+	ss << "path_dH      :  " << paramFiles[1] << endl;
 	ss << "" << endl;
 
 	ss << std::scientific;
@@ -102,9 +101,7 @@ void EnergyModel::writeConstantsToFile() {
 		ss << "unimolecular_scaling :   " << std::setprecision(6) << simOptions->energyOptions->getUniScale() << " /s \n";
 		ss << "bimolecular_scaling  :   " << std::setprecision(6) << simOptions->energyOptions->getBiScale() << " /M/s \n";
 
-
 	} else {
-
 
 		ss << "type      ";
 
@@ -177,6 +174,32 @@ void EnergyModel::writeConstantsToFile() {
 		myfile.close();
 
 		printedRates = true;
+
+	}
+
+}
+
+double EnergyModel::fastestUniRate(void) {
+
+	if (!useArrhenius()) {
+
+		return simOptions->energyOptions->getUniScale();
+
+	} else {
+
+		double output = arrheniusRates[0];
+
+		for (int i = 0; i < MOVETYPE_SIZE; i++) {
+
+			for (int j = 0; j < MOVETYPE_SIZE; j++) {
+
+				output = min(output, arrheniusRates[MOVETYPE_SIZE * i + j]);
+
+			}
+
+		}
+
+		return output;
 
 	}
 

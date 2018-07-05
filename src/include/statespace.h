@@ -40,6 +40,7 @@ public:
 
 	Builder();
 	Builder(SimOptions* options);
+	friend std::ostream& operator<<(std::ostream&, Builder&);
 
 	void addState(ExportData&, const double arrType);
 	void stopResultNormal(double, string);

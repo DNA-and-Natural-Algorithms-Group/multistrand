@@ -74,6 +74,7 @@ public:
 	MoveType prefactorInternal(int, int);
 
 	void writeConstantsToFile(void);
+	double fastestUniRate(void);
 
 	// Virtual methods
 
