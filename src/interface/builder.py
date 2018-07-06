@@ -537,7 +537,7 @@ class Builder(object):
     ignoreIntiialState: The initial state is not added to the set of initial states
     """
 
-    def genAndSavePathsFile(self, ignoreInitialState=False, supplyInitialState=None):
+    def genAndSavePathsFile(self, ignoreInitialState=False, supplyInitialState=None, inspecting=False):
 
         self.startTime = time.time()
 
@@ -565,7 +565,12 @@ class Builder(object):
             simTime = time.time()
 
             s = SimSystem(myOptions)
-            s.start()  # after this line, the computation is finished.
+                
+            ''' a specialized routine that ends after taking all transitions'''
+            if inspecting == True:
+                s.localTransitions() 
+            else:
+                s.start()  # after this line, the computation is finished.
 
             if self.verbosity:
                 print "Multistrand simulation is now done,      time = %.2f" % (time.time() - simTime)
@@ -729,6 +734,7 @@ class BuilderRate(object):
     def __init__(self, builderIn):
 
         self.build = builderIn
+        self.rateLimit = 1e-4
 
         if len(self.build.protoFinalStates) == 0 :
             raise ValueError('No final states found.')
@@ -891,9 +897,21 @@ class BuilderRate(object):
         if transitionlist[0] == transitiontype.unimolecular:
 
             if dG1 > dG2 :  # state2 is more stable (negative), dG1 - dG2 is positive
-                return self.build.options.unimolecular_scaling  , self.build.options.unimolecular_scaling * np.e ** (-(dG1 - dG2) / RT)
+                
+                rate1 = self.build.options.unimolecular_scaling
+                rate2 = self.build.options.unimolecular_scaling * np.e ** (-(dG1 - dG2) / RT)
+                
             else:  # state2 is less or equally stable (negative), dG1 - dG2 is negative
-                return self.build.options.unimolecular_scaling * np.e ** ((dG1 - dG2) / RT), self.build.options.unimolecular_scaling
+                
+                rate1 = self.build.options.unimolecular_scaling * np.e ** ((dG1 - dG2) / RT)
+                rate2 = self.build.options.unimolecular_scaling 
+
+            if rate1 < self.rateLimit:
+                rate1 = 0
+            if rate2 < self.rateLimit:
+                rate2 = 0
+                
+            return rate1, rate2
 
         else:  # bimolecular rate
 
@@ -941,6 +959,12 @@ class BuilderRate(object):
             else:
                 rate1 = np.e ** (lnA - E / RT)
                 rate2 = np.e ** (lnA - (DeltaG2 + E) / RT)
+		
+    	    if rate1 < self.rateLimit:
+                rate1 = 0.0
+    	    
+            if rate2 < self.rateLimit:
+                rate2 = 0.0
 
         elif transitionlist[0] == transitiontype.bimolecularIn:
 

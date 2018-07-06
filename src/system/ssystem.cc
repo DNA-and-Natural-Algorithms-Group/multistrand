@@ -834,15 +834,13 @@ void SimulationSystem::localTransitions(void) {
 	assert(simOptions->statespaceActive);
 	energyModel->inspection = true;
 
+	InitializeRNG(); // the output dir will be '0' if unset
 	InitializeSystem();
 	complexList->initializeList();
 	complexList->updateOpenInfo();
 
 	uint16_t N = complexList->getMoveCount();
-//	cout << complexList->getJoinFlux() << endl;
 	uint16_t collisions = round(complexList->getJoinFlux());
-//	cout << "The number of moves in this state is " << N << endl;
-//	cout << "The join rate in this state is " << collisions << endl;
 
 	for (uint16_t i = 0; i < (N + collisions); i++) {
 
@@ -871,7 +869,7 @@ void SimulationSystem::localTransitions(void) {
 
 	}
 
-//	cout << builder << endl;
+	finalizeSimulation();
 
 }
 

@@ -1,7 +1,7 @@
 
 from hybridization23 import Settings, ResultsHybridization, suyamaT, suyamaC, enum_hybridization, title_hybridization, testSeq, NUM_OF_REPEATS, CONVERGENCE_CRIT
 from multistrand.system import SimSystem
-from multistrand.builder import hybridizationString, Builder, BuilderRate,\
+from multistrand.builder import hybridizationString, Builder, BuilderRate, \
     threewaybmString
 from multistrand.options import Options, Literals
 from multistrand.experiment import standardOptions
@@ -15,7 +15,6 @@ A_TIME_OUT = 4e-3
 
 EXP_TOGGLE = 1
 
-
 morrison = ["TTGGTGATCC", "AGATTAGCAGGTTTCCCACC", "GCCCACACTCTTACTTATCGACT", "AGAGGCTTATAACTGTGTCGGGT", "TGTTCTAAGATTATCCTCCCGCC", "GGCGGCTATAACAATTTCATCCA"]
 
 morrison0 = ["TTGGTGATCC"]
@@ -24,7 +23,11 @@ morrison15 = ["AGATTAGCAGGTTTC"]
 
 longdomain = ["AGAGGCTTATAACTGTGTCGGGT"]
 
+TEST_RATE_LIMIT = True
+
 """ We will omit the starting state, somewhat unusual"""
+
+ADD_TRANSITIONS = True;
 
 
 def associationNoInit(arguments): 
@@ -44,6 +47,8 @@ def associationNoInit(arguments):
     stopSuccess = StopCondition(Literals.success, [(endComplex, Literals.exact_macrostate, 0)])
     stdOptions.stop_conditions = [stopSuccess]
    
+#     stdOptions.DNA23Arrhenius()
+   
     return stdOptions
 
 
@@ -58,6 +63,8 @@ def timings(seq, nTrials, deltaPruning=None):
         startStates = hybridizationString(seq)
     if EXP_TOGGLE == 2:
         startStates = threewaybmString("A", seq, "ACTAGG")
+#     if EXP_TOGGLE == 3:            
+#         startStates = dissociationString(seq)
     
     endState = startStates[-1]
     
@@ -67,22 +74,39 @@ def timings(seq, nTrials, deltaPruning=None):
     
         startTime = time.time()
         
+        BuilderRate.solveToggle = 2
         myBuilder = Builder(sett.function, sett.arguments)
-        myBuilder.genUntilConvergenceWithInitialState(CONVERGENCE_CRIT , startStates[:(len(startStates) - 1)], printMeanTime=True)
+        myBuilder.genUntilConvergenceWithInitialState(CONVERGENCE_CRIT, startStates[:(len(startStates) - 1)], printMeanTime=True)
+#         myBuilder.genUntilConvergenceWithInitialState(1000, startStates[:(len(startStates) - 1)], printMeanTime=True)
 
         if not deltaPruning == None:
-            print "Going to delta prune with %.2E" %deltaPruning
+            print "Going to delta prune with %.2E" % deltaPruning
             myBuilder.deltaPruning(deltaPruning, printCount=True)
 
-        builderRate = BuilderRate(myBuilder)
-        output.buildTime.append(time.time() - startTime)
-     
-        startTime = time.time()
-        output.rates.append(np.log10(1.0 / builderRate.averageTimeFromInitial(bimolecular=True)))
-        pruned_mfpt = builderRate.averageTimeFromInitial(bimolecular = False )
-        print "Rate = %.2E, MFPT = %.2E, compute_time =  %.2f \n\n " % (output.rates[-1], pruned_mfpt,  output.buildTime[-1])
-        output.matrixTime.append(time.time() - startTime)
-        output.nStates.append(len(builderRate.statespace))
+        maxRange = 1
+        
+        if TEST_RATE_LIMIT:
+            maxRange = 8
+
+        for i in range(maxRange):
+
+            builderRate = BuilderRate(myBuilder)
+
+            builderRate.rateLimit = builderRate.rateLimit * (10 ** i)
+            if i == (maxRange - 1):
+                builderRate.rateLimit = 0.0
+                
+            print "rateLimit = " + str(builderRate.rateLimit)
+                
+            builderRate.setMatrix()
+            output.buildTime.append(time.time() - startTime)
+         
+            startTime = time.time()
+            output.rates.append(np.log10(1.0 / builderRate.averageTimeFromInitial(bimolecular=True)))
+            pruned_mfpt = builderRate.averageTimeFromInitial(bimolecular=False)
+            print "Rate = %.2E, MFPT = %.2E, compute_time =  %.2f \n\n " % (output.rates[-1], pruned_mfpt, output.buildTime[-1])
+            output.matrixTime.append(time.time() - startTime)
+            output.nStates.append(len(builderRate.statespace))
      
     return output
 
