@@ -24,6 +24,14 @@ from scipy.sparse.linalg import spsolve, bicg, bicgstab, cg, cgs, gmres, lgmres,
 
 import numpy as np
 
+floatT = np.longdouble
+
+# 
+# def empty(*args, **kwargs):
+#     kwargs.update(dtype=floatT)
+#     _empty(*args, **kwargs)
+
+
 """
     Constructs a surface of  N *  ( N -1 ) / 2 points along the reaction frontier.
     This method returns a list of starting states that should be used as initial states for the string method.
@@ -33,7 +41,7 @@ import numpy as np
 
 def hybridizationString(seq):
 
-    cutoff = 0.45
+    cutoff = 0.75
     ids = [65, 66]
 
     N = len(seq)
@@ -266,7 +274,7 @@ class localtype(object):
 
 class Energy(object):
 
-    GAS_CONSTANT = 0.0019872036  # kcal / K mol
+    GAS_CONSTANT = floatT(0.0019872036)  # kcal / K mol
 
     dH = 0.0;
     dS = 0.0;
@@ -275,7 +283,7 @@ class Energy(object):
 
         assert(200 < temp < 400)
 
-        RT = self.GAS_CONSTANT * temp;
+        RT = self.GAS_CONSTANT * floatT(temp);
         dG_volume = RT * (n_strands - n_complexes) * np.log(1.0 / concentration)
 
         self.dH = dH
@@ -734,7 +742,7 @@ class BuilderRate(object):
     def __init__(self, builderIn):
 
         self.build = builderIn
-        self.rateLimit = 1e-4
+        self.rateLimit = 1e-5
 
         if len(self.build.protoFinalStates) == 0 :
             raise ValueError('No final states found.')
@@ -1044,19 +1052,19 @@ class BuilderRate(object):
                 self.addTransition(neighbor, state, revRate, rates, iArray, jArray, self.stateIndex)
 
         # now actually create the matrix
-        rate_matrix_coo = coo_matrix((rates, (iArray, jArray)), shape=(N, N) , dtype=np.float64)
+        rate_matrix_coo = coo_matrix((rates, (iArray, jArray)), shape=(N, N) , dtype=floatT)
 
-        self.rate_matrix_csr = csr_matrix(rate_matrix_coo)
-        self.b = -1 * np.ones(N)
+        self.rate_matrix_csr = csr_matrix(rate_matrix_coo, dtype=floatT)
+        self.b = -1 * np.ones(N, dtype=np.longdouble)
 
         #         # FD: pre-compute the matrix diagonal for preconditioning
-        diagons = [ (1.0 / x, i, j) for x, i, j in zip(rates, iArray, jArray) if i == j ]
+        diagons = [ ((1.0 / x), i, j) for x, i, j in zip(rates, iArray, jArray) if i == j ]
         diagons0 = [x[0] for x in diagons]
         diagons1 = [x[1] for x in diagons]
         diagons2 = [x[2] for x in diagons]
 
-        diagonal_matrix_coo = coo_matrix((diagons0, (diagons1, diagons2)), shape=(N, N), dtype=np.float64)
-        self.rate_matrix_inverse = csr_matrix(diagonal_matrix_coo)
+        diagonal_matrix_coo = coo_matrix((diagons0, (diagons1, diagons2)), shape=(N, N), dtype=floatT)
+        self.rate_matrix_inverse = csr_matrix(diagonal_matrix_coo, dtype=floatT)
 
         # save two counts for later interest
         self.n_states = N
@@ -1077,7 +1085,7 @@ class BuilderRate(object):
             firstpassagetimes, info = bicg(self.rate_matrix_csr, self.b, M=self.rate_matrix_inverse, x0=x0, maxiter=maxiter)
 
         elif self.solveToggle == 3:
-            firstpassagetimes, info = bicgstab(self.rate_matrix_csr, self.b , x0=x0, maxiter=maxiter)
+            firstpassagetimes, info = bicgstab(self.rate_matrix_csr, self.b, x0=x0, maxiter=maxiter)
 
         elif self.solveToggle == 4:
             firstpassagetimes, info = bicgstab(self.rate_matrix_csr, self.b, M=self.rate_matrix_inverse, x0=x0, maxiter=maxiter)
