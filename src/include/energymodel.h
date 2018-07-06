@@ -117,9 +117,13 @@ public:
 
 	// for co-transcriptional, save the curent amount of activated nucleotides
 	int numActiveNT = NULL;
+	// if inspection is used, all transitions occur at rate 1.0 /s
+	bool inspection = false;
 
 	// keep track of the used paths to parameter files
 	string paramFiles[2] = {"unset",  "unset"};
+
+
 
 protected:
 	long dangles;
@@ -181,6 +185,7 @@ public:
 
 	double returnRate(double start_energy, double end_energy, int enth_entr_toggle);
 	double returnRate(energyS &start_energy, energyS &end_energy);
+
 	double getJoinRate(void);
 	double getJoinRate_NoVolumeTerm(void);
 

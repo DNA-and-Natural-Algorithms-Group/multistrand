@@ -831,13 +831,46 @@ void SimulationSystem::initialInfo(void) {
 // If you call this function, the system will assume the active statespace toggle is set.
 void SimulationSystem::localTransitions(void) {
 
-	if (InitializeSystem() != 0) {
-		return;
+	assert(simOptions->statespaceActive);
+	energyModel->inspection = true;
+
+	InitializeSystem();
+	complexList->initializeList();
+	complexList->updateOpenInfo();
+
+	uint16_t N = complexList->getMoveCount();
+	cout << complexList->getJoinFlux() << endl;
+	uint16_t collisions = round(complexList->getJoinFlux());
+	cout << "The number of moves in this state is " << N << endl;
+	cout << "The join rate in this state is " << collisions << endl;
+
+	for (uint16_t i = 0; i < (N + collisions); i++) {
+
+		InitializeSystem();
+		complexList->initializeList();
+		complexList->updateOpenInfo();
+
+		SimTimer myTimer(*simOptions);
+		myTimer.rchoice = i + 0.01;
+
+		// export the initial state
+		if (exportStatesInterval) {
+			exportInterval(myTimer.stime, 0, 8888);
+		}
+
+		// move the state using the i-th transition
+		int ArrMoveType = complexList->doBasicChoice(myTimer);
+
+		// export the state after the transition
+		if (exportStatesInterval) {
+			exportInterval(myTimer.stime, 1, ArrMoveType);
+		}
+
+		finalizeRun();
+
 	}
 
-	uint16_t N = complexList->getJoinFlux();
-
-	cout << "The number of moves in this state is " << N << endl;
+	cout << builder << endl;
 
 }
 

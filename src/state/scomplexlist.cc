@@ -88,7 +88,7 @@ string SComplexListEntry::toString(EnergyModel *em) {
 
 	ss << "Complex         : " << id << " \n";
 	ss << "seq, struc      : " << thisComplex->getSequence() << " - " << thisComplex->getStructure() << " \n";
-	ss << "energy-ms       : " << energy;
+	ss << "energy-ms       : " << energy << endl;
 	ss << "energy-nu,rate  : " << printEnergy << " - " << rate << "     (T=" << em->simOptions->energyOptions->getTemperature() << ")";
 	ss << "\n";
 
@@ -282,7 +282,11 @@ double SComplexList::getJoinFlux(void) {
 
 	}
 
-// There are plenty of multi-complex structures with no moves.
+	if (eModel->inspection) {
+		return moveCount;
+	}
+
+	// There are plenty of multi-complex structures with no moves.
 	if (moveCount > 0) {
 
 		output = (double) moveCount * eModel->getJoinRate();
@@ -423,6 +427,8 @@ double SComplexList::doBasicChoice(SimTimer& myTimer) {
 		cout << myTimer;
 
 	}
+
+	cout << "joinrate = " << joinRate << endl;
 
 	if (myTimer.wouldBeHit(joinRate)) {
 

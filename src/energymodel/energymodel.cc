@@ -207,6 +207,10 @@ double EnergyModel::fastestUniRate(void) {
 
 double EnergyModel::applyPrefactors(double tempRate, MoveType left, MoveType right) {
 
+	if (inspection) {
+		return 1.0;
+	}
+
 	if (useArrhenius()) {
 
 		return tempRate * arrheniusRates[left * MOVETYPE_SIZE + right];

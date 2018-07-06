@@ -40,6 +40,10 @@ NupackEnergyModel::~NupackEnergyModel(void) {
 
 double NupackEnergyModel::returnRate(double start_energy, double end_energy, int enth_entr_toggle) {
 
+	if (inspection) {
+		return 1.0;
+	}
+
 	double dE = end_energy - start_energy;
 
 	if (enth_entr_toggle == 3) {
@@ -66,11 +70,21 @@ double NupackEnergyModel::returnRate(double start_energy, double end_energy, int
 }
 
 double NupackEnergyModel::getJoinRate(void) {
+
+	if (inspection) {
+		return (double) 1.0;
+	}
+
 	return joinrate; // replace with the passed in rate
 					 // joinrate includes biscale (via setupRates();)
 }
 
 double NupackEnergyModel::getJoinRate_NoVolumeTerm(void) {
+
+	if (inspection) {
+		return 1.0;
+	}
+
 	return biscale;
 }
 
@@ -497,9 +511,9 @@ FILE* NupackEnergyModel::openFiles(char* nupackhome, string& paramPath, string& 
 	string& fullpath = paramFiles[select];
 	FILE* fp = NULL;
 
-	if (nupackhome == NULL){
+	if (nupackhome == NULL) {
 		fullpath = fileName;
-	} else{
+	} else {
 		fullpath = nupackhome;
 		fullpath += paramPath;
 		fullpath += fileName;
@@ -1539,6 +1553,5 @@ void NupackEnergyModel::setupRates() {
 	dG_assoc = bimolecular_penalty; // already computed and scaled for water density.
 
 	joinrate = biscale * eOptions->getJoinConcentration();
-
 
 }
