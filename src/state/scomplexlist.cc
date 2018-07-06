@@ -423,12 +423,10 @@ double SComplexList::doBasicChoice(SimTimer& myTimer) {
 
 	if (utility::debugTraces) {
 
-		cout << "Doing a basic choice " << endl;
-		cout << myTimer;
+		cout << "Doing a basic choice, timer =  " << myTimer << endl;
+		cout << "joinrate = " << joinRate << endl;
 
 	}
-
-	cout << "joinrate = " << joinRate << endl;
 
 	if (myTimer.wouldBeHit(joinRate)) {
 
@@ -519,9 +517,7 @@ double SComplexList::doJoinChoice(SimTimer& timer) {
 
 	}
 
-	// before we do anything, print crit (this is for debugging!)
 	if (utility::debugTraces) {
-//	if (true) {
 		cout << "Found a criteria to join: \n";
 		cout << crit.arrType;
 	}
