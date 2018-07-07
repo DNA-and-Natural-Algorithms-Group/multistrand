@@ -23,6 +23,7 @@ from scipy.sparse import csr_matrix, coo_matrix, csc_matrix
 from scipy.sparse.linalg import spsolve, bicg, bicgstab, cg, cgs, gmres, lgmres, qmr, inv
 
 import numpy as np
+from numpy.ma.core import ids
 
 floatT = np.longdouble
 
@@ -30,7 +31,6 @@ floatT = np.longdouble
 # def empty(*args, **kwargs):
 #     kwargs.update(dtype=floatT)
 #     _empty(*args, **kwargs)
-
 
 """
     Constructs a surface of  N *  ( N -1 ) / 2 points along the reaction frontier.
@@ -288,7 +288,7 @@ class Energy(object):
 
         self.dH = dH
         self.dS = -(dG - dG_volume - dH) / temp
-
+        
     def dG(self, temp):
 
         return self.dH - temp * self.dS
@@ -357,9 +357,12 @@ class Builder(object):
         self.protoTransitions = dict()  # key: transitions. Value: ArrheniusType (negative if it is a bimolecular transition)
         self.protoInitialStates = dict()  # key: states. Value: a InitCountFlux object that tells how many times the state has been the initial state and the join flux (rate)
         self.protoFinalStates = dict()  # key: states: Value: the result of this final state can be SUCCES or FAILURE
+        self.protoSequences = dict()  # key: name of strand. Value: sequence
 
         self.firstStepMode = True
         self.startTime = time.time()
+        
+        self.mergingCounter = 0  # counts how many transitions from the merging have been found
 
         # save a copy for later processing -- note this copy will not have results attached to it,
         # so it won't have a large memory footprint.
@@ -369,9 +372,12 @@ class Builder(object):
 
     def __str__(self):
 
-        output = "states / transitions / initS / finalS      \n "
-        output += str(len(self.protoSpace)) + "   -    " + str(len(self.protoTransitions))
-        output += "   -    " + str(len(self.protoInitialStates)) + "   -    " + str(len(self.protoFinalStates))
+        output = "states / transitions / initS / finalS / merged     \n "
+        output += str(len(self.protoSpace)) 
+        output += "   -    " + str(len(self.protoTransitions))
+        output += "   -    " + str(len(self.protoInitialStates)) 
+        output += "   -    " + str(len(self.protoFinalStates))
+        output += "   -    " + str(self.mergingCounter) 
 
         return output
 
@@ -381,6 +387,7 @@ class Builder(object):
         self.protoTransitions.clear()
         self.protoInitialStates.clear()
         self.protoFinalStates.clear()
+        self.protoSequences.clear()
 
     def printOverlap(self, other):
 
@@ -407,6 +414,22 @@ class Builder(object):
         self.mergeSet(self.protoTransitions, other.protoTransitions)
         self.mergeSet(self.protoInitialStates, other.protoInitialStates)
         self.mergeSet(self.protoFinalStates, other.protoFinalStates)
+        self.mergeSet(self.protoSequences, other.protoSequences)
+
+    ''' Merges if both source and the target exist '''
+
+    def transitionMerge(self, other):
+        
+        for key, value in other.protoTransitions.iteritems():
+            
+            sFrom = key[0]
+            sTo = key[1]
+            
+            if sFrom in self.protoSpace and sTo in self.protoSpace:
+                
+                if not key in self.protoTransitions:
+                    self.protoTransitions[key] = value
+                    self.mergingCounter += 1
 
     def parseState(self, line, simulatedTemperature, simulatedConc):
 
@@ -416,11 +439,13 @@ class Builder(object):
         n_strands = 0
 
         ids = []
+        sequences = []
         structs = []
 
         for i in range(n_complexes):
 
             ids.append(mywords[1 + i])
+            sequences.append(mywords[1 + n_complexes + i])
             structs.append(mywords[1 + 2 * n_complexes + i])
             n_strands += len(mywords[1 + 2 * n_complexes + i].split('+'))
 
@@ -435,7 +460,7 @@ class Builder(object):
 
         energyvals = Energy(dG, dH, simulatedTemperature, simulatedConc, n_complexes, n_strands)
 
-        return uniqueID, energyvals
+        return uniqueID, energyvals, (sequences, ids, structs)
 
     """ Runs genAndSavePathsFile until convergence is reached"""
 
@@ -455,6 +480,8 @@ class Builder(object):
             builderRate = BuilderRate(self)
             currTime = builderRate.averageTimeFromInitial()
 
+        self.fattenStateSpace()
+        
         if self.verbosity:
             print "Size     = %i " % len(self.protoSpace)
 
@@ -495,9 +522,46 @@ class Builder(object):
             if printMeanTime:
                 print "Mean first passage time = %.2E" % currTime
 
+        self.fattenStateSpace()
+
         if self.verbosity:
             print "Size     = %i " % len(self.protoSpace)
 
+    '''
+    Generates all transitions between states in the statespaces and adds missing transitions
+    '''
+            
+    def fattenStateSpace(self):
+        
+        def inspectionSim(inputs):
+
+            o1 = standardOptions()
+            o1.rate_method = self.options.rate_method
+            o1.start_state = inputs[0]
+            
+            return o1
+        
+        for key, value in self.protoSpace.iteritems():
+
+            (seqs, ids, structs) = self.protoSequences[key]
+            
+            myState = []
+            
+            for seq, id, struct in zip(seqs, ids, structs):
+                
+                seqs = seq.split('+')
+                ids = id.split(',')
+                myC = makeComplex(seqs, struct, ids)
+
+                myState.append(myC)
+            
+            ''' post: myState is the state we want to explore transitions for. '''
+    
+            myB = Builder(inspectionSim, [myState])
+            myB.genAndSavePathsFile(inspecting=True)
+            
+            self.transitionMerge(myB)
+    
     """
     Computes the mean first pasasage times, 
     then selects states that are delta-close 
@@ -553,11 +617,12 @@ class Builder(object):
         transitions = dict()
         initStates = dict()
         finalStates = dict()
+        sequences = dict()
 
         # the first argument is always the number of paths
         inputArgs = copy.deepcopy(self.optionsArgs)
 
-        def runPaths(optionsF, optionsArgs, space, transitions, initStates, finalStates):
+        def runPaths(optionsF, optionsArgs, space, transitions, initStates, finalStates, sequences):
 
             myOptions = optionsF(optionsArgs)
             myOptions.activestatespace = True
@@ -587,8 +652,11 @@ class Builder(object):
             myFile = open(self.the_dir + str(myOptions.interface.current_seed) + "/protospace.txt", "r")
 
             for line in myFile:
-
-                uniqueID, energyvals = self.parseState(line, myOptions._temperature_kelvin, myOptions.join_concentration)
+                
+                uniqueID, energyvals, seqs = self.parseState(line, myOptions._temperature_kelvin, myOptions.join_concentration)
+                
+                if not uniqueID in sequences:
+                    sequences[uniqueID] = seqs
 
                 if not uniqueID in space:
 
@@ -615,13 +683,13 @@ class Builder(object):
                 line1 = myLines[index];
                 line2 = myLines[index + 1];
                 line3 = myLines[index + 2];
-
+                
                 index = index + 4  # note the whitespace
 
                 go_on = len(myLines) > index
 
-                uID1, ev1 = self.parseState(line2, myOptions._temperature_kelvin, myOptions.join_concentration)
-                uID2, ev2 = self.parseState(line3, myOptions._temperature_kelvin, myOptions.join_concentration)
+                uID1, ev1, seq1 = self.parseState(line2, myOptions._temperature_kelvin, myOptions.join_concentration)
+                uID2, ev2, seq2 = self.parseState(line3, myOptions._temperature_kelvin, myOptions.join_concentration)
 
                 transitionPair = (uID1, uID2)
 
@@ -669,7 +737,7 @@ class Builder(object):
                 index = index + 2  # note the whitespace
                 go_on = len(myLines) > index
 
-                uID1, ev1 = self.parseState(line2, myOptions._temperature_kelvin, myOptions.join_concentration)
+                uID1, ev1, seq1 = self.parseState(line2, myOptions._temperature_kelvin, myOptions.join_concentration)
                 count = int(line1.split()[0])
 
                 if not uID1 in initStates:
@@ -703,7 +771,7 @@ class Builder(object):
 
                 go_on = len(myLines) > (index + 1)
 
-                uID1, ev1 = self.parseState(line1, myOptions._temperature_kelvin, myOptions.join_concentration)
+                uID1, ev1, seq1 = self.parseState(line1, myOptions._temperature_kelvin, myOptions.join_concentration)
                 tag = line2.split()[0]
 
                 if not uID1 in finalStates:
@@ -715,12 +783,13 @@ class Builder(object):
             os.remove(self.the_dir + str(myOptions.interface.current_seed) + "/protoinitialstates.txt")
             os.remove(self.the_dir + str(myOptions.interface.current_seed) + "/protofinalstates.txt")
 
-        runPaths(self.optionsFunction, inputArgs, space, transitions, initStates, finalStates)
+        runPaths(self.optionsFunction, inputArgs, space, transitions, initStates, finalStates, sequences)
 
         # do not forget to merge the objects back
         self.mergeSet(self.protoSpace, space)
         self.mergeSet(self.protoTransitions, transitions)
         self.mergeSet(self.protoFinalStates, finalStates)
+        self.mergeSet(self.protoSequences, sequences)
 
         if not ignoreInitialState:
 

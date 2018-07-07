@@ -128,6 +128,14 @@ def pairType(ids, structs):
             index += 1
     
     idList = ids.split(',')
+    nList = []
+    for id in idList:
+
+        id = id.split(":")[1]
+        nList.append(id)
+
+    idList = nList
+    
     dotParens = structs.split('+') 
     N = len(dotParens)
     
