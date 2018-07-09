@@ -167,6 +167,9 @@ def threewaybmString(lefttoe, displace, righttoe):
         dotparen = "."*(N + rT) + pair[0] + "+" + pair[1] + "("*N + "."*rT + "+" + ")"*N 
         output.append([makeComplex(seqsL, dotparen, idsL)])
         
+    if lT == 0:
+        dotparen = "."*(N + rT) + "" + "+" + "" + "("*N + "."*rT + "+" + ")"*N
+        
     ''' the dotparen of the weave is the fully hybridized toehold.
         Toggle the basepairs one step at a time.
     '''
@@ -186,6 +189,9 @@ def threewaybmString(lefttoe, displace, righttoe):
     for pair in weaving:
         dotparen = pair[0] + "."*(N + lT) + "+" + "("*N + "+" + "."*lT + ")"*N + pair[1] 
         output.append([makeComplex(seqsR, dotparen, idsR)])
+
+    if rT == 0:
+        dotparen = "" + "."*(N + lT) + "+" + "("*N + "+" + "."*lT + ")"*N + "" 
 
     ''' 
         Toggle the basepairs one step at a time.
@@ -497,24 +503,26 @@ class Builder(object):
 
         while not crit.converged(currTime, len(self.protoSpace)) :
 
-            otherBuilder = Builder(self.optionsFunction, self.optionsArgs)
+            self.genAndSavePathsFromString(initialStates)
 
-            startTime = time.time()
-
-            """ Only the first state will count towards the set of initial states """
-            ignoreInitial = False
-            for state in initialStates:
-                otherBuilder.genAndSavePathsFile(supplyInitialState=state, ignoreInitialState=ignoreInitial)
-                ignoreInitial = True
-
-            self.mergeBuilder(otherBuilder)
-
-            if self.verbosity or printMeanTime:
-                print "Size     = %i    ---  bytesize = %i " % (len(self.protoSpace), sys.getsizeof (self.protoSpace))
-                print "Size T   = %i    ---  bytesize = %i " % (len(self.protoTransitions), sys.getsizeof (self.protoTransitions))
-                print "Time = %f" % (time.time() - startTime)
-
-            del otherBuilder
+#             otherBuilder = Builder(self.optionsFunction, self.optionsArgs)
+# 
+#             startTime = time.time()
+# 
+#             """ Only the first state will count towards the set of initial states """
+#             ignoreInitial = False
+#             for state in initialStates:
+#                 otherBuilder.genAndSavePathsFile(supplyInitialState=state, ignoreInitialState=ignoreInitial)
+#                 ignoreInitial = True
+# 
+#             self.mergeBuilder(otherBuilder)
+# 
+#             if self.verbosity or printMeanTime:
+#                 print "Size     = %i    ---  bytesize = %i " % (len(self.protoSpace), sys.getsizeof (self.protoSpace))
+#                 print "Size T   = %i    ---  bytesize = %i " % (len(self.protoTransitions), sys.getsizeof (self.protoTransitions))
+#                 print "Time = %f" % (time.time() - startTime)
+# 
+#             del otherBuilder
 
             builderRate = BuilderRate(self)
             currTime = builderRate.averageTimeFromInitial()
@@ -527,11 +535,36 @@ class Builder(object):
         if self.verbosity:
             print "Size     = %i " % len(self.protoSpace)
 
+    ''' A single iteration of the pathway elaboration method '''
+
+    def genAndSavePathsFromString(self, pathway):
+            
+        startTime = time.time()
+
+        """ Only the first state will count towards the set of initial states """
+        ignoreInitial = False
+        for state in pathway:
+            otherBuilder = Builder(self.optionsFunction, self.optionsArgs)
+            otherBuilder.genAndSavePathsFile(supplyInitialState=state, ignoreInitialState=ignoreInitial)
+            ignoreInitial = True
+
+            self.mergeBuilder(otherBuilder)
+            del otherBuilder
+
+        if self.verbosity or printMeanTime:
+            print "Size     = %i    ---  bytesize = %i " % (len(self.protoSpace), sys.getsizeof (self.protoSpace))
+            print "Size T   = %i    ---  bytesize = %i " % (len(self.protoTransitions), sys.getsizeof (self.protoTransitions))
+            print "Time = %f" % (time.time() - startTime)
+
     '''
     Generates all transitions between states in the statespaces and adds missing transitions
     '''
             
     def fattenStateSpace(self):
+        
+        ogVerb = Builder.verbosity
+        Builder.verbosity = False
+        counter = 0
         
         def inspectionSim(inputs):
 
@@ -542,6 +575,9 @@ class Builder(object):
             return o1
         
         for key, value in self.protoSpace.iteritems():
+
+            if ogVerb and ((counter % 100) == 0):
+                print "Searching for missing transitions. Progress " + str(counter) + " / " + str(len(self.protoSpace))
 
             (seqs, ids, structs) = self.protoSequences[key]
             
@@ -558,9 +594,14 @@ class Builder(object):
             ''' post: myState is the state we want to explore transitions for. '''
     
             myB = Builder(inspectionSim, [myState])
+            Builder.verbosity = False
             myB.genAndSavePathsFile(inspecting=True)
             
             self.transitionMerge(myB)
+            
+            counter += 1
+        
+        Builder.verbosity = ogVerb
     
     """
     Computes the mean first pasasage times, 
@@ -1008,9 +1049,6 @@ class BuilderRate(object):
                 raise ValueError('The transition code is unexpected ')
 
     def arrhenius_rate(self, state1, state2, transitionlist):
-
-        if self.build.verbosity:
-            print "In arrhenius_rate, transition list " , transitionlist
 
         lnA_left, E_left = self.halfcontext_parameter(transitionlist[1])
         lnA_right, E_right = self.halfcontext_parameter(transitionlist[2])
