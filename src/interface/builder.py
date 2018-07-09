@@ -566,6 +566,8 @@ class Builder(object):
         Builder.verbosity = False
         counter = 0
         
+        collectionB = Builder(self.optionsFunction, self.optionsArgs)
+        
         def inspectionSim(inputs):
 
             o1 = standardOptions()
@@ -594,15 +596,14 @@ class Builder(object):
             ''' post: myState is the state we want to explore transitions for. '''
     
             myB = Builder(inspectionSim, [myState])
-            Builder.verbosity = False
             myB.genAndSavePathsFile(inspecting=True)
-            
-            self.transitionMerge(myB)
+            collectionB.transitionMerge(myB)
             
             counter += 1
         
+        self.transitionMerge(collectionB)
         Builder.verbosity = ogVerb
-    
+        
     """
     Computes the mean first pasasage times, 
     then selects states that are delta-close 
@@ -1024,10 +1025,10 @@ class BuilderRate(object):
                 rate1 = self.build.options.unimolecular_scaling * np.e ** ((dG1 - dG2) / RT)
                 rate2 = self.build.options.unimolecular_scaling 
 
-            if rate1 < self.rateLimit:
-                rate1 = 0
-            if rate2 < self.rateLimit:
-                rate2 = 0
+#             if rate1 < self.rateLimit:
+#                 rate1 = 0
+#             if rate2 < self.rateLimit:
+#                 rate2 = 0
                 
             return rate1, rate2
 
@@ -1075,11 +1076,11 @@ class BuilderRate(object):
                 rate1 = np.e ** (lnA - E / RT)
                 rate2 = np.e ** (lnA - (DeltaG2 + E) / RT)
 		
-    	    if rate1 < self.rateLimit:
-                rate1 = 0.0
-    	    
-            if rate2 < self.rateLimit:
-                rate2 = 0.0
+#     	    if rate1 < self.rateLimit:
+#                 rate1 = 0.0
+#     	    
+#             if rate2 < self.rateLimit:
+#                 rate2 = 0.0
 
         elif transitionlist[0] == transitiontype.bimolecularIn:
 
@@ -1155,8 +1156,10 @@ class BuilderRate(object):
 
                 # This handles either state being a final state (in which case, subtract from the non-final state diagonal,
                 # but do not add the transition rate.
-                self.addTransition(state, neighbor, myRate, rates, iArray, jArray, self.stateIndex)
-                self.addTransition(neighbor, state, revRate, rates, iArray, jArray, self.stateIndex)
+                if myRate > self.rateLimit:
+                    self.addTransition(state, neighbor, myRate, rates, iArray, jArray, self.stateIndex)
+                if revRate > self.rateLimit:
+                    self.addTransition(neighbor, state, revRate, rates, iArray, jArray, self.stateIndex)
 
         # now actually create the matrix
         rate_matrix_coo = coo_matrix((rates, (iArray, jArray)), shape=(N, N) , dtype=floatT)
