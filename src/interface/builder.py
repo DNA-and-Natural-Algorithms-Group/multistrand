@@ -503,27 +503,7 @@ class Builder(object):
 
         while not crit.converged(currTime, len(self.protoSpace)) :
 
-            self.genAndSavePathsFromString(initialStates)
-
-#             otherBuilder = Builder(self.optionsFunction, self.optionsArgs)
-# 
-#             startTime = time.time()
-# 
-#             """ Only the first state will count towards the set of initial states """
-#             ignoreInitial = False
-#             for state in initialStates:
-#                 otherBuilder.genAndSavePathsFile(supplyInitialState=state, ignoreInitialState=ignoreInitial)
-#                 ignoreInitial = True
-# 
-#             self.mergeBuilder(otherBuilder)
-# 
-#             if self.verbosity or printMeanTime:
-#                 print "Size     = %i    ---  bytesize = %i " % (len(self.protoSpace), sys.getsizeof (self.protoSpace))
-#                 print "Size T   = %i    ---  bytesize = %i " % (len(self.protoTransitions), sys.getsizeof (self.protoTransitions))
-#                 print "Time = %f" % (time.time() - startTime)
-# 
-#             del otherBuilder
-
+            self.genAndSavePathsFromString(initialStates, printMeanTime=printMeanTime)
             builderRate = BuilderRate(self)
             currTime = builderRate.averageTimeFromInitial()
 
@@ -537,7 +517,7 @@ class Builder(object):
 
     ''' A single iteration of the pathway elaboration method '''
 
-    def genAndSavePathsFromString(self, pathway):
+    def genAndSavePathsFromString(self, pathway, printMeanTime=False):
             
         startTime = time.time()
 
