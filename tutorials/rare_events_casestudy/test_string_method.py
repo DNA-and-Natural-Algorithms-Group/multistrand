@@ -71,19 +71,22 @@ def timings(seq, nTrials, deltaPruning=None):
     
     endState = startStates[-1]
     
-#     for state in startStates:
-#         for complex in state:
-#             print str(complex)
-    
     sett = association_comparison(seq, endState[0])
 
     for i in range(NUM_OF_REPEATS):
     
         startTime = time.time()
         
-        BuilderRate.solveToggle = 2
+        BuilderRate.solveToggle = 0
         myBuilder = Builder(sett.function, sett.arguments)
-        myBuilder.genUntilConvergenceWithInitialState(CONVERGENCE_CRIT, startStates[:(len(startStates) - 1)], printMeanTime=True)
+        Builder.verbosity = True
+
+        myBuilder.genAndSavePathsFromString(startStates[:(len(startStates) - 1)])
+        print myBuilder
+        
+        myBuilder.fattenStateSpace()
+        print myBuilder
+        
 #         myBuilder.genUntilConvergenceWithInitialState(10000, startStates[:(len(startStates) - 1)], printMeanTime=True)
 
         if not deltaPruning == None:
@@ -93,7 +96,7 @@ def timings(seq, nTrials, deltaPruning=None):
         maxRange = 1
         
         if TEST_RATE_LIMIT:
-            maxRange = 8
+            maxRange = 5
 
         for i in range(maxRange):
 

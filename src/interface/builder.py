@@ -23,14 +23,9 @@ from scipy.sparse import csr_matrix, coo_matrix, csc_matrix
 from scipy.sparse.linalg import spsolve, bicg, bicgstab, cg, cgs, gmres, lgmres, qmr, inv
 
 import numpy as np
-from numpy.ma.core import ids
 
 floatT = np.longdouble
 
-# 
-# def empty(*args, **kwargs):
-#     kwargs.update(dtype=floatT)
-#     _empty(*args, **kwargs)
 
 """
     Constructs a surface of  N *  ( N -1 ) / 2 points along the reaction frontier.
@@ -292,12 +287,12 @@ class Energy(object):
         RT = self.GAS_CONSTANT * floatT(temp);
         dG_volume = RT * (n_strands - n_complexes) * np.log(1.0 / concentration)
 
-        self.dH = dH
-        self.dS = -(dG - dG_volume - dH) / temp
+        self.dH = floatT(dH)
+        self.dS = floatT(-(dG - dG_volume - dH) / temp)
         
     def dG(self, temp):
 
-        return self.dH - temp * self.dS
+        return self.dH - floatT(temp) * self.dS
 
     def __str__(self):
 
@@ -539,14 +534,12 @@ class Builder(object):
     '''
     Generates all transitions between states in the statespaces and adds missing transitions
     '''
-            
+        
     def fattenStateSpace(self):
         
         ogVerb = Builder.verbosity
         Builder.verbosity = False
         counter = 0
-        
-        collectionB = Builder(self.optionsFunction, self.optionsArgs)
         
         def inspectionSim(inputs):
 
@@ -577,12 +570,56 @@ class Builder(object):
     
             myB = Builder(inspectionSim, [myState])
             myB.genAndSavePathsFile(inspecting=True)
-            collectionB.transitionMerge(myB)
             
+            self.transitionMerge(myB)
+                        
             counter += 1
         
-        self.transitionMerge(collectionB)
         Builder.verbosity = ogVerb
+            
+#     def fattenStateSpace(self):
+#         
+#         ogVerb = Builder.verbosity
+#         Builder.verbosity = False
+#         counter = 0
+#         
+#         collectionB = Builder(self.optionsFunction, self.optionsArgs)
+#         
+#         def inspectionSim(inputs):
+# 
+#             o1 = standardOptions()
+#             o1.rate_method = self.options.rate_method
+#             o1.start_state = inputs[0]
+#             
+#             return o1
+#         
+#         for key, value in self.protoSpace.iteritems():
+# 
+#             if ogVerb and ((counter % 100) == 0):
+#                 print "Searching for missing transitions. Progress " + str(counter) + " / " + str(len(self.protoSpace))
+# 
+#             (seqs, ids, structs) = self.protoSequences[key]
+#             
+#             myState = []
+#             
+#             for seq, id, struct in zip(seqs, ids, structs):
+#                 
+#                 seqs = seq.split('+')
+#                 ids = id.split(',')
+#                 myC = makeComplex(seqs, struct, ids)
+# 
+#                 myState.append(myC)
+#             
+#             ''' post: myState is the state we want to explore transitions for. '''
+#     
+#             myB = Builder(inspectionSim, [myState])
+#             myB.genAndSavePathsFile(inspecting=True)
+#             collectionB.transitionMerge(myB)
+#             
+#             counter += 1
+#         
+#         self.transitionMerge(collectionB)
+#         Builder.verbosity = ogVerb
         
     """
     Computes the mean first pasasage times, 
@@ -998,18 +1035,13 @@ class BuilderRate(object):
             if dG1 > dG2 :  # state2 is more stable (negative), dG1 - dG2 is positive
                 
                 rate1 = self.build.options.unimolecular_scaling
-                rate2 = self.build.options.unimolecular_scaling * np.e ** (-(dG1 - dG2) / RT)
+                rate2 = self.build.options.unimolecular_scaling * np.exp(-(dG1 - dG2) / RT)
                 
             else:  # state2 is less or equally stable (negative), dG1 - dG2 is negative
                 
-                rate1 = self.build.options.unimolecular_scaling * np.e ** ((dG1 - dG2) / RT)
+                rate1 = self.build.options.unimolecular_scaling * np.exp((dG1 - dG2) / RT)
                 rate2 = self.build.options.unimolecular_scaling 
 
-#             if rate1 < self.rateLimit:
-#                 rate1 = 0
-#             if rate2 < self.rateLimit:
-#                 rate2 = 0
-                
             return rate1, rate2
 
         else:  # bimolecular rate
@@ -1137,15 +1169,15 @@ class BuilderRate(object):
                 # This handles either state being a final state (in which case, subtract from the non-final state diagonal,
                 # but do not add the transition rate.
                 if myRate > self.rateLimit:
-                    self.addTransition(state, neighbor, myRate, rates, iArray, jArray, self.stateIndex)
+                    self.addTransition(state, neighbor, floatT(myRate), rates, iArray, jArray, self.stateIndex)
                 if revRate > self.rateLimit:
-                    self.addTransition(neighbor, state, revRate, rates, iArray, jArray, self.stateIndex)
+                    self.addTransition(neighbor, state, floatT(revRate), rates, iArray, jArray, self.stateIndex)
 
         # now actually create the matrix
         rate_matrix_coo = coo_matrix((rates, (iArray, jArray)), shape=(N, N) , dtype=floatT)
 
         self.rate_matrix_csr = csr_matrix(rate_matrix_coo, dtype=floatT)
-        self.b = -1 * np.ones(N, dtype=np.longdouble)
+        self.b = -1 * np.ones(N, dtype=floatT)
 
         #         # FD: pre-compute the matrix diagonal for preconditioning
         diagons = [ ((1.0 / x), i, j) for x, i, j in zip(rates, iArray, jArray) if i == j ]
@@ -1199,7 +1231,15 @@ class BuilderRate(object):
             firstpassagetimes, info = lgmres(self.rate_matrix_csr, self.b, M=self.rate_matrix_inverse, x0=x0, maxiter=maxiter)
 
         else:
+            
+            global floatT
+            floatT = np.float64
+            
+            self.setMatrix()
             firstpassagetimes = spsolve(self.rate_matrix_csr, self.b)
+            
+            floatT = np.longdouble
+
 
         self.matrixTime = time.time() - startTime
 
