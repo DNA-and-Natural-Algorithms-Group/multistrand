@@ -479,7 +479,8 @@ class Builder(object):
                 print "Size     = %i " % len(self.protoSpace)
 
             builderRate = BuilderRate(self)
-            currTime = builderRate.averageTimeFromInitial()
+	    if crit.precision < 1.0:
+            	currTime = builderRate.averageTimeFromInitial()
 
         self.fattenStateSpace()
         
@@ -500,7 +501,8 @@ class Builder(object):
 
             self.genAndSavePathsFromString(initialStates, printMeanTime=printMeanTime)
             builderRate = BuilderRate(self)
-            currTime = builderRate.averageTimeFromInitial()
+            if crit.precision < 1.0:
+	    	currTime = builderRate.averageTimeFromInitial()
 
             if printMeanTime:
                 print "Mean first passage time = %.2E" % currTime
