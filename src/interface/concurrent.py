@@ -721,6 +721,45 @@ class MergeSim(object):
 
         0
 
+    def printTrajectory(self):
+        
+        o1 = self.factory.new(self.seed + input * 3 * 5 * 19 + (time.time() * 10000) % (math.pow(2, 32) - 1))
+        o1.num_simulations = 1
+        o1.output_interval = 1
+
+        s = SimSystem(o1)
+        s.start()
+
+        seqstring = " "
+        
+        for i in range(len(o1.full_trajectory)):
+
+            time = 1e3 * o1.full_trajectory_times[i]
+            states = o1.full_trajectory[i]
+            
+            ids = []
+            newseqs = []
+            structs = []
+            dG = 0.0;
+            
+            pairTypes = []
+            
+            for state in states: 
+                
+                ids += [ str(state[2]) ]
+                newseqs += [ state[3] ]  # extract the strand sequences in each complex (joined by "+" for multistranded complexes)
+                structs += [ state[4] ]  # similarly extract the secondary structures for each complex
+                dG += dG + state[5]
+                
+            newseqstring = ' '.join(newseqs)  # make a space-separated string of complexes, to represent the whole tube system sequence
+            tubestruct = ' '.join(structs)  # give the dot-paren secondary structure for the whole test tube
+            
+            if not newseqstring == seqstring : 
+                print newseqstring
+                seqstring = newseqstring  # because strand order can change upon association of dissociation, print it when it changes        
+    
+            print tubestruct + ('   t=%.6f ms,  dG=%3.2f kcal/mol  ' % (time, dG)) 
+
     def initialInfo(self):
 
         myOptions = self.factory.new(777)
@@ -832,7 +871,6 @@ class MergeSim(object):
             except:
                 self.exceptionFlag.value = False
                 return
-                
             
             """ Overwrite the result factory method if we are not using First Step Mode.
                 By default, the results object is a First Step object.
@@ -920,7 +958,6 @@ class MergeSim(object):
             p = getSimulation(i)
             procs.append(p)
             p.start()
-
                 
         printFlag = False
 
@@ -946,7 +983,6 @@ class MergeSim(object):
                     
                     printFlag = True
 
-
             time.sleep(0.25)
 
             # if >500 000 results have been generated, then store
@@ -955,7 +991,6 @@ class MergeSim(object):
 
         if not self.exceptionFlag.value:
             raise Exception("MergeSim: exception found in child process.")
-
 
         saveResults()
 
