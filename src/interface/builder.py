@@ -842,6 +842,8 @@ class Builder(object):
             os.remove(self.the_dir + str(myOptions.interface.current_seed) + "/prototransitions.txt")
             os.remove(self.the_dir + str(myOptions.interface.current_seed) + "/protoinitialstates.txt")
             os.remove(self.the_dir + str(myOptions.interface.current_seed) + "/protofinalstates.txt")
+            os.rmdir(self.the_dir + str(myOptions.interface.current_seed)) 
+
 
         runPaths(self.optionsFunction, inputArgs, space, transitions, initStates, finalStates, sequences)
 
