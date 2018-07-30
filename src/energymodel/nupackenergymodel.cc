@@ -33,10 +33,10 @@ extern int basepair_sw[8];
 // helper function to convert to numerical base format.
 extern int baseLookup(char base);
 
-NupackEnergyModel::~NupackEnergyModel(void) {
-	// TODO: is anything allocated now? Don't think so, all arrays are static still.
-	// nothing is allocated within an energy model.
-}
+//NupackEnergyModel::~NupackEnergyModel(void) {
+//	// TODO: is anything allocated now? Don't think so, all arrays are static still.
+//	// nothing is allocated within an energy model.
+//}
 
 double NupackEnergyModel::returnRate(double start_energy, double end_energy, int enth_entr_toggle) {
 

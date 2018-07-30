@@ -57,8 +57,6 @@ void SimulationSystem::construct(void) {
 
 SimulationSystem::SimulationSystem(void) {
 
-	std::cout << "Initializing SimulationSystem \n";
-
 	simulation_mode = -1;
 	simulation_count_remaining = -1;
 
@@ -191,7 +189,7 @@ void SimulationSystem::finalizeSimulation(void) {
 
 	}
 
-	cout << flush;
+	delete energyModel;
 
 }
 
