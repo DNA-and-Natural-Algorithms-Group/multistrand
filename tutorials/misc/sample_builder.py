@@ -108,7 +108,7 @@ if __name__ == '__main__':
     genAndPrint(numOfPaths, str_hairpin_closing)
     genAndPrint(numOfPaths, str_dissociation)
 
-    numOfPaths = 1000        # put this too low, and there won't be any final states found
+    numOfPaths = 5000        # put this too low, and there won't be any final states found
     genAndPrint(numOfPaths, str_threeway_strand_displacement)
     
 

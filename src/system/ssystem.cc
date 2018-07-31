@@ -665,10 +665,10 @@ void SimulationSystem::sendTrajectory_CurrentStateToPython(double current_time, 
 
 	// for now, keep exporting the state to the regular interface too.
 	if (simOptions->statespaceActive) {
-		builder.addState(mergedData, arrType);
-	}
 
-	if (!simOptions->statespaceActive) {
+		builder.addState(mergedData, arrType);
+
+	} else {
 
 		pushTrajectoryInfo(system_options, current_time);
 		pushTrajectoryInfo2(system_options, arrType);

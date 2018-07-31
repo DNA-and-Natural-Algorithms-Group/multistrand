@@ -226,10 +226,9 @@ void PSimOptions::generateComplexes(PyObject *alternate_start, long current_seed
 		// doesn't need reference counting for this size call.
 		// the getlistattr call we decref later.
 
-		if (start_count == 0){	// FD Jun 2018: adding throw if no initial state is set.
+		if (start_count == 0) {	// FD Jun 2018: adding throw if no initial state is set.
 			throw std::invalid_argument("Initial state was not set.");
 		}
-
 
 		for (int index = 0; index < start_count; index++) {
 
@@ -297,36 +296,41 @@ stopComplexes* PSimOptions::getStopComplexes(int) {
 
 void PSimOptions::stopResultError(long seed) {
 
-	printStatusLine(python_settings, seed, STOPRESULT_ERROR, 0.0, result_type::STR_ERROR.c_str());
-	return;
+	if (!statespaceActive) {
+		printStatusLine(python_settings, seed, STOPRESULT_ERROR, 0.0, result_type::STR_ERROR.c_str());
+	}
 
 }
 
 void PSimOptions::stopResultNan(long seed) {
 
-	printStatusLine(python_settings, seed, STOPRESULT_NAN, 0.0, result_type::STR_NAN.c_str());
-	return;
+	if (!statespaceActive) {
+		printStatusLine(python_settings, seed, STOPRESULT_NAN, 0.0, result_type::STR_NAN.c_str());
+	}
 
 }
 
 void PSimOptions::stopResultNormal(long seed, double time, char* message) {
 
-	printStatusLine(python_settings, seed, STOPRESULT_NORMAL, time, message);
-	return;
+	if (!statespaceActive) {
+		printStatusLine(python_settings, seed, STOPRESULT_NORMAL, time, message);
+	}
 
 }
 
 void PSimOptions::stopResultTime(long seed, double time) {
 
-	printStatusLine(python_settings, seed, STOPRESULT_TIME, time, result_type::STR_TIMEOUT.c_str());
-	return;
+	if (!statespaceActive) {
+		printStatusLine(python_settings, seed, STOPRESULT_TIME, time, result_type::STR_TIMEOUT.c_str());
+	}
 
 }
 
 void PSimOptions::stopResultFirstStep(long seed, double stopTime, double rate, const char* message) {
 
-	printStatusLine_First_Bimolecular(python_settings, seed, STOPRESULT_NORMAL, stopTime, rate, message);
-
+	if (!statespaceActive) {
+		printStatusLine_First_Bimolecular(python_settings, seed, STOPRESULT_NORMAL, stopTime, rate, message);
+	}
 }
 
 ///// CSIMOPTIONS
