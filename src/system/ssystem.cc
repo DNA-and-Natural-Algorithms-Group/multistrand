@@ -84,6 +84,22 @@ SimulationSystem::~SimulationSystem(void) {
 // the remaining members are not our responsibility, we null them out
 // just in case something thread-unsafe happens.
 
+	if (energyModel != NULL) {
+		delete energyModel;
+	}
+
+	if (simOptions->myComplexes != NULL) {
+		delete simOptions->myComplexes;
+	}
+
+	if (simOptions != NULL) {
+		delete simOptions;
+	}
+
+	if (complexList != NULL) {
+		delete complexList;
+	}
+
 }
 
 void SimulationSystem::StartSimulation(void) {
@@ -188,8 +204,6 @@ void SimulationSystem::finalizeSimulation(void) {
 		builder.writeToFile();
 
 	}
-
-	delete energyModel;
 
 }
 

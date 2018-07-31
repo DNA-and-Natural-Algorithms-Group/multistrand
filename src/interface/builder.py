@@ -477,9 +477,10 @@ class Builder(object):
 
             if self.verbosity:
                 print "Size     = %i " % len(self.protoSpace)
-	    if precision < 1.0: 
-                builderRate = BuilderRate(self)
-                currTime = builderRate.averageTimeFromInitial()
+                
+    	    if precision < 1.0: 
+                    builderRate = BuilderRate(self)
+                    currTime = builderRate.averageTimeFromInitial()
 
         self.fattenStateSpace()
         
@@ -499,9 +500,10 @@ class Builder(object):
         while not crit.converged(currTime, len(self.protoSpace)) :
 
             self.genAndSavePathsFromString(initialStates, printMeanTime=printMeanTime)
-	    if precision < 1.0: 
-	        builderRate = BuilderRate(self)
-	        currTime = builderRate.averageTimeFromInitial()
+            
+    	    if precision < 1.0: 
+                builderRate = BuilderRate(self)
+                currTime = builderRate.averageTimeFromInitial()
 
             if printMeanTime:
                 print "Mean first passage time = %.2E" % currTime
