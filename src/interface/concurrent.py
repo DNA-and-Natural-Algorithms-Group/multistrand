@@ -723,7 +723,9 @@ class MergeSim(object):
 
     def printTrajectory(self):
         
-        o1 = self.factory.new(self.seed + input * 3 * 5 * 19 + (time.time() * 10000) % (math.pow(2, 32) - 1))
+        instanceSeed = self.seed + (time.time() * 10000) % (math.pow(2, 32) - 1)
+        o1 = self.factory.new(instanceSeed)
+
         o1.num_simulations = 1
         o1.output_interval = 1
 
@@ -734,7 +736,7 @@ class MergeSim(object):
         
         for i in range(len(o1.full_trajectory)):
 
-            time = 1e3 * o1.full_trajectory_times[i]
+            timeT = 1e3 * o1.full_trajectory_times[i]
             states = o1.full_trajectory[i]
             
             ids = []
@@ -758,7 +760,7 @@ class MergeSim(object):
                 print newseqstring
                 seqstring = newseqstring  # because strand order can change upon association of dissociation, print it when it changes        
     
-            print tubestruct + ('   t=%.6f ms,  dG=%3.2f kcal/mol  ' % (time, dG)) 
+            print tubestruct + ('   t=%.6f ms,  dG=%3.2f kcal/mol  ' % (timeT, dG)) 
 
     def initialInfo(self):
 
