@@ -16,6 +16,7 @@ test3mer = "TTT"
 test6mer = "TTGGTG"
 test8mer = "TTGGTGAT"
 test10mer = "TTGGTGATCC"
+test15mer = "AGATTAGCAGGTTTC"
 test20mer = "AGATTAGCAGGTTTCCCACC"
 
 sumTime = 0.0
@@ -25,9 +26,9 @@ def getOptions(arguments):
      
     o = standardOptions()
     o.simulation_mode = Literals.trajectory
-    o.num_simulations = 50
+    o.num_simulations = 80
 
-    o.temperature = 50.0
+    o.temperature = 30.0
     o.simulation_time = 0.0000001
     
     endComplex = arguments[0]
@@ -58,7 +59,7 @@ def genAndPrint(numOfPaths, toggle):
     
     print "Building the statespace from traces for reaction: " + toggle 
     
-    startStates = getString([toggle, test10mer])
+    startStates = getString([toggle, test15mer])
     endState = startStates[-1]
     
     myBuilder = Builder(getOptions, [endState[0]])
@@ -105,13 +106,13 @@ def genAndPrint(numOfPaths, toggle):
 # # The actual main method
 if __name__ == '__main__':
        
-    numOfPaths = 30
+    numOfPaths = 40
     genAndPrint(numOfPaths, str_association)
 #     genAndPrint(numOfPaths, str_hairpin_closing)
-    genAndPrint(numOfPaths, str_dissociation)
+#     genAndPrint(numOfPaths, str_dissociation)
 
 #     numOfPaths = 5000        # put this too low, and there won't be any final states found
-    genAndPrint(numOfPaths, str_threeway_strand_displacement)
+#     genAndPrint(numOfPaths, str_threeway_strand_displacement)
     
     print "Overal construction time was %.2f seconds" % sumTime
     

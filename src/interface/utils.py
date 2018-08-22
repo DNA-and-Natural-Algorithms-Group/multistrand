@@ -168,7 +168,7 @@ def pairType(ids, structs):
 #     str_output = ''.join([str(x) for x in output])
 #     return (idString, str_output)
     
-    return  (idString, tuple(output))
+    return  (tuple(idString), tuple(output))
 
 
 def generate_sequence(n, allowed_bases=['G', 'C', 'T', 'A'], base_probability=None):

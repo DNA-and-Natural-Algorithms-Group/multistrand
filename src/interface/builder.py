@@ -302,7 +302,7 @@ class Energy(object):
         if isinstance(that, Energy):
             return self.dH == that.dH and self.dS == that.dS
         else:
-            raise Exception("Not an acceptible argument", "__eq__", that)
+            raise Exception("Not an acceptable argument", "__eq__", that)
 
 
 def codeToDesc(code):
@@ -453,8 +453,10 @@ class Builder(object):
             uniqueID2 = uniqueStateID(ids, structs)
             uniqueID = ""
 
-            for iddd in uniqueID2 :
-                uniqueID += str(iddd)
+#             for iddd in uniqueID2 :
+#                 uniqueID += str(iddd)
+                
+            uniqueID =  tuple(uniqueID2)
 
         dG = float(mywords[1 + 3 * n_complexes])
         dH = float(mywords[1 + 3 * n_complexes + 1])
@@ -518,6 +520,16 @@ class Builder(object):
     def genAndSavePathsFromString(self, pathway, printMeanTime=False):
             
         startTime = time.time()
+
+        """ Load up the energy model with a near zero-length simulation """
+        myOptions = self.optionsFunction(copy.deepcopy(self.optionsArgs))
+        myOptions.simulation_mode = Literals.trajectory
+        myOptions.activestatespace = False
+        myOptions.simulation_time = 0.0000000001
+        myOptions.start_state = pathway[0]
+#          
+        s = SimSystem(myOptions)
+        s.start()  
 
         """ Only the first state will count towards the set of initial states """
         ignoreInitial = False

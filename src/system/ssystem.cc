@@ -44,8 +44,12 @@ void SimulationSystem::construct(void) {
 	simulation_mode = simOptions->getSimulationMode();
 	simulation_count_remaining = simOptions->getSimulationCount();
 
-	energyModel = new NupackEnergyModel(simOptions->getPythonSettings());
-	Loop::SetEnergyModel(energyModel);
+	if (simOptions->statespaceActive) {
+		energyModel = Loop::GetEnergyModel();
+	} else {
+		energyModel = new NupackEnergyModel(simOptions->getPythonSettings());
+		Loop::SetEnergyModel(energyModel);
+	}
 
 // move these to sim_settings
 	exportStatesInterval = (simOptions->getOInterval() > 0);
@@ -84,9 +88,13 @@ SimulationSystem::~SimulationSystem(void) {
 // the remaining members are not our responsibility, we null them out
 // just in case something thread-unsafe happens.
 
-	if (energyModel != NULL) {
-		delete energyModel;
-	}
+
+// FD: for the active statespace inspection, the energy model will not be generated,
+// so do not reconstruct the energy model.
+
+//	if (energyModel != NULL) {
+//		delete energyModel;
+//	}
 
 	if (simOptions->myComplexes != NULL) {
 		delete simOptions->myComplexes;
