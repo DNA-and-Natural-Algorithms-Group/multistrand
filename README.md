@@ -63,8 +63,8 @@ Tutorial files use the 'numpy', 'matplotlib' and 'scipy' python packages. You ca
  
  For linux:
  
- - Clone the repository into your workspace, using 'git clone *repo-url*'.
- - In your enviroment (eclipse, bash, etc), set NUPACKHOME to point the directory where NUPACK is installed. 
+ - Clone the repository into your workspace, using 'git clone https://github.com/DNA-and-Natural-Algorithms-Group/multistrand.git'.
+ - In your enviroment set NUPACKHOME to point the directory where NUPACK is installed. 
  - Build multistrand by running 'make' in the Multistrand directory.
  - Multistrand can be exported as a python library by calling 'sudo make install'.
 
