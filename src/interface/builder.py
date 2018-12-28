@@ -78,7 +78,7 @@ def hybridizationString(seq):
                 output.append([complex])
 
     """ We always require the final state to be the success state"""
-    
+
     complex0 = makeComplex(dotparen0, "("*N + "+" + ")"*N, ids)
     output.append([complex0])
 
@@ -88,24 +88,24 @@ def hybridizationString(seq):
 def dissociationString(seq):
 
     ''' Exactly like the association, but swap the initial and final states '''
-    
+
     myList = hybridizationString(seq)
-    
+
     first = myList[0]
     last = myList[-1]
-    
+
     myList[0] = last
     myList[-1] = first
 
     return myList
 
-    
+
 ''' returns a list of strings pairs that represent the hybridization steps 
     for toeholds / domains during pathway elaboration method    '''
 
-    
+
 def weave(M):
-    
+
     output = []
 
     for bps in range(1, M + 1):
@@ -116,12 +116,12 @@ def weave(M):
             rightStr = list("."*M)
 
             if (bps + offset < (M + 1)):
-    
+
                 for i in range(bps):
-    
+
                     leftStr[offset + i] = "("
                     rightStr[ M - offset - i - 1 ] = ")"
-    
+
                 leftStr = "".join(leftStr)
                 rightStr = "".join(rightStr)
                 output.append([leftStr, rightStr])
@@ -134,37 +134,37 @@ def threewaybmString(lefttoe, displace, righttoe):
     ''' toehold switch around in the substrate '''
     N = len(displace)
     rT = len(lefttoe)
-    lT = len(righttoe) 
-    
+    lT = len(righttoe)
+
     output = list()
-    
+
     invaderSq = lefttoe + displace + righttoe
     incumbentSq = displace
     substrateSq = seqComplement(invaderSq)
-    
+
     invaderID = 65
     incumbentID = 66
-    substrateID = 67    
-    
+    substrateID = 67
+
     """ start with the separated, zero-bp state """
     complex0 = makeComplex([invaderSq], "."*(lT + N + rT), [invaderID])
     complex1 = makeComplex([incumbentSq, substrateSq], "(" * N + "+" + "."* lT + ")" * N + "." *rT, [incumbentID, substrateID])
     seperated = [complex0, complex1]
-    
+
     output.append(seperated)
 
     ''' left invasion toehold '''
     seqsL = [invaderSq, substrateSq, incumbentSq]
     idsL = [invaderID, substrateID, incumbentID]
     weaving = weave(lT)
-    
+
     for pair in weaving:
-        dotparen = "."*(N + rT) + pair[0] + "+" + pair[1] + "("*N + "."*rT + "+" + ")"*N 
+        dotparen = "."*(N + rT) + pair[0] + "+" + pair[1] + "("*N + "."*rT + "+" + ")"*N
         output.append([makeComplex(seqsL, dotparen, idsL)])
-        
+
     if lT == 0:
         dotparen = "."*(N + rT) + "" + "+" + "" + "("*N + "."*rT + "+" + ")"*N
-        
+
     ''' the dotparen of the weave is the fully hybridized toehold.
         Toggle the basepairs one step at a time.
     '''
@@ -175,18 +175,18 @@ def threewaybmString(lefttoe, displace, righttoe):
         parenList[-invasion - 1] = "."
         dotparen = "".join(parenList)
         output.append([makeComplex(seqsL, dotparen, idsL)])
-        
+
     ''' right invasion toehold '''
     seqsR = [invaderSq, incumbentSq, substrateSq]
     idsR = [invaderID, incumbentID, substrateID]
     weaving = weave(rT)
-    
+
     for pair in weaving:
-        dotparen = pair[0] + "."*(N + lT) + "+" + "("*N + "+" + "."*lT + ")"*N + pair[1] 
+        dotparen = pair[0] + "."*(N + lT) + "+" + "("*N + "+" + "."*lT + ")"*N + pair[1]
         output.append([makeComplex(seqsR, dotparen, idsR)])
 
     if rT == 0:
-        dotparen = "" + "."*(N + lT) + "+" + "("*N + "+" + "."*lT + ")"*N + "" 
+        dotparen = "" + "."*(N + lT) + "+" + "("*N + "+" + "."*lT + ")"*N + ""
 
     ''' 
         Toggle the basepairs one step at a time.
@@ -197,12 +197,12 @@ def threewaybmString(lefttoe, displace, righttoe):
         parenList[lT + N + rT + 1 + invasion ] = "."
         dotparen = "".join(parenList)
         output.append([makeComplex(seqsR, dotparen, idsR)])
-        
+
     ''' Do not forget to set the final state.
         This is just the displaced strand floating freely.
         '''
     output.append([makeComplex([incumbentSq], "."*N, [incumbentID])])
-    
+
     return output
 
 
@@ -211,10 +211,10 @@ class ConvergeCrit(object):
     period = 4  # average out over past X increases.
 
     def __init__(self):
-        
+
         self.maximumIterations = 1000
         self.minimumStateIncrement = 4
-        
+
         self.currIteration = 0
         self.currStates = -99
 
@@ -222,7 +222,7 @@ class ConvergeCrit(object):
         self.array = [-99.0] * self.period
 
     def converged(self, rateIn=None, statespace_size=None):  # also saves the rateIn
-        
+
         if self.currIteration > self.maximumIterations:
             return True
 
@@ -238,12 +238,12 @@ class ConvergeCrit(object):
             return (conv1 and conv2)
 
         else:
-            
+
             if statespace_size - self.currStates < self.minimumStateIncrement:
                 return True
-                        
+
             self.currStates = statespace_size;
-            
+
             return statespace_size >= self.precision
 
     def __str__(self):
@@ -289,7 +289,7 @@ class Energy(object):
 
         self.dH = floatT(dH)
         self.dS = floatT(-(dG - dG_volume - dH) / temp)
-        
+
     def dG(self, temp):
 
         return self.dH - floatT(temp) * self.dS
@@ -362,7 +362,7 @@ class Builder(object):
 
         self.firstStepMode = True
         self.startTime = time.time()
-        
+
         self.mergingCounter = 0  # counts how many transitions from the merging have been found
 
         # save a copy for later processing -- note this copy will not have results attached to it,
@@ -374,11 +374,11 @@ class Builder(object):
     def __str__(self):
 
         output = "states / transitions / initS / finalS / merged     \n "
-        output += str(len(self.protoSpace)) 
+        output += str(len(self.protoSpace))
         output += "   -    " + str(len(self.protoTransitions))
-        output += "   -    " + str(len(self.protoInitialStates)) 
+        output += "   -    " + str(len(self.protoInitialStates))
         output += "   -    " + str(len(self.protoFinalStates))
-        output += "   -    " + str(self.mergingCounter) 
+        output += "   -    " + str(self.mergingCounter)
 
         return output
 
@@ -420,14 +420,14 @@ class Builder(object):
     ''' Merges if both source and the target exist '''
 
     def transitionMerge(self, other):
-        
+
         for key, value in other.protoTransitions.iteritems():
-            
+
             sFrom = key[0]
             sTo = key[1]
-            
+
             if sFrom in self.protoSpace and sTo in self.protoSpace:
-                
+
                 if not key in self.protoTransitions:
                     self.protoTransitions[key] = value
                     self.mergingCounter += 1
@@ -453,9 +453,9 @@ class Builder(object):
             uniqueID2 = uniqueStateID(ids, structs)
             uniqueID = ""
 
-#             for iddd in uniqueID2 :
-#                 uniqueID += str(iddd)
-                
+            #             for iddd in uniqueID2 :
+            #                 uniqueID += str(iddd)
+
             uniqueID =  tuple(uniqueID2)
 
         dG = float(mywords[1 + 3 * n_complexes])
@@ -479,13 +479,13 @@ class Builder(object):
 
             if self.verbosity:
                 print "Size     = %i " % len(self.protoSpace)
-                
-    	    if precision < 1.0: 
-                    builderRate = BuilderRate(self)
-                    currTime = builderRate.averageTimeFromInitial()
+
+            if precision < 1.0:
+                builderRate = BuilderRate(self)
+                currTime = builderRate.averageTimeFromInitial()
 
         self.fattenStateSpace()
-        
+
         if self.verbosity:
             print "Size     = %i " % len(self.protoSpace)
 
@@ -502,8 +502,8 @@ class Builder(object):
         while not crit.converged(currTime, len(self.protoSpace)) :
 
             self.genAndSavePathsFromString(initialStates, printMeanTime=printMeanTime)
-            
-    	    if precision < 1.0: 
+
+            if precision < 1.0:
                 builderRate = BuilderRate(self)
                 currTime = builderRate.averageTimeFromInitial()
 
@@ -518,7 +518,7 @@ class Builder(object):
     ''' A single iteration of the pathway elaboration method '''
 
     def genAndSavePathsFromString(self, pathway, printMeanTime=False):
-            
+
         startTime = time.time()
 
         """ Load up the energy model with a near zero-length simulation """
@@ -527,9 +527,9 @@ class Builder(object):
         myOptions.activestatespace = False
         myOptions.simulation_time = 0.0000000001
         myOptions.start_state = pathway[0]
-#          
+        #
         s = SimSystem(myOptions)
-        s.start()  
+        s.start()
 
         """ Only the first state will count towards the set of initial states """
         ignoreInitial = False
@@ -549,93 +549,98 @@ class Builder(object):
     '''
     Generates all transitions between states in the statespaces and adds missing transitions
     '''
-        
+
     def fattenStateSpace(self):
-        
+
         ogVerb = Builder.verbosity
         Builder.verbosity = False
         counter = 0
-        
+
         def inspectionSim(inputs):
 
             o1 = standardOptions()
+            #The next 3 lines ensure the energy of the states are calculated in same condition as state space states. Useful if use fattenstatespace to add new states
+            o1.sodium = self.options.sodium
+            o1.magnesium = self.options.magnesium
+            o1.temperature = self.options.temperature
+            
             o1.rate_method = self.options.rate_method
             o1.start_state = inputs[0]
-            
+
             return o1
-        
+
         for key, value in self.protoSpace.iteritems():
 
             if ogVerb and ((counter % 100) == 0):
                 print "Searching for missing transitions. Progress " + str(counter) + " / " + str(len(self.protoSpace))
 
             (seqs, ids, structs) = self.protoSequences[key]
-            
+
             myState = []
-            
+
             for seq, id, struct in zip(seqs, ids, structs):
-                
+
                 seqs = seq.split('+')
                 ids = id.split(',')
                 myC = makeComplex(seqs, struct, ids)
 
                 myState.append(myC)
-            
+
             ''' post: myState is the state we want to explore transitions for. '''
-    
+
             myB = Builder(inspectionSim, [myState])
             myB.genAndSavePathsFile(inspecting=True)
-            
+
             self.transitionMerge(myB)
-                        
+
             counter += 1
-        
+
         Builder.verbosity = ogVerb
-            
-#     def fattenStateSpace(self):
-#         
-#         ogVerb = Builder.verbosity
-#         Builder.verbosity = False
-#         counter = 0
-#         
-#         collectionB = Builder(self.optionsFunction, self.optionsArgs)
-#         
-#         def inspectionSim(inputs):
-# 
-#             o1 = standardOptions()
-#             o1.rate_method = self.options.rate_method
-#             o1.start_state = inputs[0]
-#             
-#             return o1
-#         
-#         for key, value in self.protoSpace.iteritems():
-# 
-#             if ogVerb and ((counter % 100) == 0):
-#                 print "Searching for missing transitions. Progress " + str(counter) + " / " + str(len(self.protoSpace))
-# 
-#             (seqs, ids, structs) = self.protoSequences[key]
-#             
-#             myState = []
-#             
-#             for seq, id, struct in zip(seqs, ids, structs):
-#                 
-#                 seqs = seq.split('+')
-#                 ids = id.split(',')
-#                 myC = makeComplex(seqs, struct, ids)
-# 
-#                 myState.append(myC)
-#             
-#             ''' post: myState is the state we want to explore transitions for. '''
-#     
-#             myB = Builder(inspectionSim, [myState])
-#             myB.genAndSavePathsFile(inspecting=True)
-#             collectionB.transitionMerge(myB)
-#             
-#             counter += 1
-#         
-#         self.transitionMerge(collectionB)
-#         Builder.verbosity = ogVerb
-        
+
+    #     def fattenStateSpace(self):
+    #
+    #         ogVerb = Builder.verbosity
+    #         Builder.verbosity = False
+    #         counter = 0
+    #
+    #         collectionB = Builder(self.optionsFunction, self.optionsArgs)
+    #
+    #         def inspectionSim(inputs):
+    #
+    #             o1 = standardOptions()
+    #             o1.rate_method = self.options.rate_method
+    #             o1.start_state = inputs[0]
+    #
+    #             return o1
+    #
+    #         for key, value in self.protoSpace.iteritems():
+    #
+    #             if ogVerb and ((counter % 100) == 0):
+    #                 print "Searching for missing transitions. Progress " + str(counter) + " / " + str(len(self.protoSpace))
+    #
+    #             (seqs, ids, structs) = self.protoSequences[key]
+    #
+    #             myState = []
+    #
+    #             for seq, id, struct in zip(seqs, ids, structs):
+    #
+    #                 seqs = seq.split('+')
+    #                 ids = id.split(',')
+    #                 myC = makeComplex(seqs, struct, ids)
+    #
+    #                 myState.append(myC)
+    #
+    #             ''' post: myState is the state we want to explore transitions for. '''
+    #
+    #             myB = Builder(inspectionSim, [myState])
+    #             myB.genAndSavePathsFile(inspecting=True)
+    #             collectionB.transitionMerge(myB)
+    #
+    #             counter += 1
+    #
+    #         self.transitionMerge(collectionB)
+    #         Builder.verbosity = ogVerb
+
     """
     Computes the mean first pasasage times, 
     then selects states that are delta-close 
@@ -712,10 +717,10 @@ class Builder(object):
             simTime = time.time()
 
             s = SimSystem(myOptions)
-                
+
             ''' a specialized routine that ends after taking all transitions'''
             if inspecting == True:
-                s.localTransitions() 
+                s.localTransitions()
             else:
                 s.start()  # after this line, the computation is finished.
 
@@ -723,140 +728,140 @@ class Builder(object):
                 print "Multistrand simulation is now done,      time = %.2f" % (time.time() - simTime)
 
             """ load the space """
-            myFile = open(self.the_dir + str(myOptions.interface.current_seed) + "/protospace.txt", "r")
+            with open(self.the_dir + str(myOptions.interface.current_seed) + "/protospace.txt", "r") as myFile:
 
-            for line in myFile:
-                
-                uniqueID, energyvals, seqs = self.parseState(line, myOptions._temperature_kelvin, myOptions.join_concentration)
-                
-                if not uniqueID in sequences:
-                    sequences[uniqueID] = seqs
+                for line in myFile:
 
-                if not uniqueID in space:
+                    uniqueID, energyvals, seqs = self.parseState(line, myOptions._temperature_kelvin, myOptions.join_concentration)
 
-                    space[uniqueID] = energyvals
+                    if not uniqueID in sequences:
+                        sequences[uniqueID] = seqs
 
-                elif not space[uniqueID] == energyvals:
+                    if not uniqueID in space:
 
-                    print "My hashmap contains " + str(uniqueID) + " with Energy " + str(space[uniqueID]) + " but found: " + str(energyvals)
-                    print "Line = " + line
+                        space[uniqueID] = energyvals
+
+                    elif not space[uniqueID] == energyvals:
+
+                        print "My hashmap contains " + str(uniqueID) + " with Energy " + str(space[uniqueID]) + " but found: " + str(energyvals)
+                        print "Line = " + line
 
             """ load the transitions """
-            myFile = open(self.the_dir + str(myOptions.interface.current_seed) + "/prototransitions.txt", "r")
+            with open(self.the_dir + str(myOptions.interface.current_seed) + "/prototransitions.txt", "r") as myFile:
 
-            index = 0
-            go_on = True
+                index = 0
+                go_on = True
 
-            myLines = []
+                myLines = []
 
-            for line in myFile:
-                myLines.append(line)
+                for line in myFile:
+                    myLines.append(line)
 
-            while go_on:
+                while go_on:
 
-                line1 = myLines[index];
-                line2 = myLines[index + 1];
-                line3 = myLines[index + 2];
-                
-                index = index + 4  # note the whitespace
+                    line1 = myLines[index];
+                    line2 = myLines[index + 1];
+                    line3 = myLines[index + 2];
 
-                go_on = len(myLines) > index
+                    index = index + 4  # note the whitespace
 
-                uID1, ev1, seq1 = self.parseState(line2, myOptions._temperature_kelvin, myOptions.join_concentration)
-                uID2, ev2, seq2 = self.parseState(line3, myOptions._temperature_kelvin, myOptions.join_concentration)
+                    go_on = len(myLines) > index
 
-                transitionPair = (uID1, uID2)
+                    uID1, ev1, seq1 = self.parseState(line2, myOptions._temperature_kelvin, myOptions.join_concentration)
+                    uID2, ev2, seq2 = self.parseState(line3, myOptions._temperature_kelvin, myOptions.join_concentration)
 
-                if not transitionPair in transitions:
+                    transitionPair = (uID1, uID2)
 
-                    transitionList = list()
+                    if not transitionPair in transitions:
 
-                    n_complex1 = int(line2.split()[0])
-                    n_complex2 = int(line3.split()[0])
+                        transitionList = list()
 
-                    if n_complex1 == n_complex2:
-                        transitionList.append(transitiontype.unimolecular)
+                        n_complex1 = int(line2.split()[0])
+                        n_complex2 = int(line3.split()[0])
 
-                    if n_complex1 > n_complex2:
-                        transitionList.append(transitiontype.bimolecularIn)
+                        if n_complex1 == n_complex2:
+                            transitionList.append(transitiontype.unimolecular)
 
-                    if n_complex2 > n_complex1:
-                        transitionList.append(transitiontype.bimolecularOut)
+                        if n_complex1 > n_complex2:
+                            transitionList.append(transitiontype.bimolecularIn)
 
-                    if myOptions.rate_method == Literals.arrhenius:
-                        # decode the transition and add it
-                        transitionList.extend(codeToDesc(int(float(line1))))
+                        if n_complex2 > n_complex1:
+                            transitionList.append(transitiontype.bimolecularOut)
 
-                    transitions[transitionPair] = transitionList
+                        if myOptions.rate_method == Literals.arrhenius:
+                            # decode the transition and add it
+                            transitionList.extend(codeToDesc(int(float(line1))))
+
+                        transitions[transitionPair] = transitionList
 
             """ load the initial states """
-            myFile = open(self.the_dir + str(myOptions.interface.current_seed) + "/protoinitialstates.txt", "r")
+            with open(self.the_dir + str(myOptions.interface.current_seed) + "/protoinitialstates.txt", "r") as myFile:
 
-            myLines = []
+                myLines = []
 
-            for line in myFile:
-                myLines.append(line)
+                for line in myFile:
+                    myLines.append(line)
 
-            index = 0
-            go_on = True
+                index = 0
+                go_on = True
 
-            if len(myLines) == 0:
-                print "No initial states found!"
+                if len(myLines) == 0:
+                    print "No initial states found!"
 
-            while go_on:
+                while go_on:
 
-                line1 = myLines[index];
-                line2 = myLines[index + 1];
+                    line1 = myLines[index];
+                    line2 = myLines[index + 1];
 
-                index = index + 2  # note the whitespace
-                go_on = len(myLines) > index
+                    index = index + 2  # note the whitespace
+                    go_on = len(myLines) > index
 
-                uID1, ev1, seq1 = self.parseState(line2, myOptions._temperature_kelvin, myOptions.join_concentration)
-                count = int(line1.split()[0])
+                    uID1, ev1, seq1 = self.parseState(line2, myOptions._temperature_kelvin, myOptions.join_concentration)
+                    count = int(line1.split()[0])
 
-                if not uID1 in initStates:
+                    if not uID1 in initStates:
 
-                    newEntry = InitCountFlux()
-                    newEntry.count = count
-                    newEntry.flux = 777777  # arrType is the flux, and is unique to the initial state
+                        newEntry = InitCountFlux()
+                        newEntry.count = count
+                        newEntry.flux = 777777  # arrType is the flux, and is unique to the initial state
 
-                    initStates[uID1] = newEntry
+                        initStates[uID1] = newEntry
 
             """ load the final states """
-            myFile = open(self.the_dir + str(myOptions.interface.current_seed) + "/protofinalstates.txt", "r")
+            with open(self.the_dir + str(myOptions.interface.current_seed) + "/protofinalstates.txt", "r") as myFile:
 
-            myLines = []
+                myLines = []
 
-            for line in myFile:
-                myLines.append(line)
+                for line in myFile:
+                    myLines.append(line)
 
-            index = 0
-            go_on = True
+                index = 0
+                go_on = True
 
-            if len(myLines) == 0:
-                #                 raise ValueError("No succesful final states found -- mean first passage time would be infinite ")
-                go_on = False
+                if len(myLines) == 0:
+                    #                 raise ValueError("No succesful final states found -- mean first passage time would be infinite ")
+                    go_on = False
 
-            while go_on:
+                while go_on:
 
-                line1 = myLines[index];
-                line2 = myLines[index + 1];
-                index = index + 2
+                    line1 = myLines[index];
+                    line2 = myLines[index + 1];
+                    index = index + 2
 
-                go_on = len(myLines) > (index + 1)
+                    go_on = len(myLines) > (index + 1)
 
-                uID1, ev1, seq1 = self.parseState(line1, myOptions._temperature_kelvin, myOptions.join_concentration)
-                tag = line2.split()[0]
+                    uID1, ev1, seq1 = self.parseState(line1, myOptions._temperature_kelvin, myOptions.join_concentration)
+                    tag = line2.split()[0]
 
-                if not uID1 in finalStates:
-                    finalStates[uID1] = tag
+                    if not uID1 in finalStates:
+                        finalStates[uID1] = tag
 
             """ Now delete the files as they can get quite large """
             os.remove(self.the_dir + str(myOptions.interface.current_seed) + "/protospace.txt")
             os.remove(self.the_dir + str(myOptions.interface.current_seed) + "/prototransitions.txt")
             os.remove(self.the_dir + str(myOptions.interface.current_seed) + "/protoinitialstates.txt")
             os.remove(self.the_dir + str(myOptions.interface.current_seed) + "/protofinalstates.txt")
-            os.rmdir(self.the_dir + str(myOptions.interface.current_seed)) 
+            os.rmdir(self.the_dir + str(myOptions.interface.current_seed))
 
 
         runPaths(self.optionsFunction, inputArgs, space, transitions, initStates, finalStates, sequences)
@@ -1050,14 +1055,14 @@ class BuilderRate(object):
         if transitionlist[0] == transitiontype.unimolecular:
 
             if dG1 > dG2 :  # state2 is more stable (negative), dG1 - dG2 is positive
-                
+
                 rate1 = self.build.options.unimolecular_scaling
                 rate2 = self.build.options.unimolecular_scaling * np.exp(-(dG1 - dG2) / RT)
-                
+
             else:  # state2 is less or equally stable (negative), dG1 - dG2 is negative
-                
+
                 rate1 = self.build.options.unimolecular_scaling * np.exp((dG1 - dG2) / RT)
-                rate2 = self.build.options.unimolecular_scaling 
+                rate2 = self.build.options.unimolecular_scaling
 
             return rate1, rate2
 
@@ -1104,12 +1109,12 @@ class BuilderRate(object):
             else:
                 rate1 = np.e ** (lnA - E / RT)
                 rate2 = np.e ** (lnA - (DeltaG2 + E) / RT)
-		
-#     	    if rate1 < self.rateLimit:
-#                 rate1 = 0.0
-#     	    
-#             if rate2 < self.rateLimit:
-#                 rate2 = 0.0
+
+        #     	    if rate1 < self.rateLimit:
+        #                 rate1 = 0.0
+        #
+        #             if rate2 < self.rateLimit:
+        #                 rate2 = 0.0
 
         elif transitionlist[0] == transitiontype.bimolecularIn:
 
@@ -1248,13 +1253,13 @@ class BuilderRate(object):
             firstpassagetimes, info = lgmres(self.rate_matrix_csr, self.b, M=self.rate_matrix_inverse, x0=x0, maxiter=maxiter)
 
         else:
-            
+
             global floatT
             floatT = np.float64
-            
+
             self.setMatrix()
             firstpassagetimes = spsolve(self.rate_matrix_csr, self.b)
-            
+
             floatT = np.longdouble
 
 
