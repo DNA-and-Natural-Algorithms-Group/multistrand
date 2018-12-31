@@ -166,7 +166,7 @@ if __name__ == '__main__':
         nTrials = sys.argv[2]
 
     else :
-        raise ValueError("Expected two input arguments, example:   morrison 500 0.01 ")
+        raise ValueError("Expected two input arguments, example:   test 500  ")
 
     if len(sys.argv) > 3:
         
@@ -176,7 +176,7 @@ if __name__ == '__main__':
     
         iterateResults(morrison, nTrials, deltaPruning=deltaPruning)
         
-    if toggle == "morrison0":
+    if toggle == "morrison0"  or toggle == "test":
     
         iterateResults(morrison0, nTrials, deltaPruning=deltaPruning)
     
@@ -187,10 +187,6 @@ if __name__ == '__main__':
     if toggle == "morrison15":
         
         iterateResults(morrison15, nTrials, deltaPruning=deltaPruning)
-
-    if toggle == "test":
-
-        iterateResults("ACTAGGGG", nTrials, deltaPruning=deltaPruning)
 
     if toggle == "longdomain":
 

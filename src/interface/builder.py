@@ -394,7 +394,7 @@ class Builder(object):
 
         N = len(self.protoSpace)
 
-        overlap = 0;
+        overlap = 0
 
         for state in self.protoSpace:
             if state in other.protoSpace:
@@ -407,7 +407,7 @@ class Builder(object):
         for key, val in that.iteritems():
 
             if not key in this:
-                this[key] = val;
+                this[key] = val
 
     def mergeBuilder(self, other):
 
@@ -452,9 +452,6 @@ class Builder(object):
 
             uniqueID2 = uniqueStateID(ids, structs)
             uniqueID = ""
-
-#             for iddd in uniqueID2 :
-#                 uniqueID += str(iddd)
                 
             uniqueID =  tuple(uniqueID2)
 
@@ -592,49 +589,6 @@ class Builder(object):
         
         Builder.verbosity = ogVerb
             
-#     def fattenStateSpace(self):
-#         
-#         ogVerb = Builder.verbosity
-#         Builder.verbosity = False
-#         counter = 0
-#         
-#         collectionB = Builder(self.optionsFunction, self.optionsArgs)
-#         
-#         def inspectionSim(inputs):
-# 
-#             o1 = standardOptions()
-#             o1.rate_method = self.options.rate_method
-#             o1.start_state = inputs[0]
-#             
-#             return o1
-#         
-#         for key, value in self.protoSpace.iteritems():
-# 
-#             if ogVerb and ((counter % 100) == 0):
-#                 print "Searching for missing transitions. Progress " + str(counter) + " / " + str(len(self.protoSpace))
-# 
-#             (seqs, ids, structs) = self.protoSequences[key]
-#             
-#             myState = []
-#             
-#             for seq, id, struct in zip(seqs, ids, structs):
-#                 
-#                 seqs = seq.split('+')
-#                 ids = id.split(',')
-#                 myC = makeComplex(seqs, struct, ids)
-# 
-#                 myState.append(myC)
-#             
-#             ''' post: myState is the state we want to explore transitions for. '''
-#     
-#             myB = Builder(inspectionSim, [myState])
-#             myB.genAndSavePathsFile(inspecting=True)
-#             collectionB.transitionMerge(myB)
-#             
-#             counter += 1
-#         
-#         self.transitionMerge(collectionB)
-#         Builder.verbosity = ogVerb
         
     """
     Computes the mean first pasasage times, 
