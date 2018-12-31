@@ -20,7 +20,7 @@ morrison = ["TTGGTGATCC", "AGATTAGCAGGTTTCCCACC", "GCCCACACTCTTACTTATCGACT", "AG
 morrison0 = ["TTGGTGATCC"]
 morrison1 = ["AGATTAGCAGGTTTCCCACC"]
 morrison15 = ["AGATTAGCAGGTTTC"]
-morrison15 = ["AGATTAGCAGGTTTC"]
+morrison13 = ["AGATTAGCAGGTT"]
 
 longdomain = ["AGAGGCTTATAACTGTGTCGGGT"]
 
@@ -84,7 +84,9 @@ def timings(seq, nTrials, deltaPruning=None):
         myBuilder.genAndSavePathsFromString(startStates[:(len(startStates) - 1)])
         print myBuilder
         
+        startTime2 = time.time()
         myBuilder.fattenStateSpace()
+        print "Searching transitions took " + str(  1000 * (time.time() - startTime2) / len(myBuilder.protoSpace)) + "ms per state"
         print myBuilder
         
 #         myBuilder.genUntilConvergenceWithInitialState(10000, startStates[:(len(startStates) - 1)], printMeanTime=True)
@@ -187,6 +189,10 @@ if __name__ == '__main__':
     if toggle == "morrison15":
         
         iterateResults(morrison15, nTrials, deltaPruning=deltaPruning)
+
+    if toggle == "morrison13":
+        
+        iterateResults(morrison13, nTrials, deltaPruning=deltaPruning)
 
     if toggle == "longdomain":
 

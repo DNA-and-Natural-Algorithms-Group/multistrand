@@ -518,15 +518,6 @@ class Builder(object):
             
         startTime = time.time()
 
-        """ Load up the energy model with a near zero-length simulation """
-        myOptions = self.optionsFunction(copy.deepcopy(self.optionsArgs))
-        myOptions.simulation_mode = Literals.trajectory
-        myOptions.activestatespace = False
-        myOptions.simulation_time = 0.0000000001
-        myOptions.start_state = pathway[0]
-#          
-        s = SimSystem(myOptions)
-        s.start()  
 
         """ Only the first state will count towards the set of initial states """
         ignoreInitial = False
@@ -548,7 +539,18 @@ class Builder(object):
     '''
         
     def fattenStateSpace(self):
-        
+
+        """ Load up the energy model with a near zero-length simulation """
+        myOptions = self.optionsFunction(copy.deepcopy(self.optionsArgs))
+        myOptions.simulation_mode = Literals.trajectory
+        myOptions.activestatespace = False
+        myOptions.simulation_time = 0.0000000001
+        myOptions.start_state = hybridizationString("AAA")[0] #pathway[0]
+#          
+        s = SimSystem(myOptions)
+        s.start()  
+        """ Done setting the energy model        """
+
         ogVerb = Builder.verbosity
         Builder.verbosity = False
         counter = 0
@@ -556,6 +558,8 @@ class Builder(object):
         def inspectionSim(inputs):
 
             o1 = standardOptions()
+            """ Disable regenerating the energymodel """
+            o1.reuse_energymodel = True 
             o1.rate_method = self.options.rate_method
             o1.start_state = inputs[0]
             
