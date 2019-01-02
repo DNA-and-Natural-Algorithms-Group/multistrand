@@ -10,6 +10,11 @@ import sys, os, time
 import numpy as np
 import scipy
 
+import copy
+import cPickle as pickle
+from subprocess import Popen, PIPE, call
+
+
 RESULT_DIR = "test_delta_pruning"
 A_TIME_OUT = 4e-3
 
@@ -83,9 +88,45 @@ def timings(seq, nTrials, deltaPruning=None):
 
         myBuilder.genAndSavePathsFromString(startStates[:(len(startStates) - 1)])
         print myBuilder
-        
         startTime2 = time.time()
-        myBuilder.fattenStateSpace()
+        use_fattenhelper= True
+        if use_fattenhelper== False :
+            myBuilder.fattenStateSpace()
+        elif use_fattenhelper == True:
+            #NZ  To use a constant amount of memory  during the fattening  (adding missing edges) of the state space:
+            builderpath = ""
+            lenp = len( myBuilder.protoSpace)
+            start  = 0
+            myBuilder.protoSpacebackup= copy.deepcopy(myBuilder.protoSpace)
+
+            pathspace=   builderpath + "protoSpacebackup"
+            with open(pathspace   , "wb" ) as p :
+                pickle.dump(myBuilder.protoSpacebackup,  p )
+            pathsequences= builderpath + "protoSequences"
+            with open(pathsequences , "wb" ) as p :
+                pickle.dump(myBuilder.protoSequences,  p )
+            pathoptions = builderpath + "pathoptions"
+            with open(pathoptions , "wb" ) as p :
+                pickle.dump(myBuilder.optionsArgs,  p )
+            batchsize = 2000  #  batchsize means fatten this many states at a time. If it's too large then might have memory issues, if it's to small then there will be an overhead in loading and saving required files.
+            while start < lenp :
+                end = min(lenp ,  start+batchsize)
+                print "progress (working on)" ,  str(end)  , " / ", str(lenp)
+                command = ["python", "fattenhelper.py"  , str(start), str(end) , builderpath, pathspace, pathsequences, pathoptions]
+                shell = call(command )
+                del shell
+                print "loading missing edges"
+                with open( builderpath + "pt" + str(start)+"-"  +str(end) , "rb" ) as p:
+                    protoTransitions  = pickle.load (  p)
+                os.remove(builderpath + "pt" + str(start)+"-"  +str(end))
+                print "merging missing edges"
+                myBuilder.transitionMerge_2(protoTransitions)
+                start  =  end
+            os.remove(pathspace)
+            os.remove(pathsequences)
+            os.remove(pathoptions)
+            del myBuilder.protoSpacebackup
+
         print "Searching transitions took " + str(  1000 * (time.time() - startTime2) / len(myBuilder.protoSpace)) + "ms per state"
         print myBuilder
         

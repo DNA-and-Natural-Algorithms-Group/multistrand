@@ -534,6 +534,97 @@ class Builder(object):
             print "Size T   = %i    ---  bytesize = %i " % (len(self.protoTransitions), sys.getsizeof (self.protoTransitions))
             print "Time = %f" % (time.time() - startTime)
 
+
+    #NZ    next three functions ( mergeSet_2,  transitionMerge_2,   fattenStateSpace_batch) are used to avoid memory leak in fattenStateSpace_batch, starting:
+    def mergeSet_2(self, this, that):
+
+        for key, val in that.iteritems():
+
+            this[key] = val;
+
+    def transitionMerge_2(self, protoTransitions):
+
+        for key, value in protoTransitions.iteritems():
+
+            sFrom = key[0]
+            sTo = key[1]
+
+            if sFrom in self.protoSpace and sTo in self.protoSpace:
+
+                if not key in self.protoTransitions:
+                    self.protoTransitions[key] = value
+                    self.mergingCounter += 1
+
+    def fattenStateSpace_batch(self, start  =   None , end = None ):
+        print "using fattenStateSpace_batch from builder.py! "
+
+        """ Load up the energy model with a near zero-length simulation """
+        myOptions = self.optionsFunction(copy.deepcopy(self.optionsArgs))
+        myOptions.simulation_mode = Literals.trajectory
+        myOptions.activestatespace = False
+        myOptions.simulation_time = 0.0000000001
+        myOptions.start_state = hybridizationString("AAA")[0] #pathway[0]
+        #
+        s = SimSystem(myOptions)
+        s.start()
+        """ Done setting the energy model        """
+
+        ogVerb = Builder.verbosity
+        Builder.verbosity = False
+        counter = 0
+
+
+        def inspectionSim(inputs):
+
+            o1 = standardOptions()
+            #The next 3 lines ensure the energy of the states are calculated in same condition as state space states. Useful if use fattenstatespace to add new states
+            o1.sodium = self.options.sodium
+            o1.magnesium = self.options.magnesium
+            o1.temperature = self.options.temperature
+            o1.reuse_energymodel = True
+            #print "o1.temperature is " , o1.temperature
+            o1.rate_method = self.options.rate_method
+            o1.start_state = inputs[0]
+
+            return o1
+        self.tempstatespace = dict()
+        self.temptransitions = dict()
+        for key, value in self.protoSpacebackup.iteritems():
+
+            if start != None and end != None:
+                if counter < start :
+                    counter += 1
+                    continue
+                if counter >= end:
+                    counter +=1
+                    break
+            ogVerb = True
+            (seqs, ids, structs) = self.protoSequences[key]
+
+            myState = []
+
+            for seq, id, struct in zip(seqs, ids, structs):
+
+                seqs = seq.split('+')
+                ids = id.split(',')
+                myC = makeComplex(seqs, struct, ids)
+
+                myState.append(myC)
+
+            ''' post: myState is the state we want to explore transitions for. '''
+
+            myB = Builder(inspectionSim, [myState])
+            myB.genAndSavePathsFile(inspecting=True)
+
+            #self.transitionMerge(myB)
+            self.mergeSet_2(self.protoTransitions, myB.protoTransitions)
+
+            counter += 1
+        Builder.verbosity = ogVerb
+
+
+
+
     '''
     Generates all transitions between states in the statespaces and adds missing transitions
     '''
@@ -681,133 +772,133 @@ class Builder(object):
                 print "Multistrand simulation is now done,      time = %.2f" % (time.time() - simTime)
 
             """ load the space """
-            myFile = open(self.the_dir + str(myOptions.interface.current_seed) + "/protospace.txt", "r")
+            with open(self.the_dir + str(myOptions.interface.current_seed) + "/protospace.txt", "r") as myFile:
 
-            for line in myFile:
-                
-                uniqueID, energyvals, seqs = self.parseState(line, myOptions._temperature_kelvin, myOptions.join_concentration)
-                
-                if not uniqueID in sequences:
-                    sequences[uniqueID] = seqs
+                for line in myFile:
 
-                if not uniqueID in space:
+                    uniqueID, energyvals, seqs = self.parseState(line, myOptions._temperature_kelvin, myOptions.join_concentration)
 
-                    space[uniqueID] = energyvals
+                    if not uniqueID in sequences:
+                        sequences[uniqueID] = seqs
 
-                elif not space[uniqueID] == energyvals:
+                    if not uniqueID in space:
 
-                    print "My hashmap contains " + str(uniqueID) + " with Energy " + str(space[uniqueID]) + " but found: " + str(energyvals)
-                    print "Line = " + line
+                        space[uniqueID] = energyvals
+
+                    elif not space[uniqueID] == energyvals:
+
+                        print "My hashmap contains " + str(uniqueID) + " with Energy " + str(space[uniqueID]) + " but found: " + str(energyvals)
+                        print "Line = " + line
 
             """ load the transitions """
-            myFile = open(self.the_dir + str(myOptions.interface.current_seed) + "/prototransitions.txt", "r")
+            with  open(self.the_dir + str(myOptions.interface.current_seed) + "/prototransitions.txt", "r") as myFile:
 
-            index = 0
-            go_on = True
+                index = 0
+                go_on = True
 
-            myLines = []
+                myLines = []
 
-            for line in myFile:
-                myLines.append(line)
+                for line in myFile:
+                    myLines.append(line)
 
-            while go_on:
+                while go_on:
 
-                line1 = myLines[index];
-                line2 = myLines[index + 1];
-                line3 = myLines[index + 2];
-                
-                index = index + 4  # note the whitespace
+                    line1 = myLines[index];
+                    line2 = myLines[index + 1];
+                    line3 = myLines[index + 2];
 
-                go_on = len(myLines) > index
+                    index = index + 4  # note the whitespace
 
-                uID1, ev1, seq1 = self.parseState(line2, myOptions._temperature_kelvin, myOptions.join_concentration)
-                uID2, ev2, seq2 = self.parseState(line3, myOptions._temperature_kelvin, myOptions.join_concentration)
+                    go_on = len(myLines) > index
 
-                transitionPair = (uID1, uID2)
+                    uID1, ev1, seq1 = self.parseState(line2, myOptions._temperature_kelvin, myOptions.join_concentration)
+                    uID2, ev2, seq2 = self.parseState(line3, myOptions._temperature_kelvin, myOptions.join_concentration)
 
-                if not transitionPair in transitions:
+                    transitionPair = (uID1, uID2)
 
-                    transitionList = list()
+                    if not transitionPair in transitions:
 
-                    n_complex1 = int(line2.split()[0])
-                    n_complex2 = int(line3.split()[0])
+                        transitionList = list()
 
-                    if n_complex1 == n_complex2:
-                        transitionList.append(transitiontype.unimolecular)
+                        n_complex1 = int(line2.split()[0])
+                        n_complex2 = int(line3.split()[0])
 
-                    if n_complex1 > n_complex2:
-                        transitionList.append(transitiontype.bimolecularIn)
+                        if n_complex1 == n_complex2:
+                            transitionList.append(transitiontype.unimolecular)
 
-                    if n_complex2 > n_complex1:
-                        transitionList.append(transitiontype.bimolecularOut)
+                        if n_complex1 > n_complex2:
+                            transitionList.append(transitiontype.bimolecularIn)
 
-                    if myOptions.rate_method == Literals.arrhenius:
-                        # decode the transition and add it
-                        transitionList.extend(codeToDesc(int(float(line1))))
+                        if n_complex2 > n_complex1:
+                            transitionList.append(transitiontype.bimolecularOut)
 
-                    transitions[transitionPair] = transitionList
+                        if myOptions.rate_method == Literals.arrhenius:
+                            # decode the transition and add it
+                            transitionList.extend(codeToDesc(int(float(line1))))
+
+                        transitions[transitionPair] = transitionList
 
             """ load the initial states """
-            myFile = open(self.the_dir + str(myOptions.interface.current_seed) + "/protoinitialstates.txt", "r")
+            with open(self.the_dir + str(myOptions.interface.current_seed) + "/protoinitialstates.txt", "r") as myFile:
 
-            myLines = []
+                myLines = []
 
-            for line in myFile:
-                myLines.append(line)
+                for line in myFile:
+                    myLines.append(line)
 
-            index = 0
-            go_on = True
+                index = 0
+                go_on = True
 
-            if len(myLines) == 0:
-                print "No initial states found!"
+                if len(myLines) == 0:
+                    print "No initial states found!"
 
-            while go_on:
+                while go_on:
 
-                line1 = myLines[index];
-                line2 = myLines[index + 1];
+                    line1 = myLines[index];
+                    line2 = myLines[index + 1];
 
-                index = index + 2  # note the whitespace
-                go_on = len(myLines) > index
+                    index = index + 2  # note the whitespace
+                    go_on = len(myLines) > index
 
-                uID1, ev1, seq1 = self.parseState(line2, myOptions._temperature_kelvin, myOptions.join_concentration)
-                count = int(line1.split()[0])
+                    uID1, ev1, seq1 = self.parseState(line2, myOptions._temperature_kelvin, myOptions.join_concentration)
+                    count = int(line1.split()[0])
 
-                if not uID1 in initStates:
+                    if not uID1 in initStates:
 
-                    newEntry = InitCountFlux()
-                    newEntry.count = count
-                    newEntry.flux = 777777  # arrType is the flux, and is unique to the initial state
+                        newEntry = InitCountFlux()
+                        newEntry.count = count
+                        newEntry.flux = 777777  # arrType is the flux, and is unique to the initial state
 
-                    initStates[uID1] = newEntry
+                        initStates[uID1] = newEntry
 
             """ load the final states """
-            myFile = open(self.the_dir + str(myOptions.interface.current_seed) + "/protofinalstates.txt", "r")
+            with open(self.the_dir + str(myOptions.interface.current_seed) + "/protofinalstates.txt", "r") as myFile:
 
-            myLines = []
+                myLines = []
 
-            for line in myFile:
-                myLines.append(line)
+                for line in myFile:
+                    myLines.append(line)
 
-            index = 0
-            go_on = True
+                index = 0
+                go_on = True
 
-            if len(myLines) == 0:
-                #                 raise ValueError("No succesful final states found -- mean first passage time would be infinite ")
-                go_on = False
+                if len(myLines) == 0:
+                    #                 raise ValueError("No succesful final states found -- mean first passage time would be infinite ")
+                    go_on = False
 
-            while go_on:
+                while go_on:
 
-                line1 = myLines[index];
-                line2 = myLines[index + 1];
-                index = index + 2
+                    line1 = myLines[index];
+                    line2 = myLines[index + 1];
+                    index = index + 2
 
-                go_on = len(myLines) > (index + 1)
+                    go_on = len(myLines) > (index + 1)
 
-                uID1, ev1, seq1 = self.parseState(line1, myOptions._temperature_kelvin, myOptions.join_concentration)
-                tag = line2.split()[0]
+                    uID1, ev1, seq1 = self.parseState(line1, myOptions._temperature_kelvin, myOptions.join_concentration)
+                    tag = line2.split()[0]
 
-                if not uID1 in finalStates:
-                    finalStates[uID1] = tag
+                    if not uID1 in finalStates:
+                        finalStates[uID1] = tag
 
             """ Now delete the files as they can get quite large """
             os.remove(self.the_dir + str(myOptions.interface.current_seed) + "/protospace.txt")
