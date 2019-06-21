@@ -44,7 +44,7 @@ public:
 	// 11/25 JMS: Possibly the best thing to do is have the complex which performs the splitting choice return the new complex. If I implement strands, it should be easier to find the splitting point and construct the new complex efficiently.
 
 	Move *getChoice(SimTimer&); // get a move chosen stochastically from all possible moves within the complex. We'll then call perform choice on that move to generate the new setup.
-	StrandComplex *doChoice(Move *move);
+	StrandComplex *doChoice(Move *move, SimTimer&);
 	int generateLoops(void);
 
 	void printAllMoves(void);

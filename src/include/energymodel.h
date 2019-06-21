@@ -27,7 +27,7 @@ const int MFOLD = 1;
 
 const int pairs_vienna[5] = { 0, 4, 3, 2, 1 };
 const int pairs_mfold[5] = { 0, 4, 3, 2, 1 };
-extern int pairs[5];
+extern  int pairs[5];
 
 const int pairtypes_vienna[5][5] = { { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 5 }, { 0, 0, 0, 1, 0 }, { 0, 0, 2, 0, 3 }, { 0, 6, 0, 4, 0 } };
 const int pairtypes_mfold[5][5] = { { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 1 }, { 0, 0, 0, 2, 0 }, { 0, 0, 3, 0, 5 }, { 0, 4, 0, 6, 0 } };
@@ -37,12 +37,13 @@ extern int pairtypes[5][5];
 const int basepair_sw_vienna[8] = { 0, 2, 1, 4, 3, 6, 5, 7 };
 const int basepair_sw_mfold[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
 const int basepair_sw_mfold_actual[8] = { 0, 4, 3, 2, 1, 6, 5, 7 }; // Why do this? Vienna's parameter file stores pairings in the opposite ordering. So for one of them, we need to swap basepairs to get the correct ordering, in the other one, we don't.
-extern int basepair_sw[8]; // = {0,0,0,0,0,0,0,0};
+extern  int basepair_sw[8]; // = {0,0,0,0,0,0,0,0};
 
 int baseLookup(char base);
 
 const double nupackInfinte = 100000.0;
 const double gasConstant = 0.0019872041;
+
 
 enum LoopType {
 	openLoop, interiorLoop, bulgeLoop, stackLoop, hairpinLoop, multiLoop, LOOPTYPE_SIZE

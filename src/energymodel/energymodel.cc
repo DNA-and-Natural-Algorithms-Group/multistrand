@@ -18,6 +18,30 @@ bool printedRates = false; // to print the constants to file once
 
 const double INIT_PENALTY = 0.0; //kcal / mol
 
+
+int pairs[5] = { 0, 0, 0, 0, 0 };
+int pairtypes[5][5] = { { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 } };
+int basepair_sw[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+
+constexpr int lookuphelper[26] = { 1, 0, 2, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0 };		// A C G T    1 2 3 4
+//                      A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z
+
+// // helper function to convert to numerical base format.
+int baseLookup(char base) {
+
+	char temp = std::toupper(base);
+	if (temp < 'A' || temp > 'Z') {
+//		cout << "Warning! Trying to cast a non-base, value is " << ((int) base) << " and  temp is " << (int) (temp)  << endl;
+		return base;
+	}
+
+	return lookuphelper[temp - 'A'];
+}
+
+
+
+
+
 EnergyModel::EnergyModel(PyObject *options) {
 	// nothing yet
 
@@ -412,25 +436,4 @@ double EnergyModel::arrheniusLoopEnergy(char* seq, int length) {
 //	return 0.368 * log(simOptions->energyOptions->sodium + 3.3 * sqrt(simOptions->energyOptions->magnesium));
 //
 //}
-
-int pairs[5] = { 0, 0, 0, 0, 0 };
-int pairtypes[5][5] = { { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 } };
-int basepair_sw[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
-
-int lookuphelper[26] = { 1, 0, 2, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0 };		// A C G T    1 2 3 4
-//                      A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z
-
-// // helper function to convert to numerical base format.
-int baseLookup(char base) {
-
-	char temp = std::toupper(base);
-	if (temp < 'A' || temp > 'Z') {
-//		cout << "Warning! Trying to cast a non-base, value is " << ((int) base) << " and  temp is " << (int) (temp)  << endl;
-		return base;
-	}
-
-//	cout << "Found char: " << lookuphelper[temp - 'A'] << endl;
-
-	return lookuphelper[temp - 'A'];
-}
 

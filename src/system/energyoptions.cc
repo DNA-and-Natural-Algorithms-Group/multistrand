@@ -8,17 +8,16 @@ help@multistrand.org
  *  Created on: Jun 5, 2016
  *      Author: Frits Dannenberg
  */
-
-#include "options.h"	 	// python options helper
-#include "energyoptions.h"
-#include "moveutil.h"
-#include "sequtil.h"
-
 #include <vector>
 #include <iostream>
 #include <string>
 #include <sstream>
 #include <cmath>
+
+#include "options.h"	 	// python options helper
+#include "energyoptions.h"
+#include "moveutil.h"
+#include "sequtil.h"
 
 using std::vector;
 using std::string;

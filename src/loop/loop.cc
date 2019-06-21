@@ -1402,19 +1402,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 	if (identify(start, end, 'S', 'S')) {
 
-//		StackLoop *start_, *end_;
-
 		StackLoop* start_ = (StackLoop*) end;
 		StackLoop* end_ = (StackLoop*) start;
-
-//		// FD: this compares pointers, the execution is arbitrarly
-//		if (((StackLoop *) start)->seqs[0] > ((StackLoop *) end)->seqs[0]) {
-//			start_ = (StackLoop *) end;
-//			end_ = (StackLoop *) start;
-//		} else {
-//			start_ = (StackLoop *) start;
-//			end_ = (StackLoop *) end;
-//		}
 
 		tie(s_index, e_index) = findExternalAdjacent(start_, end_);
 
@@ -5268,12 +5257,11 @@ bool OpenLoop::nucleotideIsActive(const char* sequence, const char* initial, con
 
 bool OpenLoop::nucleotideIsActive(const char* sequence, const char* initial, const int pos1) {
 
-//	// needed: time and a pointer to the first entry.
+//  needed: time and a pointer to the first entry.
 	if (energyModel->simOptions->cotranscriptional) {
 
 		const char* seqPointer = &sequence[pos1];
 		const int distance = seqPointer - initial;
-//		cout << "Comparing nt distance " << distance << " and active " <<  energyModel->numActiveNT  << endl;
 
 		if (distance > energyModel->numActiveNT) {
 

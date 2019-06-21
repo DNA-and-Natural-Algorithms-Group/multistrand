@@ -52,7 +52,7 @@ def doSims(strandSeq, numTraj=2):
     
     o1.num_simulations = numTraj
     o1.output_time = 0.0004       #       output every .4 ms
-    o1.simulation_time = 0.5      #       unit: second
+    o1.simulation_time = 0.35     #       unit: second
     o1.gt_enable = 1;
     o1.substrate_type = Literals.substrateRNA
     o1.simulation_mode = Literals.trajectory
@@ -80,8 +80,8 @@ if __name__ == '__main__':
     
     print sys.argv
     doSims( "ATTCCGGTTGATCCTGCCGGAGGTCATTGCTATTGGGGTCCGATTTAGCCATGCTAGTTGCACGAGTTCATACTCGTGGCGAAAAGCTCAGTAACACGTGGCCAAACTACCCTACAGAGAA",1)
-         
         
+    #doSims("ATTCCGGTTGATCCTGCCGGAGGTCATTGCTATTGGGGTCCGATTTAGCCATGCTAGTTGCACGAGTTCATACTCGTGGCGAAAAGCTCAGTAACACGTGGCCAAACTACCCTACAGAGAACGATAACCTCGGGAAACTGAGGCTAATAGTTCATACGGGAGTCATGCTGGAATGCCGACTCCCCGAAACGCTCAGGCGCTGTAGGATGTGGCTGCGGCCGATTAGGTAGACGGTGGGGTAACGGCCCACCGTGCCGATAATCGGTACGGGTTGTGAGAGCAAGAGCCCGGAGACGGAATCT",2) 
         
 
 

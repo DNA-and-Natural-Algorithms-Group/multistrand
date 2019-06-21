@@ -454,13 +454,14 @@ double SComplexList::doBasicChoice(SimTimer& myTimer) {
 		temp = temp->next;
 	}
 // POST: pickedComplex points to the complex that contains the executable move
+// For cotranscriptional, this is always the initial complex.
 
 	assert(pickedComplex != NULL);
 
 	tempmove = pickedComplex->getChoice(myTimer);
 	arrType = tempmove->getArrType();
 
-	newComplex = pickedComplex->doChoice(tempmove);
+	newComplex = pickedComplex->doChoice(tempmove, myTimer);
 
 	if (newComplex != NULL) {
 

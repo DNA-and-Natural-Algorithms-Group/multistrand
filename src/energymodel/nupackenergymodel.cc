@@ -26,17 +26,12 @@ static double T_scale(double dG, double dH, double T) {
 const double CELSIUS37_IN_KELVIN = 310.15;
 const double TEMPERATURE_ZERO_CELSIUS_IN_KELVIN = 273.15;
 
-extern int pairs[5];
-extern int pairtypes[5][5];
-extern int basepair_sw[8];
+extern  int pairs[5];
+extern  int pairtypes[5][5];
+extern  int basepair_sw[8];
 
 // helper function to convert to numerical base format.
 extern int baseLookup(char base);
-
-//NupackEnergyModel::~NupackEnergyModel(void) {
-//	// TODO: is anything allocated now? Don't think so, all arrays are static still.
-//	// nothing is allocated within an energy model.
-//}
 
 double NupackEnergyModel::returnRate(double start_energy, double end_energy, int enth_entr_toggle) {
 
