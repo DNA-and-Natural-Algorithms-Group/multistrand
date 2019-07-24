@@ -83,6 +83,15 @@ For OS X, the following steps enabled successful installation on a 2017 macbook 
 
 ### Troubleshooting ###
 
+Q: When I try to run tutorials/misc/sample_trace.py, I get the error:
+```
+['tutorials/misc/sample_trace.py']
+terminate called after throwing an instance of 'std::logic_error'
+  what():  basic_string::_S_construct null not valid
+Aborted
+```
+A: You need to set the NUPACKHOME enviroment variable. You can see the current value by using 'echo $NUPACKHOME'.
+
 Q: On OSX, I get the following error when I try to make:
 ```
 In file included from system/utility.cc:16:
