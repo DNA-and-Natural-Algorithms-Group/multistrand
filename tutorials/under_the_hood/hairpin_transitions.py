@@ -1,3 +1,4 @@
+from __future__ import print_function
 # hairpin_transitions.py
 # 
 # Having seen how the simulation generates trajectories in hairpin_trajectories.py, here we extract some information from the trajectories.
@@ -116,7 +117,7 @@ def trans_name(t0,t1):
 
 def print_transitions( transition_traj ):
     for t in transition_traj:
-        print "%12g : %s" % ( t[0], mol_name(t[1]) )
+        print("%12g : %s" % ( t[0], mol_name(t[1]) ))
                   
 # for each simulation, the transition trajectory reports the tuple (time_entered, which_macrostates_the_system_is_now_in)
 def parse_transition_lists( transition_traj_list ):
@@ -157,7 +158,7 @@ def print_transition_dict( transition_dict, options = None ):
 
 #### Back to stuff to try... automatically or by hand, line-by-line 
 
-print "--- Running Simulations ---"
+print("--- Running Simulations ---")
 o1,o2 = setup_options_hairpin()
 s=SimSystem(o1)
 s.start()
@@ -168,25 +169,25 @@ s.start()
 
 # Try looking at o1.interface.transition_lists[0] to see each transition from the first simulation.
 
-print
-print "--- Analysis of simulations with exact transition states ---"
-print "  Coarse-grained trajectory of simulation #1:"
+print()
+print("--- Analysis of simulations with exact transition states ---")
+print("  Coarse-grained trajectory of simulation #1:")
 print_transitions(o1.interface.transition_lists[0])
-print "  Transitions from simulation #1:"
+print("  Transitions from simulation #1:")
 parsedlist = parse_transition_list(o1.interface.transition_lists[0])
 print_transition_dict(parsedlist)
-print "  Transitions averaged over all %d simulations:" % o1.num_simulations
+print("  Transitions averaged over all %d simulations:" % o1.num_simulations)
 parsedlist = parse_transition_lists(o1.interface.transition_lists)
 print_transition_dict(parsedlist,o1) # adds names for macrostates
 
-print
-print "--- Analysis of simulations with loose transition states ---"
-print "  Coarse-grained trajectory of simulation #1:"
+print()
+print("--- Analysis of simulations with loose transition states ---")
+print("  Coarse-grained trajectory of simulation #1:")
 print_transitions(o2.interface.transition_lists[0])
-print "  Transitions from simulation #1:"
+print("  Transitions from simulation #1:")
 parsedlist = parse_transition_list(o2.interface.transition_lists[0])
 print_transition_dict(parsedlist)
-print "  Transitions averaged over all %d simulations:" % o2.num_simulations
+print("  Transitions averaged over all %d simulations:" % o2.num_simulations)
 parsedlist = parse_transition_lists(o2.interface.transition_lists)
 print_transition_dict(parsedlist,o2)  # adds names for macrostates
 

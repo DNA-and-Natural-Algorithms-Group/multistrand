@@ -4,6 +4,7 @@
 
 
 """
+from __future__ import print_function
 
 import sys, os
 
@@ -144,12 +145,12 @@ def simulateHairpinAssembly():
 
         rate, low, high = computeRate(i)
         
-        print " \n "
-        print " reaction " + str(i)
-        print " Rate = %.2e /M /s" % rate
-        print " Low  = %.2e /M /s" % low
-        print " High = %.2e /M /s" % high
-        print " \n "    
+        print(" \n ")
+        print(" reaction " + str(i))
+        print(" Rate = %.2e /M /s" % rate)
+        print(" Low  = %.2e /M /s" % low)
+        print(" High = %.2e /M /s" % high)
+        print(" \n ")    
 
     
 # The actual main method

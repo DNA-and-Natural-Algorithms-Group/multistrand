@@ -1,3 +1,4 @@
+from __future__ import print_function
 # hybridization_transitions.py
 # 
 # This example is modified from threeway_transitions.py, but provides a deeper analysis approach (for "simple" hybridization).
@@ -175,7 +176,7 @@ def setup_options_hybridization_Count(trials, toe5_seq, stem_seq, loop_seq, toe3
     d1 = int(L*incorrect_frac)
     d2 = int(2*L*incorrect_frac)
 
-    print "Macrostates: SS structures allowing up to %d nt incorrect, DS structures allowing up to %d nt incorrect." % (d1, d2)
+    print("Macrostates: SS structures allowing up to %d nt incorrect, DS structures allowing up to %d nt incorrect." % (d1, d2))
 
     macro_U1_U2           = Macrostate("U1_and_U2", [(sense_unfolded,Count_Macrostate,d1),(antisense_unfolded,Count_Macrostate,d1)])          
     macro_U1_F2           = Macrostate("U1_and_F2", [(sense_unfolded,Count_Macrostate,d1),(antisense_folded,Count_Macrostate,d1)])
@@ -299,7 +300,7 @@ def setup_options_hybridization_Loose(trials, toe5_seq, stem_seq, loop_seq, toe3
     d_C = int(len(toe3_seq)*incorrect_frac)
     d_D = int(len(loop_seq)*incorrect_frac)
 
-    print "Macrostates: each domain allowing up to fraction %4.2g of nucleotides to be incorrect." % (incorrect_frac)
+    print("Macrostates: each domain allowing up to fraction %4.2g of nucleotides to be incorrect." % (incorrect_frac))
 
     macro_U1              = Macrostate("UNFOLDED1", [(loose_unfolded1,Loose_Macrostate,d_B)])
     macro_U2              = Macrostate("UNFOLDED2", [(loose_unfolded2,Loose_Macrostate,d_B)])
@@ -363,7 +364,7 @@ def setup_options_hybridization_Distance(trials, toe5_seq, stem_seq, loop_seq, t
     hybrid_complete  = Complex(strands=[sense_strand,antisense_strand], structure="(((((+)))))")
 
     stepsize=3
-    print "Macrostates: nucleotides-incorrect distances from the initial and final states in steps of %d." % stepsize
+    print("Macrostates: nucleotides-incorrect distances from the initial and final states in steps of %d." % stepsize)
 
     macros = []
     for d in range(stepsize,2*L+1,stepsize):
@@ -417,7 +418,7 @@ def setup_options_hybridization_Exact(trials, toe5_seq, stem_seq, loop_seq, toe3
     antisense_folded = Complex(strands=[antisense_strand], structure=".(.).")
     hybrid_complete  = Complex(strands=[sense_strand,antisense_strand], structure="(((((+)))))")
 
-    print "Macrostates: exact configurations along idealized pathways for hybridization, three-way branch migration, and four-way branch migration."
+    print("Macrostates: exact configurations along idealized pathways for hybridization, three-way branch migration, and four-way branch migration.")
 
     macros = []
 
@@ -571,7 +572,7 @@ def trans_name(t0,t1):
 
 def print_transitions( transition_traj ):
     for t in transition_traj:
-        print "%12g : %s" % ( t[0], mol_name(t[1]) )
+        print("%12g : %s" % ( t[0], mol_name(t[1]) ))
                   
 # for each simulation, the transition trajectory reports the tuple (time_entered, which_macrostates_the_system_is_now_in)
 # Reminder: mol = macrostate = subset of defined macrostates that we are currently in.  
@@ -611,7 +612,7 @@ def parse_transition_lists( transition_traj_list ):
                     hit_yet=True
 
     if first_name == None or last_name == None:
-        print "Error: first state %s and/or last state %s were not visited" % (first_name, last_name)
+        print("Error: first state %s and/or last state %s were not visited" % (first_name, last_name))
         import pdb; pdb.set_trace()
 
     return (transition_dict, first_name, last_name, hitting_times)
@@ -640,7 +641,7 @@ def parse2_transition_lists( transition_traj_list ):
         prev    = tt[0]                # this will track the previous mol state 
         prev_name = mol_name(prev[1])  # name soon becomes second-order name-pair
         if not prev[1][0]:             # prev[1] is the mol state, i.e. a boolean vector of which macrostates we are in.  
-            print "Expected to start in state containing 'A', but actually started in %s." % (prev_name)
+            print("Expected to start in state containing 'A', but actually started in %s." % (prev_name))
             import pdb; pdb.set_trace()
 
         for i in range(len(tt)-1):
@@ -665,7 +666,7 @@ def parse2_transition_lists( transition_traj_list ):
                 prev = curr
 
     if first_name == None or last_name == None:
-        print "Error: first state %s and/or last state %s were not visited" % (first_name, last_name)
+        print("Error: first state %s and/or last state %s were not visited" % (first_name, last_name))
         import pdb; pdb.set_trace()
         
     return (transition_dict, first_name, last_name, hitting_times)
@@ -675,11 +676,11 @@ def parse2_transition_list( transition_traj_list ):
 
 # print the true names of the defined macrostates
 def print_true_names( options, first, last ):
-    print "True names of all %d defined macrostates and their abbreviations:" % (len(options.stop_conditions))
+    print("True names of all %d defined macrostates and their abbreviations:" % (len(options.stop_conditions)))
     for i,idx in zip(options.stop_conditions,range(len(options.stop_conditions))):
         print("{0}: {1}".format( i.tag, shorthand(idx)))
-    print "Initial state (intersection of defined macrostates) is: %s" % first
-    print "Final state (intersection of defined macrostates) is: %s" % last
+    print("Initial state (intersection of defined macrostates) is: %s" % first)
+    print("Final state (intersection of defined macrostates) is: %s" % last)
 
 def print_transition_dict( transition_dict ):
     k = transition_dict.keys()
@@ -690,7 +691,7 @@ def print_transition_dict( transition_dict ):
         visited_states.add( i.split(" -> ")[0] )
         visited_states.add( i.split(" -> ")[1] )
 
-    print "  Transitions averaged over all %d simulations (%d coarse-grained states visited):" % (o.num_simulations,len(visited_states))
+    print("  Transitions averaged over all %d simulations (%d coarse-grained states visited):" % (o.num_simulations,len(visited_states)))
 
     for i in k:
         transition_times = np.array( transition_dict[i] )
@@ -715,7 +716,7 @@ def visited_macrostates( transition_dict, first, last):
     # the final stop state must be the last one, i.e. index n-1;  
 
     if (not first in visited_macs) or (not last in visited_macs):
-        print "Error: initial or final macrostate not found in visited macrostate list."
+        print("Error: initial or final macrostate not found in visited macrostate list.")
         import pdb; pdb.set_trace()
 
     visited_macs = [ first ] + list(set(visited_macs).difference(set([first, last]))) + [ last ]
@@ -767,20 +768,20 @@ def compute_hitting_times( transition_dict, visited_macs ):
     hitting = np.linalg.solve(id-P_hat,expected_dt)   #  (id-P_hat) x hitting = expected_dt
 
     if np.allclose( np.dot(id-P_hat,hitting), expected_dt ) and np.all( hitting >= 0 ):
-        print "Solved linear equations successfully!"
+        print("Solved linear equations successfully!")
     else:
-        print "Linear equations not solved well."
+        print("Linear equations not solved well.")
         if np.all( hitting >= 0 ):
-            print "Solution is not close to posed equality."
+            print("Solution is not close to posed equality.")
         else:
-            print "Some hitting times are negative."
+            print("Some hitting times are negative.")
 
     # convert hitting back into a regular list, and add 0.0 for the expected time from last to last
     hitting = list(hitting)+[0.0]
 
     # we sort both lists according to hitting time!  
     for (s,h) in sorted(zip(visited_macs,hitting+[0.0]), key=lambda pair: -pair[1]):
-        print "Mean time from %15s to %15s is %g sec." % (s,visited_macs[-1],h)
+        print("Mean time from %15s to %15s is %g sec." % (s,visited_macs[-1],h))
 
     return hitting
 
@@ -857,13 +858,13 @@ def compute_most_likely_path( transition_dict, visited_macs, options = None ):
         pathstring += " -> " + visited_macs[j]
         probstring += ("[%d/%d]" % (N[i,j],int(round(N[i,j]/P[i,j]))))
         if j in path:
-            print "Most likely path has a loop?!?"
+            print("Most likely path has a loop?!?")
             import pdb; pdb.set_trace()
         i=j
         path += [i]
 
-    print "The most likely path through macrostates:"
-    print pathstring
+    print("The most likely path through macrostates:")
+    print(pathstring)
 
     # also print the true names of the macrostates, if an Options object is provided
     if options:
@@ -879,10 +880,10 @@ def compute_most_likely_path( transition_dict, visited_macs, options = None ):
             if not verbosepathstring == '':
                 verbosepathstring += ' -> '
             verbosepathstring += '{' + ';'.join([ lookup(s) for s in mac.split(';') ]) + '}' # for second-order states with history
-        print "a.k.a."
-        print verbosepathstring
+        print("a.k.a.")
+        print(verbosepathstring)
 
-    print "with probability %s" % probstring
+    print("with probability %s" % probstring)
 
     back_to_start = path_matrix[:,0]<np.inf  # which states can reach back to start
 
@@ -892,23 +893,23 @@ def compute_most_likely_path( transition_dict, visited_macs, options = None ):
 if __name__ == '__main__':
 
     if not len(sys.argv) == 4:
-        print "Error: First argument must be 'small' or 'medium' or 'large', specifying which molecule to simulate." 
-        print "Error: Second argument must be 'loose' or 'count' or 'distance' or 'exact' (or 'loose2' or 'count2' or 'distance2' or 'exact2') for second-order coarse-graining)."
-        print "Error: Third argument must be a positive integer, the number of trajectories to be simulated."
+        print("Error: First argument must be 'small' or 'medium' or 'large', specifying which molecule to simulate.") 
+        print("Error: Second argument must be 'loose' or 'count' or 'distance' or 'exact' (or 'loose2' or 'count2' or 'distance2' or 'exact2') for second-order coarse-graining).")
+        print("Error: Third argument must be a positive integer, the number of trajectories to be simulated.")
         sys.exit()
     if not sys.argv[1] in ['small', 'medium', 'large']:
-        print "Error: First argument must be 'small' or 'medium' or 'large', specifying which molecule to simulate." 
+        print("Error: First argument must be 'small' or 'medium' or 'large', specifying which molecule to simulate.") 
         sys.exit()
     if not sys.argv[2] in ['loose', 'count', 'distance', 'loose2', 'count2', 'distance2', 'exact', 'exact2']:
-        print "Error: Second argument must be 'loose' or 'count' or 'distance' or 'exact' (or 'loose2' or 'count2' or 'distance2' or 'exact2') for second-order coarse-graining)."
+        print("Error: Second argument must be 'loose' or 'count' or 'distance' or 'exact' (or 'loose2' or 'count2' or 'distance2' or 'exact2') for second-order coarse-graining).")
         sys.exit()
     try:
         num_traj = int(sys.argv[3])
     except TypeError:
-        print "Error: Third argument must be a positive integer, the number of trajectories to be simulated."
+        print("Error: Third argument must be a positive integer, the number of trajectories to be simulated.")
         sys.exit()
     if num_traj<1:
-        print "Error: Third argument must be a positive integer, the number of trajectories to be simulated."
+        print("Error: Third argument must be a positive integer, the number of trajectories to be simulated.")
         sys.exit()
     molecule = str(sys.argv[1])
     macrotype = str(sys.argv[2])
@@ -931,16 +932,16 @@ if __name__ == '__main__':
     elif macrotype in ['exact', 'exact2']:
         o = setup_options_hybridization_Exact(num_traj,toe5_seq=toe1, stem_seq=stem, loop_seq=loop, toe3_seq=toe2)
     else:
-        print "Error: Macrostate type not defined."
+        print("Error: Macrostate type not defined.")
         sys.exit()
 
-    print "--- Running %d simulations for '%s' and its complement ---" % (num_traj,o.start_state[0].sequence)
+    print("--- Running %d simulations for '%s' and its complement ---" % (num_traj,o.start_state[0].sequence))
 
     s=SimSystem(o)
     s.start()
 
-    print
-    print "--- Analysis of simulations with transition macrostates ---"
+    print()
+    print("--- Analysis of simulations with transition macrostates ---")
 
     # print "  Coarse-grained trajectory of simulation #1:"
     # print_transitions(o.interface.transition_lists[0])
@@ -952,23 +953,23 @@ if __name__ == '__main__':
     else:
         (parsedlist,first_state,last_state,hitting_times) = parse_transition_lists(o.interface.transition_lists)
     print_true_names( o, first_state, last_state )
-    print "Average hitting time is %g for %d out of %d trials that reached the final state." % (np.mean(hitting_times),len(hitting_times), len(o.interface.transition_lists))
+    print("Average hitting time is %g for %d out of %d trials that reached the final state." % (np.mean(hitting_times),len(hitting_times), len(o.interface.transition_lists)))
 
     macs = visited_macrostates( parsedlist, first_state, last_state )
     (residence_times, trivial_time) = tally_residence_times( o.interface.transition_lists, macs )
     total_time = np.sum(residence_times)+trivial_time
-    print "Spent %g sec out of %g sec (i.e. %4.1f%%) in unlabeled states." % ( trivial_time, total_time, 100.0 * trivial_time / total_time )
+    print("Spent %g sec out of %g sec (i.e. %4.1f%%) in unlabeled states." % ( trivial_time, total_time, 100.0 * trivial_time / total_time ))
     print_transition_dict(parsedlist) 
 
     times = compute_hitting_times( parsedlist, macs )
     (path,back_to_start) = compute_most_likely_path( parsedlist, macs, o )
 
     # we're interested in going from (almost) the final state, to the initial state
-    print
-    print "Now examining the reverse process, from duplex to single strands..."
+    print()
+    print("Now examining the reverse process, from duplex to single strands...")
 
     if not np.argmin(times) == len(times)-1:
-        print "  The hitting time from the last state is not the fastest... huh?"
+        print("  The hitting time from the last state is not the fastest... huh?")
 
     if back_to_start[-1]:  # this fails if the final state cannot go back and reach the start state.
         rev_macs = [ last_state ] + list(set(macs).difference(set([first_state, last_state]))) + [ first_state ]
@@ -976,9 +977,9 @@ if __name__ == '__main__':
         (rev_path,to_the_end) = compute_most_likely_path( parsedlist, rev_macs, o )
 
         # compare to expectation from formula k_r = k_f * exp(dG/RT)
-        print "Compare to expectation:"
-        print "  Forward hitting time %g corresponds to kf = %g" % (times[0], times[1])
+        print("Compare to expectation:")
+        print("  Forward hitting time %g corresponds to kf = %g" % (times[0], times[1]))
 
     else:
-        print "  The final macrostate on the forward path has no observed transition pathways back to the initial state."
-        print "  Thus our current reverse-path algorithm is not safe to run."
+        print("  The final macrostate on the forward path has no observed transition pathways back to the initial state.")
+        print("  Thus our current reverse-path algorithm is not safe to run.")

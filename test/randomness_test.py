@@ -1,3 +1,4 @@
+from __future__ import print_function
 from multistrand.objects import Complex, Domain, Strand
 from multistrand.options import Options
 from multistrand.system import SimSystem
@@ -98,7 +99,7 @@ def process_trajectory(o, testing, seed):
 #         print(round(energies[-1], 2) == round(-31.7, 2))
 #         print(round(energies[-2], 2) == round(-32.13, 2))
          
-        print 
+        print() 
         
 
 # Perform the simulations

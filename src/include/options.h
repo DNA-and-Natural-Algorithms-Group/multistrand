@@ -7,7 +7,7 @@ help@multistrand.org
 #ifndef __PYTHON_OPTIONS_H__
 #define __PYTHON_OPTIONS_H__
 
-#include <python2.7/Python.h>
+#include <Python.h>
 
 // Macros for Python/C interface
 
@@ -33,7 +33,7 @@ help@multistrand.org
 /* These four prep functions return a new reference via Py_BuildValue, error checking and reference counting is the caller's responsibility. */
 
 /* Accessors (ref counting caller responsibility */
-#define getStringAttr(obj, name, pyo) ((char *)PyString_AS_STRING(pyo=PyObject_GetAttrString(obj, #name)))
+#define getStringAttr(obj, name, pyo) ((char *)PyUnicode_AsUTF8(pyo=PyObject_GetAttrString(obj, #name)))
 #define getListAttr(obj, name) PyObject_GetAttrString(obj, #name)
 
 /* List indexing (ref counting caller responsibility */
@@ -50,7 +50,7 @@ help@multistrand.org
 #define _m_getAttr_DECREF( obj, name, function, pvar, vartype )     \
   do {																	\
 	PyObject *_m_attr = PyObject_GetAttrString( obj, name);		\
-	*(vartype *)(pvar) = function(_m_attr);                         \
+	*(vartype *)(pvar) = function(_m_attr);                        \
 	Py_DECREF(_m_attr);												\
   } while(0)
 
@@ -72,13 +72,13 @@ help@multistrand.org
 #define newObject(mod, name) _m_newObject( #mod, #name )
 
 // Accessors (no ref counting needed )
-#define getBoolAttr(obj, name, pvar) _m_getAttr_DECREF( obj, #name, PyInt_AS_LONG, pvar, bool)
-#define getLongAttr(obj, name, pvar) _m_getAttr_DECREF( obj, #name, PyInt_AS_LONG, pvar, long)
+#define getBoolAttr(obj, name, pvar) _m_getAttr_DECREF( obj, #name, PyLong_AS_LONG, pvar, bool)
+#define getLongAttr(obj, name, pvar) _m_getAttr_DECREF( obj, #name, PyLong_AS_LONG, pvar, long)
 #define getDoubleAttr(obj, name, pvar) _m_getAttr_DECREF( obj, #name, PyFloat_AS_DOUBLE, pvar, double)
 
 // Accessors (borrowed refs only)
-#define getLongItem(list, index) PyInt_AS_LONG(PyList_GET_ITEM(list, index))
-#define getLongItemFromTuple(tuple, index) PyInt_AS_LONG(PyTuple_GET_ITEM(tuple, index))
+#define getLongItem(list, index) PyLong_AS_LONG(PyList_GET_ITEM(list, index))
+#define getLongItemFromTuple(tuple, index) PyLong_AS_LONG(PyTuple_GET_ITEM(tuple, index))
 
 /* Procedure calling (no ref counts) */
 #define pingAttr(obj, name) Py_DECREF(PyObject_GetAttrString( obj, #name ))
@@ -216,8 +216,8 @@ help@multistrand.org
 // Getters
 // NOTE: these three use a different footprint for the _m_getAttr_DECREF, as they need to check
 // the python object type.
-#define getBoolAttr(obj, name, pvar) _m_d_getAttr_DECREF( obj, #name, pvar, bool, Int,LONG)
-#define getLongAttr(obj, name, pvar) _m_d_getAttr_DECREF( obj, #name, pvar, long, Int, LONG)
+#define getBoolAttr(obj, name, pvar) _m_d_getAttr_DECREF( obj, #name, pvar, bool, Long, LONG )
+#define getLongAttr(obj, name, pvar) _m_d_getAttr_DECREF( obj, #name, pvar, long, Long, LONG )
 #define getDoubleAttr(obj, name, pvar) _m_d_getAttr_DECREF( obj, #name, pvar, double, Float, DOUBLE )
 
 #define pingAttr(obj, name) { \
@@ -236,10 +236,10 @@ help@multistrand.org
  thus it is caller's responsibility. */
 
 #define getLongItem(list, index) \
-  (PyInt_Check(PyList_GET_ITEM(list, index))?PyInt_AS_LONG(PyList_GET_ITEM(list,index)):-1)
+  (PyLong_Check(PyList_GET_ITEM(list, index))?PyLong_AS_LONG(PyList_GET_ITEM(list,index)):-1)
 
 #define getLongItemFromTuple(tuple, index) \
-  (PyInt_Check(PyTuple_GET_ITEM(tuple, index))?PyInt_AS_LONG(PyTuple_GET_ITEM(tuple,index)):-1)
+  (PyLong_Check(PyTuple_GET_ITEM(tuple, index))?PyLong_AS_LONG(PyTuple_GET_ITEM(tuple,index)):-1)
 
 // Setters
 #define setDoubleAttr(obj, name, arg) _m_d_setAttr_DECREF( obj, #name, PyFloat_FromDouble, (arg))
@@ -301,7 +301,7 @@ help@multistrand.org
 
 static inline bool _m_testLongAttr(PyObject *obj, const char *attrname, const char *test, long value) {
 	PyObject *_m_attr = PyObject_GetAttrString(obj, attrname);
-	long local_val = PyInt_AS_LONG(_m_attr);
+	long local_val = PyLong_AS_LONG(_m_attr);
 	Py_DECREF(_m_attr);
 	if (test[0] == '=')
 		return (local_val == value);
@@ -329,13 +329,13 @@ static inline bool _m_d_testLongAttr( PyObject *obj, const char *attrname, const
 	}
 	else
 	{
-		if( !PyInt_Check( _m_attr ) )
+		if( !PyLong_Check( _m_attr ) )
 		{
 			fprintf(stderr,"ERROR: _m_d_testLongAttr: Attribute name %s was not an integer type or subclass.\n", attrname );
 			Py_DECREF(_m_attr);
 			return false;
 		}
-		local_val = PyInt_AS_LONG(_m_attr);
+		local_val = PyLong_AS_LONG(_m_attr);
 		Py_DECREF(_m_attr);
 		if( test[0] == '=' )
 		return (local_val == value);

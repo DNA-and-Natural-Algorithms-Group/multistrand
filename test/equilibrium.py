@@ -1,8 +1,9 @@
+from __future__ import print_function
 import sys, os, os.path
-import cPickle
+import pickle
 import math
 
-from multistrand.objects import Strand, Complex, Domain
+from multistrand.objects import Strand as MStrand, Complex as MComplex, Domain as MDomain
 from multistrand.options import Options
 from multistrand.concurrent import MergeSim
 
@@ -26,9 +27,9 @@ def setup_options(trials, seq, concentration):
     domain with initially unpaired structure. 
     """
 
-    d = Domain(name="initial", sequence=seq, length=len(seq))
-    s = Strand(domains=[d])
-    c = Complex(strands=[s], structure=".")
+    d = MDomain(name="initial", sequence=seq, length=len(seq))
+    s = MStrand(domains=[d])
+    c = MComplex(strands=[s], structure=".")
     
 
     o = Options(simulation_mode="Normal", parameter_type="Nupack", substrate_type="DNA",
@@ -43,8 +44,8 @@ def setup_options(trials, seq, concentration):
 
 
 def nupack_pfunc(sequence, temperature):
-    
-    return pfunc([sequence], material="dna", T=temperature)
+    my_model = Model(material='dna')
+    return pfunc([sequence], my_model)
 
 def run_distribution(seq):
     
@@ -53,7 +54,7 @@ def run_distribution(seq):
     myMultistrand.run()    
     
     eq_dict = {}
-    
+
     for end_state in myMultistrand.endStates:
         for cmplx in end_state:
             if cmplx[4] in eq_dict:
@@ -61,24 +62,22 @@ def run_distribution(seq):
                 eq_dict[cmplx[4]][1] = count + 1
             else:
                 eq_dict[cmplx[4]] = [cmplx[5], 1]
-                
     return eq_dict
 
+if __name__ == '__main__':
+    NOW_TESTING = "GGGGAAACCCC"
+    eqd = run_distribution(NOW_TESTING)
+    print(eqd)
+    pf = nupack_pfunc(NOW_TESTING, 37.0)
+    print("NUPACK partition function is " + repr(pf))
 
-NOW_TESTING = "GGGGAAACCCC"
 
-eqd = run_distribution(NOW_TESTING)
-print(eqd)
-pf = nupack_pfunc(NOW_TESTING, 37.0)
-print("NUPACK partition function is ", pf)
+    mySum = 0.0
+    for i in eqd.items():
 
+        val = math.exp(-i[1][0] / RT)
+        mySum += val
 
-mySum = 0.0
-for i in eqd.items():
-    
-    val = math.exp(-i[1][0] / RT)
-    mySum += val
-    
-print("mySum is ", mySum)
-print("myPart is ", math.log(mySum) * -RT)
+    print("mySum is ", mySum)
+    print("myPart is ", math.log(mySum) * -RT)
     

@@ -16,17 +16,14 @@
 #include <iostream>
 
 SimulationSystem::SimulationSystem(PyObject *system_o) {
-
 	system_options = system_o;
 	simOptions = new PSimOptions(system_o);
-
 	construct();
 	energyModel->writeConstantsToFile();
 
 }
 
 SimulationSystem::SimulationSystem(SimOptions* options) {
-
 	system_options = NULL;
 	simOptions = options;
 
@@ -40,7 +37,6 @@ void SimulationSystem::construct(void) {
 // We no longer need the below line; we are guaranteed that options
 // will have a good reference for the lifetime of our object, as the
 // controlling wrapper in multistrand_module.cc grabs the reference.
-
 	simulation_mode = simOptions->getSimulationMode();
 	simulation_count_remaining = simOptions->getSimulationCount();
 
@@ -113,7 +109,6 @@ SimulationSystem::~SimulationSystem(void) {
 void SimulationSystem::StartSimulation(void) {
 
 	InitializeRNG();
-
 	if (simulation_mode & SIMULATION_MODE_FLAG_FIRST_BIMOLECULAR) {
 		StartSimulation_FirstStep();
 	} else if (simulation_mode & SIMULATION_MODE_FLAG_TRAJECTORY) {
@@ -250,7 +245,6 @@ void SimulationSystem::SimulationLoop_Standard(void) {
 			myTimer.rate = complexList->getTotalFlux();
 
 			if (myTimer.stopoptions) {
-
 				if (myTimer.stopcount <= 0) {
 					simOptions->stopResultError(current_seed);
 					return;
@@ -604,7 +598,6 @@ void SimulationSystem::dumpCurrentStateToPython(void) {
 	ExportData data;
 
 	while (temp != NULL) {
-
 		temp->dumpComplexEntryToPython(data);
 		printComplexStateLine(simOptions->getPythonSettings(), current_seed, data);
 
@@ -701,7 +694,6 @@ void SimulationSystem::sendTrajectory_CurrentStateToPython(double current_time, 
 
 // FD: OK to have alternate_start = NULL
 int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
-
 	StrandComplex *tempcomplex;
 	identList *id;
 

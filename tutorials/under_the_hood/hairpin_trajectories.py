@@ -1,3 +1,4 @@
+from __future__ import print_function
 # hairpin_trajectories.py
 #
 # This is a follow-up on hairpin_energies.py.
@@ -34,14 +35,14 @@ Tube_Energy = 3    # requesting both dG_assoc and dG_volume terms to be added.  
 # Since this is a "Trajectory Mode" simulation, we will extract the sequence of conformations visited, and print them.
 # Assumes a single strand is being simulated.
 def print_trajectory(o):
-    print o.full_trajectory[0][0][3]   # the strand sequence
-    print o.start_state[0].structure   # the starting structure
+    print(o.full_trajectory[0][0][3])   # the strand sequence
+    print(o.start_state[0].structure)   # the starting structure
     for i in range(len(o.full_trajectory)):
         time = o.full_trajectory_times[i]
         state = o.full_trajectory[i][0]
         struct = state[4]
         dG = state[5]
-        print struct + ' t=%11.9f seconds, dG=%6.2f kcal/mol' % (time, dG)
+        print(struct + ' t=%11.9f seconds, dG=%6.2f kcal/mol' % (time, dG))
 
 # Sequence is from Schaeffer's PhD thesis, chapter 7, figure 7.1 -- start with no base pairs formed.
 c = Complex( strands=[Strand(name="hairpin", sequence="GTTCGGGCAAAAGCCCGAAC")], structure= 20*'.' )
@@ -58,7 +59,7 @@ o = Options(temperature=25.0,
             rate_scaling = 'Calibrated', # this is the same as 'Default'.  'Unitary' gives values 1.0 to both.  
             simulation_mode = 'Trajectory')  # numerically 128.  See interface/_options/constants.py for more info about all this.
 
-print "k_uni = %g /s, k_bi = %g /M/s" % (o.unimolecular_scaling, o.bimolecular_scaling)  # you can also set them to other values if you want
+print("k_uni = %g /s, k_bi = %g /M/s" % (o.unimolecular_scaling, o.bimolecular_scaling))  # you can also set them to other values if you want
 
 # This actually runs the simulation.  
 s = SimSystem(o)
@@ -97,4 +98,4 @@ def myplot():
 if __name__ == '__main__':
     myplot()
 else:
-    print "Try:\nhairpin_trajectories.myplot()\n"
+    print("Try:\nhairpin_trajectories.myplot()\n")

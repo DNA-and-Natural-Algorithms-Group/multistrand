@@ -1,3 +1,4 @@
+from __future__ import print_function
 # threewaybm_energies.py
 #
 
@@ -68,45 +69,45 @@ st = "................" + 20 * "(" + "+" + 20*"." + "((((((((((+))))))))))" + 20
 
 # First we'll compute the energy of test tube with a free invasion strand and the incumbent-substrate complex.
 
-print "<------- incumbent strand ---------> <------ invasion strand -----> <----- substrate strand ----->  (energy in kcal/mol)"
-print incumbent.sequence + ' ' + invasion.sequence + ' ' + substrate.sequence
+print("<------- incumbent strand ---------> <------ invasion strand -----> <----- substrate strand ----->  (energy in kcal/mol)")
+print(incumbent.sequence + ' ' + invasion.sequence + ' ' + substrate.sequence)
 
-print "initial state"
+print("initial state")
 c1 = Complex( strands=[invasion], structure='.'*len(invasion.sequence) )
 st = "................((((((((((((((((((((+..........))))))))))))))))))))"
 st = '.' * 16 + '(' * 20 + '+' + '.' * 10 + ')' * 20
 c2 = Complex( strands=[incumbent,substrate], structure=st)
 before = sum( energy([c1,c2],o,Tube_Energy) )
    # awkward wrap for indicating complexes on one line without permuting strand order
-print st[:36] + ' ' +  '.'*30 + ' ' + st[37:] + '+' + " (%5.2f)" % before
+print(st[:36] + ' ' +  '.'*30 + ' ' + st[37:] + '+' + " (%5.2f)" % before)
 
 # Then we'll compute the energies for states as the toehold is binding, one base pair at a time.
 
-print "toehold binding"
+print("toehold binding")
 
 toeh = [0] * 10
 for i in range(10)[::-1] :
     te = "................((((((((((((((((((((+...................." + (10-i)* "(" + i*"." + "+" + i*"." + (10-i)* ")" + "))))))))))))))))))))"
     c = Complex( strands=[incumbent,invasion,substrate],structure = te)
     toeh[9-i] = energy([c],o,Tube_Energy)[0]
-    print te   + "  (%5.2f)" % toeh[9-i]
+    print(te   + "  (%5.2f)" % toeh[9-i])
 
 # Then we'll compute the energies for the three-stranded complex during branch migration steps and toehold binding steps
 
-print "branch migration"
+print("branch migration")
 primary = [0] * 20   # structures with full base-pairing
 intermed = [0] * 19  # structures with one base-pair open
 for i in range(20):
     st = "................" + (20-i) * "(" + i*"." + "+" + (20-i)*"." + i*"(" + "((((((((((+))))))))))" + 20 * ")"
     c = Complex( strands=[incumbent,invasion,substrate],structure = st)
     primary[i] = energy([c],o,Tube_Energy)[0]
-    print st  + "  (%5.2f)" % primary[i]
+    print(st  + "  (%5.2f)" % primary[i])
     
     if i<19:
         st_int = "................" + (19-i) * "(" + (i+1)*"." + "+" + (20-i)*"." + i*"(" + "((((((((((+))))))))))" + i * ")" + "." + (19-i) * ")"
         c = Complex( strands=[incumbent,invasion,substrate],structure = st_int)
         intermed[i] = energy([c],o,Tube_Energy)[0]
-        print st_int  + "  (%5.2f)" % intermed[i]
+        print(st_int  + "  (%5.2f)" % intermed[i])
 
 
 # Note that toeh[9] == primary[0]
@@ -115,21 +116,21 @@ steps    = range(-9,0)+[v/2.0 for v in range(0,39)]
 
 # Finally we'll compute the energies for the tube system states consisting of two complexes after strand displacement.
 
-print 'dissociated states'
+print('dissociated states')
 
      # Immediately after dissociation, the just-broken base pair is open
 c1 = Complex( strands=[incumbent], structure='.'*len(incumbent.sequence) )
 st = '.' + '(' * 29 + '+' + ')' * 29 + '.'
 c2 = Complex( strands=[invasion,substrate], structure=st)
 after_open = sum( energy([c1,c2],o,Tube_Energy) )
-print '.'*36 + ' ' + st + "  (%5.2f)" % after_open
+print('.'*36 + ' ' + st + "  (%5.2f)" % after_open)
 
      # Now the final base pair closes.
 c1 = Complex( strands=[incumbent], structure='.'*len(incumbent.sequence) )
 st = '(' * 30 + '+' + ')' * 30
 c2 = Complex( strands=[invasion,substrate], structure=st)
 after_closed = sum( energy([c1,c2],o,Tube_Energy) )
-print '.'*36 + ' ' + st + "  (%5.2f)" % after_closed
+print('.'*36 + ' ' + st + "  (%5.2f)" % after_closed)
 
 # Store the before and after states in "positions" -15 and +25,+26 so as to visually separate them from the intramolecular pathway.
 energies = [before] + energies + [after_open, after_closed]

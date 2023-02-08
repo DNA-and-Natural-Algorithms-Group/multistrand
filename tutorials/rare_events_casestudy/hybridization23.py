@@ -6,6 +6,7 @@
     Influence of thermodynamically unfavorable
     secondary structures on DNA hybridization kinetics
     Hiroaki Hata, Tetsuro Kitajima and Akira Suyama         """
+from __future__ import print_function
 
 import sys, time, os
 
@@ -208,7 +209,7 @@ if __name__ == '__main__':
     if not os.path.exists(RESULT_DIR):
         os.makedirs(RESULT_DIR)
     
-    print sys.argv
+    print(sys.argv)
     
     if len(sys.argv) > 2:
         

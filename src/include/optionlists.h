@@ -13,7 +13,7 @@ help@multistrand.org
 #define STOPTYPE_LOOSE_STRUCTURE               3
 #define STOPTYPE_PERCENT_OR_COUNT_STRUCTURE    4
 
-#include <python2.7/Python.h>
+#include <Python.h>
 #include <string>
 using std::string;
 

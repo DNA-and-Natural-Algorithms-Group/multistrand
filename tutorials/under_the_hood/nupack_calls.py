@@ -1,3 +1,4 @@
+from __future__ import print_function
 # nupack_calls.py
 #
 # Multistrand is equipped with Python wrapper functions for many of Nupack's executables, including

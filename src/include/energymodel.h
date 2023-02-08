@@ -9,7 +9,7 @@
 #define __ENERGYMODEL_H__
 
 #include <stdio.h>
-#include <python2.7/Python.h>
+#include <Python.h>
 #include <string>
 #include <array>
 #include <moveutil.h>

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import unittest
 import subprocess
 import timeit
@@ -25,7 +26,7 @@ class Speedtest_Random_Sequences( unittest.TestCase ):
         self.sequences = [i.strip('\n') for i in f.readlines()]
         self.indexed_sequences = {}
         for i in self.sequences:
-            print i
+            print(i)
             if hasattr( self.indexed_sequences, str(len(i)) ):
                 self.indexed_sequences[len(i)].append(i)
             else:

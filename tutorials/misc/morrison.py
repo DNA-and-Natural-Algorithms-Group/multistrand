@@ -1,3 +1,4 @@
+from __future__ import print_function
 ## FD: Morrison and Stols, 2003. Comparison of Multistrand vs. reported values.
 ## FD: this computes the rates via k+ / k- = exp -dG / RT
 
@@ -12,7 +13,7 @@ from anneal import compute
 from nupack import pfunc
 
 
-print "Morrison and Stols 1993"
+print("Morrison and Stols 1993")
 
 def openDocument(document): 
     

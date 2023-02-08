@@ -7,8 +7,8 @@
 
  */
 
-#include "python2.7/Python.h"
-#include "python2.7/structmember.h"
+#include "Python.h"
+#include "structmember.h"
 
 #include <iostream>
 #include "ssystem.h"
@@ -127,7 +127,7 @@ static void SimSystemObject_dealloc(SimSystemObject *self) {
 
 	SimSystemObject_clear(self);
 
-	self->ob_type->tp_free((PyObject *) self);
+	Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
 const char docstring_SimSystem[] =
@@ -445,17 +445,29 @@ run_system( options )\n\
 Run the system defined by the passed in Options object.\n") }, { NULL } /*Sentinel*/
 		};
 
-PyMODINIT_FUNC initsystem(void) {
+static struct PyModuleDef systemdef = {
+        PyModuleDef_HEAD_INIT,
+        "system",     /* m_name */
+        "Base module for holding System objects.",  /* m_doc */
+        -1,                  /* m_size */
+        System_methods,    /* m_methods */
+        NULL,                /* m_reload */
+        NULL,                /* m_traverse */
+        NULL,                /* m_clear */
+        NULL,                /* m_free */
+    };
+
+PyMODINIT_FUNC PyInit_system(void) {
 	PyObject *m;
 	/* Finalize the simulation system object type */
 	if (PyType_Ready(&SimSystem_Type) < 0)
-		return;
+		return m;
 
-	m = Py_InitModule3("system", System_methods, "Base module for holding System objects.");
+	m = PyModule_Create(&systemdef);
 	if (m == NULL)
-		return;
+		return m;
 
 	Py_INCREF(&SimSystem_Type);
 	PyModule_AddObject(m, "SimSystem", (PyObject *) &SimSystem_Type);
-
+    return m;
 }

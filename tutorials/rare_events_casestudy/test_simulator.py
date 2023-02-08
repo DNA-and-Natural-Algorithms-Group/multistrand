@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 from hybridization23 import Settings, ResultsHybridization, suyamaT, suyamaC, enum_hybridization, title_hybridization, testSeq, NUM_OF_REPEATS, doReactionAssociation
 from multistrand.concurrent import FirstPassageRate
@@ -69,7 +70,7 @@ if __name__ == '__main__':
     if not os.path.exists(RESULT_DIR):
         os.makedirs(RESULT_DIR)
     
-    print sys.argv
+    print(sys.argv)
 
     if len(sys.argv) > 2:
         

@@ -1,3 +1,4 @@
+from __future__ import print_function
 # FD, May 17th, 2017. 
 # This demonstrates the pair-type functionality
 # For a given complex, Pairtype returns a unique representation. 
@@ -26,7 +27,7 @@ def printTrajectory(o):
         ids = []
         newseqs = []
         structs = []
-        dG = 0.0;
+        dG = 0.0
         
         pairTypes = []
         
@@ -42,10 +43,10 @@ def printTrajectory(o):
                  
         
         if not newseqstring == seqstring : 
-            print newseqstring
+            print(newseqstring)
             seqstring = newseqstring  # because strand order can change upon association of dissociation, print it when it changes        
 
-        print tubestruct + ('   t=%.6f ms,  dG=%3.2f kcal/mol  ' % (time, dG)) 
+        print(tubestruct + ('   t=%.6f ms,  dG=%3.2f kcal/mol  ' % (time, dG))) 
 
         
 
@@ -58,7 +59,7 @@ def doSims(strandSeq, numTraj=2):
     o1.simulation_time = ATIME_OUT
     
     hybridization(o1, strandSeq )
-    
+
     o1.initial_seed = 1777+6
 
     s = SimSystem(o1)
@@ -70,7 +71,7 @@ def doSims(strandSeq, numTraj=2):
 # # The actual main method
 if __name__ == '__main__':
     
-    print sys.argv
+    print(sys.argv)
     doSims( "GCGTTTCAC",1)
          
         

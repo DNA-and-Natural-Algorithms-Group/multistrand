@@ -37,9 +37,9 @@ def setSaltGao2006(o):
 def mergeDictAdd (this, that, lock):
     
     with lock:    
-        for key, value in that.iteritems():
+        for key, value in iter(that.items()):
             
-            if(this.has_key(key)):
+            if(key in this):
                 this[key] += value
             else:
                 this[key] = value
@@ -48,11 +48,11 @@ def mergeDictBinary(this, that, lock):
     
     # # If an entry in that is non-zero, add +1 to this using the same key
     with lock:
-        for key, value in that.iteritems():
+        for key, value in iter(that.items()):
             
             if(value > 0):
             
-                if(this.has_key(key)):
+                if(key in this):
                     this[key] += 1
                 else:
                     this[key] = 1
@@ -61,7 +61,7 @@ def mergeDictBinary(this, that, lock):
 def mergeDict (this, that, lock):
     
     with lock:    
-        for key, value in that.iteritems():
+        for key, value in iter(that.items()):
             
             if not(key in this):
         
@@ -361,7 +361,7 @@ class analysisFactory(object):
             # # Save the time of the position       
             if(position.posY < self.cutOff):
                 
-                if (posDict.has_key(position)):
+                if (position in posDict):
                     posDict[position] += timeInState 
                     countDict[position] += 1
                 else:
@@ -373,7 +373,7 @@ class analysisFactory(object):
                 index = position.posX * 30 + position.posY
         
                 myDict = structDict2[index];
-                if not(myDict.has_key(tubeStruct)):
+                if not(tubeStruct in myDict):
                     myDict[tubeStruct] = 1
                 else:
                     myDict[tubeStruct] += 1
@@ -406,7 +406,7 @@ class analysisFactory(object):
         # # remove all but the top 100 entries per position
         for i in range(len(structDict2)):
             myDict = structDict2[i]
-            structDict2[i] = dict(sorted(myDict.iteritems(), key=operator.itemgetter(1), reverse=True)[:100])
+            structDict2[i] = dict(sorted(iter(myDict.items()), key=operator.itemgetter(1), reverse=True)[:100])
 
                 
         return posDict, countDict, pathProps, structDict2

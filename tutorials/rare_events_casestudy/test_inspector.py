@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 from multistrand.objects import Strand, Complex, Domain, StopCondition
 from multistrand.options import Literals
@@ -29,13 +30,13 @@ def main():
     b = Builder(test0, [])
     b.genAndSavePathsFile(inspecting=True)
     
-    print b
+    print(b)
         
 
     b = Builder(test1, [])
     b.genAndSavePathsFile(inspecting=True)
     
-    print b
+    print(b)
 
 
 main()

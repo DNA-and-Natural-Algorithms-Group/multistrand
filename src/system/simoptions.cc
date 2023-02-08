@@ -56,7 +56,7 @@ PSimOptions::PSimOptions(PyObject* input) :
 
 	if (fixedRandomSeed) {
 
-		getLongAttr(python_settings, initial_seed, &seed);
+		getDoubleAttr(python_settings, initial_seed, &seed);
 
 	}
 
@@ -231,7 +231,6 @@ void PSimOptions::generateComplexes(PyObject *alternate_start, long current_seed
 		}
 
 		for (int index = 0; index < start_count; index++) {
-
 			// #ifndef DEBUG_MACROS
 			py_complex = PyList_GET_ITEM(py_start_state, index);
 			// Borrowed reference, we do NOT decref it at end of loop.
@@ -244,6 +243,7 @@ void PSimOptions::generateComplexes(PyObject *alternate_start, long current_seed
 			// new reference
 
 			structure = getStringAttr(py_complex, structure, py_struc);
+
 			// new reference
 			// Need to check if an error occurred, specifically, it could be an IOError due to sample failing. If so, we need to get the heck out of dodge right now.
 			py_err = PyErr_Occurred();

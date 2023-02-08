@@ -1,3 +1,4 @@
+from __future__ import print_function
 # hybridization_scatterplot.py
 #
 # Here we use the function calls defined in hybridization_first_step_mode.py
@@ -200,17 +201,17 @@ def compute_rate_constants(dataset, concentration, printit=True):
 
     # print out the results
     if printit:
-        print "N_forward =", N_forward
-        print "N_reverse =", N_reverse
+        print("N_forward =", N_forward)
+        print("N_reverse =", N_reverse)
         # print "k_collision = %g +/- %g /M/s (i.e. +/- %g %%)" % (kcollision,std_kcollision,100*std_kcollision/kcollision)
-        print "k_collision_forward = %g +/- %g /M/s (i.e. +/- %g %%)" % (forward_kcoll,std_forward_kcoll,100*std_forward_kcoll/forward_kcoll)
-        print "k_collision_reverse = %g +/- %g /M/s (i.e. +/- %g %%)" % (reverse_kcoll,std_reverse_kcoll,100*std_reverse_kcoll/reverse_kcoll)
-        print "k1                  = %g +/- %g /M/s (i.e. +/- %g %%)" % (k1,std_k1,100*std_k1/k1)
-        print "k2                  = %g +/- %g /s   (i.e. +/- %g %%)" % (k2,std_k2,100*std_k2/k2)
-        print "k1prime             = %g +/- %g /M/s (i.e. +/- %g %%)" % (k1prime,std_k1prime,100*std_k1prime/k1prime)
-        print "k2prime             = %g +/- %g /s   (i.e. +/- %g %%)" % (k2prime,std_k2prime,100*std_k2prime/k2prime)
-        print "k_eff               = %g /M/s at %s (still needs error bars)" % (keff,concentration_string(concentration)) 
-        print "z_crit              = %s (still needs error bars)" % (concentration_string(zcrit)) 
+        print("k_collision_forward = %g +/- %g /M/s (i.e. +/- %g %%)" % (forward_kcoll,std_forward_kcoll,100*std_forward_kcoll/forward_kcoll))
+        print("k_collision_reverse = %g +/- %g /M/s (i.e. +/- %g %%)" % (reverse_kcoll,std_reverse_kcoll,100*std_reverse_kcoll/reverse_kcoll))
+        print("k1                  = %g +/- %g /M/s (i.e. +/- %g %%)" % (k1,std_k1,100*std_k1/k1))
+        print("k2                  = %g +/- %g /s   (i.e. +/- %g %%)" % (k2,std_k2,100*std_k2/k2))
+        print("k1prime             = %g +/- %g /M/s (i.e. +/- %g %%)" % (k1prime,std_k1prime,100*std_k1prime/k1prime))
+        print("k2prime             = %g +/- %g /s   (i.e. +/- %g %%)" % (k2prime,std_k2prime,100*std_k2prime/k2prime))
+        print("k_eff               = %g /M/s at %s (still needs error bars)" % (keff,concentration_string(concentration))) 
+        print("z_crit              = %s (still needs error bars)" % (concentration_string(zcrit))) 
 
     return N_forward, N_reverse, kcollision, forward_kcoll, reverse_kcoll, k1, k2, k1prime, k2prime, keff, zcrit
 
@@ -221,7 +222,7 @@ def first_step_simulation(strand_seq, num_traj, T=25, rate_method_k_or_m="Metrop
 
     # Run the simulations
 
-    print "Running %d first step mode simulations for %s (with Boltzmann sampling)..." % (num_traj,strand_seq)
+    print("Running %d first step mode simulations for %s (with Boltzmann sampling)..." % (num_traj,strand_seq))
     o = create_setup(strand_seq, num_traj, T, rate_method_k_or_m, material)
     initialize_energy_model(o)  # Prior simulations could have been for different temperature, material, etc.
                                 # But Multistrand "optimizes" by sharing the energy model parameters from sim to sim.
@@ -323,7 +324,7 @@ def toebinding(seq, T=25, material='dna'):
 if __name__ == '__main__':
 
     if len(sys.argv) < 2:
-        print """Usage:
+        print("""Usage:
               python -i hybridization_scatterplot generate random <len> <num seqs> <data file name>
               python -i hybridization_scatterplot generate iso-random <len> <num seqs> <data file name>
               python -i hybridization_scatterplot generate structured <len> <max toe> <max stem> <num seqs> <data file name>
@@ -331,7 +332,7 @@ if __name__ == '__main__':
               python -i hybridization_scatterplot generate fixed-stem <len> <max toe> <stem size> <num seqs> <data file name>
               python -i hybridization_scatterplot generate iso-fixed-stem <len> <max toe> <stem size> <num seqs> <data file name>
               python -i hybridization_scatterplot plot <data file names>
-              """
+              """)
         sys.exit()
 
     if sys.argv[1] == 'generate':
@@ -346,7 +347,7 @@ if __name__ == '__main__':
             N = int(sys.argv[6])
             filename = sys.argv[7]
         else:
-            print """Usage:
+            print("""Usage:
               python -i hybridization_scatterplot generate random <len> <num seqs> <data file name>
               python -i hybridization_scatterplot generate iso-random <len> <num seqs> <data file name>
               python -i hybridization_scatterplot generate structured <len> <max toe> <max stem> <num seqs> <data file name>
@@ -354,26 +355,26 @@ if __name__ == '__main__':
               python -i hybridization_scatterplot generate fixed-stem <len> <max toe> <stem size> <num seqs> <data file name>
               python -i hybridization_scatterplot generate iso-fixed-stem <len> <max toe> <stem size> <num seqs> <data file name>
               python -i hybridization_scatterplot plot <data file names>
-              """
+              """)
             sys.exit()
         if not set(filename) <= set('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-'): # don't allow crazy symbols
-            print "Data file postfix names must be alphanumeric only."
+            print("Data file postfix names must be alphanumeric only.")
             sys.exit()
 
     if sys.argv[1] == 'plot':
         filenames = []
         for fn in sys.argv[2:]:
             if not set(fn) <= set('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-'): # don't allow crazy symbols
-                print "Data file postfix names must be alphanumeric only."
+                print("Data file postfix names must be alphanumeric only.")
                 sys.exit()
             filenames.append(fn)
 
-    print
+    print()
     if sys.argv[1] == 'generate' and (sys.argv[2] in ['random','iso-random','structured','iso-structured','fixed-stem','iso-fixed-stem']):   
         
         if 'iso' in sys.argv[2]:
             Ngenerate = 100*N  # we'll generate many sequences and choose the ones with the closest-to-average duplex energy
-            print "Generating %d sequences each of length %d, with similar duplex energies..." % (N, L)
+            print("Generating %d sequences each of length %d, with similar duplex energies..." % (N, L))
         else:
             Ngenerate = N
 
@@ -410,10 +411,10 @@ if __name__ == '__main__':
         # then evaluate the sequences...
         results=[]
         for i in range(N):
-            print
+            print()
             seq  = candidates[i]
-            print "%d: Simulating %s DNA strand at 25 C:  %s with toeholds %d and %d, stem %d, ss dG = %g and %g, ds dG = %g " % \
-                    ( i,sys.argv[2],seq,toeholds(seq)[0],toeholds(seq)[1],stemsize(seq),strand_dG(seq),strand_dG(WC(seq)),duplex_dG(seq) )
+            print("%d: Simulating %s DNA strand at 25 C:  %s with toeholds %d and %d, stem %d, ss dG = %g and %g, ds dG = %g " % \
+                    ( i,sys.argv[2],seq,toeholds(seq)[0],toeholds(seq)[1],stemsize(seq),strand_dG(seq),strand_dG(WC(seq)),duplex_dG(seq) ))
 
             # Accumulate statistics from all the runs, until enough succesful simulations are collected.
             N_forward_total=0
@@ -424,9 +425,9 @@ if __name__ == '__main__':
             k1prime_net = 0.0
             trials=30
             while N_forward_total < 25:   # this is a bit wasteful, but "only" by a factor of about 1.5.  Aims for 20% error bars on k1.
-                print
+                print()
                 o = first_step_simulation(seq, trials, concentration=50e-9, T=25, material="DNA") 
-                print "Inferred rate constants with analytical error bars (this batch only):"
+                print("Inferred rate constants with analytical error bars (this batch only):")
                 N_forward, N_reverse, kcoll, forward_kcoll, reverse_kcoll, k1, k2, k1prime, k2prime, keff, zcrit = compute_rate_constants(o.interface.results,50e-9)
 
                 # update cumulative averages
@@ -449,8 +450,8 @@ if __name__ == '__main__':
             # use cumulative averages to determine overall statistics
             k2_net = N_forward_total / total_time_forward
             k2prime_net = N_reverse_total / total_time_reverse
-            print " %s ==> N_forward = %d, N_reverse = %d, k1 = %g, k1_prime = %g, k2 = %g, k2prime = %g" %  \
-                (seq, N_forward_total, N_reverse_total, k1_net, k1prime_net, k2_net, k2prime_net)
+            print(" %s ==> N_forward = %d, N_reverse = %d, k1 = %g, k1_prime = %g, k2 = %g, k2prime = %g" %  \
+                (seq, N_forward_total, N_reverse_total, k1_net, k1prime_net, k2_net, k2prime_net))
 
             results.append([seq, N_forward_total, N_reverse_total, k1_net, k1prime_net, k2_net, k2prime_net])
 
@@ -463,14 +464,14 @@ if __name__ == '__main__':
 
         results = []
         for fn in filenames:
-            print "Loading data from %s ..." % ("scatterdata/" + fn + ".pkl")
+            print("Loading data from %s ..." % ("scatterdata/" + fn + ".pkl"))
             with open("scatterdata/" + fn + ".pkl", "rb") as f:
                 these_results = pickle.load(f)
             results += these_results
         pdfname = "+".join(filenames)
             
     else:
-        print "Didn't understand args."
+        print("Didn't understand args.")
         sys.exit()
 
     # some old data files contain only (seq,kf); newer ones contains (seq, Nf, Nr, k1, k1p, k2, k2p); but here we only need kf == k1
@@ -481,8 +482,8 @@ if __name__ == '__main__':
     from matplotlib.backends.backend_pdf import PdfPages
 
 
-    print
-    print "Calculating stats on database of simulated strands..."
+    print()
+    print("Calculating stats on database of simulated strands...")
     toe_adj     = 2
     toes        = [ min(max(max(toeholds(seq)), sum(toeholds(seq))-toe_adj),17) for (seq,kf) in results ]  # effective length of toeholds
     stems       = [ stemsize(seq) for (seq,kf) in results ]                                                # length of duplex stem
@@ -507,7 +508,7 @@ if __name__ == '__main__':
     extremes += "\nSlowest dissociation: %s at %g /s" % (results[i][0],krs[i])
 
     with PdfPages("scatterdata/"+pdfname+".pdf") as pdf:
-        print "Drawing plots, saving to 'scatterdata/" + pdfname + ".pdf'..." 
+        print("Drawing plots, saving to 'scatterdata/" + pdfname + ".pdf'...") 
 
         # Two subplots, the axes array is 1-d
         plt.figure(1)
@@ -721,7 +722,7 @@ if __name__ == '__main__':
         plt.close()
 
         number_distinct_lengths = len(set([len(seq) for (seq,kf) in results]))
-        print "duplex dG standard deviation = %g" % np.std(duplex_dGs)
+        print("duplex dG standard deviation = %g" % np.std(duplex_dGs))
         if number_distinct_lengths == 1 and np.std(duplex_dGs) < .2:
             log_fastest_assoc = np.max(log_kfs)
             log_slowest_dissoc = np.min(log_krs)

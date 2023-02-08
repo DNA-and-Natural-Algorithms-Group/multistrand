@@ -1,3 +1,4 @@
+from __future__ import print_function
 # threewaybm_first_step_mode.py
 #
 # adapted from three_way_sims_example.py by Niranjan Srinivas and Joseph Schaeffer.
@@ -163,7 +164,7 @@ class MyRunner(object):
 
 
 def actual_simulation(toehold_length, num_traj, rate_method_k_or_m, index):
-    print "Starting %d simulations for toehold length %d and %s kinetics." % (num_traj, toehold_length, rate_method_k_or_m)
+    print("Starting %d simulations for toehold length %d and %s kinetics." % (num_traj, toehold_length, rate_method_k_or_m))
     o = create_setup(toehold_length, num_traj, rate_method_k_or_m)
     s = SimSystem(o)
     s.start()
@@ -249,7 +250,7 @@ def load_dataset(toehold_length, rate_method):
 
 def combine_dataset(sampleset):
     if sampleset == None :
-        print "No data, no rates computed."
+        print("No data, no rates computed.")
         return None
 
     f, r, c = zip(*[i for i in sampleset if i is not None])
@@ -259,8 +260,8 @@ def combine_dataset(sampleset):
     
     collision_rates = np.concatenate(c, axis=0)
     
-    print "In all: %d collisions, %d successes (forward), %d failures (reverse), %d unfinished" % \
-        (len(collision_rates), len(forward_times), len(reverse_times), len(collision_rates) - len(forward_times) - len(reverse_times))
+    print("In all: %d collisions, %d successes (forward), %d failures (reverse), %d unfinished" % \
+        (len(collision_rates), len(forward_times), len(reverse_times), len(collision_rates) - len(forward_times) - len(reverse_times)))
 
     # calculations from Joseph's PhD thesis.
     # Note: we are not using Boltzmann sampling, so the formulas below are fine.  But with Boltzmann sampling, we would need to partition the kcollision values.
@@ -284,10 +285,10 @@ def combine_dataset(sampleset):
     
     keff = (1 / dTcorrect) * (1 / z)
 
-    print "   k1 = %g /M/s, k2 = %g /s, k1' = %g /M/s, k2' = %g /s, and k_eff = %g /M/s at 50 nM" % \
-        (k1, k2, k1prime, k2prime, keff)
-    print "   incoming + substrate -->{k1}    succesful_intermediate -->{k2}  waste + incumbent"
-    print "   incoming + substrate -->{k1'} unsuccesful_intermediate -->{k2'} incoming + substrate"
+    print("   k1 = %g /M/s, k2 = %g /s, k1' = %g /M/s, k2' = %g /s, and k_eff = %g /M/s at 50 nM" % \
+        (k1, k2, k1prime, k2prime, keff))
+    print("   incoming + substrate -->{k1}    succesful_intermediate -->{k2}  waste + incumbent")
+    print("   incoming + substrate -->{k1'} unsuccesful_intermediate -->{k2'} incoming + substrate")
 
     return [N_forward, N_fail, keff, k1, k1prime, k2, k2prime, kcollision]    
 
@@ -295,8 +296,8 @@ def combine_dataset(sampleset):
 # How you do the analysis
 def final_results(toehold_length, rate_method):
     # given a toehold length and a rate method, this function returns [N_forward, N_fail, keff, k1, k1prime, k2, k2prime, kcollision]    
-    print
-    print "Results for toehold length %d (with %s kinetics)" % (toehold_length, rate_method)
+    print()
+    print("Results for toehold length %d (with %s kinetics)" % (toehold_length, rate_method))
     return combine_dataset(load_dataset(toehold_length, rate_method))
 
 ###### If run from the command line, the simulations are run but not analyzed.
@@ -305,7 +306,7 @@ def final_results(toehold_length, rate_method):
 if __name__ == '__main__':
     if len(sys.argv) < 2:
         idx = 0
-        print "Must give argument 'test', 'short', 'medium', 'long', or 'analyze'."
+        print("Must give argument 'test', 'short', 'medium', 'long', or 'analyze'.")
     else:
         idx = str(sys.argv[1])
      
@@ -355,5 +356,5 @@ if __name__ == '__main__':
         plt.xticks(fontsize='larger')
         plt.show()
 
-        print "As noted in Srinivas et al NAR 2013, Multistrand 2.0 can qualitatively but not quantitatively reproduce Zhang & Winfree JACS 2009."
-        print "Please wait for Multistrand 3.0 for better quantitative results."
+        print("As noted in Srinivas et al NAR 2013, Multistrand 2.0 can qualitatively but not quantitatively reproduce Zhang & Winfree JACS 2009.")
+        print("Please wait for Multistrand 3.0 for better quantitative results.")

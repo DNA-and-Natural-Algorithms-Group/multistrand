@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 from hybridization23 import Settings, ResultsHybridization, suyamaT, suyamaC, enum_hybridization, title_hybridization, testSeq, NUM_OF_REPEATS, CONVERGENCE_CRIT
 from multistrand.system import SimSystem
@@ -30,7 +31,7 @@ TEST_RATE_LIMIT = True
 
 ADD_TRANSITIONS = True;
 
-print "Scipy version = " + str(scipy.__version__)
+print("Scipy version = " + str(scipy.__version__))
 
 
 def associationNoInit(arguments): 
@@ -82,15 +83,15 @@ def timings(seq, nTrials, deltaPruning=None):
         Builder.verbosity = True
 
         myBuilder.genAndSavePathsFromString(startStates[:(len(startStates) - 1)])
-        print myBuilder
+        print(myBuilder)
         
         myBuilder.fattenStateSpace()
-        print myBuilder
+        print(myBuilder)
         
 #         myBuilder.genUntilConvergenceWithInitialState(10000, startStates[:(len(startStates) - 1)], printMeanTime=True)
 
         if not deltaPruning == None:
-            print "Going to delta prune with %.2E" % deltaPruning
+            print("Going to delta prune with %.2E" % deltaPruning)
             myBuilder.deltaPruning(deltaPruning, printCount=True)
 
         maxRange = 1
@@ -106,7 +107,7 @@ def timings(seq, nTrials, deltaPruning=None):
             if i == (maxRange - 1):
                 builderRate.rateLimit = 0.0
                 
-            print "rateLimit = " + str(builderRate.rateLimit)
+            print("rateLimit = " + str(builderRate.rateLimit))
                 
             builderRate.setMatrix()
             output.buildTime.append(time.time() - startTime)
@@ -117,7 +118,7 @@ def timings(seq, nTrials, deltaPruning=None):
             
             output.rates.append(np.log10(1.0 / builderRate.averageTimeFromInitial(bimolecular=biCheck)))
             pruned_mfpt = builderRate.averageTimeFromInitial(bimolecular=False)
-            print "Rate = %.2E, MFPT = %.2E, compute_time =  %.2f \n\n " % (output.rates[-1], pruned_mfpt, output.buildTime[-1])
+            print("Rate = %.2E, MFPT = %.2E, compute_time =  %.2f \n\n " % (output.rates[-1], pruned_mfpt, output.buildTime[-1]))
             output.matrixTime.append(time.time() - startTime)
             output.nStates.append(len(builderRate.statespace))
      
@@ -157,7 +158,7 @@ if __name__ == '__main__':
     if not os.path.exists(RESULT_DIR):
         os.makedirs(RESULT_DIR)
     
-    print sys.argv
+    print(sys.argv)
     deltaPruning = None
 
     if len(sys.argv) > 2:

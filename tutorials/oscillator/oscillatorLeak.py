@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Mrinank Sharma, July 2017
 # Frits Dannenberg, Aug 2017
 # Simulates Leak Reactions from a DSD oscillator and calculates the rate with bootstraping
@@ -131,10 +132,10 @@ def computeRate(trialsIn, experiment_type=NORMAL):
     myMultistrand.run()
  
     results = myMultistrand.results
-    print results
+    print(results)
     # see above - no alternative success conditions defined
     confidence = Bootstrap(results, computek1=True)
-    print confidence
+    print(confidence)
 # 
     return results, confidence
 

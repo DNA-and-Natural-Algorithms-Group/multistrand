@@ -7,6 +7,7 @@
  RRF Machinek, TE Ouldridge, NEC Haley, J Bath & AJ Turberfield. Nature communications
 
 """
+from __future__ import print_function
 
 import sys, os
 
@@ -271,8 +272,8 @@ def generateGraph():
             
             realRates.append(np.log10(measuredRate(select)))
             
-        print simRates
-        print realRates
+        print(simRates)
+        print(realRates)
         
         ax.plot(positionSelector, realRates, linewidth=2, color=colors[i])
         ax.plot(positionSelector, simRates, linewidth=2, linestyle='--', color=colors[i])

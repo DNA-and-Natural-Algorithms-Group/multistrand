@@ -1,3 +1,4 @@
+from __future__ import print_function
 ####################################################################
 #                                                                  #
 #  Copyright (c) 2010-2015 California Institute of Technology.     #
@@ -104,14 +105,14 @@ def print_trajectory(o):
         for state in states: newseqs += [ state[3] ]   # extract the strand sequences in each complex (joined by "+" for multistranded complexes)
         newseqstring = ' '.join(newseqs)    # make a space-separated string of complexes, to represent the whole tube system sequence
         if not newseqstring == seqstring : 
-            print newseqstring
+            print(newseqstring)
             seqstring=newseqstring          # because strand order can change upon association of dissociation, print it when it changes
         structs = []
         for state in states: structs += [ state[4] ]   # similarly extract the secondary structures for each complex
         tubestruct = ' '.join(structs)      # give the dot-paren secondary structure for the whole test tube
         dG=0
         for state in states: dG += state[5]
-        print '%s t=%11.9f seconds, dG=%6.2f kcal/mol' % (tubestruct,time, dG)
+        print('%s t=%11.9f seconds, dG=%6.2f kcal/mol' % (tubestruct,time, dG))
 
         # Needlessly verify that the reported trajectory energies are the Tube_Energy values
         dGv=0
@@ -119,7 +120,7 @@ def print_trajectory(o):
             cs=state[3].split('+')
             st=state[4]
             dGv += energy( [Complex( strands=[Strand(sequence=s) for s in cs], structure=st)], o, Tube_Energy)[0]  
-        if not dGv == dG: print "Energy Mismatch"
+        if not dGv == dG: print("Energy Mismatch")
 
 # Perform the simulations
 o1,o2 = create_setup()
@@ -130,22 +131,22 @@ s2.start()
 # see below about the energy model
 
 # Show what happened
-print
-print "Sequence Design 1 (shown every 100 steps):"
+print()
+print("Sequence Design 1 (shown every 100 steps):")
 print_trajectory(o1)
-print
-print "Sequence Design 2 (shown every 100 steps):"
+print()
+print("Sequence Design 2 (shown every 100 steps):")
 print_trajectory(o2)
         
 
 if __name__ == '__main__':
-    print "Can you tell the difference between design 1 and design 2?"
-    print "On most runs, Design 2 finishes within the allotted time."
-    print "That is, the incumbent strand gets displaced."
-    print "You can see that a \"+\" turns into a \" \", indicating that separate complexes are present."
-    print "Or did the incoming strand get rejected, the toehold spontaneously dissociating?"
-    print "Can you tell?"
-    print "And can you discern why Design 1 almost never completes displacement in the given time?"
+    print("Can you tell the difference between design 1 and design 2?")
+    print("On most runs, Design 2 finishes within the allotted time.")
+    print("That is, the incumbent strand gets displaced.")
+    print("You can see that a \"+\" turns into a \" \", indicating that separate complexes are present.")
+    print("Or did the incoming strand get rejected, the toehold spontaneously dissociating?")
+    print("Can you tell?")
+    print("And can you discern why Design 1 almost never completes displacement in the given time?")
 
 # Some notes for the intrepid explorer: 
 

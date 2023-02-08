@@ -1,3 +1,4 @@
+from __future__ import print_function
 ####################################################################
 #                                                                  #
 #  Copyright (c) 2010-2015 California Institute of Technology.     #
@@ -230,17 +231,17 @@ def compute_rate_constants(dataset, concentration, printit=True):
 
     # print out the results
     if printit:
-        print "N_forward =", N_forward
-        print "N_reverse =", N_reverse
+        print("N_forward =", N_forward)
+        print("N_reverse =", N_reverse)
         # print "k_collision = %g +/- %g /M/s (i.e. +/- %g %%)" % (kcollision,std_kcollision,100*std_kcollision/kcollision)
-        print "k_collision_forward = %g +/- %g /M/s (i.e. +/- %g %%)" % (forward_kcoll,std_forward_kcoll,100*std_forward_kcoll/forward_kcoll)
-        print "k_collision_reverse = %g +/- %g /M/s (i.e. +/- %g %%)" % (reverse_kcoll,std_reverse_kcoll,100*std_reverse_kcoll/reverse_kcoll)
-        print "k1                  = %g +/- %g /M/s (i.e. +/- %g %%)" % (k1,std_k1,100*std_k1/k1)
-        print "k2                  = %g +/- %g /s   (i.e. +/- %g %%)" % (k2,std_k2,100*std_k2/k2)
-        print "k1prime             = %g +/- %g /M/s (i.e. +/- %g %%)" % (k1prime,std_k1prime,100*std_k1prime/k1prime)
-        print "k2prime             = %g +/- %g /s   (i.e. +/- %g %%)" % (k2prime,std_k2prime,100*std_k2prime/k2prime)
-        print "k_eff               = %g /M/s at %s (still needs error bars)" % (keff,concentration_string(concentration)) 
-        print "z_crit              = %s (still needs error bars)" % (concentration_string(zcrit)) 
+        print("k_collision_forward = %g +/- %g /M/s (i.e. +/- %g %%)" % (forward_kcoll,std_forward_kcoll,100*std_forward_kcoll/forward_kcoll))
+        print("k_collision_reverse = %g +/- %g /M/s (i.e. +/- %g %%)" % (reverse_kcoll,std_reverse_kcoll,100*std_reverse_kcoll/reverse_kcoll))
+        print("k1                  = %g +/- %g /M/s (i.e. +/- %g %%)" % (k1,std_k1,100*std_k1/k1))
+        print("k2                  = %g +/- %g /s   (i.e. +/- %g %%)" % (k2,std_k2,100*std_k2/k2))
+        print("k1prime             = %g +/- %g /M/s (i.e. +/- %g %%)" % (k1prime,std_k1prime,100*std_k1prime/k1prime))
+        print("k2prime             = %g +/- %g /s   (i.e. +/- %g %%)" % (k2prime,std_k2prime,100*std_k2prime/k2prime))
+        print("k_eff               = %g /M/s at %s (still needs error bars)" % (keff,concentration_string(concentration))) 
+        print("z_crit              = %s (still needs error bars)" % (concentration_string(zcrit))) 
 
     return N_forward, N_reverse, kcollision, forward_kcoll, reverse_kcoll, k1, k2, k1prime, k2prime, keff, zcrit
 
@@ -251,7 +252,7 @@ def first_step_simulation(strand_seq, num_traj, T=25, rate_method_k_or_m="Metrop
 
     # Run the simulations
 
-    print "Running first step mode simulations for %s (with Boltzmann sampling)..." % (strand_seq)
+    print("Running first step mode simulations for %s (with Boltzmann sampling)..." % (strand_seq))
     o = create_setup(strand_seq, num_traj, T, rate_method_k_or_m, material)
     initialize_energy_model(o)  # Prior simulations could have been for different temperature, material, etc.
                                 # But Multistrand "optimizes" by sharing the energy model parameters from sim to sim.
@@ -266,8 +267,8 @@ def first_step_simulation(strand_seq, num_traj, T=25, rate_method_k_or_m="Metrop
     
     # Extract the timing information for successful and failed runs
 
-    print
-    print "Inferred rate constants with analytical error bars:"
+    print()
+    print("Inferred rate constants with analytical error bars:")
     N_forward, N_reverse, kcoll, forward_kcoll, reverse_kcoll, k1, k2, k1prime, k2prime, keff, zcrit = compute_rate_constants(dataset,concentration)
 
     # Bootstrapping is a technique that estimates statistical properties by assuming that the given samples adequately represent the true distribution,
@@ -302,20 +303,20 @@ def first_step_simulation(strand_seq, num_traj, T=25, rate_method_k_or_m="Metrop
     std_keff = np.std(keffs)        
     std_zcrit = np.std(zcrits)        
 
-    print
-    print "Re-sampled rate constants with bootstrapped error bars:"
+    print()
+    print("Re-sampled rate constants with bootstrapped error bars:")
     if True:
-        print "N_forward = %d +/- %g" % (t_N_forward, std_Nfs)
-        print "N_reverse = %d +/- %g" % (t_N_reverse, std_Nrs)
-        print "k_collision_forward = %g +/- %g /M/s (i.e. +/- %g %%)" % (t_forward_kcoll, std_kcfs, 100*std_kcfs/forward_kcoll)
-        print "k_collision_reverse = %g +/- %g /M/s (i.e. +/- %g %%)" % (t_reverse_kcoll, std_kcrs, 100*std_kcrs/reverse_kcoll)
-        print "k1                  = %g +/- %g /M/s (i.e. +/- %g %%)" % (t_k1,std_k1,100*std_k1/k1)
-        print "k2                  = %g +/- %g /s   (i.e. +/- %g %%)" % (t_k2,std_k2,100*std_k2/k2)
-        print "k1prime             = %g +/- %g /M/s (i.e. +/- %g %%)" % (t_k1prime,std_k1prime,100*std_k1prime/k1prime)
-        print "k2prime             = %g +/- %g /s   (i.e. +/- %g %%)" % (t_k2prime,std_k2prime,100*std_k2prime/k2prime)
-        print "k_eff               = %g +/- %g /M/s (i.e. +/- %g %%) at %s" % (t_keff,std_keff,100*std_keff/keff,concentration_string(concentration)) 
-        print "z_crit              = %s +/- %s (i.e. +/- %g %%)" % (concentration_string(t_zcrit),concentration_string(std_zcrit),100*std_zcrit/zcrit)
-    print
+        print("N_forward = %d +/- %g" % (t_N_forward, std_Nfs))
+        print("N_reverse = %d +/- %g" % (t_N_reverse, std_Nrs))
+        print("k_collision_forward = %g +/- %g /M/s (i.e. +/- %g %%)" % (t_forward_kcoll, std_kcfs, 100*std_kcfs/forward_kcoll))
+        print("k_collision_reverse = %g +/- %g /M/s (i.e. +/- %g %%)" % (t_reverse_kcoll, std_kcrs, 100*std_kcrs/reverse_kcoll))
+        print("k1                  = %g +/- %g /M/s (i.e. +/- %g %%)" % (t_k1,std_k1,100*std_k1/k1))
+        print("k2                  = %g +/- %g /s   (i.e. +/- %g %%)" % (t_k2,std_k2,100*std_k2/k2))
+        print("k1prime             = %g +/- %g /M/s (i.e. +/- %g %%)" % (t_k1prime,std_k1prime,100*std_k1prime/k1prime))
+        print("k2prime             = %g +/- %g /s   (i.e. +/- %g %%)" % (t_k2prime,std_k2prime,100*std_k2prime/k2prime))
+        print("k_eff               = %g +/- %g /M/s (i.e. +/- %g %%) at %s" % (t_keff,std_keff,100*std_keff/keff,concentration_string(concentration))) 
+        print("z_crit              = %s +/- %s (i.e. +/- %g %%)" % (concentration_string(t_zcrit),concentration_string(std_zcrit),100*std_zcrit/zcrit))
+    print()
 
     return [N_forward, N_reverse, k1, k1prime, k2, k2prime, keff, zcrit, o]   
 
@@ -324,7 +325,7 @@ if __name__ == '__main__':
     trials=1000 
     # Note that the "analytic" formulas for error bars agree well for N=1000, but are likely to disagree for N=100.
 
-    print
+    print()
 #     print "Simulating unstructured DNA strand, at 25 C."
 #     data=first_step_simulation("ACTGGCGCGTATTATCTACTG", 1000, concentration=50e-9, T=25, material="DNA") 
 #     print "Simulating DNA strand with 4-bp blunt-end hairpin, at 25 C."
@@ -335,17 +336,17 @@ if __name__ == '__main__':
 #     print "Simulating DNA strand with 7-bp dual 5-nt tailed hairpin, at 25 C."
 #     data=first_step_simulation("CTAACTGGCGCGTATTCGCGCCTTCAC", 1000, concentration=50e-9, T=25, material="DNA") 
 
-    print "Simulating unstructured DNA strand hybridization from Gao et al 2006, at 20 C and 1 uM."
+    print("Simulating unstructured DNA strand hybridization from Gao et al 2006, at 20 C and 1 uM.")
     data0=first_step_simulation("GTTGTCAAGATGCTACCGTTCAGAG", trials, concentration=1e-6, T=20, material="DNA")
-    print "Simulating tailed 3-bp hairpin DNA strand hybridization from Gao et al 2006, at 20 C and 1 uM."
+    print("Simulating tailed 3-bp hairpin DNA strand hybridization from Gao et al 2006, at 20 C and 1 uM.")
     data3=first_step_simulation("AGATCAGTGCGTCTGTACTAGCAGT", trials, concentration=1e-6, T=20, material="DNA")
-    print "Simulating tailed 4-bp hairpin DNA strand hybridization from Gao et al 2006, at 20 C and 1 uM."
+    print("Simulating tailed 4-bp hairpin DNA strand hybridization from Gao et al 2006, at 20 C and 1 uM.")
     data4=first_step_simulation("AGATCAGTGCGTCTGTACTAGCACA", trials, concentration=1e-6, T=20, material="DNA")
 
-    print "Gao et al report 12.0, 7.2, and 2.0 x 10^5 /M/s respectively for their 0-, 3-, and 4-bp hairpin DNA strands."
-    print "Multistrand observed %g, %g, and %g x 10^6 /M/s respectively, which is in qualitative agreement for the relative trends." % \
-        (data0[6]/1e6, data3[6]/1e6, data4[6]/1e6)
-    print
+    print("Gao et al report 12.0, 7.2, and 2.0 x 10^5 /M/s respectively for their 0-, 3-, and 4-bp hairpin DNA strands.")
+    print("Multistrand observed %g, %g, and %g x 10^6 /M/s respectively, which is in qualitative agreement for the relative trends." % \
+        (data0[6]/1e6, data3[6]/1e6, data4[6]/1e6))
+    print()
     # Also note that for these concentrations, k_eff and k1 agree pretty darn well, for these molecules.
 
     # Reference for experimental rates:

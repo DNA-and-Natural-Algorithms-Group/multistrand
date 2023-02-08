@@ -1,3 +1,4 @@
+from __future__ import print_function
 # multistrand_setup.py
 #
 # This is really unnecessary on most Multistrand installations -- you can just import the multistrand components and be done with it.

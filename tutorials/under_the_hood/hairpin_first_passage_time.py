@@ -1,3 +1,4 @@
+from __future__ import print_function
 # hairpin_first_passage_time.py
 # 
 # Here we ask Multistrand to simulate the folding of an open strand into a hairpin, and stop when it's done.
@@ -129,14 +130,14 @@ def show_interesting_trajectories( result_lists, seqs, type='fastest' ):
 
     # taken from hairpin_trajectories.py
     def print_trajectory(o):
-        print o.full_trajectory[0][0][3]   # the strand sequence
-        print o.start_state[0].structure
+        print(o.full_trajectory[0][0][3])   # the strand sequence
+        print(o.start_state[0].structure)
         for i in range(len(o.full_trajectory)):
             time = 1e6* o.full_trajectory_times[i]
             state = o.full_trajectory[i][0]
             struct = state[4]
             dG = state[5]
-            print struct + ' t=%11.9f microseconds, dG=%6.2f kcal/mol' % (time, dG)
+            print(struct + ' t=%11.9f microseconds, dG=%6.2f kcal/mol' % (time, dG))
 
     # take a look at the fastest folds.  to take a look at the more interesting slowest folds,
     # change "mintimes" to "maxtimes" and change "fastseeds" to "slowseeds"; do this based on 'type' argument
@@ -165,11 +166,11 @@ def show_interesting_trajectories( result_lists, seqs, type='fastest' ):
         s = SimSystem(o)
         s.start()
         print_trajectory(o)        
-        print "Original run's time: %g microseconds" % time
+        print("Original run's time: %g microseconds" % time)
 
 
 def run_sims():
-    print "Performing simulations..."
+    print("Performing simulations...")
     # compare closing of stems based on possible kinetic traps
     o1 = setup_options_hairpin(trials=1000, stem_seq = "GCATGC", hairpin_seq="TTTT")  # 2-base misaligned GC pairing possible
     o2 = setup_options_hairpin(trials=1000, stem_seq = "GGCGGC", hairpin_seq="TTTT")  # 3-base misaligned GGC pairing possible
@@ -191,7 +192,7 @@ def run_sims():
     all_results = [o.interface.results for o in [o1, o2, o3, o4]]
     all_seqs    = [o.start_state[0].sequence for o in [o1, o2, o3, o4]]
 
-    print "Plotting results..."
+    print("Plotting results...")
     plot_histograms(all_results, figure=1, labels=all_seqs)
     plot_completion_graph(all_results, figure=2, labels=all_seqs)
     # conclusions: 
@@ -199,7 +200,7 @@ def run_sims():
     #    stronger stems form quickly, but if 3-base misalignment is possible, it may take a long time
 
     special = 'fastest'   # or 'slowest', if you wish, but these trajectories involve many many steps!
-    print "Showing the %s trajectories for each hairpin sequence..." % special
+    print("Showing the %s trajectories for each hairpin sequence..." % special)
     show_interesting_trajectories(all_results, all_seqs, special)
 
 if __name__ == '__main__':

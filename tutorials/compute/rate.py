@@ -1,5 +1,7 @@
-from anneal import computeDissociationAndWriteToCL as computeDissociation
-from anneal import computeAndWriteToCL as computeAnneal 
+from __future__ import print_function
+from __future__ import absolute_import
+from .anneal import computeDissociationAndWriteToCL as computeDissociation
+from .anneal import computeAndWriteToCL as computeAnneal 
 
 import sys, time
 

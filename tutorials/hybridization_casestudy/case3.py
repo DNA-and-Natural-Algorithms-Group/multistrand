@@ -11,6 +11,7 @@ Example:
 Some routines are ommited for testing purposes, use:
 2 24 test2
 """
+from __future__ import print_function
 
 from multistrand.options import Options, Literals
 from multistrand.concurrent import  MergeSim
@@ -124,7 +125,7 @@ def computeWinProb(f2, pos, structDict2, settings):
     
     structs = dict(structDict2[pos.posX * 30 + pos.posY])
 #     
-    mostPopular = sorted(structs.iteritems(), key=operator.itemgetter(0), reverse=True)[:1]
+    mostPopular = sorted(iter(structs.items()), key=operator.itemgetter(0), reverse=True)[:1]
        
     popularStructure = mostPopular[0][0]
     
@@ -141,7 +142,7 @@ def plotMostFrequentStructure(posDict, length):
         for i in range(length):
             mostFreq.append((-1, -99));
             
-        for key, val in posDict.iteritems():
+        for key, val in iter(posDict.items()):
             
             x, y = key.posX, key.posY
             currMax = mostFreq[x][1]            
@@ -238,7 +239,7 @@ def doPosPlots(posDict, settings, extraTitle, selectedCount, extraSettings, stru
         extraTitle = "-ModeOne-" + extraTitle    
         corrector = settings.trials
         
-    for pos, val in goodPosDict.iteritems():
+    for pos, val in iter(goodPosDict.items()):
  
         value = 0.0
  
@@ -316,7 +317,7 @@ def writeStructFile(analysisResult, settings, extraTitle):
 #     goodDict =  copy.deepcopy(dict(analysisResult.posDict))
     goodDict = dict(analysisResult.posDict)
      
-    for pos, val in goodDict.iteritems():
+    for pos, val in iter(goodDict.items()):
         
         output = "Pos = " + pos.toString() + " Freq= " + str(val) + "\n"     
         f.write(output)
@@ -332,12 +333,12 @@ def writeStructFile(analysisResult, settings, extraTitle):
         goodDict = (dict(analysisResult.structDict2[i]))
         
         # only print the top 20 of structures found
-        goodDict = dict(sorted(goodDict.iteritems(), key=operator.itemgetter(1), reverse=True)[:20])
+        goodDict = dict(sorted(iter(goodDict.items()), key=operator.itemgetter(1), reverse=True)[:20])
          
         pX = np.int((np.floor(i / 30)))
         pY = np.int(i % 30)
          
-        for key, val in goodDict.iteritems():
+        for key, val in iter(goodDict.items()):
             
             if(val > 2):
                 output = str(pX) + " " + str(pY) + " " + str(key) + " " + str(val) + "\n"     
@@ -353,13 +354,13 @@ def doProbabilitySuccesPlot(settings, extraTitle):
     goodDict = (dict(myMultistrand.aFactory.result1.countDict))
     goodDictOther = (dict(myMultistrand.aFactory.result2.countDict))
 
-    print("Dict size is ", len(goodDict)) 
+    print(("Dict size is ", len(goodDict))) 
 
-    for key, value in goodDict.iteritems():
+    for key, value in iter(goodDict.items()):
         
         valueOther = 0
          
-        if(goodDictOther.has_key(key)):
+        if(key in goodDictOther):
             valueOther = goodDictOther[key]
         
         denom = np.float(goodDict[key]) + np.float(valueOther)         
@@ -378,7 +379,7 @@ def doBinaryProbabilityPlot(settings, extraTitle):
         goodDict = (dict(result.binaryDict))
         plottingDict = dict()
         
-        for key, value in goodDict.iteritems():
+        for key, value in iter(goodDict.items()):
                         
             plottingDict[key] = np.float(value) / np.float(selectedCounts)
     
@@ -517,13 +518,13 @@ if __name__ == '__main__':
 
     
     if len(sys.argv) < 1:
-        print """Usage:
+        print("""Usage:
               python hybridization_F3 <numOfThreads> <numOfPaths>  P0/P3/P4      \n
               Example: python hybridization_F3 2 100 P3
-              """
+              """)
         sys.exit()
         
-    print sys.argv
+    print(sys.argv)
 
     numOfThreads = np.int(sys.argv[1])
     numOfPaths = np.int(sys.argv[2])

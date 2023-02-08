@@ -3,6 +3,7 @@
     This file demonstrates Arrhenius kinetics.
     The interface is not finalized.
 """
+from __future__ import print_function
 import sys
 
 from multistrand.objects import Complex, Domain, Strand, StopCondition
@@ -44,10 +45,10 @@ def printTrajectory(o):
         tubestruct = ' '.join(structs)  # give the dot-paren secondary structure for the whole test tube
         
         if not newseqstring == seqstring : 
-            print newseqstring
+            print(newseqstring)
             seqstring = newseqstring  # because strand order can change upon association of dissociation, print it when it changes        
 
-        print tubestruct + ('   t=%.6f ms,  dG=%3.2f kcal/mol  Type:  %s %s' % (time, dG, codeToDesc(arrType)[0], codeToDesc(arrType)[1]))  
+        print(tubestruct + ('   t=%.6f ms,  dG=%3.2f kcal/mol  Type:  %s %s' % (time, dG, codeToDesc(arrType)[0], codeToDesc(arrType)[1])))  
         
 
 def doSims(strandSeq, numTraj=2):    
@@ -72,6 +73,6 @@ def doSims(strandSeq, numTraj=2):
 # # The actual main method
 if __name__ == '__main__':
     
-    print sys.argv
+    print(sys.argv)
     doSims("GCGTTTCAC", 1)
 

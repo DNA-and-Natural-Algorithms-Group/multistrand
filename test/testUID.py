@@ -1,3 +1,4 @@
+from __future__ import print_function
 # FD, May 17th, 2017. 
 # This demonstrates the pair-type functionality
 # For a given complex, Pairtype returns a unique representation. 
@@ -32,8 +33,8 @@ class idTest(unittest.TestCase):
         uID1 = pairType(names1, struct1)
         uID2 = pairType(names2, struct2)
         
-        print str(uID1)
-        print str(uID2)
+        print(str(uID1))
+        print(str(uID2))
         
         self.assertTrue(uID1 == uID2)
         
@@ -49,8 +50,8 @@ class idTest(unittest.TestCase):
         uID1 = pairType(names1, struct1)
         uID2 = pairType(names2, struct2)
         
-        print str(uID1)
-        print str(uID2)
+        print(str(uID1))
+        print(str(uID2))
         
         self.assertTrue(not uID1 == uID2)
 

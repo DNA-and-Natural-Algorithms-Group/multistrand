@@ -35,7 +35,7 @@ def setup_ext( ):
                           include_dirs=["./src/include"],
                           language="c++",
                         undef_macros=['NDEBUG'],
-                        extra_compile_args = ['-O3', '-w', "-std=c++11", ], #FD: adding c++11 flag 
+                        extra_compile_args = ['-O3', '-w', "-std=c++11",], #FD: adding c++11 flag
                           )
     return multi_ext
 
@@ -50,7 +50,7 @@ if __name__ == '__main__':
           packages=['multistrand','multistrand._options','multistrand._objects','nupack'],
           url='http://www.multistrand.org',
           license='MIT',
-          author='The Multistrand Team',
+          author='The Multistrand Teamit',
           author_email='help@multistrand.org',
           package_dir={'multistrand':'src/interface'},
           ext_modules=[multi_ext])

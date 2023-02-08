@@ -13,7 +13,7 @@ help@multistrand.org
 #ifndef __ENERGYOPTIONS_H_
 #define __ENERGYOPTIONS_H_
 
-#include <python2.7/Python.h>
+#include <Python.h>
 #include "ssystem.h"
 #include "simoptions.h"
 #include <vector>
