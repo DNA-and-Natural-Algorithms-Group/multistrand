@@ -1021,22 +1021,22 @@ class Options(object):
             # FD: Do some additional parsing for legacy support            
             # FD: This code simply translates the string calls to the numerical constants 
             elif k == 'rate_method':
-                if isinstance(kargs[k], basestring):
+                if isinstance(kargs[k], str):
                     self.rate_method = self.RateMethodToString.index(kargs[k])
                     
             elif k == 'dangles':
-                if isinstance(kargs[k], basestring):
+                if isinstance(kargs[k], str):
                     self.dangles = self.dangleToString.index(kargs[k])
 
             elif k == 'parameter_type':
-                if isinstance(kargs[k], basestring):
+                if isinstance(kargs[k], str):
                     self.parameter_type = self.parameterTypeToString.index(kargs[k])
 
             elif k == 'substrate_type':
-                if isinstance(kargs[k], basestring):
+                if isinstance(kargs[k], str):
                     self.substrate_type = self.substrateToString.index(kargs[k])
                     
-            elif (k == 'simulation_mode') & (isinstance(kargs[k], basestring)):
+            elif (k == 'simulation_mode') & (isinstance(kargs[k], str)):
                     self.simulation_mode = self.simulationMode[kargs[k]]
 
             else:

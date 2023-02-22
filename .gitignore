@@ -3,4 +3,8 @@
 *.pyc
 build
 *.idea
+*.o
+*.so
+*.egg
+multistrand
 .DS_STORE
