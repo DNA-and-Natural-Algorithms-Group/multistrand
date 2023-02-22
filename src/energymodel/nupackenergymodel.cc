@@ -658,10 +658,8 @@ void NupackEnergyModel::processOptions() {
                 for (int loop = 0; loop < 1024; loop++) {
 		            hairpin_dG.triloop[loop] = 0.0;
 	            }
-
-	            // triloops
 	            int lookup_index = 0;
-	            for (Value::ConstMemberIterator itr = d["dG"]["hairpin_triloop"].MemberBegin(); itr != d["dG"]["hairpin_triloop"].MemberEnd(); ++itr){
+	            for (rapidjson::Value::ConstMemberIterator itr = d["dG"]["hairpin_triloop"].MemberBegin(); itr != d["dG"]["hairpin_triloop"].MemberEnd(); ++itr){
 	                string name = itr->name.GetString();
 	                lookup_index = ((baseLookup(name[0]) - 1) << 8) + ((baseLookup(name[1]) - 1) << 6) + ((baseLookup(name[2]) - 1) << 4) + ((baseLookup(name[3]) - 1) << 2) + (baseLookup(name[4]) - 1);
 		            hairpin_dG.triloop[lookup_index] = itr->value.GetDouble();
@@ -671,7 +669,7 @@ void NupackEnergyModel::processOptions() {
                 for (int loop = 0; loop < 4096; loop++) {
 		            hairpin_dG.tetraloop[loop] = 0.0;
 	            }
-	            for (Value::ConstMemberIterator itr = d["dG"]["hairpin_tetraloop"].MemberBegin(); itr != d["dG"]["hairpin_tetraloop"].MemberEnd(); ++itr){
+	            for (rapidjson::Value::ConstMemberIterator itr = d["dG"]["hairpin_tetraloop"].MemberBegin(); itr != d["dG"]["hairpin_tetraloop"].MemberEnd(); ++itr){
 	                string name = itr->name.GetString();
                     lookup_index = ((baseLookup(name[0]) - 1) << 10) + ((baseLookup(name[1]) - 1) << 8)
 				        + ((baseLookup(name[2]) - 1) << 6) + ((baseLookup(name[3]) - 1) << 4)
@@ -688,7 +686,7 @@ void NupackEnergyModel::processOptions() {
                     for (loop2 = 0; loop2 < BASES; loop2++)
                         for (loop3 = 0; loop3 < BASES; loop3++)
                             hairpin_dG.mismatch[loop][loop2][loop3] = 0;
-                for (Value::ConstMemberIterator itr = d["dG"]["hairpin_mismatch"].MemberBegin(); itr != d["dG"]["hairpin_mismatch"].MemberEnd(); ++itr){
+                for (rapidjson::Value::ConstMemberIterator itr = d["dG"]["hairpin_mismatch"].MemberBegin(); itr != d["dG"]["hairpin_mismatch"].MemberEnd(); ++itr){
 	                string name = itr->name.GetString();
                     int j = ((baseLookup(name[2]) - 1) * 2) + (baseLookup(name[1]) - 1) - 3; // col
                     hairpin_dG.mismatch[j][baseLookup(name[3])][baseLookup(name[0])] = itr->value.GetDouble();
@@ -702,7 +700,7 @@ void NupackEnergyModel::processOptions() {
                     for (loop2 = 0; loop2 < BASES; loop2++)
                         for (loop3 = 0; loop3 < PAIRS_NUPACK; loop3++)
                             internal_dG.mismatch[loop][loop2][loop3] = 0;
-                for (Value::ConstMemberIterator itr = d["dG"]["interior_mismatch"].MemberBegin(); itr != d["dG"]["interior_mismatch"].MemberEnd(); ++itr){
+                for (rapidjson::Value::ConstMemberIterator itr = d["dG"]["interior_mismatch"].MemberBegin(); itr != d["dG"]["interior_mismatch"].MemberEnd(); ++itr){
 	                string name = itr->name.GetString();
                     int j = ((baseLookup(name[2]) - 1) * 2) + (baseLookup(name[1]) - 1) - 3; // col
                     internal_dG.mismatch[baseLookup(name[3])][baseLookup(name[0])][j] = itr->value.GetDouble();
@@ -710,7 +708,6 @@ void NupackEnergyModel::processOptions() {
 
                 // Dangle 3
                 // This reads as Y X2 X1
-                int loop, loop2;
                 for (loop = 0; loop < PAIRS_NUPACK; loop++)
                     for (loop2 = 0; loop2 < BASES; loop2++)
                         multiloop_dG.dangle_3[loop][loop2] = 0.0;
@@ -769,7 +766,7 @@ void NupackEnergyModel::processOptions() {
                                 for (loop5 = 1; loop5 < BASES; loop5++) {
                                     for(loop6 = 1; loop6 < BASES; loop6++){
                                         char name[] = {basepairString[loop + 1][0], baseTypeString[loop3][0], baseTypeString[loop4][0], basepairString[loop2 + 1][0], basepairString[loop2 + 1][2], baseTypeString[loop5][0], baseTypeString[loop6][0], basepairString[loop + 1][2],'\0'};
-                                        //internal_dG.internal_2_2[loop][loop2][loop3][loop4][loop5][loop6]  = d["dG"]["interior_2_2"][name].GetDouble();
+                                        internal_dG.internal_2_2[loop][loop2][loop3][loop4][loop5][loop6]  = d["dG"]["interior_2_2"][name].GetDouble();
                                     }
                                 }
                             }
@@ -1200,6 +1197,17 @@ void NupackEnergyModel::internal_set_stack_enthalpies(FILE *fp, char *buffer) {
 
 }
 
+void NupackEnergyModel::internal_set_stack(rapidjson::Document d){
+    for(int i = 0; i < PAIRS_NUPACK; i++){
+        for(int j = 0; j < PAIRS_NUPACK; j++){
+            char name[] = {basepairString[i + 1][0], basepairString[j + 1][0], basepairString[j + 1][2], basepairString[i + 1][2], '\0'};
+            stack_37_dG[i][j] = d["dG"]["coaxial_stack"][name].GetDouble();
+            stack_37_dH[i][j] = d["dH"]["coaxial_stack"][name].GetDouble();
+        }
+    }
+}
+
+
 void NupackEnergyModel::internal_set_hairpin_energies(FILE *fp, char *buffer) {
 
 	internal_read_array_data(fp, buffer, buffer, &hairpin_dG.basic[1], 30);
@@ -1209,6 +1217,14 @@ void NupackEnergyModel::internal_set_hairpin_enthalpies(FILE *fp, char *buffer) 
 
 	internal_read_array_data(fp, buffer, buffer, &hairpin_dH.basic[1], 30);
 }
+
+void NupackEnergyModel::internal_set_hairpin(rapidjson::Document d) {
+    for(int i = 0; i < 30; i++){
+        hairpin_dG.basic[i + 1] = d["dG"]["hairpin_size"].GetArray()[i].GetDouble();
+        hairpin_dH.basic[i + 1] = d["dH"]["hairpin_size"].GetArray()[i].GetDouble();
+    }
+}
+
 
 void NupackEnergyModel::internal_set_bulge_energies(FILE *fp, char *buffer) {
 	bulge_37_dG[0] = 0;
@@ -1220,6 +1236,15 @@ void NupackEnergyModel::internal_set_bulge_enthalpies(FILE *fp, char *buffer) {
 	internal_read_array_data(fp, buffer, buffer, &bulge_37_dH[1], 30);
 }
 
+void NupackEnergyModel::internal_set_bulge(rapidjson::Document d) {
+	bulge_37_dG[0] = 0;
+	bulge_37_dH[0] = 0;
+    for(int i = 0; i < 30; i++){
+        bulge_37_dG[i + 1] = d["dG"]["bulge_size"].GetArray()[i].GetDouble();
+        bulge_37_dH[i + 1] = d["dH"]["bulge_size"].GetArray()[i].GetDouble();
+    }
+}
+
 void NupackEnergyModel::internal_set_interior_loop_energies(FILE *fp, char *buffer) {
 	internal_dG.basic[0] = 0;
 	internal_read_array_data(fp, buffer, buffer, &internal_dG.basic[1], 30);
@@ -1228,6 +1253,15 @@ void NupackEnergyModel::internal_set_interior_loop_energies(FILE *fp, char *buff
 void NupackEnergyModel::internal_set_interior_loop_enthalpies(FILE *fp, char *buffer) {
 	internal_dH.basic[0] = 0;
 	internal_read_array_data(fp, buffer, buffer, &internal_dH.basic[1], 30);
+}
+
+void NupackEnergyModel::internal_set_interior_loop(rapidjson::Document d) {
+    internal_dG.basic[0] = 0;
+    internal_dH.basic[0] = 0;
+    for(int i = 0; i < 30; i++){
+        internal_dG.basic[i + 1] = d["dG"]["interior_size"].GetArray()[i].GetDouble();
+        internal_dH.basic[i + 1] = d["dH"]["interior_size"].GetArray()[i].GetDouble();
+    }
 }
 
 void NupackEnergyModel::internal_set_interior_1_1_energies(FILE *fp, char *buffer) {
@@ -1287,6 +1321,30 @@ void NupackEnergyModel::internal_set_interior_1_1_enthalpies(FILE *fp, char *buf
 
 }
 
+void NupackEnergyModel::internal_set_interior_1_1(rapidjson::Document d) {
+    // CG..AU CXAUYG order
+    int loop, loop2, loop3, loop4;
+    for (loop = 0; loop < PAIRS_NUPACK; loop++){
+        for (loop2 = 0; loop2 < PAIRS_NUPACK; loop2++) {
+            for (loop3 = 0; loop3 < BASES; loop3++) {
+                internal_dG.internal_1_1[loop][loop2][loop3][0] = 0;
+                internal_dG.internal_1_1[loop][loop2][0][loop3] = 0;
+
+                internal_dH.internal_1_1[loop][loop2][loop3][0] = 0;
+                internal_dH.internal_1_1[loop][loop2][0][loop3] = 0;
+            }
+
+            for (loop3 = 1; loop3 < BASES; loop3++) {
+                for(loop4 = 1; loop4 < BASES; loop4++){
+                    char name[] = {basepairString[loop + 1][0], baseTypeString[loop3][0], basepairString[loop2 + 1][0], basepairString[loop2 + 1][2], baseTypeString[loop4][0], basepairString[loop + 1][2], '\0'};
+                    internal_dG.internal_1_1[loop][loop2][loop3][loop4] = d["dG"]["interior_1_1"][name].GetDouble();
+                    internal_dH.internal_1_1[loop][loop2][loop3][loop4] = d["dH"]["interior_1_1"][name].GetDouble();
+                }
+            }
+        }
+    }
+}
+
 void NupackEnergyModel::internal_set_interior_2_1_energies(FILE *fp, char *buffer) {
 	int loop, loop2, loop3, loop4;
 	char *cur_bufspot;
@@ -1330,6 +1388,24 @@ void NupackEnergyModel::internal_set_interior_2_1_enthalpies(FILE *fp, char *buf
 			}
 		}
 	}
+}
+
+void NupackEnergyModel::internal_set_interior_2_1(rapidjson::Document d) {
+    int loop, loop2, loop3, loop4, loop5;
+    for (loop = 0; loop < PAIRS_NUPACK; loop++) {
+        for (loop2 = 0; loop2 < PAIRS_NUPACK; loop2++) {
+            for (loop3 = 1; loop3 < BASES; loop3++) {
+                for (loop4 = 1; loop4 < BASES; loop4++) {
+                    for(loop5 = 1; loop5 < BASES; loop5++){
+                        char name[] = {basepairString[loop + 1][0], baseTypeString[loop3][0], basepairString[loop2 + 1][0], basepairString[loop2 + 1][2], baseTypeString[loop4][0], baseTypeString[loop5][0], basepairString[loop + 1][2],'\0'};
+                        internal_dG.internal_2_1[loop][loop3][loop2][loop4][loop5]  = d["dG"]["interior_1_2"][name].GetDouble();
+
+                        internal_dH.internal_2_1[loop][loop3][loop2][loop4][loop5]  = d["dH"]["interior_1_2"][name].GetDouble();
+                    }
+                }
+            }
+        }
+    }
 }
 
 void NupackEnergyModel::internal_set_interior_2_2_energies(FILE *fp, char *buffer) {
@@ -1382,6 +1458,25 @@ void NupackEnergyModel::internal_set_interior_2_2_enthalpies(FILE *fp, char *buf
 	}
 }
 
+void NupackEnergyModel::internal_set_interior_2_2(rapidjson::Document d) {
+    int loop, loop2, loop3, loop4, loop5, loop6;
+    for (loop = 0; loop < PAIRS_NUPACK; loop++) {
+        for (loop2 = 0; loop2 < PAIRS_NUPACK; loop2++) {
+            for (loop3 = 1; loop3 < BASES; loop3++) {
+                for (loop4 = 1; loop4 < BASES; loop4++) {
+                    for (loop5 = 1; loop5 < BASES; loop5++) {
+                        for(loop6 = 1; loop6 < BASES; loop6++){
+                            char name[] = {basepairString[loop + 1][0], baseTypeString[loop3][0], baseTypeString[loop4][0], basepairString[loop2 + 1][0], basepairString[loop2 + 1][2], baseTypeString[loop5][0], baseTypeString[loop6][0], basepairString[loop + 1][2],'\0'};
+                            internal_dG.internal_2_2[loop][loop2][loop3][loop4][loop5][loop6]  = d["dG"]["interior_2_2"][name].GetDouble();
+                            internal_dH.internal_2_2[loop][loop2][loop3][loop4][loop5][loop6]  = d["dH"]["interior_2_2"][name].GetDouble();
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 void NupackEnergyModel::internal_set_dangle_5_energies(FILE *fp, char *buffer) {
 	char *cur_bufspot;
 	while (buffer[0] == '>')
@@ -1410,6 +1505,24 @@ void NupackEnergyModel::internal_set_dangle_5_enthalpies(FILE *fp, char *buffer)
 	cur_bufspot = buffer;
 	for (loop = 0; loop < PAIRS_NUPACK; loop++)
 		cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &multiloop_dH.dangle_5[loop][1], BASES - 1);
+}
+
+void NupackEnergyModel::internal_set_dangle_5(rapidjson::Document d) {
+    // X2 X1 Y
+    int loop, loop2;
+    for (loop = 0; loop < PAIRS_NUPACK; loop++)
+        for (loop2 = 0; loop2 < BASES; loop2++)
+            multiloop_dG.dangle_5[loop][loop2] = 0.0;
+            multiloop_dH.dangle_5[loop][loop2] = 0.0;
+
+    for (loop = 0; loop < PAIRS_NUPACK; loop++){
+         for (loop2 = 1; loop2 < BASES; loop2++){
+            char name[] = {basepairString[loop + 1][2], basepairString[loop + 1][0], baseTypeString[loop2][0], '\0'};
+            multiloop_dG.dangle_5[loop][loop2] = d["dG"]["dangle_5"][name].GetDouble();
+            multiloop_dH.dangle_5[loop][loop2] = d["dH"]["dangle_5"][name].GetDouble();
+         }
+    }
+
 }
 
 void NupackEnergyModel::internal_set_dangle_3_energies(FILE *fp, char *buffer) {
@@ -1442,6 +1555,23 @@ void NupackEnergyModel::internal_set_dangle_3_enthalpies(FILE *fp, char *buffer)
 		cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &multiloop_dH.dangle_3[loop][1], BASES - 1);
 }
 
+void NupackEnergyModel::internal_set_dangle_3(rapidjson::Document d) {
+    // This reads as Y X2 X1
+    int loop, loop2;
+    for (loop = 0; loop < PAIRS_NUPACK; loop++)
+        for (loop2 = 0; loop2 < BASES; loop2++)
+            multiloop_dG.dangle_3[loop][loop2] = 0.0;
+            multiloop_dH.dangle_3[loop][loop2] = 0.0;
+
+    for (loop = 0; loop < PAIRS_NUPACK; loop++){
+         for (loop2 = 1; loop2 < BASES; loop2++){
+            char name[] = {baseTypeString[loop2][0], basepairString[loop + 1][2], basepairString[loop + 1][0], '\0'};
+            multiloop_dG.dangle_3[loop][loop2] = d["dG"]["dangle_3"][name].GetDouble();
+            multiloop_dH.dangle_3[loop][loop2] = d["dH"]["dangle_3"][name].GetDouble();
+         }
+    }
+}
+
 void NupackEnergyModel::internal_set_multiloop_parameters(FILE *fp, char *buffer) {
 	double temp[4];
 	while (buffer[0] == '>')
@@ -1465,6 +1595,17 @@ void NupackEnergyModel::internal_set_multiloop_parameters_enthalpies(FILE *fp, c
 	multiloop_dH.internal = temp[1];
 }
 
+void NupackEnergyModel::internal_set_multiloop_parameters(rapidjson::Document d) {
+    multiloop_dG.base = d["dG"]["multiloop_base"].GetDouble();
+    multiloop_dG.closing = d["dG"]["multiloop_init"].GetDouble();
+    multiloop_dG.internal = d["dG"]["multiloop_pair"].GetDouble();
+
+    multiloop_dH.base = d["dH"]["multiloop_base"].GetDouble();
+    multiloop_dH.closing = d["dH"]["multiloop_init"].GetDouble();
+    multiloop_dH.internal = d["dH"]["multiloop_pair"].GetDouble();
+
+}
+
 void NupackEnergyModel::internal_set_at_penalty(FILE *fp, char *buffer) {
 	while (buffer[0] == '>')
 		fgets(buffer, 2048, fp);
@@ -1477,6 +1618,12 @@ void NupackEnergyModel::internal_set_at_penalty_enthalpy(FILE *fp, char *buffer)
 		fgets(buffer, 2048, fp);
 
 	internal_read_array_data(fp, buffer, buffer, &terminal_AU_dH, 1);
+}
+
+void NupackEnergyModel::internal_set_at_penalty(rapidjson::Document d) {
+    // Accounts for GT wobble pairs
+    terminal_AU = d["dG"]["terminal_penalty"]["AT"].GetDouble();
+    terminal_AU_dH = d["dH"]["terminal_penalty"]["AT"].GetDouble();
 }
 
 void NupackEnergyModel::internal_set_bimolecular_penalty(FILE *fp, char *buffer) {
@@ -1492,6 +1639,10 @@ void NupackEnergyModel::internal_set_bimolecular_penalty_dH(FILE *fp, char *buff
 		fgets(buffer, 2048, fp);
 
 	internal_read_array_data(fp, buffer, buffer, &bimolecular_penalty_dH, 1);
+}
+void NupackEnergyModel::internal_set_bimolecular_penalty(rapidjson::Document d) {
+    bimolecular_penalty = d["dG"]["join_penalty"].GetDouble();
+    bimolecular_penalty_dH = d["dH"]["join_penalty"].GetDouble();
 }
 
 void NupackEnergyModel::internal_set_ninio_parameters(FILE *fp, char *buffer) {
@@ -1516,6 +1667,15 @@ void NupackEnergyModel::internal_set_ninio_parameters_enthalpy(FILE *fp, char *b
 	internal_dH.ninio_correction[1] = temp[1];
 	internal_dH.ninio_correction[2] = temp[2];
 	internal_dH.ninio_correction[3] = temp[3];
+}
+
+void NupackEnergyModel::internal_set_ninio_parameters(rapidjson::Document d) {
+    for(int i = 0; i < 4; i++){
+        internal_dG.ninio_correction[i] = d["dG"]["asymmetry_ninio"].GetArray()[i].GetDouble();
+        internal_dH.ninio_correction[i] = d["dH"]["asymmetry_ninio"].GetArray()[i].GetDouble();
+    }
+    internal_dG.maximum_NINIO = d["dG"]["asymmetry_ninio"].GetArray()[4].GetDouble();
+    internal_dH.maximum_NINIO = d["dH"]["asymmetry_ninio"].GetArray()[4].GetDouble();
 }
 
 void NupackEnergyModel::internal_set_hairpin_tetraloop_parameters(FILE *fp, char *buffer, hairpin_energies& hairpin) {
@@ -1547,6 +1707,28 @@ void NupackEnergyModel::internal_set_hairpin_tetraloop_parameters(FILE *fp, char
 #endif
 }
 
+void NupackEnergyModel::internal_set_hairpin_tetraloop_parameters(rapidjson::Document d) {
+    for (int loop = 0; loop < 4096; loop++) {
+        hairpin_dG.tetraloop[loop] = 0.0;
+        hairpin_dH.tetraloop[loop] = 0.0;
+    }
+    int lookup_index;
+    for (rapidjson::Value::ConstMemberIterator itr = d["dG"]["hairpin_tetraloop"].MemberBegin(); itr != d["dG"]["hairpin_tetraloop"].MemberEnd(); ++itr){
+        string name = itr->name.GetString();
+        lookup_index = ((baseLookup(name[0]) - 1) << 10) + ((baseLookup(name[1]) - 1) << 8)
+            + ((baseLookup(name[2]) - 1) << 6) + ((baseLookup(name[3]) - 1) << 4)
+            + ((baseLookup(name[4]) - 1) << 2) + (baseLookup(name[5]) - 1);
+        hairpin_dG.tetraloop[lookup_index] = itr->value.GetDouble();
+    }
+    for (rapidjson::Value::ConstMemberIterator itr = d["dH"]["hairpin_tetraloop"].MemberBegin(); itr != d["dH"]["hairpin_tetraloop"].MemberEnd(); ++itr){
+        string name = itr->name.GetString();
+        lookup_index = ((baseLookup(name[0]) - 1) << 10) + ((baseLookup(name[1]) - 1) << 8)
+            + ((baseLookup(name[2]) - 1) << 6) + ((baseLookup(name[3]) - 1) << 4)
+            + ((baseLookup(name[4]) - 1) << 2) + (baseLookup(name[5]) - 1);
+        hairpin_dH.tetraloop[lookup_index] = itr->value.GetDouble();
+    }
+}
+
 void NupackEnergyModel::internal_set_hairpin_triloop_parameters(FILE *fp, char *buffer, hairpin_energies& hairpin) {
 	int buf_index = 0;
 	int lookup_index = 0;
@@ -1570,6 +1752,25 @@ void NupackEnergyModel::internal_set_hairpin_triloop_parameters(FILE *fp, char *
 #ifdef DEBUG
 	fprintf(stderr,"Triloop Paramaters (MFOLD): %d read.\n",tri_index);
 #endif
+}
+
+void NupackEnergyModel::internal_set_hairpin_triloop_parameters(rapidjson::Document d) {
+    // triloop
+    for (int loop = 0; loop < 1024; loop++) {
+        hairpin_dG.triloop[loop] = 0.0;
+        hairpin_dH.triloop[loop] = 0.0;
+    }
+    int lookup_index = 0;
+    for (rapidjson::Value::ConstMemberIterator itr = d["dG"]["hairpin_triloop"].MemberBegin(); itr != d["dG"]["hairpin_triloop"].MemberEnd(); ++itr){
+        string name = itr->name.GetString();
+        lookup_index = ((baseLookup(name[0]) - 1) << 8) + ((baseLookup(name[1]) - 1) << 6) + ((baseLookup(name[2]) - 1) << 4) + ((baseLookup(name[3]) - 1) << 2) + (baseLookup(name[4]) - 1);
+        hairpin_dG.triloop[lookup_index] = itr->value.GetDouble();
+    }
+    for (rapidjson::Value::ConstMemberIterator itr = d["dH"]["hairpin_triloop"].MemberBegin(); itr != d["dH"]["hairpin_triloop"].MemberEnd(); ++itr){
+        string name = itr->name.GetString();
+        lookup_index = ((baseLookup(name[0]) - 1) << 8) + ((baseLookup(name[1]) - 1) << 6) + ((baseLookup(name[2]) - 1) << 4) + ((baseLookup(name[3]) - 1) << 2) + (baseLookup(name[4]) - 1);
+        hairpin_dH.triloop[lookup_index] = itr->value.GetDouble();
+    }
 }
 
 void NupackEnergyModel::internal_set_hairpin_mismatch_energies(FILE *fp, char *buffer) {
@@ -1616,6 +1817,28 @@ void NupackEnergyModel::internal_set_hairpin_mismatch_enthalpies(FILE *fp, char 
 	}
 }
 
+void NupackEnergyModel::internal_set_hairpin_mismatch(rapidjson::Document d) {
+    // hairpin mismatch possibly rework this
+    //int j = ((baseLookup(name[2]) - 1) * 2) + (baseLookup(name[1]) - 1) - 3; // col
+    // bottom right, upper right, upper left, bottom left
+    int loop, loop2, loop3;
+    for (loop = 0; loop < PAIRS_NUPACK; loop++)
+        for (loop2 = 0; loop2 < BASES; loop2++)
+            for (loop3 = 0; loop3 < BASES; loop3++)
+                hairpin_dG.mismatch[loop][loop2][loop3] = 0;
+                hairpin_dH.mismatch[loop][loop2][loop3] = 0;
+    for (rapidjson::Value::ConstMemberIterator itr = d["dG"]["hairpin_mismatch"].MemberBegin(); itr != d["dG"]["hairpin_mismatch"].MemberEnd(); ++itr){
+        string name = itr->name.GetString();
+        int j = ((baseLookup(name[2]) - 1) * 2) + (baseLookup(name[1]) - 1) - 3; // col
+        hairpin_dG.mismatch[j][baseLookup(name[3])][baseLookup(name[0])] = itr->value.GetDouble();
+    }
+    for (rapidjson::Value::ConstMemberIterator itr = d["dH"]["hairpin_mismatch"].MemberBegin(); itr != d["dH"]["hairpin_mismatch"].MemberEnd(); ++itr){
+        string name = itr->name.GetString();
+        int j = ((baseLookup(name[2]) - 1) * 2) + (baseLookup(name[1]) - 1) - 3; // col
+        hairpin_dH.mismatch[j][baseLookup(name[3])][baseLookup(name[0])] = itr->value.GetDouble();
+    }
+}
+
 void NupackEnergyModel::internal_set_interior_loop_mismatch_energies(FILE *fp, char *buffer, internal_energies& internal) {
 	int loop, loop2, loop3;
 	char *cur_bufspot;
@@ -1633,6 +1856,26 @@ void NupackEnergyModel::internal_set_interior_loop_mismatch_energies(FILE *fp, c
 			cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &internal.mismatch[loop][loop2][0], PAIRS_NUPACK);
 		}
 
+}
+
+void NupackEnergyModel::internal_set_interior_loop_mismatch(rapidjson::Document d) {
+    // interior mismatch again maybe rework this
+    int loop, loop2, loop3;
+    for (loop = 0; loop < BASES; loop++)
+        for (loop2 = 0; loop2 < BASES; loop2++)
+            for (loop3 = 0; loop3 < PAIRS_NUPACK; loop3++)
+                internal_dG.mismatch[loop][loop2][loop3] = 0;
+                internal_dH.mismatch[loop][loop2][loop3] = 0;
+    for (rapidjson::Value::ConstMemberIterator itr = d["dG"]["interior_mismatch"].MemberBegin(); itr != d["dG"]["interior_mismatch"].MemberEnd(); ++itr){
+        string name = itr->name.GetString();
+        int j = ((baseLookup(name[2]) - 1) * 2) + (baseLookup(name[1]) - 1) - 3; // col
+        internal_dG.mismatch[baseLookup(name[3])][baseLookup(name[0])][j] = itr->value.GetDouble();
+    }
+    for (rapidjson::Value::ConstMemberIterator itr = d["dH"]["interior_mismatch"].MemberBegin(); itr != d["dH"]["interior_mismatch"].MemberEnd(); ++itr){
+        string name = itr->name.GetString();
+        int j = ((baseLookup(name[2]) - 1) * 2) + (baseLookup(name[1]) - 1) - 3; // col
+        internal_dH.mismatch[baseLookup(name[3])][baseLookup(name[0])][j] = itr->value.GetDouble();
+    }
 }
 
 char *NupackEnergyModel::internal_read_array_data(FILE *fp, char *buffer, char *start_loc, double *read_loc, int size) {
