@@ -13,6 +13,13 @@
 #include "simoptions.h"
 #include "options.h"
 
+// For json
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
+#include "rapidjson/filereadstream.h"
+#include <iostream>
+
 #undef DEBUG
 //#define DEBUG
 
@@ -595,7 +602,7 @@ void NupackEnergyModel::processOptions() {
 		} else {
 
 			// FD: updating this to the new NUPACK parameter filenames
-			file_dG = "rna1995.dG"; 	// "RNA_mfold2.3.dG";
+			file_dG = "rna1999.dG"; 	// "RNA_mfold2.3.dG";
 			file_dH = "rna1995.dH";	// "RNA_mfold2.3.dH";
 
 		}
@@ -611,6 +618,184 @@ void NupackEnergyModel::processOptions() {
 	while (!feof(fp)) {
 		if (in_buffer[0] == '>') // data area or comment (mfold)
 				{
+
+            // Begin json tests
+		    using namespace rapidjson;
+                char *nupackhome = getenv("NUPACKHOME");
+                std::string paramPath = "/source/parameters/";
+                std::string file = "rna99.json";
+                FILE *fpjson = openFiles(nupackhome, paramPath, file, 0);
+                char buffer[65536];
+                FileReadStream is(fpjson, buffer, sizeof(buffer));
+
+                Document d;
+                d.ParseStream(is);
+
+                // Coaxial checked
+                for(int i = 0; i < PAIRS_NUPACK; i++){
+                    for(int j = 0; j < PAIRS_NUPACK; j++){
+                        char name[] = {basepairString[i + 1][0], basepairString[j + 1][0], basepairString[j + 1][2], basepairString[i + 1][2], '\0'};
+                        stack_37_dG[i][j] = d["dG"]["coaxial_stack"][name].GetDouble();
+                    }
+                }
+
+                // bulge and associates checked
+                bulge_37_dG[0] = 0;
+                internal_dG.basic[0] = 0;
+                for(int i = 0; i < 30; i++){
+                    hairpin_dG.basic[i + 1] = d["dG"]["hairpin_size"].GetArray()[i].GetDouble();
+                    bulge_37_dG[i + 1] = d["dG"]["bulge_size"].GetArray()[i].GetDouble();
+                    internal_dG.basic[i + 1] = d["dG"]["interior_size"].GetArray()[i].GetDouble();
+                }
+
+                // NINIO
+                for(int i = 0; i < 4; i++){
+                    internal_dG.ninio_correction[i] = d["dG"]["asymmetry_ninio"].GetArray()[i].GetDouble();
+                }
+                internal_dG.maximum_NINIO = d["dG"]["asymmetry_ninio"].GetArray()[4].GetDouble();
+
+                // triloop
+                for (int loop = 0; loop < 1024; loop++) {
+		            hairpin_dG.triloop[loop] = 0.0;
+	            }
+
+	            // triloops
+	            int lookup_index = 0;
+	            for (Value::ConstMemberIterator itr = d["dG"]["hairpin_triloop"].MemberBegin(); itr != d["dG"]["hairpin_triloop"].MemberEnd(); ++itr){
+	                string name = itr->name.GetString();
+	                lookup_index = ((baseLookup(name[0]) - 1) << 8) + ((baseLookup(name[1]) - 1) << 6) + ((baseLookup(name[2]) - 1) << 4) + ((baseLookup(name[3]) - 1) << 2) + (baseLookup(name[4]) - 1);
+		            hairpin_dG.triloop[lookup_index] = itr->value.GetDouble();
+                }
+
+                //tetraloops
+                for (int loop = 0; loop < 4096; loop++) {
+		            hairpin_dG.tetraloop[loop] = 0.0;
+	            }
+	            for (Value::ConstMemberIterator itr = d["dG"]["hairpin_tetraloop"].MemberBegin(); itr != d["dG"]["hairpin_tetraloop"].MemberEnd(); ++itr){
+	                string name = itr->name.GetString();
+                    lookup_index = ((baseLookup(name[0]) - 1) << 10) + ((baseLookup(name[1]) - 1) << 8)
+				        + ((baseLookup(name[2]) - 1) << 6) + ((baseLookup(name[3]) - 1) << 4)
+				        + ((baseLookup(name[4]) - 1) << 2) + (baseLookup(name[5]) - 1);
+				    hairpin_dG.tetraloop[lookup_index] = itr->value.GetDouble();
+                }
+
+                // hairpin mismatch possibly rework this
+                //int i = ((baseLookup(name[3]) - 1) * 4) + (baseLookup(name[0]) - 1); // row
+                //int j = ((baseLookup(name[2]) - 1) * 2) + (baseLookup(name[1]) - 1) - 3; // col
+                // bottom right, upper right, upper left, bottom left
+
+                for (loop = 0; loop < PAIRS_NUPACK; loop++)
+                    for (loop2 = 0; loop2 < BASES; loop2++)
+                        for (loop3 = 0; loop3 < BASES; loop3++)
+                            hairpin_dG.mismatch[loop][loop2][loop3] = 0;
+                for (Value::ConstMemberIterator itr = d["dG"]["hairpin_mismatch"].MemberBegin(); itr != d["dG"]["hairpin_mismatch"].MemberEnd(); ++itr){
+	                string name = itr->name.GetString();
+                    int j = ((baseLookup(name[2]) - 1) * 2) + (baseLookup(name[1]) - 1) - 3; // col
+                    hairpin_dG.mismatch[j][baseLookup(name[3])][baseLookup(name[0])] = itr->value.GetDouble();
+			            // loop2 represents the column
+			            // loop3 represents the X- digit +1 because 0 represents invalid
+			            // loop represents the -X digit ^
+                }
+
+                // interior mismatch again maybe rework this
+                for (loop = 0; loop < BASES; loop++)
+                    for (loop2 = 0; loop2 < BASES; loop2++)
+                        for (loop3 = 0; loop3 < PAIRS_NUPACK; loop3++)
+                            internal_dG.mismatch[loop][loop2][loop3] = 0;
+                for (Value::ConstMemberIterator itr = d["dG"]["interior_mismatch"].MemberBegin(); itr != d["dG"]["interior_mismatch"].MemberEnd(); ++itr){
+	                string name = itr->name.GetString();
+                    int j = ((baseLookup(name[2]) - 1) * 2) + (baseLookup(name[1]) - 1) - 3; // col
+                    internal_dG.mismatch[baseLookup(name[3])][baseLookup(name[0])][j] = itr->value.GetDouble();
+                }
+
+                // Dangle 3
+                // This reads as Y X2 X1
+                int loop, loop2;
+                for (loop = 0; loop < PAIRS_NUPACK; loop++)
+                    for (loop2 = 0; loop2 < BASES; loop2++)
+                        multiloop_dG.dangle_3[loop][loop2] = 0.0;
+
+                for (loop = 0; loop < PAIRS_NUPACK; loop++){
+                     for (loop2 = 1; loop2 < BASES; loop2++){
+                        char name[] = {baseTypeString[loop2][0], basepairString[loop + 1][2], basepairString[loop + 1][0], '\0'};
+                        multiloop_dG.dangle_3[loop][loop2] = d["dG"]["dangle_3"][name].GetDouble();
+                     }
+                }
+
+                // dangle 5
+
+                // X2 X1 Y
+                for (loop = 0; loop < PAIRS_NUPACK; loop++)
+                    for (loop2 = 0; loop2 < BASES; loop2++)
+                        multiloop_dG.dangle_5[loop][loop2] = 0.0;
+
+                for (loop = 0; loop < PAIRS_NUPACK; loop++){
+                     for (loop2 = 1; loop2 < BASES; loop2++){
+                        char name[] = {basepairString[loop + 1][2], basepairString[loop + 1][0], baseTypeString[loop2][0], '\0'};
+                        multiloop_dG.dangle_5[loop][loop2] = d["dG"]["dangle_5"][name].GetDouble();
+                     }
+                }
+
+                // Multiloop
+                multiloop_dG.base = d["dG"]["multiloop_base"].GetDouble();
+                multiloop_dG.closing = d["dG"]["multiloop_init"].GetDouble();
+                multiloop_dG.internal = d["dG"]["multiloop_pair"].GetDouble();
+
+                // Terminal Binding
+                terminal_AU = d["dG"]["terminal_penalty"]["AT"].GetDouble(); // Accounts for GT wobble pairs
+
+                // internal 1x1
+                // CG..AU CXAUYG order
+                for (loop = 0; loop < PAIRS_NUPACK; loop++)
+                    for (loop2 = 0; loop2 < PAIRS_NUPACK; loop2++) {
+                        for (loop3 = 0; loop3 < BASES; loop3++) {
+                            internal_dG.internal_1_1[loop][loop2][loop3][0] = 0;
+                            internal_dG.internal_1_1[loop][loop2][0][loop3] = 0;
+                        }
+
+                        for (loop3 = 1; loop3 < BASES; loop3++) {
+                            for(loop4 = 1; loop4 < BASES; loop4++){
+                                char name[] = {basepairString[loop + 1][0], baseTypeString[loop3][0], basepairString[loop2 + 1][0], basepairString[loop2 + 1][2], baseTypeString[loop4][0], basepairString[loop + 1][2], '\0'};
+                                internal_dG.internal_1_1[loop][loop2][loop3][loop4] = d["dG"]["interior_1_1"][name].GetDouble();
+                            }
+                        }
+                    }
+
+                // internal 2x2
+                for (loop = 0; loop < PAIRS_NUPACK; loop++) {
+                    for (loop2 = 0; loop2 < PAIRS_NUPACK; loop2++) {
+                        for (loop3 = 1; loop3 < BASES; loop3++) {
+                            for (loop4 = 1; loop4 < BASES; loop4++) {
+                                for (loop5 = 1; loop5 < BASES; loop5++) {
+                                    for(loop6 = 1; loop6 < BASES; loop6++){
+                                        char name[] = {basepairString[loop + 1][0], baseTypeString[loop3][0], baseTypeString[loop4][0], basepairString[loop2 + 1][0], basepairString[loop2 + 1][2], baseTypeString[loop5][0], baseTypeString[loop6][0], basepairString[loop + 1][2],'\0'};
+                                        //internal_dG.internal_2_2[loop][loop2][loop3][loop4][loop5][loop6]  = d["dG"]["interior_2_2"][name].GetDouble();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // internal 1x2
+                for (loop = 0; loop < PAIRS_NUPACK; loop++) {
+                    for (loop2 = 0; loop2 < PAIRS_NUPACK; loop2++) {
+                        for (loop3 = 1; loop3 < BASES; loop3++) {
+                            for (loop4 = 1; loop4 < BASES; loop4++) {
+                                for(loop5 = 1; loop5 < BASES; loop5++){
+                                    char name[] = {basepairString[loop + 1][0], baseTypeString[loop3][0], basepairString[loop2 + 1][0], basepairString[loop2 + 1][2], baseTypeString[loop4][0], baseTypeString[loop5][0], basepairString[loop + 1][2],'\0'};
+                                    internal_dG.internal_2_1[loop][loop3][loop2][loop4][loop5]  = d["dG"]["interior_1_2"][name].GetDouble();
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Bimolecular / join penalty
+                bimolecular_penalty = d["dG"]["join_penalty"].GetDouble();
+
+
+                // End json testing
 			if (strncmp(in_buffer, ">Stacking 5' X1 Y1 3'", 21) == 0) {
 #ifdef DEBUG
 				printf("Loading Stack Energies (MFOLD).\n");
@@ -654,7 +839,6 @@ void NupackEnergyModel::processOptions() {
 				printf("Loading NINIO parameters (MFOLD).\n");
 #endif
 				internal_set_ninio_parameters(fp, in_buffer);
-				fgets(in_buffer, 2048, fp);
 				if (feof(fp))
 					continue;
 			}

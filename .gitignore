@@ -1,3 +1,6 @@
 *.log
 *.txt
 *.pyc
+build
+*.idea
+.DS_STORE
