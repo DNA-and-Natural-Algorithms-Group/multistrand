@@ -100,7 +100,7 @@ class Options(object):
     
     cotranscriptional_rate_default = 0.001  # 1 nt added every 1 ms
     
-    activestatespace = False
+    activestatespace = False;
     
     def __init__(self, *args, **kargs):
         """
@@ -302,25 +302,25 @@ class Options(object):
         are added.
         """
         
-        self.lnAEnd = -0.1
-        self.lnALoop = -0.1
-        self.lnAStack = -0.1
-        self.lnAStackStack = -0.1
-        self.lnALoopEnd = -0.1
-        self.lnAStackEnd = -0.1
-        self.lnAStackLoop = -0.1
-        self.EEnd = -0.1
-        self.ELoop = -0.1
-        self.EStack = -0.1
-        self.EStackStack = -0.1
-        self.ELoopEnd = -0.1
-        self.EStackEnd = -0.1
-        self.EStackLoop = -0.1
+        self.lnAEnd = -0.1;
+        self.lnALoop = -0.1;
+        self.lnAStack = -0.1;
+        self.lnAStackStack = -0.1;
+        self.lnALoopEnd = -0.1;
+        self.lnAStackEnd = -0.1;
+        self.lnAStackLoop = -0.1;        
+        self.EEnd = -0.1;
+        self.ELoop = -0.1;
+        self.EStack = -0.1;
+        self.EStackStack = -0.1;
+        self.ELoopEnd = -0.1;
+        self.EStackEnd = -0.1;
+        self.EStackLoop = -0.1; 
          
         """ These are undocumented adjustments to the energy model """
 
-        self.dSA = -0.0
-        self.dHA = -0.0
+        self.dSA = -0.0;
+        self.dHA = -0.0;
 
         """ 
             Buffer conditions 
@@ -328,8 +328,8 @@ class Options(object):
             these follow a listener pattern to propagate settings to dangles.
             (as opposed to copying settings at the last possible moment)
         """
-        self.sodium = 1.0
-        self.magnesium = 0.0
+        self.sodium = 1.0;
+        self.magnesium = 0.0;
         
         ####################
         #
@@ -435,38 +435,38 @@ class Options(object):
     def JSDefault(self): 
         """ Default rates from Joseph Schaeffer's thesis  """
         
-        self.unimolecular_scaling = 1.50e+08
-        self.bimolecular_scaling = 1.38e+06
+        self.unimolecular_scaling = 1.50e+08;
+        self.bimolecular_scaling = 1.38e+06;
     
     def JSMetropolis25(self): 
         """ Default rates for Metropolis at 25 degree Celcius, from Joseph Schaeffer's thesis
         
         """
         
-        self.unimolecular_scaling = 4.4e8
-        self.bimolecular_scaling = 1.26e6
+        self.unimolecular_scaling = 4.4e8;
+        self.bimolecular_scaling = 1.26e6;
     
     def JSKawasaki25(self): 
         """ Default rates for Kawasaki at 25 degree Celcius, from Joseph Schaeffer's thesis
         
         """
         
-        self.unimolecular_scaling = 6.1e7
-        self.bimolecular_scaling = 1.29e6
+        self.unimolecular_scaling = 6.1e7;
+        self.bimolecular_scaling = 1.29e6;
     
     def JSKawasaki37(self):
         """ Default rates for Kawasaki at 37 degree Celcius, from Joseph Schaeffer's thesis
         """
         
-        self.unimolecular_scaling = 1.5e8
-        self.bimolecular_scaling = 1.38e6
+        self.unimolecular_scaling = 1.5e8;
+        self.bimolecular_scaling = 1.38e6;
     
     def JSMetropolis37(self): 
         """ Default rates for Metropolis at 37 degree Celcius, from Joseph Schaeffer's thesis
         """
         
-        self.unimolecular_scaling = 7.3e8
-        self.bimolecular_scaling = 1.40e6
+        self.unimolecular_scaling = 7.3e8;
+        self.bimolecular_scaling = 1.40e6;
     
 
     def DNA23Metropolis(self):
@@ -474,8 +474,8 @@ class Options(object):
         Parameters for Metropolis at 25 degree Celcius, from the DNA23 conference (55th walker)
         """
        
-        self.unimolecular_scaling = 2.41686715e+06
-        self.bimolecular_scaling = 8.01171383e+05
+        self.unimolecular_scaling = 2.41686715e+06;
+        self.bimolecular_scaling = 8.01171383e+05 ;
     
     def DNA23Arrhenius(self):
         
@@ -741,7 +741,7 @@ class Options(object):
             raise ValueError("current_interval has invalid value: %s" % self.current_interval)
         
         elif self.current_interval == self.output_interval:
-            self.current_interval = 0 # This may actually have to be == not sure
+            self.current_interval == 0
         
         else:
             self.current_interval += 1
@@ -995,7 +995,7 @@ class Options(object):
             'sim_time': lambda x: self.__setattr__('simulation_time', x),
             'concentration': lambda x: self.__setattr__('join_concentration', x)
             }
-
+        
         # FD: Start throwing errors if not in the right format
         # FD: This does not prevent the user to set them to ints after options 
         # FD: initialization (could use overloading via @property to prevent this).
@@ -1021,22 +1021,22 @@ class Options(object):
             # FD: Do some additional parsing for legacy support            
             # FD: This code simply translates the string calls to the numerical constants 
             elif k == 'rate_method':
-                if isinstance(kargs[k], str):
+                if isinstance(kargs[k], basestring):
                     self.rate_method = self.RateMethodToString.index(kargs[k])
                     
             elif k == 'dangles':
-                if isinstance(kargs[k], str):
+                if isinstance(kargs[k], basestring):
                     self.dangles = self.dangleToString.index(kargs[k])
 
             elif k == 'parameter_type':
-                if isinstance(kargs[k], str):
+                if isinstance(kargs[k], basestring):
                     self.parameter_type = self.parameterTypeToString.index(kargs[k])
 
             elif k == 'substrate_type':
-                if isinstance(kargs[k], str):
+                if isinstance(kargs[k], basestring):
                     self.substrate_type = self.substrateToString.index(kargs[k])
                     
-            elif (k == 'simulation_mode') & (isinstance(kargs[k], str)):
+            elif (k == 'simulation_mode') & (isinstance(kargs[k], basestring)):
                     self.simulation_mode = self.simulationMode[kargs[k]]
 
             else:
