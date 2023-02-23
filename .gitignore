@@ -1,7 +1,7 @@
 *.log
 *.txt
 *.pyc
-build
+build/
 *.idea
 *.o
 *.so

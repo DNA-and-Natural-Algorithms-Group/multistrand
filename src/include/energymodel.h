@@ -274,39 +274,6 @@ private:
 	// data loading functions:
 	void setupRates();
 
-	void internal_set_stack_energies(FILE *fp, char *buffer);
-	void internal_set_stack_enthalpies(FILE *fp, char *buffer);
-	void internal_set_hairpin_energies(FILE *fp, char *buffer);
-	void internal_set_hairpin_enthalpies(FILE *fp, char *buffer);
-	void internal_set_hairpin_mismatch_energies(FILE *fp, char *buffer);
-	void internal_set_hairpin_tetraloop_parameters(FILE *fp, char *buffer, hairpin_energies& );
-	void internal_set_hairpin_triloop_parameters(FILE *fp, char *buffer, hairpin_energies& );
-	void internal_set_hairpin_mismatch_enthalpies(FILE *fp, char *buffer);
-	void internal_set_bulge_energies(FILE *fp, char *buffer);
-	void internal_set_bulge_enthalpies(FILE *fp, char *buffer);
-	void internal_set_interior_loop_energies(FILE *fp, char *buffer);
-	void internal_set_interior_loop_enthalpies(FILE *fp, char *buffer);
-	void internal_set_interior_loop_mismatch_energies(FILE *fp, char *buffer, internal_energies& );
-	void internal_set_interior_1_1_energies(FILE *fp, char *buffer);
-	void internal_set_interior_1_1_enthalpies(FILE *fp, char *buffer);
-	void internal_set_interior_2_1_energies(FILE *fp, char *buffer);
-	void internal_set_interior_2_1_enthalpies(FILE *fp, char *buffer);
-	void internal_set_interior_2_2_energies(FILE *fp, char *buffer);
-	void internal_set_interior_2_2_enthalpies(FILE *fp, char *buffer);
-	void internal_set_multiloop_parameters(FILE *fp, char *buffer);
-	void internal_set_multiloop_parameters_enthalpies(FILE *fp, char *buffer);
-	void internal_set_at_penalty(FILE *fp, char *buffer);
-	void internal_set_at_penalty_enthalpy(FILE *fp, char *buffer);
-	void internal_set_ninio_parameters(FILE *fp, char *buffer);
-	void internal_set_ninio_parameters_enthalpy(FILE *fp, char *buffer);
-	void internal_set_bimolecular_penalty(FILE *fp, char *buffer);
-	void internal_set_bimolecular_penalty_dH(FILE *fp, char *buffer);
-	char *internal_read_array_data(FILE *fp, char *buffer, char* start_loc, double *read_loc, int size);
-	void internal_set_dangle_5_energies(FILE *fp, char *buffer);
-	void internal_set_dangle_3_energies(FILE *fp, char *buffer);
-	void internal_set_dangle_5_enthalpies(FILE *fp, char *buffer);
-	void internal_set_dangle_3_enthalpies(FILE *fp, char *buffer);
-
 	void internal_set_stack(rapidjson::Document &d);
 	void internal_set_hairpin(rapidjson::Document &d);
 	void internal_set_bulge(rapidjson::Document &d);

@@ -543,10 +543,9 @@ FILE* NupackEnergyModel::openFiles(char* nupackhome, string& paramPath, string& 
 void NupackEnergyModel::processOptions() {
 
 	// 	This is the tough part, performing all read/input duties.
-	char in_buffer[2048];
 	int loop, loop2, loop3, loop4, loop5, loop6;
 	double temperature;
-	FILE *fp = NULL, *fp2 = NULL; // fp is dG energy file, fp2 is dH.
+	FILE *fp = NULL; // fp is json file.
 
 	EnergyOptions* myEnergyOptions = simOptions->getEnergyOptions();
 
@@ -590,336 +589,26 @@ void NupackEnergyModel::processOptions() {
 	} else if (myEnergyOptions->compareSubstrateType(SUBSTRATE_DNA) || myEnergyOptions->compareSubstrateType(SUBSTRATE_RNA)) {
 
 		char *nupackhome;
-		std::string file_dG, file_dH;
+		std::string file;
 
 		nupackhome = getenv("NUPACKHOME");
 
 		if (myEnergyOptions->compareSubstrateType(SUBSTRATE_DNA)) {
-
-			file_dG = "dna1998.dG";
-			file_dH = "dna1998.dH";
-
+			file = "dna04.json";
 		} else {
 			// FD: updating this to the new NUPACK parameter filenames
-			file_dG = "rna1995.dG"; 	// "RNA_mfold2.3.dG";
-			file_dH = "rna1995.dH";	// "RNA_mfold2.3.dH";
-
+			file = "rna06.json";
 		}
-
-		std::string paramPath = "/parameters/";
-
-		fp = openFiles(nupackhome, paramPath, file_dG, 0);
-		fp2 = openFiles(nupackhome, paramPath, file_dH, 1);
-
+		std::string paramPath = "/source/parameters/";
+		fp = openFiles(nupackhome, paramPath, file, 0);
 	}
+    char buffer[65536];
+    rapidjson::FileReadStream is(fp, buffer, sizeof(buffer));
 
-	fgets(in_buffer, 2048, fp);
-	/*
-	using namespace rapidjson;
-                char *nupackhome = getenv("NUPACKHOME");
-                std::string paramPath = "/source/parameters/";
-                std::string file = "rna95-nupack3.json";
-                FILE *fpjson = openFiles(nupackhome, paramPath, file, 0);
-                char buffer[65536];
-                FileReadStream is(fpjson, buffer, sizeof(buffer));
+    rapidjson::Document d;
+    d.ParseStream(is);
 
-                Document d;
-                d.ParseStream(is);
-
-                // Coaxial checked
-                for(int i = 0; i < PAIRS_NUPACK; i++){
-                    for(int j = 0; j < PAIRS_NUPACK; j++){
-                        char name[] = {basepairString[i + 1][0], basepairString[j + 1][0], basepairString[j + 1][2], basepairString[i + 1][2], '\0'};
-                        stack_37_dG[i][j] = d["dG"]["coaxial_stack"][name].GetDouble();
-                    }
-                }
-
-                // bulge and associates checked
-                bulge_37_dG[0] = 0;
-                internal_dG.basic[0] = 0;
-                for(int i = 0; i < 30; i++){
-                    hairpin_dG.basic[i + 1] = d["dG"]["hairpin_size"].GetArray()[i].GetDouble();
-                    bulge_37_dG[i + 1] = d["dG"]["bulge_size"].GetArray()[i].GetDouble();
-                    internal_dG.basic[i + 1] = d["dG"]["interior_size"].GetArray()[i].GetDouble();
-                }
-
-                // NINIO
-                for(int i = 0; i < 4; i++){
-                    internal_dG.ninio_correction[i] = d["dG"]["asymmetry_ninio"].GetArray()[i].GetDouble();
-                }
-                internal_dG.maximum_NINIO = d["dG"]["asymmetry_ninio"].GetArray()[4].GetDouble();
-
-                // triloop
-                for (int loop = 0; loop < 1024; loop++) {
-		            hairpin_dG.triloop[loop] = 0.0;
-	            }
-	            int lookup_index = 0;
-	            for (rapidjson::Value::ConstMemberIterator itr = d["dG"]["hairpin_triloop"].MemberBegin(); itr != d["dG"]["hairpin_triloop"].MemberEnd(); ++itr){
-	                string name = itr->name.GetString();
-	                lookup_index = ((baseLookup(name[0]) - 1) << 8) + ((baseLookup(name[1]) - 1) << 6) + ((baseLookup(name[2]) - 1) << 4) + ((baseLookup(name[3]) - 1) << 2) + (baseLookup(name[4]) - 1);
-		            hairpin_dG.triloop[lookup_index] = itr->value.GetDouble();
-                }
-
-                //tetraloops
-                for (int loop = 0; loop < 4096; loop++) {
-		            hairpin_dG.tetraloop[loop] = 0.0;
-	            }
-	            for (rapidjson::Value::ConstMemberIterator itr = d["dG"]["hairpin_tetraloop"].MemberBegin(); itr != d["dG"]["hairpin_tetraloop"].MemberEnd(); ++itr){
-	                string name = itr->name.GetString();
-                    lookup_index = ((baseLookup(name[0]) - 1) << 10) + ((baseLookup(name[1]) - 1) << 8)
-				        + ((baseLookup(name[2]) - 1) << 6) + ((baseLookup(name[3]) - 1) << 4)
-				        + ((baseLookup(name[4]) - 1) << 2) + (baseLookup(name[5]) - 1);
-				    hairpin_dG.tetraloop[lookup_index] = itr->value.GetDouble();
-                }
-
-                // hairpin mismatch possibly rework this
-                //int i = ((baseLookup(name[3]) - 1) * 4) + (baseLookup(name[0]) - 1); // row
-                //int j = ((baseLookup(name[2]) - 1) * 2) + (baseLookup(name[1]) - 1) - 3; // col
-                // bottom right, upper right, upper left, bottom left
-
-                for (loop = 0; loop < PAIRS_NUPACK; loop++)
-                    for (loop2 = 0; loop2 < BASES; loop2++)
-                        for (loop3 = 0; loop3 < BASES; loop3++)
-                            hairpin_dG.mismatch[loop][loop2][loop3] = 0;
-                for (rapidjson::Value::ConstMemberIterator itr = d["dG"]["hairpin_mismatch"].MemberBegin(); itr != d["dG"]["hairpin_mismatch"].MemberEnd(); ++itr){
-	                string name = itr->name.GetString();
-                    int j = ((baseLookup(name[2]) - 1) * 2) + (baseLookup(name[1]) - 1) - 3; // col
-                    hairpin_dG.mismatch[j][baseLookup(name[3])][baseLookup(name[0])] = itr->value.GetDouble();
-			            // loop2 represents the column
-			            // loop3 represents the X- digit +1 because 0 represents invalid
-			            // loop represents the -X digit ^
-                }
-
-                // interior mismatch again maybe rework this
-                for (loop = 0; loop < BASES; loop++)
-                    for (loop2 = 0; loop2 < BASES; loop2++)
-                        for (loop3 = 0; loop3 < PAIRS_NUPACK; loop3++)
-                            internal_dG.mismatch[loop][loop2][loop3] = 0;
-                for (rapidjson::Value::ConstMemberIterator itr = d["dG"]["interior_mismatch"].MemberBegin(); itr != d["dG"]["interior_mismatch"].MemberEnd(); ++itr){
-	                string name = itr->name.GetString();
-                    int j = ((baseLookup(name[2]) - 1) * 2) + (baseLookup(name[1]) - 1) - 3; // col
-                    internal_dG.mismatch[baseLookup(name[3])][baseLookup(name[0])][j] = itr->value.GetDouble();
-                }
-
-                // Dangle 3
-                // This reads as Y X2 X1
-                for (loop = 0; loop < PAIRS_NUPACK; loop++)
-                    for (loop2 = 0; loop2 < BASES; loop2++)
-                        multiloop_dG.dangle_3[loop][loop2] = 0.0;
-
-                for (loop = 0; loop < PAIRS_NUPACK; loop++){
-                     for (loop2 = 1; loop2 < BASES; loop2++){
-                        char name[] = {baseTypeString[loop2][0], basepairString[loop + 1][2], basepairString[loop + 1][0], '\0'};
-                        multiloop_dG.dangle_3[loop][loop2] = d["dG"]["dangle_3"][name].GetDouble();
-                     }
-                }
-
-                // dangle 5
-
-                // X2 X1 Y
-                for (loop = 0; loop < PAIRS_NUPACK; loop++)
-                    for (loop2 = 0; loop2 < BASES; loop2++)
-                        multiloop_dG.dangle_5[loop][loop2] = 0.0;
-
-                for (loop = 0; loop < PAIRS_NUPACK; loop++){
-                     for (loop2 = 1; loop2 < BASES; loop2++){
-                        char name[] = {basepairString[loop + 1][2], basepairString[loop + 1][0], baseTypeString[loop2][0], '\0'};
-                        multiloop_dG.dangle_5[loop][loop2] = d["dG"]["dangle_5"][name].GetDouble();
-                     }
-                }
-
-                // Multiloop
-                multiloop_dG.base = d["dG"]["multiloop_base"].GetDouble();
-                multiloop_dG.closing = d["dG"]["multiloop_init"].GetDouble();
-                multiloop_dG.internal = d["dG"]["multiloop_pair"].GetDouble();
-
-                // Terminal Binding
-                terminal_AU = d["dG"]["terminal_penalty"]["AT"].GetDouble(); // Accounts for GT wobble pairs
-
-                // internal 1x1
-                // CG..AU CXAUYG order
-                for (loop = 0; loop < PAIRS_NUPACK; loop++)
-                    for (loop2 = 0; loop2 < PAIRS_NUPACK; loop2++) {
-                        for (loop3 = 0; loop3 < BASES; loop3++) {
-                            internal_dG.internal_1_1[loop][loop2][loop3][0] = 0;
-                            internal_dG.internal_1_1[loop][loop2][0][loop3] = 0;
-                        }
-
-                        for (loop3 = 1; loop3 < BASES; loop3++) {
-                            for(loop4 = 1; loop4 < BASES; loop4++){
-                                char name[] = {basepairString[loop + 1][0], baseTypeString[loop3][0], basepairString[loop2 + 1][0], basepairString[loop2 + 1][2], baseTypeString[loop4][0], basepairString[loop + 1][2], '\0'};
-                                internal_dG.internal_1_1[loop][loop2][loop3][loop4] = d["dG"]["interior_1_1"][name].GetDouble();
-                            }
-                        }
-                    }
-
-                // internal 2x2
-                for (loop = 0; loop < PAIRS_NUPACK; loop++) {
-                    for (loop2 = 0; loop2 < PAIRS_NUPACK; loop2++) {
-                        for (loop3 = 1; loop3 < BASES; loop3++) {
-                            for (loop4 = 1; loop4 < BASES; loop4++) {
-                                for (loop5 = 1; loop5 < BASES; loop5++) {
-                                    for(loop6 = 1; loop6 < BASES; loop6++){
-                                        char name[] = {basepairString[loop + 1][0], baseTypeString[loop3][0], baseTypeString[loop4][0], basepairString[loop2 + 1][0], basepairString[loop2 + 1][2], baseTypeString[loop5][0], baseTypeString[loop6][0], basepairString[loop + 1][2],'\0'};
-                                        internal_dG.internal_2_2[loop][loop2][loop3][loop4][loop5][loop6]  = d["dG"]["interior_2_2"][name].GetDouble();
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // internal 1x2
-                for (loop = 0; loop < PAIRS_NUPACK; loop++) {
-                    for (loop2 = 0; loop2 < PAIRS_NUPACK; loop2++) {
-                        for (loop3 = 1; loop3 < BASES; loop3++) {
-                            for (loop4 = 1; loop4 < BASES; loop4++) {
-                                for(loop5 = 1; loop5 < BASES; loop5++){
-                                    char name[] = {basepairString[loop + 1][0], baseTypeString[loop3][0], basepairString[loop2 + 1][0], basepairString[loop2 + 1][2], baseTypeString[loop4][0], baseTypeString[loop5][0], basepairString[loop + 1][2],'\0'};
-                                    internal_dG.internal_2_1[loop][loop3][loop2][loop4][loop5]  = d["dG"]["interior_1_2"][name].GetDouble();
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // Bimolecular / join penalty
-                bimolecular_penalty = d["dG"]["join_penalty"].GetDouble();
-                */
-
-                // End json testing
-
-	while (!feof(fp)) {
-		if (in_buffer[0] == '>') // data area or comment (mfold)
-				{
-			if (strncmp(in_buffer, ">Stacking 5' X1 Y1 3'", 21) == 0) {
-#ifdef DEBUG
-				printf("Loading Stack Energies (MFOLD).\n");
-#endif
-				internal_set_stack_energies(fp, in_buffer);
-				fgets(in_buffer, 2048, fp);
-				if (feof(fp))
-					continue;
-			}
-
-			else if (strncmp(in_buffer, ">Hairpin Loop Energies:", 23) == 0) {
-#ifdef DEBUG
-				printf("Loading Hairpin Energies (MFOLD).\n");
-#endif
-				internal_set_hairpin_energies(fp, in_buffer);
-				fgets(in_buffer, 2048, fp);
-				if (feof(fp))
-					continue;
-			}
-
-			else if (strncmp(in_buffer, ">Bulge loop Energies:", 21) == 0) {
-#ifdef DEBUG
-				printf("Loading Bulge Energies (MFOLD).\n");
-#endif
-				internal_set_bulge_energies(fp, in_buffer);
-				fgets(in_buffer, 2048, fp);
-				if (feof(fp))
-					continue;
-			} else if (strncmp(in_buffer, ">Interior Loop Energies:", 24) == 0) {
-#ifdef DEBUG
-				printf("Loading Internal Loop Energies (MFOLD).\n");
-#endif
-				internal_set_interior_loop_energies(fp, in_buffer);
-				fgets(in_buffer, 2048, fp);
-				if (feof(fp))
-					continue;
-			}
-
-			else if (strncmp(in_buffer, ">NINIO asymmetry", 16) == 0) {
-#ifdef DEBUG
-				printf("Loading NINIO parameters (MFOLD).\n");
-#endif
-				internal_set_ninio_parameters(fp, in_buffer);
-				if (feof(fp))
-					continue;
-			}
-
-			else if (strncmp(in_buffer, ">Triloops ", 10) == 0) {
-#ifdef DEBUG
-				printf("Loading Hairpin Triloop parameters (MFOLD).\n");
-#endif
-				internal_set_hairpin_triloop_parameters(fp, in_buffer, hairpin_dG);
-			} else if (strncmp(in_buffer, ">Tetraloops ", 12) == 0) {
-#ifdef DEBUG
-				printf("Loading Hairpin Tetraloop parameters (MFOLD).\n");
-#endif
-				internal_set_hairpin_tetraloop_parameters(fp, in_buffer, hairpin_dG);
-			} else if (strncmp(in_buffer, ">Mismatch HP", 12) == 0) {
-#ifdef DEBUG
-				printf("Loading Hairpin Mismatch Energies (MFOLD).\n");
-#endif
-				internal_set_hairpin_mismatch_energies(fp, in_buffer);
-				fgets(in_buffer, 2048, fp);
-			} else if (strncmp(in_buffer, ">Mismatch Interior", 18) == 0) {
-#ifdef DEBUG
-				printf("Loading Interior Loop Mismatch Energies (MFOLD).\n");
-#endif
-				internal_set_interior_loop_mismatch_energies(fp, in_buffer, internal_dG);
-				fgets(in_buffer, 2048, fp);
-			} else if (strncmp(in_buffer, ">Dangle Energies: 5' X1 . 3'", 28) == 0) {
-#ifdef DEBUG
-				printf("Loading Dangle 3' Energies (MFOLD).\n");
-#endif
-				internal_set_dangle_3_energies(fp, in_buffer);
-				fgets(in_buffer, 2048, fp);
-			} else if (strncmp(in_buffer, ">Dangle Energies: 5' X1 Y 3'", 28) == 0) {
-#ifdef DEBUG
-				printf("Loading Dangle 5' Energies (MFOLD).\n");
-#endif
-				internal_set_dangle_5_energies(fp, in_buffer);
-				fgets(in_buffer, 2048, fp);
-			} else if (strncmp(in_buffer, ">Multiloop terms:", 17) == 0) {
-#ifdef DEBUG
-				printf("Loading Multiloop parameters (MFOLD).\n");
-#endif
-				internal_set_multiloop_parameters(fp, in_buffer);
-				fgets(in_buffer, 2048, fp);
-			} else if (strncmp(in_buffer, ">AT_PENALTY:", 12) == 0) {
-#ifdef DEBUG
-				printf("Loading AT (AU) Penalty parameter (MFOLD).\n");
-#endif
-				internal_set_at_penalty(fp, in_buffer);
-				fgets(in_buffer, 2048, fp);
-			} else if (strncmp(in_buffer, ">Interior Loops 1x1", 19) == 0) {
-#ifdef DEBUG
-				printf("Loading Internal 1-1 mismatch Energies (MFOLD).\n");
-#endif
-				internal_set_interior_1_1_energies(fp, in_buffer);
-				fgets(in_buffer, 2048, fp);
-			} else if (strncmp(in_buffer, ">Interior Loops 2x2", 19) == 0) {
-#ifdef DEBUG
-				printf("Loading Internal 2-2 mismatch Energies (MFOLD).\n");
-#endif
-				internal_set_interior_2_2_energies(fp, in_buffer);
-				fgets(in_buffer, 2048, fp);
-			} else if (strncmp(in_buffer, ">Interior Loops 1x2", 19) == 0) {
-#ifdef DEBUG
-				printf("Loading Internal 2-1 mismatch Energies (MFOLD).\n");
-#endif
-				internal_set_interior_2_1_energies(fp, in_buffer);
-				fgets(in_buffer, 2048, fp);
-			} else if (strncmp(in_buffer, ">BIMOLECULAR", 12) == 0) {
-#ifdef DEBUG
-				printf("Loading Bimolecular Association Penalty (MFOLD).\n");
-#endif
-				internal_set_bimolecular_penalty(fp, in_buffer);
-				fgets(in_buffer, 2048, fp);
-			} else {
-				fgets(in_buffer, 2048, fp);
-			}
-
-		} else
-			fgets(in_buffer, 2048, fp);
-	}
-	fclose(fp);
-	/* Enthalpy loading section for all those pesky dH terms. */
-
-	if (fp2 == NULL) {
+    if (!d.HasMember("dH")) {
 		if (temperature < CELSIUS37_IN_KELVIN - .0001 || temperature > CELSIUS37_IN_KELVIN + .0001) {
 			fprintf(stderr,
 					"ERROR: Temperature was set to %0.2lf C, but only dG type data files could be found. Please ensure that the requested parameter set has both .dG and .dH files!\n",
@@ -928,150 +617,6 @@ void NupackEnergyModel::processOptions() {
 		}
 		return;
 	}
-
-	fgets(in_buffer, 2048, fp2);
-	while (!feof(fp2)) {
-		if (in_buffer[0] == '>') // data area or comment (mfold)
-				{
-			if (strncmp(in_buffer, ">Stacking 5' X1 Y1 3'", 21) == 0) {
-#ifdef DEBUG
-				printf("Loading Stack Enthalpies (MFOLD).\n");
-#endif
-				internal_set_stack_enthalpies(fp2, in_buffer);
-				fgets(in_buffer, 2048, fp2);
-				if (feof(fp2))
-					continue;
-			}
-
-			else if (strncmp(in_buffer, ">Hairpin Loop Energies:", 23) == 0) {
-#ifdef DEBUG
-				printf("Loading Hairpin Enthalpies (MFOLD).\n");
-#endif
-				internal_set_hairpin_enthalpies(fp2, in_buffer);
-				fgets(in_buffer, 2048, fp2);
-				if (feof(fp2))
-					continue;
-			}
-
-			else if (strncmp(in_buffer, ">Bulge loop Energies:", 21) == 0) {
-#ifdef DEBUG
-				printf("Loading Bulge Enthalpies (MFOLD).\n");
-#endif
-				internal_set_bulge_enthalpies(fp2, in_buffer);
-				fgets(in_buffer, 2048, fp2);
-				if (feof(fp2))
-					continue;
-			} else if (strncmp(in_buffer, ">Interior Loop Energies:", 24) == 0) {
-#ifdef DEBUG
-				printf("Loading Internal Loop Enthalpies (MFOLD).\n");
-#endif
-				internal_set_interior_loop_enthalpies(fp2, in_buffer);
-				fgets(in_buffer, 2048, fp2);
-				if (feof(fp2))
-					continue;
-			}
-
-			else if (strncmp(in_buffer, ">NINIO asymmetry", 16) == 0) {
-#ifdef DEBUG
-				printf("Loading NINIO parameters - enthalpy (MFOLD).\n");
-#endif
-				internal_set_ninio_parameters_enthalpy(fp2, in_buffer);
-				fgets(in_buffer, 2048, fp2);
-				if (feof(fp2))
-					continue;
-			}
-
-			else if (strncmp(in_buffer, ">Triloops ", 10) == 0) {
-#ifdef DEBUG
-				printf("Loading Hairpin Triloop parameters - enthalpy (MFOLD).\n");
-#endif
-				internal_set_hairpin_triloop_parameters(fp2, in_buffer, hairpin_dH);
-			} else if (strncmp(in_buffer, ">Tetraloops ", 12) == 0) {
-#ifdef DEBUG
-				printf("Loading Hairpin Tetraloop parameters - enthalpy (MFOLD).\n");
-#endif
-				internal_set_hairpin_tetraloop_parameters(fp2, in_buffer, hairpin_dH);
-			} else if (strncmp(in_buffer, ">Mismatch HP", 12) == 0) {
-#ifdef DEBUG
-				printf("Loading Hairpin Mismatch Enthalpies (MFOLD).\n");
-#endif
-				internal_set_hairpin_mismatch_enthalpies(fp2, in_buffer);
-				fgets(in_buffer, 2048, fp2);
-			} else if (strncmp(in_buffer, ">Mismatch Interior", 18) == 0) {
-#ifdef DEBUG
-				printf("Loading Interior Loop Mismatch Enthalpies (MFOLD).\n");
-#endif
-				internal_set_interior_loop_mismatch_energies(fp2, in_buffer, internal_dH);
-				fgets(in_buffer, 2048, fp2);
-			} else if (strncmp(in_buffer, ">Dangle Energies: 5' X1 . 3'", 28) == 0) {
-#ifdef DEBUG
-				printf("Loading Dangle 3' Enthalpies (MFOLD).\n");
-#endif
-				internal_set_dangle_3_enthalpies(fp2, in_buffer);
-				fgets(in_buffer, 2048, fp2);
-			} else if (strncmp(in_buffer, ">Dangle Energies: 5' X1 Y 3'", 28) == 0) {
-#ifdef DEBUG
-				printf("Loading Dangle 5' Enthalpies (MFOLD).\n");
-#endif
-				internal_set_dangle_5_enthalpies(fp2, in_buffer);
-				fgets(in_buffer, 2048, fp2);
-			} else if (strncmp(in_buffer, ">Multiloop terms:", 17) == 0) {
-#ifdef DEBUG
-				printf("Loading Multiloop parameters (dH) (MFOLD).\n");
-#endif
-				internal_set_multiloop_parameters_enthalpies(fp2, in_buffer);
-				fgets(in_buffer, 2048, fp2);
-			} else if (strncmp(in_buffer, ">AT_PENALTY:", 12) == 0) {
-#ifdef DEBUG
-				printf("Loading AT (AU) Penalty parameter (dH) (MFOLD).\n");
-#endif
-				internal_set_at_penalty_enthalpy(fp2, in_buffer);
-				fgets(in_buffer, 2048, fp2);
-			} else if (strncmp(in_buffer, ">Interior Loops 1x1", 19) == 0) {
-#ifdef DEBUG
-				printf("Loading Internal 1-1 mismatch enthalpies (MFOLD).\n");
-#endif
-				internal_set_interior_1_1_enthalpies(fp2, in_buffer);
-				fgets(in_buffer, 2048, fp2);
-			} else if (strncmp(in_buffer, ">Interior Loops 2x2", 19) == 0) {
-#ifdef DEBUG
-				printf("Loading Internal 2-2 mismatch enthalpies (MFOLD).\n");
-#endif
-				internal_set_interior_2_2_enthalpies(fp2, in_buffer);
-				fgets(in_buffer, 2048, fp2);
-			} else if (strncmp(in_buffer, ">Interior Loops 1x2", 19) == 0) {
-#ifdef DEBUG
-				printf("Loading Internal 2-1 mismatch enthalpies (MFOLD).\n");
-#endif
-				internal_set_interior_2_1_enthalpies(fp2, in_buffer);
-				fgets(in_buffer, 2048, fp2);
-			} else if (strncmp(in_buffer, ">BIMOLECULAR", 12) == 0) {
-#ifdef DEBUG
-				printf("Loading Bimolecular Association Penalty (dH) (MFOLD).\n");
-#endif
-				internal_set_bimolecular_penalty_dH(fp2, in_buffer);
-				fgets(in_buffer, 2048, fp2);
-			} else {
-				fgets(in_buffer, 2048, fp2);
-			}
-
-		} else
-			fgets(in_buffer, 2048, fp2);
-	}
-
-	fclose(fp2);
-
-
-
-	char *nupackhome = getenv("NUPACKHOME");
-    std::string paramPath = "/source/parameters/";
-    std::string file = "rna95-nupack3.json";
-    FILE *fpjson = openFiles(nupackhome, paramPath, file, 0);
-    char buffer[65536];
-    rapidjson::FileReadStream is(fpjson, buffer, sizeof(buffer));
-
-    rapidjson::Document d;
-    d.ParseStream(is);
 
     internal_set_stack(d);
 	internal_set_hairpin(d);
@@ -1090,7 +635,7 @@ void NupackEnergyModel::processOptions() {
 	internal_set_hairpin_triloop_parameters(d);
 	internal_set_hairpin_mismatch(d);
 	internal_set_interior_loop_mismatch(d);
-	fclose(fpjson);
+	fclose(fp);
 
 // Temperature change section.
 
@@ -1198,35 +743,6 @@ void NupackEnergyModel::processOptions() {
 
 
  ------------------------------------------------------------------------ */
-
-void NupackEnergyModel::internal_set_stack_energies(FILE *fp, char *buffer) {
-	int loop;
-	char *cur_bufspot;
-
-	while (buffer[0] == '>')
-		fgets(buffer, 2048, fp);
-
-	cur_bufspot = buffer;
-	for (loop = 0; loop < PAIRS_NUPACK; loop++) {
-		cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &stack_37_dG[loop][0], PAIRS_NUPACK);
-	}
-}
-
-void NupackEnergyModel::internal_set_stack_enthalpies(FILE *fp, char *buffer) {
-
-	int loop;
-	char *cur_bufspot;
-
-	while (buffer[0] == '>')
-		fgets(buffer, 2048, fp);
-
-	cur_bufspot = buffer;
-	for (loop = 0; loop < PAIRS_NUPACK; loop++) {
-		cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &stack_37_dH[loop][0], PAIRS_NUPACK);
-	}
-
-}
-
 void NupackEnergyModel::internal_set_stack(rapidjson::Document &d){
     for(int i = 0; i < PAIRS_NUPACK; i++){
         for(int j = 0; j < PAIRS_NUPACK; j++){
@@ -1237,33 +753,11 @@ void NupackEnergyModel::internal_set_stack(rapidjson::Document &d){
     }
 }
 
-
-void NupackEnergyModel::internal_set_hairpin_energies(FILE *fp, char *buffer) {
-
-	internal_read_array_data(fp, buffer, buffer, &hairpin_dG.basic[1], 30);
-}
-
-void NupackEnergyModel::internal_set_hairpin_enthalpies(FILE *fp, char *buffer) {
-
-	internal_read_array_data(fp, buffer, buffer, &hairpin_dH.basic[1], 30);
-}
-
 void NupackEnergyModel::internal_set_hairpin(rapidjson::Document &d) {
     for(int i = 0; i < 30; i++){
         hairpin_dG.basic[i + 1] = d["dG"]["hairpin_size"].GetArray()[i].GetDouble();
         hairpin_dH.basic[i + 1] = d["dH"]["hairpin_size"].GetArray()[i].GetDouble();
     }
-}
-
-
-void NupackEnergyModel::internal_set_bulge_energies(FILE *fp, char *buffer) {
-	bulge_37_dG[0] = 0;
-	internal_read_array_data(fp, buffer, buffer, &bulge_37_dG[1], 30);
-}
-
-void NupackEnergyModel::internal_set_bulge_enthalpies(FILE *fp, char *buffer) {
-	bulge_37_dH[0] = 0;
-	internal_read_array_data(fp, buffer, buffer, &bulge_37_dH[1], 30);
 }
 
 void NupackEnergyModel::internal_set_bulge(rapidjson::Document &d) {
@@ -1275,15 +769,6 @@ void NupackEnergyModel::internal_set_bulge(rapidjson::Document &d) {
     }
 }
 
-void NupackEnergyModel::internal_set_interior_loop_energies(FILE *fp, char *buffer) {
-	internal_dG.basic[0] = 0;
-	internal_read_array_data(fp, buffer, buffer, &internal_dG.basic[1], 30);
-}
-
-void NupackEnergyModel::internal_set_interior_loop_enthalpies(FILE *fp, char *buffer) {
-	internal_dH.basic[0] = 0;
-	internal_read_array_data(fp, buffer, buffer, &internal_dH.basic[1], 30);
-}
 
 void NupackEnergyModel::internal_set_interior_loop(rapidjson::Document &d) {
     internal_dG.basic[0] = 0;
@@ -1292,63 +777,6 @@ void NupackEnergyModel::internal_set_interior_loop(rapidjson::Document &d) {
         internal_dG.basic[i + 1] = d["dG"]["interior_size"].GetArray()[i].GetDouble();
         internal_dH.basic[i + 1] = d["dH"]["interior_size"].GetArray()[i].GetDouble();
     }
-}
-
-void NupackEnergyModel::internal_set_interior_1_1_energies(FILE *fp, char *buffer) {
-
-	int loop, loop2, loop3;
-	char *cur_bufspot;
-
-	while (buffer[0] == '>')
-		fgets(buffer, 2048, fp);
-
-	cur_bufspot = buffer;
-
-	for (loop = 0; loop < PAIRS_NUPACK; loop++)
-		for (loop2 = 0; loop2 < PAIRS_NUPACK; loop2++) {
-			if (buffer[0] == 'A' || buffer[0] == 'T' || buffer[0] == 'G' || buffer[0] == 'C')
-				fgets(buffer, 2048, fp); // eat the lines with AT..AT, etc, just in case.
-
-			for (loop3 = 0; loop3 < BASES; loop3++) {
-				internal_dG.internal_1_1[loop][loop2][loop3][0] = 0;
-				internal_dG.internal_1_1[loop][loop2][0][loop3] = 0;
-			}
-
-			for (loop3 = 1; loop3 < BASES; loop3++) {
-				cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &internal_dG.internal_1_1[loop][loop2][loop3][1], BASES - 1);
-			}
-
-		}
-}
-
-void NupackEnergyModel::internal_set_interior_1_1_enthalpies(FILE *fp, char *buffer) {
-
-	int loop, loop2, loop3;
-	char *cur_bufspot;
-
-	while (buffer[0] == '>')
-		fgets(buffer, 2048, fp);
-
-	cur_bufspot = buffer;
-
-	for (loop = 0; loop < PAIRS_NUPACK; loop++)
-		for (loop2 = 0; loop2 < PAIRS_NUPACK; loop2++) {
-
-			if (buffer[0] == 'A' || buffer[0] == 'T' || buffer[0] == 'G' || buffer[0] == 'C') {
-				fgets(buffer, 2048, fp); // eat the lines with AT..AT, etc, just in case.
-			}
-
-			for (loop3 = 0; loop3 < BASES; loop3++) {
-				internal_dH.internal_1_1[loop][loop2][loop3][0] = 0;
-				internal_dH.internal_1_1[loop][loop2][0][loop3] = 0;
-			}
-
-			for (loop3 = 1; loop3 < BASES; loop3++) {
-				cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &internal_dH.internal_1_1[loop][loop2][loop3][1], BASES - 1);
-			}
-
-		}
-
 }
 
 void NupackEnergyModel::internal_set_interior_1_1(rapidjson::Document &d) {
@@ -1375,51 +803,6 @@ void NupackEnergyModel::internal_set_interior_1_1(rapidjson::Document &d) {
     }
 }
 
-void NupackEnergyModel::internal_set_interior_2_1_energies(FILE *fp, char *buffer) {
-	int loop, loop2, loop3, loop4;
-	char *cur_bufspot;
-
-	while (buffer[0] == '>')
-		fgets(buffer, 2048, fp);
-
-	cur_bufspot = buffer;
-	for (loop = 0; loop < PAIRS_NUPACK; loop++) {
-		for (loop2 = 0; loop2 < PAIRS_NUPACK; loop2++) {
-
-			if (buffer[0] == 'A' || buffer[0] == 'T' || buffer[0] == 'G' || buffer[0] == 'C') {
-				fgets(buffer, 2048, fp); // eat the lines with AT..AT, etc, just in case.
-			}
-
-			for (loop3 = 1; loop3 < BASES; loop3++) {
-				for (loop4 = 1; loop4 < BASES; loop4++) {
-					cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &internal_dG.internal_2_1[loop][loop3][loop2][loop4][1], (BASES - 1));
-				}
-			}
-		}
-	}
-}
-
-void NupackEnergyModel::internal_set_interior_2_1_enthalpies(FILE *fp, char *buffer) {
-	int loop, loop2, loop3, loop4;
-	char *cur_bufspot;
-
-	while (buffer[0] == '>')
-		fgets(buffer, 2048, fp);
-
-	cur_bufspot = buffer;
-	for (loop = 0; loop < PAIRS_NUPACK; loop++) {
-		for (loop2 = 0; loop2 < PAIRS_NUPACK; loop2++) {
-			if (buffer[0] == 'A' || buffer[0] == 'T' || buffer[0] == 'G' || buffer[0] == 'C')
-				fgets(buffer, 2048, fp); // eat the lines with AT..AT, etc, just in case.
-
-			for (loop3 = 1; loop3 < BASES; loop3++) {
-				for (loop4 = 1; loop4 < BASES; loop4++)
-					cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &internal_dH.internal_2_1[loop][loop3][loop2][loop4][1], (BASES - 1));
-			}
-		}
-	}
-}
-
 void NupackEnergyModel::internal_set_interior_2_1(rapidjson::Document &d) {
     int loop, loop2, loop3, loop4, loop5;
     for (loop = 0; loop < PAIRS_NUPACK; loop++) {
@@ -1436,56 +819,6 @@ void NupackEnergyModel::internal_set_interior_2_1(rapidjson::Document &d) {
             }
         }
     }
-}
-
-void NupackEnergyModel::internal_set_interior_2_2_energies(FILE *fp, char *buffer) {
-	int loop, loop2, loop3, loop4, loop5;
-	char *cur_bufspot;
-	while (buffer[0] == '>')
-		fgets(buffer, 2048, fp);
-
-	cur_bufspot = buffer;
-	for (loop = 0; loop < PAIRS_NUPACK; loop++) {
-		for (loop2 = 0; loop2 < PAIRS_NUPACK; loop2++) {
-			if (buffer[0] == 'A' || buffer[0] == 'T' || buffer[0] == 'G' || buffer[0] == 'C')
-				fgets(buffer, 2048, fp); // eat the description lines.
-
-			//cur_bufspot=buffer;
-			for (loop3 = 1; loop3 < BASES; loop3++) {
-				for (loop4 = 1; loop4 < BASES; loop4++) {
-					for (loop5 = 1; loop5 < BASES; loop5++) {
-						cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &internal_dG.internal_2_2[loop][loop2][loop3][loop4][loop5][1],
-								BASES - 1);
-					}
-				}
-			}
-		}
-	}
-}
-
-void NupackEnergyModel::internal_set_interior_2_2_enthalpies(FILE *fp, char *buffer) {
-	int loop, loop2, loop3, loop4, loop5;
-	char *cur_bufspot;
-	while (buffer[0] == '>')
-		fgets(buffer, 2048, fp);
-
-	cur_bufspot = buffer;
-	for (loop = 0; loop < PAIRS_NUPACK; loop++) {
-		for (loop2 = 0; loop2 < PAIRS_NUPACK; loop2++) {
-			if (buffer[0] == 'A' || buffer[0] == 'T' || buffer[0] == 'G' || buffer[0] == 'C')
-				fgets(buffer, 2048, fp); // eat the description lines.
-
-			//cur_bufspot=buffer;
-			for (loop3 = 1; loop3 < BASES; loop3++) {
-				for (loop4 = 1; loop4 < BASES; loop4++) {
-					for (loop5 = 1; loop5 < BASES; loop5++) {
-						cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &internal_dH.internal_2_2[loop][loop2][loop3][loop4][loop5][1],
-								BASES - 1);
-					}
-				}
-			}
-		}
-	}
 }
 
 void NupackEnergyModel::internal_set_interior_2_2(rapidjson::Document &d) {
@@ -1507,36 +840,6 @@ void NupackEnergyModel::internal_set_interior_2_2(rapidjson::Document &d) {
     }
 }
 
-void NupackEnergyModel::internal_set_dangle_5_energies(FILE *fp, char *buffer) {
-	char *cur_bufspot;
-	while (buffer[0] == '>')
-		fgets(buffer, 2048, fp);
-
-	int loop, loop2;
-	for (loop = 0; loop < PAIRS_NUPACK; loop++)
-		for (loop2 = 0; loop2 < BASES; loop2++)
-			multiloop_dG.dangle_5[loop][loop2] = 0.0;
-
-	cur_bufspot = buffer;
-	for (loop = 0; loop < PAIRS_NUPACK; loop++)
-		cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &multiloop_dG.dangle_5[loop][1], BASES - 1);
-}
-
-void NupackEnergyModel::internal_set_dangle_5_enthalpies(FILE *fp, char *buffer) {
-	char *cur_bufspot;
-	while (buffer[0] == '>')
-		fgets(buffer, 2048, fp);
-
-	int loop, loop2;
-	for (loop = 0; loop < PAIRS_NUPACK; loop++)
-		for (loop2 = 0; loop2 < BASES; loop2++)
-			multiloop_dH.dangle_5[loop][loop2] = 0;
-
-	cur_bufspot = buffer;
-	for (loop = 0; loop < PAIRS_NUPACK; loop++)
-		cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &multiloop_dH.dangle_5[loop][1], BASES - 1);
-}
-
 void NupackEnergyModel::internal_set_dangle_5(rapidjson::Document &d) {
     // X2 X1 Y
     int loop, loop2;
@@ -1553,36 +856,6 @@ void NupackEnergyModel::internal_set_dangle_5(rapidjson::Document &d) {
          }
     }
 
-}
-
-void NupackEnergyModel::internal_set_dangle_3_energies(FILE *fp, char *buffer) {
-	char *cur_bufspot;
-	while (buffer[0] == '>')
-		fgets(buffer, 2048, fp);
-
-	int loop, loop2;
-	for (loop = 0; loop < PAIRS_NUPACK; loop++)
-		for (loop2 = 0; loop2 < BASES; loop2++)
-			multiloop_dG.dangle_3[loop][loop2] = 0.0;
-
-	cur_bufspot = buffer;
-	for (loop = 0; loop < PAIRS_NUPACK; loop++)
-		cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &multiloop_dG.dangle_3[loop][1], BASES - 1);
-}
-
-void NupackEnergyModel::internal_set_dangle_3_enthalpies(FILE *fp, char *buffer) {
-	char *cur_bufspot;
-	while (buffer[0] == '>')
-		fgets(buffer, 2048, fp);
-
-	int loop, loop2;
-	for (loop = 0; loop < PAIRS_NUPACK; loop++)
-		for (loop2 = 0; loop2 < BASES; loop2++)
-			multiloop_dH.dangle_3[loop][loop2] = 0;
-
-	cur_bufspot = buffer;
-	for (loop = 0; loop < PAIRS_NUPACK; loop++)
-		cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &multiloop_dH.dangle_3[loop][1], BASES - 1);
 }
 
 void NupackEnergyModel::internal_set_dangle_3(rapidjson::Document &d) {
@@ -1602,29 +875,6 @@ void NupackEnergyModel::internal_set_dangle_3(rapidjson::Document &d) {
     }
 }
 
-void NupackEnergyModel::internal_set_multiloop_parameters(FILE *fp, char *buffer) {
-	double temp[4];
-	while (buffer[0] == '>')
-		fgets(buffer, 2048, fp);
-
-	internal_read_array_data(fp, buffer, buffer, temp, 3);
-	multiloop_dG.base = temp[2];
-	multiloop_dG.closing = temp[0];
-	multiloop_dG.internal = temp[1];
-}
-
-void NupackEnergyModel::internal_set_multiloop_parameters_enthalpies(FILE *fp, char *buffer) {
-	double temp[4];
-
-	while (buffer[0] == '>')
-		fgets(buffer, 2048, fp);
-
-	internal_read_array_data(fp, buffer, buffer, temp, 3);
-	multiloop_dH.base = temp[2];
-	multiloop_dH.closing = temp[0];
-	multiloop_dH.internal = temp[1];
-}
-
 void NupackEnergyModel::internal_set_multiloop_parameters(rapidjson::Document &d) {
     multiloop_dG.base = d["dG"]["multiloop_base"].GetDouble();
     multiloop_dG.closing = d["dG"]["multiloop_init"].GetDouble();
@@ -1636,67 +886,15 @@ void NupackEnergyModel::internal_set_multiloop_parameters(rapidjson::Document &d
 
 }
 
-void NupackEnergyModel::internal_set_at_penalty(FILE *fp, char *buffer) {
-	while (buffer[0] == '>')
-		fgets(buffer, 2048, fp);
-
-	internal_read_array_data(fp, buffer, buffer, &terminal_AU, 1);
-}
-
-void NupackEnergyModel::internal_set_at_penalty_enthalpy(FILE *fp, char *buffer) {
-	while (buffer[0] == '>')
-		fgets(buffer, 2048, fp);
-
-	internal_read_array_data(fp, buffer, buffer, &terminal_AU_dH, 1);
-}
-
 void NupackEnergyModel::internal_set_at_penalty(rapidjson::Document &d) {
     // Accounts for GT wobble pairs
     terminal_AU = d["dG"]["terminal_penalty"]["AT"].GetDouble();
     terminal_AU_dH = d["dH"]["terminal_penalty"]["AT"].GetDouble();
 }
 
-void NupackEnergyModel::internal_set_bimolecular_penalty(FILE *fp, char *buffer) {
-// Vienna parameter set doesn't have this term.
-	while (buffer[0] == '>')
-		fgets(buffer, 2048, fp);
-
-	internal_read_array_data(fp, buffer, buffer, &bimolecular_penalty, 1);
-}
-
-void NupackEnergyModel::internal_set_bimolecular_penalty_dH(FILE *fp, char *buffer) {
-	while (buffer[0] == '>')
-		fgets(buffer, 2048, fp);
-
-	internal_read_array_data(fp, buffer, buffer, &bimolecular_penalty_dH, 1);
-}
 void NupackEnergyModel::internal_set_bimolecular_penalty(rapidjson::Document &d) {
     bimolecular_penalty = d["dG"]["join_penalty"].GetDouble();
     bimolecular_penalty_dH = d["dH"]["join_penalty"].GetDouble();
-}
-
-void NupackEnergyModel::internal_set_ninio_parameters(FILE *fp, char *buffer) {
-	double temp[5];
-	while (buffer[0] == '>')
-		fgets(buffer, 2048, fp);
-	internal_read_array_data(fp, buffer, buffer, temp, 5);
-	internal_dG.maximum_NINIO = temp[4];
-	internal_dG.ninio_correction[0] = temp[0];
-	internal_dG.ninio_correction[1] = temp[1];
-	internal_dG.ninio_correction[2] = temp[2];
-	internal_dG.ninio_correction[3] = temp[3];
-}
-
-void NupackEnergyModel::internal_set_ninio_parameters_enthalpy(FILE *fp, char *buffer) {
-	double temp[5];
-	while (buffer[0] == '>')
-		fgets(buffer, 2048, fp);
-	internal_read_array_data(fp, buffer, buffer, temp, 5);
-	internal_dH.maximum_NINIO = temp[4];
-	internal_dH.ninio_correction[0] = temp[0];
-	internal_dH.ninio_correction[1] = temp[1];
-	internal_dH.ninio_correction[2] = temp[2];
-	internal_dH.ninio_correction[3] = temp[3];
 }
 
 void NupackEnergyModel::internal_set_ninio_parameters(rapidjson::Document &d) {
@@ -1706,35 +904,6 @@ void NupackEnergyModel::internal_set_ninio_parameters(rapidjson::Document &d) {
     }
     internal_dG.maximum_NINIO = d["dG"]["asymmetry_ninio"].GetArray()[4].GetDouble();
     internal_dH.maximum_NINIO = d["dH"]["asymmetry_ninio"].GetArray()[4].GetDouble();
-}
-
-void NupackEnergyModel::internal_set_hairpin_tetraloop_parameters(FILE *fp, char *buffer, hairpin_energies& hairpin) {
-	int buf_index = 0;
-	int lookup_index = 0;
-
-	fgets(buffer, 2048, fp);
-
-// NOTE:: 4096 = (NUM_BASES-1)^6
-// Initialize the tetraloop parameters to 0.
-	for (int loop = 0; loop < 4096; loop++) {
-		hairpin.tetraloop[loop] = 0.0;
-	}
-
-	while (strlen(buffer) > 7 && buffer[0] != '>') {
-		buf_index = 0;
-		while (std::isspace(buffer[buf_index]))
-			buf_index++;
-
-		lookup_index = ((baseLookup(buffer[buf_index + 0]) - 1) << 10) + ((baseLookup(buffer[buf_index + 1]) - 1) << 8)
-				+ ((baseLookup(buffer[buf_index + 2]) - 1) << 6) + ((baseLookup(buffer[buf_index + 3]) - 1) << 4)
-				+ ((baseLookup(buffer[buf_index + 4]) - 1) << 2) + (baseLookup(buffer[buf_index + 5]) - 1);
-		hairpin.tetraloop[lookup_index] = atof(&buffer[buf_index + 6]) / 100.0;
-
-		fgets(buffer, 2048, fp);
-	}
-#ifdef DEBUG
-	fprintf(stderr,"Tetraloop Paramaters (MFOLD): %d read.\n",tetra_index);
-#endif
 }
 
 void NupackEnergyModel::internal_set_hairpin_tetraloop_parameters(rapidjson::Document &d) {
@@ -1759,31 +928,6 @@ void NupackEnergyModel::internal_set_hairpin_tetraloop_parameters(rapidjson::Doc
     }
 }
 
-void NupackEnergyModel::internal_set_hairpin_triloop_parameters(FILE *fp, char *buffer, hairpin_energies& hairpin) {
-	int buf_index = 0;
-	int lookup_index = 0;
-	fgets(buffer, 2048, fp);
-
-// NOTE:: 1024 = (NUM_BASES-1)^5
-// Initialize the triloop parameters to 0.
-	for (int loop = 0; loop < 1024; loop++) {
-		hairpin.triloop[loop] = 0.0;
-	}
-	while (strlen(buffer) > 6 && buffer[0] != '>') {
-		buf_index = 0;
-		while (std::isspace(buffer[buf_index]))
-			buf_index++;
-		lookup_index = ((baseLookup(buffer[buf_index + 0]) - 1) << 8) + ((baseLookup(buffer[buf_index + 1]) - 1) << 6)
-				+ ((baseLookup(buffer[buf_index + 2]) - 1) << 4) + ((baseLookup(buffer[buf_index + 3]) - 1) << 2) + (baseLookup(buffer[buf_index + 4]) - 1);
-		hairpin.triloop[lookup_index] = atof(&buffer[buf_index + 5]) / 100.0;
-
-		fgets(buffer, 2048, fp);
-	}
-#ifdef DEBUG
-	fprintf(stderr,"Triloop Paramaters (MFOLD): %d read.\n",tri_index);
-#endif
-}
-
 void NupackEnergyModel::internal_set_hairpin_triloop_parameters(rapidjson::Document &d) {
     // triloop
     for (int loop = 0; loop < 1024; loop++) {
@@ -1801,50 +945,6 @@ void NupackEnergyModel::internal_set_hairpin_triloop_parameters(rapidjson::Docum
         lookup_index = ((baseLookup(name[0]) - 1) << 8) + ((baseLookup(name[1]) - 1) << 6) + ((baseLookup(name[2]) - 1) << 4) + ((baseLookup(name[3]) - 1) << 2) + (baseLookup(name[4]) - 1);
         hairpin_dH.triloop[lookup_index] = itr->value.GetDouble();
     }
-}
-
-void NupackEnergyModel::internal_set_hairpin_mismatch_energies(FILE *fp, char *buffer) {
-	int loop, loop2, loop3;
-	char *cur_bufspot;
-
-	double temp[PAIRS_NUPACK];
-	cur_bufspot = buffer;
-	while (buffer[0] == '>')
-		fgets(buffer, 2048, fp);
-	for (loop = 0; loop < PAIRS_NUPACK; loop++)
-		for (loop2 = 0; loop2 < BASES; loop2++)
-			for (loop3 = 0; loop3 < BASES; loop3++)
-				hairpin_dG.mismatch[loop][loop2][loop3] = 0;
-
-	for (loop = 0; loop < (BASES - 1) * (BASES - 1); loop++) {
-		cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &temp[0], PAIRS_NUPACK);
-		loop3 = (loop - (loop % (BASES - 1))) / (BASES - 1);
-		for (loop2 = 0; loop2 < PAIRS_NUPACK; loop2++)
-			hairpin_dG.mismatch[loop2][loop3 + 1][(loop % (BASES - 1)) + 1] = temp[loop2];
-
-	}
-}
-
-void NupackEnergyModel::internal_set_hairpin_mismatch_enthalpies(FILE *fp, char *buffer) {
-	int loop, loop2, loop3;
-	char *cur_bufspot;
-
-	double temp[PAIRS_NUPACK];
-	cur_bufspot = buffer;
-	while (buffer[0] == '>')
-		fgets(buffer, 2048, fp);
-	for (loop = 0; loop < PAIRS_NUPACK; loop++)
-		for (loop2 = 0; loop2 < BASES; loop2++)
-			for (loop3 = 0; loop3 < BASES; loop3++)
-				hairpin_dH.mismatch[loop][loop2][loop3] = 0;
-
-	for (loop = 0; loop < (BASES - 1) * (BASES - 1); loop++) {
-		cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &temp[0], PAIRS_NUPACK);
-		loop3 = (loop - (loop % (BASES - 1))) / (BASES - 1);
-		for (loop2 = 0; loop2 < PAIRS_NUPACK; loop2++)
-			hairpin_dH.mismatch[loop2][loop3 + 1][(loop % (BASES - 1)) + 1] = temp[loop2];
-
-	}
 }
 
 void NupackEnergyModel::internal_set_hairpin_mismatch(rapidjson::Document &d) {
@@ -1869,25 +969,6 @@ void NupackEnergyModel::internal_set_hairpin_mismatch(rapidjson::Document &d) {
     }
 }
 
-void NupackEnergyModel::internal_set_interior_loop_mismatch_energies(FILE *fp, char *buffer, internal_energies& internal) {
-	int loop, loop2, loop3;
-	char *cur_bufspot;
-
-	while (buffer[0] == '>')
-		fgets(buffer, 2048, fp);
-	cur_bufspot = buffer;
-	for (loop = 0; loop < BASES; loop++)
-		for (loop2 = 0; loop2 < BASES; loop2++)
-			for (loop3 = 0; loop3 < PAIRS_NUPACK; loop3++)
-				internal.mismatch[loop][loop2][loop3] = 0;
-
-	for (loop = 1; loop < BASES; loop++)
-		for (loop2 = 1; loop2 < BASES; loop2++) {
-			cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &internal.mismatch[loop][loop2][0], PAIRS_NUPACK);
-		}
-
-}
-
 void NupackEnergyModel::internal_set_interior_loop_mismatch(rapidjson::Document &d) {
     // interior mismatch again maybe rework this
     int loop, loop2, loop3;
@@ -1906,63 +987,6 @@ void NupackEnergyModel::internal_set_interior_loop_mismatch(rapidjson::Document 
         int j = ((baseLookup(name[2]) - 1) * 2) + (baseLookup(name[1]) - 1) - 3; // col
         internal_dH.mismatch[baseLookup(name[3])][baseLookup(name[0])][j] = itr->value.GetDouble();
     }
-}
-
-char *NupackEnergyModel::internal_read_array_data(FILE *fp, char *buffer, char *start_loc, double *read_loc, int size) {
-	int loop, loop2;
-	char *cur_bufspot, *temp_char;
-	double temp_double;
-
-	cur_bufspot = start_loc;
-	if (cur_bufspot[0] == '>') {
-		fgets(buffer, 2048, fp);
-		cur_bufspot = buffer;
-	}
-	for (loop = 0; loop < size; loop++) {
-		temp_double = strtod(cur_bufspot, &temp_char) / 100.0;
-		if (cur_bufspot == temp_char) // we didn't read any value
-				{
-			if (strstr(cur_bufspot, "/*") != NULL) {
-				cur_bufspot = strstr(cur_bufspot, "*/") + 2;
-				loop--;
-			}
-			// check to see if the value is INF
-			else if ((temp_char = strstr(cur_bufspot, "INF")) != NULL) {
-				// and if it is, set it correctly
-				read_loc[loop] = nupackInfinte;
-				cur_bufspot = temp_char + 3;
-			} else if ((temp_char = strstr(cur_bufspot, "x")) != NULL) {
-				if (loop == 0) { // we have an error. ERROR
-					cout << " we have an error. ERROR" << endl;
-					abort();
-				} else
-					read_loc[loop] = read_loc[loop - 1] + 0.01 * (double) rint(log_loop_penalty * log(((double) loop) / ((double) (loop - 1))));
-				cur_bufspot = temp_char + 1;
-			} else // we need to check for leading characters
-			{
-				for (loop2 = 0; loop2 < strlen(cur_bufspot); loop2++)
-					if (isdigit(cur_bufspot[loop2])) {
-						break;
-					}
-
-				if (loop2 != strlen(cur_bufspot))
-					cur_bufspot = cur_bufspot + loop2 - 1;
-				else {
-					// otherwise get more data from the stream and reset counters so we reread to fill the same value.
-					fgets(buffer, 2048, fp);
-					cur_bufspot = buffer;
-				}
-				loop--;
-			}
-		} else {
-			// we got a value to fill our current spot, so increment
-			cur_bufspot = temp_char;
-			// and fill the value into our array
-			read_loc[loop] = temp_double;
-		}
-	}
-
-	return cur_bufspot;
 }
 
 void NupackEnergyModel::setupRates() {
