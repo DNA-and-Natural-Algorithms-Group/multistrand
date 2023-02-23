@@ -600,9 +600,8 @@ void NupackEnergyModel::processOptions() {
 			file_dH = "dna1998.dH";
 
 		} else {
-
 			// FD: updating this to the new NUPACK parameter filenames
-			file_dG = "rna1999.dG"; 	// "RNA_mfold2.3.dG";
+			file_dG = "rna1995.dG"; 	// "RNA_mfold2.3.dG";
 			file_dH = "rna1995.dH";	// "RNA_mfold2.3.dH";
 
 		}
@@ -615,15 +614,11 @@ void NupackEnergyModel::processOptions() {
 	}
 
 	fgets(in_buffer, 2048, fp);
-	while (!feof(fp)) {
-		if (in_buffer[0] == '>') // data area or comment (mfold)
-				{
-
-            // Begin json tests
-		    using namespace rapidjson;
+	/*
+	using namespace rapidjson;
                 char *nupackhome = getenv("NUPACKHOME");
                 std::string paramPath = "/source/parameters/";
-                std::string file = "rna99.json";
+                std::string file = "rna95-nupack3.json";
                 FILE *fpjson = openFiles(nupackhome, paramPath, file, 0);
                 char buffer[65536];
                 FileReadStream is(fpjson, buffer, sizeof(buffer));
@@ -790,9 +785,13 @@ void NupackEnergyModel::processOptions() {
 
                 // Bimolecular / join penalty
                 bimolecular_penalty = d["dG"]["join_penalty"].GetDouble();
-
+                */
 
                 // End json testing
+
+	while (!feof(fp)) {
+		if (in_buffer[0] == '>') // data area or comment (mfold)
+				{
 			if (strncmp(in_buffer, ">Stacking 5' X1 Y1 3'", 21) == 0) {
 #ifdef DEBUG
 				printf("Loading Stack Energies (MFOLD).\n");
@@ -1062,6 +1061,37 @@ void NupackEnergyModel::processOptions() {
 
 	fclose(fp2);
 
+
+
+	char *nupackhome = getenv("NUPACKHOME");
+    std::string paramPath = "/source/parameters/";
+    std::string file = "rna95-nupack3.json";
+    FILE *fpjson = openFiles(nupackhome, paramPath, file, 0);
+    char buffer[65536];
+    rapidjson::FileReadStream is(fpjson, buffer, sizeof(buffer));
+
+    rapidjson::Document d;
+    d.ParseStream(is);
+
+    internal_set_stack(d);
+	internal_set_hairpin(d);
+	internal_set_bulge(d);
+	internal_set_interior_loop(d);
+	internal_set_interior_1_1(d);
+	internal_set_interior_2_1(d);
+	internal_set_interior_2_2(d);
+	internal_set_dangle_5(d);
+	internal_set_dangle_3(d);
+	internal_set_multiloop_parameters(d);
+	internal_set_at_penalty(d);
+	internal_set_bimolecular_penalty(d);
+	internal_set_ninio_parameters(d);
+	internal_set_hairpin_tetraloop_parameters(d);
+	internal_set_hairpin_triloop_parameters(d);
+	internal_set_hairpin_mismatch(d);
+	internal_set_interior_loop_mismatch(d);
+	fclose(fpjson);
+
 // Temperature change section.
 
 	_RT = kBoltzmann * current_temp;
@@ -1197,7 +1227,7 @@ void NupackEnergyModel::internal_set_stack_enthalpies(FILE *fp, char *buffer) {
 
 }
 
-void NupackEnergyModel::internal_set_stack(rapidjson::Document d){
+void NupackEnergyModel::internal_set_stack(rapidjson::Document &d){
     for(int i = 0; i < PAIRS_NUPACK; i++){
         for(int j = 0; j < PAIRS_NUPACK; j++){
             char name[] = {basepairString[i + 1][0], basepairString[j + 1][0], basepairString[j + 1][2], basepairString[i + 1][2], '\0'};
@@ -1218,7 +1248,7 @@ void NupackEnergyModel::internal_set_hairpin_enthalpies(FILE *fp, char *buffer) 
 	internal_read_array_data(fp, buffer, buffer, &hairpin_dH.basic[1], 30);
 }
 
-void NupackEnergyModel::internal_set_hairpin(rapidjson::Document d) {
+void NupackEnergyModel::internal_set_hairpin(rapidjson::Document &d) {
     for(int i = 0; i < 30; i++){
         hairpin_dG.basic[i + 1] = d["dG"]["hairpin_size"].GetArray()[i].GetDouble();
         hairpin_dH.basic[i + 1] = d["dH"]["hairpin_size"].GetArray()[i].GetDouble();
@@ -1236,7 +1266,7 @@ void NupackEnergyModel::internal_set_bulge_enthalpies(FILE *fp, char *buffer) {
 	internal_read_array_data(fp, buffer, buffer, &bulge_37_dH[1], 30);
 }
 
-void NupackEnergyModel::internal_set_bulge(rapidjson::Document d) {
+void NupackEnergyModel::internal_set_bulge(rapidjson::Document &d) {
 	bulge_37_dG[0] = 0;
 	bulge_37_dH[0] = 0;
     for(int i = 0; i < 30; i++){
@@ -1255,7 +1285,7 @@ void NupackEnergyModel::internal_set_interior_loop_enthalpies(FILE *fp, char *bu
 	internal_read_array_data(fp, buffer, buffer, &internal_dH.basic[1], 30);
 }
 
-void NupackEnergyModel::internal_set_interior_loop(rapidjson::Document d) {
+void NupackEnergyModel::internal_set_interior_loop(rapidjson::Document &d) {
     internal_dG.basic[0] = 0;
     internal_dH.basic[0] = 0;
     for(int i = 0; i < 30; i++){
@@ -1321,7 +1351,7 @@ void NupackEnergyModel::internal_set_interior_1_1_enthalpies(FILE *fp, char *buf
 
 }
 
-void NupackEnergyModel::internal_set_interior_1_1(rapidjson::Document d) {
+void NupackEnergyModel::internal_set_interior_1_1(rapidjson::Document &d) {
     // CG..AU CXAUYG order
     int loop, loop2, loop3, loop4;
     for (loop = 0; loop < PAIRS_NUPACK; loop++){
@@ -1390,7 +1420,7 @@ void NupackEnergyModel::internal_set_interior_2_1_enthalpies(FILE *fp, char *buf
 	}
 }
 
-void NupackEnergyModel::internal_set_interior_2_1(rapidjson::Document d) {
+void NupackEnergyModel::internal_set_interior_2_1(rapidjson::Document &d) {
     int loop, loop2, loop3, loop4, loop5;
     for (loop = 0; loop < PAIRS_NUPACK; loop++) {
         for (loop2 = 0; loop2 < PAIRS_NUPACK; loop2++) {
@@ -1458,7 +1488,7 @@ void NupackEnergyModel::internal_set_interior_2_2_enthalpies(FILE *fp, char *buf
 	}
 }
 
-void NupackEnergyModel::internal_set_interior_2_2(rapidjson::Document d) {
+void NupackEnergyModel::internal_set_interior_2_2(rapidjson::Document &d) {
     int loop, loop2, loop3, loop4, loop5, loop6;
     for (loop = 0; loop < PAIRS_NUPACK; loop++) {
         for (loop2 = 0; loop2 < PAIRS_NUPACK; loop2++) {
@@ -1507,7 +1537,7 @@ void NupackEnergyModel::internal_set_dangle_5_enthalpies(FILE *fp, char *buffer)
 		cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &multiloop_dH.dangle_5[loop][1], BASES - 1);
 }
 
-void NupackEnergyModel::internal_set_dangle_5(rapidjson::Document d) {
+void NupackEnergyModel::internal_set_dangle_5(rapidjson::Document &d) {
     // X2 X1 Y
     int loop, loop2;
     for (loop = 0; loop < PAIRS_NUPACK; loop++)
@@ -1555,7 +1585,7 @@ void NupackEnergyModel::internal_set_dangle_3_enthalpies(FILE *fp, char *buffer)
 		cur_bufspot = internal_read_array_data(fp, buffer, cur_bufspot, &multiloop_dH.dangle_3[loop][1], BASES - 1);
 }
 
-void NupackEnergyModel::internal_set_dangle_3(rapidjson::Document d) {
+void NupackEnergyModel::internal_set_dangle_3(rapidjson::Document &d) {
     // This reads as Y X2 X1
     int loop, loop2;
     for (loop = 0; loop < PAIRS_NUPACK; loop++)
@@ -1595,7 +1625,7 @@ void NupackEnergyModel::internal_set_multiloop_parameters_enthalpies(FILE *fp, c
 	multiloop_dH.internal = temp[1];
 }
 
-void NupackEnergyModel::internal_set_multiloop_parameters(rapidjson::Document d) {
+void NupackEnergyModel::internal_set_multiloop_parameters(rapidjson::Document &d) {
     multiloop_dG.base = d["dG"]["multiloop_base"].GetDouble();
     multiloop_dG.closing = d["dG"]["multiloop_init"].GetDouble();
     multiloop_dG.internal = d["dG"]["multiloop_pair"].GetDouble();
@@ -1620,7 +1650,7 @@ void NupackEnergyModel::internal_set_at_penalty_enthalpy(FILE *fp, char *buffer)
 	internal_read_array_data(fp, buffer, buffer, &terminal_AU_dH, 1);
 }
 
-void NupackEnergyModel::internal_set_at_penalty(rapidjson::Document d) {
+void NupackEnergyModel::internal_set_at_penalty(rapidjson::Document &d) {
     // Accounts for GT wobble pairs
     terminal_AU = d["dG"]["terminal_penalty"]["AT"].GetDouble();
     terminal_AU_dH = d["dH"]["terminal_penalty"]["AT"].GetDouble();
@@ -1640,7 +1670,7 @@ void NupackEnergyModel::internal_set_bimolecular_penalty_dH(FILE *fp, char *buff
 
 	internal_read_array_data(fp, buffer, buffer, &bimolecular_penalty_dH, 1);
 }
-void NupackEnergyModel::internal_set_bimolecular_penalty(rapidjson::Document d) {
+void NupackEnergyModel::internal_set_bimolecular_penalty(rapidjson::Document &d) {
     bimolecular_penalty = d["dG"]["join_penalty"].GetDouble();
     bimolecular_penalty_dH = d["dH"]["join_penalty"].GetDouble();
 }
@@ -1669,7 +1699,7 @@ void NupackEnergyModel::internal_set_ninio_parameters_enthalpy(FILE *fp, char *b
 	internal_dH.ninio_correction[3] = temp[3];
 }
 
-void NupackEnergyModel::internal_set_ninio_parameters(rapidjson::Document d) {
+void NupackEnergyModel::internal_set_ninio_parameters(rapidjson::Document &d) {
     for(int i = 0; i < 4; i++){
         internal_dG.ninio_correction[i] = d["dG"]["asymmetry_ninio"].GetArray()[i].GetDouble();
         internal_dH.ninio_correction[i] = d["dH"]["asymmetry_ninio"].GetArray()[i].GetDouble();
@@ -1707,7 +1737,7 @@ void NupackEnergyModel::internal_set_hairpin_tetraloop_parameters(FILE *fp, char
 #endif
 }
 
-void NupackEnergyModel::internal_set_hairpin_tetraloop_parameters(rapidjson::Document d) {
+void NupackEnergyModel::internal_set_hairpin_tetraloop_parameters(rapidjson::Document &d) {
     for (int loop = 0; loop < 4096; loop++) {
         hairpin_dG.tetraloop[loop] = 0.0;
         hairpin_dH.tetraloop[loop] = 0.0;
@@ -1754,7 +1784,7 @@ void NupackEnergyModel::internal_set_hairpin_triloop_parameters(FILE *fp, char *
 #endif
 }
 
-void NupackEnergyModel::internal_set_hairpin_triloop_parameters(rapidjson::Document d) {
+void NupackEnergyModel::internal_set_hairpin_triloop_parameters(rapidjson::Document &d) {
     // triloop
     for (int loop = 0; loop < 1024; loop++) {
         hairpin_dG.triloop[loop] = 0.0;
@@ -1817,7 +1847,7 @@ void NupackEnergyModel::internal_set_hairpin_mismatch_enthalpies(FILE *fp, char 
 	}
 }
 
-void NupackEnergyModel::internal_set_hairpin_mismatch(rapidjson::Document d) {
+void NupackEnergyModel::internal_set_hairpin_mismatch(rapidjson::Document &d) {
     // hairpin mismatch possibly rework this
     //int j = ((baseLookup(name[2]) - 1) * 2) + (baseLookup(name[1]) - 1) - 3; // col
     // bottom right, upper right, upper left, bottom left
@@ -1858,7 +1888,7 @@ void NupackEnergyModel::internal_set_interior_loop_mismatch_energies(FILE *fp, c
 
 }
 
-void NupackEnergyModel::internal_set_interior_loop_mismatch(rapidjson::Document d) {
+void NupackEnergyModel::internal_set_interior_loop_mismatch(rapidjson::Document &d) {
     // interior mismatch again maybe rework this
     int loop, loop2, loop3;
     for (loop = 0; loop < BASES; loop++)

@@ -307,23 +307,23 @@ private:
 	void internal_set_dangle_5_enthalpies(FILE *fp, char *buffer);
 	void internal_set_dangle_3_enthalpies(FILE *fp, char *buffer);
 
-	void internal_set_stack(rapidjson::Document d);
-	void internal_set_hairpin(rapidjson::Document d);
-	void internal_set_bulge(rapidjson::Document d);
-	void internal_set_interior_loop(rapidjson::Document d);
-	void internal_set_interior_1_1(rapidjson::Document d);
-	void internal_set_interior_2_1(rapidjson::Document d);
-	void internal_set_interior_2_2(rapidjson::Document d);
-	void internal_set_dangle_5(rapidjson::Document d);
-	void internal_set_dangle_3(rapidjson::Document d);
-	void internal_set_multiloop_parameters(rapidjson::Document d);
-	void internal_set_at_penalty(rapidjson::Document d);
-	void internal_set_bimolecular_penalty(rapidjson::Document d);
-	void internal_set_ninio_parameters(rapidjson::Document d);
-	void internal_set_hairpin_tetraloop_parameters(rapidjson::Document d);
-	void internal_set_hairpin_triloop_parameters(rapidjson::Document d);
-	void internal_set_hairpin_mismatch(rapidjson::Document d);
-	void internal_set_interior_loop_mismatch(rapidjson::Document d);
+	void internal_set_stack(rapidjson::Document &d);
+	void internal_set_hairpin(rapidjson::Document &d);
+	void internal_set_bulge(rapidjson::Document &d);
+	void internal_set_interior_loop(rapidjson::Document &d);
+	void internal_set_interior_1_1(rapidjson::Document &d);
+	void internal_set_interior_2_1(rapidjson::Document &d);
+	void internal_set_interior_2_2(rapidjson::Document &d);
+	void internal_set_dangle_5(rapidjson::Document &d);
+	void internal_set_dangle_3(rapidjson::Document &d);
+	void internal_set_multiloop_parameters(rapidjson::Document &d);
+	void internal_set_at_penalty(rapidjson::Document &d);
+	void internal_set_bimolecular_penalty(rapidjson::Document &d);
+	void internal_set_ninio_parameters(rapidjson::Document &d);
+	void internal_set_hairpin_tetraloop_parameters(rapidjson::Document &d);
+	void internal_set_hairpin_triloop_parameters(rapidjson::Document &d);
+	void internal_set_hairpin_mismatch(rapidjson::Document &d);
+	void internal_set_interior_loop_mismatch(rapidjson::Document &d);
 
 
 
