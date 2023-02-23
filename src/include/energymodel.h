@@ -292,13 +292,6 @@ private:
 	void internal_set_hairpin_mismatch(rapidjson::Document &d);
 	void internal_set_interior_loop_mismatch(rapidjson::Document &d);
 
-
-
-
-
-
-
-
 	double setWaterDensity(double temp);
 };
 

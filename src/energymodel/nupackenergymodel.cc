@@ -744,11 +744,12 @@ void NupackEnergyModel::processOptions() {
 
  ------------------------------------------------------------------------ */
 void NupackEnergyModel::internal_set_stack(rapidjson::Document &d){
-    for(int i = 0; i < PAIRS_NUPACK; i++){
-        for(int j = 0; j < PAIRS_NUPACK; j++){
-            char name[] = {basepairString[i + 1][0], basepairString[j + 1][0], basepairString[j + 1][2], basepairString[i + 1][2], '\0'};
-            stack_37_dG[i][j] = d["dG"]["coaxial_stack"][name].GetDouble();
-            stack_37_dH[i][j] = d["dH"]["coaxial_stack"][name].GetDouble();
+    int loop, loop2;
+    for(loop = 0; loop < PAIRS_NUPACK; loop++){
+        for(loop2 = 0; loop2 < PAIRS_NUPACK; loop2++){
+            char name[] = {basepairString[loop + 1][0], basepairString[loop2 + 1][0], basepairString[loop2 + 1][2], basepairString[loop + 1][2], '\0'};
+            stack_37_dG[loop][loop2] = d["dG"]["stack"][name].GetDouble();
+            stack_37_dH[loop][loop2] = d["dH"]["stack"][name].GetDouble();
         }
     }
 }
@@ -869,8 +870,13 @@ void NupackEnergyModel::internal_set_dangle_3(rapidjson::Document &d) {
     for (loop = 0; loop < PAIRS_NUPACK; loop++){
          for (loop2 = 1; loop2 < BASES; loop2++){
             char name[] = {baseTypeString[loop2][0], basepairString[loop + 1][2], basepairString[loop + 1][0], '\0'};
-            multiloop_dG.dangle_3[loop][loop2] = d["dG"]["dangle_3"][name].GetDouble();
-            multiloop_dH.dangle_3[loop][loop2] = d["dH"]["dangle_3"][name].GetDouble();
+            if(!d["dG"]["dangle_3"].HasMember(name)){
+                multiloop_dG.dangle_3[loop][loop2] = 0.0;
+                multiloop_dH.dangle_3[loop][loop2] = 0.0;
+            } else {
+                multiloop_dG.dangle_3[loop][loop2] = d["dG"]["dangle_3"][name].GetDouble();
+                multiloop_dH.dangle_3[loop][loop2] = d["dH"]["dangle_3"][name].GetDouble();
+            }
          }
     }
 }
