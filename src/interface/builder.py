@@ -59,34 +59,25 @@ def hybridizationString(seq):
     dotparen0 = [seq, seqComplement(seq)]
 
     for bps in range(1, N + 1):
-
         for offset in range(N):
-
             dotparen1 = list("."*N + "+" + "."*N)
-
             if (bps + offset < (N + 1)) and bps < np.ceil(cutoff * N):
                 #             if (bps + offset < (N + 1)):
-
                 for i in range(bps):
-
                     dotparen1[offset + i] = "("
                     dotparen1[ 2 * N - offset - i ] = ")"
 
                 dotparen1 = "".join(dotparen1)
                 complex = makeComplex(dotparen0, dotparen1, ids)
-
                 output.append([complex])
 
     """ We always require the final state to be the success state"""
-    
     complex0 = makeComplex(dotparen0, "("*N + "+" + ")"*N, ids)
     output.append([complex0])
-
     return output
 
 
 def dissociationString(seq):
-
     ''' Exactly like the association, but swap the initial and final states '''
     
     myList = hybridizationString(seq)
@@ -102,30 +93,20 @@ def dissociationString(seq):
     
 ''' returns a list of strings pairs that represent the hybridization steps 
     for toeholds / domains during pathway elaboration method    '''
-
-    
 def weave(M):
-    
     output = []
-
     for bps in range(1, M + 1):
-
         for offset in range(M):
-
             leftStr = list("."*M)
             rightStr = list("."*M)
-
             if (bps + offset < (M + 1)):
-    
                 for i in range(bps):
-    
                     leftStr[offset + i] = "("
                     rightStr[ M - offset - i - 1 ] = ")"
     
                 leftStr = "".join(leftStr)
                 rightStr = "".join(rightStr)
                 output.append([leftStr, rightStr])
-
     return output
 
 
@@ -200,9 +181,8 @@ def threewaybmString(lefttoe, displace, righttoe):
         
     ''' Do not forget to set the final state.
         This is just the displaced strand floating freely.
-        '''
+    '''
     output.append([makeComplex([incumbentSq], "."*N, [incumbentID])])
-    
     return output
 
 
@@ -211,7 +191,6 @@ class ConvergeCrit(object):
     period = 4  # average out over past X increases.
 
     def __init__(self):
-        
         self.maximumIterations = 1000
         self.minimumStateIncrement = 4
         
@@ -222,7 +201,6 @@ class ConvergeCrit(object):
         self.array = [-99.0] * self.period
 
     def converged(self, rateIn=None, statespace_size=None):  # also saves the rateIn
-        
         if self.currIteration > self.maximumIterations:
             return True
 
@@ -238,16 +216,13 @@ class ConvergeCrit(object):
             return (conv1 and conv2)
 
         else:
-            
             if statespace_size - self.currStates < self.minimumStateIncrement:
                 return True
                         
             self.currStates = statespace_size;
-            
             return statespace_size >= self.precision
 
     def __str__(self):
-
         return  str(self.array)
 
 
@@ -281,7 +256,6 @@ class Energy(object):
     dS = 0.0;
 
     def __init__(self, dG, dH, temp, concentration, n_complexes, n_strands):
-
         assert(200 < temp < 400)
 
         RT = self.GAS_CONSTANT * floatT(temp);
@@ -291,11 +265,9 @@ class Energy(object):
         self.dS = floatT(-(dG - dG_volume - dH) / temp)
         
     def dG(self, temp):
-
         return self.dH - floatT(temp) * self.dS
 
     def __str__(self):
-
         return "dH= " + str(self.dH) + " dS= " + str(self.dS)
 
     def __eq__(self, that):
@@ -345,7 +317,6 @@ class Builder(object):
 
     # input function returns the multistrand options object for which to build the statespace
     def __init__(self, inputFunction, arguments):
-
         # initial argument has to be the number of trials
         self.optionsFunction = inputFunction
         self.optionsArgs = copy.deepcopy(arguments)
@@ -372,18 +343,15 @@ class Builder(object):
         self.the_dir = "p_statespace/"
 
     def __str__(self):
-
         output = "states / transitions / initS / finalS / merged     \n "
         output += str(len(self.protoSpace)) 
         output += "   -    " + str(len(self.protoTransitions))
         output += "   -    " + str(len(self.protoInitialStates)) 
         output += "   -    " + str(len(self.protoFinalStates))
         output += "   -    " + str(self.mergingCounter) 
-
         return output
 
     def reset(self):
-
         self.protoSpace.clear()
         self.protoTransitions.clear()
         self.protoInitialStates.clear()
@@ -391,11 +359,8 @@ class Builder(object):
         self.protoSequences.clear()
 
     def printOverlap(self, other):
-
         N = len(self.protoSpace)
-
         overlap = 0
-
         for state in self.protoSpace:
             if state in other.protoSpace:
                 overlap += 1
@@ -403,14 +368,11 @@ class Builder(object):
         print("The overlap is " + str(100.0 * overlap / N) + " percent. ")
 
     def mergeSet(self, this, that):
-
         for key, val in that.items():
-
             if not key in this:
                 this[key] = val
 
     def mergeBuilder(self, other):
-
         self.mergeSet(self.protoSpace, other.protoSpace)
         self.mergeSet(self.protoTransitions, other.protoTransitions)
         self.mergeSet(self.protoInitialStates, other.protoInitialStates)
@@ -418,22 +380,17 @@ class Builder(object):
         self.mergeSet(self.protoSequences, other.protoSequences)
 
     ''' Merges if both source and the target exist '''
-
     def transitionMerge(self, other):
-        
         for key, value in other.protoTransitions.items():
-            
             sFrom = key[0]
             sTo = key[1]
             
             if sFrom in self.protoSpace and sTo in self.protoSpace:
-                
                 if not key in self.protoTransitions:
                     self.protoTransitions[key] = value
                     self.mergingCounter += 1
 
     def parseState(self, line, simulatedTemperature, simulatedConc):
-
         mywords = line.split()
 
         n_complexes = int(mywords[0])
@@ -444,7 +401,6 @@ class Builder(object):
         structs = []
 
         for i in range(n_complexes):
-
             ids.append(mywords[1 + i])
             sequences.append(mywords[1 + n_complexes + i])
             structs.append(mywords[1 + 2 * n_complexes + i])
@@ -452,7 +408,6 @@ class Builder(object):
 
             uniqueID2 = uniqueStateID(ids, structs)
             uniqueID = ""
-                
             uniqueID =  tuple(uniqueID2)
 
         dG = float(mywords[1 + 3 * n_complexes])
@@ -463,9 +418,7 @@ class Builder(object):
         return uniqueID, energyvals, (sequences, ids, structs)
 
     """ Runs genAndSavePathsFile until convergence is reached"""
-
     def genUntilConvergence(self, precision):
-
         crit = ConvergeCrit()
         crit.precision = precision
 
@@ -476,48 +429,37 @@ class Builder(object):
 
             if self.verbosity:
                 print("Size     = %i " % len(self.protoSpace))
-                
-    	    if precision < 1.0: 
+            if precision < 1.0:
                     builderRate = BuilderRate(self)
                     currTime = builderRate.averageTimeFromInitial()
 
         self.fattenStateSpace()
-        
         if self.verbosity:
             print("Size     = %i " % len(self.protoSpace))
 
     """ Runs genAndSavePathsFile until convergence is reached,
         given a list of initial states"""
-
     def genUntilConvergenceWithInitialState(self, precision, initialStates, printMeanTime=False):
-
         crit = ConvergeCrit()
         crit.precision = precision
 
         currTime = -1.0
-
         while not crit.converged(currTime, len(self.protoSpace)) :
-
             self.genAndSavePathsFromString(initialStates, printMeanTime=printMeanTime)
             
-    	    if precision < 1.0: 
+            if precision < 1.0:
                 builderRate = BuilderRate(self)
                 currTime = builderRate.averageTimeFromInitial()
-
             if printMeanTime:
                 print("Mean first passage time = %.2E" % currTime)
 
         self.fattenStateSpace()
-
         if self.verbosity:
             print("Size     = %i " % len(self.protoSpace))
 
     ''' A single iteration of the pathway elaboration method '''
-
     def genAndSavePathsFromString(self, pathway, printMeanTime=False):
-            
         startTime = time.time()
-
 
         """ Only the first state will count towards the set of initial states """
         ignoreInitial = False
@@ -537,9 +479,7 @@ class Builder(object):
     '''
     Generates all transitions between states in the statespaces and adds missing transitions
     '''
-        
     def fattenStateSpace(self):
-
         """ Load up the energy model with a near zero-length simulation """
         myOptions = self.optionsFunction(copy.deepcopy(self.optionsArgs))
         myOptions.simulation_mode = Literals.trajectory
@@ -556,30 +496,24 @@ class Builder(object):
         counter = 0
         
         def inspectionSim(inputs):
-
             o1 = standardOptions()
             """ Disable regenerating the energymodel """
             o1.reuse_energymodel = True 
             o1.rate_method = self.options.rate_method
             o1.start_state = inputs[0]
-            
             return o1
         
-        for key, value in self.protoSpace.items():
-
+        for key, _ in self.protoSpace.items():
             if ogVerb and ((counter % 100) == 0):
                 print("Searching for missing transitions. Progress " + str(counter) + " / " + str(len(self.protoSpace)))
 
             (seqs, ids, structs) = self.protoSequences[key]
-            
             myState = []
             
             for seq, id, struct in zip(seqs, ids, structs):
-                
                 seqs = seq.split('+')
                 ids = id.split(',')
                 myC = makeComplex(seqs, struct, ids)
-
                 myState.append(myC)
             
             ''' post: myState is the state we want to explore transitions for. '''
@@ -588,12 +522,10 @@ class Builder(object):
             myB.genAndSavePathsFile(inspecting=True)
             
             self.transitionMerge(myB)
-                        
             counter += 1
         
         Builder.verbosity = ogVerb
-            
-        
+
     """
     Computes the mean first pasasage times, 
     then selects states that are delta-close 
@@ -601,9 +533,7 @@ class Builder(object):
     Those states are then added to the set of final states. 
     This reduces the size of the matrix that is constructed.
     """
-
     def deltaPruning(self, delta=0.01, printCount=False):
-
         builderRate = BuilderRate(self)
         firstpassagetimes = builderRate.averageTime()
 
@@ -624,13 +554,9 @@ class Builder(object):
         """Now add states that are delta close to the set of final states"""
 
         for state in builderRate.statespace:
-
             if state not in self.protoFinalStates:
-
                 stateindex = builderRate.stateIndex[state]
-
                 if firstpassagetimes[stateindex] < delta * averagedMFPT:
-
                     self.protoFinalStates[state] = Literals.success
 
         if printCount:
@@ -640,9 +566,7 @@ class Builder(object):
     supplyInitialState : a Complex that serves as initial state for that simulation
     ignoreIntiialState: The initial state is not added to the set of initial states
     """
-
     def genAndSavePathsFile(self, ignoreInitialState=False, supplyInitialState=None, inspecting=False):
-
         self.startTime = time.time()
 
         space = dict()
@@ -655,7 +579,6 @@ class Builder(object):
         inputArgs = copy.deepcopy(self.optionsArgs)
 
         def runPaths(optionsF, optionsArgs, space, transitions, initStates, finalStates, sequences):
-
             myOptions = optionsF(optionsArgs)
             myOptions.activestatespace = True
             myOptions.output_interval = 1
@@ -668,7 +591,6 @@ class Builder(object):
                 myOptions.simulation_time = myOptions.simulation_time * 10.0
 
             simTime = time.time()
-
             s = SimSystem(myOptions)
                 
             ''' a specialized routine that ends after taking all transitions'''
@@ -682,36 +604,26 @@ class Builder(object):
 
             """ load the space """
             myFile = open(self.the_dir + str(myOptions.interface.current_seed) + "/protospace.txt", "r")
-
             for line in myFile:
-                
                 uniqueID, energyvals, seqs = self.parseState(line, myOptions._temperature_kelvin, myOptions.join_concentration)
                 
                 if not uniqueID in sequences:
                     sequences[uniqueID] = seqs
-
                 if not uniqueID in space:
-
                     space[uniqueID] = energyvals
-
                 elif not space[uniqueID] == energyvals:
-
                     print("My hashmap contains " + str(uniqueID) + " with Energy " + str(space[uniqueID]) + " but found: " + str(energyvals))
                     print("Line = " + line)
 
             """ load the transitions """
             myFile = open(self.the_dir + str(myOptions.interface.current_seed) + "/prototransitions.txt", "r")
-
             index = 0
             go_on = True
-
             myLines = []
-
             for line in myFile:
                 myLines.append(line)
 
             while go_on:
-
                 line1 = myLines[index];
                 line2 = myLines[index + 1];
                 line3 = myLines[index + 2];
@@ -749,20 +661,15 @@ class Builder(object):
 
             """ load the initial states """
             myFile = open(self.the_dir + str(myOptions.interface.current_seed) + "/protoinitialstates.txt", "r")
-
             myLines = []
-
             for line in myFile:
                 myLines.append(line)
-
             index = 0
             go_on = True
-
             if len(myLines) == 0:
                 print("No initial states found!")
 
             while go_on:
-
                 line1 = myLines[index];
                 line2 = myLines[index + 1];
 
@@ -773,30 +680,23 @@ class Builder(object):
                 count = int(line1.split()[0])
 
                 if not uID1 in initStates:
-
                     newEntry = InitCountFlux()
                     newEntry.count = count
                     newEntry.flux = 777777  # arrType is the flux, and is unique to the initial state
-
                     initStates[uID1] = newEntry
 
             """ load the final states """
             myFile = open(self.the_dir + str(myOptions.interface.current_seed) + "/protofinalstates.txt", "r")
-
             myLines = []
-
             for line in myFile:
                 myLines.append(line)
-
             index = 0
             go_on = True
-
             if len(myLines) == 0:
                 #                 raise ValueError("No succesful final states found -- mean first passage time would be infinite ")
                 go_on = False
 
             while go_on:
-
                 line1 = myLines[index];
                 line2 = myLines[index + 1];
                 index = index + 2
@@ -816,7 +716,6 @@ class Builder(object):
             os.remove(self.the_dir + str(myOptions.interface.current_seed) + "/protofinalstates.txt")
             os.rmdir(self.the_dir + str(myOptions.interface.current_seed)) 
 
-
         runPaths(self.optionsFunction, inputArgs, space, transitions, initStates, finalStates, sequences)
 
         # do not forget to merge the objects back
@@ -826,7 +725,6 @@ class Builder(object):
         self.mergeSet(self.protoSequences, sequences)
 
         if not ignoreInitialState:
-
             for key, val in initStates.items():
                 if not key in self.protoInitialStates:
                     self.protoInitialStates[key] = val;
@@ -854,7 +752,6 @@ class BuilderRate(object):
         self.setMatrix()  # generates the matrix for the current temperature
 
     """ Generates the state space by traversing from the final states """
-
     def findConnectedStates(self, final_states, neighborsdict):
 
         new_statespace = set()
@@ -864,28 +761,20 @@ class BuilderRate(object):
             unexplored.add(state)
 
         while unexplored:  # empty dicts evaluate to false in python
-
             new_unexplored = set()
-
             for state in unexplored:
-
                 new_statespace.add(state)
 
                 # Make sure all neighbors are explored whenever we add a state.
                 neighbors = neighborsdict[state]
-
                 for s in neighbors :
-
                     if s not in new_statespace :
-
                         new_unexplored.add(s)
-
             unexplored = new_unexplored
 
         return new_statespace
 
     """ generates a list of neighbors for each state -- each transition goes both ways """
-
     def genNeighborsTransitive(self, transitions, statespace):
 
         output = dict()  # key: state, value: a set of states that are neighboring
@@ -895,7 +784,6 @@ class BuilderRate(object):
             output[state] = list()
 
         for transition in transitions:
-
             output[transition[0]].append(transition[1])
             output[transition[1]].append(transition[0])
 
@@ -903,7 +791,6 @@ class BuilderRate(object):
 
     """ generates a list of neighbors so that for each transition only one direction is added
         This is important when we build the matrix - so that we do not doubly add transitions """
-
     def genNeighbors(self, transitions, statespace):
 
         output = dict()  # key: state, value: a set of states that are neighboring
@@ -913,10 +800,8 @@ class BuilderRate(object):
             output[state] = list()
 
         for transition in transitions:
-
             # ensure the state is connected and add only one direction of a transition
             if (transition[0] in statespace) and not (transition[0] in output[transition[1]]) :
-
                 output[transition[0]].append(transition[1])
 
         return output
@@ -957,46 +842,35 @@ class BuilderRate(object):
     Returns the transition rate from state1 to state2 
     and then also the reverse rate, from state2 to state1 
     """
-
     def halfcontext_parameter(self, localContext):
 
         if localContext == localtype.stack:
-            return 	self.build.options.lnAStack , self.build.options.EStack
-
+            return self.build.options.lnAStack , self.build.options.EStack
         elif localContext == localtype.loop :
             return self.build.options.lnALoop, self.build.options.ELoop
-
         elif localContext == localtype.end:
             return self.build.options.lnAEnd, self.build.options.EEnd
-
         elif localContext == localtype.stackloop:
             return self.build.options.lnAStackLoop, self.build.options.EStackLoop
-
         elif localContext == localtype.stackend :
             return self.build.options.lnAStackEnd, self.build.options.EStackEnd
-
         elif localContext == localtype.loopend :
             return self.build.options.lnALoopEnd, self.build.options.ELoopEnd
-
         elif localContext == localtype.stackstack:
             return self.build.options.lnAStackStack, self.build.options.EStackStack
-
-        else :
+        else:
             raise ValueError('The transition code name is unexpected ')
 
     """Use the builder options object to determine which rates to compute """
-
     def get_rate(self, state1, state2):
 
         transitionlist = self.build.protoTransitions[(state1, state2)]
-
         if self.build.options.rate_method == Literals.arrhenius:
             return self.arrhenius_rate(state1, state2, transitionlist)
-        else :
+        else:
             return self.metropolis_rate(state1, state2, transitionlist)
 
     """    Returns the transition rate from state1 to state2 and then also the reverse rate, from state2 to state1 """
-
     def metropolis_rate(self, state1, state2, transitionlist):
 
         myT = self.build.options._temperature_kelvin
@@ -1006,33 +880,22 @@ class BuilderRate(object):
         dG2 = self.build.protoSpace[state2].dG(myT)
 
         if transitionlist[0] == transitiontype.unimolecular:
-
             if dG1 > dG2 :  # state2 is more stable (negative), dG1 - dG2 is positive
-                
                 rate1 = self.build.options.unimolecular_scaling
                 rate2 = self.build.options.unimolecular_scaling * np.exp(-(dG1 - dG2) / RT)
-                
             else:  # state2 is less or equally stable (negative), dG1 - dG2 is negative
-                
                 rate1 = self.build.options.unimolecular_scaling * np.exp((dG1 - dG2) / RT)
                 rate2 = self.build.options.unimolecular_scaling 
-
             return rate1, rate2
 
         else:  # bimolecular rate
-
             collisionRate = self.build.options.join_concentration * self.build.options.bimolecular_scaling
-
             if transitionlist[0] == transitiontype.bimolecularIn:
-
                 outR = self.build.options.bimolecular_scaling * np.e ** (-(dG1 - dG2) / RT)
                 return collisionRate, outR
-
             elif transitionlist[0] == transitiontype.bimolecularOut:
-
                 outR = self.build.options.bimolecular_scaling * np.e ** ((dG1 - dG2) / RT)
                 return outR, collisionRate
-
             else:
                 raise ValueError('The transition code is unexpected ')
 
@@ -1062,38 +925,30 @@ class BuilderRate(object):
             else:
                 rate1 = np.e ** (lnA - E / RT)
                 rate2 = np.e ** (lnA - (DeltaG2 + E) / RT)
-		
-#     	    if rate1 < self.rateLimit:
-#                 rate1 = 0.0
-#     	    
-#             if rate2 < self.rateLimit:
-#                 rate2 = 0.0
+
+            # if rate1 < self.rateLimit:
+            #         rate1 = 0.0
+            #
+            # if rate2 < self.rateLimit:
+            #     rate2 = 0.0
 
         elif transitionlist[0] == transitiontype.bimolecularIn:
-
             rate1 = bimolecular_scaling * concentration * (np.e ** (lnA - E / RT))
             rate2 = bimolecular_scaling * (np.e ** (lnA - (DeltaG2 + E) / RT))
-
         elif transitionlist[0] == transitiontype.bimolecularOut:
-
             rate1 = bimolecular_scaling * (np.e ** (lnA - (DeltaG + E) / RT))
             rate2 = bimolecular_scaling * concentration * (np.e ** (lnA - E / RT))
-        else :
+        else:
             raise ValueError('Exception in transition rate calculations.')
-
         return rate1, rate2
 
     """Set the rate matrix for this transition. If the target state is a final state, only subtract the outgoing rate from the diagonal. """
-
     def addTransition(self, state, neighbor, rate, rates, iArray, jArray, stateIndex):
 
         if not state in self.final_states:
-
             # now add the negative outgoing rate on the diagonal
             rates[stateIndex[state]] += -1.0 * rate
-
             if not neighbor in self.final_states:
-
                 # set the transition
                 rates.append(rate)
                 iArray.append(stateIndex[state])
@@ -1101,7 +956,6 @@ class BuilderRate(object):
 
     """ given the statespace, the initial states and final states, and the original builder object,
     build rate matrix for the current temperature. """
-
     def setMatrix(self):
 
         # give every state an explicit index
@@ -1115,9 +969,7 @@ class BuilderRate(object):
         jArray = list()
 
         for state in self.statespace:
-
             if not state in self.final_states:
-
                 # give every state an explicit index
                 self.stateIndex[state] = N
 
@@ -1133,11 +985,8 @@ class BuilderRate(object):
 
         # first, set all transitions
         for state in self.statespace:
-
             for neighbor in self.neighbors[state]:
-
                 myRate, revRate = self.get_rate(state, neighbor)
-
                 if myRate < 0.0 or revRate < 0.0:
                     ValueError('Negative transition rate found.')
 
@@ -1170,43 +1019,31 @@ class BuilderRate(object):
     """ 
         Computes the first passage times
     """
-
     def averageTime(self, x0=None, maxiter=None):
 
         startTime = time.time()
 
         if self.solveToggle == 1:
             firstpassagetimes, info = bicg(self.rate_matrix_csr, self.b, x0=x0, maxiter=maxiter)
-
         elif self.solveToggle == 2:
             firstpassagetimes, info = bicg(self.rate_matrix_csr, self.b, M=self.rate_matrix_inverse, x0=x0, maxiter=maxiter)
-
         elif self.solveToggle == 3:
             firstpassagetimes, info = bicgstab(self.rate_matrix_csr, self.b, x0=x0, maxiter=maxiter)
-
         elif self.solveToggle == 4:
             firstpassagetimes, info = bicgstab(self.rate_matrix_csr, self.b, M=self.rate_matrix_inverse, x0=x0, maxiter=maxiter)
-
         elif self.solveToggle == 5:
             firstpassagetimes, info = gmres(self.rate_matrix_csr, self.b, x0=x0, maxiter=maxiter)
-
         elif self.solveToggle == 6:
             firstpassagetimes, info = gmres(self.rate_matrix_csr, self.b, M=self.rate_matrix_inverse, x0=x0, maxiter=maxiter)
-
         elif self.solveToggle == 7:
             firstpassagetimes, info = cg(self.rate_matrix_csr, self.b, x0=x0, maxiter=maxiter)
-
         elif self.solveToggle == 8:
             firstpassagetimes, info = cg(self.rate_matrix_csr, self.b, M=self.rate_matrix_inverse, x0=x0, maxiter=maxiter)
-
         elif self.solveToggle == 9:
             firstpassagetimes, info = lgmres(self.rate_matrix_csr, self.b, x0=x0, maxiter=maxiter)
-
         elif self.solveToggle == 10:
             firstpassagetimes, info = lgmres(self.rate_matrix_csr, self.b, M=self.rate_matrix_inverse, x0=x0, maxiter=maxiter)
-
         else:
-            
             global floatT
             floatT = np.float64
             
@@ -1215,25 +1052,19 @@ class BuilderRate(object):
             
             floatT = np.longdouble
 
-
         self.matrixTime = time.time() - startTime
-
         return firstpassagetimes
 
     def averageTimeFromInitial(self, bimolecular=False, printMeanTime=False):
 
         times = self.averageTime()
-
         if self.build.verbosity or printMeanTime:
             print("Solving matrix took %.2f s" % self.matrixTime)
-
         mfpt = self.weightedPassageTime(times=times, bimolecular=bimolecular)
-
         return mfpt
 
     """ Weights the solution vector by the frequency of the initial states 
     """
-
     def weightedPassageTime(self, times, bimolecular=False):
 
         sumTime = 0.0
@@ -1243,7 +1074,6 @@ class BuilderRate(object):
             raise ValueError("The number of initial states connected to a final state is zero.")
 
         for state in self.initial_states:
-
             stateindex = self.stateIndex[state]
             sumTime += self.initial_states[state].count * times[stateindex]
             sumStart += self.initial_states[state].count
@@ -1256,43 +1086,32 @@ class BuilderRate(object):
     def __str__(self):
 
         output = "This is a builder-rate object. Printing all states and transitions \n"
-
         for state in self.statespace:
             output += str(state) + " \n"
-
         output += "Transitions \n"
 
         # first, set all transitions
         for state in self.statespace:
-
             for neighbor in self.neighbors[state]:
-
                 myRate, revRate = self.get_rate(state, neighbor)
-
                 transitionlist = self.build.protoTransitions[(state, neighbor)]
-
                 output += "s1 = " + str(state) + "  s2 = " + str(neighbor) + " for = " + "%.2E" % myRate + " back = " + "%.2E" % revRate + "   tlist = " + str(transitionlist) + "\n"
 
         output += str(self.rate_matrix_csr.toarray())
-
         return output
 
     def numOfTransitions(self):
 
         count = 0
-
         # first, count all transitions
         for state in self.statespace:
             for neighbor in self.neighbors[state]:
-
                 transitionlist = self.build.protoTransitions[(state, neighbor)]
                 count += len(transitionlist)
-
         return count
 
     def statsInfo(self):
 
         output = str(len(self.statespace)) + "   -    " + str(self.numOfTransitions())
         output += "   -    " + str(len(self.initial_states)) + "   -    " + str(len(self.final_states)) + "   -   (builderRate Object)"
-
         return output

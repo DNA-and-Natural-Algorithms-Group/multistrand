@@ -21,7 +21,6 @@ class Domain(object):
                                           == len(sequence), but this is not strictly
                                           enforced.
         """
-        
         if len(args)==4 or (len(args)==3 and 'is_complement' in kargs):
             self.id = args[0]
             self.name = str(args[1])
@@ -59,7 +58,6 @@ class Domain(object):
         self._sequence = value
         if len(self._sequence) > 0:
             self.length = len(self._sequence)
-
 
     def gen_sequence( self, *args, **kargs ):
         """ Uses the same parameters as 'multistrand.utils.generate_sequence', but sets the length to the domain's length."""
@@ -161,4 +159,3 @@ class ComplementaryDomain( Domain):
         True
         """
         return self._domain
-    

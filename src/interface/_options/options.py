@@ -64,7 +64,6 @@ class  Literals(object):
             
             Compuational expense, low to high :           dissoc -- exact -- count -- loose     
     """
-
     exact_macrostate = 0  # 
     bound_macrostate = 1  # 
     dissoc_macrostate = 2  # 
@@ -132,7 +131,6 @@ class Options(object):
         #                                                #
         # Data Members                                   #
         # ->Members new to the python implementation     #
-        #                                                #
         #                                                #
         ##################################################
         
@@ -301,25 +299,24 @@ class Options(object):
         are added.
         """
         
-        self.lnAEnd = -0.1;
-        self.lnALoop = -0.1;
-        self.lnAStack = -0.1;
-        self.lnAStackStack = -0.1;
-        self.lnALoopEnd = -0.1;
-        self.lnAStackEnd = -0.1;
-        self.lnAStackLoop = -0.1;        
-        self.EEnd = -0.1;
-        self.ELoop = -0.1;
-        self.EStack = -0.1;
-        self.EStackStack = -0.1;
-        self.ELoopEnd = -0.1;
-        self.EStackEnd = -0.1;
-        self.EStackLoop = -0.1; 
+        self.lnAEnd = -0.1
+        self.lnALoop = -0.1
+        self.lnAStack = -0.1
+        self.lnAStackStack = -0.1
+        self.lnALoopEnd = -0.1
+        self.lnAStackEnd = -0.1
+        self.lnAStackLoop = -0.1
+        self.EEnd = -0.1
+        self.ELoop = -0.1
+        self.EStack = -0.1
+        self.EStackStack = -0.1
+        self.ELoopEnd = -0.1
+        self.EStackEnd = -0.1
+        self.EStackLoop = -0.1
          
         """ These are undocumented adjustments to the energy model """
-
-        self.dSA = -0.0;
-        self.dHA = -0.0;
+        self.dSA = -0.0
+        self.dHA = -0.0
 
         """ 
             Buffer conditions 
@@ -407,23 +404,23 @@ class Options(object):
                     
         warningmsg = "Warning! rate_scaling is set, enabling support for legacy code. Now setting rate defaults for "
                 
-        if (self.temperature == 298.15) & (self.rate_method == Literals.kawasaki) :
+        if self.temperature == 298.15 and self.rate_method == Literals.kawasaki:
             warningmsg += "Kawasaki 25 C"
             self.JSKawasaki25()
-        elif (self.temperature == 310.15) & (self.rate_method == Literals.kawasaki) :
+        elif self.temperature == 310.15 and self.rate_method == Literals.kawasaki:
             warningmsg += "Kawasaki 37 C"
             self.JSKawasaki37()
-        elif (self.temperature == 298.15) & (self.rate_method == Literals.metropolis) :
+        elif self.temperature == 298.15 and self.rate_method == Literals.metropolis:
             warningmsg += "Metropolis 25 C"
             self.JSMetropolis25()
-        elif (self.temperature == 310.15) & (self.rate_method == Literals.metropolis) :
+        elif self.temperature == 310.15 and self.rate_method == Literals.metropolis:
             warningmsg += "Metropolis 37 C"
             self.JSMetropolis37()
         else:
             warningmsg += "JS-Default"
             self.JSDefault()
             
-        print(warningmsg) 
+        print(warningmsg)
         self.rate_scaling = None       
         
     # FD, May 5th 2017
@@ -466,7 +463,6 @@ class Options(object):
         
         self.unimolecular_scaling = 7.3e8
         self.bimolecular_scaling = 1.40e6
-    
 
     def DNA23Metropolis(self):
         """ 
@@ -871,7 +867,7 @@ class Options(object):
 
         self._current_end_state.append(val)
         if self.verbosity > 1:
-            print(("{0[0]}: [{0[1]}] '{0[2]}': {0[5]} \n{0[3]}\n{0[4]}\n".format(val)))
+            print("{0[0]}: [{0[1]}] '{0[2]}': {0[5]} \n{0[3]}\n{0[4]}\n".format(val))
 
     @property
     def add_transition_info(self):
@@ -998,7 +994,7 @@ class Options(object):
         # FD: Start throwing errors if not in the right format
         # FD: This does not prevent the user to set them to ints after options 
         # FD: initialization (could use overloading via @property to prevent this).
-        for key, value in list(kargs.items()):
+        for key, value in kargs.items():
             
             if key == "simulation_time":
                 if not isinstance(value, (float)):
@@ -1012,10 +1008,10 @@ class Options(object):
                 if not isinstance(value, (float)):
                     raise Warning("Please provide unimolecular_scaling as float")
         
-        for k in list(kargs.keys()):
+        for k in kargs.keys():
             
             if k in arg_lookup_table:
-                arg_lookup_table[k](kargs[k])          
+                arg_lookup_table[k](kargs[k])
                 
             # FD: Do some additional parsing for legacy support            
             # FD: This code simply translates the string calls to the numerical constants 
@@ -1035,7 +1031,7 @@ class Options(object):
                 if isinstance(kargs[k], str):
                     self.substrate_type = self.substrateToString.index(kargs[k])
                     
-            elif (k == 'simulation_mode') & (isinstance(kargs[k], str)):
+            elif k == 'simulation_mode' and isinstance(kargs[k], str):
                     self.simulation_mode = self.simulationMode[kargs[k]]
 
             else:

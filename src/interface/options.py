@@ -12,4 +12,3 @@ from ._options.interface import Result
 
 Options.__module__ = 'multistrand.options'
 Result.__module__ = 'multistrand.options'
-

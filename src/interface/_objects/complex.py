@@ -95,11 +95,12 @@ class Complex(object):
                         error_msg += " Could not parse the dot-paren structure. Expected string composed of ()+."
                 raise ValueError(error_msg)
             else:
-                matched_list = list(zip(structure,
-                                    reduce(lambda x, y: x + [d.length for d in y.domain_list] + [1], self.strand_list, [])))
-                                    # the reduce just composes the
-                                    # domain_lists into one big ordered list
-                                    # of domains
+                matched_list = list(zip(
+                    structure,
+                    # the reduce just composes the domain_lists into one big
+                    # ordered list of domains
+                    reduce(lambda x, y: x + [d.length for d in y.domain_list] + [1],
+                           self.strand_list, [])))
                 self._fixed_structure = "".join(i[0] * i[1] for i in matched_list)
     
     def get_unique_ids(self):

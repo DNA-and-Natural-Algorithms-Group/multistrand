@@ -74,9 +74,8 @@ class Interface(object):
         self._results.append( new_result )
 
     def __str__(self):
-        res = "# of trajectories completed: {0}\n\
-        Most recent trajectory information:\n{1}".format( self.trajectory_count, str( self._results[-1] ))
-        return res
+        return (f"# of trajectories completed: {self.trajectory_count}\n"
+                f"Most recent trajectory information:\n{self._results[-1]}")
 
     @property
     def trajectory_count( self ):
@@ -137,7 +136,8 @@ class Result( object ):
         return res
 
     def __repr__( self ):
-        return "({0}, {1}, {2}, '{3}', result_type='status_line' )".format(self.seed, self.com_type, self.time, self.tag )
+        return (f"({self.seed}, {self.com_type}, {self.time}, '{self.tag}', "
+                f"result_type='status_line' )")
 
 
 class FirstStepResult( object ):
@@ -178,7 +178,8 @@ class FirstStepResult( object ):
         return res
 
     def __repr__( self ):
-        return "({0}, {1}, {2}, {4}, '{3}', result_type='firststep' )".format(self.seed, self.com_type, self.time, self.tag, self.collision_rate)
+        return (f"({self.seed}, {self.com_type}, {self.time}, {self.tag}, '{self.collision_rate}', "
+                f"result_type='firststep' )")
 
 
 class ResultList( list ):
