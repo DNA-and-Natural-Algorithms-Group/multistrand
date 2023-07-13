@@ -37,9 +37,9 @@ ATIME_OUT = 1.0
 TIME_MEASUREMENT = 0.0;
 
 OFFSET = 0;
-RANGE1 = range(1);
-RANGE2 = range(1);
-RANGE3 = range(1);
+RANGE1 = list(range(1));
+RANGE2 = list(range(1));
+RANGE3 = list(range(1));
 
 MARKER_SIZE = 40
 
@@ -58,7 +58,7 @@ def create_setup(num_traj, strand_seq):
 
 def first_step_simulation(strand_seq, num_traj, rate_method_k_or_m="Metropolis", concentration=50e-9):
 
-    print "Running first step mode simulations for %s (with Boltzmann sampling)..." % (strand_seq)
+    print("Running first step mode simulations for %s (with Boltzmann sampling)..." % (strand_seq))
     
     myMultistrand.setOptionsFactory2(create_setup, num_traj, strand_seq)
     myMultistrand.setLeakMode()
@@ -182,7 +182,7 @@ if __name__ == '__main__':
 
 
     if len(sys.argv) < 2:
-        print """Usage:
+        print("""Usage:
               python -i hybridization_scatterplot generate random <len> <num seqs> <data file name>
               python -i hybridization_scatterplot generate iso-random <len> <num seqs> <data file name>
               python -i hybridization_scatterplot generate structured <len> <max toe> <max stem> <num seqs> <data file name>
@@ -190,7 +190,7 @@ if __name__ == '__main__':
               python -i hybridization_scatterplot generate fixed-stem <len> <max toe> <stem size> <num seqs> <data file name>
               python -i hybridization_scatterplot generate iso-fixed-stem <len> <max toe> <stem size> <num seqs> <data file name>
               python -i hybridization_scatterplot plot <data file names>
-              """
+              """)
         sys.exit()
 
     if sys.argv[1] == 'generate':
@@ -205,7 +205,7 @@ if __name__ == '__main__':
             N = int(sys.argv[6])
             filename = sys.argv[7]
         else:   
-            print """Usage:
+            print("""Usage:
               python -i hybridization_scatterplot generate random <len> <num seqs> <data file name>
               python -i hybridization_scatterplot generate iso-random <len> <num seqs> <data file name>
               python -i hybridization_scatterplot generate structured <len> <max toe> <max stem> <num seqs> <data file name>
@@ -213,21 +213,21 @@ if __name__ == '__main__':
               python -i hybridization_scatterplot generate fixed-stem <len> <max toe> <stem size> <num seqs> <data file name>
               python -i hybridization_scatterplot generate iso-fixed-stem <len> <max toe> <stem size> <num seqs> <data file name>
               python -i hybridization_scatterplot plot <data file names>
-              """
+              """)
             sys.exit()
         if not set(filename) <= set('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-'):  # don't allow crazy symbols
-            print "Data file postfix names must be alphanumeric only."
+            print("Data file postfix names must be alphanumeric only.")
             sys.exit()
 
     if sys.argv[1] == 'plot':
         filenames = []
         for fn in sys.argv[2:]:
             if not set(fn) <= set('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-'):  # don't allow crazy symbols
-                print "Data file postfix names must be alphanumeric only."
+                print("Data file postfix names must be alphanumeric only.")
                 sys.exit()
             filenames.append(fn)
 
-    print
+    print()
     if sys.argv[1] == 'generate' and (sys.argv[2] in ['random', 'iso-random', 'structured-random', 'structured', 'iso-structured', 'iso-structured-random', 'fixed-stem', 'iso-fixed-stem']):   
 
         
@@ -264,7 +264,7 @@ if __name__ == '__main__':
             
             
             OFFSET = 20
-            RANGE3 = range(OFFSET)
+            RANGE3 = list(range(OFFSET))
             
         M = 0
         
@@ -274,8 +274,8 @@ if __name__ == '__main__':
         
         TOTAL_NUM_OF_SEQ = N + M + OFFSET
         
-        RANGE1 = range(OFFSET, N + OFFSET)
-        RANGE2 = range(N + OFFSET, TOTAL_NUM_OF_SEQ)  
+        RANGE1 = list(range(OFFSET, N + OFFSET))
+        RANGE2 = list(range(N + OFFSET, TOTAL_NUM_OF_SEQ))  
         
         
         
@@ -285,7 +285,7 @@ if __name__ == '__main__':
         if 'iso' in sys.argv[2]:
             Ngenerate = 80 * N  # we'll generate many sequences and choose the ones with the closest-to-average duplex energy
             Mgenerate = 80 * M
-            print "Generating %d sequences each of length %d, with similar duplex energies..." % (N, L)
+            print("Generating %d sequences each of length %d, with similar duplex energies..." % (N, L))
         else:
             Ngenerate = N
             Mgenerate = M
@@ -327,7 +327,7 @@ if __name__ == '__main__':
         
         
         for seq in candidates:
-            print("The sequence is ", seq)
+            print(("The sequence is ", seq))
 
         
         results = []
@@ -338,8 +338,8 @@ if __name__ == '__main__':
             timeOut[i] = False
             seq = candidates[i]
             
-            print "%d: Simulating %s DNA strand at 20 C:  %s with toeholds %d and %d, stem %d, ss dG = %g and %g, ds dG = %g " % \
-                    (i, sys.argv[2], seq, toeholds(seq)[0], toeholds(seq)[1], stemsize(seq), strand_dG(seq), strand_dG(WC(seq)), duplex_dG(seq))
+            print("%d: Simulating %s DNA strand at 20 C:  %s with toeholds %d and %d, stem %d, ss dG = %g and %g, ds dG = %g " % \
+                    (i, sys.argv[2], seq, toeholds(seq)[0], toeholds(seq)[1], stemsize(seq), strand_dG(seq), strand_dG(WC(seq)), duplex_dG(seq)))
 
             # Accumulate statistics from all the runs, until enough succesful simulations are collected.
             trials = 120
@@ -352,7 +352,7 @@ if __name__ == '__main__':
             
             while nForward < requiredSuccess  and not timeOut[i] :  # this is a bit wasteful, but "only" by a factor of about 1.5.  Aims for 20% error bars on k1.
 
-                print 
+                print() 
                 batchRates, nF, nR = first_step_simulation(seq, trials, concentration=CONCENTRATION) 
                 
 
@@ -361,8 +361,8 @@ if __name__ == '__main__':
                 else:
                     totalRates.merge(batchRates,deepCopy=True) 
 
-                print "Inferred rate constants (runs so far):"
-                print totalRates
+                print("Inferred rate constants (runs so far):")
+                print(totalRates)
 
                 nForward = nForward + nF
                 nReverse = nReverse + nR
@@ -376,8 +376,8 @@ if __name__ == '__main__':
                     trials *= 2
                                       
                     
-            print "Final statistics are "
-            print totalRates
+            print("Final statistics are ")
+            print(totalRates)
 
             if (nForward < requiredSuccess):
                 timeOut[i] = True
@@ -386,7 +386,7 @@ if __name__ == '__main__':
         
 
     else:
-        print "Didn't understand args."
+        print("Didn't understand args.")
         sys.exit()
         
 
@@ -429,9 +429,9 @@ if __name__ == '__main__':
     RANGE2 = [i for i in RANGE2  if not timeOut[i]]
     RANGE3 = [i for i in RANGE3  if not timeOut[i]]    
     
-    print str(RANGE1)
-    print str(RANGE2)
-    print str(RANGE3)
+    print(str(RANGE1))
+    print(str(RANGE2))
+    print(str(RANGE3))
     
     # some old data files contain only (seq,kf); newer ones contains (seq, Nf, Nr, k1, k1p, k2, k2p); but here we only need kf == k1
     results = [ ((data[0], data[3]) if len(data) == 4 else (data[0], data[1])) for data in results ]  
@@ -439,8 +439,8 @@ if __name__ == '__main__':
 
 
 
-    print
-    print "Calculating stats on database of simulated strands..."
+    print()
+    print("Calculating stats on database of simulated strands...")
     toe_adj = 2
     toes = [ min(max(max(toeholds(seq)), sum(toeholds(seq)) - toe_adj), 17) for (seq, kf) in results ]  # effective length of toeholds
     stems = [ stemsize(seq) for (seq, kf) in results ]  # length of duplex stem
@@ -467,7 +467,7 @@ if __name__ == '__main__':
 
 
     with PdfPages(SCRIPT_DIR + filename + ".pdf") as pdf:
-        print "Drawing plots, saving to '" + SCRIPT_DIR + "'" + filename + ".pdf'..." 
+        print("Drawing plots, saving to '" + SCRIPT_DIR + "'" + filename + ".pdf'...") 
 
         # Two subplots, the axes array is 1-d
         plt.figure(1)
@@ -572,12 +572,12 @@ if __name__ == '__main__':
         # Do the rates depend upon toehold lengths, for long-stemmed strands?
         plt.figure(1)
         plt.subplot(211)
-        plt.scatter(toes[long], log_kfs[long], s=[10 * s for s in stems[long]], color=toecolors, alpha=0.5, cmap=cm.jet)
+        plt.scatter(toes[int], log_kfs[int], s=[10 * s for s in stems[int]], color=toecolors, alpha=0.5, cmap=cm.jet)
         plt.title("Association and dissociation rates for long-stem strands")
         plt.ylabel("Log10 rate constant kf (/M/s) \n", fontsize='larger')
         plt.yticks(fontsize='larger', va='bottom')
         plt.subplot(212)
-        plt.scatter(toes[long], log_krs[long], s=[10 * s for s in stems[long]], color=toecolors, alpha=0.5, cmap=cm.jet)
+        plt.scatter(toes[int], log_krs[int], s=[10 * s for s in stems[int]], color=toecolors, alpha=0.5, cmap=cm.jet)
         plt.ylabel("Log10 rate constant kr (/s)", fontsize='larger')
         plt.yticks(fontsize='larger', va='bottom')
         plt.xlabel("effective toehold length (nt)", fontsize='larger')
@@ -741,7 +741,7 @@ if __name__ == '__main__':
         if(L == 25):
             duplex_DG_std = np.std(duplex_dGs[3:(N + 3)])
         
-        print "duplex dG standard deviation = %g" % duplex_DG_std
+        print("duplex dG standard deviation = %g" % duplex_DG_std)
 
 
         fullRange = RANGE1
@@ -758,7 +758,7 @@ if __name__ == '__main__':
         assoc_slow_downs = log_fastest_assoc - log_kfs
         updown_range = round(max(max(dissoc_speed_ups[fullRange]), max(assoc_slow_downs[fullRange])))
         
-        print "Updown Range = " + str(updown_range)
+        print("Updown Range = " + str(updown_range))
 
 
         def finalPlots(dissoc_speed_ups, assoc_slow_downs, colorsIn):

@@ -26,7 +26,7 @@ myMultistrand.setLeakMode()
 
 def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
 
-    print ("Running first step mode simulations for %s (with Boltzmann sampling)..." % (strand_seq))
+    print(("Running first step mode simulations for %s (with Boltzmann sampling)..." % (strand_seq)))
 
     # Using domain representation makes it easier to write secondary structures.
     onedomain = Domain(name="onedomain", sequence=strand_seq)

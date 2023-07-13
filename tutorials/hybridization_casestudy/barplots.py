@@ -292,7 +292,7 @@ def computeCompletionLine(results, N=None):
         exit("Number of results in zero")
     
     results.sort()
-    Y = (100.0 / N) + (100.0 / N) * np.array(range(len(results)))
+    Y = (100.0 / N) + (100.0 / N) * np.array(list(range(len(results))))
     
     return results, Y
 
@@ -301,7 +301,7 @@ def setLabelAndClose(settings, plt, ax):
     
     fname = standardFileName("barplots", settings.type, "", settings.nTrials)
 
-    ax.set_xlabel(u'Trajectory time (ms)')
+    ax.set_xlabel('Trajectory time (ms)')
     
     plt.xticks(rotation=-30)
     plt.tight_layout()
@@ -312,13 +312,13 @@ def setLabelAndClose(settings, plt, ax):
 def removeOutliers(times):
     
     times = np.array(sorted(times))
-    return times[range(int(len(times) * 0.98))]
+    return times[list(range(int(len(times) * 0.98)))]
     
 
 def doBarplot(times, settings):
 
     observations = str(len(times))
-    print "Number of observations is " + str(observations)
+    print("Number of observations is " + str(observations))
     
     times = [1000 * ele for ele in times]
       
@@ -413,7 +413,7 @@ def makePlots(settings):
     if settings.type == enum_yurke2 :
         
         doBarplot(times, settings)
-        print "rate toehold binding = " + str(settings.nTrials / (sum(times)))
+        print("rate toehold binding = " + str(settings.nTrials / (sum(times))))
     
     if settings.type == enum_bonnet :
         
@@ -428,9 +428,9 @@ def makePlots(settings):
         times2 = [i.time for i in results.dataset if i.tag == Literals.alt_success]
 
         if not len(times) == 0 and not sum(times) == 0:        
-            print "rate reaction 1 = " + str(len(times) / sum(times))
+            print("rate reaction 1 = " + str(len(times) / sum(times)))
         if not len(times2) == 0 and not sum(times2) == 0:
-            print "rate reaction 2 = " + str(len(times2) / sum(times2))
+            print("rate reaction 2 = " + str(len(times2) / sum(times2)))
 
         doDoubleBarplot(times, times2, settings)
 
@@ -440,9 +440,9 @@ def makePlots(settings):
         times2 = [i.time for i in results.dataset if i.tag == Literals.failure]
 
         if not len(times) == 0 and not sum(times) == 0:        
-            print "rate reaction 1 = " + str(len(times) / sum(times))
+            print("rate reaction 1 = " + str(len(times) / sum(times)))
         if not len(times2) == 0 and not sum(times2) == 0:
-            print "rate reaction 2 = " + str(len(times2) / sum(times2))
+            print("rate reaction 2 = " + str(len(times2) / sum(times2)))
             
         if len(times) > 0:
             settings.type = enum_rickettsia + "-1"
@@ -488,10 +488,10 @@ def printTrajectory(o):
         tubestruct = ' '.join(structs)  # give the dot-paren secondary structure for the whole test tube
         
         if not newseqstring == seqstring : 
-            print newseqstring
+            print(newseqstring)
             seqstring = newseqstring  # because strand order can change upon association of dissociation, print it when it changes        
 
-        print tubestruct + ('   t=%.3f ns,  dG=%3.2f kcal/mol, dGC=%3.2f kcal/mol   ' % (time, dG, dGC)) 
+        print(tubestruct + ('   t=%.3f ns,  dG=%3.2f kcal/mol, dGC=%3.2f kcal/mol   ' % (time, dG, dGC))) 
 
 
 def debugTester():
@@ -511,7 +511,7 @@ def debugTester():
 # The actual main method
 if __name__ == '__main__':
 
-    print sys.argv
+    print(sys.argv)
 
     if len(sys.argv) > 2:
         
@@ -545,6 +545,6 @@ if __name__ == '__main__':
 #     
     else:
         
-        print "Please supply the number of processes and total number of trajectories to simulate per case study, and the type \n"
-        print "Example: python barplot.py 2 20 bonnet"
-        print "Allowed <type> :     bonnet, flamm, yurke, yurke2, rickettsia"
+        print("Please supply the number of processes and total number of trajectories to simulate per case study, and the type \n")
+        print("Example: python barplot.py 2 20 bonnet")
+        print("Allowed <type> :     bonnet, flamm, yurke, yurke2, rickettsia")

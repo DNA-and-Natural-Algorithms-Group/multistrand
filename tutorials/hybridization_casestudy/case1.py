@@ -38,7 +38,7 @@ def first_step_simulation(strand_seq, trials, T=20.0):
 
     myMS = MergeSim()    
     myMS.setNumOfThreads(8) 
-    print ("Running first step mode simulations for %s (with Boltzmann sampling)..." % (strand_seq))
+    print(("Running first step mode simulations for %s (with Boltzmann sampling)..." % (strand_seq)))
     
     def getOptions(trials):
        
@@ -62,7 +62,7 @@ def first_passage_association(strand_seq, trials, concentration, T=20.0):
 
     thisMS = MergeSim()
     thisMS.setNumOfThreads(8) 
-    print "Running first passage time simulations for association of %s at %s..." % (strand_seq, concentration_string(concentration))
+    print("Running first passage time simulations for association of %s at %s..." % (strand_seq, concentration_string(concentration)))
     
     def getOptions(trials):
 
@@ -95,7 +95,7 @@ def doFirstStepMode(seq, concentrations, T=20.0, numOfRuns=500):
 #     print myRates.dataset
     
     time2 = time.time()
-    print str(myRates)
+    print(str(myRates))
     
     
     FSResult = list()
@@ -109,15 +109,15 @@ def doFirstStepMode(seq, concentrations, T=20.0, numOfRuns=500):
         low, high = myBootstrap.ninetyFivePercentiles()
         logStd = myBootstrap.logStd()
         
-        print "keff = %g /M/s at %s" % (kEff, concentration_string(z))
+        print("keff = %g /M/s at %s" % (kEff, concentration_string(z)))
         
         myResult = (np.log10(kEff), np.log10(low), np.log10(high), logStd)
         FSResult.append(myResult)
         
-    print
+    print()
     
     # call NUPACK for pfunc dG of the reaction, calculate krev based on keff
-    print "Calculating dissociate rate constant based on NUPACK partition function energies and first step mode k_eff..."
+    print("Calculating dissociate rate constant based on NUPACK partition function energies and first step mode k_eff...")
 
     dG_top = nupack.pfunc([seq], T=T)
     dG_bot = nupack.pfunc([ Strand(sequence=seq).C.sequence ], T=T)
@@ -126,7 +126,7 @@ def doFirstStepMode(seq, concentrations, T=20.0, numOfRuns=500):
     time3 = time.time()
     time_nupack = time3 - time2
     krev_nupack = kEff * np.exp((dG_duplex - dG_top - dG_bot) / RT)
-    print "krev = %g /s (%g seconds)" % (krev_nupack, time_nupack)
+    print("krev = %g /s (%g seconds)" % (krev_nupack, time_nupack))
     
     
     times = list()
@@ -169,7 +169,7 @@ def doFirstPassageTimeAssocation(seq, concentrations, T=20, numOfRuns=500):
         Result.append((keff, np.log10(low), np.log10(high), logStd))
         times.append((np.log10(myMultistrand.runTime), 0.0, 0.0))
     
-    print "keff = %g /M/s at %s" % (keff, concentration_string(concentration))
+    print("keff = %g /M/s at %s" % (keff, concentration_string(concentration)))
     
     return Result, times
 
@@ -323,9 +323,9 @@ def doSlowdownStudy(trials):
     result3 = computeMeanStd(goa2006_P3)
     result4 = computeMeanStd(goa2006_P4)
     
-    print result0
-    print result3
-    print result4
+    print(result0)
+    print(result3)
+    print(result4)
    
     output = ""
    
@@ -365,7 +365,7 @@ def doSlowdownStudy(trials):
 
 if __name__ == '__main__':
 
-    print sys.argv
+    print(sys.argv)
 
     if len(sys.argv) > 1:
 

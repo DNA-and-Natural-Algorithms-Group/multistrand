@@ -29,13 +29,13 @@ def main():
     b = Builder(test0, [])
     b.genAndSavePathsFile(inspecting=True)
     
-    print b
+    print(b)
         
 
     b = Builder(test1, [])
     b.genAndSavePathsFile(inspecting=True)
     
-    print b
+    print(b)
 
 
 main()

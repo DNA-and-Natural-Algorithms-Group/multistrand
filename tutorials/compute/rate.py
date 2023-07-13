@@ -1,5 +1,5 @@
-from anneal import computeDissociationAndWriteToCL as computeDissociation
-from anneal import computeAndWriteToCL as computeAnneal 
+from .anneal import computeDissociationAndWriteToCL as computeDissociation
+from .anneal import computeAndWriteToCL as computeAnneal
 
 import sys, time
 

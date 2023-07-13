@@ -106,7 +106,7 @@ def concentration_string(concentration):
 
 def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
 
-   print "Running %d first step mode simulations for %s (with Boltzmann sampling)..." % (trials, strand_seq)
+   print("Running %d first step mode simulations for %s (with Boltzmann sampling)..." % (trials, strand_seq))
 
    # Using domain representation makes it easier to write secondary structures.
    onedomain = Domain(name="itall",sequence=strand_seq)
@@ -163,7 +163,7 @@ def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
 
 def first_passage_dissociation(strand_seq, trials, T=25, material="DNA"):
 
-   print "Running %d first passage time simulations for dissociation of %s..." % (trials, strand_seq)
+   print("Running %d first passage time simulations for dissociation of %s..." % (trials, strand_seq))
 
    # Using domain representation makes it easier to write secondary structures.
    onedomain = Domain(name="itall",sequence=strand_seq)
@@ -192,7 +192,7 @@ def first_passage_dissociation(strand_seq, trials, T=25, material="DNA"):
    times = np.array([i.time for i in dataset])
    timeouts = [i for i in dataset if not i.tag == 'SUCCESS']
    if len(timeouts)>0 :
-        print "Warning: %d of %d dissociation trajectories did not finishin allotted %g seconds..." % (len(timeouts),len(times),10.0)
+        print("Warning: %d of %d dissociation trajectories did not finishin allotted %g seconds..." % (len(timeouts),len(times),10.0))
         for i in timeouts :
             assert (i.tag == Literals.time_out)
             assert (i.time >= 10.0)
@@ -203,7 +203,7 @@ def first_passage_dissociation(strand_seq, trials, T=25, material="DNA"):
 
 def first_passage_association(strand_seq, trials, concentration, T=25, material="DNA"):
 
-   print "Running %d first passage time simulations for association of %s at %s..." % (trials, strand_seq, concentration_string(concentration))
+   print("Running %d first passage time simulations for association of %s at %s..." % (trials, strand_seq, concentration_string(concentration)))
 
    # Using domain representation makes it easier to write secondary structures.
    onedomain = Domain(name="itall",sequence=strand_seq)
@@ -237,12 +237,12 @@ def first_passage_association(strand_seq, trials, concentration, T=25, material=
    times = np.array([i.time for i in dataset])
    timeouts = [i for i in dataset if not i.tag == 'SUCCESS']
    if len(timeouts)>0 :
-        print "some association trajectories did not finish..."
+        print("some association trajectories did not finish...")
         for i in timeouts :
             assert (i.tag == Literals.time_out)
             assert (i.time >= 10.0)
    
-   print "average completion time = %g seconds at %s" % (np.mean(times),concentration_string(concentration))
+   print("average completion time = %g seconds at %s" % (np.mean(times),concentration_string(concentration)))
 
    keff = 1.0/np.mean( times )/concentration
 
@@ -256,7 +256,7 @@ def in_state( mol ): return sum(mol) > 0
 # a short-hand name for this macrostate (based on the order given in stop_conditions) is provided.
 def mol_name(mol):
     charindex = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0'
-    names = [charindex[j] for i,j in zip(mol,range(len(mol))) if i]
+    names = [charindex[j] for i,j in zip(mol,list(range(len(mol)))) if i]
     if names == []:
         names = charindex[26]
     else:
@@ -270,7 +270,7 @@ def trans_name(t0,t1):
 
 def print_transitions( transition_traj ):
     for t in transition_traj:
-        print "%12g : %s" % ( t[0], mol_name(t[1]) )
+        print("%12g : %s" % ( t[0], mol_name(t[1]) ))
                   
 # for each simulation, the transition trajectory reports the tuple (time_entered, which_macrostates_the_system_is_now_in)
 def parse_transition_lists( transition_traj_list ):
@@ -291,23 +291,23 @@ def parse_transition_lists( transition_traj_list ):
     return transition_dict
 
 def print_transition_dict( transition_dict, options = None ):
-    k = transition_dict.keys()
+    k = list(transition_dict.keys())
     k.sort() 
 
     for i in k:
         transition_times = np.array( transition_dict[i] )
-        print("{0}: {2:.2e} s ({1} events)".format(i,len(transition_dict[i]),np.mean(transition_times)))
+        print(("{0}: {2:.2e} s ({1} events)".format(i,len(transition_dict[i]),np.mean(transition_times))))
     
     # also print the true names of the macrostates, if an Options object is provided
     charindex = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0'
     if options:
-        for i,idx in zip(options.stop_conditions,range(len(options.stop_conditions))):
-            print("{0}: {1}".format( i.tag, charindex[idx]))
+        for i,idx in zip(options.stop_conditions,list(range(len(options.stop_conditions)))):
+            print(("{0}: {1}".format( i.tag, charindex[idx])))
 
 
 def transition_mode_simulation(strand_seq, duration, concentration, T=25, material="DNA"):
 
-   print "Running %g seconds of transition mode simulations of %s at %s..." % (duration, strand_seq, concentration_string(concentration))
+   print("Running %g seconds of transition mode simulations of %s at %s..." % (duration, strand_seq, concentration_string(concentration)))
 
    # Using domain representation makes it easier to write secondary structures.
    onedomain = Domain(name="itall",sequence=strand_seq)
@@ -360,16 +360,16 @@ def compare_hybridization(seq, concentrations, T=25, material="DNA"):
    k1, k2, k1prime, k2prime = first_step_simulation(seq, 10000, T=T, material=material) 
    time2=time.time()
    time1step_for = time2-time1
-   print "k1 = %g /M/s, k2 = %g /s, k1prime = %g /M/s, k2prime = %g /s  (%g seconds)" % (k1, k2, k1prime, k2prime, time1step_for)
+   print("k1 = %g /M/s, k2 = %g /s, k1prime = %g /M/s, k2prime = %g /s  (%g seconds)" % (k1, k2, k1prime, k2prime, time1step_for))
    zcrit = k2*k2prime/(k1*k2prime + k1prime*k2) # this is the critical concentration at which k_eff = k1/2
-   print "zcrit = %s" % (concentration_string(zcrit))
+   print("zcrit = %s" % (concentration_string(zcrit)))
    for z in concentrations:
        keff_1s = 1/(1/k1 + z/k2 + (k1prime/k1)*(z/k2prime))  # first-step mode predictions
-       print "keff = %g /M/s at %s" % (keff_1s, concentration_string(z))
-   print
+       print("keff = %g /M/s at %s" % (keff_1s, concentration_string(z)))
+   print()
 
    # call NUPACK for pfunc dG of the reaction, calculate krev based on keff
-   print "Calculating dissociate rate constant based on NUPACK partition function energies and first step mode k_eff..."
+   print("Calculating dissociate rate constant based on NUPACK partition function energies and first step mode k_eff...")
    import nupack
    dG_top = nupack.pfunc([seq], T=T)
    dG_bot = nupack.pfunc([ Strand(sequence=seq).C.sequence ], T=T)
@@ -378,16 +378,16 @@ def compare_hybridization(seq, concentrations, T=25, material="DNA"):
    time3=time.time()
    time_nupack = time3-time2
    krev_nupack = keff_1s * np.exp( (dG_duplex - dG_top - dG_bot)/RT )
-   print "krev = %g /s (%g seconds)" % (krev_nupack, time_nupack)
-   print
+   print("krev = %g /s (%g seconds)" % (krev_nupack, time_nupack))
+   print()
 
    # do one "first passage time" run for dissociation, and get k_rev
 #    krev_1p = first_passage_dissociation(seq, 500, T=T, material=material)  # this is good, for short enough strands
    krev_1p = first_passage_dissociation(seq, 10, T=T, material=material)     # too few, but faster
    time4=time.time()
    time1passage_rev = time4-time3
-   print "krev = %g /s (%g seconds)" % (krev_1p, time1passage_rev)
-   print
+   print("krev = %g /s (%g seconds)" % (krev_1p, time1passage_rev))
+   print()
 
    # for each concentration z, do one "first passage time" run for association, and get k_eff(z)
    keffs_1p=[]
@@ -397,9 +397,9 @@ def compare_hybridization(seq, concentrations, T=25, material="DNA"):
    time5=time.time()
    time1passage_for = time5-time4
    for (keff,z) in keffs_1p:
-       print "keff = %g /M/s at %s" % (keff, concentration_string(z))
-   print "(took %g seconds total)" % (time1passage_for)
-   print
+       print("keff = %g /M/s at %s" % (keff, concentration_string(z)))
+   print("(took %g seconds total)" % (time1passage_for))
+   print()
 
    # for each concentration z, do one long "transition mode" run, and compute k_eff(z) and k_rev for each run.
    keffs_tm = []
@@ -408,14 +408,14 @@ def compare_hybridization(seq, concentrations, T=25, material="DNA"):
        keff, krev = transition_mode_simulation(seq, 0.5, concentration, T=T, material=material)
        keffs_tm.append((keff,concentration))
        if not keff is None:
-           print "keff = %g /M/s at %s" % (keff, concentration_string(concentration))
+           print("keff = %g /M/s at %s" % (keff, concentration_string(concentration)))
        krevs_tm.append((krev,concentration))
        if not krev is None:
-           print "krev = %g /s at %s" % (krev, concentration_string(concentration))
+           print("krev = %g /s at %s" % (krev, concentration_string(concentration)))
    time6=time.time()
    time_transitions = time6-time5
-   print "(took %g seconds total)" % (time_transitions)
-   print
+   print("(took %g seconds total)" % (time_transitions))
+   print()
 
    # One could plot k_eff vs z, and k_rev vs z, comparing the methods.
 
@@ -428,7 +428,7 @@ if __name__ == '__main__':
         conc = float(sys.argv[4])
 
         if not (mat in ['DNA','RNA'] and set(seq) <= set('ACTG') and 0 < temp < 100 and conc > 0):
-            print "Arguments should be 'DNA' or 'RNA', sequence (ACGT or ACGU), temperature (Celcius), and concentration (Molar)."
+            print("Arguments should be 'DNA' or 'RNA', sequence (ACGT or ACGU), temperature (Celcius), and concentration (Molar).")
             sys.exit()
         
         compare_hybridization(seq=seq, concentrations=[conc], material = mat, T = temp) 

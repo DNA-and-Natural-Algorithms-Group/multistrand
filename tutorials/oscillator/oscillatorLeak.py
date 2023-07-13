@@ -131,10 +131,10 @@ def computeRate(trialsIn, experiment_type=NORMAL):
     myMultistrand.run()
  
     results = myMultistrand.results
-    print results
+    print(results)
     # see above - no alternative success conditions defined
     confidence = Bootstrap(results, computek1=True)
-    print confidence
+    print(confidence)
 # 
     return results, confidence
 

@@ -64,37 +64,37 @@ def genAndPrint(numOfPaths, toggle):
   
     simulation_temperature = 50.0
     
-    print "Building the statespace from traces for reaction: " + toggle + " at T = %.1f C " % simulation_temperature
+    print("Building the statespace from traces for reaction: " + toggle + " at T = %.1f C " % simulation_temperature)
     
     myBuilder = Builder(doReaction, [numOfPaths, test8mer, simulation_temperature, toggle])
     myBuilder.genAndSavePathsFile()
     myBuilder.genAndSavePathsFile()
-    print myBuilder
+    print(myBuilder)
     
     builderRate = BuilderRate(myBuilder) 
      
     if not (toggle == str_dissociation or toggle == str_threeway_strand_displacement):
         time = builderRate.averageTimeFromInitial(bimolecular=False)
-        print "\nRate = %.2f /s  \n" % (1.0 / time)
+        print("\nRate = %.2f /s  \n" % (1.0 / time))
     else:
         time = builderRate.averageTimeFromInitial(bimolecular=True)
-        print "\nRate = %.2f /M/s  \n" % (1.0 / time)
+        print("\nRate = %.2f /M/s  \n" % (1.0 / time))
      
     """ Fields you could look at: """
     if False:
-        print builderRate.stateIndex
-        print builderRate.rate_matrix_csr.toarray()
+        print(builderRate.stateIndex)
+        print(builderRate.rate_matrix_csr.toarray())
        
-        print "Initial States"
-        print builderRate.initial_states
+        print("Initial States")
+        print(builderRate.initial_states)
        
-        print "Final States"
-        print builderRate.final_states
+        print("Final States")
+        print(builderRate.final_states)
        
-        print str(builderRate)
+        print(str(builderRate))
        
         times = builderRate.averageTime()
-        print str(times)
+        print(str(times))
     
 
   

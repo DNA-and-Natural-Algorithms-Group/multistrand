@@ -1,4 +1,4 @@
-from __future__ import print_function
+
 
 from multistrand.options import Options, Literals
 from multistrand.concurrent import MergeSim, FirstStepRate, Bootstrap

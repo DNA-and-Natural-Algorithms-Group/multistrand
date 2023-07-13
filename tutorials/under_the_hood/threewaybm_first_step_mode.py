@@ -37,7 +37,7 @@
 # Import things you need
 import sys, os
 
-import cPickle
+import pickle
 import random
 import numpy as np
 
@@ -153,7 +153,7 @@ class Multistrand_Suite_Base(object):
         p.close()
         p.join()
         endtime = os.times()
-        print("Async run complete! Processing took [{0[4]}] seconds of real time before completion. [u/s/cu/cs]:[{0[0]}/{0[1]}/{0[2]}/{0[3]}]".format([j - i for i, j in zip(starttime, endtime)]))
+        print(("Async run complete! Processing took [{0[4]}] seconds of real time before completion. [u/s/cu/cs]:[{0[0]}/{0[1]}/{0[2]}/{0[3]}]".format([j - i for i, j in zip(starttime, endtime)])))
     
 
 class MyRunner(object):
@@ -163,7 +163,7 @@ class MyRunner(object):
 
 
 def actual_simulation(toehold_length, num_traj, rate_method_k_or_m, index):
-    print "Starting %d simulations for toehold length %d and %s kinetics." % (num_traj, toehold_length, rate_method_k_or_m)
+    print("Starting %d simulations for toehold length %d and %s kinetics." % (num_traj, toehold_length, rate_method_k_or_m))
     o = create_setup(toehold_length, num_traj, rate_method_k_or_m)
     s = SimSystem(o)
     s.start()
@@ -171,7 +171,7 @@ def actual_simulation(toehold_length, num_traj, rate_method_k_or_m, index):
     filename = "DATA_{0}_{1}_{2:04}.dat".format(rate_method_k_or_m, toehold_length, index)
     full_filename = os.path.join(prefix, filename)
     f = open(full_filename, 'wb')
-    cPickle.dump(o.interface.results, f, protocol=-1)
+    pickle.dump(o.interface.results, f, protocol=-1)
     f.close()
 
 
@@ -196,7 +196,7 @@ def load_file(dirname, filename):
     fullname = os.path.join(dirname, filename)
 
     f = open(fullname, 'rb')
-    res = cPickle.load(f)
+    res = pickle.load(f)
     f.close()
 
     return res
@@ -229,7 +229,7 @@ def load_dataset(toehold_length, rate_method):
     
     dirname = "Data_toehold_{0}".format(toehold_length)
     if not os.path.isdir(dirname):
-        print("Error: directory {0} does not exist.\n".format(dirname))
+        print(("Error: directory {0} does not exist.\n".format(dirname)))
         return None
 
     files = os.listdir(dirname)
@@ -241,7 +241,7 @@ def load_dataset(toehold_length, rate_method):
 
     result_list = [None] * (int(number_from_fname(sample_files[-1])) + 1)
     for f in sample_files:
-        print("Processing file: {0}".format(f))
+        print(("Processing file: {0}".format(f)))
         result_list[ int(number_from_fname(f)) ] = process_dataset(load_file(dirname, f))
 
     return result_list
@@ -249,18 +249,18 @@ def load_dataset(toehold_length, rate_method):
 
 def combine_dataset(sampleset):
     if sampleset == None :
-        print "No data, no rates computed."
+        print("No data, no rates computed.")
         return None
 
-    f, r, c = zip(*[i for i in sampleset if i is not None])
+    f, r, c = list(zip(*[i for i in sampleset if i is not None]))
     forward_times = np.concatenate(f, axis=0)
     reverse_times = np.concatenate(r, axis=0)
     # these are essentially "forward" (successful displacement) and "reverse" (failed displacement) first passage times.
     
     collision_rates = np.concatenate(c, axis=0)
     
-    print "In all: %d collisions, %d successes (forward), %d failures (reverse), %d unfinished" % \
-        (len(collision_rates), len(forward_times), len(reverse_times), len(collision_rates) - len(forward_times) - len(reverse_times))
+    print("In all: %d collisions, %d successes (forward), %d failures (reverse), %d unfinished" % \
+        (len(collision_rates), len(forward_times), len(reverse_times), len(collision_rates) - len(forward_times) - len(reverse_times)))
 
     # calculations from Joseph's PhD thesis.
     # Note: we are not using Boltzmann sampling, so the formulas below are fine.  But with Boltzmann sampling, we would need to partition the kcollision values.
@@ -284,10 +284,10 @@ def combine_dataset(sampleset):
     
     keff = (1 / dTcorrect) * (1 / z)
 
-    print "   k1 = %g /M/s, k2 = %g /s, k1' = %g /M/s, k2' = %g /s, and k_eff = %g /M/s at 50 nM" % \
-        (k1, k2, k1prime, k2prime, keff)
-    print "   incoming + substrate -->{k1}    succesful_intermediate -->{k2}  waste + incumbent"
-    print "   incoming + substrate -->{k1'} unsuccesful_intermediate -->{k2'} incoming + substrate"
+    print("   k1 = %g /M/s, k2 = %g /s, k1' = %g /M/s, k2' = %g /s, and k_eff = %g /M/s at 50 nM" % \
+        (k1, k2, k1prime, k2prime, keff))
+    print("   incoming + substrate -->{k1}    succesful_intermediate -->{k2}  waste + incumbent")
+    print("   incoming + substrate -->{k1'} unsuccesful_intermediate -->{k2'} incoming + substrate")
 
     return [N_forward, N_fail, keff, k1, k1prime, k2, k2prime, kcollision]    
 
@@ -295,8 +295,8 @@ def combine_dataset(sampleset):
 # How you do the analysis
 def final_results(toehold_length, rate_method):
     # given a toehold length and a rate method, this function returns [N_forward, N_fail, keff, k1, k1prime, k2, k2prime, kcollision]    
-    print
-    print "Results for toehold length %d (with %s kinetics)" % (toehold_length, rate_method)
+    print()
+    print("Results for toehold length %d (with %s kinetics)" % (toehold_length, rate_method))
     return combine_dataset(load_dataset(toehold_length, rate_method))
 
 ###### If run from the command line, the simulations are run but not analyzed.
@@ -305,7 +305,7 @@ def final_results(toehold_length, rate_method):
 if __name__ == '__main__':
     if len(sys.argv) < 2:
         idx = 0
-        print "Must give argument 'test', 'short', 'medium', 'long', or 'analyze'."
+        print("Must give argument 'test', 'short', 'medium', 'long', or 'analyze'.")
     else:
         idx = str(sys.argv[1])
      
@@ -331,8 +331,8 @@ if __name__ == '__main__':
         testrun.runTests_Async()    
 
     if idx == 'analyze':
-        toelengths = range(1, 16)
-        k1s = range(1, 16)
+        toelengths = list(range(1, 16))
+        k1s = list(range(1, 16))
         for n in toelengths:
             rates = final_results(n, "Metropolis")
             if rates == None:
@@ -355,5 +355,5 @@ if __name__ == '__main__':
         plt.xticks(fontsize='larger')
         plt.show()
 
-        print "As noted in Srinivas et al NAR 2013, Multistrand 2.0 can qualitatively but not quantitatively reproduce Zhang & Winfree JACS 2009."
-        print "Please wait for Multistrand 3.0 for better quantitative results."
+        print("As noted in Srinivas et al NAR 2013, Multistrand 2.0 can qualitatively but not quantitatively reproduce Zhang & Winfree JACS 2009.")
+        print("Please wait for Multistrand 3.0 for better quantitative results.")

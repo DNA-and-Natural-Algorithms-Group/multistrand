@@ -271,8 +271,8 @@ def generateGraph():
             
             realRates.append(np.log10(measuredRate(select)))
             
-        print simRates
-        print realRates
+        print(simRates)
+        print(realRates)
         
         ax.plot(positionSelector, realRates, linewidth=2, color=colors[i])
         ax.plot(positionSelector, simRates, linewidth=2, linestyle='--', color=colors[i])

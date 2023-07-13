@@ -37,10 +37,10 @@ def printTrajectory(o):
                  
         
         if not newseqstring == seqstring : 
-            print newseqstring
+            print(newseqstring)
             seqstring = newseqstring  # because strand order can change upon association of dissociation, print it when it changes        
 
-        print tubestruct + ('   t=%.6f ms,  dG=%3.2f kcal/mol  ' % (time, dG)) 
+        print(tubestruct + ('   t=%.6f ms,  dG=%3.2f kcal/mol  ' % (time, dG))) 
 
         
 
@@ -71,14 +71,14 @@ def doSims(strandSeq, numTraj=2):
     s.start()
     printTrajectory(o1)     
     
-    print "Exe time is " + str(time.time() - curr)   
+    print("Exe time is " + str(time.time() - curr))   
         
 
     
 # # The actual main method
 if __name__ == '__main__':
     
-    print sys.argv
+    print(sys.argv)
     doSims( "ATTCCGGTTGATCCTGCCGGAGGTCATTGCTATTGGGGTCCGATTTAGCCATGCTAGTTGCACGAGTTCATACTCGTGGCGAAAAGCTCAGTAACACGTGGCCAAACTACCCTACAGAGAA",1)
         
     #doSims("ATTCCGGTTGATCCTGCCGGAGGTCATTGCTATTGGGGTCCGATTTAGCCATGCTAGTTGCACGAGTTCATACTCGTGGCGAAAAGCTCAGTAACACGTGGCCAAACTACCCTACAGAGAACGATAACCTCGGGAAACTGAGGCTAATAGTTCATACGGGAGTCATGCTGGAATGCCGACTCCCCGAAACGCTCAGGCGCTGTAGGATGTGGCTGCGGCCGATTAGGTAGACGGTGGGGTAACGGCCCACCGTGCCGATAATCGGTACGGGTTGTGAGAGCAAGAGCCCGGAGACGGAATCT",2) 

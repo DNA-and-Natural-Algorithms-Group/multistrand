@@ -92,7 +92,7 @@ def plot_histograms_complete_vs_failed( result_list, colors=['b','m'], figure=1 
     times_failed = np.array([i.time for i in result_list if i.tag == 'failed'])
     neither = [i for i in result_list if not i.tag == 'complete' and not i.tag == 'failed']
     if len(neither)>0 :
-        print "some trajectories did not finish, one way nor the other..."
+        print("some trajectories did not finish, one way nor the other...")
         for i in neither :
             assert (i.tag == Literals.time_out)
 
@@ -158,7 +158,7 @@ def plot_completion_graph( result_lists, colors=['b','r'], figure=1, labels=['De
         t.sort()
         times.append(np.array(t))
 
-        p = np.array(range(1,len(t)+1))
+        p = np.array(list(range(1,len(t)+1)))
         p = 100 * p / n  # percentage of all trials, including ones that don't complete
         percents.append( p )
 
@@ -186,7 +186,7 @@ def plot_completion_graph_complete_vs_failed( result_list, colors=['b','m'], fig
         t = [i.time for i in result_list if i.tag == rl]
         t.sort()
         times.append(np.array(t))
-        p = np.array(range(1,len(t)+1))
+        p = np.array(list(range(1,len(t)+1)))
         p = 100 * p / n
         percents.append( p )
     # the last data points of each type should sum to 1.0 if all trajectories either fail or complete (rather than time out)
@@ -214,12 +214,12 @@ if __name__ == '__main__':
     o1,o2 = setup_threewaybm_comparison(trials=10, toehold_seq = "GTGGGT", bm_design_A = "ACCGCACGTCCACGGTGTCG", bm_design_B = "ACCGCACGTCACTCACCTCG")
     # o1,o2 = setup_threewaybm_comparison(trials=100, toehold_seq = "GTGGGTAGGT", bm_design_A = "ACCGCACGTCCACGGTGTCG", bm_design_B = "ACCGCACGTCACTCACCTCG")
 
-    print
-    print "Running Design A"
+    print()
+    print("Running Design A")
     s=SimSystem(o1)
     s.start()
-    print
-    print "Running Design B"
+    print()
+    print("Running Design B")
 
     s=SimSystem(o2)
     s.start()
@@ -228,11 +228,11 @@ if __name__ == '__main__':
     result_list1 = o1.interface.results # look at a few things by hand, just to check
     times_complete1 = np.array([i.time for i in result_list1 if i.tag == 'complete'])
     times_failed1 = np.array([i.time for i in result_list1 if i.tag == 'failed'])
-    print "Design A: %d trajectories total, %d completed, %d failed." % (len(result_list1), len(times_complete1), len(times_failed1))
+    print("Design A: %d trajectories total, %d completed, %d failed." % (len(result_list1), len(times_complete1), len(times_failed1)))
     result_list2 = o2.interface.results # look at a few things by hand, just to check
     times_complete2 = np.array([i.time for i in result_list2 if i.tag == 'complete'])
     times_failed2 = np.array([i.time for i in result_list2 if i.tag == 'failed'])
-    print "Design B: %d trajectories total, %d completed, %d failed." % (len(result_list2), len(times_complete2), len(times_failed2))
+    print("Design B: %d trajectories total, %d completed, %d failed." % (len(result_list2), len(times_complete2), len(times_failed2)))
 
     plot_histograms_complete_vs_failed(o1.interface.results, figure=1)
     plot_completion_graph_complete_vs_failed(o1.interface.results, figure=2)

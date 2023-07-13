@@ -65,7 +65,7 @@ def getOptions(trials , settings):  # start_complex_top, start_complex_bot, succ
 
 def first_step_simulation(multistrandObject, settings):
     
-    print ("Running first step mode simulations for %s (with Boltzmann sampling)..." % (settings.mySeq))
+    print(("Running first step mode simulations for %s (with Boltzmann sampling)..." % (settings.mySeq)))
     
     aFactory = analysisFactory(settings.mySeq, settings.cutOff)
         
@@ -124,7 +124,7 @@ def computeWinProb(f2, pos, structDict2, settings):
     
     structs = dict(structDict2[pos.posX * 30 + pos.posY])
 #     
-    mostPopular = sorted(structs.iteritems(), key=operator.itemgetter(0), reverse=True)[:1]
+    mostPopular = sorted(iter(structs.items()), key=operator.itemgetter(0), reverse=True)[:1]
        
     popularStructure = mostPopular[0][0]
     
@@ -141,7 +141,7 @@ def plotMostFrequentStructure(posDict, length):
         for i in range(length):
             mostFreq.append((-1, -99));
             
-        for key, val in posDict.iteritems():
+        for key, val in posDict.items():
             
             x, y = key.posX, key.posY
             currMax = mostFreq[x][1]            
@@ -152,7 +152,7 @@ def plotMostFrequentStructure(posDict, length):
         # # determine highest x value for which there are observations
         maxX = max([pos.posX for pos in posDict])
                 
-        xVals = range(1, maxX + 1)
+        xVals = list(range(1, maxX + 1))
         yVals = [o[0] for o in mostFreq]
         yVals = yVals[1:maxX + 1]
        
@@ -238,7 +238,7 @@ def doPosPlots(posDict, settings, extraTitle, selectedCount, extraSettings, stru
         extraTitle = "-ModeOne-" + extraTitle    
         corrector = settings.trials
         
-    for pos, val in goodPosDict.iteritems():
+    for pos, val in goodPosDict.items():
  
         value = 0.0
  
@@ -252,8 +252,8 @@ def doPosPlots(posDict, settings, extraTitle, selectedCount, extraSettings, stru
     # Reshape things into a grid
     image = image.reshape((nrows, ncols))
     
-    row_labels = range(nrows)
-    col_labels = range(ncols)
+    row_labels = list(range(nrows))
+    col_labels = list(range(ncols))
     plt.matshow(image, cmap=plt.cm.gray_r, vmin=myMin, vmax=myMax)   
     
     if("M2" in extraSettings):
@@ -275,8 +275,8 @@ def doPosPlots(posDict, settings, extraTitle, selectedCount, extraSettings, stru
     ax.set_ylabel('Basepairs within strands')    
     ax.set_xlabel('Basepairs between strands')
     
-    plt.xticks(range(ncols), col_labels)
-    plt.yticks(range(nrows), row_labels)
+    plt.xticks(list(range(ncols)), col_labels)
+    plt.yticks(list(range(nrows)), row_labels)
     plt.colorbar(shrink=0.75)  # orientation='Horizontal'
     
     plt.savefig(fileName + '.pdf')
@@ -289,7 +289,7 @@ def doPosPlots(posDict, settings, extraTitle, selectedCount, extraSettings, stru
         fileName = standardFileName(SCRIPT_DIR, settings.mySeq, extraTitle + "", settings.trials)
  
         winProb = list()
-        plotRange = range(1, maxX)
+        plotRange = list(range(1, maxX))
          
         f2 = open(fileName + "-mostPopularStructs.txt", 'w')
          
@@ -316,7 +316,7 @@ def writeStructFile(analysisResult, settings, extraTitle):
 #     goodDict =  copy.deepcopy(dict(analysisResult.posDict))
     goodDict = dict(analysisResult.posDict)
      
-    for pos, val in goodDict.iteritems():
+    for pos, val in goodDict.items():
         
         output = "Pos = " + pos.toString() + " Freq= " + str(val) + "\n"     
         f.write(output)
@@ -332,12 +332,12 @@ def writeStructFile(analysisResult, settings, extraTitle):
         goodDict = (dict(analysisResult.structDict2[i]))
         
         # only print the top 20 of structures found
-        goodDict = dict(sorted(goodDict.iteritems(), key=operator.itemgetter(1), reverse=True)[:20])
+        goodDict = dict(sorted(iter(goodDict.items()), key=operator.itemgetter(1), reverse=True)[:20])
          
         pX = np.int((np.floor(i / 30)))
         pY = np.int(i % 30)
          
-        for key, val in goodDict.iteritems():
+        for key, val in goodDict.items():
             
             if(val > 2):
                 output = str(pX) + " " + str(pY) + " " + str(key) + " " + str(val) + "\n"     
@@ -353,13 +353,13 @@ def doProbabilitySuccesPlot(settings, extraTitle):
     goodDict = (dict(myMultistrand.aFactory.result1.countDict))
     goodDictOther = (dict(myMultistrand.aFactory.result2.countDict))
 
-    print("Dict size is ", len(goodDict)) 
+    print(("Dict size is ", len(goodDict))) 
 
-    for key, value in goodDict.iteritems():
+    for key, value in goodDict.items():
         
         valueOther = 0
          
-        if(goodDictOther.has_key(key)):
+        if(key in goodDictOther):
             valueOther = goodDictOther[key]
         
         denom = np.float(goodDict[key]) + np.float(valueOther)         
@@ -378,7 +378,7 @@ def doBinaryProbabilityPlot(settings, extraTitle):
         goodDict = (dict(result.binaryDict))
         plottingDict = dict()
         
-        for key, value in goodDict.iteritems():
+        for key, value in goodDict.items():
                         
             plottingDict[key] = np.float(value) / np.float(selectedCounts)
     
@@ -517,13 +517,13 @@ if __name__ == '__main__':
 
     
     if len(sys.argv) < 1:
-        print """Usage:
+        print("""Usage:
               python hybridization_F3 <numOfThreads> <numOfPaths>  P0/P3/P4      \n
               Example: python hybridization_F3 2 100 P3
-              """
+              """)
         sys.exit()
         
-    print sys.argv
+    print(sys.argv)
 
     numOfThreads = np.int(sys.argv[1])
     numOfPaths = np.int(sys.argv[2])

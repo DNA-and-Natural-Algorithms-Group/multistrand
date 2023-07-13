@@ -67,11 +67,11 @@ def printTimeElapsed():
     curr_time = time.time()
     elap_time = curr_time - start_time
     if(elap_time < 1000):
-        print "Time since start: {} s\n".format(elap_time)
+        print("Time since start: {} s\n".format(elap_time))
     elif(elap_time < 6000):
-        print "Time since start: {} min\n".format(elap_time / 60)
+        print("Time since start: {} min\n".format(elap_time / 60))
     else:
-        print "Time since start: {} hr\n".format(elap_time / 3600)
+        print("Time since start: {} hr\n".format(elap_time / 3600))
 
 
 def getExperiment(selIn):

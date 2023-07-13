@@ -12,7 +12,7 @@ from anneal import compute
 from nupack import pfunc
 
 
-print "Morrison and Stols 1993"
+print("Morrison and Stols 1993")
 
 def openDocument(document): 
     
@@ -59,7 +59,7 @@ def doMorrison(myRange):
         dotparen = "("*len(seq) + "+" + ")"*len(seq)
         
         dG = pfunc([seq, seqC], [1,2], T=(temp-273.15), material="dna")
-        print (str(dG)) 
+        print((str(dG))) 
         
         kMinus = predicted.k1() * math.exp( dG / ( GAS_CONSTANT_R * temp) ) 
         kMinusLow = low * math.exp( dG / ( GAS_CONSTANT_R * temp) ) 
@@ -80,8 +80,8 @@ def doMorrison(myRange):
         file.flush()
 
 
-doMorrison(range(6,12)) #do short seq first
-doMorrison(range(6))
+doMorrison(list(range(6,12))) #do short seq first
+doMorrison(list(range(6)))
 
 
 file.close()

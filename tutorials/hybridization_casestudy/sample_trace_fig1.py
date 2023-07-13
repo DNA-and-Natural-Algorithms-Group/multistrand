@@ -50,10 +50,10 @@ def printTrajectory(o):
                  
         
         if not newseqstring == seqstring : 
-            print newseqstring
+            print(newseqstring)
             seqstring = newseqstring  # because strand order can change upon association of dissociation, print it when it changes        
 
-        print tubestruct + ('   t=%.3f ns,  dG=%3.2f kcal/mol, dGC=%3.2f kcal/mol   ' % (time, dG, dGC)) 
+        print(tubestruct + ('   t=%.3f ns,  dG=%3.2f kcal/mol, dGC=%3.2f kcal/mol   ' % (time, dG, dGC))) 
 
         
 
@@ -86,7 +86,7 @@ def doSims(strandSeq, numTraj=2):
 
     myComplex = makeComplex([seq1, seq2, seq3], struct)
 
-    print myComplex
+    print(myComplex)
 
     o1.start_state = [myComplex]
 
@@ -103,7 +103,7 @@ def doSims(strandSeq, numTraj=2):
 # # The actual main method
 if __name__ == '__main__':
     
-    print sys.argv
+    print(sys.argv)
     doSims( "GCGTTTCAC",1)
          
         
