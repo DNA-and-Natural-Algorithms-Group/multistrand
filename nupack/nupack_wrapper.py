@@ -130,7 +130,7 @@ def call_with_pipe(args, cmd_input):
   return (output_lines, error)
     
 def pfunc(sequences, ordering = None, material = 'dna',
-          dangles = 'some', T = 37, multi = True, pseudo = False,
+          dangles = 'some', T = 37.0, multi = True, pseudo = False,
           sodium = 1.0, magnesium = 0.0):
   """Calls NUPACK's pfunc on a complex consisting of the unique strands in sequences, returns dG.
        sequences is a list of the strand sequences
@@ -145,7 +145,7 @@ def pfunc(sequences, ordering = None, material = 'dna',
   ## Perform call until it works (should we have a max # of tries before quitting?)
   output, error = call_with_pipe(args, cmd_input)
   while len(output) < 4 : # can't figure out why, but occasionally NUPACK returns empty-handed.  Subsequent tries seem to work...
-      print('Retrying pfunc: NUPACK failed with output ' + repr(output) + ' and error ' + repr(error) +" .")
+      print(f"Retrying pfunc: NUPACK failed with output {output} and error {error}.")
       output, error = call_with_pipe(args, cmd_input)
 
   ## Parse and return output
@@ -157,7 +157,7 @@ def pfunc(sequences, ordering = None, material = 'dna',
   
   
 def pairs(sequences, ordering = None, material = 'rna',
-          dangles = 'some', T = 37, multi = True, pseudo = False,
+          dangles = 'some', T = 37.0, multi = True, pseudo = False,
           sodium = 1.0, magnesium = 0.0, cutoff = 0.001):
   """Calls NUPACK's pairs executable on a complex consisting of the unique strands in sequences.
      Returns the probabilities of pairs of bases being bound, only including those pairs
@@ -181,16 +181,15 @@ def pairs(sequences, ordering = None, material = 'rna',
 
   ## Parse and return output
   pair_probs = []
-  for l in [x for x in output if x[0].isdigit()]:
-    if len(l.split()) > 1:
-      i,j,p = l.split()
-      pair_probs.append(tuple( (int(i),int(j),float(p)) ))
+  for l in (x for x in output if x[0].isdigit() and len(x.split()) > 1):
+    i,j,p = l.split()
+    pair_probs.append(tuple( (int(i),int(j),float(p)) ))
 
   return pair_probs
 
   
 def mfe(sequences, ordering = None, material = 'rna',
-        dangles = 'some', T = 37, multi = True, pseudo = False,
+        dangles = 'some', T = 37.0, multi = True, pseudo = False,
         sodium = 1.0, magnesium = 0.0, degenerate = False):
   """Calls NUPACK's mfe executable on a complex consisting of the strands in sequences.
      Returns the minimum free energy structure, or multiple mfe structures if the degenerate
@@ -222,7 +221,7 @@ def mfe(sequences, ordering = None, material = 'rna',
   
   
 def subopt(sequences, energy_gap, ordering = None, material = 'rna',
-           dangles = 'some', T = 37, multi = True, pseudo = False,
+           dangles = 'some', T = 37.0, multi = True, pseudo = False,
            sodium = 1.0, magnesium = 0.0, degenerate = False):
   """Calls NUPACK's subopt executable on a complex consisting of the strands in the given order.
      Returns the structures within the given free energy gap of the minimum free energy.
@@ -253,7 +252,7 @@ def subopt(sequences, energy_gap, ordering = None, material = 'rna',
 
 
 def count(sequences, ordering = None, material = 'rna',
-          dangles = 'some', T = 37, multi = True, pseudo = False,
+          dangles = 'some', T = 37.0, multi = True, pseudo = False,
           sodium = 1.0, magnesium = 0.0):
   """Calls NUPACK's count executable on a complex consisting of the strands in the given order.
      Returns the number of secondary structures, overcounting rotationally symmetric structures.
@@ -277,7 +276,7 @@ def count(sequences, ordering = None, material = 'rna',
 
 
 def energy(sequences, structure, ordering = None, material = 'rna',
-           dangles = 'some', T = 37, multi = True, pseudo = False,
+           dangles = 'some', T = 37.0, multi = True, pseudo = False,
            sodium = 1.0, magnesium = 0.0):
   """Calls NUPACK's energy executable. Returns the microstate dG.
        sequences is a list of the strand sequences
@@ -304,7 +303,7 @@ def energy(sequences, structure, ordering = None, material = 'rna',
   
 
 def prob(sequences, structure, ordering = None, material = 'rna',
-         dangles = 'some', T = 37, multi = True, pseudo = False,
+         dangles = 'some', T = 37.0, multi = True, pseudo = False,
          sodium = 1.0, magnesium = 0.0):
   """Calls NUPACK's prob executable. Returns the probability of the given structure.
        sequences is a list of the strand sequences
@@ -331,7 +330,7 @@ def prob(sequences, structure, ordering = None, material = 'rna',
 
 
 def defect(sequences, structure, ordering = None, material = 'rna',
-           dangles = 'some', T = 37, multi = True, pseudo = False,
+           dangles = 'some', T = 37.0, multi = True, pseudo = False,
            sodium = 1.0, magnesium = 0.0, mfe = False):
   """Calls NUPACK's defect executable. Returns the ensemble defect (default) or the mfe defect.
        sequences is a list of the strand sequences
@@ -361,7 +360,7 @@ def defect(sequences, structure, ordering = None, material = 'rna',
   
 
 def sample(sequences, samples, ordering = None, material = 'rna',
-           dangles = 'some', T = 37, multi = True,
+           dangles = 'some', T = 37.0, multi = True,
            pseudo = False, sodium = 1.0, magnesium = 0.0):
   """ Calls the NUPACK sample executable.
         samples is the number of Boltzmann samples to produce.
