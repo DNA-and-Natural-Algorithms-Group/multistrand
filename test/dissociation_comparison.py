@@ -20,8 +20,7 @@ from nupack import pfunc
 # # For each column, compute the rate and print it to a file. 
 resultFileName = "dissociation_comparison.txt"
 file = open(resultFileName, 'w+')
-
-file.write("Seq    temp     predicted-D    predicted-A   difference \n\n") 
+file.write("Seq    temp     predicted-D    predicted-A   difference \n\n")
 
 
 def comparison():
@@ -31,7 +30,6 @@ def comparison():
     seq = "ATCCCAATCAACACCTTTCCTA"
     seqC = "TAGGAAAGGTGTTGATTGGGAT"
 
-    
     temp = 25.0 + 273.15 + 40
     
     file.write(str(seq) + "   ")
@@ -44,9 +42,8 @@ def comparison():
     predictedD = computeDissociation(seq, temp)
     
     dotparen = "("*len(seq) + "+" + ")"*len(seq)
-    
     dG = pfunc([seq, seqC], [1, 2], T=(temp - 273.15), material="dna")
-    print((str(dG))) 
+    print(str(dG))
     
     kMinus = predictedA.k1() * math.exp(dG / (GAS_CONSTANT_R * temp)) 
     
@@ -56,13 +53,10 @@ def comparison():
     diff = np.abs(np.log10(kMinus) - np.log10(predictedD.k1())) 
     
     file.write(str("%0.3g" % diff) + "    ")
-
     file.write("\n")
-
     file.flush()
 
 
-comparison() 
-
+comparison()
 
 file.close()

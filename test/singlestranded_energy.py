@@ -18,8 +18,7 @@ class EnergyComparison(unittest.TestCase):
         initialize_energy_model(self.o)
         self.sections = {}
         self.sectionname = None
-    
-    
+
     def test_single_stranded(self):
         self.process_file('testSetSS.txt')
         
@@ -42,7 +41,6 @@ class EnergyComparison(unittest.TestCase):
         f.close()
      
     def process(self, sequence, structure, count):
-        
         if (count % 1) == 0:
             print("{0} ".format(count) , end='\r')
             sys.stdout.flush()
@@ -58,16 +56,12 @@ class EnergyComparison(unittest.TestCase):
         self.sections[self.sectionname].append((nupack_energy == multistrand_energy, nupack_energy, multistrand_energy, sequence, structure))
         
     def nupack_ene(self, sequence, structure):
-        
-        result = nupack.energy([sequence], structure, material='dna')        
+        result = nupack.energy([sequence], structure, material='dna')
         return round(result, 2)
 
     def multistrand_ene(self, SEQUENCE, STRUCTURE):
-              
 #         c = multistrand.objects.Complex(strands=[Strand(name="hairpin", sequence=SEQUENCE)], structure=STRUCTURE)
         c = Complex(strands=[Strand(name="hairpin", sequence=SEQUENCE)], structure=STRUCTURE)
 
         myE = energy([c], self.o, Complex_Energy)  
         return round(myE[0], 2)
-        
-

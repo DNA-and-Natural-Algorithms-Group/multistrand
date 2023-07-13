@@ -14,16 +14,11 @@ def create_setup(seed):
 
     toehold = Domain(name="toehold", sequence=toehold_seq, length=6)
     branch_migration_B = Domain(name="bm_B", sequence=bm_design_B, seq_length=20) 
-
     substrate_B = toehold + branch_migration_B
-
     incumbent_B = Strand(name="incumbent", domains=[branch_migration_B.C])
     incoming_B = substrate_B.C
-
-
     start_complex_B1 = Complex(strands=[incoming_B, substrate_B, incumbent_B],
                               structure="..(.((.....)).).....((((((+))))))((((((((((((((((((((+))))))))))))))))))))")
-    
     
     o2 = Options()
     o2.simulation_mode = 0x0080  # trajectory mode
@@ -37,14 +32,11 @@ def create_setup(seed):
     o2.output_interval = 1      
     
     o2.JSDefault()
-    
-     
     return o2
 
 def process_trajectory(o, testing, seed):
 
     seqstring = ''
-    
     times = o.full_trajectory_times
     tubestructs = []
     energies = []
@@ -60,7 +52,6 @@ def process_trajectory(o, testing, seed):
 
         dG = 0
         for state in states: dG += state[5]
-                      
         energies.append(dG);
         
         newseqs = []
@@ -68,27 +59,18 @@ def process_trajectory(o, testing, seed):
         newseqstring = ' '.join(newseqs)  # make a space-separated string of complexes, to represent the whole tube system sequence
         
         arrType = o.full_trajectory_arrType[i]
-        
-        if not newseqstring == seqstring : 
+        if not newseqstring == seqstring :
 #             print newseqstring
             seqstring = newseqstring  # because strand order can change upon association of dissociation, print it when it changes        
-        
-        
-        
-        
+
     nVal = 18;
-    
     if(testing & (seed == 19)):
-     
-        print((times[-1]))
-        print((times[-2]))
-                 
-        print((tubestructs[-1]))
-        print((tubestructs[-2]))
-     
-        print((energies[-1]))
-        print((energies[-2]))
-                 
+        print(times[-1])
+        print(times[-2])
+        print(tubestructs[-1])
+        print(tubestructs[-2])
+        print(energies[-1])
+        print(energies[-2])
 #         print(round(times[-1], nVal) == round(2.00311181181e-06, nVal))
 #         print(round(times[-2], nVal) == round(1.99980667462e-06, nVal))
 #          
@@ -97,21 +79,14 @@ def process_trajectory(o, testing, seed):
 #      
 #         print(round(energies[-1], 2) == round(-31.7, 2))
 #         print(round(energies[-2], 2) == round(-32.13, 2))
-         
-        print() 
+        print()
         
 
 # Perform the simulations
-
-
-
-
 o2 = create_setup(seed=19)
 s2 = SimSystem(o2)
 s2.start()
 # see below about the energy model
 
-
 # process_trajectory(o2, False)
 process_trajectory(o2, True, 19)
-

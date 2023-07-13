@@ -31,11 +31,7 @@ def setup_options_hairpin(trials, stem_seq, hairpin_seq):
     o = Options(simulation_mode="First Passage Time", parameter_type="Nupack", substrate_type="DNA", temperature=310.15,
                 num_simulations=trials, simulation_time=0.1, rate_scaling='Calibrated', verbosity=0,
                 start_state=[start_complex], stop_conditions=[full_sc])
-
-
     return o
-
-
 
 
 def plot_histograms(result_lists, colors=['b', 'r', 'c', 'm', 'g', 'k'], figure=1, labels=None):
@@ -61,7 +57,6 @@ def plot_histograms(result_lists, colors=['b', 'r', 'c', 'm', 'g', 'k'], figure=
     plt.show()
 
 
-
 def plot_completion_graph(result_lists, colors=['b', 'r', 'c', 'm', 'g', 'k'], figure=1, labels=None):
     times = []
     percents = []
@@ -76,7 +71,7 @@ def plot_completion_graph(result_lists, colors=['b', 'r', 'c', 'm', 'g', 'k'], f
         t.sort()
         times.append(np.array(t))
 
-        p = np.array(list(range(1, len(t) + 1)))
+        p = np.arange(1, len(t) + 1)
         p = 100 * p / n  # percentage of all trials
         percents.append(p)
 
@@ -94,8 +89,6 @@ def plot_completion_graph(result_lists, colors=['b', 'r', 'c', 'm', 'g', 'k'], f
     plt.title("Percentage of Total Trajectories Complete by a Given Time")
     plt.legend(loc=0)
     plt.show()
-    
-    
 
 
 # First Passage Time Mode doesn't store the full trajectory.  But it gives the random number seed used on a given simulation.
@@ -122,7 +115,7 @@ def show_interesting_trajectories(result_lists, seqs, type='fastest'):
             state = o.full_trajectory[i][0]
             struct = state[4]
             dG = state[5]
-            print(struct + ' t=%11.9f microseconds, dG=%6.2f kcal/mol' % (time, dG))
+            print(f"{struct} t={time:11.9f} microseconds, dG={dG:6.2f} kcal/mol")
 
     # take a look at the fastest folds.  to take a look at the more interesting slowest folds,
     # change "mintimes" to "maxtimes" and change "fastseeds" to "slowseeds"; do this based on 'type' argument
@@ -151,9 +144,8 @@ def show_interesting_trajectories(result_lists, seqs, type='fastest'):
         s = SimSystem(o)
         s.start()
         print_trajectory(o)        
-        print("Original run's time: %g microseconds" % time)
-        
-        
+        print(f"Original run's time: {time:g} microseconds")
+
 
 def run_sims():
     print("Performing simulations...")
@@ -162,8 +154,6 @@ def run_sims():
     o2 = setup_options_hairpin(trials=1000, stem_seq="GGCGGC", hairpin_seq="TTTT")  # 3-base misaligned GGC pairing possible
     o3 = setup_options_hairpin(trials=1000, stem_seq="GCCGCG", hairpin_seq="TTTT")  # strong stem, but no significant misaligned pairing
     o4 = setup_options_hairpin(trials=1000, stem_seq="ATTATA", hairpin_seq="TTTT")  # weak stem, no significant misaligned pairing
-
-    
 
     s = SimSystem(o1)
     s.start()
@@ -176,7 +166,6 @@ def run_sims():
     # all these simulations are at the same join_concentration and temperature,
     # so there's no need to re-initialize the energy model before each one.
 
-
     all_results = [o.interface.results for o in [o1, o2, o3, o4]]
     all_seqs = [o.start_state[0].sequence for o in [o1, o2, o3, o4]]
 
@@ -188,16 +177,11 @@ def run_sims():
     #    stronger stems form quickly, but if 3-base misalignment is possible, it may take a long time
 
     special = 'fastest'  # or 'slowest', if you wish, but these trajectories involve many many steps!
-    print("Showing the %s trajectories for each hairpin sequence..." % special)
+    print(f"Showing the {special} trajectories for each hairpin sequence...")
     show_interesting_trajectories(all_results, all_seqs, special)
     
 
-
-
-
-""" Start : Hairpin  """ 
-
-
+""" Start : Hairpin  """
 
 toehold_t = "CTAGCGCAGCAA"
 toehold_d = "CTAGCA"
@@ -205,35 +189,27 @@ toehold_d = "CTAGCA"
 domain_1 = "CATTTCTAAC"  
 domain_2 = "CATTTCTAAC"
 
-
-
 def create_setup(trials, toehold_seq, toehold_seq2, domain_seq):
 
     # build complexes with domain-level information
-    
     toehold = Domain(name="toehold", sequence=toehold_seq, length=len(toehold_seq2))
     toehold_2 = Domain(name="toehold", sequence=toehold_seq2, length=len(toehold_seq2))
     branch_migration = Domain(name="branch_migration", sequence=domain_seq, seq_length=len(domain_seq))
-    
     
     incoming = branch_migration.C + toehold.C
     substrate = toehold + branch_migration + toehold_2
     incumbent = Strand(name="incumbent", domains=[toehold_2.C, branch_migration.C])
     
-
-    # Note that "+" is used to indicate strand breaks.  
+    # Note that "+" is used to indicate strand breaks.
     # So the initial structures represent the incoming strand bound by its toehold,
     # and we'll see that either it completes strand displacement, or it dissociates.
     start_complex = Complex(strands=[incoming, substrate, incumbent], structure=".(+)((+))")
     stop_complex = Complex(strands=[incoming, substrate, incumbent], structure="((+))(+).")
     full_sc = StopCondition("CLOSED", [(stop_complex, Literals.exact_macrostate, 0)])
     
-    
     o1 = Options(simulation_mode="First Passage Time", parameter_type="Nupack", substrate_type="DNA", temperature=273.15 + 25.0,
                 num_simulations=trials, simulation_time=0.0001, rate_scaling='Calibrated', verbosity=0,
                 start_state=[start_complex], stop_conditions=[full_sc])
-    
-    
     return o1
 
 def plot_histograms(result_lists, figure=1, labels=None):
@@ -259,7 +235,6 @@ def plot_histograms(result_lists, figure=1, labels=None):
     plt.show()
 
 
-
 def plot_completion_graph(result_lists, figure=1, labels=None):
     times = []
     percents = []
@@ -274,7 +249,7 @@ def plot_completion_graph(result_lists, figure=1, labels=None):
         t.sort()
         times.append(np.array(t))
 
-        p = np.array(list(range(1, len(t) + 1)))
+        p = np.arange(1, len(t) + 1)
         p = 100 * p / n  # percentage of all trials
         percents.append(p)
 
@@ -294,8 +269,6 @@ def plot_completion_graph(result_lists, figure=1, labels=None):
     plt.show()
     
 
-
-
 def run_sims2():
     
     print("Performing simulations...")
@@ -305,12 +278,10 @@ def run_sims2():
     
     o1 = create_setup(trial_numbers, toehold_t, toehold_d, domain_1)
     o2 = create_setup(trial_numbers, toehold_t, toehold_d, domain_2)
-    
-    
+
     for o in [o1, o2 ]:
         s = SimSystem(o)
         s.start()
-
 
     # all these simulations are at the same join_concentration and temperature,
     # so there's no need to re-initialize the energy model before each one.
@@ -323,19 +294,11 @@ def run_sims2():
     plot_completion_graph(all_results, figure=2, labels=all_seqs)
 
 
-
-
-
-
-
 """ Start : Internals """ 
-
-
 
 toehold_t = "CTGATC"
 toehold_dd = "CATATC"
 domain_R = "CATTGCTACCACCTCCGAGTCTAAC"
-
 
 
 def create_setup_interal(toehold_seq, toehold_seq2, domain_seq, domain_length):
@@ -360,9 +323,7 @@ def create_setup_interal(toehold_seq, toehold_seq2, domain_seq, domain_length):
     o1 = Options(simulation_mode="First Passage Time", parameter_type="Nupack", substrate_type="DNA", temperature=273.15 + 25.0,
                 num_simulations=10, simulation_time=0.00001, rate_scaling='Calibrated', verbosity=0,
                 start_state=[start_complex], stop_conditions=[full_sc])
-    
     return o1
-
 
 
 def main2():
@@ -374,10 +335,7 @@ def main2():
     print("Testing loop internals")
 
 
-
-
 if __name__ == '__main__':
     run_sims()
     run_sims2();
     main2()
-
