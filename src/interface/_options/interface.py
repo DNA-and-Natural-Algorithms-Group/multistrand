@@ -1,4 +1,4 @@
-from constants import OptionsConstants
+from .constants import OptionsConstants
 
 Constants = OptionsConstants()
 

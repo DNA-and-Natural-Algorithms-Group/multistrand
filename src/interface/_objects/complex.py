@@ -1,4 +1,5 @@
-from strand import Strand
+from .strand import Strand
+from functools import reduce
 
 
 class Complex(object):
@@ -94,8 +95,8 @@ class Complex(object):
                         error_msg += " Could not parse the dot-paren structure. Expected string composed of ()+."
                 raise ValueError(error_msg)
             else:
-                matched_list = zip(structure,
-                                    reduce(lambda x, y: x + [d.length for d in y.domain_list] + [1], self.strand_list, []))
+                matched_list = list(zip(structure,
+                                    reduce(lambda x, y: x + [d.length for d in y.domain_list] + [1], self.strand_list, [])))
                                     # the reduce just composes the
                                     # domain_lists into one big ordered list
                                     # of domains

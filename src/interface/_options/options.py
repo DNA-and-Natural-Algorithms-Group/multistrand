@@ -4,7 +4,7 @@
 # Chris Berlind                                                                
 # Frits Dannenberg                                                             
 
-from interface import Interface
+from .interface import Interface
 from ..objects import Strand, Complex, StopCondition
 from ..__init__ import __version__
 
@@ -423,7 +423,7 @@ class Options(object):
             warningmsg += "JS-Default"
             self.JSDefault()
             
-        print warningmsg 
+        print(warningmsg) 
         self.rate_scaling = None       
         
     # FD, May 5th 2017
@@ -871,7 +871,7 @@ class Options(object):
 
         self._current_end_state.append(val)
         if self.verbosity > 1:
-            print("{0[0]}: [{0[1]}] '{0[2]}': {0[5]} \n{0[3]}\n{0[4]}\n".format(val))
+            print(("{0[0]}: [{0[1]}] '{0[2]}': {0[5]} \n{0[3]}\n{0[4]}\n".format(val)))
 
     @property
     def add_transition_info(self):
@@ -998,7 +998,7 @@ class Options(object):
         # FD: Start throwing errors if not in the right format
         # FD: This does not prevent the user to set them to ints after options 
         # FD: initialization (could use overloading via @property to prevent this).
-        for key, value in kargs.items():
+        for key, value in list(kargs.items()):
             
             if key == "simulation_time":
                 if not isinstance(value, (float)):
@@ -1012,7 +1012,7 @@ class Options(object):
                 if not isinstance(value, (float)):
                     raise Warning("Please provide unimolecular_scaling as float")
         
-        for k in kargs.keys():
+        for k in list(kargs.keys()):
             
             if k in arg_lookup_table:
                 arg_lookup_table[k](kargs[k])          
@@ -1020,22 +1020,22 @@ class Options(object):
             # FD: Do some additional parsing for legacy support            
             # FD: This code simply translates the string calls to the numerical constants 
             elif k == 'rate_method':
-                if isinstance(kargs[k], basestring):
+                if isinstance(kargs[k], str):
                     self.rate_method = self.RateMethodToString.index(kargs[k])
                     
             elif k == 'dangles':
-                if isinstance(kargs[k], basestring):
+                if isinstance(kargs[k], str):
                     self.dangles = self.dangleToString.index(kargs[k])
 
             elif k == 'parameter_type':
-                if isinstance(kargs[k], basestring):
+                if isinstance(kargs[k], str):
                     self.parameter_type = self.parameterTypeToString.index(kargs[k])
 
             elif k == 'substrate_type':
-                if isinstance(kargs[k], basestring):
+                if isinstance(kargs[k], str):
                     self.substrate_type = self.substrateToString.index(kargs[k])
                     
-            elif (k == 'simulation_mode') & (isinstance(kargs[k], basestring)):
+            elif (k == 'simulation_mode') & (isinstance(kargs[k], str)):
                     self.simulation_mode = self.simulationMode[kargs[k]]
 
             else:

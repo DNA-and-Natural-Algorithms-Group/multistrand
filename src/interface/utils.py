@@ -3,7 +3,7 @@ import os, random
 
 import numpy as np
 
-from _objects.strand import Strand
+from ._objects.strand import Strand
 from nupack import mfe
 
 """ Returns the melting temperature in Kelvin for a duplex of the given sequence.
@@ -140,7 +140,7 @@ def pairType(ids, structs):
     N = len(dotParens)
     
     # the new ordering, for example: 3 0 1 2, so that idList[3] < idList[0] < idList[1] < idList[2]
-    ordering = sorted(range(len(idList)), key=idList.__getitem__)    
+    ordering = sorted(list(range(len(idList))), key=idList.__getitem__)    
     
     idString = ''        
     
@@ -149,7 +149,7 @@ def pairType(ids, structs):
     
     offsets = [0, ] * N  # the new offsets under the old ordering
     
-    for i in xrange(N):
+    for i in range(N):
         
         newPosition = ordering[i]
         
@@ -202,7 +202,7 @@ def generate_sequence(n, allowed_bases=['G', 'C', 'T', 'A'], base_probability=No
             return lambda x, y: (x[0] + y[0], y[1]) if r >= x[0] else (x[0], x[1])
 
         return result.join([reduce(uniform_seq(random.random()),
-                              zip(base_probability, allowed_bases),
+                              list(zip(base_probability, allowed_bases)),
                               (0.0, 'Invalid Probabilities'))[1] 
                               # note this subscript [1] pulls out the item
                               # selected by the reduce since the result was a tuple.

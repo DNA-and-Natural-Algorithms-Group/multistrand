@@ -1,5 +1,5 @@
 from ..utils import generate_sequence
-from strand import Strand
+from .strand import Strand
 
 
 class Domain(object):
@@ -32,7 +32,7 @@ class Domain(object):
             Domain._domain_unique_id += 1
             self._sequence = ""
             self.length = 0
-            for k,v in kargs.iteritems():
+            for k,v in kargs.items():
                 self.__setattr__( k, v )
             if 'name' not in kargs:
                 raise ValueError("Must pass a 'name' keyword argument.")

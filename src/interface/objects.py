@@ -9,10 +9,10 @@
 
 __module__ = 'multistrand.objects'
 
-from _objects.domain  import Domain
-from _objects.complex import Complex
-from _objects.strand import Strand
-from _objects.stopcondition import StopCondition, Macrostate
+from ._objects.domain  import Domain
+from ._objects.complex import Complex
+from ._objects.strand import Strand
+from ._objects.stopcondition import StopCondition, Macrostate
 
 __all__ = ['Strand','StopCondition','Macrostate','Complex','Domain']
 

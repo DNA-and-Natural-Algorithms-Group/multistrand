@@ -92,7 +92,7 @@ class MergeResult(object):
         return np.log10(self.kEff(concentration))
 
     def testForTwoStateness(self, concentration):
-        print "Test for two-stateness is not implemented for this object (type: " + type(self).__name__ + ")\n"
+        print("Test for two-stateness is not implemented for this object (type: " + type(self).__name__ + ")\n")
 
     def __str__(self):
         if self.myBootstrap != None:
@@ -167,7 +167,7 @@ class FirstStepRate(MergeResult):
     def kEff(self, concentration=None):
 
         if concentration == None:
-            print "Cannot compute k_effective without concentration"
+            print("Cannot compute k_effective without concentration")
             return MINIMUM_RATE
 
         concentration = np.float(concentration)
@@ -191,7 +191,7 @@ class FirstStepRate(MergeResult):
     def testForTwoStateness(self, concentration=None):
 
         if concentration == None:
-            print "Warning! Attempting to test for two-state behaviour but concentration was not given. \n"
+            print("Warning! Attempting to test for two-state behaviour but concentration was not given. \n")
             return True
 
         # Test if the failed trajectory and the success trajectory are dominated ( > 10% of total ) by the unimolecular phase
@@ -203,8 +203,8 @@ class FirstStepRate(MergeResult):
 
         if(testFail | testSucces):
 
-            print(''.join(["Warning! At the chosen concentration, ", str(
-                concentration), " M, the reaction might violate two-state secondary order rate kinetics"]))
+            print((''.join(["Warning! At the chosen concentration, ", str(
+                concentration), " M, the reaction might violate two-state secondary order rate kinetics"])))
             print(self)
 
     def resample(self):
@@ -223,8 +223,8 @@ class FirstStepRate(MergeResult):
     # # override toString
     def __str__(self):
 
-        print "nForward = " + str(self.nForward) 
-        print "nReverse = " + str(self.nReverse) 
+        print("nForward = " + str(self.nForward)) 
+        print("nReverse = " + str(self.nReverse)) 
         
         output = ""
 
@@ -405,7 +405,7 @@ class Bootstrap():
         self.logEffectiveRates = list()
         self.N = N
 
-        print "Bootstrapping " + type(myRates).__name__ + ", using " + str(self.N) + " samples.",
+        print("Bootstrapping " + type(myRates).__name__ + ", using " + str(self.N) + " samples.", end=' ')
 
         for i in range(self.N):
 
@@ -431,7 +431,7 @@ class Bootstrap():
         self.effectiveRates.sort(cmp=None, key=None, reverse=False)
         self.effectiveAltRates.sort(cmp=None, key=None, reverse=False)
         b_finish_time = time.time()
-        print "   ..finished in %.2f sec.\n" % (b_finish_time - b_start_time)
+        print("   ..finished in %.2f sec.\n" % (b_finish_time - b_start_time))
 
         # Yet to generate log alt rates
         for rate in self.effectiveRates:
@@ -553,19 +553,19 @@ class MergeSimSettings(object):
             return True
         else:
             if printFlag:
-                print "nForward = %i " % nForwardIn.value
-                print "nReverse = %i \n" % nReverseIn.value
+                print("nForward = %i " % nForwardIn.value)
+                print("nReverse = %i \n" % nReverseIn.value)
        
             if(nForwardIn.value >= self.terminationCount):
-                print "Found " + str(nForwardIn.value) + " successful trials, terminating."
+                print("Found " + str(nForwardIn.value) + " successful trials, terminating.")
                 return True
 
             elif((nForwardIn.value + nReverseIn.value) > self.max_trials):
-                print "Simulated " + str(nForwardIn.value + nReverseIn.value) + " trials, terminating."
+                print("Simulated " + str(nForwardIn.value + nReverseIn.value) + " trials, terminating.")
                 return True
             
             elif(time.time() - timeStart > self.timeOut):
-                print "Runtime exeeded " + str(self.timeOut) + " seconds, terminating."
+                print("Runtime exeeded " + str(self.timeOut) + " seconds, terminating.")
                 return True
 
             else:
@@ -607,8 +607,8 @@ class MergeSim(object):
     def __init__(self, settings=None):
 
         self.initializationTime = time.time()
-        print("%s%s" % (timeStamp(),
-                        "  Starting Multistrand 2.1      (c) 2008-2017 Caltech      "))
+        print(("%s%s" % (timeStamp(),
+                        "  Starting Multistrand 2.1      (c) 2008-2017 Caltech      ")))
 
         self.factory = optionsFactory
         self.aFactory = None
@@ -636,8 +636,8 @@ class MergeSim(object):
         self.settings.setBootstrap(bootstrapIn, num)
 
     def timeSinceStart(self):
-        print("Time since creating object %.5f seconds" % 
-              (time.time() - self.initializationTime))
+        print(("Time since creating object %.5f seconds" % 
+              (time.time() - self.initializationTime)))
 
     def setDebug(self, value):
         self.settings.debug = value
@@ -717,7 +717,7 @@ class MergeSim(object):
 
         for t, time in zip(trajs, times):
 
-            print (t, "  t=", time, "\n")
+            print((t, "  t=", time, "\n"))
 
         0
 
@@ -757,10 +757,10 @@ class MergeSim(object):
             tubestruct = ' '.join(structs)  # give the dot-paren secondary structure for the whole test tube
             
             if not newseqstring == seqstring : 
-                print newseqstring
+                print(newseqstring)
                 seqstring = newseqstring  # because strand order can change upon association of dissociation, print it when it changes        
     
-            print tubestruct + ('   t=%.6f ms,  dG=%3.2f kcal/mol  ' % (timeT, dG)) 
+            print(tubestruct + ('   t=%.6f ms,  dG=%3.2f kcal/mol  ' % (timeT, dG))) 
 
     def initialInfo(self):
 
@@ -830,15 +830,15 @@ class MergeSim(object):
     def printStates(self):
         
         def actualPrint():   
-            print  "Start states:"
+            print("Start states:")
             for i in self.factory.new(0).start_state:
-                print i
-                print "\n"
+                print(i)
+                print("\n")
                 
-            print "Stop conditions: "
+            print("Stop conditions: ")
             for i in self.factory.new(0).stop_conditions:
-                print i
-                print "\n"
+                print(i)
+                print("\n")
              
         myProc = multiprocessing.Process(target=actualPrint, args=[])
         myProc.start()
@@ -927,7 +927,7 @@ class MergeSim(object):
                     procs[i].terminate()
 
             self.runTime = (time.time() - startTime)
-            print("Done.  %.5f seconds -- now processing results \n" % (time.time() - startTime))
+            print(("Done.  %.5f seconds -- now processing results \n" % (time.time() - startTime)))
 
             # Leak - the below is a leak rates object
             # NB: Initialize with a dataset, but we merge with
@@ -938,7 +938,7 @@ class MergeSim(object):
 
             # save the terminal states if we are not in leak mode
             if self.settings.resultsType == self.settings.RESULTTYPE2:
-                print self.results
+                print(self.results)
 
             # reset the multiprocessing results lists.
             self.managed_result = manager.list()
@@ -951,7 +951,7 @@ class MergeSim(object):
         self.printStates()
 
         # start the initial bulk
-        print(self.startSimMessage())
+        print((self.startSimMessage()))
         
         procs = []
 
@@ -1001,7 +1001,7 @@ class MergeSim(object):
         if not self.settings.resultsType == MergeSimSettings.RESULTTYPE2:
             self.results.generateCounts()
         
-        print self.results
+        print(self.results)
 
         if self.settings.bootstrap == True:
             self.results.doBootstrap(self.settings.bootstrapN)

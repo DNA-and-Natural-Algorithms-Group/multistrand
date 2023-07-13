@@ -400,11 +400,11 @@ class Builder(object):
             if state in other.protoSpace:
                 overlap += 1
 
-        print "The overlap is " + str(100.0 * overlap / N) + " percent. "
+        print("The overlap is " + str(100.0 * overlap / N) + " percent. ")
 
     def mergeSet(self, this, that):
 
-        for key, val in that.iteritems():
+        for key, val in that.items():
 
             if not key in this:
                 this[key] = val
@@ -421,7 +421,7 @@ class Builder(object):
 
     def transitionMerge(self, other):
         
-        for key, value in other.protoTransitions.iteritems():
+        for key, value in other.protoTransitions.items():
             
             sFrom = key[0]
             sTo = key[1]
@@ -475,7 +475,7 @@ class Builder(object):
             self.genAndSavePathsFile()
 
             if self.verbosity:
-                print "Size     = %i " % len(self.protoSpace)
+                print("Size     = %i " % len(self.protoSpace))
                 
     	    if precision < 1.0: 
                     builderRate = BuilderRate(self)
@@ -484,7 +484,7 @@ class Builder(object):
         self.fattenStateSpace()
         
         if self.verbosity:
-            print "Size     = %i " % len(self.protoSpace)
+            print("Size     = %i " % len(self.protoSpace))
 
     """ Runs genAndSavePathsFile until convergence is reached,
         given a list of initial states"""
@@ -505,12 +505,12 @@ class Builder(object):
                 currTime = builderRate.averageTimeFromInitial()
 
             if printMeanTime:
-                print "Mean first passage time = %.2E" % currTime
+                print("Mean first passage time = %.2E" % currTime)
 
         self.fattenStateSpace()
 
         if self.verbosity:
-            print "Size     = %i " % len(self.protoSpace)
+            print("Size     = %i " % len(self.protoSpace))
 
     ''' A single iteration of the pathway elaboration method '''
 
@@ -530,9 +530,9 @@ class Builder(object):
             del otherBuilder
 
         if self.verbosity or printMeanTime:
-            print "Size     = %i    ---  bytesize = %i " % (len(self.protoSpace), sys.getsizeof (self.protoSpace))
-            print "Size T   = %i    ---  bytesize = %i " % (len(self.protoTransitions), sys.getsizeof (self.protoTransitions))
-            print "Time = %f" % (time.time() - startTime)
+            print("Size     = %i    ---  bytesize = %i " % (len(self.protoSpace), sys.getsizeof (self.protoSpace)))
+            print("Size T   = %i    ---  bytesize = %i " % (len(self.protoTransitions), sys.getsizeof (self.protoTransitions)))
+            print("Time = %f" % (time.time() - startTime))
 
     '''
     Generates all transitions between states in the statespaces and adds missing transitions
@@ -565,10 +565,10 @@ class Builder(object):
             
             return o1
         
-        for key, value in self.protoSpace.iteritems():
+        for key, value in self.protoSpace.items():
 
             if ogVerb and ((counter % 100) == 0):
-                print "Searching for missing transitions. Progress " + str(counter) + " / " + str(len(self.protoSpace))
+                print("Searching for missing transitions. Progress " + str(counter) + " / " + str(len(self.protoSpace)))
 
             (seqs, ids, structs) = self.protoSequences[key]
             
@@ -634,7 +634,7 @@ class Builder(object):
                     self.protoFinalStates[state] = Literals.success
 
         if printCount:
-            print "Number of final states was %i but now is %i" % (beforeN, len(self.protoFinalStates))
+            print("Number of final states was %i but now is %i" % (beforeN, len(self.protoFinalStates)))
 
     """
     supplyInitialState : a Complex that serves as initial state for that simulation
@@ -678,7 +678,7 @@ class Builder(object):
                 s.start()  # after this line, the computation is finished.
 
             if self.verbosity:
-                print "Multistrand simulation is now done,      time = %.2f" % (time.time() - simTime)
+                print("Multistrand simulation is now done,      time = %.2f" % (time.time() - simTime))
 
             """ load the space """
             myFile = open(self.the_dir + str(myOptions.interface.current_seed) + "/protospace.txt", "r")
@@ -696,8 +696,8 @@ class Builder(object):
 
                 elif not space[uniqueID] == energyvals:
 
-                    print "My hashmap contains " + str(uniqueID) + " with Energy " + str(space[uniqueID]) + " but found: " + str(energyvals)
-                    print "Line = " + line
+                    print("My hashmap contains " + str(uniqueID) + " with Energy " + str(space[uniqueID]) + " but found: " + str(energyvals))
+                    print("Line = " + line)
 
             """ load the transitions """
             myFile = open(self.the_dir + str(myOptions.interface.current_seed) + "/prototransitions.txt", "r")
@@ -759,7 +759,7 @@ class Builder(object):
             go_on = True
 
             if len(myLines) == 0:
-                print "No initial states found!"
+                print("No initial states found!")
 
             while go_on:
 
@@ -827,7 +827,7 @@ class Builder(object):
 
         if not ignoreInitialState:
 
-            for key, val in initStates.iteritems():
+            for key, val in initStates.items():
                 if not key in self.protoInitialStates:
                     self.protoInitialStates[key] = val;
                 else:
@@ -1225,7 +1225,7 @@ class BuilderRate(object):
         times = self.averageTime()
 
         if self.build.verbosity or printMeanTime:
-            print "Solving matrix took %.2f s" % self.matrixTime
+            print("Solving matrix took %.2f s" % self.matrixTime)
 
         mfpt = self.weightedPassageTime(times=times, bimolecular=bimolecular)
 
