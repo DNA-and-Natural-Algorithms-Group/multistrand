@@ -421,6 +421,10 @@ void StrandOrdering::generateFlatSequence(char **sequence, char **structure, cha
 	*structure = new char[totallength];
 	*code_sequence = new char[totallength];
 
+	if (utility::debugTraces){
+		cout << "Total length = " << totallength << endl << flush;
+	}
+
 	for (index = 0, cpos = 0, traverse = first; index < count; index++, traverse = traverse->next) {
 		strncpy(&((*sequence)[cpos]), traverse->thisSeq, traverse->size);
 		strncpy(&((*structure)[cpos]), traverse->thisStruct, traverse->size);
@@ -443,7 +447,7 @@ void StrandOrdering::generateFlatSequence(char **sequence, char **structure, cha
 
 // JS: converts an index into a flat char sequence returned by generateFlatSequence
 // into an appropriate pointer into the particular strand's code sequence.
-char* StrandOrdering::convertIndex(int index) {
+char* StrandOrdering::convertIndex(const int index) {
 
 	int cpos, cstrand;
 	orderingList *traverse;
@@ -606,7 +610,7 @@ OpenLoop* StrandOrdering::getIndex(JoinCriteria& crit, int site, char **location
 // void addOpenLoop( OpenLoop *newLoop, int index)
 // 
 
-void StrandOrdering::addOpenLoop(OpenLoop *newLoop, int index) {
+void StrandOrdering::addOpenLoop(OpenLoop *newLoop, const int index) {
 
 	openInfo.upToDate = false;
 

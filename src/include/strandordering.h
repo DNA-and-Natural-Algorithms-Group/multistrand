@@ -51,11 +51,11 @@ public:
 	void generateFlatSequence(char **sequence, char **structure, char **code_sequence);
 
 	// this function converts an index into a previously given sequence from generateFlatSequence into a char * pointer into the appropriate strand's sequence at the given location.
-	char *convertIndex(int index);
+	char *convertIndex(const int index);
 	bool convertIndexCheckBounds(int index);
 
 	// addOpenLoop links up the appropriate strand with the open loop involving the nick immediately before that strand in the ordering.
-	void addOpenLoop(OpenLoop *newLoop, int index);
+	void addOpenLoop(OpenLoop *newLoop, const int index);
 
 	// end functions for SComplex::generateLoops()
 

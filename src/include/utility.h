@@ -25,7 +25,7 @@ using namespace std;
 
 namespace utility {
 
-const bool debugTraces = false;
+const bool debugTraces = true;
 
 
 // Structs
