@@ -188,8 +188,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Multistrand'
-copyright = u'Caltech 2010-2017 <help@multistran.org>'
+project = 'Multistrand'
+copyright = 'Caltech 2010-2017 <help@multistran.org>'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -332,8 +332,8 @@ htmlhelp_basename = 'Multistranddoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'Multistrand.tex', u'Multistrand Documentation',
-   u'Caltech \\textless{}help@multistrand.org\\textgreater{}', 'manual'),
+  ('index', 'Multistrand.tex', 'Multistrand Documentation',
+   'Caltech \\textless{}help@multistrand.org\\textgreater{}', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -365,19 +365,19 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'multistrand', u'Multistrand Documentation',
-     [u'Caltech <help@multistrand.org>'], 1),
-    ('objects','objects', u'Objects',
-     [u'Caltech <help@multistrand.org>'], 1)
+    ('index', 'multistrand', 'Multistrand Documentation',
+     ['Caltech <help@multistrand.org>'], 1),
+    ('objects','objects', 'Objects',
+     ['Caltech <help@multistrand.org>'], 1)
 ]
 
 # -- Options for PDF output --------------------------------------------------
 # Grouping the document tree into PDF files. List of tuples
 # (source start file, target name, title, author, options).
 #
-pdf_documents = [    ('index', 'multistrand', u'Multistrand Documentation',
-                      u'Caltech'),
-                     ('objects','objects', u'Objects',u'Caltech')]
+pdf_documents = [    ('index', 'multistrand', 'Multistrand Documentation',
+                      'Caltech'),
+                     ('objects','objects', 'Objects','Caltech')]
 
 pdf_language = "en_US"
 
