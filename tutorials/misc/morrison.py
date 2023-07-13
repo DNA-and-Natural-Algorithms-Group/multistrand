@@ -15,16 +15,14 @@ from nupack import pfunc
 print("Morrison and Stols 1993")
 
 def openDocument(document): 
-    
     reader = xlrd.open_workbook(document, 'rb')
     row = reader.sheet_by_index(0)
-    return row    
+    return row
 
 def excelFind(row, col):
     dir = os.path.dirname(__file__)
-    document = os.path.join(dir, 'data/helix/Fig6_0.xlsx')      
+    document = os.path.join(dir, 'data/helix/Fig6_0.xlsx')
     myDoc = openDocument(document)
-    
     return myDoc.cell(row, col).value
 
 
@@ -32,16 +30,13 @@ def excelFind(row, col):
 resultFileName = "morrison-results-ALT-METROPOLIS.txt"
 file = open(resultFileName, 'w+')
 
-file.write("Seq    temp    measured    predicted    pred-95-low    pred-95-high     alternative computation\n\n") 
+file.write("Seq    temp    measured    predicted    pred-95-low    pred-95-high     alternative computation\n\n")
 
 ## FD: again, this will use the default settings of compute files
-
-
 
 def doMorrison(myRange):
 
     diffSum = np.float(0.0)
-
     for i in myRange:
         
         seq = excelFind(i+1, 1)
@@ -59,7 +54,7 @@ def doMorrison(myRange):
         dotparen = "("*len(seq) + "+" + ")"*len(seq)
         
         dG = pfunc([seq, seqC], [1,2], T=(temp-273.15), material="dna")
-        print((str(dG))) 
+        print(str(dG))
         
         kMinus = predicted.k1() * math.exp( dG / ( GAS_CONSTANT_R * temp) ) 
         kMinusLow = low * math.exp( dG / ( GAS_CONSTANT_R * temp) ) 
@@ -74,14 +69,11 @@ def doMorrison(myRange):
         
         file.write(str( "%0.3g" % diff ) +     "    "  )
         file.write(str( "%0.3g" % diffSum ) +     "    "  )
-    
         file.write("\n")
-    
         file.flush()
 
 
 doMorrison(list(range(6,12))) #do short seq first
 doMorrison(list(range(6)))
-
 
 file.close()

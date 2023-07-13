@@ -86,6 +86,7 @@ def setup_threewaybm_comparison(trials=10, toehold_seq = "GTGGGT", bm_design_A =
     
     return o1,o2
 
+
 def plot_histograms_complete_vs_failed( result_list, colors=['b','m'], figure=1 ):
     # separate based on which stop condition ended the simulation   ((( what if simulation ran out of time? )))
     times_complete = np.array([i.time for i in result_list if i.tag == 'complete'])
@@ -125,6 +126,7 @@ def plot_histograms_complete_vs_failed( result_list, colors=['b','m'], figure=1 
     plt.legend(loc=0)
     plt.show()
 
+
 def plot_histograms_two_designs( result_lists, colors=['magenta','b'], figure=1 ):
     times = []
     times.append(np.array([i.time for i in result_lists[0] if i.tag == 'complete']))
@@ -158,7 +160,7 @@ def plot_completion_graph( result_lists, colors=['b','r'], figure=1, labels=['De
         t.sort()
         times.append(np.array(t))
 
-        p = np.array(list(range(1,len(t)+1)))
+        p = np.arange(1,len(t)+1)
         p = 100 * p / n  # percentage of all trials, including ones that don't complete
         percents.append( p )
 
@@ -186,7 +188,7 @@ def plot_completion_graph_complete_vs_failed( result_list, colors=['b','m'], fig
         t = [i.time for i in result_list if i.tag == rl]
         t.sort()
         times.append(np.array(t))
-        p = np.array(list(range(1,len(t)+1)))
+        p = np.arange(1,len(t)+1)
         p = 100 * p / n
         percents.append( p )
     # the last data points of each type should sum to 1.0 if all trajectories either fail or complete (rather than time out)
@@ -206,8 +208,8 @@ def plot_completion_graph_complete_vs_failed( result_list, colors=['b','m'], fig
     plt.legend(loc=0)
     plt.show()
 
-# Takes about 10 min for 100 trials.
 
+# Takes about 10 min for 100 trials.
 if __name__ == '__main__':
 
     # o1,o2 = setup_threewaybm_comparison()  # equivalent to below, since they are defaults
@@ -238,6 +240,3 @@ if __name__ == '__main__':
     plot_completion_graph_complete_vs_failed(o1.interface.results, figure=2)
     plot_histograms_two_designs([o1.interface.results, o2.interface.results], figure=3)
     plot_completion_graph([o1.interface.results, o2.interface.results], figure=4)
-
-
-

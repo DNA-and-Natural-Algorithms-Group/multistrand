@@ -120,6 +120,7 @@ def concentration_string(concentration):
         return "{} mM".format(1e3*concentration)
     return "{} M".format(concentration)
 
+
 def create_setup(strand_seq, num_traj, T=25, rate_method_k_or_m="Metropolis", material="DNA"):
 
     # Essentially, creates the options object and prepares to simulate the hybridization of the strand and its complement.
@@ -151,6 +152,7 @@ def create_setup(strand_seq, num_traj, T=25, rate_method_k_or_m="Metropolis", ma
     o.start_state = [start_complex_top, start_complex_bot]
     o.stop_conditions = [success_stop_condition,failed_stop_condition]
     return o
+
 
 def compute_rate_constants(dataset, concentration, printit=True):
 
@@ -244,14 +246,16 @@ def compute_rate_constants(dataset, concentration, printit=True):
 
     return N_forward, N_reverse, kcollision, forward_kcoll, reverse_kcoll, k1, k2, k1prime, k2prime, keff, zcrit
 
+
 def resample_with_replacement(mylist,num_samples):
     return [random.choice(mylist) for i in range(num_samples)]
+
 
 def first_step_simulation(strand_seq, num_traj, T=25, rate_method_k_or_m="Metropolis", concentration=50e-9, material="DNA"):
 
     # Run the simulations
 
-    print("Running first step mode simulations for %s (with Boltzmann sampling)..." % (strand_seq))
+    print(f"Running first step mode simulations for {strand_seq} (with Boltzmann sampling)...")
     o = create_setup(strand_seq, num_traj, T, rate_method_k_or_m, material)
     initialize_energy_model(o)  # Prior simulations could have been for different temperature, material, etc.
                                 # But Multistrand "optimizes" by sharing the energy model parameters from sim to sim.
@@ -265,7 +269,6 @@ def first_step_simulation(strand_seq, num_traj, T=25, rate_method_k_or_m="Metrop
     #    print i
     
     # Extract the timing information for successful and failed runs
-
     print()
     print("Inferred rate constants with analytical error bars:")
     N_forward, N_reverse, kcoll, forward_kcoll, reverse_kcoll, k1, k2, k1prime, k2prime, keff, zcrit = compute_rate_constants(dataset,concentration)
@@ -317,7 +320,7 @@ def first_step_simulation(strand_seq, num_traj, T=25, rate_method_k_or_m="Metrop
         print("z_crit              = %s +/- %s (i.e. +/- %g %%)" % (concentration_string(t_zcrit),concentration_string(std_zcrit),100*std_zcrit/zcrit))
     print()
 
-    return [N_forward, N_reverse, k1, k1prime, k2, k2prime, keff, zcrit, o]   
+    return [N_forward, N_reverse, k1, k1prime, k2, k2prime, keff, zcrit, o]
 
 
 if __name__ == '__main__':
@@ -359,28 +362,6 @@ if __name__ == '__main__':
     #    John S. Schreck, Thomas E. Ouldridge, Flavio Romano, Petr Sulc, Liam Shaw, Ard A. Louis, Jonathan P. K. Doye
     #    arXiv:1408.4401 [cond-mat.soft]  (2014)
     #    http://arxiv.org/abs/1408.4401
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -529,8 +510,3 @@ if __name__ == '__main__':
 # 
 # Gao et al report 12.0, 7.2, and 2.0 x 10^5 /M/s respectively for their 0-, 3-, and 4-bp hairpin DNA strands.
 # Multistrand observed 43.1966, 11.1874, and 10.7902 x 10^6 /M/s respectively, which is in qualitative agreement for the relative trends.
-
-
-
-
-

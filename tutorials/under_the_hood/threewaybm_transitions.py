@@ -30,6 +30,7 @@ Loose_Macrostate = 3   # match a secondary structure with "don't care"s, allowin
 Count_Macrostate = 4   # match a secondary structure, allowing a certain number of disagreements
 # see Schaeffer's PhD thesis, chapter 7.2, for more information
 
+
 def setup_options_threewaybm(toehold_seq = "GTGGGT", bm_design = "ACCGCACGTCACTCACCTCG"):
 
     # the structures below are hard-coded for these lengths
@@ -82,15 +83,12 @@ def setup_options_threewaybm(toehold_seq = "GTGGGT", bm_design = "ACCGCACGTCACTC
     o_exact = Options(simulation_mode="Transition",parameter_type="Nupack", dangles="Some",
                 substrate_type="DNA", num_simulations = 5, simulation_time=.01, temperature=310.15,
                 start_state=[start_complex], rate_scaling='Calibrated', verbosity=0)
-
     o_exact.stop_conditions = [start_sc, six_sc_exact, twelve_sc_exact, eighteen_sc_exact, completed_sc, rejected_sc]
-    
     o_loose = Options(simulation_mode="Transition",parameter_type="Nupack", dangles="Some",
                 substrate_type="DNA", num_simulations = 5, simulation_time=.01, temperature=310.15,
                 start_state=[start_complex], rate_scaling='Calibrated', verbosity=0)
 
     o_loose.stop_conditions = [start_sc, six_sc_loose, twelve_sc_loose, eighteen_sc_loose, completed_sc, rejected_sc]
-
     return o_exact, o_loose
 
 
@@ -98,26 +96,30 @@ def setup_options_threewaybm(toehold_seq = "GTGGGT", bm_design = "ACCGCACGTCACTC
 # so in_state(mol) returns True if the system is in at least one of the listed macrostates.
 def in_state( mol ): return sum(mol) > 0
 
+
 # mol is a Boolean descriptor of macrostate occupancy, like mol above.
 # a short-hand name for this macrostate (based on the order given in stop_conditions) is provided.
 def mol_name(mol):
     charindex = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0'
-    names = [charindex[j] for i,j in zip(mol,list(range(len(mol)))) if i]
+    names = [charindex[j] for i,j in zip(mol,range(len(mol))) if i]
     if names == []:
         names = charindex[26]
     else:
         names = ",".join(names)
     return names
 
+
 # t0 and t1 are Boolean descriptors of macrostate occupancy, like mol above.
 # here, we provide a printable name for the transition between two macrostate occupancy lists.
 def trans_name(t0,t1):
     return mol_name(t0) + ' -> ' + mol_name(t1)
 
+
 def print_transitions( transition_traj ):
     for t in transition_traj:
         print("%12g : %s" % ( t[0], mol_name(t[1]) ))
-                  
+
+
 # for each simulation, the transition trajectory reports the tuple (time_entered, which_macrostates_the_system_is_now_in)
 def parse_transition_lists( transition_traj_list ):
     transition_dict = {}
@@ -136,6 +138,7 @@ def parse_transition_lists( transition_traj_list ):
 
     return transition_dict
 
+
 def parse_transition_list( transition_traj_list ):
     return parse_transition_lists( [transition_traj_list] )
 
@@ -151,7 +154,7 @@ def print_transition_dict( transition_dict, options = None ):
     # also print the true names of the macrostates, if an Options object is provided
     charindex = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0'
     if options:
-        for i,idx in zip(options.stop_conditions,list(range(len(options.stop_conditions)))):
+        for i,idx in zip(options.stop_conditions,range(len(options.stop_conditions))):
             print(("{0}: {1}".format( i.tag, charindex[idx])))
 
 

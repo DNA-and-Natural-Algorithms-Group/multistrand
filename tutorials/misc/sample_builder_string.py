@@ -23,7 +23,6 @@ sumTime = 0.0
 
 
 def getOptions(arguments):
-     
     o = standardOptions()
     o.simulation_mode = Literals.trajectory
     o.num_simulations = 80
@@ -35,12 +34,10 @@ def getOptions(arguments):
     
     stopSuccess = StopCondition(Literals.success, [(endComplex, Literals.exact_macrostate, 0)])
     o.stop_conditions = [stopSuccess]
-    
     return o
   
 
 def getString(arguments): 
-    
     toggle = arguments[0]
 
     if toggle == str_association:
@@ -54,10 +51,9 @@ def getString(arguments):
 
 
 def genAndPrint(numOfPaths, toggle):
-    
     global sumTime
     
-    print("Building the statespace from traces for reaction: " + toggle) 
+    print(f"Building the statespace from traces for reaction: {toggle}")
     
     startStates = getString([toggle, test15mer])
     endState = startStates[-1]
@@ -81,10 +77,10 @@ def genAndPrint(numOfPaths, toggle):
      
     if not (toggle == str_dissociation or toggle == str_threeway_strand_displacement):
         compTime = builderRate.averageTimeFromInitial(bimolecular=False)
-        print("\nRate = %.2f /s  \n" % (1.0 / compTime))
+        print(f"\nRate = {1.0 / compTime:.2f} /s  \n")
     else:
         compTime = builderRate.averageTimeFromInitial(bimolecular=True)
-        print("\nRate = %.2f /M/s  \n" % (1.0 / compTime))
+        print(f"\nRate = {1.0 / compTime:.2f} /M/s  \n")
      
     """ Fields you could look at: """
     if False:
@@ -114,5 +110,4 @@ if __name__ == '__main__':
 #     numOfPaths = 5000        # put this too low, and there won't be any final states found
 #     genAndPrint(numOfPaths, str_threeway_strand_displacement)
     
-    print("Overal construction time was %.2f seconds" % sumTime)
-    
+    print(f"Overal construction time was {sumTime:.2f} seconds")

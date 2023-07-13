@@ -75,6 +75,7 @@ Dissoc_Macrostate = 2
 Loose_Macrostate = 3
 Count_Macrostate = 4
 
+
 def concentration_string(concentration):
     if concentration < 1e-12: 
         return "{} fM".format(1e15*concentration)
@@ -87,6 +88,7 @@ def concentration_string(concentration):
     if concentration < 1: 
         return "{} mM".format(1e3*concentration)
     return "{} M".format(concentration)
+
 
 def create_setup(strand_seq, num_traj, T=25, rate_method_k_or_m="Metropolis", material="DNA"):
 
@@ -119,6 +121,7 @@ def create_setup(strand_seq, num_traj, T=25, rate_method_k_or_m="Metropolis", ma
     o.start_state = [start_complex_top, start_complex_bot]
     o.stop_conditions = [success_stop_condition,failed_stop_condition]
     return o
+
 
 def compute_rate_constants(dataset, concentration, printit=True):
 
@@ -214,14 +217,15 @@ def compute_rate_constants(dataset, concentration, printit=True):
 
     return N_forward, N_reverse, kcollision, forward_kcoll, reverse_kcoll, k1, k2, k1prime, k2prime, keff, zcrit
 
+
 def resample_with_replacement(mylist,num_samples):
     return [random.choice(mylist) for i in range(num_samples)]
+
 
 def first_step_simulation(strand_seq, num_traj, T=25, rate_method_k_or_m="Metropolis", concentration=50e-9, material="DNA"):
 
     # Run the simulations
-
-    print("Running %d first step mode simulations for %s (with Boltzmann sampling)..." % (num_traj,strand_seq))
+    print(f"Running {num_traj:d} first step mode simulations for {strand_seq} (with Boltzmann sampling)...")
     o = create_setup(strand_seq, num_traj, T, rate_method_k_or_m, material)
     initialize_energy_model(o)  # Prior simulations could have been for different temperature, material, etc.
                                 # But Multistrand "optimizes" by sharing the energy model parameters from sim to sim.
@@ -235,9 +239,11 @@ def WC(seq):
     """Computes the Watson-Crick complement for a DNA sequence."""
     return seq.translate(string.maketrans('ACTG','TGAC'))[::-1]
 
+
 def randomseq(length,bases='ACTG'):
     """Chooses a random DNA sequence."""
     return ''.join(random.choice(bases) for i in range(length))
+
 
 def stemsize(seq, T=25, material='dna'):
     result = nupack.mfe([seq], T=T, material=material)
@@ -254,6 +260,7 @@ def stemsize(seq, T=25, material='dna'):
         stemlen = 0
     return stemlen
 
+
 def toeholds(seq, T=25, material="dna"):
     result = nupack.mfe([seq], T=T, material=material)
     struct = result[0][0]
@@ -267,23 +274,28 @@ def toeholds(seq, T=25, material="dna"):
     # print "    %s = %s , toes %d and %d" % (seq, struct, toe5len, toe3len)
     return (toe5len, toe3len)
     
+
 def binding_dG(seq, T=25, material='dna'):
     dG_top = nupack.pfunc([seq], T=T, material=material)
     dG_bot = nupack.pfunc([ WC(seq) ], T=T, material=material)
     dG_duplex = nupack.pfunc([ seq, WC(seq) ], T=T, material=material)
     return (dG_duplex - dG_top - dG_bot)
 
+
 def duplex_dG(seq, T=25, material='dna'):
     return nupack.pfunc([ seq, WC(seq) ], T=T, material=material)
 
+
 def strand_dG(seq, T=25, material='dna'):
     return nupack.pfunc([ seq ], T=T, material=material)
+
 
 def reverse_rate(seq, kf, T=25, material='dna'):
     dG   = binding_dG(seq, T=25, material='dna')
     RT   = 0.001987 * (273.15+25)  # kcal/mol at 25 C
     kr   = kf*np.exp( dG/RT )
     return kr
+
 
 # this just looks at struct of sense strand.  it would be better to look at both, even if they have different structures. TO DO.
 def toebinding(seq, T=25, material='dna'):
@@ -319,6 +331,7 @@ def toebinding(seq, T=25, material='dna'):
     else:
         # print "Sequence %s: no structure!" % seq
         return -duplex_dG(seq, T=T, material=material)
+
 
 if __name__ == '__main__':
 
@@ -369,11 +382,10 @@ if __name__ == '__main__':
             filenames.append(fn)
 
     print()
-    if sys.argv[1] == 'generate' and (sys.argv[2] in ['random','iso-random','structured','iso-structured','fixed-stem','iso-fixed-stem']):   
-        
+    if sys.argv[1] == 'generate' and (sys.argv[2] in ['random','iso-random','structured','iso-structured','fixed-stem','iso-fixed-stem']):
         if 'iso' in sys.argv[2]:
             Ngenerate = 100*N  # we'll generate many sequences and choose the ones with the closest-to-average duplex energy
-            print("Generating %d sequences each of length %d, with similar duplex energies..." % (N, L))
+            print(f"Generating {N:d} sequences each of length {L:d}, with similar duplex energies...")
         else:
             Ngenerate = N
 
@@ -405,7 +417,6 @@ if __name__ == '__main__':
             dist_dG = [ abs(dG-mean_dG) for dG in dGs ]
             ranked_candidates = sorted( zip(candidates, dist_dG), key = lambda z: z[1])
             candidates = [ s for (s,d) in ranked_candidates[0:N] ]
-
 
         # then evaluate the sequences...
         results=[]
@@ -459,8 +470,7 @@ if __name__ == '__main__':
             pickle.dump(results, f)
         pdfname = filename
 
-    elif sys.argv[1] == 'plot': 
-
+    elif sys.argv[1] == 'plot':
         results = []
         for fn in filenames:
             print("Loading data from %s ..." % ("scatterdata/" + fn + ".pkl"))
@@ -468,18 +478,16 @@ if __name__ == '__main__':
                 these_results = pickle.load(f)
             results += these_results
         pdfname = "+".join(filenames)
-            
+
     else:
         print("Didn't understand args.")
         sys.exit()
 
     # some old data files contain only (seq,kf); newer ones contains (seq, Nf, Nr, k1, k1p, k2, k2p); but here we only need kf == k1
-    results = [ ( (data[0],data[3]) if len(data)==7 else (data[0],data[1]) ) for data in results ]  
-
+    results = [ ( (data[0],data[3]) if len(data)==7 else (data[0],data[1]) ) for data in results ]
 
     import matplotlib.pyplot as plt
     from matplotlib.backends.backend_pdf import PdfPages
-
 
     print()
     print("Calculating stats on database of simulated strands...")
@@ -507,7 +515,7 @@ if __name__ == '__main__':
     extremes += "\nSlowest dissociation: %s at %g /s" % (results[i][0],krs[i])
 
     with PdfPages("scatterdata/"+pdfname+".pdf") as pdf:
-        print("Drawing plots, saving to 'scatterdata/" + pdfname + ".pdf'...") 
+        print("Drawing plots, saving to 'scatterdata/" + pdfname + ".pdf'...")
 
         # Two subplots, the axes array is 1-d
         plt.figure(1)
@@ -612,12 +620,12 @@ if __name__ == '__main__':
         # Do the rates depend upon toehold lengths, for long-stemmed strands?
         plt.figure(1)
         plt.subplot(211)
-        plt.scatter(toes[int], log_kfs[int], s=[10*s for s in stems[int]], color=toecolors, alpha=0.5)
+        plt.scatter(toes[long], log_kfs[long], s=[10*s for s in stems[long]], color=toecolors, alpha=0.5)
         plt.title("Association and dissociation rates for long-stem strands")
         plt.ylabel("Log10 rate constant kf (/M/s) \n",fontsize='larger')
         plt.yticks(fontsize='larger',va='bottom')
         plt.subplot(212)
-        plt.scatter(toes[int], log_krs[int], s=[10*s for s in stems[int]], color=toecolors, alpha=0.5)
+        plt.scatter(toes[long], log_krs[long], s=[10*s for s in stems[long]], color=toecolors, alpha=0.5)
         plt.ylabel("Log10 rate constant kr (/s)",fontsize='larger')
         plt.yticks(fontsize='larger',va='bottom')
         plt.xlabel("effective toehold length (nt)",fontsize='larger')
@@ -657,7 +665,6 @@ if __name__ == '__main__':
         pdf.savefig()
         plt.close()
 
-
         r1 = np.array( [ (random.random()-0.5) / 2.0 for i in range(len(toes)) ] )  # jitter to avoid super-positioning
         r2 = np.array( [ (random.random()-0.5) / 2.0 for i in range(len(toes)) ] )  # jitter to avoid super-positioning
 
@@ -689,7 +696,6 @@ if __name__ == '__main__':
         plt.xticks(fontsize='larger')
         pdf.savefig()
         plt.close()
-
 
         # Not quite a contour plot, but can we illustrate kf as a function of toehold strength and stem strength
         plt.figure(1)

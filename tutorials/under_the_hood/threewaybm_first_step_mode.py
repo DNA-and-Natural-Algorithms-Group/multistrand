@@ -117,6 +117,7 @@ def create_setup(toehold_length, num_traj, rate_method_k_or_m):
     o.stop_conditions = [success_stop_condition, failed_stop_condition]
     return o
 
+
 # The following is somewhat general code for running a bunch of Multistrand simulations on as many cores as this computer has available.
 # Directories "Data_toehold_*" are created and simulation results are stored there.
 # When all the simulations are done, the data is all read back in, and processed together.
@@ -153,7 +154,7 @@ class Multistrand_Suite_Base(object):
         p.close()
         p.join()
         endtime = os.times()
-        print(("Async run complete! Processing took [{0[4]}] seconds of real time before completion. [u/s/cu/cs]:[{0[0]}/{0[1]}/{0[2]}/{0[3]}]".format([j - i for i, j in zip(starttime, endtime)])))
+        print("Async run complete! Processing took [{0[4]}] seconds of real time before completion. [u/s/cu/cs]:[{0[0]}/{0[1]}/{0[2]}/{0[3]}]".format([j - i for i, j in zip(starttime, endtime)]))
     
 
 class MyRunner(object):
@@ -229,7 +230,7 @@ def load_dataset(toehold_length, rate_method):
     
     dirname = "Data_toehold_{0}".format(toehold_length)
     if not os.path.isdir(dirname):
-        print(("Error: directory {0} does not exist.\n".format(dirname)))
+        print("Error: directory {0} does not exist.\n".format(dirname))
         return None
 
     files = os.listdir(dirname)
@@ -241,7 +242,7 @@ def load_dataset(toehold_length, rate_method):
 
     result_list = [None] * (int(number_from_fname(sample_files[-1])) + 1)
     for f in sample_files:
-        print(("Processing file: {0}".format(f)))
+        print("Processing file: {0}".format(f))
         result_list[ int(number_from_fname(f)) ] = process_dataset(load_file(dirname, f))
 
     return result_list
@@ -299,9 +300,8 @@ def final_results(toehold_length, rate_method):
     print("Results for toehold length %d (with %s kinetics)" % (toehold_length, rate_method))
     return combine_dataset(load_dataset(toehold_length, rate_method))
 
+
 ###### If run from the command line, the simulations are run but not analyzed.
-
-
 if __name__ == '__main__':
     if len(sys.argv) < 2:
         idx = 0

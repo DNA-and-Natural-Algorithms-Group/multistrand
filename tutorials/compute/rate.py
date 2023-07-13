@@ -14,7 +14,6 @@ def errorPrint():
 if(len(sys.argv) < 2):
     errorPrint()
 
-
 start_time = time.time()
 
 type = sys.argv[1]
@@ -25,17 +24,11 @@ if(len(sys.argv) > 3):
     if(str(sys.argv[3])=="-bootstrap"):
         doBootstrap = True
 
-if (type ==  "dissociation"):
-
-    result = computeDissociation(mySequence, doBootstrap )
-
+if type == "dissociation":
+    result = computeDissociation(mySequence, doBootstrap)
 elif type == "hybridization":
-    
     result = computeAnneal(mySequence, doBootstrap)
-
 else:
     errorPrint()
 
-
-
-# print ("Computing took %.4f s" % (time.time() - start_time))
+# print(f"Computing took {time.time() - start_time:.4f} s")

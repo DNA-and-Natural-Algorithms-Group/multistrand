@@ -76,16 +76,13 @@ class ResultsHybridization(object):
         output += ",     ".join(["%.2f" % x for x in self.matrixTime]) + "           s.d. = %0.2E,       rel s.d. = %.1f %%" % matrixSD + "\n"
         output += ",     ".join(["%d" % x for x in self.nStates]) + "                s.d. = %0.2E,       rel s.d. = %.1f %%" % nStatesSD + "\n"
         output += ",     ".join(["%d" % x for x in self.nTransitions]) + "           s.d. = %0.2E,       rel s.d. = %.1f %%" % nTransitionsSD + "\n"
-        
         output += ""
-        
         return output
 
     
 class Settings(object):
     
     def __init__(self, function, arguments, title="", enum="", tempOverMelt=0.0, multipleC=1.0):
-    
         self.type = enum
         self.title = title
 
@@ -98,29 +95,22 @@ class Settings(object):
         self.tempOverMelt = tempOverMelt
 
     def filename(self):
-        
-        output = self.type + "_" + str(self.arguments) + "_T=" 
-        
+        output = self.type + "_" + str(self.arguments) + "_T="
         if DO_CONVERGENCE:
             output += "convergence" + str(CONVERGENCE_CRIT)
-        
         if not self.tempOverMelt == 0.0:
             output += "_" + "_dT=" + "%.1f" % self.tempOverMelt
-        
         if not self.multipelC == 1.0:
             output += " mulC=" + str(self.multipleC)
-        
         return output
 
     def __str__(self):
-        
         return self.filename()
 
 
 def doReactionAssociation(arguments, output=True): 
 
     stdOptions = standardOptions()
-
     stdOptions.simulation_mode = Literals.trajectory
     stdOptions.num_simulations = arguments[0]
     stdOptions.temperature = arguments[1]
@@ -152,11 +142,8 @@ def doReactionAssociation(arguments, output=True):
 def timings(settings):
     
     output = ResultsHybridization()
-    
     for i in range(NUM_OF_REPEATS):
-        
         startTime = time.time()
-
         myBuilder = Builder(settings.function, settings.arguments)
         
         if DO_CONVERGENCE:
@@ -165,14 +152,10 @@ def timings(settings):
             myBuilder.genAndSavePathsFile()
             
         builderRate = BuilderRate(myBuilder) 
-        
         output.buildTime.append(time.time() - startTime)
-
         startTime = time.time()
-        
         output.rates.append(np.log10(1.0 / builderRate.averageTimeFromInitial(bimolecular=True)))
         output.matrixTime.append(time.time() - startTime)
-        
         output.nStates.append(builderRate.n_states)
         output.nTransitions.append(builderRate.n_transitions)
     
@@ -189,12 +172,10 @@ def genFile(mySeqs, nTrials, toggle):
     mf = file(RESULT_DIR + "/comparison_" + toggle + "-" + str(nTrials) + ".txt", "w")
     
     for seq in mySeqs:
-        
         mf.write(seq + "\n")
         results = timings(association_comparison(seq))
         
 #         print results.rates
-        
         mf.write(str(results))
         mf.write("\n\n")
         mf.flush()
@@ -207,14 +188,11 @@ if __name__ == '__main__':
     
     if not os.path.exists(RESULT_DIR):
         os.makedirs(RESULT_DIR)
-    
     print(sys.argv)
     
     if len(sys.argv) > 2:
-        
         toggle = sys.argv[1]
         nTrials = sys.argv[2]
-
     else:
         raise ValueError("Expected two input arguments, example:   test 500  ")
     
@@ -232,4 +210,3 @@ if __name__ == '__main__':
         
     elif toggle == "morrison":
         genFile(morrison, nTrials, toggle)
-    

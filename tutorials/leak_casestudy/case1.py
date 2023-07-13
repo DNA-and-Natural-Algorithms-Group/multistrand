@@ -26,7 +26,7 @@ myMultistrand.setLeakMode()
 
 def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
 
-    print(("Running first step mode simulations for %s (with Boltzmann sampling)..." % (strand_seq)))
+    print(f"Running first step mode simulations for {strand_seq} (with Boltzmann sampling)...")
 
     # Using domain representation makes it easier to write secondary structures.
     onedomain = Domain(name="onedomain", sequence=strand_seq)
@@ -39,7 +39,6 @@ def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
     duplex_complex = Complex(strands=[top, bot], structure="(+)")
     invader_complex = Complex(strands=[dangle], structure="..")
     duplex_invaded = Complex(strands=[dangle, bot], structure="(.+)")
-
 
     # Declare the simulation complete if the strands become a perfect duplex.
     success_stop_condition = StopCondition(Literals.success, [(duplex_invaded, Options.dissoc_macrostate, 0)])
@@ -61,7 +60,6 @@ def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
         # FD: The result of this script depend significantly on JS or DNA23 parameterization.
 #         o.JSMetropolis25()
         o.DNA23Metropolis()
-
         return o
 
     myMultistrand.setOptionsFactory6(getOptions, trials, material, duplex_complex,
@@ -70,16 +68,11 @@ def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
     myFSR = myMultistrand.results
     
 
-
-
-
 def doFirstStepMode(seq, T=25, material="DNA", numOfRuns=500):
-
     first_step_simulation(seq, numOfRuns, T=T, material=material)
 
 
 def makePlots():
-
     seqs = list()
     seqs.append('GTCGATGC')   
     seqs.append('TCGAGTGA')
@@ -92,5 +85,4 @@ def makePlots():
 
 # The actual main method
 if __name__ == '__main__':
-
     makePlots()

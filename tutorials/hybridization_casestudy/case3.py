@@ -53,26 +53,21 @@ class hybridizationSimSettings(object):
 def getOptions(trials , settings):  # start_complex_top, start_complex_bot, success_stop_condition, failed_stop_condition
       
     options = standardOptions("First Step", TEMPERATURE, settings.trials, ATIME_OUT)
-
     hybridization(options, settings.mySeq, settings.trials)
     options.DNA23Metropolis()
     setSaltGao2006(options)
-
     options.output_interval = 1  # print every state, ever
-   
     return options
 
 
 def first_step_simulation(multistrandObject, settings):
     
-    print(("Running first step mode simulations for %s (with Boltzmann sampling)..." % (settings.mySeq)))
+    print(f"Running first step mode simulations for {settings.mySeq} (with Boltzmann sampling)...")
     
     aFactory = analysisFactory(settings.mySeq, settings.cutOff)
-        
     multistrandObject.setOptionsFactory2(getOptions, settings.trials, settings)
     multistrandObject.setAnaylsisFactory(aFactory)        
     multistrandObject.run()  
-    
     return 0
   
 
@@ -82,7 +77,8 @@ def doPosPlotsPrimer(analysisResult, settings, extraTitle):
     selectedCount = analysisResult.pathCount.value
     trajectoryIn = analysisResult.initialTrajectory
     
-    doPosPlots(posDict, settings, extraTitle, selectedCount, "-M1-", analysisResult.structDict2, trajectory=trajectoryIn)
+    doPosPlots(posDict, settings, extraTitle, selectedCount, "-M1-",
+               analysisResult.structDict2, trajectory=trajectoryIn)
     
 
 def standardTitle(mySeq, extraTitle, selectedCount, runs):
@@ -92,7 +88,6 @@ def standardTitle(mySeq, extraTitle, selectedCount, runs):
     if not runs == None:
         title += str(runs) 
     title += " trials." + " T=" + str(TEMPERATURE) + "C, " + str(ATIME_OUT) + "s"
-    
     return title
 
 
@@ -112,8 +107,7 @@ def estimateSuccessProbability(popularStructure, settings):
     first_step_simulation(newMultistrand, settings)
     settings.trials = oldTrials
     
-    output = np.float(newMultistrand.nForward.value) / np.float(newMultistrand.trialsPerThread * newMultistrand.numOfThreads)
-    
+    output = np.float64(newMultistrand.nForward.value) / np.float64(newMultistrand.trialsPerThread * newMultistrand.numOfThreads)
     return output
     
 
@@ -123,13 +117,10 @@ def computeWinProb(f2, pos, structDict2, settings):
     # # simulate it a few times, and return the expected probabiltiy to hybridize
     
     structs = dict(structDict2[pos.posX * 30 + pos.posY])
-#     
     mostPopular = sorted(iter(structs.items()), key=operator.itemgetter(0), reverse=True)[:1]
-       
     popularStructure = mostPopular[0][0]
     
     f2.write(str(pos) + " " + popularStructure + "\n")
-
     return estimateSuccessProbability(popularStructure, settings)
 
     
@@ -142,7 +133,6 @@ def plotMostFrequentStructure(posDict, length):
             mostFreq.append((-1, -99));
             
         for key, val in posDict.items():
-            
             x, y = key.posX, key.posY
             currMax = mostFreq[x][1]            
             
@@ -176,23 +166,18 @@ def plotFirstTrajectory(filename, trajectories, length):
     f = open(filename + "-trajectories.txt", "w")
     
     upTo = 1
-    
     if len(trajectories) < upTo:
         upTo = len(trajectories)
 
     for j in range(upTo):
-
         trajectory = trajectories[j]
-        
         trajLength = len(trajectory)
                 
         # Somehow, a line segment doesn't disrupt the axis.               
         f.write(str(colors[j]) + " " + "TrajectoryLength= " + str(trajLength) + " \n") 
         
         segments = list()
-        
         for i in range(trajLength - 1):
-            
             curr = trajectory[i]
             following = trajectory[i + 1]
             
@@ -209,7 +194,6 @@ def plotFirstTrajectory(filename, trajectories, length):
 def doPosPlots(posDict, settings, extraTitle, selectedCount, extraSettings, structDict2=None, trajectory=None):
     
     fileName = standardFileName(SCRIPT_DIR, settings.mySeq, extraTitle, settings.trials) 
-    
     length = len(settings.mySeq) + 1
     
     # Make a grid...
@@ -227,7 +211,7 @@ def doPosPlots(posDict, settings, extraTitle, selectedCount, extraSettings, stru
     goodPosDict = dict(posDict)
     
     if ("winprob" in extraSettings):
-        myMax = np.log10(np.float(2.0))
+        myMax = np.log10(np.float64(2.0))
         myMin = myMax - 1.5        
     
     if ("binaryProb" in extraSettings):
@@ -292,14 +276,10 @@ def doPosPlots(posDict, settings, extraTitle, selectedCount, extraSettings, stru
         plotRange = list(range(1, maxX))
          
         f2 = open(fileName + "-mostPopularStructs.txt", 'w')
-         
         for x in plotRange:
-             
             y = mostFreq[x][0]
             myPos = position(x, y)
-             
             winProb.append(100.0 * computeWinProb(f2, myPos, structDict2, settings))
- 
         f2.close()
          
         fig = plt.figure()
@@ -315,17 +295,13 @@ def writeStructFile(analysisResult, settings, extraTitle):
      
 #     goodDict =  copy.deepcopy(dict(analysisResult.posDict))
     goodDict = dict(analysisResult.posDict)
-     
     for pos, val in goodDict.items():
-        
-        output = "Pos = " + pos.toString() + " Freq= " + str(val) + "\n"     
+        output = "Pos = " + pos.toString() + " Freq= " + str(val) + "\n"
         f.write(output)
-  
     f.close()
     
     # also write the position-struct file
     f = open(fileName + "-posStruct.txt", 'w')    
-
     for i in range(len(analysisResult.structDict2)):
         
 #         goodDict = copy.deepcopy(dict(analysisResult.structDict2[i]))
@@ -342,7 +318,6 @@ def writeStructFile(analysisResult, settings, extraTitle):
             if(val > 2):
                 output = str(pX) + " " + str(pY) + " " + str(key) + " " + str(val) + "\n"     
                 f.write(output)
-  
     f.close()
     
 
@@ -353,7 +328,7 @@ def doProbabilitySuccesPlot(settings, extraTitle):
     goodDict = (dict(myMultistrand.aFactory.result1.countDict))
     goodDictOther = (dict(myMultistrand.aFactory.result2.countDict))
 
-    print(("Dict size is ", len(goodDict))) 
+    print("Dict size is ", len(goodDict))
 
     for key, value in goodDict.items():
         
@@ -362,12 +337,11 @@ def doProbabilitySuccesPlot(settings, extraTitle):
         if(key in goodDictOther):
             valueOther = goodDictOther[key]
         
-        denom = np.float(goodDict[key]) + np.float(valueOther)         
-        newVal = np.float(value) / np.float(denom)
+        denom = np.float64(goodDict[key]) + np.float64(valueOther)
+        newVal = np.float64(value) / np.float64(denom)
         winPosDict[key] = newVal
 
     extraTitle += "-winProb"
-    
     doPosPlots(winPosDict, settings, extraTitle, settings.trials, "winprob")
     
     
@@ -380,7 +354,7 @@ def doBinaryProbabilityPlot(settings, extraTitle):
         
         for key, value in goodDict.items():
                         
-            plottingDict[key] = np.float(value) / np.float(selectedCounts)
+            plottingDict[key] = np.float64(value) / np.float64(selectedCounts)
     
         extraTitle += "-binaryProb" + "-" + extrastr 
                 
@@ -463,23 +437,18 @@ def makeAlignmentSuccessTable(analysis, settings, extraTitle):
     output += "Success-NonAligned " + str(nonalignedSuccess) + "\n"
     output += "Failed-Aligned " + str(alignedFailed) + "\n"
     output += "Failed-NonAligned " + str(nonalignedFailed) + "\n"
-
     output += "\n"
-    
     output += "Success " + str(success) + "\n"
     output += "Failed " + str(failed) + "\n"
-    
     output += "\n"
-    
     output += "aligned " + str(aligned) + "\n"
     output += "non-aligned " + str(nonaligned) + "\n"
-    
     output += "\n"
 
     if aligned > 0 :
-        output += "Aligned succes prob (%) =  " + str(100.0 * np.float(alignedSuccess) / np.float(aligned)) + "\n"
+        output += "Aligned succes prob (%) =  " + str(100.0 * np.float64(alignedSuccess) / np.float64(aligned)) + "\n"
     if nonaligned > 0 :
-        output += "Non aligned succes prob (%) =  " + str(100.0 * np.float(nonalignedSuccess) / np.float(nonaligned)) + "\n"
+        output += "Non aligned succes prob (%) =  " + str(100.0 * np.float64(nonalignedSuccess) / np.float64(nonaligned)) + "\n"
 
     f.write(output)
 
@@ -515,7 +484,6 @@ def doInference(mySeq, extraTitle, cutOff, runs):
 
 if __name__ == '__main__':
 
-    
     if len(sys.argv) < 1:
         print("""Usage:
               python hybridization_F3 <numOfThreads> <numOfPaths>  P0/P3/P4      \n
@@ -542,4 +510,3 @@ if __name__ == '__main__':
         doInference(goa2006_P3, toggle, 14, numOfPaths)  # P3
     if toggle == "P4":
         doInference(goa2006_P4, toggle, 14, numOfPaths)  # P4
-        

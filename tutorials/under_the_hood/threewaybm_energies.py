@@ -148,5 +148,3 @@ if __name__ == '__main__':
     plt.yticks(fontsize='larger',va='bottom')
     plt.xticks(fontsize='larger')
     plt.show()
-
-

@@ -23,11 +23,8 @@ def timings(seq, nTrials):
         return Settings(doReactionAssociation, [nTrials, suyamaT, suyamaC, seq], enum_hybridization, title_hybridization)
 
     sett = association_comparison(seq)
-
     for i in range(NUM_OF_REPEATS):
-    
         startTime = time.time()
-        
         o1 = sett.function(sett.arguments)
         
         ssystem = SimSystem(o1)
@@ -37,19 +34,15 @@ def timings(seq, nTrials):
         k1 = myRates.kEff(o1.join_concentration)
 
         output.buildTime.append(time.time() - startTime)
-     
         output.rates.append(np.log10(k1))
-        
         output.nStates.append(100)
         output.matrixTime.append(10.0)
-     
     return output
 
 
 def iterateResults(seqs, nTrials):
     
     mf = file(RESULT_DIR + "/comparison_" + toggle + "-" + str(nTrials) +".txt", "w")
-    
     for seq in seqs:
         mf.write(seq + "\n");
         
@@ -58,8 +51,6 @@ def iterateResults(seqs, nTrials):
         mf.write(str(result))
         mf.write("\n\n")
         mf.flush()
-        
-        
     mf.close()
 
 
@@ -70,22 +61,13 @@ if __name__ == '__main__':
         os.makedirs(RESULT_DIR)
     
     print(sys.argv)
-
     if len(sys.argv) > 2:
-        
         toggle = sys.argv[1]
         nTrials = sys.argv[2]
-
-    else :
+    else:
         raise ValueError("Expected two input arguments, example:   morrison 500  ")
 
     if toggle == "morrison":
-    
         iterateResults(morrison, nTrials)
-    
     if toggle == "test":
-
         iterateResults(testSeq, nTrials)
-
-#             
-        

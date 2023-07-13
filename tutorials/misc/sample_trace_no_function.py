@@ -36,4 +36,3 @@ o1.initial_seed = 1783
 
 s = SimSystem(o1)
 s.start()
-        

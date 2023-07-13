@@ -19,8 +19,6 @@
 
 import os
 
-
-
 if False:  # only needed if you're having trouble with your Multistrand installation
     import multistrand_setup
 
@@ -40,6 +38,7 @@ Loop_Energy = 0    # requesting no dG_assoc or dG_volume terms to be added.  So 
 Volume_Energy = 1  # requesting dG_volume but not dG_assoc terms to be added.  No clear interpretation for this.
 Complex_Energy = 2 # requesting dG_assoc but not dG_volume terms to be added.  This is the NUPACK complex microstate energy, sans symmetry terms.
 Tube_Energy = 3    # requesting both dG_assoc and dG_volume terms to be added.  Summed over complexes, this is the system state energy.
+
 
 def create_setup():
 
@@ -94,6 +93,7 @@ def create_setup():
     
     return o1,o2
 
+
 # generalized from "hairpin_trajectories.py" version to allow multistrand complexes and multiple complexes in a tube
 def print_trajectory(o):
     seqstring=''
@@ -120,6 +120,7 @@ def print_trajectory(o):
             st=state[4]
             dGv += energy( [Complex( strands=[Strand(sequence=s) for s in cs], structure=st)], o, Tube_Energy)[0]  
         if not dGv == dG: print("Energy Mismatch")
+
 
 # Perform the simulations
 o1,o2 = create_setup()
@@ -179,4 +180,4 @@ if __name__ == '__main__':
 # you should be able to extract sequences & structures from trajectory, make a Complex of them, evaluate energy, start new simulation, etc.
 
 # Trajectory like this were used in Schaeffer's MS thesis.
-# Note that in the thesis, we displayed them in 5'->3' counterclockwise. Oops. 
+# Note that in the thesis, we displayed them in 5'->3' counterclockwise. Oops.

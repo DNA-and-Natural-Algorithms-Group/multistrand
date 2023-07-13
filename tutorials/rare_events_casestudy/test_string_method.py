@@ -70,11 +70,9 @@ def timings(seq, nTrials, deltaPruning=None):
         startStates = dissociationString(seq)
     
     endState = startStates[-1]
-    
     sett = association_comparison(seq, endState[0])
 
     for i in range(NUM_OF_REPEATS):
-    
         startTime = time.time()
         
         BuilderRate.solveToggle = 0
@@ -101,7 +99,6 @@ def timings(seq, nTrials, deltaPruning=None):
             maxRange = 5
 
         for i in range(maxRange):
-
             builderRate = BuilderRate(myBuilder)
 
             builderRate.rateLimit = builderRate.rateLimit * (10 ** i)
@@ -119,7 +116,8 @@ def timings(seq, nTrials, deltaPruning=None):
             
             output.rates.append(np.log10(1.0 / builderRate.averageTimeFromInitial(bimolecular=biCheck)))
             pruned_mfpt = builderRate.averageTimeFromInitial(bimolecular=False)
-            print("Rate = %.2E, MFPT = %.2E, compute_time =  %.2f \n\n " % (output.rates[-1], pruned_mfpt, output.buildTime[-1]))
+            print(f"Rate = {output.rates[-1]:.2E}, MFPT = {pruned_mfpt:.2E}, "
+                  f"compute_time =  {output.buildTime[-1]:.2f} \n\n")
             output.matrixTime.append(time.time() - startTime)
             output.nStates.append(len(builderRate.statespace))
      
@@ -163,40 +161,23 @@ if __name__ == '__main__':
     deltaPruning = None
 
     if len(sys.argv) > 2:
-        
         toggle = sys.argv[1]
         nTrials = sys.argv[2]
-
-    else :
+    else:
         raise ValueError("Expected two input arguments, example:   test 500  ")
 
     if len(sys.argv) > 3:
-        
         deltaPruning = float(sys.argv[3])
 
     if toggle == "morrison":
-    
         iterateResults(morrison, nTrials, deltaPruning=deltaPruning)
-        
     if toggle == "morrison0"  or toggle == "test":
-    
         iterateResults(morrison0, nTrials, deltaPruning=deltaPruning)
-    
     if toggle == "morrison1":
-        
         iterateResults(morrison1, nTrials, deltaPruning=deltaPruning)
-
     if toggle == "morrison15":
-        
         iterateResults(morrison15, nTrials, deltaPruning=deltaPruning)
-
     if toggle == "morrison13":
-        
         iterateResults(morrison13, nTrials, deltaPruning=deltaPruning)
-
     if toggle == "longdomain":
-
         iterateResults(longdomain, nTrials, deltaPruning=deltaPruning)
-
-#             
-        

@@ -79,6 +79,7 @@ def plot_histograms( result_lists, colors=['b','r','c','m','g','k'], figure=1, l
     plt.legend(loc=0)
     plt.show()
 
+
 def plot_completion_graph( result_lists, colors=['b','r','c','m','g','k'], figure=1, labels=None ):
     times = []
     percents = []
@@ -93,7 +94,7 @@ def plot_completion_graph( result_lists, colors=['b','r','c','m','g','k'], figur
         t.sort()
         times.append(np.array(t))
 
-        p = np.array(list(range(1,len(t)+1)))
+        p = np.arange(1,len(t)+1)
         p = 100 * p / n  # percentage of all trials
         percents.append( p )
 
@@ -111,6 +112,7 @@ def plot_completion_graph( result_lists, colors=['b','r','c','m','g','k'], figur
     plt.title( "Percentage of Total Trajectories Complete by a Given Time" )
     plt.legend(loc=0)
     plt.show()
+
 
 # First Passage Time Mode doesn't store the full trajectory.  But it gives the random number seed used on a given simulation.
 # So we can re-run interesting simulations to see what happened.
@@ -136,7 +138,7 @@ def show_interesting_trajectories( result_lists, seqs, type='fastest' ):
             state = o.full_trajectory[i][0]
             struct = state[4]
             dG = state[5]
-            print(struct + ' t=%11.9f microseconds, dG=%6.2f kcal/mol' % (time, dG))
+            print(f'{struct} t={time:11.9f} microseconds, dG={dG:6.2f} kcal/mol')
 
     # take a look at the fastest folds.  to take a look at the more interesting slowest folds,
     # change "mintimes" to "maxtimes" and change "fastseeds" to "slowseeds"; do this based on 'type' argument
@@ -165,7 +167,7 @@ def show_interesting_trajectories( result_lists, seqs, type='fastest' ):
         s = SimSystem(o)
         s.start()
         print_trajectory(o)        
-        print("Original run's time: %g microseconds" % time)
+        print(f"Original run's time: {time:g} microseconds")
 
 
 def run_sims():
@@ -187,7 +189,6 @@ def run_sims():
     # all these simulations are at the same join_concentration and temperature,
     # so there's no need to re-initialize the energy model before each one.
 
-
     all_results = [o.interface.results for o in [o1, o2, o3, o4]]
     all_seqs    = [o.start_state[0].sequence for o in [o1, o2, o3, o4]]
 
@@ -199,10 +200,8 @@ def run_sims():
     #    stronger stems form quickly, but if 3-base misalignment is possible, it may take a long time
 
     special = 'fastest'   # or 'slowest', if you wish, but these trajectories involve many many steps!
-    print("Showing the %s trajectories for each hairpin sequence..." % special)
+    print(f"Showing the {special} trajectories for each hairpin sequence...")
     show_interesting_trajectories(all_results, all_seqs, special)
 
 if __name__ == '__main__':
     run_sims()
-
-

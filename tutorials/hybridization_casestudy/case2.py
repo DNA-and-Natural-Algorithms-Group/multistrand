@@ -58,7 +58,7 @@ def create_setup(num_traj, strand_seq):
 
 def first_step_simulation(strand_seq, num_traj, rate_method_k_or_m="Metropolis", concentration=50e-9):
 
-    print("Running first step mode simulations for %s (with Boltzmann sampling)..." % (strand_seq))
+    print(f"Running first step mode simulations for {strand_seq} (with Boltzmann sampling)...")
     
     myMultistrand.setOptionsFactory2(create_setup, num_traj, strand_seq)
     myMultistrand.setLeakMode()
@@ -176,10 +176,7 @@ def toebinding(seq, T=GLOBAL_TEMPERATURE, material='dna'):
 
 if __name__ == '__main__':
     
-    
     TIME_MEASUREMENT = datetime.now()
-
-
 
     if len(sys.argv) < 2:
         print("""Usage:
@@ -230,7 +227,6 @@ if __name__ == '__main__':
     print()
     if sys.argv[1] == 'generate' and (sys.argv[2] in ['random', 'iso-random', 'structured-random', 'structured', 'iso-structured', 'iso-structured-random', 'fixed-stem', 'iso-fixed-stem']):   
 
-        
         candidates = []
         
         if(L == 25):  # # 25 mers        
@@ -271,33 +267,28 @@ if __name__ == '__main__':
         if 'structured' in sys.argv[2] or 'fixed-stem' in sys.argv[2]:   
             M = int(0.5 * N)
         
-        
         TOTAL_NUM_OF_SEQ = N + M + OFFSET
         
         RANGE1 = list(range(OFFSET, N + OFFSET))
-        RANGE2 = list(range(N + OFFSET, TOTAL_NUM_OF_SEQ))  
-        
-        
-        
+        RANGE2 = list(range(N + OFFSET, TOTAL_NUM_OF_SEQ))
+
         randomCandidates = []
         structuredCandidates = []
         
         if 'iso' in sys.argv[2]:
             Ngenerate = 80 * N  # we'll generate many sequences and choose the ones with the closest-to-average duplex energy
             Mgenerate = 80 * M
-            print("Generating %d sequences each of length %d, with similar duplex energies..." % (N, L))
+            print(f"Generating {N:d} sequences each of length {L:d}, with similar duplex energies...")
         else:
             Ngenerate = N
             Mgenerate = M
-            
             
         # first choose the sequences
         if 'random' in sys.argv[2]:
             for seq in [ randomseq(L, 'ACTG') for i in range(Ngenerate) ]:
                 randomCandidates.append(seq)
                 
-        
-        if 'structured' in sys.argv[2] or 'fixed-stem' in sys.argv[2]:    
+        if 'structured' in sys.argv[2] or 'fixed-stem' in sys.argv[2]:
             # generate sequences according to domain-level specifications with a range of hairpin stem and toehold lengths
             # (L,am,bm,cm) = (30,6,8,6)   # up to size 6+2*8+6 = 28 nt in the toeholds and stems.
             # (L,am,bm,cm) = (21,5,6,3)    # up to size 5+2*6+3 = 20 nt in the toeholds and stems.
@@ -313,23 +304,19 @@ if __name__ == '__main__':
                 # seq  = randomseq(a,'ATC')+stem+randomseq(d,'T')+WC(stem)+randomseq(c,'ATC')   # tends to have different duplex_dG, which confounds analysis
                 seq = randomseq(a, 'ATCG') + stem + randomseq(d, 'ACTG') + WC(stem) + randomseq(c, 'ATCG')
                 structuredCandidates.append(seq)
-                
-         
+
         if 'iso' in sys.argv[2]:  
             randomCandidates, mean_dG = trim(randomCandidates, N)
             structuredCandidates, mean_dG = trim(structuredCandidates, M, mean_dG)
 
-                        
         for seq in structuredCandidates:
             candidates.append(seq)
         for seq in randomCandidates:
             candidates.append(seq)
         
-        
         for seq in candidates:
-            print(("The sequence is ", seq))
+            print("The sequence is ", seq)
 
-        
         results = []
         timeOut = list(range(len(candidates)))
         
@@ -338,8 +325,10 @@ if __name__ == '__main__':
             timeOut[i] = False
             seq = candidates[i]
             
-            print("%d: Simulating %s DNA strand at 20 C:  %s with toeholds %d and %d, stem %d, ss dG = %g and %g, ds dG = %g " % \
-                    (i, sys.argv[2], seq, toeholds(seq)[0], toeholds(seq)[1], stemsize(seq), strand_dG(seq), strand_dG(WC(seq)), duplex_dG(seq)))
+            print(f"{i:d}: Simulating {sys.argv[2]} DNA strand at 20 C:  "
+                  f"{seq} with toeholds {toeholds(seq)[0]:d} and {toeholds(seq)[1]:d}, "
+                  f"stem {stemsize(seq):d}, ss dG = {strand_dG(seq):g} and {strand_dG(WC(seq)):g}, "
+                  f"ds dG = {duplex_dG(seq):g}")
 
             # Accumulate statistics from all the runs, until enough succesful simulations are collected.
             trials = 120
@@ -352,10 +341,9 @@ if __name__ == '__main__':
             
             while nForward < requiredSuccess  and not timeOut[i] :  # this is a bit wasteful, but "only" by a factor of about 1.5.  Aims for 20% error bars on k1.
 
-                print() 
+                print()
                 batchRates, nF, nR = first_step_simulation(seq, trials, concentration=CONCENTRATION) 
                 
-
                 if(totalRates == None):
                     totalRates = batchRates
                 else:
@@ -367,15 +355,12 @@ if __name__ == '__main__':
                 nForward = nForward + nF
                 nReverse = nReverse + nR
 
-
-                if totalRates.nReverse > 5000000:  # abort this by extrapolating the rate when 15.0 million trajectories have been run.                    
+                if totalRates.nReverse > 5000000:  # abort this by extrapolating the rate when 15.0 million trajectories have been run.
                     timeOut[i] = True
-                
 
                 if trials < 50000:  # memory problems running huge numbers of trials.  maybe we need to do better:  compress dataset incrementally...?
                     trials *= 2
-                                      
-                    
+
             print("Final statistics are ")
             print(totalRates)
 
@@ -383,12 +368,10 @@ if __name__ == '__main__':
                 timeOut[i] = True
 
             results.append([seq, nForward, nReverse, totalRates.k1()])
-        
 
     else:
         print("Didn't understand args.")
         sys.exit()
-        
 
 
     def writeResults(inResults, name):
@@ -421,9 +404,7 @@ if __name__ == '__main__':
         
         f.close()
 
-    
     writeResults(results, filename)
-    
     
     RANGE1 = [i for i in RANGE1  if not timeOut[i]]
     RANGE2 = [i for i in RANGE2  if not timeOut[i]]
@@ -435,9 +416,6 @@ if __name__ == '__main__':
     
     # some old data files contain only (seq,kf); newer ones contains (seq, Nf, Nr, k1, k1p, k2, k2p); but here we only need kf == k1
     results = [ ((data[0], data[3]) if len(data) == 4 else (data[0], data[1])) for data in results ]  
-
-
-
 
     print()
     print("Calculating stats on database of simulated strands...")
@@ -454,7 +432,6 @@ if __name__ == '__main__':
     log_kfs = [ np.log10(kf) for (seq, kf) in results ]  # forward rates
     log_krs = [ np.log10(kr) for kr in krs]  # reverse rates
 
-
     extremes = ''
     i = np.argmax(kfs)
     extremes += "\nFastest association: %s at %g /M/s" % (results[i][0], kfs[i])
@@ -464,7 +441,6 @@ if __name__ == '__main__':
     extremes += "\nFastest dissociation: %s at %g /s" % (results[i][0], krs[i])
     i = np.argmin(krs)
     extremes += "\nSlowest dissociation: %s at %g /s" % (results[i][0], krs[i])
-
 
     with PdfPages(SCRIPT_DIR + filename + ".pdf") as pdf:
         print("Drawing plots, saving to '" + SCRIPT_DIR + "'" + filename + ".pdf'...") 
@@ -572,12 +548,12 @@ if __name__ == '__main__':
         # Do the rates depend upon toehold lengths, for long-stemmed strands?
         plt.figure(1)
         plt.subplot(211)
-        plt.scatter(toes[int], log_kfs[int], s=[10 * s for s in stems[int]], color=toecolors, alpha=0.5, cmap=cm.jet)
+        plt.scatter(toes[long], log_kfs[long], s=[10 * s for s in stems[long]], color=toecolors, alpha=0.5, cmap=cm.jet)
         plt.title("Association and dissociation rates for long-stem strands")
         plt.ylabel("Log10 rate constant kf (/M/s) \n", fontsize='larger')
         plt.yticks(fontsize='larger', va='bottom')
         plt.subplot(212)
-        plt.scatter(toes[int], log_krs[int], s=[10 * s for s in stems[int]], color=toecolors, alpha=0.5, cmap=cm.jet)
+        plt.scatter(toes[long], log_krs[long], s=[10 * s for s in stems[long]], color=toecolors, alpha=0.5, cmap=cm.jet)
         plt.ylabel("Log10 rate constant kr (/s)", fontsize='larger')
         plt.yticks(fontsize='larger', va='bottom')
         plt.xlabel("effective toehold length (nt)", fontsize='larger')
@@ -617,7 +593,6 @@ if __name__ == '__main__':
         pdf.savefig()
         plt.close()
 
-
         r1 = np.array([ (random.random() - 0.5) / 2.0 for i in range(len(toes)) ])  # jitter to avoid super-positioning
         r2 = np.array([ (random.random() - 0.5) / 2.0 for i in range(len(toes)) ])  # jitter to avoid super-positioning
 
@@ -651,9 +626,7 @@ if __name__ == '__main__':
         plt.xticks(fontsize='larger')
         pdf.savefig()
         plt.close()
-        
-        
-        
+
         def genericScatter(toe, stem, rates):
             
             plt.figure(1)
@@ -669,7 +642,6 @@ if __name__ == '__main__':
             cb = plt.colorbar()
             cb.solids.set_edgecolor("face")
             
-
         def strengthPlotA(toe_dGs, stem_dGs, log_kfs):
 
             # Not quite a contour plot, but can we illustrate kf as a function of toehold strength and stem strength
@@ -683,8 +655,7 @@ if __name__ == '__main__':
             plt.yticks(fontsize='larger', va='bottom')
             plt.xlabel("toehold strength", fontsize='larger')
             plt.xticks(fontsize='larger')
-        
-        
+
         def strengthPlotB(toe_dGs, stem_dGs, log_krs):         
             
             genericScatter(toe_dGs, stem_dGs, log_krs)
@@ -710,29 +681,23 @@ if __name__ == '__main__':
                for label, x, y in zip(RANGE3, toe_dGs[RANGE3], stem_dGs[RANGE3]):
                     plt.annotate(label, xy=[x, y], size=2)
         
-        
         strengthPlotA(toe_dGs, stem_dGs, log_kfs)
         pdf.savefig()
         plt.close()
 
-                
         strengthPlotA(toe_dGs, stem_dGs, log_kfs)
         annotateThat(toe_dGs, stem_dGs)
         pdf.savefig()
         plt.close()
 
-         
-        strengthPlotB(toe_dGs, stem_dGs, log_krs)   
+        strengthPlotB(toe_dGs, stem_dGs, log_krs)
         pdf.savefig()
         plt.close()
 
-
-        strengthPlotB(toe_dGs, stem_dGs, log_krs)   
+        strengthPlotB(toe_dGs, stem_dGs, log_krs)
         annotateThat(toe_dGs, stem_dGs)
         pdf.savefig()
         plt.close()
-
-
 
         number_distinct_lengths = len(set([len(seq) for (seq, kf) in results]))
         
@@ -741,7 +706,7 @@ if __name__ == '__main__':
         if(L == 25):
             duplex_DG_std = np.std(duplex_dGs[3:(N + 3)])
         
-        print("duplex dG standard deviation = %g" % duplex_DG_std)
+        print(f"duplex dG standard deviation = {duplex_DG_std:g}")
 
 
         fullRange = RANGE1
@@ -782,15 +747,12 @@ if __name__ == '__main__':
             if L == 25:
                 plt.scatter(dissoc_speed_ups[RANGE3], assoc_slow_downs[RANGE3], c=colorsIn[RANGE3], s=(2 * MARKER_SIZE), alpha=1.0, marker='*', cmap=cm.jet)
 
-
 #         # Does secondary structure primarily speed up dissociation rather than slow down association?
 #             
 #         blueColors = np.array(['b' for x in range(TOTAL_NUM_OF_SEQ)])
 #         finalPlots(dissoc_speed_ups, assoc_slow_downs, blueColors)
 #         pdf.savefig()
 #         plt.close()
-
-        
 
         finalPlots(dissoc_speed_ups, assoc_slow_downs, stem_dGs)
         cb = plt.colorbar()
@@ -805,15 +767,13 @@ if __name__ == '__main__':
         pdf.savefig()
         plt.close()
 
-
         finalPlots(dissoc_speed_ups, assoc_slow_downs, stem_dGs - toe_dGs)           
         cb = plt.colorbar() 
         cb.set_label('stem strength - toehold strength (kcal/mol)')
         cb.solids.set_edgecolor("face")
         pdf.savefig()
         plt.close()
-        
-        
+
         finalPlots(dissoc_speed_ups, assoc_slow_downs, stem_dGs - toe_dGs)           
         cb = plt.colorbar() 
         cb.set_label('stem strength - toehold strength (kcal/mol)')
@@ -821,4 +781,3 @@ if __name__ == '__main__':
         annotateThat(dissoc_speed_ups, assoc_slow_downs)
         pdf.savefig()
         plt.close()
-        

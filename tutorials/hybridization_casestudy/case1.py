@@ -38,15 +38,13 @@ def first_step_simulation(strand_seq, trials, T=20.0):
 
     myMS = MergeSim()    
     myMS.setNumOfThreads(8) 
-    print(("Running first step mode simulations for %s (with Boltzmann sampling)..." % (strand_seq)))
+    print(f"Running first step mode simulations for {strand_seq} (with Boltzmann sampling)...")
     
     def getOptions(trials):
-       
-        o = standardOptions(Literals.first_step, TEMPERATURE, trials, ATIME_OUT) 
+        o = standardOptions(Literals.first_step, TEMPERATURE, trials, ATIME_OUT)
         hybridization(o, strand_seq, trials)
         setSaltGao2006(o)
         o.DNA23Metropolis()
-               
         return o
     
     myMS.setOptionsFactory1(getOptions, trials)
@@ -57,31 +55,25 @@ def first_step_simulation(strand_seq, trials, T=20.0):
     return myMS
 
 
-
 def first_passage_association(strand_seq, trials, concentration, T=20.0):
 
     thisMS = MergeSim()
     thisMS.setNumOfThreads(8) 
-    print("Running first passage time simulations for association of %s at %s..." % (strand_seq, concentration_string(concentration)))
+    print(f"Running first passage time simulations for association of "
+          f"{strand_seq} at {concentration_string(concentration)}...")
     
     def getOptions(trials):
-
-        o = standardOptions(Literals.first_passage_time, TEMPERATURE, trials, ATIME_OUT) 
-        
+        o = standardOptions(Literals.first_passage_time, TEMPERATURE, trials, ATIME_OUT)
         hybridization(o, strand_seq, trials, True)
         setSaltGao2006(o)
         o.join_concentration = concentration
         o.DNA23Metropolis()
-
         return o
     
     thisMS.setOptionsFactory1(getOptions, trials)
     thisMS.setPassageMode()
     thisMS.run()
-    
     return thisMS
-
-
 
 
 def doFirstStepMode(seq, concentrations, T=20.0, numOfRuns=500):
@@ -96,12 +88,9 @@ def doFirstStepMode(seq, concentrations, T=20.0, numOfRuns=500):
     
     time2 = time.time()
     print(str(myRates))
-    
-    
-    FSResult = list()
-    
-    for z in concentrations:
 
+    FSResult = list()
+    for z in concentrations:
         kEff = myRates.kEff(z)
             
         myBootstrap = Bootstrap(myRates, N=BOOTSTRAP_RESAMPLE, concentration=z, computek1=False)
@@ -109,7 +98,7 @@ def doFirstStepMode(seq, concentrations, T=20.0, numOfRuns=500):
         low, high = myBootstrap.ninetyFivePercentiles()
         logStd = myBootstrap.logStd()
         
-        print("keff = %g /M/s at %s" % (kEff, concentration_string(z)))
+        print(f"keff = {kEff:g} /M/s at {concentration_string(z)}")
         
         myResult = (np.log10(kEff), np.log10(low), np.log10(high), logStd)
         FSResult.append(myResult)
@@ -117,7 +106,8 @@ def doFirstStepMode(seq, concentrations, T=20.0, numOfRuns=500):
     print()
     
     # call NUPACK for pfunc dG of the reaction, calculate krev based on keff
-    print("Calculating dissociate rate constant based on NUPACK partition function energies and first step mode k_eff...")
+    print("Calculating dissociate rate constant based on "
+          "NUPACK partition function energies and first step mode k_eff...")
 
     dG_top = nupack.pfunc([seq], T=T)
     dG_bot = nupack.pfunc([ Strand(sequence=seq).C.sequence ], T=T)
@@ -126,9 +116,8 @@ def doFirstStepMode(seq, concentrations, T=20.0, numOfRuns=500):
     time3 = time.time()
     time_nupack = time3 - time2
     krev_nupack = kEff * np.exp((dG_duplex - dG_top - dG_bot) / RT)
-    print("krev = %g /s (%g seconds)" % (krev_nupack, time_nupack))
-    
-    
+    print(f"krev = {krev_nupack:g} /s ({time_nupack:g} seconds)")
+
     times = list()
     for i in concentrations:
         myTime = (np.log10(myMultistrand.runTime), 0.0, 0.0)
@@ -137,8 +126,7 @@ def doFirstStepMode(seq, concentrations, T=20.0, numOfRuns=500):
     return FSResult, times
    
 
-   
-def doFirstPassageTimeAssocation(seq, concentrations, T=20, numOfRuns=500):  
+def doFirstPassageTimeAssocation(seq, concentrations, T=20, numOfRuns=500):
 
     # for each concentration z, do one "first passage time" run for association, and get k_eff(z)
     Result = []
@@ -147,19 +135,15 @@ def doFirstPassageTimeAssocation(seq, concentrations, T=20, numOfRuns=500):
     for concentration in concentrations:
  
         if len(seq) > 10 and concentration < 1e-5:
-             
             keff = 5.5
             low = 1e+5
             high = 1e+6
             logStd = -1.0
              
-        else :
-                     
+        else:
             myMultistrand = first_passage_association(seq, numOfRuns, concentration=concentration, T=T)
             myRates = myMultistrand.results
             
-#             print myRates.dataset
-                        
             keff = myRates.log10KEff(concentration)
             
             myBootstrap = Bootstrap(myRates, N=BOOTSTRAP_RESAMPLE, concentration=concentration)
@@ -169,8 +153,7 @@ def doFirstPassageTimeAssocation(seq, concentrations, T=20, numOfRuns=500):
         Result.append((keff, np.log10(low), np.log10(high), logStd))
         times.append((np.log10(myMultistrand.runTime), 0.0, 0.0))
     
-    print("keff = %g /M/s at %s" % (keff, concentration_string(concentration)))
-    
+    print(f"keff = {keff:g} /M/s at {concentration_string(concentration)}")
     return Result, times
 
 
@@ -180,8 +163,7 @@ def fluffyPlot(ax, seqs, concentrations):
     for conc in concentrations:
         myXTicks.append(concentration_string(conc))
     
-    
-    plt.xticks(rotation=-40) 
+    plt.xticks(rotation=-40)
     plt.xticks(np.log10(concentrations), myXTicks)
     
     plt.gca().invert_xaxis()
@@ -194,8 +176,6 @@ def fluffyPlot(ax, seqs, concentrations):
 
     ax.legend(seqs, loc='center left', bbox_to_anchor=(1, 0.5))
     
-    
-
 
 def addPoints(results, i, alp, seqs, concentrations, lineStyle, extraOptions=None):
     
@@ -216,26 +196,19 @@ def addPoints(results, i, alp, seqs, concentrations, lineStyle, extraOptions=Non
 
 def doPlots(seqs, concentrations, results1, results2, trials):
        
-    ax = plt.subplot(111)       
+    ax = plt.subplot(111)
 
     length = len(seqs)
-    
     for i in range(length):
-        
         addPoints(results2, i, 0.85, seqs, concentrations, '-')
-
     fluffyPlot(ax, seqs, concentrations)
     
     for i in range(length):
-     
-
         addPoints(results1, i, 0.45, ["", "", "", "", "", "", "", ""], concentrations, '--')
     
     ax.set_title("Estimated hybridization rate (" + str(trials) + " trajectories)")
     ax.set_ylabel("k-effective (per second, log 10)")    
-    
     plt.gca().invert_xaxis()
-    
     plt.savefig(standardFileName(SCRIPT_DIR) + 'hybridizationRate.pdf')
     plt.close()
     
@@ -248,49 +221,35 @@ def doTimePlots(seqs, concentrations, results1, results2, trials):
     ax.set_ylabel("Time (seconds, log 10)")    
         
     length = len(seqs)
-    
     for i in range(length):
         addPoints(results2, i, 0.85, seqs, concentrations, '-', extraOptions="noErrorBars")
-
-
     fluffyPlot(ax, seqs, concentrations)
-    
-    
     for i in range(length):
         addPoints(results1, i, 0.45, seqs, concentrations, '--', extraOptions="noErrorBars")
-    
-    
+
     plt.gca().invert_xaxis()
-    
     plt.savefig(standardFileName(SCRIPT_DIR) + 'runTime.pdf')
 
 
-
 def basicResults(results1, results2, runTime1, runTime2, seq, concentrations, trials):
-
 
     FSResult, times = doFirstStepMode(seq, concentrations, numOfRuns=trials)
     results1.append(FSResult)
     runTime1.append(times)
 
-
     FPResult, times = doFirstPassageTimeAssocation(seq, concentrations, numOfRuns=trials)
     results2.append(FPResult)
     runTime2.append(times)    
-    
-    
 
 
 def doInference(concentrations, trials):
 
-    
     results1 = list()
     results2 = list()
     
     runTime1 = list()
     runTime2 = list()
-       
-    
+
     seqs = list()
 #     seqs.append('TCGATG')
 #     seqs.append('TCGATGC')
@@ -299,10 +258,8 @@ def doInference(concentrations, trials):
     seqs.append('TAGTCCCTTTTTGGG')
 #     seqs.append('TCGATGC')
     seqs.append('TCGATGCT')
-    
 
     for seq in seqs:
-    
         basicResults(results1, results2, runTime1, runTime2, seq, concentrations, trials)
          
     # results1, resutls2 are identical but first passage time and first step    
@@ -314,11 +271,9 @@ def doInference(concentrations, trials):
 def doSlowdownStudy(trials):
     
     def computeMeanStd(seq):
-    
-        result, times = doFirstStepMode(seq, [1.0e-6], T=20, numOfRuns=trials) 
+        result, times = doFirstStepMode(seq, [1.0e-6], T=20, numOfRuns=trials)
         return result[0]
-    
-    
+
     result0 = computeMeanStd(goa2006_P0)
     result3 = computeMeanStd(goa2006_P3)
     result4 = computeMeanStd(goa2006_P4)
@@ -328,41 +283,32 @@ def doSlowdownStudy(trials):
     print(result4)
    
     output = ""
-   
     names = ["P0", "P3", "P4"]
     myResults = [result0, result3, result4]
-   
     output += "Rate   -   lowerbound   -   upperbound   -  logSD \n \n"
    
     for name, result in zip(names, myResults):
-   
         output += name + "mean,  is " + str(result[0]) + "  " + str(result[1]) + "  " + str(result[2]) + "  " + str(result[3]) + "\n"
 
     factor3 = np.power(10, result0[0] - result3[0])
     factor4 = np.power(10, result0[0] - result4[0])
-    
-    
+
     dev3 = result0[3] + result3[3]
     dev4 = result0[3] + result4[3]
-    
-        
+
     dev3 = np.power(10, result0[0] - result3[0] + dev3) - factor3
     dev4 = np.power(10, result0[0] - result4[0] + dev4) - factor4                           
     
     output += "\n"
-    
     output += "Slowdown P3" + " " + str(factor3) + "  " + str(dev3) + " \n"
     output += "Slowdown P4" + " " + str(factor4) + "  " + str(dev4) + " \n"
 
-    
     f = open(standardFileName(SCRIPT_DIR) + "relativeRates.txt", 'w')
     f.write(output)
     f.close()    
     
 
-
 # # The actual main method
-
 if __name__ == '__main__':
 
     print(sys.argv)
@@ -376,27 +322,5 @@ if __name__ == '__main__':
             doInference([1e0, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6], trials)                     
 #             doInference([1e0, 1e-1, 1e-2], trials)
 
-        
         if toggle == "slowDownStudy":
             doSlowdownStudy(trials)
-        
-        
-        
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

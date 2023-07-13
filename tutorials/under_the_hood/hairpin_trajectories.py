@@ -41,7 +41,7 @@ def print_trajectory(o):
         state = o.full_trajectory[i][0]
         struct = state[4]
         dG = state[5]
-        print(struct + ' t=%11.9f seconds, dG=%6.2f kcal/mol' % (time, dG))
+        print(f'{struct} t={time:11.9f} seconds, dG={dG:6.2f} kcal/mol')
 
 # Sequence is from Schaeffer's PhD thesis, chapter 7, figure 7.1 -- start with no base pairs formed.
 c = Complex( strands=[Strand(name="hairpin", sequence="GTTCGGGCAAAAGCCCGAAC")], structure= 20*'.' )
@@ -58,7 +58,7 @@ o = Options(temperature=25.0,
             rate_scaling = 'Calibrated', # this is the same as 'Default'.  'Unitary' gives values 1.0 to both.  
             simulation_mode = 'Trajectory')  # numerically 128.  See interface/_options/constants.py for more info about all this.
 
-print("k_uni = %g /s, k_bi = %g /M/s" % (o.unimolecular_scaling, o.bimolecular_scaling))  # you can also set them to other values if you want
+print(f"k_uni = {o.unimolecular_scaling:g} /s, k_bi = {o.bimolecular_scaling:g} /M/s")  # you can also set them to other values if you want
 
 # This actually runs the simulation.  
 s = SimSystem(o)

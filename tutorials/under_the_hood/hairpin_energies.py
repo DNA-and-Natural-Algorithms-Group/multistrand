@@ -1,6 +1,6 @@
 # hairpin_energies.py
 #
-# This example walks you through how to create a single-stranded complex (i.e. a strand sequence and structure), and how to find its energy. 
+# This example walks you through how to create a single-stranded complex (i.e. a strand sequence and structure), and how to find its energy.
 #
 # Invoke as "python hairpin_energies.py" to see a plot.
 # Invoke as "python -i hairpin_energies.py" to see a plot and then drop into the python interpreter to investigate further.
@@ -44,8 +44,8 @@ energy( [c], o, Complex_Energy)  # should be -1.1449...
 
 # Using this sequence, find the energy for a particular secondar structure conformation.
 def print_hp(s):
-    e = energy( [Complex( strands=[Strand(name="hairpin", sequence="GTTCGGGCAAAAGCCCGAAC")], structure=s)], o, Complex_Energy)[0]  
-    print(s + '  (%5.2f)' % e)
+    e = energy( [Complex( strands=[Strand(name="hairpin", sequence="GTTCGGGCAAAAGCCCGAAC")], structure=s)], o, Complex_Energy)[0]
+    print(f'{s}  ({e:5.2f})')
     return e
 
 # Manually define a set of secondary structures for our hairpin, closing from the outside.

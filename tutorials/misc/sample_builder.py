@@ -20,21 +20,17 @@ test20mer = "AGATTAGCAGGTTTCCCACC"
 def doReaction(arguments): 
     
     stdOptions = standardOptions()
-    
     stdOptions.output_interval = 1
     stdOptions.simulation_mode = Literals.trajectory
     stdOptions.join_concentration = 0.001
     stdOptions.simulation_time = 400.0
-
     stdOptions.num_simulations = arguments[0]
     stdOptions.temperature = arguments[2]
 
     toggle = arguments[3]
-
     if toggle == str_association:
         hybridization(stdOptions, arguments[1], myTrials=arguments[0], doFirstPassage=True)    
 
-    
     elif toggle == str_hairpin_closing:
         hairpinclosing(stdOptions, arguments[1], "TTTTT")
         
@@ -56,7 +52,6 @@ def doReaction(arguments):
             i += 1
 
     stdOptions.DNA23Metropolis()
-    
     return stdOptions
 
 
@@ -64,7 +59,8 @@ def genAndPrint(numOfPaths, toggle):
   
     simulation_temperature = 50.0
     
-    print("Building the statespace from traces for reaction: " + toggle + " at T = %.1f C " % simulation_temperature)
+    print(f"Building the statespace from traces for reaction: {toggle} "
+          f"at T = {simulation_temperature:.1f} C")
     
     myBuilder = Builder(doReaction, [numOfPaths, test8mer, simulation_temperature, toggle])
     myBuilder.genAndSavePathsFile()
@@ -84,20 +80,14 @@ def genAndPrint(numOfPaths, toggle):
     if False:
         print(builderRate.stateIndex)
         print(builderRate.rate_matrix_csr.toarray())
-       
         print("Initial States")
         print(builderRate.initial_states)
-       
         print("Final States")
         print(builderRate.final_states)
-       
         print(str(builderRate))
-       
         times = builderRate.averageTime()
         print(str(times))
     
-
-  
 
 # # The actual main method
 if __name__ == '__main__':
@@ -112,12 +102,6 @@ if __name__ == '__main__':
     genAndPrint(numOfPaths, str_threeway_strand_displacement)
     
 
-
-
-
-
-
-    
 #    """ See-saw gate code. In case it is needed. """
 #     elif toggle == 5:
 #         stdOptions.simulation_mode = Literals.trajectory
@@ -140,4 +124,4 @@ if __name__ == '__main__':
 #         seesaw_gate_fuel_leak(stdOptions, gateA, trials=arguments[0], supersample=1, doFirstPassage=True)
 #         
 #         stdOptions.simulation_mode = Literals.trajectory
-#     
+#

@@ -113,10 +113,7 @@ def genOptions(trialsIn, experiment_type=NORMAL):
     stdOptions.sodium = expSodium(experiment_type)
     stdOptions.magnesium = expMagnesium(experiment_type)
     stdOptions.gt_enable = 1
-    
     stdOptions.DNA23Metropolis()
-    
-    
 
     return stdOptions
 
@@ -211,4 +208,3 @@ def generateGraph(min_success, increment_trials):
 # the main method
 if __name__ == '__main__':
     generateGraph(6, 10000)
- 

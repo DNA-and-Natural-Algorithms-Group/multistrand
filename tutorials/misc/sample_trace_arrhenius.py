@@ -18,7 +18,6 @@ ATIME_OUT = 0.001
 def printTrajectory(o):
     
     seqstring = ""
-    
     for i in range(len(o.full_trajectory)):
     
         time = 1e3 * o.full_trajectory_times[i]
@@ -30,11 +29,8 @@ def printTrajectory(o):
         dG = 0.0;
         
         pairTypes = []
-
-        arrType = o.full_trajectory_arrType[i]   
-
-        for state in states: 
-            
+        arrType = o.full_trajectory_arrType[i]
+        for state in states:
             ids += [ str(state[2]) ]
             newseqs += [ state[3] ]  # extract the strand sequences in each complex (joined by "+" for multistranded complexes)
             structs += [ state[4] ]  # similarly extract the secondary structures for each complex
@@ -47,21 +43,18 @@ def printTrajectory(o):
             print(newseqstring)
             seqstring = newseqstring  # because strand order can change upon association of dissociation, print it when it changes        
 
-        print(tubestruct + ('   t=%.6f ms,  dG=%3.2f kcal/mol  Type:  %s %s' % (time, dG, codeToDesc(arrType)[0], codeToDesc(arrType)[1])))  
+        print(f"{tubestruct}   t={time:.6f} ms,  dG={dG:3.2f} kcal/mol,  "
+              f"Type:  {codeToDesc(arrType)[0]} {codeToDesc(arrType)[1]}")
         
 
 def doSims(strandSeq, numTraj=2):    
 
     o1 = standardOptions()
-    
     o1.num_simulations = numTraj
     o1.output_interval = 1 
     o1.simulation_time = ATIME_OUT
-    
     hybridization(o1, strandSeq)
-
     o1.DNA23Arrhenius()
-
     o1.initial_seed = 1777 + 6
 
     s = SimSystem(o1)
@@ -74,4 +67,3 @@ if __name__ == '__main__':
     
     print(sys.argv)
     doSims("GCGTTTCAC", 1)
-

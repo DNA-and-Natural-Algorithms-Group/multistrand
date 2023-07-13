@@ -292,7 +292,7 @@ def computeCompletionLine(results, N=None):
         exit("Number of results in zero")
     
     results.sort()
-    Y = (100.0 / N) + (100.0 / N) * np.array(list(range(len(results))))
+    Y = (100.0 / N) + (100.0 / N) * np.arange(len(results))
     
     return results, Y
 
@@ -312,7 +312,7 @@ def setLabelAndClose(settings, plt, ax):
 def removeOutliers(times):
     
     times = np.array(sorted(times))
-    return times[list(range(int(len(times) * 0.98)))]
+    return times[np.arange(int(len(times) * 0.98))]
     
 
 def doBarplot(times, settings):
@@ -491,7 +491,7 @@ def printTrajectory(o):
             print(newseqstring)
             seqstring = newseqstring  # because strand order can change upon association of dissociation, print it when it changes        
 
-        print(tubestruct + ('   t=%.3f ns,  dG=%3.2f kcal/mol, dGC=%3.2f kcal/mol   ' % (time, dG, dGC))) 
+        print(f'{tubestruct}   t={time:.3f} ns,  dG={dG:3.2f} kcal/mol, dGC={dGC:3.2f} kcal/mol   ')
 
 
 def debugTester():
@@ -540,9 +540,6 @@ if __name__ == '__main__':
 #         debugTester()
         makePlots(switcher[type])
         
-#         
-
-#     
     else:
         
         print("Please supply the number of processes and total number of trajectories to simulate per case study, and the type \n")
