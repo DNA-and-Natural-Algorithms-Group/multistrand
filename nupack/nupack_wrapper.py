@@ -145,7 +145,7 @@ def pfunc(sequences, ordering = None, material = 'dna',
   ## Perform call until it works (should we have a max # of tries before quitting?)
   output, error = call_with_pipe(args, cmd_input)
   while len(output) < 4 : # can't figure out why, but occasionally NUPACK returns empty-handed.  Subsequent tries seem to work...
-      print 'Retrying pfunc: NUPACK failed with output ' + `output` + ' and error ' + `error` +" ."
+      print('Retrying pfunc: NUPACK failed with output ' + repr(output) + ' and error ' + repr(error) +" .")
       output, error = call_with_pipe(args, cmd_input)
 
   ## Parse and return output
@@ -181,7 +181,7 @@ def pairs(sequences, ordering = None, material = 'rna',
 
   ## Parse and return output
   pair_probs = []
-  for l in filter(lambda x: x[0].isdigit(), output):
+  for l in [x for x in output if x[0].isdigit()]:
     if len(l.split()) > 1:
       i,j,p = l.split()
       pair_probs.append(tuple( (int(i),int(j),float(p)) ))
