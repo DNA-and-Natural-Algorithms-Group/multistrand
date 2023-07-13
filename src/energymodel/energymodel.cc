@@ -99,7 +99,7 @@ void EnergyModel::computeArrheniusRates(double temperature) {
 
 }
 
-void EnergyModel::writeConstantsToFile() {
+void EnergyModel::writeConstantsToFile(void) {
 
 	// Print constants to file.
 	std::stringstream ss;

@@ -394,7 +394,7 @@ class Builder(object):
 
         N = len(self.protoSpace)
 
-        overlap = 0;
+        overlap = 0
 
         for state in self.protoSpace:
             if state in other.protoSpace:
@@ -407,7 +407,7 @@ class Builder(object):
         for key, val in that.iteritems():
 
             if not key in this:
-                this[key] = val;
+                this[key] = val
 
     def mergeBuilder(self, other):
 
@@ -452,9 +452,6 @@ class Builder(object):
 
             uniqueID2 = uniqueStateID(ids, structs)
             uniqueID = ""
-
-#             for iddd in uniqueID2 :
-#                 uniqueID += str(iddd)
                 
             uniqueID =  tuple(uniqueID2)
 
@@ -521,15 +518,6 @@ class Builder(object):
             
         startTime = time.time()
 
-        """ Load up the energy model with a near zero-length simulation """
-        myOptions = self.optionsFunction(copy.deepcopy(self.optionsArgs))
-        myOptions.simulation_mode = Literals.trajectory
-        myOptions.activestatespace = False
-        myOptions.simulation_time = 0.0000000001
-        myOptions.start_state = pathway[0]
-#          
-        s = SimSystem(myOptions)
-        s.start()  
 
         """ Only the first state will count towards the set of initial states """
         ignoreInitial = False
@@ -551,7 +539,18 @@ class Builder(object):
     '''
         
     def fattenStateSpace(self):
-        
+
+        """ Load up the energy model with a near zero-length simulation """
+        myOptions = self.optionsFunction(copy.deepcopy(self.optionsArgs))
+        myOptions.simulation_mode = Literals.trajectory
+        myOptions.activestatespace = False
+        myOptions.simulation_time = 0.0000000001
+        myOptions.start_state = hybridizationString("AAA")[0] #pathway[0]
+#          
+        s = SimSystem(myOptions)
+        s.start()  
+        """ Done setting the energy model        """
+
         ogVerb = Builder.verbosity
         Builder.verbosity = False
         counter = 0
@@ -559,6 +558,8 @@ class Builder(object):
         def inspectionSim(inputs):
 
             o1 = standardOptions()
+            """ Disable regenerating the energymodel """
+            o1.reuse_energymodel = True 
             o1.rate_method = self.options.rate_method
             o1.start_state = inputs[0]
             
@@ -592,49 +593,6 @@ class Builder(object):
         
         Builder.verbosity = ogVerb
             
-#     def fattenStateSpace(self):
-#         
-#         ogVerb = Builder.verbosity
-#         Builder.verbosity = False
-#         counter = 0
-#         
-#         collectionB = Builder(self.optionsFunction, self.optionsArgs)
-#         
-#         def inspectionSim(inputs):
-# 
-#             o1 = standardOptions()
-#             o1.rate_method = self.options.rate_method
-#             o1.start_state = inputs[0]
-#             
-#             return o1
-#         
-#         for key, value in self.protoSpace.iteritems():
-# 
-#             if ogVerb and ((counter % 100) == 0):
-#                 print "Searching for missing transitions. Progress " + str(counter) + " / " + str(len(self.protoSpace))
-# 
-#             (seqs, ids, structs) = self.protoSequences[key]
-#             
-#             myState = []
-#             
-#             for seq, id, struct in zip(seqs, ids, structs):
-#                 
-#                 seqs = seq.split('+')
-#                 ids = id.split(',')
-#                 myC = makeComplex(seqs, struct, ids)
-# 
-#                 myState.append(myC)
-#             
-#             ''' post: myState is the state we want to explore transitions for. '''
-#     
-#             myB = Builder(inspectionSim, [myState])
-#             myB.genAndSavePathsFile(inspecting=True)
-#             collectionB.transitionMerge(myB)
-#             
-#             counter += 1
-#         
-#         self.transitionMerge(collectionB)
-#         Builder.verbosity = ogVerb
         
     """
     Computes the mean first pasasage times, 

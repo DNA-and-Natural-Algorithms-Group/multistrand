@@ -99,6 +99,7 @@ class Options(object):
     cotranscriptional_rate_default = 0.001  # 1 nt added every 1 ms
     
     activestatespace = False;
+    reuse_energymodel = False;
     
     def __init__(self, *args, **kargs):
         """
@@ -433,38 +434,38 @@ class Options(object):
     def JSDefault(self): 
         """ Default rates from Joseph Schaeffer's thesis  """
         
-        self.unimolecular_scaling = 1.50e+08;
-        self.bimolecular_scaling = 1.38e+06;
+        self.unimolecular_scaling = 1.50e+08
+        self.bimolecular_scaling = 1.38e+06
     
     def JSMetropolis25(self): 
         """ Default rates for Metropolis at 25 degree Celcius, from Joseph Schaeffer's thesis
         
         """
         
-        self.unimolecular_scaling = 4.4e8;
-        self.bimolecular_scaling = 1.26e6;
+        self.unimolecular_scaling = 4.4e8
+        self.bimolecular_scaling = 1.26e6
     
     def JSKawasaki25(self): 
         """ Default rates for Kawasaki at 25 degree Celcius, from Joseph Schaeffer's thesis
         
         """
         
-        self.unimolecular_scaling = 6.1e7;
-        self.bimolecular_scaling = 1.29e6;
+        self.unimolecular_scaling = 6.1e7
+        self.bimolecular_scaling = 1.29e6
     
     def JSKawasaki37(self):
         """ Default rates for Kawasaki at 37 degree Celcius, from Joseph Schaeffer's thesis
         """
         
-        self.unimolecular_scaling = 1.5e8;
-        self.bimolecular_scaling = 1.38e6;
+        self.unimolecular_scaling = 1.5e8
+        self.bimolecular_scaling = 1.38e6
     
     def JSMetropolis37(self): 
         """ Default rates for Metropolis at 37 degree Celcius, from Joseph Schaeffer's thesis
         """
         
-        self.unimolecular_scaling = 7.3e8;
-        self.bimolecular_scaling = 1.40e6;
+        self.unimolecular_scaling = 7.3e8
+        self.bimolecular_scaling = 1.40e6
     
 
     def DNA23Metropolis(self):
@@ -472,8 +473,8 @@ class Options(object):
         Parameters for Metropolis at 25 degree Celcius, from the DNA23 conference (55th walker)
         """
        
-        self.unimolecular_scaling = 2.41686715e+06;
-        self.bimolecular_scaling = 8.01171383e+05 ;
+        self.unimolecular_scaling = 2.41686715e+06
+        self.bimolecular_scaling = 8.01171383e+05 
     
     def DNA23Arrhenius(self):
         

@@ -44,7 +44,7 @@ void SimulationSystem::construct(void) {
 	simulation_mode = simOptions->getSimulationMode();
 	simulation_count_remaining = simOptions->getSimulationCount();
 
-	if (simOptions->statespaceActive) {
+	if (simOptions->reuseEnergyModel) {
 		energyModel = Loop::GetEnergyModel();
 	} else {
 		energyModel = new NupackEnergyModel(simOptions->getPythonSettings());
