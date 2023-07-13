@@ -80,14 +80,14 @@ def process_trajectory(o, testing, seed):
     
     if(testing & (seed == 19)):
      
-        print(times[-1])
-        print(times[-2])
+        print((times[-1]))
+        print((times[-2]))
                  
-        print(tubestructs[-1])
-        print(tubestructs[-2])
+        print((tubestructs[-1]))
+        print((tubestructs[-2]))
      
-        print(energies[-1])
-        print(energies[-2])
+        print((energies[-1]))
+        print((energies[-2]))
                  
 #         print(round(times[-1], nVal) == round(2.00311181181e-06, nVal))
 #         print(round(times[-2], nVal) == round(1.99980667462e-06, nVal))
@@ -98,7 +98,7 @@ def process_trajectory(o, testing, seed):
 #         print(round(energies[-1], 2) == round(-31.7, 2))
 #         print(round(energies[-2], 2) == round(-32.13, 2))
          
-        print 
+        print() 
         
 
 # Perform the simulations

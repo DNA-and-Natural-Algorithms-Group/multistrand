@@ -23,7 +23,7 @@ import random
 
 
 def create_options():
-  print "creating options..."
+  print("creating options...")
   d1 = Domain(name="d1", sequence="GTTGGTTTGTGTTTGGTGGG")
   s1 = Strand(name="s1", domains=[d1])
   c1 = Complex(name="c1", strands=[s1], structure=".")
@@ -36,15 +36,15 @@ def create_options():
               simulation_time = 0.5, start_state = [RestingState("1", [c1]), RestingState("2", [c2])],
               stop_conditions = [sc_rev, sc_for])
   #o.initial_seed = random.SystemRandom().randrange(-2147483648, 2147483647)
-  print "finished options. creating simsystem..."
+  print("finished options. creating simsystem...")
   #print o.interface
   return o
 
 def run_trajectory(o):
   s = SimSystem(o)
-  print "finished simsystem. now starting..."
+  print("finished simsystem. now starting...")
   s.start()
-  print "after call to start."
+  print("after call to start.")
   
 #  tag, time, rate = o.interface.current_tag, o.interface.current_time, o.interface.collision_rate
 #  del s

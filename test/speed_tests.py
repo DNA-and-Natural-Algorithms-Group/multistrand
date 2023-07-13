@@ -25,7 +25,7 @@ class Speedtest_Random_Sequences( unittest.TestCase ):
         self.sequences = [i.strip('\n') for i in f.readlines()]
         self.indexed_sequences = {}
         for i in self.sequences:
-            print i
+            print(i)
             if hasattr( self.indexed_sequences, str(len(i)) ):
                 self.indexed_sequences[len(i)].append(i)
             else:
@@ -125,22 +125,22 @@ class Speedtest_Random_Sequences( unittest.TestCase ):
     
     def helper_run_single( self, sequence, time, count = 1, print_flag = False ):
         if print_flag:
-            print("Executing Kinfold on {0} ...".format( sequence ))
+            print(("Executing Kinfold on {0} ...".format( sequence )))
         time_kinfold = self.helperRunSingle_Kinfold( sequence, time, count )
         if print_flag:
-            print("{0:>70}".format( time_kinfold ))
+            print(("{0:>70}".format( time_kinfold )))
             
         if print_flag:
-            print("Executing Multistrand [I] on {0} ...".format( sequence ))
+            print(("Executing Multistrand [I] on {0} ...".format( sequence )))
         time_multistrand_I = self.helper_RunSingle_Multistrand_I( sequence, time, count )
         if print_flag:
-            print("{0:>70}".format( time_multistrand_I ))
+            print(("{0:>70}".format( time_multistrand_I )))
 
         if print_flag:
-            print("Executing Multistrand on {0} ...".format( sequence ))
+            print(("Executing Multistrand on {0} ...".format( sequence )))
         time_multistrand = self.helper_RunSingle_Multistrand( sequence, time, count )
         if print_flag:
-            print("{0:>70}".format( time_multistrand ))
+            print(("{0:>70}".format( time_multistrand )))
 
         return time_kinfold, time_multistrand_I, time_multistrand
 
@@ -150,7 +150,7 @@ class Speedtest_Random_Sequences( unittest.TestCase ):
         count = k
         
         if verbose:
-            print("Time: [{0} (simulated time units)]\nTrajectories per simulation (n): {1}\nTotal simulation calls (k): {2}\n".format( time, n, k) )
+            print(("Time: [{0} (simulated time units)]\nTrajectories per simulation (n): {1}\nTotal simulation calls (k): {2}\n".format( time, n, k) ))
             if k > 1:
                 print("First Trial:")
             times = self.helper_run_single( seq, time, n,  print_flag=True )
@@ -163,28 +163,28 @@ class Speedtest_Random_Sequences( unittest.TestCase ):
             times = self.helper_run_single( seq, time, n, print_flag=verbose )
             timeresults.append( (time, times[0],times[0] / time,  times[1], times[1]/time ))
             if verbose and (i+1) % 25 == 0:   # modulus binds weakly
-                print("{0} complete...".format(i+1))
+                print(("{0} complete...".format(i+1)))
         if verbose:
             print("\nComplete!")
         return timeresults
 
     def helper_print_results( self,time, n,k, timeresults, verbose=True, sequence=None ):
         #print("Real Time per Simulated Time Unit:")
-        print("-"*70)
-        print("{0:<7}|{1:<12}{2:>3}{3:>14} |{4:<12}{5:>3}{6:>14} |".format("Time","Kinfold","[R]","[R]/n*k","Multistrand","[R]","[R]/n*k"))
+        print(("-"*70))
+        print(("{0:<7}|{1:<12}{2:>3}{3:>14} |{4:<12}{5:>3}{6:>14} |".format("Time","Kinfold","[R]","[R]/n*k","Multistrand","[R]","[R]/n*k")))
         tot_kin = 0.0
         tot_mul = 0.0
         for i in timeresults:
             tot_kin += i[1]
             tot_mul += i[3]
             if verbose:
-                print("{0[0]:<7}|{0[1]:>15e}{0[2]:>14e} |{0[3]:>15e}{0[4]:>14e} |".format( i ))
+                print(("{0[0]:<7}|{0[1]:>15e}{0[2]:>14e} |{0[3]:>15e}{0[4]:>14e} |".format( i )))
         if verbose:
-            print("-"*70)
+            print(("-"*70))
             
-        print("{1:<7}|{0[0]:>15e}{0[1]:>14e} |{0[2]:>15e}{0[3]:>14e} |".format( (tot_kin,tot_kin/(time*n*k),tot_mul,tot_mul/(time*n*k)) , "Tot:"))
+        print(("{1:<7}|{0[0]:>15e}{0[1]:>14e} |{0[2]:>15e}{0[3]:>14e} |".format( (tot_kin,tot_kin/(time*n*k),tot_mul,tot_mul/(time*n*k)) , "Tot:")))
         Results.add_results( (sequence, n, k, time, (tot_kin,tot_kin/(time*n*k),tot_mul,tot_mul/(time*n*k)), timeresults ))
-        print("-"*70)
+        print(("-"*70))
 
     def test_single_sequence_100_trials_t100( self ):
         """ Test [time=100.0, n=1, k=100]: Pure run, single seq, 1x time. """
@@ -231,7 +231,7 @@ class Speedtest_Random_Sequences( unittest.TestCase ):
         time = 1000.0
         print("")
         for seq in self.sequences[5:105]:
-            print("Sequence [{0}]:\n{1}".format( len(seq), seq ))
+            print(("Sequence [{0}]:\n{1}".format( len(seq), seq )))
             res = self.helper_run_k_trials_single_seq(seq , n, k, time, verbose )
             self.helper_print_results( time, n, k, res, verbose, sequence=seq )
 
@@ -244,7 +244,7 @@ class Speedtest_Random_Sequences( unittest.TestCase ):
         print("")
         #        for seq in self.sequences[105:205]:
         for seq in self.sequences[105:110]:
-            print("Sequence [{0}]:\n{1}".format( len(seq), seq ))
+            print(("Sequence [{0}]:\n{1}".format( len(seq), seq )))
             res = self.helper_run_k_trials_single_seq(seq , n, k, time, verbose )
             self.helper_print_results( time, n, k, res, verbose, sequence=seq )
 
@@ -258,7 +258,7 @@ class Speedtest_Random_Sequences( unittest.TestCase ):
         time = 1000.0
         print("")
         for seq in self.sequences[0:5]:
-            print("Sequence [{0}]:\n{1}".format( len(seq), seq ))
+            print(("Sequence [{0}]:\n{1}".format( len(seq), seq )))
             res = self.helper_run_k_trials_single_seq(seq , n, k, time, verbose )
             self.helper_print_results( time, n, k, res, verbose, sequence=seq )
 
@@ -270,7 +270,7 @@ class Speedtest_Random_Sequences( unittest.TestCase ):
         time = 1000.0
         print("")
         seq = self.sequences[0]
-        print("Sequence [{0}]:\n{1}".format( len(seq), seq ))
+        print(("Sequence [{0}]:\n{1}".format( len(seq), seq )))
         res = self.helper_run_k_trials_single_seq(seq , n, k, time )
         self.helper_print_results( time, n, k, res, sequence=seq )
     

@@ -46,7 +46,7 @@ def comparison():
     dotparen = "("*len(seq) + "+" + ")"*len(seq)
     
     dG = pfunc([seq, seqC], [1, 2], T=(temp - 273.15), material="dna")
-    print (str(dG)) 
+    print((str(dG))) 
     
     kMinus = predictedA.k1() * math.exp(dG / (GAS_CONSTANT_R * temp)) 
     

@@ -1,5 +1,5 @@
 import sys, os, os.path
-import cPickle
+import pickle
 import math
 
 from multistrand.objects import Strand, Complex, Domain
@@ -70,15 +70,15 @@ NOW_TESTING = "GGGGAAACCCC"
 eqd = run_distribution(NOW_TESTING)
 print(eqd)
 pf = nupack_pfunc(NOW_TESTING, 37.0)
-print("NUPACK partition function is ", pf)
+print(("NUPACK partition function is ", pf))
 
 
 mySum = 0.0
-for i in eqd.items():
+for i in list(eqd.items()):
     
     val = math.exp(-i[1][0] / RT)
     mySum += val
     
-print("mySum is ", mySum)
-print("myPart is ", math.log(mySum) * -RT)
+print(("mySum is ", mySum))
+print(("myPart is ", math.log(mySum) * -RT))
     
