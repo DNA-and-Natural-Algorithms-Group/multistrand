@@ -1,0 +1,78 @@
+Bootstrap: docker
+From: ubuntu:bionic-20180526
+
+%help
+
+    The purpose of this container is to provide a functional environment for
+    Python 2.7 with GCC 4.8, as later GCC versions can crash the legacy version
+    Multistrand 2.1.3. Future work will address the faulty behaviours in
+    Multistrand directly.
+
+    This container definition was built successfully using Apptainer 1.1, and
+    assumes that the source trees for NUPACK and Multistrand are available on
+    the host system at the locations referenced in the %files section.
+
+%files
+
+    # copy source trees
+    ../../nupack3.2.2.tar.gz /dna/
+    ../../multistrand /dna/
+
+%environment
+
+    # lib paths
+    export NUPACKHOME=/dna/nupack3.2.2
+    export MS=/dna/multistrand
+
+%post
+
+    # version config
+    export NUPACK_VER=3.2.2
+    export GCC_VER=4.8
+
+    # lib paths
+    export LIB_ROOT=/dna NUPACK_SRC=nupack${NUPACK_VER}
+    export NUPACK_TAR=${NUPACK_SRC}.tar.gz
+    export NUPACKHOME=${LIB_ROOT}/${NUPACK_SRC} MS=${LIB_ROOT}/multistrand
+
+    # compiler config
+    export CONF="sudo update-alternatives"
+
+    # system preliminaries
+    apt-get update
+    apt-get -y install sudo
+    sudo apt-get --allow-releaseinfo-change update
+    apt-get -y install \
+      ca-certificates build-essential cmake \
+      curl wget gzip unzip tar rsync git \
+      zsh tmux time less tree vim
+
+    # install legacy GCC version & adapt system config
+    apt-get -y install gcc-${GCC_VER} g++-${GCC_VER}
+    eval "${CONF} --install /usr/bin/gcc gcc /usr/bin/gcc-${GCC_VER} 20"
+    eval "${CONF} --install /usr/bin/g++ g++ /usr/bin/g++-${GCC_VER} 20"
+    eval "${CONF} --install /usr/bin/cc cc /usr/bin/gcc 30"
+    eval "${CONF} --install /usr/bin/c++ c++ /usr/bin/g++ 30"
+    eval "${CONF} --set cc /usr/bin/gcc"
+    eval "${CONF} --set c++ /usr/bin/g++"
+    eval "${CONF} --config gcc"
+    eval "${CONF} --config g++"
+
+    # install Nupack
+    cd ${LIB_ROOT} && tar -xzf ${NUPACK_TAR} && \
+      rm ${NUPACK_TAR} && cd ${NUPACK_SRC} && mkdir build && \
+      cd build && cmake ../ && make -j8 && sudo make install
+
+    # install Python dependencies
+    apt-get -y install \
+        $(for p in minimal dev setuptools wheel pip; do echo python-$p; done)
+    pip2 install \
+         enum34==1.1 configparser==3.5 ipython==5.10 pytest==4.6 \
+         numpy==1.16 scipy==1.2 matplotlib==2.0
+
+    # install Multistrand
+    cd $MS && rm -rf .git env && pip2 install -vvv .
+
+%labels
+
+    Author Boyan Beronov, Jordan Lovrod, Chenwei Zhang
