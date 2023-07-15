@@ -1,5 +1,5 @@
 """
- Copyright (c) 2007-20017 California Institute of Technology. All rights reserved.
+ Copyright (c) 2007-2017 California Institute of Technology. All rights reserved.
  Multistrand nucleic acid kinetic simulator.               E: help@multistrand.org
  """
  # Code contributors:  Erik Winfree, Chris Thachuk, Justin Bois, Joseph Berleant.
@@ -24,8 +24,14 @@
 
 
 import math
-import subprocess as sub
+import numbers
 import os
+from subprocess import run, PIPE
+
+
+_call = lambda cmd, input: run(
+    cmd, input=input, stdout=PIPE, stderr=PIPE, universal_newlines=True, check=True)
+
 
 def dGadjust(T,N):
     """Adjust NUPACK's native free energy (with reference to mole fraction units) to be appropriate for molar units, assuming N strands in the complex."""
@@ -35,9 +41,11 @@ def dGadjust(T,N):
     adjust = R*K*math.log(water) # converts from NUPACK mole fraction units to molar units, per association
     return adjust*(N-1)
 
+
 def get_nupack_exec_path(exec_name):
   """ If the NUPACKHOME environment variable is set, use that as the directory
   of the NUPACK executables. Otherwise, have Python search the PATH directly. """
+  assert isinstance(exec_name, str)
   if 'NUPACKHOME' in os.environ:
     if('3.0' in os.environ['NUPACKHOME']):
         return os.environ['NUPACKHOME'] + '/bin/' + exec_name;
@@ -46,8 +54,18 @@ def get_nupack_exec_path(exec_name):
   else:
     return exec_name;
 
+
 def setup_args(**kargs):
   """ Returns the list of tokens specifying the command to be run in the pipe. """
+  assert isinstance(kargs, dict)
+  assert isinstance(kargs['material'], str), "Argument 'material' is not a string."
+  assert isinstance(kargs['dangles'], str), "Argument 'dangles' is not a string."
+  assert isinstance(kargs['multi'], bool), "Argument 'multi' is not a Boolean."
+  assert isinstance(kargs['pseudo'], bool), "Argument 'pseudo' is not a Boolean."
+  assert isinstance(kargs['T'], numbers.Number), "Argument 'T' is not a number."
+  assert isinstance(kargs['sodium'], numbers.Number), "Argument 'sodium' is not a number."
+  assert isinstance(kargs['magnesium'], numbers.Number), "Argument 'magnesium' is not a number."
+
   args = [get_nupack_exec_path(kargs['exec_name']),
           '-material', kargs['material'],   '-sodium', kargs['sodium'],
           '-magnesium', kargs['magnesium'], '-dangles', kargs['dangles'], '-T', kargs['T']]
@@ -55,8 +73,12 @@ def setup_args(**kargs):
   if kargs['pseudo']: args += ['-pseudo']
   return args
 
+
 def setup_cmd_input(multi, sequences, ordering, structure = ''):
   """ Returns the command-line input string to be given to NUPACK. """
+  assert isinstance(sequences, list) and all(isinstance(s, str) for s in sequences), \
+    "Argument 'sequences' is not a list of strand sequences."
+  assert isinstance(structure, str), "Argument 'structure' is not a string."
   if not multi:
     cmd_input = '+'.join(sequences) + '\n' + structure
   else:
@@ -80,8 +102,8 @@ def setup_nupack_input(**kargs):
   # Set up command-line input to NUPACK
   cmd_input = setup_cmd_input(kargs['multi'], kargs['sequences'], kargs['ordering'],
                               kargs.get('structure', ''))
-  
   return (args, cmd_input)
+
     
 def call_with_file(args, cmd_input, outsuffix):
   """ Performs a NUPACK call, returning the lines of the output in a temporary
@@ -90,7 +112,6 @@ def call_with_file(args, cmd_input, outsuffix):
     Ex:
       call_with_file(args, input, '.sample')
   """
-  
   import tempfile
 
   ## Preliminaries
@@ -105,17 +126,14 @@ def call_with_file(args, cmd_input, outsuffix):
   ## Perform executable call, ignoring pipe output
   args = [str(s) for s in args] # all argument elements must be strings
   cmd_input = outprefix + '\n' + cmd_input # prepend the output file prefix to the input for NUPACK
-  p = sub.Popen(args, stdin=sub.PIPE, stdout=sub.PIPE, stderr=sub.STDOUT)
-  p.communicate(cmd_input)
+  _call(args, cmd_input)
   
   ## Process and return output
   # Read output file and clean it up
   # Note that it was created by us, so it won't be cleaned up automatically
-  out = open(outfile.name, "rt")
-  output_lines = out.readlines()
-  out.close()
+  with open(outfile.name, "rt") as out:
+    output_lines = out.readlines()
   os.remove(outfile.name)
-  
   return output_lines
   
 
@@ -123,11 +141,12 @@ def call_with_pipe(args, cmd_input):
   """ Performs a NUPACK call, returning the lines of the output from the pipe.
   """
   args = [str(s) for s in args] # all argument elements must be strings
-  
-  p=sub.Popen(args,stdin=sub.PIPE,stdout=sub.PIPE,stderr=sub.PIPE)
-  output,error = p.communicate(cmd_input)
+
+  result = _call(args, cmd_input)
+  output, error = result.stdout, result.stderr
   output_lines = output.split('\n')
   return (output_lines, error)
+
     
 def pfunc(sequences, ordering = None, material = 'dna',
           dangles = 'some', T = 37.0, multi = True, pseudo = False,
@@ -216,7 +235,6 @@ def mfe(sequences, ordering = None, material = 'rna',
       s = l.strip()
       e = output[i-1].strip()
       structs.append((s,e))
-  
   return structs
   
   
@@ -229,7 +247,6 @@ def subopt(sequences, energy_gap, ordering = None, material = 'rna',
        energy_gap is the maximum energy gap from the mfe of any returned structure.
        See NUPACK User Manual for information on other arguments.
   """
-  
   ## Set up command-line arguments and input
   args, cmd_input = \
     setup_nupack_input(exec_name = 'subopt', sequences = sequences, ordering = ordering,
@@ -247,7 +264,6 @@ def subopt(sequences, energy_gap, ordering = None, material = 'rna',
       s = l.strip()
       e = output[i-1].strip()
       structs.append((s,e))
-  
   return structs
 
 
@@ -264,14 +280,13 @@ def count(sequences, ordering = None, material = 'rna',
     setup_nupack_input(exec_name = 'count', sequences = sequences, ordering = ordering,
                        material = material, sodium = sodium, magnesium = magnesium,
                        dangles = dangles, T = T, multi = multi, pseudo = pseudo)
-  
+
   ## Perform call
   output, error = call_with_pipe(args, cmd_input)
 
   ## Parse and return output
   if output[-3] != "% Total number of secondary structures:" :
       raise NameError('NUPACK output parsing problem')
-
   return float(output[-2]) # the number of structures can be very large
 
 
@@ -284,21 +299,19 @@ def energy(sequences, structure, ordering = None, material = 'rna',
          (pair-list notation for structures is not currently supported)
        See NUPACK User Manual for information on the other arguments.
   """
-  
   ## Set up command-line arguments and input
   args, cmd_input = \
     setup_nupack_input(exec_name = 'energy', sequences = sequences, ordering = ordering,
                        structure = structure, material = material,
                        sodium = sodium, magnesium = magnesium,
                        dangles = dangles, T = T, multi = multi, pseudo = pseudo)
-                
+
   ## Perform call
   output, error = call_with_pipe(args, cmd_input)
 
   ## Parse and return output
   if output[-3] != "% Energy (kcal/mol):" :
      raise ValueError('NUPACK output parsing problem')
-
   return float(output[-2])
   
 
@@ -311,21 +324,19 @@ def prob(sequences, structure, ordering = None, material = 'rna',
          (pair-list notation for structures is not currently supported)
        See NUPACK User Manual for information on the other arguments.
   """
-  
   ## Set up command-line arguments and input
   args, cmd_input = \
     setup_nupack_input(exec_name = 'prob', sequences = sequences, ordering = ordering,
                        structure = structure, material = material,
                        sodium = sodium, magnesium = magnesium,
                        dangles = dangles, T = T, multi = multi, pseudo = pseudo)
-                
+
   ## Perform call
   output, error = call_with_pipe(args, cmd_input)
 
   ## Parse and return output
   if output[-3] != "% Probability:" :
      raise ValueError('NUPACK output parsing problem')
-
   return float(output[-2])
 
 
@@ -338,7 +349,6 @@ def defect(sequences, structure, ordering = None, material = 'rna',
          (pair-list notation for structures is not currently supported)
        See NUPACK User Manual for information on the other arguments.
   """
-  
   ## Set up command-line arguments and input
   args, cmd_input = \
     setup_nupack_input(exec_name = 'tubedefect', sequences = sequences, ordering = ordering,
@@ -346,7 +356,7 @@ def defect(sequences, structure, ordering = None, material = 'rna',
                        sodium = sodium, magnesium = magnesium,
                        dangles = dangles, T = T, multi = multi, pseudo = pseudo)
   if mfe: args += ['-mfe']
-                
+
   ## Perform call
   output, error = call_with_pipe(args, cmd_input)
 
@@ -354,7 +364,6 @@ def defect(sequences, structure, ordering = None, material = 'rna',
   if "% Ensemble defect" not in output[-4] and \
         "% Fraction of correct nucleotides vs. MFE" not in output[-4]:
     raise ValueError('NUPACK output parsing problem')
-
   # We don't return the normalized ensemble defect, because that is easily calculable on your own
   return float(output[-3])
   
@@ -363,13 +372,15 @@ def sample(sequences, samples, ordering = None, material = 'rna',
            dangles = 'some', T = 37.0, multi = True,
            pseudo = False, sodium = 1.0, magnesium = 0.0):
   """ Calls the NUPACK sample executable.
+        sequences is a list of the strand sequences
         samples is the number of Boltzmann samples to produce.
         See NUPACK User Manual for information on the other arguments.
       This only works with NUPACK 3.0.2+
       
       Note that if using OS X and sample is not in your $PATH, this will try
-      to run the standard BSD tool 'sample'. """
-      
+      to run the standard BSD tool 'sample'.
+  """
+  assert isinstance(samples, int), "Argument 'samples' is not an integer"
   ## Set up command-line arguments and input
   args, cmd_input = \
     setup_nupack_input(exec_name = 'sample', sequences = sequences, ordering = ordering,
@@ -387,5 +398,3 @@ def sample(sequences, samples, ordering = None, material = 'rna',
   # Parse and return output
   sampled = [l.strip() for l in output[14:]]
   return sampled
-
-# print "Python interface to NUPACK 3.0 (Pierce lab, Caltech, www.nupack.org) loaded."

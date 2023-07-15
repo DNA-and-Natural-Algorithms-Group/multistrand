@@ -230,7 +230,8 @@ class Complex(object):
             self._pop_boltzmann()
             return
         
-        import subprocess, tempfile, os
+        import tempfile, os
+        from .. import _call
         
         tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".sample")
         tmp.close()
@@ -301,21 +302,20 @@ class Complex(object):
         
         # editing here by EW 1/26/2014 to update from NUPACK 2.1 command line options & output to NUPACK 3.0.2
         #  FD 2018: added sodium , magnesium 
-        popen_params = [sample_exec, "-multi"] + material + dangles + temperature + sodium + magnesium + ["-samples", str(count)]
-        p = subprocess.Popen(popen_params, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        
+        nupack_params = (
+            [sample_exec, "-multi"] + material + dangles + temperature +
+            sodium + magnesium + ["-samples", str(count)])
+
         # new: NUPACK 3.0.2 takes the file name as user input
         input_str = "{0}\n{1}\n{2}\n{3}\n".format(tmp.name[:-7],
                                                    len(self.strand_list),
                                                    "\n".join([i.sequence for i in self.strand_list]),
                                                    " ".join([str(i + 1) for i in range(len(self.strand_list))])
                                                  )
-        result = p.communicate(input_str)[0]
-        
-        f = open(tmp.name, "rt")
-        lines = f.readlines()
-        
-        f.close()
+        result = _call(nupack_params, input_str)
+        _ = result.stdout
+        with open(tmp.name, "rt") as f:
+            lines = f.readlines()
         os.remove(tmp.name)  # was created by us [NamedTemporaryFile] and
                             # used by the sampler, thus we need to clean it up.
         if not ("NUPACK 3.0" in lines[0] or 'NUPACK 3.2' in lines[0]):
