@@ -124,28 +124,24 @@ PEnergyOptions::PEnergyOptions(PyObject* input) :
 
 	getDoubleAttr(python_settings, bimolecular_scaling, &biScale);
 	getDoubleAttr(python_settings, unimolecular_scaling, &uniScale);
-
 	getDoubleAttr(python_settings, join_concentration, &joinConcentration);
 
 
 	if(!usingArrhenius() && biScale < 0.0){
-		cout << "Warning! bimolecular_scaling is unset or negative!" << endl;
-		cout <<	"Please set them using multistrand::utils::XPMetropolis37() or similar,"<< endl;
-		cout <<	"or set Options.bimolecular_scaling directly."<< endl;
-		cout << "Reverting to bimolecular_scaling = 5.0e6"<< endl;
+		cout << "Warning! `bimolecular_scaling` is unset or negative!" << endl;
+		cout << "  Please set all parameters using `Options.DNA23Metropolis()` or similar,"<< endl;
+		cout << "  or set `Options.bimolecular_scaling` directly."<< endl;
+		cout << "  Reverting to `bimolecular_scaling = 1.38e+6` from `Options.JSDefault()`."<< endl;
 
-		biScale = 1400000.0;
-
+		biScale = 1.38e+6;
 	}
-
 	if(!usingArrhenius() && uniScale < 0.0){
-		cout << "Warning! unimolecular_scaling is unset or negative!"<< endl;
-		cout <<	"Please set them using multistrand::utils::XPMetropolis37() or similar,"<< endl;
-		cout <<	"or set Options.bimolecular_scaling directly."<< endl;
-		cout << "Reverting to unimolecular_scaling = 5.0e6"<< endl;
+		cout << "Warning! `unimolecular_scaling` is unset or negative!"<< endl;
+		cout << "  Please set all parameters using `Options.DNA23Metropolis()` or similar,"<< endl;
+		cout << "  or set `Options.unimolecular_scaling` directly."<< endl;
+		cout << "  Reverting to `unimolecular_scaling = 1.50e+08` from `Options.JSDefault()`."<< endl;
 
-		uniScale = 5000000.0;
-
+		uniScale = 1.50e+08;
 	}
 
 	if (usingArrhenius()){

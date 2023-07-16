@@ -426,41 +426,34 @@ class Options(object):
     # FD, May 5th 2017
     # Supplying rate options for Metropolis and Kawasaki methods,
     # all using the dangles = some option. Also:  one general default,
-    # and one setting for Metropolis rates derived for DNA23. 
+    # and one setting for Metropolis rates derived for DNA23.
     
-    def JSDefault(self): 
+    def JSDefault(self):
         """ Default rates from Joseph Schaeffer's thesis  """
-        
         self.unimolecular_scaling = 1.50e+08
         self.bimolecular_scaling = 1.38e+06
     
-    def JSMetropolis25(self): 
+    def JSMetropolis25(self):
         """ Default rates for Metropolis at 25 degree Celcius, from Joseph Schaeffer's thesis
-        
         """
-        
         self.unimolecular_scaling = 4.4e8
         self.bimolecular_scaling = 1.26e6
     
-    def JSKawasaki25(self): 
+    def JSKawasaki25(self):
         """ Default rates for Kawasaki at 25 degree Celcius, from Joseph Schaeffer's thesis
-        
         """
-        
         self.unimolecular_scaling = 6.1e7
         self.bimolecular_scaling = 1.29e6
     
     def JSKawasaki37(self):
         """ Default rates for Kawasaki at 37 degree Celcius, from Joseph Schaeffer's thesis
         """
-        
         self.unimolecular_scaling = 1.5e8
         self.bimolecular_scaling = 1.38e6
     
-    def JSMetropolis37(self): 
+    def JSMetropolis37(self):
         """ Default rates for Metropolis at 37 degree Celcius, from Joseph Schaeffer's thesis
         """
-        
         self.unimolecular_scaling = 7.3e8
         self.bimolecular_scaling = 1.40e6
 
@@ -468,12 +461,10 @@ class Options(object):
         """ 
         Parameters for Metropolis at 25 degree Celcius, from the DNA23 conference (55th walker)
         """
-       
         self.unimolecular_scaling = 2.41686715e+06
         self.bimolecular_scaling = 8.01171383e+05 
     
     def DNA23Arrhenius(self):
-        
         self.rate_method = Literals.arrhenius
 
         self.lnAStack = 1.41839430e+01
