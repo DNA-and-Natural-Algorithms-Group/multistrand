@@ -41,6 +41,14 @@ help@multistrand.org
 /* List indexing (ref counting caller responsibility) */
 #define getStringItem(list, index) PyUnicode_AsUTF8(PyList_GET_ITEM(list, index))
 
+// Function calls
+#define pushTrajectoryInfo( obj, time ) \
+  setDoubleAttr( obj, add_trajectory_current_time, time )
+
+#define pushTrajectoryInfo2( obj, arrType ) \
+  setDoubleAttr( obj, add_trajectory_arrType, (double) arrType)
+
+
 /***************************************/
 /* Helper functions / internal macros. */
 /*                                     */
@@ -99,7 +107,7 @@ help@multistrand.org
 #define testLongAttr(obj, name, test, value) _m_testLongAttr( obj, #name, #test, value )
 #define testBoolAttr(obj, name) _m_testLongAttr( obj, #name, "=", 1 )
 
-/* // Function calls */
+// Function calls
 
 #define _m_pushList( obj, a, b )                \
   do {                                          \
@@ -136,12 +144,6 @@ help@multistrand.org
 
 #define pushTrajectoryComplex( obj, seed, data ) \
   _m_pushList( obj, _m_prepComplexStateTuple( seed, data.id, data.names.c_str(), data.sequence.c_str(), data.structure.c_str(), data.energy, data.enthalpy ), add_trajectory_complex )
-
-#define pushTrajectoryInfo( obj, time ) \
-  setDoubleAttr( obj, add_trajectory_current_time, time )
-
-#define pushTrajectoryInfo2( obj, arrType ) \
-  setDoubleAttr( obj, add_trajectory_arrType, (double) arrType)
 
 // This macro DECREFs the passed obj once it's done with it.
 #define pushTransitionInfo( options_obj, obj ) \
@@ -285,6 +287,12 @@ help@multistrand.org
 
 #define printComplexStateLine( obj, seed, id, names, sequence, structure, energy, enthalpy ) \
   _m_d_pushList( obj, _m_prepComplexStateTuple( seed, id, names, sequence, structure, energy, enthalpy ), add_complex_state_line )
+
+#define printComplexStateLine( obj, seed, data ) \
+  _m_d_pushList( obj, _m_prepComplexStateTuple( seed, data.id, data.names.c_str(), data.sequence.c_str(), data.structure.c_str(), data.energy, data.enthalpy  ), add_complex_state_line )
+
+#define pushTrajectoryComplex( obj, seed, data ) \
+  _m_d_pushList( obj, _m_prepComplexStateTuple( seed, data.id, data.names.c_str(), data.sequence.c_str(), data.structure.c_str(), data.energy, data.enthalpy ), add_trajectory_complex )
 
 // This macro DECREFs the passed obj once it's done with it.
 #define pushTransitionInfo( options_obj, obj ) \
