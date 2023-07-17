@@ -317,9 +317,8 @@ double NupackEnergyModel::MultiloopEnergy(int size, int *sidelen, char **sequenc
 
 	}
 
-	if (debugTraces) {
-		cout << "Mid MultiLoop -- Energy is now " << energy << endl;
-	}
+	if (simOptions->debug)
+		cout << " Mid MultiLoop -- Energy is now " << energy << endl;
 
 	energy += size * multiloop.internal;
 	energy += multiloop.closing;
@@ -384,9 +383,8 @@ double NupackEnergyModel::OpenloopEnthalpy(int size, int *sidelen, char **sequen
 
 double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequences, multiloop_energies& multiloop) {
 
-	if (debugTraces) {
+	if (simOptions->debug)
 		cout << "Computing OpenLoopEnergy, size = " << size << endl;
-	}
 
 	// no dangle terms yet, this is equiv to dangles = 0;
 	double energy = 0.0;
@@ -410,9 +408,8 @@ double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequence
 
 	}
 
-	if (debugTraces) {
-		cout << "Mid OpenLoop -- Energy is now " << energy << endl;
-	}
+	if (simOptions->debug)
+		cout << " Mid OpenLoop -- Energy is now " << energy << endl;
 
 	if (dangles == DANGLES_NONE || size == 0) {
 		return energy;
@@ -430,9 +427,8 @@ double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequence
 
 		energy += dangle3; // added for either dangle version.
 
-		if (debugTraces) {
-			cout << "Mid2 OpenLoop -- Energy is now " << energy << endl;
-		}
+		if (simOptions->debug)
+			cout << " Mid2 OpenLoop -- Energy is now " << energy << endl;
 
 		for (loop = 0; loop < size - 1; loop++) {
 
@@ -451,9 +447,8 @@ double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequence
 			pt = rt_pt;
 		}
 
-		if (debugTraces) {
-			cout << "Mid3 OpenLoop -- Energy is now " << energy << endl;
-		}
+		if (simOptions->debug)
+			cout << " Mid3 OpenLoop -- Energy is now " << energy << endl;
 
 		// 3' most sequence's dangle5 component.
 		if (sidelen[size] == 0) {
@@ -465,9 +460,8 @@ double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequence
 		energy += dangle5; // added for either dangle version.
 	}
 
-	if (debugTraces) {
-		cout << "End OpenLoop -- Energy is now " << energy << endl;
-	}
+	if (simOptions->debug)
+		cout << " End OpenLoop -- Energy is now " << energy << endl;
 
 	return energy;
 }

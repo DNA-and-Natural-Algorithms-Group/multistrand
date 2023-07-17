@@ -402,8 +402,8 @@ int StrandOrdering::checkIDBound(char *id) {
 // -- Returns a flat representation of the strand ordering's sequence, structure and coded sequence. Used by SComplex::generateLoops() to re-use the old generate loops code.
 // Note that the returned arrays are allocated here, but expected to be deallocated by the calling function.
 // Sequence seperation is indicated by a single '_' character.
-void StrandOrdering::generateFlatSequence(char **sequence, char **structure, char **code_sequence) {
-
+void StrandOrdering::generateFlatSequence(char **sequence, char **structure,
+										  char **code_sequence, bool debug) {
 	int totallength = 0;
 	int index = 0;
 	int cpos = 0;
@@ -421,9 +421,8 @@ void StrandOrdering::generateFlatSequence(char **sequence, char **structure, cha
 	*structure = new char[totallength];
 	*code_sequence = new char[totallength];
 
-	if (utility::debugTraces){
-		cout << "Total length = " << totallength << endl << flush;
-	}
+	if (debug)
+		cout << " Total length = " << totallength << endl << flush;
 
 	for (index = 0, cpos = 0, traverse = first; index < count; index++, traverse = traverse->next) {
 		strncpy(&((*sequence)[cpos]), traverse->thisSeq, traverse->size);
@@ -534,57 +533,11 @@ OpenLoop* StrandOrdering::getIndex(JoinCriteria& crit, int site, char **location
 
 			map<HalfContext, BaseCount>& myTally = traverse->thisLoop->getOpenInfo().tally;
 
-//			if (!myTally.count(crit.half[site])) {
-//
-//				OpenInfo& openInfo = traverse->thisLoop->getOpenInfo();
-//
-//				cout << "printing myTally ************************* \n";
-////				cout << baseCount << "\n";
-//
-//				cout << "site= " << site << "\n";
-//				cout << "crit-half[site]= " << crit.half[site] << "\n";
-//
-//				cout << " *index       = " << *index << "\n";
-//				cout << " OpenInfo     = " << openInfo << " " << std::endl;
-//				cout << "(int) type    = " << (int) type << std::endl;
-//
-//			}
-
-//			assert(openInfo.tally.count(crit.half[site]));
-
-//			assert(myTally.count(crit.half[site]));
-
-//			assert(traverse->thisLoop->getOpenInfo().tally.count(crit.half[site]));
-
-//			BaseCount& baseCount = openInfo.tally.find(crit.half[site])->second;
-
-			//BaseCount& baseCount = traverse->thisLoop->getOpenInfo().tally.find(crit.half[site])->second;
-
-//			if (utility::debugTraces) {
-//
-//				cout << "printing baseCount ************************* \n";
-//				cout << baseCount << "\n";
-//
-//				cout << "site= " << site << "\n";
-//				cout << "crit-half[site]= " << crit.half[site] << "\n";
-//
-//				cout << " *index               = " << *index << "\n";
-//				cout << "baseCount.count[type] = " << baseCount.count[type] << "\n";
-//				cout << "(int) type            = " << (int) type << std::endl;
-//
-//			}
-
 			if (myTally.count(crit.half[site])) { // FD: there is at least one of the correct type in this openLoop
 
 				BaseCount& baseCount = myTally.find(crit.half[site])->second;
 
 				if (*index < baseCount.count[type]) {
-
-					if (utility::debugTraces) {
-
-						cout << traverse->thisLoop->toString() << endl;
-
-					}
 
 					*location = traverse->thisLoop->getBase(type, *index, crit.half[site]);
 

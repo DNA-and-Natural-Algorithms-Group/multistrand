@@ -292,7 +292,6 @@ static PyObject *System_calculate_energy(PyObject *self, PyObject *args) {
 	energy = temp->calculateEnergy(start_state_object, typeflag);
 
 	delete temp;
-
 	Py_XDECREF(options_object);
 	Py_XDECREF(start_state_object);
 	return energy;

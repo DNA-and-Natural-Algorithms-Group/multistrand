@@ -81,7 +81,8 @@ PSimOptions::PSimOptions(PyObject* input) :
 	getBoolAttr(python_settings, reuse_energymodel, &reuseEnergyModel);
 	getDoubleAttr(python_settings, ms_version, &ms_version);
 
-	debug = false;	// this is the main switch for simOptions debug, for now.
+	// switch for debugging output
+	debug = (verbosity > 2);
 
 }
 
@@ -202,6 +203,9 @@ PyObject* PSimOptions::getPythonSettings() {
 
 void PSimOptions::generateComplexes(PyObject *alternate_start, long current_seed) {
 
+	if (debug)
+		cout << "Start generating complexes..." << endl;
+
 	myComplexes = new vector<complex_input>(0); // wipe the pointer to the previous object;
 
 	PyObject *py_start_state = NULL, *py_complex = NULL;
@@ -236,7 +240,6 @@ void PSimOptions::generateComplexes(PyObject *alternate_start, long current_seed
 
 		for (int index = 0; index < start_count; index++) {
 
-			// #ifndef DEBUG_MACROS
 			py_complex = PyList_GET_ITEM(py_start_state, index);
 			// Borrowed reference, we do NOT decref it at end of loop.
 
@@ -263,6 +266,8 @@ void PSimOptions::generateComplexes(PyObject *alternate_start, long current_seed
 				}
 				return;
 			}
+			if (debug)
+				printf("Complex %d: sequence='%s', structure='%s'\n", index, sequence, structure);
 
 			id = getID_list(python_settings, index, alternate_start);
 

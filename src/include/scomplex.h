@@ -19,7 +19,7 @@ class StrandComplex {
 public:
 	// Constructors. Still not sure on exactly how I want to do these. For now, they take a character sequence and structure.
 	StrandComplex(char *seq, char *struc);
-	StrandComplex(char *seq, char *struc, class identList *id_list);
+	StrandComplex(char *seq, char *struc, class identList *id_list, bool debug);
 	StrandComplex(StrandOrdering *newOrdering);
 	~StrandComplex(void);
 	void cleanup(void);
@@ -44,14 +44,14 @@ public:
 	// 11/25 JMS: Possibly the best thing to do is have the complex which performs the splitting choice return the new complex. If I implement strands, it should be easier to find the splitting point and construct the new complex efficiently.
 
 	Move *getChoice(SimTimer&); // get a move chosen stochastically from all possible moves within the complex. We'll then call perform choice on that move to generate the new setup.
-	StrandComplex *doChoice(Move *move, SimTimer&);
-	int generateLoops(void);
+	StrandComplex *doChoice(Move *move, SimTimer&, bool debug);
+	int generateLoops(bool debug);
 
 	void printAllMoves(void);
 	string toString(void);
 	OpenInfo& getOpenInfo(void);
 
-	static StrandComplex *performComplexJoin(JoinCriteria, bool);
+	static StrandComplex *performComplexJoin(JoinCriteria, bool useArr, bool debug);
 	StrandOrdering* getOrdering();
 
 	StrandOrdering* ordering;

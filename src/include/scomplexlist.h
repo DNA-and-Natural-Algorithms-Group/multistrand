@@ -74,7 +74,7 @@ class SComplexListEntry {
 public:
 	SComplexListEntry(StrandComplex *newComplex, int newid);
 	~SComplexListEntry(void);
-	void initializeComplex(void);
+	void initializeComplex(bool debug);
 	void regenerateMoves(void);
 	void fillData(EnergyModel *em);
 	string toString(EnergyModel *em);

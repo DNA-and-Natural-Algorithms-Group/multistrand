@@ -91,6 +91,9 @@ public:
 	long verbosity = 1;
 	double ms_version = 0.0;
 
+	// switch for debugging output
+	bool debug;
+
 protected:
 
 	long simulation_mode = 0;
@@ -105,7 +108,6 @@ protected:
 	stopComplexes* myStopComplexes = NULL;
 
 	bool printInitialFirstStep = false;
-
 
 };
 
@@ -127,7 +129,6 @@ public:
 	void stopResultFirstStep(long, double, double, const char*);
 
 protected:
-	bool debug;
 	PyObject *python_settings;
 
 };
@@ -151,7 +152,6 @@ public:
 	void stopResultFirstStep(long, double, double, const char*);
 
 protected:
-	bool debug;
 	PyObject *python_settings = NULL;
 
 };

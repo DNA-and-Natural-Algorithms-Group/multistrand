@@ -49,19 +49,15 @@ SComplexListEntry::~SComplexListEntry(void) {
 
  */
 
-void SComplexListEntry::initializeComplex(void) {
+void SComplexListEntry::initializeComplex(bool debug) {
 
-	thisComplex->generateLoops();
-	if (utility::debugTraces) {
+	thisComplex->generateLoops(debug);
+	if (debug)
 		cout << "Done generating loops!" << endl;
-	}
 
 	thisComplex->generateMoves();
-
-	if (utility::debugTraces) {
+	if (debug)
 		cout << "Done generating moves!" << endl;
-	}
-
 }
 
 void SComplexListEntry::regenerateMoves(void) {
@@ -168,19 +164,16 @@ void SComplexList::initializeList(void) {
 
 	for (SComplexListEntry* temp = first; temp != NULL; temp = temp->next) {
 
-		temp->initializeComplex();
+		temp->initializeComplex(eModel->simOptions->debug);
 
-		if (utility::debugTraces) {
+		if (eModel->simOptions->debug)
 			cout << "Done initializing a complex!" << endl;
-		}
 
 		temp->fillData(eModel);
-
 	}
 
-	if (utility::debugTraces) {
+	if (eModel->simOptions->debug)
 		cout << "Done initializing List!" << endl;
-	}
 
 }
 
@@ -421,11 +414,9 @@ double SComplexList::doBasicChoice(SimTimer& myTimer) {
 	Move *tempmove;
 	double arrType;
 
-	if (utility::debugTraces) {
-
+	if (eModel->simOptions->debug) {
 		cout << "Doing a basic choice, timer =  " << myTimer << endl;
 		cout << "joinrate = " << joinRate << endl;
-
 	}
 
 	if (myTimer.wouldBeHit(joinRate)) {
@@ -461,7 +452,7 @@ double SComplexList::doBasicChoice(SimTimer& myTimer) {
 	tempmove = pickedComplex->getChoice(myTimer);
 	arrType = tempmove->getArrType();
 
-	newComplex = pickedComplex->doChoice(tempmove, myTimer);
+	newComplex = pickedComplex->doChoice(tempmove, myTimer, eModel->simOptions->debug);
 
 	if (newComplex != NULL) {
 
@@ -503,7 +494,7 @@ double SComplexList::doJoinChoice(SimTimer& timer) {
 	JoinCriteria crit;
 
 	// before we do anything, print crit (this is for debugging!)
-	if (utility::debugTraces) {
+	if (eModel->simOptions->debug) {
 		cout << "For the current state: \n";
 		cout << toString();
 	}
@@ -518,7 +509,7 @@ double SComplexList::doJoinChoice(SimTimer& timer) {
 
 	}
 
-	if (utility::debugTraces) {
+	if (eModel->simOptions->debug) {
 		cout << "Found a criteria to join: \n";
 		cout << crit.arrType;
 	}
@@ -531,7 +522,8 @@ double SComplexList::doJoinChoice(SimTimer& timer) {
 	SComplexListEntry *temp2 = NULL;
 	StrandComplex *deleted;
 
-	deleted = StrandComplex::performComplexJoin(crit, eModel->useArrhenius());
+	deleted = StrandComplex::performComplexJoin(crit, eModel->useArrhenius(),
+												eModel->simOptions->debug);
 	for (SComplexListEntry* temp = first; temp != NULL; temp = temp->next) {
 
 		if (temp->thisComplex == crit.complexes[0]) {

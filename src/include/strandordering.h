@@ -48,7 +48,7 @@ public:
 	// to generate the loop structure of a given complex, using a flat representation of the starting sequence and structure.
 	// Note that the first function, generateFlatSequence, is given pointers to appopriate char * markers to hold the flat representation.
 	// Structure is very difficult to have based on the ordering, though, so perhaps it needs to be handled differently.
-	void generateFlatSequence(char **sequence, char **structure, char **code_sequence);
+	void generateFlatSequence(char **sequence, char **structure, char **code_sequence, bool debug);
 
 	// this function converts an index into a previously given sequence from generateFlatSequence into a char * pointer into the appropriate strand's sequence at the given location.
 	char *convertIndex(const int index);

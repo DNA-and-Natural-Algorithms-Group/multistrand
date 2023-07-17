@@ -3,15 +3,11 @@
     This file demonstrates Arrhenius kinetics.
     The interface is not finalized.
 """
-import sys
 
-from multistrand.objects import Complex, Domain, Strand, StopCondition
 from multistrand.experiment import standardOptions, hybridization
 from multistrand.builder import codeToDesc
-from multistrand.options import Options, Literals
 from multistrand.system import SimSystem
-from multistrand.utils import pairType
-    
+
 ATIME_OUT = 0.001
 
 
@@ -45,9 +41,9 @@ def printTrajectory(o):
 
         print(f"{tubestruct}   t={time:.6f} ms,  dG={dG:3.2f} kcal/mol,  "
               f"Type:  {codeToDesc(arrType)[0]} {codeToDesc(arrType)[1]}")
-        
 
-def doSims(strandSeq, numTraj=2):    
+
+def doSims(strandSeq, numTraj=2):
 
     o1 = standardOptions()
     o1.num_simulations = numTraj
@@ -65,5 +61,4 @@ def doSims(strandSeq, numTraj=2):
 # # The actual main method
 if __name__ == '__main__':
     
-    print(sys.argv)
     doSims("GCGTTTCAC", 1)

@@ -169,4 +169,3 @@ void utility::printDoubleMatrix(double input[], int length, int depth, int preci
 	}
 
 }
-

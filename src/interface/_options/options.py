@@ -78,22 +78,21 @@ class Options(object):
     '''Constants:'''
     ZERO_C_IN_K = 273.15
 
-    RateMethodToString = [ "None", "Metropolis", "Kawasaki"]
-    dangleToString = [ "None", "Some", "All"]
+    RateMethodToString = ["None", "Metropolis", "Kawasaki", "Arrhenius"]
+    dangleToString = ["None", "Some", "All"]
 
     # Parameter type. Vienna is depreciated.
-    viennaModel = 0 
-    nupackModel = 1 
-    parameterTypeToString = [ "Vienna", "Nupack" ]
-
-    substrateToString = [ "Invalid", "RNA", "DNA"]    
+    viennaModel = 0
+    nupackModel = 1
+    parameterTypeToString = ["Vienna", "Nupack" ]
+    substrateToString = ["Invalid", "RNA", "DNA"]
     
     # translation
-    simulationMode = {  "Normal"    :               Literals.first_passage_time,
-                        "First Step":               Literals.first_step,
-                        "Transition":               Literals.transition,
-                        "Trajectory":               Literals.trajectory,
-                        "First Passage Time":       Literals.first_passage_time}
+    simulationMode = {"Normal"    :         Literals.first_passage_time,
+                      "First Step":         Literals.first_step,
+                      "Transition":         Literals.transition,
+                      "Trajectory":         Literals.trajectory,
+                      "First Passage Time": Literals.first_passage_time}
     
     cotranscriptional_rate_default = 0.001  # 1 nt added every 1 ms
     
@@ -158,7 +157,8 @@ class Options(object):
         """ Indicates how much output will be generated for each trajectory run.
         Value = 0:  No end state reported, no warnings for timeout and nonitial steps
         Value = 1:  No end states reports, warnings active   
-        Value = 2:  warnings and end states reports to stdout
+        Value = 2:  Warnings and end states reports to stdout
+        Value = 3:  Print debugging information from SimulationSystem to stdout
         """
         
         self.print_initial_first_step = False

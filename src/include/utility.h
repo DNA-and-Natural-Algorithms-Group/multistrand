@@ -25,9 +25,6 @@ using namespace std;
 
 namespace utility {
 
-const bool debugTraces = true;
-
-
 // Structs
 struct complex_input {
 
@@ -67,17 +64,11 @@ string copyToString(char*);
 string moveType(int);
 
 
-
 void printIntegers(int[], int);
 void printDouble(double);
 void printDoubleArray(double[], int);
 void printDoubleMatrix(double[], int, int, int);
 
-
 }
-
-
-
-
 
 #endif /* INCLUDE_UTILITY_CC_ */

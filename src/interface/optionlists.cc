@@ -11,7 +11,6 @@
 #include "utility.h"
 
 using std::string;
-//using namespace utility;
 
 /*
  strandlist::strandlist( char *newid, char *newseq, class strandlist *old = NULL )

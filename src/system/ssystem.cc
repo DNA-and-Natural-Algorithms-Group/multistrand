@@ -196,6 +196,9 @@ void SimulationSystem::finalizeRun(void) {
 
 void SimulationSystem::finalizeSimulation(void) {
 
+	if (simOptions->debug)
+		cout << "Finalizing simulation..." << endl << flush;
+
 	if (noInitialMoves > 0 and simOptions->verbosity) {
 
 		cout << "No initial moves x" << noInitialMoves << "   (set verbosity = 0 to suppress) \n";
@@ -322,7 +325,7 @@ void SimulationSystem::SimulationLoop_Trajectory() {
 
 		myTimer.advanceTime();
 
-		if (debugTraces) {
+		if (simOptions->debug) {
 			cout << "Printing my complexlist! *************************************** \n";
 			cout << complexList->toString() << endl;
 		}
@@ -544,7 +547,7 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 
 		myTimer.advanceTime();
 
-		if (debugTraces) {
+		if (simOptions->debug) {
 			cout << "Printing my complexlist! *************************************** \n";
 			cout << complexList->toString() << endl;
 		}
@@ -712,6 +715,9 @@ int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
 	if (complexList != NULL)
 		delete complexList;
 
+	if (simOptions->debug)
+		cout << "myComplexes.size = " << simOptions->myComplexes->size() << endl << flush;
+
 	complexList = new SComplexList(energyModel);
 
 // FD: this is the python - C interface
@@ -722,18 +728,15 @@ int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
 
 		id = simOptions->myComplexes->at(i).list;
 
-		tempcomplex = new StrandComplex(tempSequence, tempStructure, id);
+		tempcomplex = new StrandComplex(tempSequence, tempStructure, id, simOptions->debug);
 
 		startState = tempcomplex;
 		complexList->addComplex(tempcomplex);
 
 	}
 
-	if (utility::debugTraces) {
-
+	if (simOptions->debug)
 		cout << "Done initializing!" << endl;
-
-	}
 
 	return 0;
 }
@@ -777,6 +780,9 @@ PyObject *SimulationSystem::calculateEnergy(PyObject *start_state, int typeflag)
 
 	values = complexList->getEnergy(typeflag); // NUPACK energy output : bimolecular penalty, no Volume term.
 
+	if (simOptions->debug)
+		cout << "Done calculating energy!" << endl << flush;
+
 	retval = PyTuple_New(complexList->getCount());
 // New Reference, we return it.
 // The complex list is a linked list and new items are added at the head; so we need to reverse the resulting list to get the data back out.
@@ -785,7 +791,6 @@ PyObject *SimulationSystem::calculateEnergy(PyObject *start_state, int typeflag)
 // the reference from PyFloat_FromDouble is immediately stolen by PyTuple_SET_ITEM.
 
 	delete[] values;
-
 	return retval;
 }
 

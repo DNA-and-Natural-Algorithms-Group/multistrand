@@ -1,4 +1,3 @@
-import sys
 
 from multistrand.objects import Complex, Domain, Strand, StopCondition
 from multistrand.options import Options
@@ -9,6 +8,7 @@ o1 = Options(temperature=25, dangles="Some")
 o1.num_simulations = 1
 o1.output_interval = 1 
 o1.simulation_time = 10.0
+o1.verbosity = 3
 
 mySeq = "GCGTTTCAC"
 

@@ -43,7 +43,7 @@ StrandComplex::StrandComplex(char *seq, char *struc)
 	delete[] tempcseq;
 }
 
-StrandComplex::StrandComplex(char *seq, char *struc, class identList *id_list)
+StrandComplex::StrandComplex(char *seq, char *struc, class identList *id_list, bool debug)
 {
 
 	char *tempseq = (char *)new char[strlen(seq) + 1];
@@ -55,6 +55,15 @@ StrandComplex::StrandComplex(char *seq, char *struc, class identList *id_list)
 	for (int loop = 0; loop < strlen(tempcseq); loop++)
 	{
 		tempcseq[loop] = baseLookup(tempcseq[loop]);
+	}
+
+	if (debug) {
+		cout << "StrandComplex:" << endl;
+		printf(" seq='%s', cseq='", tempseq);
+		for (int i = 0; i < strlen(tempcseq); i++)
+			cout << (int) tempcseq[i] << ",";
+		printf(" struct='%s'\n", tempstruct);
+		cout << flush;
 	}
 
 	beginLoop = NULL;
@@ -120,16 +129,14 @@ int StrandComplex::checkIDBound(char *id)
 	return ordering->checkIDBound(id);
 }
 
-StrandComplex *StrandComplex::performComplexJoin(JoinCriteria crit, bool useArr)
+StrandComplex *StrandComplex::performComplexJoin(JoinCriteria crit, bool useArr, bool debug)
 {
 
 	// FD 2016 Nov 14: Adjusting this to ignore the exterior nucleotides if useArr= TRUE;
 	// FD 2016 Dec 15: This comment is no longer applicable (full model now implemented)
 
-	if (utility::debugTraces)
-	{
+	if (debug)
 		cout << "Perform Complex Join 1/3 ***************" << std::endl;
-	}
 
 	StrandComplex **complexes = crit.complexes;
 	char *types = crit.types;
@@ -140,10 +147,8 @@ StrandComplex *StrandComplex::performComplexJoin(JoinCriteria crit, bool useArr)
 	StrandOrdering *new_ordering = NULL;
 	char *locations[2] = {NULL, NULL};
 
-	if (utility::debugTraces)
-	{
+	if (debug)
 		cout << "Perform Complex Join 2/3 ***************" << std::endl;
-	}
 
 	// find the affected loops, and update indexes to be into those loops.
 	loops[0] = complexes[0]->ordering->getIndex(crit, 0, &locations[0], useArr);
@@ -153,10 +158,8 @@ StrandComplex *StrandComplex::performComplexJoin(JoinCriteria crit, bool useArr)
 	complexes[0]->ordering->reorder(loops[0]);
 	complexes[1]->ordering->reorder(loops[1]);
 
-	if (utility::debugTraces)
-	{
+	if (debug)
 		cout << "Perform Complex Join 3/3 ***************" << std::endl;
-	}
 
 	// Join the strand orderings.
 	new_ordering = StrandOrdering::joinOrdering(complexes[0]->ordering, complexes[1]->ordering);
@@ -185,7 +188,7 @@ StrandComplex *StrandComplex::performComplexJoin(JoinCriteria crit, bool useArr)
 	return complexes[1];
 }
 
-StrandComplex *StrandComplex::doChoice(Move *move, SimTimer &timer)
+StrandComplex *StrandComplex::doChoice(Move *move, SimTimer &timer, bool debug)
 {
 	// TODO: fix for two affected loops being deleted, must get a 'good' starting loop for the complex still.
 	Loop *temp = NULL, *temp2 = NULL, *temp3 = NULL;
@@ -194,7 +197,7 @@ StrandComplex *StrandComplex::doChoice(Move *move, SimTimer &timer)
 	temp2 = move->affected[0];
 	temp3 = move->affected[1];
 
-	if (utility::debugTraces)
+	if (debug)
 	{
 
 		cout << "Triggering move: " << endl;
@@ -233,10 +236,8 @@ StrandComplex *StrandComplex::doChoice(Move *move, SimTimer &timer)
 		newOrdering = ordering->breakOrdering(temp2, temp3, newLoop[0], newLoop[1]);
 		beginLoop = ordering->getLoop();
 
-		if (utility::debugTraces)
-		{
+		if (debug)
 			cout << "Going to break the complex!! 3/3 ********************** " << std::endl;
-		}
 
 		return (new StrandComplex(newOrdering)); // newComplex
 	}
@@ -303,7 +304,7 @@ struct generateLoopsData {
 };
 
 // ZIFNAB NEEDS CHANGE FOR SEQUENCE?STRUCTURE
-int StrandComplex::generateLoops(void)
+int StrandComplex::generateLoops(bool debug)
 {
 
 	int startpos, traverse, listlength, seqlen;
@@ -316,27 +317,21 @@ int StrandComplex::generateLoops(void)
 	Loop *newLoop;
 	char *sequence, *structure, *charsequence;
 
-	if (utility::debugTraces) {
-		cout << "generating flat sequences. \n " << flush;
-	}
+	if (debug)
+		cout << "Generating flat sequences." << endl << flush;
 
 	// ZIFNAB: begin work here 8/2.
 	// ZIFNAB: done, completed change to convertIndex notation.
 	// ZIFNAB: more work 8/22: sequence, charsequence are used oddly, which one is actually the character sequence? do loops get the character sequence or the code sequence pointer?
 	// ZIFNAB: completed: sequence is the code sequence, which has translated A/G/C/T but non translated special characters. get index should be returning into the code sequence.
-	ordering->generateFlatSequence(&charsequence, &structure, &sequence);
+	ordering->generateFlatSequence(&charsequence, &structure, &sequence, debug);
 
-	if (utility::debugTraces) {
-		cout << "\n Generating loops for cseq = " << string(charsequence) << ", struct =  " << string(structure) << " seq = ";
-
-		for (int loop = 0; loop < strlen(sequence); loop++) {
-
-			cout << (int) sequence[loop] << ",  ";
-
-		}
-		cout << endl << flush;
-		cout << "strlen(sequence) is " << strlen(sequence) << endl << flush;
-
+	if (debug) {
+		printf(" Generating loops for: cseq='%s', seq='", charsequence);
+		for (int loop = 0; loop < strlen(sequence); loop++)
+			cout << (int) sequence[loop] << ",";
+		printf(" struct='%s'\n", structure);
+		cout << " strlen(sequence) = " << strlen(sequence) << endl << flush;
 	}
 
 	int *pairlist = (int *) new int[strlen(sequence) + 1];
@@ -377,40 +372,17 @@ int StrandComplex::generateLoops(void)
 		return -1;
 	}
 
-	if (utility::debugTraces) {
-
-		cout << "pairlist = ";
-
-		for (int loop = 0; loop < (strlen(sequence) + 1); loop++) {
-
-			cout << pairlist[loop] << ", ";
-
-		}
-
-		cout << endl << flush;
-
-
-//		cout << "newstruc = ";
-//
-//		for (int loop = 0; loop < (strlen(sequence) + 1); loop++) {
-//
-//			cout << newstruc[loop] << ", ";
-//
-//		}
-//
-//		cout << endl << flush;
-//
-//
-//		cout << "newseq = ";
-//
-//		for (int loop = 0; loop < (strlen(sequence) + 1); loop++) {
-//
-//			cout << (int) newseq[loop] << ", ";
-//
-//		}
-
-		cout << endl << flush;
-
+	if (debug) {
+		cout << " pairlist='";
+		for (int loop = 0; loop < (strlen(sequence) + 1); loop++)
+			cout << pairlist[loop] << ",";
+		cout << "'" << endl << " newstruc='";
+		for (int loop = 0; loop < (strlen(sequence) + 1); loop++)
+			cout << newstruc[loop];
+		cout << "'" << endl << " newseq=";
+		for (int loop = 0; loop < (strlen(sequence) + 1); loop++)
+			cout << (int) newseq[loop] << ",";
+		cout << "'" << endl << flush;
 	}
 
 	/* Algorithm which the following while loop implements:
@@ -700,8 +672,9 @@ int StrandComplex::generateLoops(void)
 			newLoop = new BulgeLoop(templist->seqlen, seqlen, ordering->convertIndex(startpos - 1), ordering->convertIndex(pairlist[templist->data]), NULL,
                                     NULL);
 		} else {
-			throw std::bad_alloc();
 			// This should never happen.
+			printf("StrandComplex::generateLoops() - Invalid loop!");
+			throw std::bad_alloc();
 		}
 
 		// add correct predecessor to all adjacent loops.
@@ -753,6 +726,7 @@ int StrandComplex::generateLoops(void)
 		delete[] structure;
 	if (charsequence != NULL)
 		delete[] charsequence;
+
 }
 
 void StrandComplex::printAllMoves(void)
@@ -852,13 +826,11 @@ BaseCount &StrandComplex::getExteriorBases(HalfContext *lowerHalf)
 
 double StrandComplex::getEnergy(void)
 {
-
 	return beginLoop->returnEnergies(NULL);
 }
 
 double StrandComplex::getEnthalpy(void)
 {
-
 	return beginLoop->returnEnthalpies(NULL);
 }
 
