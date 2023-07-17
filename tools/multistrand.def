@@ -1,0 +1,100 @@
+Bootstrap: docker
+From: bitnami/jupyter-base-notebook:2-debian-10
+
+%help
+
+    This Apptainer container provides a functional environment for Multistrand
+    2.1 [1]. It is based on Python 3.11 and GCC 7.4, as later GCC versions can
+    crash the Multistrand legacy code. Future work will address the faulty
+    behaviours in Multistrand directly.
+
+    This container definition was built successfully using Apptainer 1.1, and
+    assumes that the source trees for NUPACK and Multistrand are available on
+    the host system at the locations referenced in the %files section.
+
+    [1] https://github.com/DNA-and-Natural-Algorithms-Group/multistrand
+
+%files
+
+    # copy source trees
+    ../../nupack3.2.2.tar.gz /dna/
+    ../../multistrand /dna/
+
+%environment
+
+    # version config
+    export GCC_VER=7
+    export CPY_VER=3.11
+    export NUPACK_VER=3.2.2
+
+    # lib paths
+    export NUPACKHOME=/dna/nupack3.2.2
+    export MS=/dna/multistrand
+
+    # compiler config
+    export CC=/usr/bin/gcc CXX=/usr/bin/g++
+    export NCORES=8
+
+%post
+
+    # version config
+    export GCC_VER=7
+    export CPY_VER=3.11
+    export NUPACK_VER=3.2.2
+
+    # build/lib paths
+    export LIB_ROOT=/dna
+    export NUPACK_SRC=nupack${NUPACK_VER}
+    export NUPACK_TAR=${NUPACK_SRC}.tar.gz NUPACKHOME=${LIB_ROOT}/${NUPACK_SRC}
+    export MS=${LIB_ROOT}/multistrand
+
+    # compiler config
+    export CC=/usr/bin/gcc CXX=/usr/bin/g++
+    export SYS="sudo update-alternatives"
+    export NCORES=8
+
+    # install common utils
+    # (`install_packages` wrapper for APT provided by Bitnami base image)
+    install_packages \
+        sudo ca-certificates build-essential texinfo cmake \
+        curl wget gzip unzip tar rsync git \
+        zsh tmux time less tree vim
+
+    # install legacy GCC version & adapt system config
+    install_packages gcc-${GCC_VER} g++-${GCC_VER}
+    ${SYS} --install /usr/bin/gcc gcc /usr/bin/gcc-${GCC_VER} 20
+    ${SYS} --install /usr/bin/g++ g++ /usr/bin/g++-${GCC_VER} 20
+    ${SYS} --install /usr/bin/cc cc /usr/bin/gcc 30
+    ${SYS} --install /usr/bin/c++ c++ /usr/bin/g++ 30
+    ${SYS} --set cc /usr/bin/gcc
+    ${SYS} --set c++ /usr/bin/g++
+    ${SYS} --config gcc
+    ${SYS} --config g++
+
+    # install Nupack
+    echo "\n\n\n" && cd ${LIB_ROOT} && \
+        tar -xzf ${NUPACK_TAR} && rm ${NUPACK_TAR} && \
+        cd ${NUPACK_SRC} && mkdir build && cd build && \
+        cmake ../ && make -j${NCORES} && sudo make install
+
+    # install Python environment
+    # (Conda provided by Bitnami base image)
+    echo "\n\n\n" && conda config --env --set always_yes true
+    conda install --channel conda-forge python=${CPY_VER} zstandard
+    conda install --channel conda-forge ipython pytest-xdist numpy scipy matplotlib
+
+    # install Multistrand
+    echo "\n\n\n" && [ -d "${MS}/build" ] && rm -r "${MS}/build"
+    pip3 install -vvv -e ${MS}
+
+    # info
+    echo "\n\n\n" && conda info && echo && pip3 debug && echo && pip3 list
+
+    # cleanup
+    echo "\n\n\n" && cd ${MS} && rm -rf .git tools
+    pip3 cache purge
+    conda clean --all --logfiles --force-pkgs-dirs
+
+%labels
+
+    Author Boyan Beronov, Jordan Lovrod, Chenwei Zhang
