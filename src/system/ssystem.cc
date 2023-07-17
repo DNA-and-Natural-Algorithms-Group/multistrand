@@ -88,13 +88,9 @@ SimulationSystem::~SimulationSystem(void) {
 // the remaining members are not our responsibility, we null them out
 // just in case something thread-unsafe happens.
 
-
-// FD: for the active statespace inspection, the energy model will not be generated,
-// so do not reconstruct the energy model.
-
-//	if (energyModel != NULL) {
-//		delete energyModel;
-//	}
+	if (energyModel != NULL) {
+		delete energyModel;
+	}
 
 	if (simOptions->myComplexes != NULL) {
 		delete simOptions->myComplexes;

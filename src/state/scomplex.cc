@@ -335,9 +335,7 @@ int StrandComplex::generateLoops(bool debug)
 	}
 
 	int *pairlist = (int *) new int[strlen(sequence) + 1];
-//	std::vector<int> pairlist (strlen(sequence) + 1);
 //	pairlist[sizeof(sequence) + 1] = 0;
-
 	char *newstruc = (char *) new char[strlen(sequence) + 1];
 	char *newseq = (char *) new char[strlen(sequence) + 1];
 
@@ -716,7 +714,7 @@ int StrandComplex::generateLoops(bool debug)
 
 		newLoop = NULL;   // uncomment this when all forks are implemented.
 	}
-//	delete[] pairlist;
+	delete[] pairlist;
 	delete[] newstruc;
 	delete[] newseq;
 

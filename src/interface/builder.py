@@ -24,7 +24,7 @@ from scipy.sparse.linalg import spsolve, bicg, bicgstab, cg, cgs, gmres, lgmres,
 
 import numpy as np
 
-floatT = np.longdouble
+floatT = np.float64
 
 
 """
@@ -1044,13 +1044,8 @@ class BuilderRate(object):
         elif self.solveToggle == 10:
             firstpassagetimes, info = lgmres(self.rate_matrix_csr, self.b, M=self.rate_matrix_inverse, x0=x0, maxiter=maxiter)
         else:
-            global floatT
-            floatT = np.float64
-            
             self.setMatrix()
             firstpassagetimes = spsolve(self.rate_matrix_csr, self.b)
-            
-            floatT = np.longdouble
 
         self.matrixTime = time.time() - startTime
         return firstpassagetimes

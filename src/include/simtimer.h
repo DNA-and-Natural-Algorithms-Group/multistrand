@@ -25,7 +25,7 @@ public:
 	long stopoptions = 0;
 
 	int nuclAdded = 0;
-	// int numActiveNucl = 0; // for co-transcriptional folding.
+	int numActiveNucl = 0; // for co-transcriptional folding.
 
 	// inspection needs to set this to a non-random variable
 	double rchoice = 0.0;
@@ -33,7 +33,6 @@ public:
 
 	SimOptions* simOptions = NULL;
 
-// private:
 };
 
 
