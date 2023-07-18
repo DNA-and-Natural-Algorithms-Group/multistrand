@@ -1,0 +1,7 @@
+# Copyright (c) 2010-2017 Caltech. All rights reserved.
+# Joseph Schaeffer (schaeffer@dna.caltech.edu)
+# Frits Dannenberg (fdann@dna.caltech.edu)
+
+[build-system]
+requires = ["setuptools>=65", "wheel"]
+build-backend = "setuptools.build_meta"

@@ -1,0 +1,10 @@
+include *.md changelog MANIFEST.in
+
+recursive-include src *.h *.cc *.py
+recursive-include nupack *.py
+recursive-include test *.py *.txt
+recursive-include env *.def
+
+recursive-include tutorials *.py *.ipynb *.sh *.md *.xlsx *.svg
+include doc/Makefile
+graft doc/source

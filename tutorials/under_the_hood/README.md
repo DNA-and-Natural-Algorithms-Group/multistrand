@@ -1,4 +1,3 @@
-README.under.the.hood
 
 This directory contains a number of commented, runnable Multistrand scripts that
 illustrate how to use a variety of simulation modes.  These examples are for
