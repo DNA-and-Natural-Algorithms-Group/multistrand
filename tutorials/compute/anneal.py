@@ -1,11 +1,11 @@
 
+import math
 
-from multistrand.concurrent import MergeSim, FirstStepRate, Bootstrap
+from multistrand.concurrent import MergeSim, Bootstrap
 from multistrand.experiment import standardOptions, hybridization
-from multistrand.options import Options, Literals
+from multistrand.options import Literals
 from multistrand.utils import seqComplement
 
-import sys, time, math
 
 A_CONCENTRATION = 50e-9;
 GAS_CONSTANT_R = 0.0019872036

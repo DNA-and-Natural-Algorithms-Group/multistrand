@@ -1,9 +1,9 @@
-
-""" A small coverage test """
+"""
+A small coverage test.
+"""
 
 import matplotlib.pylab as plt
 import numpy as np
-
 
 from multistrand.objects import Complex, Domain, Strand, StopCondition
 from multistrand.options import Options, Literals
@@ -337,5 +337,5 @@ def main2():
 
 if __name__ == '__main__':
     run_sims()
-    run_sims2();
+    run_sims2()
     main2()

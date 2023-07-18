@@ -1,25 +1,13 @@
-###
-### Note the changed stuff below to add the 'multistrand' package.
-### If you run this file from a path other than the one it's located in, it may not
-### be able to find the package correctly.
-###
+"""
+This test exercises the Python interface.
+"""
 
-# fix relative paths so we can import multistrand package.
-import os.path
-import sys
-
-if sys.path[0] == '':
-  sys.path.append(os.path.realpath('../../'))
-else:
-  sys.path.append(os.path.realpath( os.path.join(sys.path[0], '../../')))
+# import random
+#from multiprocessing import Pool
 
 from multistrand.objects import Domain, Strand, Complex, StopCondition, RestingState
 from multistrand.options import Options
 from multistrand.system  import SimSystem
-
-#from multiprocessing import Pool
-#import cPickle
-import random
 
 
 def create_options():
@@ -33,7 +21,8 @@ def create_options():
   sc_rev = StopCondition("REVERSE", [(c1, 2, 0), (c2, 2, 0)])
   sc_for = StopCondition("END", [(c3, 4, 6)])
   o = Options(simulation_mode = 'First Step', num_simulations = 100,
-              simulation_time = 0.5, start_state = [RestingState("1", [c1]), RestingState("2", [c2])],
+              simulation_time = 0.5, start_state =[
+                RestingState("1", [c1]), RestingState("2", [c2])],
               stop_conditions = [sc_rev, sc_for])
   #o.initial_seed = random.SystemRandom().randrange(-2147483648, 2147483647)
   print("finished options. creating simsystem...")

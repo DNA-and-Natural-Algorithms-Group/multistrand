@@ -1,13 +1,18 @@
+"""
+This test generates random sequences and runs a number of trajectories.
+"""
+
 import unittest
 import subprocess
+import os.path
 import timeit
 
-import multiprocessing
-from multiprocessing import Pool
+from multiprocessing import Pool, cpu_count
+
+from multistrand.system import SimSystem
 from multistrand.objects import Strand, Complex
 from multistrand.options import Options
 from multistrand.utils import generate_sequence
-
 
 class Results_Store( object ):
     def __init__(self):
@@ -21,8 +26,10 @@ Results = Results_Store()
 
 
 class Speedtest_Random_Sequences( unittest.TestCase ):
-    """ This test case handles the comparison between Kinfold and Multistrand on
-    random sequences. """
+    """
+    This test case handles the comparison between Kinfold and Multistrand on
+    random sequences.
+    """
     def setUp(self):
         f = open('test_sequences.txt')
         self.sequences = [i.strip('\n') for i in f.readlines()]
@@ -39,7 +46,9 @@ class Speedtest_Random_Sequences( unittest.TestCase ):
         self.sequences = []
 
     def helper_create_Multistrand_infile(self,sequence,time,count):
-        """ reuses some code from strandedit to create Multistrand input files. """
+        """
+        Reuses some code from strandedit to create Multistrand input files.
+        """
         infile = ""
         
         infile += '#Strands\n'
@@ -68,8 +77,9 @@ class Speedtest_Random_Sequences( unittest.TestCase ):
         return infile
     
     def helper_create_Multistrand_options( self, sequence, time, count):
-        """ helper """
-        
+        """
+        Helper
+        """
         s1 = Strand("test_strand1",  str(sequence), None )
         c1 = Complex( 1, "start", [s1], "." * len( sequence ) )
         
@@ -85,7 +95,6 @@ class Speedtest_Random_Sequences( unittest.TestCase ):
         o.unimolecular_scaling = 1.0
         o.temperature = 37.0
         o.boltzmann_sample = False
-
         return o
     
     def helperRunSingle_Kinfold( self, sequence, time, count=1 ):
@@ -112,10 +121,7 @@ class Speedtest_Random_Sequences( unittest.TestCase ):
         return result_time
 
     def helper_RunSingle_Multistrand_I( self, sequence, time, count=1 ):
-        # import pdb
-        # pdb.set_trace()
         input_o = self.helper_create_Multistrand_options( sequence, time, count)
-        from multistrand.system import SimSystem
 
         def runOnce():
             s = SimSystem( input_o )
@@ -150,7 +156,9 @@ class Speedtest_Random_Sequences( unittest.TestCase ):
         return time_kinfold, time_multistrand_I, time_multistrand
 
     def helper_run_k_trials_single_seq( self, seq, n, k, time, verbose=True ):
-        """ Helper to run k started sims. """
+        """
+        Helper to run k started sims.
+        """
         timeresults = []
         count = k
         
@@ -176,7 +184,6 @@ class Speedtest_Random_Sequences( unittest.TestCase ):
         return timeresults
 
     def helper_print_results( self,time, n,k, timeresults, verbose=True, sequence=None ):
-        #print("Real Time per Simulated Time Unit:")
         hline = "-" * 70
         fmt_th = "{0:<7}|{1:<12}{2:>3}{3:>14} |{4:<12}{5:>3}{6:>14} |"
         fmt_tr = "{0[0]:<7}|{0[1]:>15e}{0[2]:>14e} |{0[3]:>15e}{0[4]:>14e} |"
@@ -198,44 +205,51 @@ class Speedtest_Random_Sequences( unittest.TestCase ):
         print(hline)
 
     def test_single_sequence_100_trials_t100( self ):
-        """ Test [time=100.0, n=1, k=100]: Pure run, single seq, 1x time. """
-        return
+        """
+        Test [time=100.0, n=1, k=100]: Pure run, single seq, 1x time.
+        """
         verbose = False
         print("")
         res = self.helper_run_k_trials_single_seq(self.sequences[0] , 1, 100, 100.0, verbose )
         self.helper_print_results( 100.0, 1, 100, res, verbose )
 
     def test_single_sequence_100_trials_t1000( self ):
-        """ Test [time=1000.0, n=1, k=100]: Pure run, single seq, 10x time. """
-        return
+        """
+        Test [time=1000.0, n=1, k=100]: Pure run, single seq, 10x time.
+        """
         verbose = False
         print("")
         res = self.helper_run_k_trials_single_seq(self.sequences[0] , 1, 100, 1000.0, verbose )
         self.helper_print_results( 1000.0, 1, 100, res, verbose )
 
     def test_single_again( self ):
-        return
         self.test_single_sequence_100_trials_t100()
 
     def test_num_100(self):
-        """ Test [time=1000.0, n=100, k=1]: Single run, single seq, 100 trajectories. """
-        return
+        """
+        Test [time=1000.0, n=100, k=1]: Single run, single seq, 100
+        trajectories.
+        """
         verbose = False
         print("")
         res = self.helper_run_k_trials_single_seq(self.sequences[0] , 100, 1, 1000.0, verbose )
         self.helper_print_results( 1000.0, 100, 1, res, verbose )
 
     def test_num_1000(self):
-        """ Test [time=1000.0, n=10000, k=1]: Single run, single seq, 1000 trajectories. """
-        return
+        """
+        Test [time=1000.0, n=10000, k=1]: Single run, single seq, 1000
+        trajectories.
+        """
         verbose = False
         print("")
         res = self.helper_run_k_trials_single_seq(self.sequences[0] , 1000, 1, 1000.0, verbose )
         self.helper_print_results( 1000.0, 1000, 1, res, verbose )
 
     def test_begin_random( self ):
-        """ Test [time=1000.0, n=100, k=10]: 10 runs of 100 trajectories of a single sequence. Composition test [20]."""
-        return
+        """
+        Test [time=1000.0, n=100, k=10]: 10 runs of 100 trajectories of a single
+        sequence. Composition test [20].
+        """
         verbose = True
         n = 100
         k = 1
@@ -247,7 +261,10 @@ class Speedtest_Random_Sequences( unittest.TestCase ):
             self.helper_print_results( time, n, k, res, verbose, sequence=seq )
 
     def test_begin_random_2( self ):
-        """ Test [time=1000.0, n=100, k=10]: 10 runs of 100 trajectories of a single sequence. Composition test [40]."""
+        """
+        Test [time=1000.0, n=100, k=10]: 10 runs of 100 trajectories of a single
+        sequence. Composition test [40].
+        """
         verbose = True
         n = 100
         k = 1
@@ -260,8 +277,10 @@ class Speedtest_Random_Sequences( unittest.TestCase ):
             self.helper_print_results( time, n, k, res, verbose, sequence=seq )
 
     def test_length_variance(self):
-        """ Test [time=1000.0, n=100, k=10]: 10 runs of 100 trajectories of a single sequence. Length test."""
-        return
+        """
+        Test [time=1000.0, n=100, k=10]: 10 runs of 100 trajectories of a single
+        sequence. Length test.
+        """
         verbose = False
         n = 100
         k = 10
@@ -273,8 +292,10 @@ class Speedtest_Random_Sequences( unittest.TestCase ):
             self.helper_print_results( time, n, k, res, verbose, sequence=seq )
 
     def test_python_interface(self):
-        """ Test [time=1000.0, n=100, k=1]: 1 run, 100 trajectories, single sequence. Python interface vs Multistrand executable vs Kinfold. """
-        return
+        """
+        Test [time=1000.0, n=100, k=1]: 1 run, 100 trajectories, single
+        sequence. Python interface vs Multistrand executable vs Kinfold.
+        """
         n = 100
         k = 1
         time = 1000.0
@@ -286,43 +307,40 @@ class Speedtest_Random_Sequences( unittest.TestCase ):
 
 
 class SetupSuite( object ):
-    """ Container for basic testing. """
-
+    """
+    Container for basic testing.
+    """
     def __init__(self):
         self._suite = unittest.TestSuite()
         self._suite.addTests(
             unittest.TestLoader().loadTestsFromTestCase(
                 Speedtest_Random_Sequences ))
         
-    def runTests(self,print_results=False):
-        import os.path
+    def runTests(self):
         if not os.path.isfile('test_sequences.txt'):
             f = open('test_sequences.txt','wt')
             for i in range(5):
-                f.write(f"{utils.generate_sequence(20 * (i+1))}\n")
+                f.write(f"{generate_sequence(20 * (i+1))}\n")
             for i in range(100):
-                f.write(f"{utils.generate_sequence(20)}\n")
+                f.write(f"{generate_sequence(20)}\n")
             for i in range(100):
-                f.write(f"{utils.generate_sequence(40)}\n")
+                f.write(f"{generate_sequence(40)}\n")
             f.close()
             
         if hasattr(self, "_suite") and self._suite is not None:
             unittest.TextTestRunner(verbosity=2).run( self._suite )
-        # if print_results:
-        #     self.printResults()
 
     def runTests_Async(self):
-        import os.path
         if not os.path.isfile('test_sequences.txt'):
             f = open('test_sequences.txt','wt')
             for i in range(5):
-                f.write(f"{utils.generate_sequence(20 * (i+1))}\n")
+                f.write(f"{generate_sequence(20 * (i+1))}\n")
             for i in range(100):
-                f.write(f"{utils.generate_sequence(20)}\n")
+                f.write(f"{generate_sequence(20)}\n")
             for i in range(100):
-                f.write(f"{utils.generate_sequence(40)}\n")
+                f.write(f"{generate_sequence(40)}\n")
             f.close()
-        k = multiprocessing.cpu_count()
+        k = cpu_count()
         p = Pool( processes = k )
         p.map( MyRunner , iter(self._suite), chunksize = 1 )
         p.close()
@@ -333,7 +351,7 @@ class MyRunner( object ):
     def __init__( self, testcase ):
         unittest.TextTestRunner( verbosity=2).run( testcase )
 
-        
+
 if __name__ == '__main__':
     suite = SetupSuite()
     #suite.runTests()

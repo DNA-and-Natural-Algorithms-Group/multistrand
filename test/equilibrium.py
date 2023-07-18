@@ -1,15 +1,14 @@
-import sys, os, os.path
-import pickle
+"""
+This test compares the long-run partition function obtained from Multistrand
+with the partition function from NUPACK.
+"""
+
 import math
 
 from multistrand.objects import Strand, Complex, Domain
 from multistrand.options import Options
 from multistrand.concurrent import MergeSim
-
-import math
 from nupack import *
-
-# FD: This test attempts to compare the long-run partition function obtained from Multistrand and Nupack 
 
 
 myMultistrand = MergeSim()
@@ -17,6 +16,7 @@ myMultistrand = MergeSim()
 numOfPaths = 400.0
 kBoltzmann = .00198717  # units of kcal/(mol*K)
 RT = kBoltzmann * (273.15 + 37.0)
+
 
 def setup_options(trials, seq, concentration):
     """
@@ -29,8 +29,9 @@ def setup_options(trials, seq, concentration):
     s = Strand(domains=[d])
     c = Complex(strands=[s], structure=".")
     
-    o = Options(simulation_mode="Normal", parameter_type="Nupack", substrate_type="DNA",
-                num_sims=trials, sim_time=0.008, start_state=[c])
+    o = Options(
+        simulation_mode="Normal", parameter_type="Nupack", substrate_type="DNA",
+        num_sims=trials, sim_time=0.008, start_state=[c])
     o.DNA23Metropolis()
     o.temperature = 310.15
     o.join_concentration = concentration
@@ -40,9 +41,11 @@ def setup_options(trials, seq, concentration):
 def nupack_pfunc(sequence, temperature):
     return pfunc([sequence], material="dna", T=temperature)
 
+
 def run_distribution(seq):
     myMultistrand.setNumOfThreads(8)
-    myMultistrand.setOptionsFactory4(setup_options, numOfPaths, seq, 2 * math.exp(-5.06 / RT), None)
+    myMultistrand.setOptionsFactory4(
+        setup_options, numOfPaths, seq, 2 * math.exp(-5.06 / RT), None)
     myMultistrand.run()    
     
     eq_dict = {}

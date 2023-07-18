@@ -1,12 +1,16 @@
+"""
+This test compares the thermodynamic scores for the singlestranded complexes of
+`testSetSS.txt` between Multistrand and Nupack.
+"""
 
+import sys
 import unittest
 
 from multistrand.options import Options, Energy_Type
 from multistrand.system import initialize_energy_model, energy
 from multistrand.objects import Complex, Strand
-
-import sys
 import nupack
+
 
 
 class EnergyComparison(unittest.TestCase):
@@ -27,7 +31,8 @@ class EnergyComparison(unittest.TestCase):
         for l in f:
              if l.startswith('>'):
                 if self.sectionname != None:
-                    print("Section {0} Complete [{1}]".format(self.sectionname, len(self.sections[self.sectionname])))
+                    print("Section {0} Complete [{1}]".format(
+                        self.sectionname, len(self.sections[self.sectionname])))
                 self.sectionname = l[1:].rstrip('\n')
              else:
                  lines.append(l.rstrip(' \n'))
@@ -51,7 +56,9 @@ class EnergyComparison(unittest.TestCase):
             self.sections[self.sectionname] = []
 
         print("Test: {0} == {1} \n".format(nupack_energy, multistrand_energy))                 
-        self.sections[self.sectionname].append((nupack_energy == multistrand_energy, nupack_energy, multistrand_energy, sequence, structure))
+        self.sections[self.sectionname].append(
+            (nupack_energy == multistrand_energy, nupack_energy, multistrand_energy,
+             sequence, structure))
         
     def nupack_ene(self, sequence, structure):
         result = nupack.energy([sequence], structure, material='dna')

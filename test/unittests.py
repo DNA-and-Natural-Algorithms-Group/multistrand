@@ -1,39 +1,19 @@
-import sys 
-import os.path
-
-# A fool-proof way of loading Multistrand
-if sys.path[0] == '':
-    sys.path.append(os.path.realpath('../../'))
-else:
-    sys.path.append(os.path.realpath(os.path.join(sys.path[0], '../../')))
-
-try:
-
-    from multistrand.objects import *
-    from multistrand.options import Options
-    from multistrand.system import SimSystem, initialize_energy_model, energy  # , initialInfo
-    
-except ImportError:
-    
-    print("Could not import Multistrand.")
-    raise
+"""
+This test exercises the Python interface.
+"""
 
 import unittest
-import warnings
-# for IPython, some of the IPython libs used by unittest have a
-# deprecated usage of BaseException, so we turn that specific warning
-# off.
-warnings.filterwarnings("ignore", r"BaseException[.]message has been deprecated as of Python 2[.]6", DeprecationWarning)
+
+from multistrand.objects import Domain, Strand, Complex, StopCondition
+from multistrand.options import Options
+from multistrand.system import SimSystem
 
 
-# [JS] Note: I abbreviate MultistrandInterface as MI_ for these test
-# cases, it was getting a pain in the neck to write and I can regexp
-# replace later as needed.
-
-class MI_Base_Objects_TestCase(unittest.TestCase):
-    """ This test case handles all the basic objects testing for python_objects.py.
-
-    Domain, Strand, Complex, StopCondition and RestingState should all be tested here.
+class Base_Objects_TestCase(unittest.TestCase):
+    """
+    This test case handles all the basic objects testing for python_objects.py.
+    Domain, Strand, Complex, StopCondition and RestingState should all be tested
+    here.
     """
     def checkDuplicates(self, seq ):
         """ Helper function to see if we duplicated the 'id' attribute or 'tag' attribute in an interable."""
@@ -42,22 +22,18 @@ class MI_Base_Objects_TestCase(unittest.TestCase):
         else:
             return len(seq) == len( set( [i.tag for i in seq] ))
 
-
     def test_domains(self):
         """ Test [Objects]: Create several Domain objects
 
         Currently, it checks to make sure domains are uniquely named after addition, but it may be useful to test other properties as well.
         """
-
         if hasattr(self,"domains"):
             del self.domains
 
         self.domains = []
-            
         self.domains.append( Domain("d1", "d", 5, False) )
         self.domains.append( Domain("d1p", "d", 5, True) )
 
-        
         self.assertTrue( self.checkDuplicates(self.domains), "Duplicate Domains were added.")
 
     def test_strands(self):
@@ -117,7 +93,7 @@ class MI_Base_Objects_TestCase(unittest.TestCase):
         self.assertTrue (self.checkDuplicates(self.conditions), "Duplicate conditions were added.")
 
 
-class MI_Options_Object_TestCase(unittest.TestCase):
+class Options_Object_TestCase(unittest.TestCase):
     """ This test case handles creation of an options object, and should test all functionality in python_options.py (eventually).
 
     """
@@ -126,7 +102,6 @@ class MI_Options_Object_TestCase(unittest.TestCase):
         self.strands = []
         self.complexes = []
         self.conditions = []
-        
         
         self.domains.append( Domain("d1", "d", 5, False) )
         self.domains.append( Domain("d1p", "d", 5, True) )
@@ -137,14 +112,12 @@ class MI_Options_Object_TestCase(unittest.TestCase):
         self.complexes.append( Complex("c3", "c3", [self.strands[0], self.strands[1]], "(((((+)))))"))
         self.conditions.append( StopCondition("REVERSE", [(self.complexes[0], 2, 0), (self.complexes[1], 2, 0)]))
         self.conditions.append( StopCondition("END", [(self.complexes[2], 4, 1)]))
-     
 
     def tearDown(self):
         self.domains[:] = []
         self.strands[:] = []
         self.complexes[:] = []
         self.conditions[:] = []
-
 
     def test_options(self):
         """ Test [Options]: Create an options object using some default values and start/stop states"""
@@ -161,8 +134,7 @@ class MI_Options_Object_TestCase(unittest.TestCase):
         # For the moment, if creation doesn't fail, we're happy. :)
 
 
-
-class MI_System_Object_TestCase(unittest.TestCase):
+class System_Object_TestCase(unittest.TestCase):
     """ This test case handles creation of an multistrand SimulationSystem object (via Boost), and then tries a few test cases to see if they work.
 
     """
@@ -171,7 +143,6 @@ class MI_System_Object_TestCase(unittest.TestCase):
         self.strands = []
         self.complexes = []
         self.conditions = []
-        
         
         self.domains.append( Domain("d1", "d", 5, False) )
         self.domains.append( Domain("d1p", "d", 5, True) )
@@ -224,7 +195,7 @@ class MI_System_Object_TestCase(unittest.TestCase):
         system = SimSystem(self.options)
         system.start()
 
-        MI_System_Object_TestCase.str_run_system = str(self.options.interface)
+        System_Object_TestCase.str_run_system = str(self.options.interface)
 
     def test_run_system_several_times(self):
         """ Test [System]: Create three system objects, then run each in sequence
@@ -234,17 +205,17 @@ class MI_System_Object_TestCase(unittest.TestCase):
         system = SimSystem(self.options)
         system.start()
 
-        MI_System_Object_TestCase.str_run_system_several_times = "First run results:\n{0}\n".format(str(self.options.interface))
+        System_Object_TestCase.str_run_system_several_times = "First run results:\n{0}\n".format(str(self.options.interface))
         
         system2 = SimSystem(self.options)
         system2.start()
 
-        MI_System_Object_TestCase.str_run_system_several_times += "Second run results [different system]:\n{0}\n".format(str(self.options.interface))
+        System_Object_TestCase.str_run_system_several_times += "Second run results [different system]:\n{0}\n".format(str(self.options.interface))
 
         system3 = SimSystem(self.options)
         system3.start()
         
-        MI_System_Object_TestCase.str_run_system_several_times += "Third run results [yet another system]:\n{0}\n".format(str(self.options.interface))
+        System_Object_TestCase.str_run_system_several_times += "Third run results [yet another system]:\n{0}\n".format(str(self.options.interface))
 
 
 class SetupSuite( object ):
@@ -254,18 +225,16 @@ class SetupSuite( object ):
         self._suite = unittest.TestSuite()
         self._suite.addTests(
             unittest.TestLoader().loadTestsFromTestCase(
-                MI_Base_Objects_TestCase ))
+                Base_Objects_TestCase ))
         # the basic object test cases.
         self._suite.addTests(
             unittest.TestLoader().loadTestsFromTestCase(
-                MI_Options_Object_TestCase ))
+                Options_Object_TestCase ))
 
     def runTests(self):
         if hasattr(self, "_suite") and self._suite is not None:
             unittest.TextTestRunner(verbosity=2).run( self._suite )
 
-        
-# if this file is being run as the main target, run our basic test suite.
 
 if __name__ == '__main__':
     suite = SetupSuite()

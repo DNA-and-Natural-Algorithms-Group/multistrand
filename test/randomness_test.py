@@ -1,9 +1,12 @@
+"""
+Run this test twice times to check if Multistrand returns a deterministic
+trajectory.
+"""
+
 from multistrand.objects import Complex, Domain, Strand
 from multistrand.options import Options
 from multistrand.system import SimSystem
 
-""" Run this test twice times to check if Multistrand returns a deterministic
-    trajectory """
 
 def create_setup(seed):
 
@@ -33,6 +36,7 @@ def create_setup(seed):
     
     o2.JSDefault()
     return o2
+
 
 def process_trajectory(o, testing, seed):
 

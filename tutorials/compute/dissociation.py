@@ -1,9 +1,8 @@
 
-from multistrand.options import Options, Literals
-from multistrand.concurrent import MergeSim, FirstStepRate, Bootstrap
+from multistrand.options import Literals
+from multistrand.concurrent import MergeSim, Bootstrap
 from multistrand.experiment import standardOptions, dissociation
 
-import sys, time
 
 myMultistrand = MergeSim()
    
