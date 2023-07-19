@@ -19,10 +19,10 @@ help@multistrand.org
 /***************************************/
 
 /* Utility */
-#define _m_prepStatusTuple( seed, com_type, time, tag )    \
+#define _m_prepStatusTuple( seed, com_type, time, tag ) \
   Py_BuildValue("(lids)", seed,(int) (com_type), time, tag )
 
-#define _m_prepTrajTuple( tag, time )\
+#define _m_prepTrajTuple( tag, time ) \
   Py_BuildValue("(sd)", tag, time)
 
 #define _m_prepStatusFirstTuple( seed, com_type, com_time, frate, tag) \
@@ -49,18 +49,18 @@ help@multistrand.org
 /***************************************/
 #ifndef DEBUG_MACROS
 
-#define _m_getAttr_DECREF( obj, name, function, pvar, vartype )     \
-  do {																	\
-	PyObject *_m_attr = PyObject_GetAttrString( obj, name);		\
-	*(vartype *)(pvar) = function(_m_attr);                         \
-	Py_DECREF(_m_attr);												\
+#define _m_getAttr_DECREF( obj, name, function, pvar, vartype ) \
+  do {                                                          \
+    PyObject *_m_attr = PyObject_GetAttrString( obj, name);     \
+    *(vartype *)(pvar) = function(_m_attr);                     \
+    Py_DECREF(_m_attr);                                         \
   } while(0)
 
-#define _m_setAttr_DECREF( obj, name, function, arg )               \
-  do {																	\
-	PyObject *val = function(arg);                                  \
-    PyObject_SetAttrString( obj, name, val);                       \
-	Py_DECREF(val);                                                 \
+#define _m_setAttr_DECREF( obj, name, function, arg ) \
+  do {                                                \
+    PyObject *val = function(arg);                    \
+    PyObject_SetAttrString( obj, name, val);          \
+    Py_DECREF(val);                                   \
   } while(0)
 
 #define _m_setStringAttr( obj, name, arg )           \
@@ -101,14 +101,14 @@ help@multistrand.org
 
 /* // Function calls */
 
-#define _m_pushList( obj, a, b ) \
+#define _m_pushList( obj, a, b )                \
   do {                                          \
     PyObject *pyo = a;                          \
     PyObject_SetAttrString( obj, #b, pyo );     \
     Py_DECREF(pyo);                             \
-  }while(0)
+  } while(0)
 
-#define addResultLine_Energy( obj, energy )                    \
+#define addResultLine_Energy( obj, energy ) \
   _m_pushList( obj, PyFloat_FromDouble( energy ), add_result_energy)
 /* Note: if energy fails to create via PyFloat_FromDouble, it'll be
  NULL we'll probably segfault. The only failure mode I can forsee is
@@ -119,13 +119,13 @@ help@multistrand.org
  longer need the ref and the SetAttrString should cause the owning
  object to have a good ref to it.*/
 
-#define printStatusLine( obj, seed, com_type, time, tag )                   \
+#define printStatusLine( obj, seed, com_type, time, tag ) \
   _m_pushList( obj, _m_prepStatusTuple( seed, com_type, time,(char *)(tag) ), add_result_status_line)
 
 #define printTrajLine( obj, name, time ) \
   _m_pushList( obj, _m_prepTrajTuple( (char *)(name), time ), print_traj_line )
 
-#define printStatusLine_First_Bimolecular( obj,seed,com_type,com_time,frate,tag)  \
+#define printStatusLine_First_Bimolecular( obj,seed,com_type,com_time,frate,tag) \
   _m_pushList( obj, _m_prepStatusFirstTuple( seed, com_type, com_time, frate, (char *)(tag)), add_result_status_line_firststep )
 
 #define printComplexStateLine( obj, seed, id, names, sequence, structure, energy, enthalpy ) \
@@ -168,37 +168,37 @@ help@multistrand.org
       }                                                                 \
   } while(0)
 
-#define _m_d_getAttr_DECREF( obj, name, pvar, c_type_name, py_type, py_c_type )     \
-  do {                                                                     \
-	PyObject *_m_attr = PyObject_GetAttrString( obj, name);		    \
-    if( _m_attr == NULL && PyErr_Occurred() != NULL)                \
-      _m_printPyError_withLineNumber();                              \
-    else if (_m_attr == NULL )                                      \
+#define _m_d_getAttr_DECREF( obj, name, pvar, c_type_name, py_type, py_c_type ) \
+  do {                                                                  \
+    PyObject *_m_attr = PyObject_GetAttrString( obj, name);             \
+    if( _m_attr == NULL && PyErr_Occurred() != NULL)                    \
+      _m_printPyError_withLineNumber();                                 \
+    else if (_m_attr == NULL )                                          \
       fprintf(stderr,"WARNING: _m_d_getAttr_DECREF: No error occurred,\
  but the returned pointer was still NULL!\n"); \
-    else                                                            \
-      {                                                             \
-        if( !Py##py_type##_Check( _m_attr ) )\
+    else                                                                \
+    {                                                                   \
+      if( !Py##py_type##_Check( _m_attr ) )                             \
           fprintf(stderr,"WARNING: _m_d_getAttr_DECREF: The value returned by attribute '%s' was not the expected type!\n", name); \
-        else                                                            \
-          *(c_type_name *)(pvar) = Py##py_type##_AS_##py_c_type(_m_attr);                       \
-        Py_DECREF(_m_attr);                                             \
-      }                                                                 \
+      else                                                              \
+        *(c_type_name *)(pvar) = Py##py_type##_AS_##py_c_type(_m_attr); \
+      Py_DECREF(_m_attr);                                               \
+    }                                                                   \
   } while(0)
 
-#define _m_d_setAttr_DECREF( obj, name, function, arg )               \
-  do {                                                                   \
-	PyObject *val = function(arg);                                  \
-    if( val == NULL && PyErr_Occurred() != NULL)                    \
-      _m_printPyError_withLineNumber();                              \
-    else if (val == NULL )                                          \
+#define _m_d_setAttr_DECREF( obj, name, function, arg )                 \
+  do {                                                                  \
+    PyObject *val = function(arg);                                      \
+    if( val == NULL && PyErr_Occurred() != NULL)                        \
+      _m_printPyError_withLineNumber();                                 \
+    else if (val == NULL )                                              \
       fprintf(stderr,"WARNING: _m_d_setAttr_DECREF: No error occurred,\
  but the returned pointer was still NULL!\n"); \
     else                                                            \
-      {                                                             \
-        PyObject_SetAttrString( obj, name, val);                    \
-        Py_DECREF(val);                                             \
-      }                                                             \
+    {                                                               \
+      PyObject_SetAttrString( obj, name, val);                      \
+      Py_DECREF(val);                                               \
+    }                                                               \
   } while(0)
 
 #define _m_d_setStringAttr( obj, name, arg )                            \
@@ -267,20 +267,20 @@ help@multistrand.org
       }                                                                 \
   }while(0)
 
-#define addResultLine_Energy( obj, energy )                    \
+#define addResultLine_Energy( obj, energy ) \
   _m_d_pushList( obj, PyFloat_FromDouble( energy ), add_result_energy)
 /* Note: if energy fails to create via PyFloat_FromDouble, it'll be NULL and the
  pushList error checking will catch it. The ref is a new one, but we decref always
  in pushList, as we no longer need the ref and the SetAttrString should cause the owning
  object to have a good ref to it.*/
 
-#define printStatusLine( obj, seed, com_type,time, tag )                    \
+#define printStatusLine( obj, seed, com_type,time, tag ) \
   _m_d_pushList( obj, _m_prepStatusTuple( seed, com_type, time,(char *)(tag) ), add_result_status_line)
 
 #define printTrajLine( obj, name, time ) \
   _m_d_pushList( obj, _m_prepTrajTuple( (char *)(name), time ), print_traj_line )
 
-#define printStatusLine_First_Bimolecular( obj,seed,com_type,com_time,frate,tag)  \
+#define printStatusLine_First_Bimolecular( obj,seed,com_type,com_time,frate,tag) \
   _m_d_pushList( obj, _m_prepStatusFirstTuple( seed, com_type, com_time, frate, (char *)(tag)), add_result_status_line_firststep )
 
 #define printComplexStateLine( obj, seed, id, names, sequence, structure, energy, enthalpy ) \
@@ -324,16 +324,16 @@ static inline bool _m_testLongAttr(PyObject *obj, const char *attrname, const ch
 #ifdef DEBUG_MACROS
 static inline bool _m_d_testLongAttr( PyObject *obj, const char *attrname, const char *test, long value )
 {
-	PyObject *_m_attr = PyObject_GetAttrString( obj, attrname);
-	long local_val;
-	if( _m_attr == NULL && PyErr_Occurred() != NULL )
-	{
-		_m_printPyError_withLineNumber();
-		return false;
-	}
-	else if (_m_attr == NULL )
-	{
-		fprintf(stderr,"WARNING: _m_d_testLongAttr: No error occurred,\
+  PyObject *_m_attr = PyObject_GetAttrString( obj, attrname);
+  long local_val;
+  if( _m_attr == NULL && PyErr_Occurred() != NULL )
+  {
+    _m_printPyError_withLineNumber();
+    return false;
+  }
+  else if (_m_attr == NULL )
+  {
+    fprintf(stderr,"WARNING: _m_d_testLongAttr: No error occurred,\
  but the returned object from GetAttrString was still NULL!\n");
     return false;
   }
@@ -358,67 +358,67 @@ static inline bool _m_d_testLongAttr( PyObject *obj, const char *attrname, const
 #endif
 
 static inline PyObject *_m_newObject(const char *mod, const char *name) {
-	PyObject *module = NULL;
-	PyObject *class_obj = NULL;
-	PyObject *new_obj = NULL;
+  PyObject *module = NULL;
+  PyObject *class_obj = NULL;
+  PyObject *new_obj = NULL;
 
-	module = PyImport_ImportModule(mod); // new reference
-	if (module == NULL)
-		return NULL;
+  module = PyImport_ImportModule(mod); // new reference
+  if (module == NULL)
+    return NULL;
 
-	class_obj = PyObject_GetAttrString(module, name); // new reference
-	if (class_obj == NULL) {
-		Py_DECREF(module);
-		return NULL;
-	}
+  class_obj = PyObject_GetAttrString(module, name); // new reference
+  if (class_obj == NULL) {
+    Py_DECREF(module);
+    return NULL;
+  }
 
-	new_obj = PyObject_CallObject(class_obj, NULL);
+  new_obj = PyObject_CallObject(class_obj, NULL);
 
-	Py_DECREF(module);
-	Py_DECREF(class_obj);
-	// new_obj is a new reference, which we return. Caller is responsible.
-	return new_obj;
+  Py_DECREF(module);
+  Py_DECREF(class_obj);
+  // new_obj is a new reference, which we return. Caller is responsible.
+  return new_obj;
 }
 
 #ifdef DEBUG_MACROS
 static inline PyObject *_m_d_newObject( const char *mod, const char *name )
 {
-	PyObject *module = NULL;
-	PyObject *class_obj = NULL;
-	PyObject *new_obj = NULL;
+  PyObject *module = NULL;
+  PyObject *class_obj = NULL;
+  PyObject *new_obj = NULL;
 
-	module = PyImport_ImportModule( mod ); // new reference
-	if (module == NULL && PyErr_Occurred() != NULL)
-	_m_printPyError_withLineNumber();
-	else if (module == NULL)
-	{
-		fprintf(stderr,"WARNING: _m_d_newObject: No error occurred,\
- but the returned module was still NULL!\n");
-		return NULL;
-	}
-	class_obj = PyObject_GetAttrString(module, name ); // new reference
-	if (class_obj == NULL && PyErr_Occurred() != NULL)
-	_m_printPyError_withLineNumber();
-	else if (class_obj == NULL)
-	{
-		fprintf(stderr,"WARNING: _m_d_newObject: No error occurred,\
- but the returned class object was still NULL!\n");
-		return NULL;
-	}
+  module = PyImport_ImportModule( mod ); // new reference
+  if (module == NULL && PyErr_Occurred() != NULL)
+  _m_printPyError_withLineNumber();
+  else if (module == NULL)
+  {
+    fprintf(stderr,"WARNING: _m_d_newObject: No error occurred,\
+  but the returned module was still NULL!\n");
+    return NULL;
+  }
+  class_obj = PyObject_GetAttrString(module, name ); // new reference
+  if (class_obj == NULL && PyErr_Occurred() != NULL)
+  _m_printPyError_withLineNumber();
+  else if (class_obj == NULL)
+  {
+    fprintf(stderr,"WARNING: _m_d_newObject: No error occurred,\
+  but the returned class object was still NULL!\n");
+    return NULL;
+  }
 
-	new_obj = PyObject_CallObject( class_obj, NULL );
-	if (new_obj == NULL && PyErr_Occurred() != NULL)
-	_m_printPyError_withLineNumber();
-	else if (new_obj == NULL)
-	{
-		fprintf(stderr,"WARNING: _m_d_newObject: No error occurred,\
- but the returned class object was still NULL!\n");
-		return NULL;
-	}
-	Py_DECREF( module );
-	Py_DECREF( class_obj );
-	// new_obj is a new reference, which we return. Caller is responsible.
-	return new_obj;
+  new_obj = PyObject_CallObject( class_obj, NULL );
+  if (new_obj == NULL && PyErr_Occurred() != NULL)
+  _m_printPyError_withLineNumber();
+  else if (new_obj == NULL)
+  {
+    fprintf(stderr,"WARNING: _m_d_newObject: No error occurred,\
+  but the returned class object was still NULL!\n");
+    return NULL;
+  }
+  Py_DECREF( module );
+  Py_DECREF( class_obj );
+  // new_obj is a new reference, which we return. Caller is responsible.
+  return new_obj;
 }
 
 #endif // DEBUG_MACROS was set
