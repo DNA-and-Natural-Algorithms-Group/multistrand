@@ -7,7 +7,7 @@ help@multistrand.org
 #ifndef __PYTHON_OPTIONS_H__
 #define __PYTHON_OPTIONS_H__
 
-#include <python2.7/Python.h>
+#include <Python.h>
 
 // Macros for Python/C interface
 
@@ -32,12 +32,14 @@ help@multistrand.org
   Py_BuildValue("(lisssdd)", seed, id, names, sequence, structure, energy, enthalpy )
 /* These four prep functions return a new reference via Py_BuildValue, error checking and reference counting is the caller's responsibility. */
 
-/* Accessors (ref counting caller responsibility */
-#define getStringAttr(obj, name, pyo) ((char *)PyString_AS_STRING(pyo=PyObject_GetAttrString(obj, #name)))
+/* Accessors (ref counting caller responsibility) */
+#define getStringAttr(obj, name, pyo) PyUnicode_AsUTF8(pyo=PyObject_GetAttrString(obj, #name))
+#define getStringAttrReify(obj, name, pyo) PyUnicode_AsUTF8(pyo=_m_reify_GetAttrString(obj, #name))
 #define getListAttr(obj, name) PyObject_GetAttrString(obj, #name)
+#define getListAttrReify(obj, name) _m_reify_GetAttrString(obj, #name)
 
-/* List indexing (ref counting caller responsibility */
-#define getStringItem(list, index) PyString_AS_STRING(PyList_GET_ITEM(list, index))
+/* List indexing (ref counting caller responsibility) */
+#define getStringItem(list, index) PyUnicode_AsUTF8(PyList_GET_ITEM(list, index))
 
 /***************************************/
 /* Helper functions / internal macros. */
@@ -61,30 +63,30 @@ help@multistrand.org
 	Py_DECREF(val);                                                 \
   } while(0)
 
-#define _m_setStringAttr( obj, name, arg )   \
-  do {                                                 \
-    PyObject *pyo_str = PyString_FromString( arg ); \
-    PyObject_SetAttrString( obj, name, pyo_str );   \
-    Py_XDECREF( pyo_str );                          \
+#define _m_setStringAttr( obj, name, arg )           \
+  do {                                               \
+    PyObject *pyo_str = PyUnicode_FromString( arg ); \
+    PyObject_SetAttrString( obj, name, pyo_str );    \
+    Py_XDECREF( pyo_str );                           \
   } while(0)
 
 // Import/instantiate
 #define newObject(mod, name) _m_newObject( #mod, #name )
 
 // Accessors (no ref counting needed )
-#define getBoolAttr(obj, name, pvar) _m_getAttr_DECREF( obj, #name, PyInt_AS_LONG, pvar, bool)
-#define getLongAttr(obj, name, pvar) _m_getAttr_DECREF( obj, #name, PyInt_AS_LONG, pvar, long)
-#define getDoubleAttr(obj, name, pvar) _m_getAttr_DECREF( obj, #name, PyFloat_AS_DOUBLE, pvar, double)
+#define getBoolAttr(obj, name, pvar) _m_getAttr_DECREF(obj, #name, PyLong_AS_LONG, pvar, bool)
+#define getLongAttr(obj, name, pvar) _m_getAttr_DECREF(obj, #name, PyLong_AS_LONG, pvar, long)
+#define getDoubleAttr(obj, name, pvar) _m_getAttr_DECREF(obj, #name, PyFloat_AS_DOUBLE, pvar, double)
 
 // Accessors (borrowed refs only)
-#define getLongItem(list, index) PyInt_AS_LONG(PyList_GET_ITEM(list, index))
-#define getLongItemFromTuple(tuple, index) PyInt_AS_LONG(PyTuple_GET_ITEM(tuple, index))
+#define getLongItem(list, index) PyLong_AS_LONG(PyList_GET_ITEM(list, index))
+#define getLongItemFromTuple(tuple, index) PyLong_AS_LONG(PyTuple_GET_ITEM(tuple, index))
 
 /* Procedure calling (no ref counts) */
-#define pingAttr(obj, name) Py_DECREF(PyObject_GetAttrString( obj, #name ))
+#define pingAttr(obj, name) Py_DECREF(_m_reify_GetAttrString(obj, #name))
 // CB: changed this from Py_XDECREF to Py_DECREF because it was accessing the
 // attribute twice for each call to pingAttr (a problem for incrementors)
-// note: does not do anything crazy on a NULL return from GetAttrString, but if that
+// note: does not do anything crazy on a NULL return from PyObject_GetAttrString, but if that
 // returned null it might be an error...
 
 // Setters
@@ -199,14 +201,14 @@ help@multistrand.org
       }                                                             \
   } while(0)
 
-#define _m_d_setStringAttr( obj, name, arg )          \
-  do {                                                   \
-    PyObject *pyo_str = PyString_FromString( arg );   \
-    if (pyo_str == NULL && PyErr_Occurred() != NULL ) \
-      _m_printPyError_withLineNumber();               \
+#define _m_d_setStringAttr( obj, name, arg )                            \
+  do {                                                                  \
+    PyObject *pyo_str = PyUnicode_FromString( arg );                    \
+    if (pyo_str == NULL && PyErr_Occurred() != NULL )                   \
+      _m_printPyError_withLineNumber();                                 \
     if (PyObject_SetAttrString( obj, name, pyo_str ) == -1 && PyErr_Occurred() != NULL) \
-      _m_printPyError_withLineNumber();               \
-    Py_XDECREF( pyo_str );                            \
+      _m_printPyError_withLineNumber();                                 \
+    Py_XDECREF( pyo_str );                                              \
   } while(0)
 
 // Import/instantiate
@@ -216,18 +218,18 @@ help@multistrand.org
 // Getters
 // NOTE: these three use a different footprint for the _m_getAttr_DECREF, as they need to check
 // the python object type.
-#define getBoolAttr(obj, name, pvar) _m_d_getAttr_DECREF( obj, #name, pvar, bool, Int,LONG)
-#define getLongAttr(obj, name, pvar) _m_d_getAttr_DECREF( obj, #name, pvar, long, Int, LONG)
-#define getDoubleAttr(obj, name, pvar) _m_d_getAttr_DECREF( obj, #name, pvar, double, Float, DOUBLE )
+#define getBoolAttr(obj, name, pvar) _m_d_getAttr_DECREF(obj, #name, pvar, bool, Long, LONG)
+#define getLongAttr(obj, name, pvar) _m_d_getAttr_DECREF(obj, #name, pvar, long, Long, LONG)
+#define getDoubleAttr(obj, name, pvar) _m_d_getAttr_DECREF(obj, #name, pvar, double, Float, DOUBLE)
 
-#define pingAttr(obj, name) { \
-  PyObject *_m_attr = PyObject_GetAttrString( obj, #name );\
-  if (_m_attr == NULL && PyErr_Occurred() != NULL )        \
-    _m_printPyError_withLineNumber();                       \
-  else if (_m_attr == NULL )                               \
-    fprintf(stderr,"WARNING: pingAttr: No error occurred,\
- but the returned pointer was still NULL!\n"); \
-  else { Py_DECREF(_m_attr); }               \
+#define pingAttr(obj, name) {                                 \
+    PyObject *_m_attr = _m_reify_GetAttrString(obj, #name);   \
+    if (_m_attr == NULL && PyErr_Occurred() != NULL )         \
+      _m_printPyError_withLineNumber();                       \
+    else if (_m_attr == NULL )                                \
+      fprintf(stderr,"WARNING: pingAttr: No error occurred,\
+ but the returned pointer was still NULL!\n");                \
+    else { Py_DECREF(_m_attr); }                              \
   }
 
 /*  The following works without ref counting issues as PyList_GET_ITEM
@@ -236,10 +238,10 @@ help@multistrand.org
  thus it is caller's responsibility. */
 
 #define getLongItem(list, index) \
-  (PyInt_Check(PyList_GET_ITEM(list, index))?PyInt_AS_LONG(PyList_GET_ITEM(list,index)):-1)
+  (PyLong_Check(PyList_GET_ITEM(list, index))?PyLong_AS_LONG(PyList_GET_ITEM(list,index)):-1)
 
 #define getLongItemFromTuple(tuple, index) \
-  (PyInt_Check(PyTuple_GET_ITEM(tuple, index))?PyInt_AS_LONG(PyTuple_GET_ITEM(tuple,index)):-1)
+  (PyLong_Check(PyTuple_GET_ITEM(tuple, index))?PyLong_AS_LONG(PyTuple_GET_ITEM(tuple,index)):-1)
 
 // Setters
 #define setDoubleAttr(obj, name, arg) _m_d_setAttr_DECREF( obj, #name, PyFloat_FromDouble, (arg))
@@ -299,16 +301,24 @@ help@multistrand.org
 
  *****************************************************/
 
+/* Force dynamic object attribute to exist
+ * (required for some "object properties" in Python 3) */
+inline PyObject *_m_reify_GetAttrString(PyObject *obj, const char *name) {
+    assert(PyObject_HasAttrString(obj, name));
+    return PyObject_GetAttrString(obj, name);
+}
+
 static inline bool _m_testLongAttr(PyObject *obj, const char *attrname, const char *test, long value) {
-	PyObject *_m_attr = PyObject_GetAttrString(obj, attrname);
-	long local_val = PyInt_AS_LONG(_m_attr);
-	Py_DECREF(_m_attr);
-	if (test[0] == '=')
-		return (local_val == value);
-	if (test[0] == '<')
-		return (local_val < value);
-	if (test[0] == '>')
-		return (local_val > value);
+  PyObject *_m_attr = PyObject_GetAttrString(obj, attrname);
+  long local_val = PyLong_AS_LONG(_m_attr);
+
+  Py_DECREF(_m_attr);
+  if (test[0] == '=')
+    return (local_val == value);
+  if (test[0] == '<')
+    return (local_val < value);
+  if (test[0] == '>')
+    return (local_val > value);
 }
 
 #ifdef DEBUG_MACROS
@@ -325,25 +335,25 @@ static inline bool _m_d_testLongAttr( PyObject *obj, const char *attrname, const
 	{
 		fprintf(stderr,"WARNING: _m_d_testLongAttr: No error occurred,\
  but the returned object from GetAttrString was still NULL!\n");
-		return false;
-	}
-	else
-	{
-		if( !PyInt_Check( _m_attr ) )
-		{
-			fprintf(stderr,"ERROR: _m_d_testLongAttr: Attribute name %s was not an integer type or subclass.\n", attrname );
-			Py_DECREF(_m_attr);
-			return false;
-		}
-		local_val = PyInt_AS_LONG(_m_attr);
-		Py_DECREF(_m_attr);
-		if( test[0] == '=' )
-		return (local_val == value);
-		if( test[0] == '<' )
-		return (local_val < value );
-		if( test[0] == '>' )
-		return (local_val > value );
-	}
+    return false;
+  }
+  else
+  {
+    if( !PyLong_Check( _m_attr ) )
+    {
+      fprintf(stderr,"ERROR: _m_d_testLongAttr: Attribute name %s was not an integer type or subclass.\n", attrname );
+      Py_DECREF(_m_attr);
+      return false;
+    }
+    local_val = PyLong_AS_LONG(_m_attr);
+    Py_DECREF(_m_attr);
+    if( test[0] == '=' )
+    return (local_val == value);
+    if( test[0] == '<' )
+    return (local_val < value );
+    if( test[0] == '>' )
+    return (local_val > value );
+  }
 }
 #endif
 

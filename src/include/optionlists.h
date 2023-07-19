@@ -13,7 +13,7 @@ help@multistrand.org
 #define STOPTYPE_LOOSE_STRUCTURE               3
 #define STOPTYPE_PERCENT_OR_COUNT_STRUCTURE    4
 
-#include <python2.7/Python.h>
+#include <Python.h>
 #include <string>
 using std::string;
 
@@ -39,8 +39,8 @@ class strandList {
 //FD: Again, a self-rolled linked list.
 class identList {
  public:
-	// Constructors
-  identList( long newuid, char *newid, class identList *old = NULL);
+  // Constructors
+  identList( long newuid, const char *newid, class identList *old = NULL);
   ~identList( void );
 
   // Functions
@@ -56,11 +56,11 @@ class identList {
 
 class complexItem {
  public:
-	// Constructors
-  complexItem( char *struc, class identList *strands, class complexItem *old = NULL );
-  complexItem( char *struc, class identList *strands, class complexItem *old, int newtype );
-  complexItem( char *struc, class identList *strands, class complexItem *old, int newtype, int newcount );
-  ~complexItem( void );
+  // Constructors
+  complexItem(const char *struc, class identList *strands, class complexItem *old = NULL);
+  complexItem(const char *struc, class identList *strands, class complexItem *old, int newtype);
+  complexItem(const char *struc, class identList *strands, class complexItem *old, int newtype, int newcount);
+  ~complexItem(void);
 
   // functions
   string toString();
@@ -76,8 +76,8 @@ class complexItem {
 
 class stopComplexes {
  public:
-  stopComplexes( char *newtag, class complexItem *newitem, class stopComplexes *old = NULL);
-  ~stopComplexes( void );
+  stopComplexes(const char *newtag, class complexItem *newitem, class stopComplexes *old = NULL);
+  ~stopComplexes(void);
 
   char *tag;
   string toString(void);

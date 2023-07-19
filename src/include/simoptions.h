@@ -15,7 +15,7 @@
 #ifndef __SIMOPTIONS_H_
 #define __SIMOPTIONS_H_
 
-#include <python2.7/Python.h>
+#include <Python.h>
 #include "ssystem.h"
 #include <vector>
 #include <string>

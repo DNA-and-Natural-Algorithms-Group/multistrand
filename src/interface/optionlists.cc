@@ -4,14 +4,11 @@
  Edits by: Chris Berlind    (cberlind@dna.caltech.edu)
  */
 
-// FD  March 31, 2017. The following include fixes OSX compatibility issues.
 #include <Python.h>
-
 
 #include <string>
 #include "optionlists.h"
 #include "utility.h"
-//#include <python2.7/Python.h>
 
 using std::string;
 //using namespace utility;
@@ -59,7 +56,7 @@ strandList::~strandList(void) {
  This is a very basic linked list constructor.
  */
 
-identList::identList(long newuid, char *newid, class identList *old) {
+identList::identList(long newuid, const char *newid, class identList *old) {
 	id = new char[strlen(newid) + 1];
 	strcpy(id, newid);
 
@@ -99,7 +96,7 @@ identList::~identList(void) {
  FD: This is another very basic linked list constructor.
  */
 
-complexItem::complexItem(char *struc, class identList *strands,
+complexItem::complexItem(const char *struc, class identList *strands,
 		class complexItem *old) {
 	structure = new char[strlen(struc) + 1];
 	strcpy(structure, struc);
@@ -114,7 +111,7 @@ complexItem::complexItem(char *struc, class identList *strands,
 	count = 0;
 }
 
-complexItem::complexItem(char *struc, class identList *strands,
+complexItem::complexItem(const char *struc, class identList *strands,
 		class complexItem *old, int newtype) {
 	structure = new char[strlen(struc) + 1];
 	strcpy(structure, struc);
@@ -131,7 +128,7 @@ complexItem::complexItem(char *struc, class identList *strands,
 	count = 0;
 }
 
-complexItem::complexItem(char *struc, class identList *strands,
+complexItem::complexItem(const char *struc, class identList *strands,
 		class complexItem *old, int newtype, int newcount) {
 	structure = new char[strlen(struc) + 1];
 	strcpy(structure, struc);
@@ -174,7 +171,7 @@ complexItem::~complexItem(void) {
  This is yet another very basic linked list constructor.
  */
 
-stopComplexes::stopComplexes(char *newtag, class complexItem *newitem,
+stopComplexes::stopComplexes(const char *newtag, class complexItem *newitem,
 		class stopComplexes *old) {
 	tag = new char[strlen(newtag) + 1];
 	strcpy(tag, newtag);

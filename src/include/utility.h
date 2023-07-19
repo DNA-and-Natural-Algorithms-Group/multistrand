@@ -41,7 +41,7 @@ struct complex_input {
 		list = NULL;
 	}
 
-	complex_input(char* string1, char* string2, identList* list1) {
+	complex_input(const char* string1, const char* string2, identList* list1) {
 
 		char *tempseq = (char *) new char[strlen(string1) + 1];
 		char *tempstruct = (char *) new char[strlen(string2) + 1];

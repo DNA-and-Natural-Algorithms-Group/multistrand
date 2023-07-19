@@ -211,7 +211,7 @@ void PSimOptions::generateComplexes(PyObject *alternate_start, long current_seed
 	if (myComplexes->size() == 0) {
 
 		complex_input *tempcomplex = NULL;
-		char *sequence, *structure;
+		const char *sequence, *structure;
 		class identList *id;
 		int start_count;
 		PyObject *py_start_state = NULL, *py_complex = NULL;
@@ -221,11 +221,14 @@ void PSimOptions::generateComplexes(PyObject *alternate_start, long current_seed
 		if (alternate_start != NULL)
 			py_start_state = alternate_start;
 		else
-			py_start_state = getListAttr(python_settings, start_state);
+			py_start_state = getListAttrReify(python_settings, start_state);
 
-		start_count = PyList_GET_SIZE(py_start_state);
-		// doesn't need reference counting for this size call.
-		// the getlistattr call we decref later.
+		if (py_start_state != Py_None)
+			// doesn't need reference counting for this size call.
+			// the getlistattr call we decref later.
+			start_count = PyList_GET_SIZE(py_start_state);
+		else
+			start_count = 0;
 
 		if (start_count == 0) {	// FD Jun 2018: adding throw if no initial state is set.
 			throw std::invalid_argument("Initial state was not set.");
@@ -241,23 +244,22 @@ void PSimOptions::generateComplexes(PyObject *alternate_start, long current_seed
 			printPyError_withLineNumber();
 #endif
 
-			sequence = getStringAttr(py_complex, sequence, py_seq);
+			sequence = getStringAttrReify(py_complex, sequence, py_seq);
 			// new reference
 
-			structure = getStringAttr(py_complex, structure, py_struc);
+			structure = getStringAttrReify(py_complex, structure, py_struc);
 			// new reference
-			// Need to check if an error occurred, specifically, it could be an IOError due to sample failing. If so, we need to get the heck out of dodge right now.
+			// Need to check if an error occurred, specifically, it could be an OSError due to sample failing. If so, we need to get the heck out of dodge right now.
 			py_err = PyErr_Occurred();
 			// py_err is a borrowed reference
 
-			if (py_err != NULL) { // then an error occurred while getting the structure. Test for IOError (sample failure):
-				if (PyErr_ExceptionMatches(PyExc_IOError)) {
+			if (py_err != NULL) { // then an error occurred while getting the structure. Test for OSError (sample failure):
+				if (PyErr_ExceptionMatches(PyExc_OSError)) {
 					fprintf(stderr,
 							"MULTISTRAND: Starting Structure could not be retrieved for index %d in your options object's start_state. This is likely due to Boltzmann sampling failing: please check that the program 'sample' exists and points correctly to the NUPACK sample binary. Or try 'print o.start_state[%d].structure' where 'o' is your options object and refer to that error message (if any).\n",
 							index, index);
 				} else {
 					fprintf(stderr, "MULTISTRAND: An unidentified exception occurred while trying to initialize the system.\n");
-
 				}
 				return;
 			}

@@ -4,11 +4,10 @@
 
  A simple extension module for python that exposes the
  SimulationSystem object as a createable object that has one method.
-
  */
 
-#include "python2.7/Python.h"
-#include "python2.7/structmember.h"
+#include "Python.h"
+#include "structmember.h"
 
 #include <iostream>
 #include "ssystem.h"
@@ -46,12 +45,12 @@ static int SimSystemObject_init(SimSystemObject *self, PyObject *args) {
 	if (!PyArg_ParseTuple(args, "O:SimSystem()", &self->options))
 		return -1;
 
-	Py_INCREF(self->options); /* Will be decreffed in dealloc, or
-	 here if there's a type error. */
+	/* Will be decreffed in Py_CLEAR(), or here if there's a type error. */
+	Py_INCREF(self->options);
 
 	/* check the type */
-	if (strcmp(self->options->ob_type->tp_name, "Options") != 0) {
-		printf("[%s] options name\n", self->options->ob_type->tp_name);
+	if (strcmp(Py_TYPE(self->options)->tp_name, "Options") != 0) {
+		printf("[%s] options name\n", Py_TYPE(self->options)->tp_name);
 		/* Note that we'll need to change the above once it's packaged nicely. */
 		Py_DECREF(self->options);
 		PyErr_SetString(PyExc_TypeError, "Must be passed a single Options object.");
@@ -120,6 +119,8 @@ static int SimSystemObject_clear(SimSystemObject *self) {
 }
 
 static void SimSystemObject_dealloc(SimSystemObject *self) {
+	PyObject_GC_UnTrack(self);
+
 	if (self->ob_system != NULL) {
 		delete self->ob_system;
 		self->ob_system = NULL;
@@ -127,7 +128,7 @@ static void SimSystemObject_dealloc(SimSystemObject *self) {
 
 	SimSystemObject_clear(self);
 
-	self->ob_type->tp_free((PyObject *) self);
+	Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
 const char docstring_SimSystem[] =
@@ -182,49 +183,32 @@ static PyMemberDef SimSystemObject_members[] = { { "options", T_OBJECT_EX, offse
 };
 
 static PyTypeObject SimSystem_Type = {
-/* Note that the ob_type field cannot be initialized here. */
-PyVarObject_HEAD_INIT(NULL, 0) "multistrand.system.SimSystem", /* tp_name */
-sizeof(SimSystemObject), /* tp_basicsize */
-0, /* tp_itemsize  [it's something that's a relic, should be 0] */
-/* standard method defs are next */
-(destructor) SimSystemObject_dealloc, /* tp_dealloc */
-0, /* tp_print [not quite the same as str] */
-0, /* tp_getattr see comment out line below. */
-0, /* tp_setattr */
-0, /* tp_compare */
-0, /* tp_repr */
-0, /* tp_as_number */
-0, /* tp_as_sequence */
-0, /* tp_as_mapping */
-0, /* tp_hash */
-0, /* tp_call */
-0, /* tp_str */
-0, /* tp_getattro */
-0, /* tp_setattro */
-0, /* tp_as_buffer */
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /* tp_flags */
-PyDoc_STR(docstring_SimSystem), /* tp_doc */
-(traverseproc) SimSystemObject_traverse, /* tp_traverse */
-(inquiry) SimSystemObject_clear, /* tp_clear */
-0, /* tp_richcompare */
-0, /* tp_weaklistoffset */
-0, /* tp_iter */
-0, /* tp_iternext */
-SimSystemObject_methods, /* tp_methods */
-SimSystemObject_members, /* tp_members */
-0, /* tp_getset */
-0, /* tp_base */
-0, /* tp_dict */
-0, /* tp_descr_get */
-0, /* tp_descr_set */
-0, /* tp_dictoffset */
-(initproc) SimSystemObject_init, /* tp_init */
-0, /* tp_alloc */
-SimSystemObject_new, /* tp_new */
-/* if we do want tp_new, it needs to be set in the module init.
- Or maybe not. Trying it here.*/
-/* 0,                              /\* tp_free *\/ */
-/* 0,                              /\* tp_is_gc *\/ */
+   /* Note that the ob_type field cannot be initialized here. */
+   PyVarObject_HEAD_INIT(NULL, 0)
+   .tp_name = "multistrand.system.SimSystem",
+   .tp_basicsize = sizeof(SimSystemObject),
+   .tp_itemsize = 0, /* [it's something that's a relic, should be 0] */
+   /* standard method defs are next */
+   .tp_dealloc = (destructor) SimSystemObject_dealloc,
+   .tp_vectorcall_offset = 0, /* new slot semantics in Python 3.8 */
+   .tp_getattr = 0, .tp_setattr = 0,
+   .tp_as_async = 0, /* new slot semantics in Python 3.8 */
+   .tp_repr = 0, .tp_as_number = 0, .tp_as_sequence = 0, .tp_as_mapping = 0,
+   .tp_hash = 0, .tp_call = 0, .tp_str = 0, .tp_getattro = 0, .tp_setattro = 0,
+   .tp_as_buffer = 0,
+   .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,
+   .tp_doc = PyDoc_STR(docstring_SimSystem),
+   .tp_traverse = (traverseproc) SimSystemObject_traverse,
+   .tp_clear = (inquiry) SimSystemObject_clear,
+   .tp_richcompare = 0, .tp_weaklistoffset = 0, .tp_iter = 0, .tp_iternext = 0,
+   .tp_methods = SimSystemObject_methods,
+   .tp_members = SimSystemObject_members,
+   .tp_getset = 0, .tp_base = 0, .tp_dict = 0,
+   .tp_descr_get = 0, .tp_descr_set = 0, .tp_dictoffset = 0,
+   .tp_init = (initproc) SimSystemObject_init,
+   .tp_alloc = 0,
+   .tp_new = (newfunc) SimSystemObject_new,
+   .tp_free = 0, .tp_is_gc = 0,
 };
 
 static PyObject *System_initialize_energymodel(PyObject *self, PyObject *args) {
@@ -445,17 +429,26 @@ run_system( options )\n\
 Run the system defined by the passed in Options object.\n") }, { NULL } /*Sentinel*/
 		};
 
-PyMODINIT_FUNC initsystem(void) {
+static struct PyModuleDef moduledef = {
+	PyModuleDef_HEAD_INIT,
+	.m_name = "system",
+	.m_doc = "Base module for holding System objects.",
+	.m_size = -1,
+	.m_methods = System_methods,
+};
+
+PyMODINIT_FUNC PyInit_system(void) {
 	PyObject *m;
 	/* Finalize the simulation system object type */
 	if (PyType_Ready(&SimSystem_Type) < 0)
-		return;
+		return NULL;
 
-	m = Py_InitModule3("system", System_methods, "Base module for holding System objects.");
+	m = PyModule_Create(&moduledef);
 	if (m == NULL)
-		return;
+		return NULL;
 
 	Py_INCREF(&SimSystem_Type);
 	PyModule_AddObject(m, "SimSystem", (PyObject *) &SimSystem_Type);
 
+	return m;
 }

@@ -18,7 +18,7 @@ class stopComplexes *getStopComplexList(PyObject *options, int index)
     class stopComplexes *return_list;
     
     PyObject *strand_list;
-    char *structure;
+    const char *structure;
     PyObject *pyo_structure;
     int count;
     int stoptype;
@@ -28,11 +28,9 @@ class stopComplexes *getStopComplexList(PyObject *options, int index)
     PyObject *pyo_stop_condition;
     PyObject *pyo_stop_condition_list;
     PyObject *pyo_tag;
-    char *tag;
+    const char *tag;
 
-
-
-    pyo_stop_condition_list= PyObject_GetAttrString(options, "stop_conditions");
+    pyo_stop_condition_list = getListAttrReify(options, stop_conditions);
     // new reference
     
     int n = PyList_GET_SIZE(pyo_stop_condition_list);
@@ -48,7 +46,7 @@ class stopComplexes *getStopComplexList(PyObject *options, int index)
            printPyError_withLineNumber();
 #endif
 
-        tuple_list = getListAttr(pyo_stop_condition, complex_items);
+        tuple_list = getListAttrReify(pyo_stop_condition, complex_items);
         // new reference here
         
         int m = PyList_GET_SIZE(tuple_list);
@@ -62,7 +60,7 @@ class stopComplexes *getStopComplexList(PyObject *options, int index)
 
             structure = getStringAttr(cmplx, _fixed_structure, pyo_structure);
 
-            strand_list = getListAttr(cmplx, strand_list);
+            strand_list = getListAttrReify(cmplx, strand_list);
             // new reference
 
             id_list = makeID_list(strand_list);
@@ -103,7 +101,7 @@ class identList *getID_list(PyObject *options, int index, PyObject *alternate_st
   PyObject *pyo_strand_list = NULL;
   PyObject *pyo_start_complex_list = NULL;
   if( alternate_start == NULL )
-    pyo_start_complex_list = PyObject_GetAttrString( options, "start_state");
+    pyo_start_complex_list = getListAttrReify( options, start_state);
   else
     {
       pyo_start_complex_list = alternate_start;
@@ -111,7 +109,8 @@ class identList *getID_list(PyObject *options, int index, PyObject *alternate_st
     }
   // either way, we have a new reference to pyo_start_complex_list
 
-  pyo_strand_list = PyObject_GetAttrString(PyList_GetItem( pyo_start_complex_list, index ) ,"strand_list");
+  pyo_strand_list = getListAttrReify(PyList_GetItem(pyo_start_complex_list, index),
+                                     strand_list);
   // new reference due to PyObject_GetAttrString
   // GET_ITEM borrows the ref, so we only have to worry about the ref via PyObject_Get...
 
@@ -135,7 +134,7 @@ class identList *makeID_list(PyObject *strand_list)
     class identList *id_list;
     long u_id;
     long n;
-    char *name;
+    const char *name;
     PyObject *pyo_name;
     PyObject* py_strand;
 
