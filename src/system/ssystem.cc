@@ -706,7 +706,7 @@ int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
 
 	simOptions->generateComplexes(alternate_start, current_seed);
 
-// FD: Somehow, check if complex list is pre-populated.
+	// FD: Somehow, check if complex list is pre-populated.
 	startState = NULL;
 	if (complexList != NULL)
 		delete complexList;
@@ -716,11 +716,11 @@ int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
 
 	complexList = new SComplexList(energyModel);
 
-// FD: this is the python - C interface
+	// FD: this is the python - C interface
 	for (unsigned int i = 0; i < simOptions->myComplexes->size(); i++) {
 
-		char* tempSequence = copyToCharArray(simOptions->myComplexes->at(i).sequence);
-		char* tempStructure = copyToCharArray(simOptions->myComplexes->at(i).structure);
+		char* tempSequence = utility::copyToCharArray(simOptions->myComplexes->at(i).sequence);
+		char* tempStructure = utility::copyToCharArray(simOptions->myComplexes->at(i).structure);
 
 		id = simOptions->myComplexes->at(i).list;
 

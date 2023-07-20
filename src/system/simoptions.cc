@@ -99,27 +99,8 @@ string SimOptions::toString() {
 	ss << "max_sim_time = " << max_sim_time << " \n";
 	ss << "seed = " << seed << " \n";
 
-//	ss << "myComplexes = { ";
-//
-//	for (int i = 0; i < myComplexes->size(); i++) {
-//
-//		ss << "{ " << myComplexes->at(i).sequence << ", " << myComplexes->at(i).structure << " }";
-//
-//	}
-//
-//	ss << "} \n";
-//
-//	ss << " myStopComplexes = { ";
-//
-//	// linked list iterator
-//	stopComplexes* myStopComplex = myStopComplexes; // copying pointer so we can iterate.
-//
-//	ss << "} \n";
-//
 	string output = ss.str();
-
 	output += energyOptions->toString();
-
 	return output;
 
 }
@@ -340,89 +321,3 @@ void PSimOptions::stopResultFirstStep(long seed, double stopTime, double rate, c
 		printStatusLine_First_Bimolecular(python_settings, seed, STOPRESULT_NORMAL, stopTime, rate, message);
 	}
 }
-
-///// CSIMOPTIONS
-CSimOptions::CSimOptions(void) {
-
-	// initializers calling python object -- these can use a super object getter.
-	// Not clear at the moment if calling all settings is possible without crashing.
-	fixedRandomSeed = true;
-
-	seed = 7777;
-
-	energyOptions = new CEnergyOptions();
-
-	simulation_mode = 16;
-	simulation_count = 1000;
-	o_time = 0;
-	o_interval = 0;
-	stop_count = 1;
-	stop_options = 1;
-	max_sim_time = 0.1;
-
-	debug = false;	// this is the main switch for simOptions debug, for now.
-
-}
-
-PyObject* CSimOptions::getPythonSettings() {
-
-	cout << "getPythonSettings, cannot proceed \n";
-	abort();
-	return NULL;
-
-}
-
-void CSimOptions::generateComplexes(PyObject *alternate_start, long current_seed) {
-
-	myComplexes = new vector<complex_input>(0); // wipe the pointer to the previous object;
-
-//	// setting default value
-//	char* mySeq = "GTTAGACTCGGAGGTGGTAGCAATGGATCAG+CTGATCCATTGCTACCACCTCCGAGTCTAACCATATC+GATATGGTTAGACTCGGAGGTGGTAGCAATG";
-//	char* myStructure = ".........................((((((+))))))(((((((((((((((((((((((((((((((+)))))))))))))))))))))))))))))))";
-//	identList* myIdentity1 = new identList(1337, "myID-1", NULL);
-//	identList* myIdentity2 = new identList(1338, "myID-2", myIdentity1);
-//	identList* myIdentity3 = new identList(1339, "myID-3", myIdentity2);
-//
-//	complex_input myInput = complex_input(mySeq, myStructure, NULL);
-//
-//	myComplexes->push_back(myInput);
-
-}
-
-stopComplexes* CSimOptions::getStopComplexes(int) {
-
-	cout << "getStopComplexes, cannot proceed \n";
-	abort();
-	return NULL;
-}
-
-void CSimOptions::stopResultError(long seed) {
-
-	cout << "stopResultError, cannot send to python \n";
-
-}
-
-void CSimOptions::stopResultNan(long seed) {
-
-	cout << "stopResultNan, cannot send to python \n";
-
-}
-
-void CSimOptions::stopResultNormal(long seed, double time, char* message) {
-
-	cout << "stopResultNormal, cannot send to python \n";
-
-}
-
-void CSimOptions::stopResultTime(long seed, double time) {
-
-	cout << "stopResultTime, cannot send to python \n";
-
-}
-
-void CSimOptions::stopResultFirstStep(long seed, double stopTime, double rate, const char* message) {
-
-	cout << "stopResultBimolecular, cannot send to python \n";
-
-}
-

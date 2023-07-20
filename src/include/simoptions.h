@@ -26,7 +26,34 @@
 
 using std::vector;
 using std::string;
-using namespace utility;
+
+
+struct complex_input {
+
+	std::string sequence;
+	std::string structure;
+	identList* list;
+
+	complex_input() { // empty constuctor
+		sequence = "default";
+		structure = "default";
+		list = NULL;
+	}
+
+	complex_input(const char* string1, const char* string2, identList* list1) {
+
+		char *tempseq = (char *) new char[strlen(string1) + 1];
+		char *tempstruct = (char *) new char[strlen(string2) + 1];
+		strcpy(tempseq, string1);
+		strcpy(tempstruct, string2);
+
+		sequence = string(tempseq);
+		structure = string(tempstruct);
+		list = list1;
+
+	}
+};
+
 
 class EnergyOptions;
 
@@ -38,7 +65,6 @@ class EnergyOptions;
 
 class SimOptions {
 public:
-
 
 	// Constructors
 	SimOptions(void);
@@ -76,7 +102,7 @@ public:
 	virtual void stopResultFirstStep(long, double, double, const char*) = 0;
 
 
-// IO Methods
+	// IO Methods
 	string toString(void);
 
 	// Cotranscriptional folding settings.
@@ -111,6 +137,7 @@ protected:
 
 };
 
+
 class PSimOptions: public SimOptions {
 public:
 	//constructors
@@ -133,28 +160,4 @@ protected:
 
 };
 
-// FD: Starting multistrand without the python wrapper
-// is not implemented at this time, so the below is not functional.
-class CSimOptions: public SimOptions {
-public:
-	//constructors
-	CSimOptions();
-
-	PyObject* getPythonSettings(void);
-	void generateComplexes(PyObject *alternate_start, long current_seed);
-	stopComplexes* getStopComplexes(int);
-
-	// Error signaling
-	void stopResultError(long);
-	void stopResultNan(long);
-	void stopResultNormal(long, double, char*);
-	void stopResultTime(long, double);
-	void stopResultFirstStep(long, double, double, const char*);
-
-protected:
-	PyObject *python_settings = NULL;
-
-};
-
 #endif
-
