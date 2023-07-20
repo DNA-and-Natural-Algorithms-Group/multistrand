@@ -265,6 +265,10 @@ static PyObject *System_calculate_energy(PyObject *self, PyObject *args) {
 	if (options_object != NULL)
 		Py_INCREF(options_object);
 	Py_INCREF(start_state_object);
+	if (!(0 <= typeflag && typeflag <= 3)) {
+		PyErr_SetString(PyExc_TypeError, "Invalid 'energy_type' argument!");
+		return NULL;
+	}
 
 	if (options_object != NULL) {
 
@@ -377,7 +381,6 @@ static PyObject *System_run_system(PyObject *self, PyObject *args) {
 
 	SimulationSystem *temp = NULL;
 	PyObject *options_object = NULL;
-	int typeflag = 0;
 	if (!PyArg_ParseTuple(args, "O|Oi:run_system( options )", &options_object))
 		return NULL;
 	Py_INCREF(options_object);
@@ -401,13 +404,13 @@ static PyMethodDef System_methods[] = {
 	{ "energy", (PyCFunction) System_calculate_energy,
 	  METH_VARARGS, PyDoc_STR(" \
 energy( start_state, options=None, energy_type=0)\n\
-Computes the energy of the passed state [a list of complexes or resting states], using\
+Computes the energy of the passed state [a list of complexes or resting states], using \
 temperature, etc, settings from the options object passed.\n\n\
 Parameters\n\
-energy_type = 0 ('Loop energy') [default]: no volume or association terms included. So only loop energies remain.\n\
-energy_type = 1 ('Volume energy'): include dG_volume.  No clear interpretation for this.\n\
-energy_type = 2 ('Complex energy'): include dG_assoc.  This is the NUPACK complex microstate energy, sans symmetry terms.\n\
-energy_type = 3 ('Tube energy'): include dG_volume + dG_assoc.  Summed over complexes, this is the system state energy.\n\
+energy_type = options.Energy_Type.Loop_energy    : [default] no volume or association terms included. So only loop energies remain.\n\
+energy_type = options.Energy_Type.Volume_energy  : include dG_volume. No clear interpretation for this.\n\
+energy_type = options.Energy_Type.Complex_energy : include dG_assoc. This is the NUPACK complex microstate energy, sans symmetry terms.\n\
+energy_type = options.Energy_Type.Tube_energy    : include dG_volume + dG_assoc. Summed over complexes, this is the system state energy.\n\
 \n\
 options = None [default]: Use the already initialized energy model.\n\
 options = ...: If not none, should be a multistrand.options.Options object, which will be used for initializing the energy model ONLY if there is not one already present.\n")

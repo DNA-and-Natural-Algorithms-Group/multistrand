@@ -1,10 +1,8 @@
 ################################################################################
 #                                                                              #
 # Important Constants for Multistrand.                                         #
-# Copyright 2010-217 Caltech                                                   #
+# Copyright 2010-2017 Caltech                                                  #
 # Written by:  Joseph Schaeffer.  Frits Dannenberg                             #
-#                                                                              #
-#                                                                              #
 #                                                                              #
 ################################################################################
 
@@ -42,4 +40,3 @@ class OptionsConstants( object ):
     
     def __delattr__(self, *args, **kargs):
         pass
-

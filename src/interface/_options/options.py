@@ -2,20 +2,20 @@
 # Copyright 2010-2017 Caltech                                                  
 # Joseph Schaeffer                                                             
 # Chris Berlind                                                                
-# Frits Dannenberg                                                             
+# Frits Dannenberg
+
+import copy
+from enum import IntEnum
 
 from .interface import Interface
 from ..objects import Strand, Complex, StopCondition
 from ..__init__ import __version__
 
-import copy
-import warnings
 
 """ Literals for Multistrand"""
 
 
-class  Literals(object):
-    
+class Literals(object):
     """
     Preset tags that are used in the MergeResult objects (FirstStepRate, FirstStepLeakRate, FirstPassageRate)
     and multistrand.experiment  
@@ -70,8 +70,15 @@ class  Literals(object):
     ordered_macrostate = 2 
     loose_macrostate = 3  # 
     count_macrostate = 4  # 
-    
-    
+
+
+class Energy_Type(IntEnum):
+    Loop_energy = 0     # [default]: no volume or association terms included. So only loop energies remain.
+    Volume_energy = 1   # include dG_volume. No clear interpretation for this.
+    Complex_energy = 2  # include dG_assoc. This is the NUPACK complex microstate energy, sans symmetry terms.
+    Tube_energy = 3     # include dG_volume + dG_assoc. Summed over complexes, this is the system state energy.
+
+
 class Options(object):
     """ The main wrapper for controlling a Multistrand simulation. Has an interface for returning results. """
        

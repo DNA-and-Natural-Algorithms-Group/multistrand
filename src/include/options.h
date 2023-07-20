@@ -492,7 +492,6 @@ const int SUBSTRATE_DNA = 0x02;
 const int SIMULATION_MODE_NORMAL = 0x0010;
 const int SIMULATION_MODE_FIRST_BIMOLECULAR = 0x0030;
 
-
 // simulation modes are bitwise -> bit 5 is normal mode
 //                                 bit 6 is first step mode
 //                                 bit 7 is python interface

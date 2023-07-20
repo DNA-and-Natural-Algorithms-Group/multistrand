@@ -1,15 +1,13 @@
 
 import unittest
 
-from multistrand.options import Options
-from multistrand.system import SimSystem, initialize_energy_model, energy
+from multistrand.options import Options, Energy_Type
+from multistrand.system import initialize_energy_model, energy
 from multistrand.objects import Complex, Strand
 
 import sys
 import nupack
 
-#magic constantm, see multistrand.system.options
-Complex_Energy = 2
 
 class EnergyComparison(unittest.TestCase):
     
@@ -60,8 +58,7 @@ class EnergyComparison(unittest.TestCase):
         return round(result, 2)
 
     def multistrand_ene(self, SEQUENCE, STRUCTURE):
-#         c = multistrand.objects.Complex(strands=[Strand(name="hairpin", sequence=SEQUENCE)], structure=STRUCTURE)
-        c = Complex(strands=[Strand(name="hairpin", sequence=SEQUENCE)], structure=STRUCTURE)
-
-        myE = energy([c], self.o, Complex_Energy)  
+        c = Complex(strands=[Strand(name="hairpin", sequence=SEQUENCE)],
+                    structure=STRUCTURE)
+        myE = energy([c], self.o, Energy_Type.Complex_energy)
         return round(myE[0], 2)
