@@ -1,4 +1,5 @@
-# Multistrand #
+# About #
+
         ___  ___      _ _   _     _                       _ 
         |  \/  |     | | | (_)   | |                     | |
         | .  . |_   _| | |_ _ ___| |_ _ __ __ _ _ __   __| |
@@ -8,28 +9,10 @@
 
 Multistrand is a nucleic acids kinetic simulator, and is developed by the Winfree group at the California Institute of Technology in Pasadena, California (USA). Until 2013, development was lead by Joseph Schaeffer (now Autodesk).
 
-
-Contributors:
-
-* Erik Winfree			      winfree@caltech.edu
-* Chris Thachuk
-* Frits Dannenberg    	fdann@caltech.edu
-* Chris Berlind
-* Joshua Loving
-* Justin Bois
-* Joseph Berleant
-* Joseph Schaeffer
-
-Questions should be directed to help@multistrand.org. Also see www.multistrand.org
-
-
-Frits Dannenberg, May 26rd, 2017
-
-
 ## Licence ##
 
 Multistrand, kinetic simulator for nucleic acids.
-Copyright 2017, California Institute of Technology. All rights reserved.
+Copyright 2023, California Institute of Technology. All rights reserved.
 
 Using this software is permitted for academic non-commercial purposes only. All copyright is retained by Caltech. 
 
@@ -39,111 +22,86 @@ noninfringement. In no event shall the authors or copyright holders be liable fo
 damages or other liability, whether in an action of contract, tort or otherwise, arising from,
 out of or in connection with the software or the use or other dealings in the software.
 
+## Contributors ##
+
+* Erik Winfree (winfree@caltech.edu)
+* Chris Thachuk
+* Frits Dannenberg (fdann@caltech.edu)
+* Chris Berlind
+* Joshua Loving
+* Justin Bois
+* Joseph Berleant
+* Joseph Schaeffer
+* Boyan Beronov
+
+Questions should be directed to help@multistrand.org. Also see www.multistrand.org
+
+
+# Usage #
 
 ## Requirements ##
 
-| Dependency | Notes               | 
-| ---------- | ------              |
-| c++11      | gcc 4.8.5+ or clang/llvm 8.0.0   |  
-|  python2   |  2.7.12+       	   | 
-| NUPACK - www.nupack.org    |  **3.2.1**  | 
-|  make      |  4.0+         | 
+| Dependency | Notes  |
+| ---------- | ------ |
+| C++11      | gcc 7.4 or clang 8.0.0  |
+| Python     | 3.8+   |
+| [NUPACK](www.nupack.org) | **3.2.2** |
  
-As of mid-2017, NUPACK 3.2.1 was released, which restores the sample functionality that Multistrand depends on. Users no longer need to patch nupack in order to use first step mode. 
-
-Some users may need to install 'make' first. You can check that make is installed by simplying calling "make" in the terminal, which should return a message similar to the below. You can similarly run "python -V",  "gcc -v" and "clang -V" to check which python, gcc and clang are installed. Mac users may need to install xcode in order to proceed. 
-```sh
-$ make: *** No targets specified and no makefile found.  Stop.
-```
-
-Tutorial files use the 'numpy', 'matplotlib' and 'scipy' python packages. You can install these using 'pip install numpy', and so on.
-
+The `numpy` and `scipy` Python packages are installed automatically as
+dependencies, and `matplotlib` is added if the installation target `tutorials`
+is specified (see `setup.cfg` for details).
  
 ## Installation ##
+
+For Linux:
  
- For linux:
+ - `git clone` this repository into your workspace.
+ - Set the environment variable `$NUPACKHOME` to point to the NUPACK
+   installation directory.
+ - Run `pip install .` in the Multistrand directory.
+
+For macOS, the following steps enabled successful installation on a 2017 MacBook
+Pro:
+
+ - Install `xcode` commandline tools.
+ - Install Python through `homebrew`.
+ - Follow the Linux installation steps.
+ - In `~/.bash_profile`, edit the `$PYTHONPATH` to include
+   `/Library/Python/3.8/site-packages`.
  
- - Clone the repository into your workspace, using 'git clone https://github.com/DNA-and-Natural-Algorithms-Group/multistrand.git'.
- - In your enviroment set NUPACKHOME to point the directory where NUPACK is installed. 
- - Build multistrand by running 'make' in the Multistrand directory.
- - Multistrand can be exported as a python library by calling 'sudo make install'.
+For Windows:
 
-In Fedora, add 'export NUPACKHOME=/path/to/nupack3.2.1' to ~/.bashrc to make the export permanent.
-To verify that NUPACKHOME is set correctly in bash, run 'echo $NUPACKHOME':
-```sh
-$ echo $NUPACKHOME
-/home/user/path/to/nupack3.2.1
-```
-For OS X, the following steps enabled successful installation on a 2017 macbook pro. 
+ - Follow the instructions for installing the latest version of the `Microsoft
+   C++ Build Tools <https://wiki.python.org/moin/WindowsCompilers>`_.
+ - Follow the Linux installation steps.
+ 
+To use the Apptainer container:
 
- - Install xcode commandline tools
- - Install brew (homebrew) and install python through homebrew (command: 'brew install python').
- - The linux installation steps should now work. 
- - In the bash profile file ~/.bash_profile, edit the python path to include /Library/Python/2.7/site-packages. For example, the line could read: export PYTHONPATH=/Library/Python/2.7/site-packages:$PYTHONPATH. 
+ - Build: `$> sudo apptainer build tools/multistrand.sif tools/multistrand.def`
+ - Start: `$> apptainer shell --cleanenv --contain --pwd /dna/multistrand tools/multistrand.sif`
 
-### Troubleshooting ###
+## Source tree ##
 
-Q: When I try to run tutorials/misc/sample_trace.py, I get the error:
-```
-['tutorials/misc/sample_trace.py']
-terminate called after throwing an instance of 'std::logic_error'
-  what():  basic_string::_S_construct null not valid
-Aborted
-```
-A: You need to set the NUPACKHOME enviroment variable. You can see the current value by using 'echo $NUPACKHOME'.
+The Multistrand library is located under `src/`, whereas `nupack/` contains the
+Nupack wrapper. `test/` is the test suite, and `tools/` provides Apptainer
+container definitions.
 
-Q: On OSX, I get the following error when I try to make:
-```
-In file included from system/utility.cc:16:
-In file included from ./include/move.h:29:
-In file included from ./include/moveutil.h:14:
-./include/sequtil.h:66:22: error: no matching constructor for initialization of
-      'vector<int>'
-        vector<int> count = { 0, 0, 0, 0, 0 }; // use baseType as access
-                            ^~~~~~~~~~~~~~~~~
-```
-A: We've noticed that linking against anaconda sometimes gives errors during installation on OSX. The issue seems to be that the linked gcc, 4.2.1, does to not support certain c++11 functions. OS X users who rely on brew-installed python do not have this problem, because the gcc call is piped to llvm, which then works. 
+## Examples ##
 
-To resolve this issue, users should add the lines
+Documentation can be found in `doc/` and `tutorials/`, and tutorial files are
+organized as follows. Folder `under_the_hood/` contains in-depth tutorials, and
+Jupyter versions are located in `under_the_hood_notebooks/`. The folder
+`case_hybridization/` contains a case study into hybridization kinetics
+(submission pending). Additional demo files are located in `misc/`.
 
-```
-os.environ["CC"] = "clang"
-os.environ["CXX"] = "clang"
-```
-after the line that reads "config_vars = distutils.sysconfig.get_config_vars()" in the setup.py file.
-
-Q: During compilation, the following error appears: 
-```
-gcc: error trying to exec 'cc1plus': execvp: No such file or directory
-```
-A: You need to install c++ libraries. On Fedora, you would run: dnf install gcc-c++.
-
-Q: During compilation, the following error appears:
-```
-In file included from ./src/include/utility.h:21:0,
-                 from src/system/utility.cc:13:
-./src/include/optionlists.h:16:10: fatal error: python2.7/Python.h: No such file or directory
- #include <python2.7/Python.h>
-          ^~~~~~~~~~~~~~~~~~~~
-compilation terminated.
-```
-A: You need to install development libraries for python2. On Fedora, you should run: sudo dnf install python2-devel
-
-
-## Package tree ##
-
-Source dirs are /energymodel, /include, /interface/, /loop, /nupack, /state, /system, /test. Build dirs are /multistrand and /obj and buildfiles are Makefile and setup.py.
-
-Tutorial files are organized as follows. Folder under_the_hood contains in depth tutorials. Jupyter versions are located in under_the_hood_notebooks. The folder case_hybridization contains a case study into hybridization kinetics (submission pending). Additional demo files are located in /misc/.
-
-## Using Multistrand ##
-
-In-depth tutorial files on multistrand are found in /tutorials/under_the_hood. The other files in /tutorials/ are typically set up as case studies. As a very quick primer, we discuss two small scripts below. 
+As a very quick primer, we discuss two small scripts below.
 
 ### Hybridization trajectory ###
 
-A quick test to see if Multistrand is working is by running 'python tutorials/misc/sample_trace.py'. This example does not use Boltzmann sampling, and should work would with all recent versions of NUPACK (3.0.6, 3.1.0, 3.2.1). This script simulates the hybridization of two complementary strands and ends the simulation when the two strands either completely hybridize or seperate after an initial collision:  
-
+A quick test to see if Multistrand is working is to run `python
+tutorials/misc/sample_trace.py`. This script simulates the hybridization of two
+complementary strands and ends the simulation when the two strands either
+completely hybridize or seperate after an initial collision:
 ```sh
 GTGAAACGC GCGTTTCAC
 ......... .........   t=0.000000 ms,  dG=0.00 kcal/mol  
@@ -164,11 +122,17 @@ GCGTTTCAC+GTGAAACGC
 
 ### Hybridization rates ###
 
-The following script computes a hybridization rate for a strand and its compement. The computation relies on first step mode and will only work if NUPACK is correctly installed. Alternatively, dissociation rates can be computed by using 'dissociation' as the first commandline argument. In that case, the dissociation rate is computed indirectly by estimating the association rate, and working out the dissociation rate from the partition function (e.g. k_forward / k_backward = exp( -dG / RT) where dG is the partition function for the complex, R is the gas constant and T is temperature). 
-Note: the released code does not yet include the calibrated parameters from the DNA23 conference. If you would like to use the calibrated model, please contact me directly (FD, 2017-10-03).
+The following script estimates the hybridization rate for a strand and its
+complement. The computation relies on "first step mode" and will only work if
+NUPACK is correctly installed. Alternatively, dissociation rates can be computed
+by using `dissociation` as the first commandline argument. In that case, the
+dissociation rate is computed indirectly by estimating the association rate, and
+working out the dissociation rate from the partition function (e.g. `k_forward /
+k_backward = exp(-dG / RT)` where `dG` is the partition function for the
+complex, `R` is the gas constant and `T` is temperature).
 
 ```sh
-[iris@dhcp-135-182 Multistrand]$ python tutorials/compute/rate.py hybridization 'AGCTGA' -bootstrap
+$> python tutorials/compute/rate.py hybridization 'AGCTGA' -bootstrap
 2017-10-03 13:31:25  Starting Multistrand 2.1      (c) 2008-2017 Caltech      
 Running first step mode simulations for AGCTGA (with Boltzmann sampling)...
 
@@ -184,15 +148,14 @@ k1       = 5.58e+06  /M /s
 Done.  0.91273 seconds 
 
 The hybridization rate of AGCTGA and the reverse complement is 5.58e+06 /M /s
-Estimated 95% confidence interval: [5.32e+06,5.86e+06] 
+Estimated 95% confidence interval: [5.32e+06,5.86e+06]
 ```
 
+## Log files ##
 
+Multistrand automatically creates a logfile (`./multistrandRun.log`) that
+contains some information on the used model, e.g.:
 
-
-### Log files ###
-
-Multistrand automatically creates a logfile ("multistrandRun.log") that contains some information on the used model, like so:
 ```
 Sodium      :  0.5 M 
 Magnesium   :  0 M 
@@ -206,19 +169,25 @@ GT pairing  :  0           (0: disabled)
  1.4e+06     5e+06
 ```
  
- ### Frequently Aksed Questions ###
+
+# Frequently Aksed Questions #
+
+## Capabilities ##
  
-Q: Can I simulate leak reactions using Multistrand?
+**Q:** Can I simulate leak reactions using Multistrand?
 
-A: Yes. We have now added a preliminary tutorial, see /tutorials/leak_casestudy.
+**A:** Yes. We have now added a preliminary tutorial, see `tutorials/leak_casestudy`.
 
-Q: When I try to run any multistrand script, the console returns segfault 11. 
+## Troubleshooting ##
 
-A: Please make sure $NUPACKHOME is set. When you run 'echo $NUPACKHOME' in bash, it should return the directory of your nupack installation. 
+**Q:** When I try to run any multistrand script, the console returns `segfault 11`.
 
-Q: How do I adjust the solvent salt concentrations?
+**A:** Please make sure `$NUPACKHOME` is set. When you run `echo $NUPACKHOME` in
+bash, it should return the directory of your nupack installation.
 
-A: Like so. (units are M = mol / litre) 
+**Q:** How do I adjust the solvent salt concentrations?
+
+**A:** Like so. (units are M = mol / litre)
 
 ```python
 from multistrand.options import Options
@@ -227,17 +196,56 @@ o1.sodium = 0.05        # units: mol / litre
 o1.magnesium = 0.0125   # units: mol / litre
 ```
 
-Q: When I run tutorials/misc/computeAnnealRate.py, nForward and nReverse are both zero and the program does not terminate.
+**Q:** When I run `tutorials/misc/computeAnnealRate.py`, `nForward` and `nReverse`
+are both zero and the program does not terminate.
 
-A:  This occurs when NUPACK returns void output for 'sample'. If NUPACK is installed correctly, then running 
+**A:** This occurs when NUPACK returns void output for 'sample'. If NUPACK is installed correctly, then running 
 
 ``` bash
-./nupack/bin/sample -multi -T 25 -material dna -samples 100	
+./nupack/bin/sample -multi -T 25 -material dna -samples 100
 ./nupack/build/bin/sample -multi -T 25 -material dna -samples 100      (v.3.2.1 and up)
 ```
-and supplying the arguments 'test' '1' 'AGTGTGCGTAGA' '1' will result in a list of 100 non-trivial dot-paren secondary structures in the 'test.sample' file. 
-NUPACK 3.0.4 only: if you have patched NUPACK, be sure to rebuild (make clean; make) the package. Unpatched NUPACK 3.0.4 will return a void output. Some nupack releases (3.1, 3.2) do not have the sample function included.
+and supplying the arguments `'test' '1' 'AGTGTGCGTAGA' '1'` will result in a
+list of 100 non-trivial dot-paren secondary structures in the `test.sample`
+file.
 
-Q: When I run a Multistrand script, I get ImportError: No module named Multistrand. 
+**Q:** When I run a Multistrand script, I get `ImportError: No module named Multistrand`.
 
-A: Please check that PYTHONPATH includes a link to your Multistrand executables, or run 'sudo make install' in the Multistrand directory to install Multistrand python module on your system.
+**A:** Please check that `$PYTHONPATH` includes a link to your Multistrand
+executables, or run `sudo pip install .` in the Multistrand directory for a
+system-wide installation of the Multistrand Python module.
+
+**Q:** When I try to run `tutorials/misc/sample_trace.py`, I get the error:
+
+```
+['tutorials/misc/sample_trace.py']
+terminate called after throwing an instance of 'std::logic_error'
+  what():  basic_string::_S_construct null not valid
+Aborted
+```
+
+**A:** You need to set the `$NUPACKHOME` enviroment variable. You can see the
+current value by using `echo $NUPACKHOME`.
+
+**Q:** On macOS, I get the following error when I try to install:
+
+```
+In file included from system/utility.cc:16:
+In file included from ./include/move.h:29:
+In file included from ./include/moveutil.h:14:
+./include/sequtil.h:66:22: error: no matching constructor for initialization of
+      'vector<int>'
+        vector<int> count = { 0, 0, 0, 0, 0 }; // use baseType as access
+                            ^~~~~~~~~~~~~~~~~
+```
+
+**A:** We've noticed that linking against Anaconda sometimes gives errors during
+installation on macOS. The issue seems to be that the linked gcc does to not
+support certain c++11 functions. macOS users who rely on brew-installed Python
+do not have this problem, because the gcc call is piped to llvm, which then
+works. To resolve this issue, users should prepend the enviroment variables
+
+```
+CC=clang CXX=clang
+```
+before the installation command.
