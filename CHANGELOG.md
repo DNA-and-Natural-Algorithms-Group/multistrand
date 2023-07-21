@@ -1,23 +1,24 @@
 
-# Changelog #
+# Changelog
 
-## Release 2.2 (work in progress) ##
+## Release 2.2 (work in progress)
 
-Package:
+### Package
 - Moved to Python 3.8+ (Python modules and Python/C API).
-- Updated Python the package definition, simplified the installation and adapted
+- Updated the Python package definition, simplified the installation and adapted
   the instructions.
-- Created an Apptainer container for a fully reproducible installation.
+- Created an [Apptainer](https://apptainer.org/) container for a fully
+  reproducible installation.
 - Fixed some compilation problems.
 - Updated and improved the test suite.
 
-Functionality:
+### Functionality
 - Default kinetic parameters are now based on the parameter inference results in
   the DNA23 paper.
 - C++ debug traces can now be toggled in the Python runtime via
   `Options.verbosity`.
 
-## Release 2.1 (May 2018) ##
+## Release 2.1 (May 2018)
 
 - Moved to c++11 standard.
 - Reworked c++ internals: new files, classes, structs, enums, consts and various
@@ -61,7 +62,7 @@ Functionality:
   `multistrand.experiment.hybridization(multistrand.Options(), string:sequence)`
   -- also see `tutorials/misc/computeAnnealRate.py`).
 
-## (Aug 2017) ##
+## (Aug 2017)
 
 - Expanding the leak case study (Mirnank Sharma), added FirstStepLeak object to
   handle leak simulations in concurrent.py (FD and MS).
@@ -71,11 +72,12 @@ Functionality:
 - Removed unused code in Make files and initialization routine.
 - Added files for simulating Machinek-Turberfield mismatch paper.
 
-## (Jul 2017) ##
+## (Jul 2017)
+
 - Added support for nupack 3.2.1
 
 
-# Known issues #
+# Known issues
 
 - Because multithreading is handled outside the C++ core, error messages print
   once for each thread.

@@ -1,4 +1,4 @@
-# About #
+# About
 
         ___  ___      _ _   _     _                       _ 
         |  \/  |     | | | (_)   | |                     | |
@@ -7,9 +7,13 @@
         | |  | | |_| | | |_| \__ \ |_| | | (_| | | | | (_| |
         \_|  |_/\__,_|_|\__|_|___/\__|_|  \__,_|_| |_|\__,_|  
 
-Multistrand is a nucleic acids kinetic simulator, and is developed by the Winfree group at the California Institute of Technology in Pasadena, California (USA). Until 2013, development was lead by Joseph Schaeffer (now Autodesk).
+Multistrand is a nucleic acids kinetic simulator, and is developed by the
+Winfree group at the California Institute of Technology in Pasadena, California
+(USA). Until 2013, development was lead by Joseph Schaeffer (now Autodesk).
 
-## Licence ##
+Official website: www.multistrand.org
+
+## Licence
 
 Multistrand, kinetic simulator for nucleic acids.
 Copyright 2023, California Institute of Technology. All rights reserved.
@@ -22,7 +26,7 @@ noninfringement. In no event shall the authors or copyright holders be liable fo
 damages or other liability, whether in an action of contract, tort or otherwise, arising from,
 out of or in connection with the software or the use or other dealings in the software.
 
-## Contributors ##
+## Contributors
 
 * Erik Winfree (winfree@caltech.edu)
 * Chris Thachuk
@@ -34,34 +38,32 @@ out of or in connection with the software or the use or other dealings in the so
 * Joseph Schaeffer
 * Boyan Beronov
 
-Questions should be directed to help@multistrand.org. Also see www.multistrand.org
+Questions should be directed to help@multistrand.org.
 
+# Usage
 
-# Usage #
-
-## Requirements ##
+## Requirements
 
 | Dependency | Notes  |
 | ---------- | ------ |
 | C++11      | gcc 7.4 or clang 8.0.0  |
 | Python     | 3.8+   |
-| [NUPACK](www.nupack.org) | **3.2.2** |
+| [NUPACK](https://www.nupack.org/) | 3.2.2 |
  
 The `numpy` and `scipy` Python packages are installed automatically as
 dependencies, and `matplotlib` is added if the installation target `tutorials`
 is specified (see `setup.cfg` for details).
  
-## Installation ##
+## Installation
 
-For Linux:
+### Linux
  
  - `git clone` this repository into your workspace.
  - Set the environment variable `$NUPACKHOME` to point to the NUPACK
    installation directory.
  - Run `pip install .` in the Multistrand directory.
 
-For macOS, the following steps enabled successful installation on a 2017 MacBook
-Pro:
+### macOS
 
  - Install `xcode` commandline tools.
  - Install Python through `homebrew`.
@@ -69,24 +71,24 @@ Pro:
  - In `~/.bash_profile`, edit the `$PYTHONPATH` to include
    `/Library/Python/3.8/site-packages`.
  
-For Windows:
+### Windows
 
- - Follow the instructions for installing the latest version of the `Microsoft
-   C++ Build Tools <https://wiki.python.org/moin/WindowsCompilers>`_.
+ - Follow the instructions for installing the latest version of the [`Microsoft
+   C++ Build Tools](https://wiki.python.org/moin/WindowsCompilers).
  - Follow the Linux installation steps.
  
-To use the Apptainer container:
+### [Apptainer](https://apptainer.org/) container
 
  - Build: `$> sudo apptainer build tools/multistrand.sif tools/multistrand.def`
  - Start: `$> apptainer shell --cleanenv --contain --pwd /dna/multistrand tools/multistrand.sif`
 
-## Source tree ##
+## Source tree
 
 The Multistrand library is located under `src/`, whereas `nupack/` contains the
 Nupack wrapper. `test/` is the test suite, and `tools/` provides Apptainer
 container definitions.
 
-## Examples ##
+## Examples
 
 Documentation can be found in `doc/` and `tutorials/`, and tutorial files are
 organized as follows. Folder `under_the_hood/` contains in-depth tutorials, and
@@ -96,7 +98,7 @@ Jupyter versions are located in `under_the_hood_notebooks/`. The folder
 
 As a very quick primer, we discuss two small scripts below.
 
-### Hybridization trajectory ###
+### Hybridization trajectory
 
 A quick test to see if Multistrand is working is to run `python
 tutorials/misc/sample_trace.py`. This script simulates the hybridization of two
@@ -120,7 +122,7 @@ GCGTTTCAC+GTGAAACGC
 (((((((((+)))))))))   t=0.000334 ms,  dG=-12.38 kcal/mol  
 ```
 
-### Hybridization rates ###
+### Hybridization rates
 
 The following script estimates the hybridization rate for a strand and its
 complement. The computation relies on "first step mode" and will only work if
@@ -151,7 +153,7 @@ The hybridization rate of AGCTGA and the reverse complement is 5.58e+06 /M /s
 Estimated 95% confidence interval: [5.32e+06,5.86e+06]
 ```
 
-## Log files ##
+## Log files
 
 Multistrand automatically creates a logfile (`./multistrandRun.log`) that
 contains some information on the used model, e.g.:
@@ -170,15 +172,15 @@ GT pairing  :  0           (0: disabled)
 ```
  
 
-# Frequently Aksed Questions #
+# Frequently Aksed Questions
 
-## Capabilities ##
+## Capabilities
  
 **Q:** Can I simulate leak reactions using Multistrand?
 
 **A:** Yes. We have now added a preliminary tutorial, see `tutorials/leak_casestudy`.
 
-## Troubleshooting ##
+## Troubleshooting
 
 **Q:** When I try to run any multistrand script, the console returns `segfault 11`.
 
