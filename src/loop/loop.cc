@@ -331,7 +331,7 @@ string Loop::toString() {
 
 	std::stringstream ss;
 
-	ss << "\n ** \n" << identityToString(identity) << " adjacent ";
+	ss << "***" << endl << identityToString(identity) << " adjacent ";
 
 	for (int i = 0; i < numAdjacent; i++) {
 
@@ -339,8 +339,7 @@ string Loop::toString() {
 
 	}
 
-	ss << " dG=" << std::setprecision(3) << energy;
-	ss << "       ";
+	ss << " dG=" << std::setprecision(3) << energy << "  |  ";
 	ss << this->typeInternalsToString();
 
 	return ss.str();
@@ -357,7 +356,6 @@ void Loop::printAllMoves(Loop* from) {
 
 	// Doing a short version of the print here
 	std::cout << toString();
-	std::cout << "\n";
 
 	moves->printAllMoves(energyModel->useArrhenius());
 
@@ -2720,11 +2718,9 @@ string StackLoop::typeInternalsToString(void) {
 
 	ss << "(" << baseTypeString[seqs[0][0]] << "/";
 	ss << baseTypeString[seqs[1][1]] << ", ";
-
 	ss << baseTypeString[seqs[0][1]] << "/";
 	ss << baseTypeString[seqs[1][0]];
-
-	ss << ") \n";
+	ss << ")" << endl;
 
 	return ss.str();
 
@@ -2759,7 +2755,7 @@ string HairpinLoop::typeInternalsToString(void) {
 
 	std::stringstream ss;
 
-	ss << "seq= " << utility::sequenceToString(hairpin_seq, hairpinsize) << "\n";
+	ss << "seq= " << utility::sequenceToString(hairpin_seq, hairpinsize) << endl;
 
 	return ss.str();
 
@@ -3027,8 +3023,8 @@ string BulgeLoop::typeInternalsToString(void) {
 
 	std::stringstream ss;
 
-	ss << " seq0=" << utility::sequenceToString(bulge_seq[0], bulgesize[0]) << " \n";
-	ss << " seq1= " << utility::sequenceToString(bulge_seq[1], bulgesize[1]) << "\n";
+	ss << " seq0=" << utility::sequenceToString(bulge_seq[0], bulgesize[0]) << endl;
+	ss << " seq1= " << utility::sequenceToString(bulge_seq[1], bulgesize[1]) << endl;
 
 	return ss.str();
 
@@ -3309,8 +3305,8 @@ string InteriorLoop::typeInternalsToString(void) {
 
 	std::stringstream ss;
 
-	ss << " seq0=" << utility::sequenceToString(int_seq[0], sizes[0] + 1) << " \n";
-	ss << " seq1= " << utility::sequenceToString(int_seq[1], sizes[1] + 1) << "\n";
+	ss << " seq0=" << utility::sequenceToString(int_seq[0], sizes[0] + 1) << endl;
+	ss << " seq1=" << utility::sequenceToString(int_seq[1], sizes[1] + 1) << endl;
 
 	return ss.str();
 
@@ -3712,15 +3708,15 @@ string MultiLoop::typeInternalsToString(void) {
 
 	std::stringstream ss;
 
-	ss << "sideLength = ";
+	ss << "numAdjacent = " << numAdjacent << ", sideLength = ";
 
-	for (int i = 0; i < numAdjacent + 1; i++) {
+	for (int i = 0; i < numAdjacent; i++) {
 
-		ss << sidelen[i];
+		ss << sidelen[i] << ",";
 
 	}
 
-	ss << "\n";
+	ss << 0 << endl;
 
 	return ss.str();
 
@@ -4338,9 +4334,7 @@ string OpenLoop::typeInternalsToString(void) {
 
 	}
 
-	ss << "  (size =" << numAdjacent << ")" << endl;
-
-	ss << " \n";
+	ss << "  (size = " << numAdjacent << ")" << endl;
 	ss << openInfo;
 
 	return ss.str();

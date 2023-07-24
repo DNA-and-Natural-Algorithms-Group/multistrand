@@ -86,9 +86,7 @@ std::ostream& operator<<(std::ostream &ss, OpenInfo& m) {
 	}
 
 	ss << "Intern / Total = " << m.numExposedInternal << " / ";
-	ss << m.numExposed << "	\n";
-
-	ss << "\n";
+	ss << m.numExposed << "\n";
 
 	return ss;
 

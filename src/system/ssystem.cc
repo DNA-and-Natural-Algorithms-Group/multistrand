@@ -815,7 +815,7 @@ void SimulationSystem::printAllMoves() {
 
 	complexList->initializeList();
 
-// also generate the half contexts
+	// also generate the half contexts
 	complexList->updateOpenInfo();
 
 	complexList->printComplexList();
@@ -827,24 +827,18 @@ void SimulationSystem::printAllMoves() {
 // FD: a simple peak into the initial state
 void SimulationSystem::initialInfo(void) {
 
-	if (InitializeSystem() != 0) {
+	if (InitializeSystem() != 0)
 		return;
-	}
 
 	printAllMoves();
 
 	// print info on bimolecular rates
 	double biRate = complexList->getJoinFlux();
-
-	cout << "\n";
-	cout << "JoinFlux is " << biRate << "\n";
-
+	cout << endl << "JoinFlux = " << biRate << endl;
 	biRate = biRate / energyModel->applyPrefactors(energyModel->getJoinRate(), loopMove, loopMove);
-
-	cout << "\n";
-	cout << "#nucleotide joins is " << biRate << endl;
-	cout << "joinrate is " << energyModel->applyPrefactors(energyModel->getJoinRate(), loopMove, loopMove) << " /s" << endl;
-	cout << "join concentration is " << energyModel->simOptions->energyOptions->getJoinConcentration() << endl;
+	cout << "#nucleotide joins = " << biRate << endl;
+	cout << "joinrate = " << energyModel->applyPrefactors(energyModel->getJoinRate(), loopMove, loopMove) << " /s" << endl;
+	cout << "join concentration = " << energyModel->simOptions->energyOptions->getJoinConcentration() << endl << flush;
 
 }
 
