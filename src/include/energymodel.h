@@ -253,7 +253,7 @@ private:
 	double bimolecular_penalty;
 	double bimolecular_penalty_dH;
 
-	// Kinetic rate toggle. 0 = kawasaki, 1 = metropolis, 2 = entropy/enthalpy, defaults to 2.
+	// Kinetic rate toggle. 1 = metropolis, 2 = kawasaki, 3 = arrhenius, defaults to 2.
 	long kinetic_rate_method;
 	double kBoltzmann;
 	double current_temp;

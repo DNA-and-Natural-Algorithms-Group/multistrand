@@ -66,7 +66,7 @@ double EnergyOptions::getJoinConcentration(void) {
 
 bool EnergyOptions::usingArrhenius(void) {
 
-	return (3 == kinetic_rate_method);
+	return (kinetic_rate_method == RATE_METHOD_ARRHENIUS);
 
 }
 
@@ -133,6 +133,7 @@ PEnergyOptions::PEnergyOptions(PyObject* input) :
 		cout << "  or set `Options.bimolecular_scaling` directly."<< endl;
 		cout << "  Reverting to `bimolecular_scaling = 1.38e+6` from `Options.JSDefault()`."<< endl;
 
+		kinetic_rate_method = RATE_METHOD_KAWASAKI;
 		biScale = 1.38e+6;
 	}
 	if(!usingArrhenius() && uniScale < 0.0){
@@ -141,6 +142,7 @@ PEnergyOptions::PEnergyOptions(PyObject* input) :
 		cout << "  or set `Options.unimolecular_scaling` directly."<< endl;
 		cout << "  Reverting to `unimolecular_scaling = 1.50e+08` from `Options.JSDefault()`."<< endl;
 
+		kinetic_rate_method = RATE_METHOD_KAWASAKI;
 		uniScale = 1.50e+08;
 	}
 
@@ -230,37 +232,3 @@ void PEnergyOptions::getParameterFile(char* input, PyObject* tempString) {
 	input = (char *) getStringAttrReify(python_settings, parameter_file, tempString);
 
 }
-
-// CENERGYOPTIONS
-
-CEnergyOptions::CEnergyOptions() :
-		EnergyOptions() {
-
-// extended constructor, inherits from regular energyOptions
-
-// some basic default values;
-	temperature = 310.15;
-	dangles = 1;
-	logml = 0;
-	gtenable = 1;
-	kinetic_rate_method = 1;
-
-	biScale = 1.38e+06;
-	uniScale = 1.5e+08;
-
-	joinConcentration = 1e-06;
-
-}
-
-bool CEnergyOptions::compareSubstrateType(long type) {
-
-	return (SUBSTRATE_DNA == type); // only test TRUE for when substrate is DNA.
-
-}
-
-// functionality to specify an energy file in a custom place for non-DNA/RNA substrates. unused atm.
-void CEnergyOptions::getParameterFile(char* input, PyObject* tempString) {
-
-	input = "";
-}
-

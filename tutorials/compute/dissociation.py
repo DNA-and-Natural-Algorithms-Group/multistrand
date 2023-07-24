@@ -19,8 +19,7 @@ def first_step_simulation(strand_seq, trials, temperature):
     def getOptions(trials):
         o = standardOptions(Literals.first_passage_time, temperature, trials, timeOut = 1000.0)
         dissociation(o, strand_seq, trials)
-        o.DNA23Metropolis()
-#         setArrheniusConstantsDNA23(o) # unreleased parameterization
+        o.DNA23Arrhenius()
         return o
       
     myMultistrand.setNumOfThreads(8)

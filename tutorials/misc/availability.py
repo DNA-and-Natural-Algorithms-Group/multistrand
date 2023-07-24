@@ -61,11 +61,8 @@ def doExperiment(trials):
     stdOptions.temperature = 25.0  # can run at higher temperature to increase leak rate.
     
     # rate model
-    stdOptions.DNA23Metropolis()
-    #setArrheniusConstantsDNA23(stdOptions)
+    stdOptions.DNA23Arrhenius()
     stdOptions.simulation_time = 10.0
-    
-    
     return stdOptions
 
     

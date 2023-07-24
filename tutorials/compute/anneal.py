@@ -21,8 +21,7 @@ def first_step_simulation(strand_seq, trials, temperature=25.0, sodium = 1.0, ma
         o = standardOptions(Literals.first_step, tempIn=temperature, trials=200, timeOut = 1.0)
         o.sodium = sodium 
         hybridization(o, strand_seq, trials)
-        o.DNA23Metropolis()
-#         setArrParams(o, 92) # the best DNA23 parameter set 
+        o.DNA23Arrhenius()
         return o
       
     myMultistrand.setNumOfThreads(6)

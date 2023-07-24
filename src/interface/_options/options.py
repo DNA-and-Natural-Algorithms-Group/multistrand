@@ -436,52 +436,82 @@ class Options(object):
     # and one setting for Metropolis rates derived for DNA23.
     
     def JSDefault(self):
-        """ Default rates from Joseph Schaeffer's thesis  """
-        self.unimolecular_scaling = 1.50e+08
-        self.bimolecular_scaling = 1.38e+06
+        """ Default rates (Kawasaki at 37 degree Celcius) from Joseph Schaeffer's thesis  """
+        self.JSKawasaki37()
     
     def JSMetropolis25(self):
         """ Default rates for Metropolis at 25 degree Celcius, from Joseph Schaeffer's thesis
         """
+        self.rate_method = Literals.metropolis
+
         self.unimolecular_scaling = 4.4e8
         self.bimolecular_scaling = 1.26e6
     
     def JSKawasaki25(self):
         """ Default rates for Kawasaki at 25 degree Celcius, from Joseph Schaeffer's thesis
         """
+        self.rate_method = Literals.kawasaki
+
         self.unimolecular_scaling = 6.1e7
         self.bimolecular_scaling = 1.29e6
     
     def JSKawasaki37(self):
         """ Default rates for Kawasaki at 37 degree Celcius, from Joseph Schaeffer's thesis
         """
+        self.rate_method = Literals.kawasaki
+
         self.unimolecular_scaling = 1.5e8
         self.bimolecular_scaling = 1.38e6
     
     def JSMetropolis37(self):
         """ Default rates for Metropolis at 37 degree Celcius, from Joseph Schaeffer's thesis
         """
+        self.rate_method = Literals.metropolis
+
         self.unimolecular_scaling = 7.3e8
         self.bimolecular_scaling = 1.40e6
 
     def DNA23Metropolis(self):
         """ 
         Parameters for Metropolis at 25 degree Celcius, from the DNA23 conference (55th walker)
+
+        Reference:
+        ----------
+        Zolaktaf, Sedigheh, Frits Dannenberg, Xander Rudelis, Anne Condon,
+        Joseph M. Schaeffer, Mark Schmidt, Chris Thachuk, and Erik Winfree.
+        2017. ‘Inferring Parameters for an Elementary Step Model of DNA
+        Structure Kinetics with Locally Context-Dependent Arrhenius Rates’. In
+        DNA Computing and Molecular Programming, edited by Robert Brijder and
+        Lulu Qian, 172–87. Lecture Notes in Computer Science. Cham: Springer
+        International Publishing. https://doi.org/10.1007/978-3-319-66799-7_12.
         """
+        self.rate_method = Literals.metropolis
+
         self.unimolecular_scaling = 2.41686715e+06
-        self.bimolecular_scaling = 8.01171383e+05 
+        self.bimolecular_scaling = 8.01171383e+05
     
     def DNA23Arrhenius(self):
+        """
+        Reference:
+        ----------
+        Zolaktaf, Sedigheh, Frits Dannenberg, Xander Rudelis, Anne Condon,
+        Joseph M. Schaeffer, Mark Schmidt, Chris Thachuk, and Erik Winfree.
+        2017. ‘Inferring Parameters for an Elementary Step Model of DNA
+        Structure Kinetics with Locally Context-Dependent Arrhenius Rates’. In
+        DNA Computing and Molecular Programming, edited by Robert Brijder and
+        Lulu Qian, 172–87. Lecture Notes in Computer Science. Cham: Springer
+        International Publishing. https://doi.org/10.1007/978-3-319-66799-7_12.
+        """
         self.rate_method = Literals.arrhenius
 
         self.lnAStack = 1.41839430e+01
         self.EStack = 5.28692038e+00
 
-        self.lnAEnd = 1.64236969e+01
-        self.EEnd = 4.46143369e+00
+        self.lnALoop = 1.64236969e+01
+        self.ELoop = 4.46143369e+00
 
-        self.lnALoop = 1.29648159e+01
-        self.ELoop = 3.49798154e+00
+        self.lnAEnd = 1.29648159e+01
+        self.EEnd = 3.49798154e+00
 
         self.lnAStackLoop = 5.81061725e+00
         self.EStackLoop = -1.12763854e+00
@@ -581,12 +611,10 @@ class Options(object):
 
     @property
     def boltzmann_sample(self):
-        
         raise ValueError('Options.boltzmann_sample is now depreciated. Use Complex.boltzmann_sample instead.')
         
     @boltzmann_sample.setter
     def boltzmann_sample(self, val):
-        
         raise ValueError('Options.boltzmann_sample is now depreciated. Use Complex.boltzmann_sample instead.')
             
     @property

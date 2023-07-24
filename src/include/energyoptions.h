@@ -112,18 +112,4 @@ protected:
 
 };
 
-class CEnergyOptions: public EnergyOptions {
-public:
-	// constructors
-	CEnergyOptions();
-
-	// implemented virtual
-	bool compareSubstrateType(long);
-	void getParameterFile(char*, PyObject*);
-
-protected:
-	// empty
-
-};
-
 #endif /* __ENERGYOPTIONS_H_ */

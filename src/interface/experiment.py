@@ -20,8 +20,6 @@ def standardOptions(simMode=Literals.first_step, tempIn=25.0, trials=10, timeOut
                      )
 
     output.DNA23Metropolis()
-    output.rate_method = Literals.metropolis
-
     return output
 
 
