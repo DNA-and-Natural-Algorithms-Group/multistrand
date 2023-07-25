@@ -12,8 +12,7 @@ from multistrand.system import SimSystem
 class Base_Objects_TestCase(unittest.TestCase):
     """
     This test case handles all the basic objects testing for python_objects.py.
-    Domain, Strand, Complex, StopCondition and RestingState should all be tested
-    here.
+    Domain, Strand, Complex, StopCondition and should all be tested here.
     """
     def checkDuplicates(self, seq ):
         """ Helper function to see if we duplicated the 'id' attribute or 'tag' attribute in an interable."""

@@ -38,7 +38,7 @@ Multistrand Core
    initialized via :func:`initialize_energy_model
    <multistrand.system.initialize_energy_model>` or via a SimSystem call.
 
-   :param start_state: A list of :class:`Complex <multistrand.objects.Complex>` or :class:`RestingState <multistrand.objects.RestingState>` objects.
+   :param start_state: A list of :class:`Complex <multistrand.objects.Complex>` objects.
    :param options: - With the default :obj:`None`, assume that the energy model
                      has already been initialized and raise an error
                      if there was energy model found.

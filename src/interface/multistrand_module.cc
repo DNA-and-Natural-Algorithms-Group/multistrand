@@ -404,7 +404,7 @@ static PyMethodDef System_methods[] = {
 	{ "energy", (PyCFunction) System_calculate_energy,
 	  METH_VARARGS, PyDoc_STR(" \
 energy( start_state, options=None, energy_type=0)\n\
-Computes the energy of the passed state [a list of complexes or resting states], using \
+Computes the energy of the passed state [a list of complexes], using \
 temperature, etc, settings from the options object passed.\n\n\
 Parameters\n\
 energy_type = options.Energy_Type.Loop_energy    : [default] no volume or association terms included. So only loop energies remain.\n\

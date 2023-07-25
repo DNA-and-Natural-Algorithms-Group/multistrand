@@ -6,6 +6,7 @@
 
 import copy
 from enum import IntEnum
+from typing import List
 
 from .interface import Interface
 from ..objects import Strand, Complex, StopCondition
@@ -113,8 +114,8 @@ class Options(object):
         Keyword Arguments:
         dangles -- Specifies the dangle terms used in the energy model.
                    Can be the strings 'None', 'Some', or 'All'.
-        start_state  [type=list]     -- A list of Complexes to 
-                                        use as the initial state of the system.
+        start_state  [type=list]     -- A list of Complexes to use as the
+                                        initial state of the system.
         simulation_time [type=float] -- Cap on the maximum simulation time.
         num_simulations [type=int]   -- Number of trajectories to run
         biscale         [type=float] -- Bimolecular scaling constant
@@ -190,7 +191,7 @@ class Options(object):
         #                                           #
         #############################################
         # See accessors below
-        self._start_state = []
+        self._start_state: List[Complex] = []
         
         self.gt_enable = True
         """ Allow GT base pairs? If not, penalize by 10000 kcal/mol.
@@ -426,9 +427,9 @@ class Options(object):
         else:
             warningmsg += "JS-Default"
             self.JSDefault()
-            
+
         print(warningmsg)
-        self.rate_scaling = None       
+        self.rate_scaling = None
         
     # FD, May 5th 2017
     # Supplying rate options for Metropolis and Kawasaki methods,
@@ -527,41 +528,41 @@ class Options(object):
         
         self.bimolecular_scaling = 1.60062641e-02
  
-    # FD: After temperature, substrate (RNA/DNA) or danlges is updated, we attempt to update boltzmann samples.
+    # FD: After temperature, substrate (RNA/DNA) or danlges is updated, we
+    # attempt to update boltzmann samples.
     def updateBoltzmannSamples(self):
+        for c in self._start_state:
+            c.set_boltzmann_parameters(
+                self.dangleToString[self.dangles],
+                self.substrateToString[self.substrate_type],
+                self._temperature_celsius, self.sodium, self.magnesium)
+            self.warn_Boltzmann_sample_wo_GT(c)
 
-        if len(self._start_state) > 0:
-                        
-            for c, s in self._start_state:
-                c.set_boltzmann_parameters(self.dangleToString[self.dangles], self.substrateToString[self.substrate_type], self._temperature_celsius, self.sodium, self.magnesium)
-    
-                if c.boltzmann_sample and not self.gt_enable:
-                    raise Warning("Attempting to use Boltzmann sampling but GT pairing is disabled. Energy model of Multistrand will not match that of the NUPACK sampling method.")
-    
+    def warn_Boltzmann_sample_wo_GT(self, c: Complex):
+        if c.boltzmann_sample and not self.gt_enable:
+            raise Warning(
+                "Attempting to use Boltzmann sampling, but GT pairing is "
+                "disabled. Energy model of Multistrand will not match that of "
+                "the NUPACK sampling method.")
+
     @property
     def bimolecular_scaling(self):
-
         if self.rate_scaling != None :
             self.legacyRates()
-         
         return self._bimolecular_scaling
  
     @bimolecular_scaling.setter
     def bimolecular_scaling(self, val):
-                  
         self._bimolecular_scaling = float(val)
  
     @property
     def unimolecular_scaling(self):
-         
         if self.rate_scaling != None :
             self.legacyRates()
-         
         return self._unimolecular_scaling  
     
     @unimolecular_scaling.setter
     def unimolecular_scaling(self, val):
-                  
         self._unimolecular_scaling = float(val)
         
 # FD: Shadow variables for danlges only because we need to observe changes (and update boltzmann samples accordingly)
@@ -612,11 +613,11 @@ class Options(object):
     @property
     def boltzmann_sample(self):
         raise ValueError('Options.boltzmann_sample is now depreciated. Use Complex.boltzmann_sample instead.')
-        
+
     @boltzmann_sample.setter
     def boltzmann_sample(self, val):
         raise ValueError('Options.boltzmann_sample is now depreciated. Use Complex.boltzmann_sample instead.')
-            
+
     @property
     def start_state(self):
         """ Get the start state, i.e. a list of Complex objects.
@@ -627,16 +628,8 @@ class Options(object):
         This should be used by ssystem.cc to get the (potentially sampled) 
         start state.
         """
+        return self._start_state
 
-        def process_state(x):
-            cmplx, rest_state = x
-            if rest_state is None:
-                return cmplx
-            else:
-                return rest_state.get_starting_complex()
-            
-        return [process_state(s) for s in self._start_state]
-    
     @start_state.setter
     def start_state(self, *args):
         """ Set the start state, i.e. a list of Complex objects.
@@ -657,32 +650,28 @@ class Options(object):
         # Copy the input list because it's easy to do and it's safer
         
         if isinstance(args[0], Complex):
-            # args is a list of complexes or resting states.
+            # args is a list of complexes
             vals = copy.deepcopy(args) 
         elif len(args) == 1 and hasattr(args[0], "__iter__"):
             vals = copy.deepcopy(args[0])
         else:
             raise ValueError("Could not comprehend the start state you gave me.")
 
-        # vals is now an iterable over our starting configuration, be
-        # it complexes or resting states.
-        
+        # vals is now an iterable over our starting configuration
         for i in vals:
-            if not isinstance(i, Complex) :
-                raise ValueError("Start states must be complexes. Received something of type {0}.".format(type(i)))
-        
-            self._add_start_complex(i)
+            if isinstance(i, Complex):
+                self._add_start_complex(i)
+            else:
+                raise TypeError(f"Start states must be Complexes. "
+                                f"Received something of type {type(i)}.")
 
-    def _add_start_complex(self, item):
-        if isinstance(item, Complex):
-            self._start_state.append((item, None))
-            item.set_boltzmann_parameters(self.dangleToString[self.dangles], self.substrateToString[self.substrate_type], self._temperature_celsius, self._sodium, self._magnesium)
-            
-            if not self.gt_enable and item.boltzmann_sample:
-                raise Warning("Attempting to use Boltzmann sampling but GT pairing is disabled. Energy model of Multistrand will not match that of the NUPACK sampling method.")
-            
-        else:
-            raise ValueError('Expected a Complex as starting state.')
+    def _add_start_complex(self, c: Complex):
+        self._start_state.append(c)
+        c.set_boltzmann_parameters(
+            self.dangleToString[self.dangles],
+            self.substrateToString[self.substrate_type],
+            self._temperature_celsius, self._sodium, self._magnesium)
+        self.warn_Boltzmann_sample_wo_GT(c)
 
     @property
     def initial_seed_flag(self):
@@ -717,7 +706,7 @@ class Options(object):
         # Type checking
         for item in stop_list:
             if not isinstance(item, StopCondition):
-                raise TypeError("All items must be 'StopCondition', not '{0}'.".format(type(item)))
+                raise TypeError(f"All items must be 'StopCondition', not '{type(item)}'.")
         
         # Copy the input list because it's easy to do and it's safer
         stop_list = copy.deepcopy(stop_list)
@@ -953,25 +942,11 @@ class Options(object):
 
     @interface_current_seed.setter
     def interface_current_seed(self, val):
-        
         self.interface.current_seed = val
-        
-        def get_structure(s):
-            if s.boltzmann_sample:
-                return s._last_boltzmann_structure
-            else:
-                return s._fixed_structure
-        
-        def process_state(x):
-            cmplx, rest_state = x
-            if rest_state is None:
-                return get_structure(cmplx)
-            else:
-                return get_structure(rest_state.get_starting_complex())
-        
-        structures = [process_state(s) for s in self._start_state]
-        
-        self.interface.start_structures[val] = structures
+        get_structure = lambda s: (s._last_boltzmann_structure
+                                   if s.boltzmann_sample else s._fixed_structure)
+        self.interface.start_structures[val] = list(
+            map(get_structure, self._start_state))
 
     @property
     def increment_trajectory_count(self):
