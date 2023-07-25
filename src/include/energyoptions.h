@@ -43,7 +43,7 @@ public:
 	string toString(void);
 
 	// virtual
-	virtual bool compareSubstrateType(long) =0;
+	virtual bool compareSubstrateType(int) =0;
 	virtual void getParameterFile(char*, PyObject*) = 0;
 
 	// unprotected Arrhenius variables
@@ -92,9 +92,6 @@ protected:
 	double biScale;
 	double uniScale;
 
-	// not sure if these are long
-	long substrate_type;
-
 
 };
 
@@ -104,7 +101,7 @@ public:
 	PEnergyOptions(PyObject*);
 
 	// implemented virtual
-	bool compareSubstrateType(long);
+	bool compareSubstrateType(int);
 	void getParameterFile(char*, PyObject*);
 
 protected:

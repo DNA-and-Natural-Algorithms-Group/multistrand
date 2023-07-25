@@ -88,9 +88,6 @@ double EnergyOptions::getUniScale(void) {
 
 string EnergyOptions::toString(void) {
 
-// not sure if these are long
-	long substrate_type = NULL;
-
 	std::stringstream ss;
 
 	ss << "temperature = " << temperature << " \n";
@@ -101,7 +98,6 @@ string EnergyOptions::toString(void) {
 	ss << "joinConcentration = " << joinConcentration << " \n";
 	ss << "biScale = " << biScale << " \n";
 	ss << "uniScale = " << uniScale << " \n";
-	ss << " substrate_type = " << substrate_type << " \n";
 
 	string output = ss.str();
 
@@ -112,18 +108,18 @@ string EnergyOptions::toString(void) {
 PEnergyOptions::PEnergyOptions(PyObject* input) :
 		EnergyOptions() {
 
-// extended constructor, inherits from regular energyOptions
+	// extended constructor, inherits from regular energyOptions
 
 	python_settings = input;
 
-	getDoubleAttr(python_settings, temperature, &temperature);
-	getLongAttr(python_settings, dangles, &dangles);
+	getDoubleAttrReify(python_settings, temperature, &temperature);
+	getLongAttrReify(python_settings, dangles, &dangles);
 	getLongAttr(python_settings, log_ml, &logml);
 	getBoolAttr(python_settings, gt_enable, &gtenable);
 	getLongAttr(python_settings, rate_method, &kinetic_rate_method);
 
-	getDoubleAttr(python_settings, bimolecular_scaling, &biScale);
-	getDoubleAttr(python_settings, unimolecular_scaling, &uniScale);
+	getDoubleAttrReify(python_settings, bimolecular_scaling, &biScale);
+	getDoubleAttrReify(python_settings, unimolecular_scaling, &uniScale);
 	getDoubleAttr(python_settings, join_concentration, &joinConcentration);
 
 
@@ -200,8 +196,8 @@ PEnergyOptions::PEnergyOptions(PyObject* input) :
 	}
 
 	// ionic conditions
-	getDoubleAttr(python_settings, sodium, &sodium);
-	getDoubleAttr(python_settings, magnesium, &magnesium);
+	getDoubleAttrReify(python_settings, sodium, &sodium);
+	getDoubleAttrReify(python_settings, magnesium, &magnesium);
 
 	if (magnesium < 0.00 || magnesium > 0.2) {
 
@@ -221,7 +217,7 @@ PEnergyOptions::PEnergyOptions(PyObject* input) :
 
 }
 
-bool PEnergyOptions::compareSubstrateType(long type) {
+bool PEnergyOptions::compareSubstrateType(int type) {
 
 	return testLongAttr(python_settings, substrate_type, =, type);
 

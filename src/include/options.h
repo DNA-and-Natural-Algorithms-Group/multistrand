@@ -59,9 +59,16 @@ help@multistrand.org
 
 #define _m_getAttr_DECREF( obj, name, function, pvar, vartype ) \
   do {                                                          \
-    PyObject *_m_attr = PyObject_GetAttrString( obj, name);     \
+    PyObject *_m_attr = PyObject_GetAttrString(obj, name);      \
     *(vartype *)(pvar) = function(_m_attr);                     \
     Py_DECREF(_m_attr);                                         \
+  } while(0)
+
+#define _m_reify_getAttr_DECREF(obj, name, function, pvar, vartype) \
+  do {                                                              \
+    PyObject *_m_attr = _m_reify_GetAttrString(obj, name);          \
+    *(vartype *)(pvar) = function(_m_attr);                         \
+    Py_DECREF(_m_attr);                                             \
   } while(0)
 
 #define _m_setAttr_DECREF( obj, name, function, arg ) \
@@ -83,8 +90,11 @@ help@multistrand.org
 
 // Accessors (no ref counting needed )
 #define getBoolAttr(obj, name, pvar) _m_getAttr_DECREF(obj, #name, PyLong_AS_LONG, pvar, bool)
+#define getBoolAttrReify(obj, name, pvar) _m_reify_getAttr_DECREF(obj, #name, PyLong_AS_LONG, pvar, bool)
 #define getLongAttr(obj, name, pvar) _m_getAttr_DECREF(obj, #name, PyLong_AS_LONG, pvar, long)
+#define getLongAttrReify(obj, name, pvar) _m_reify_getAttr_DECREF(obj, #name, PyLong_AS_LONG, pvar, long)
 #define getDoubleAttr(obj, name, pvar) _m_getAttr_DECREF(obj, #name, PyFloat_AS_DOUBLE, pvar, double)
+#define getDoubleAttrReify(obj, name, pvar) _m_reify_getAttr_DECREF(obj, #name, PyFloat_AS_DOUBLE, pvar, double)
 
 // Accessors (borrowed refs only)
 #define getLongItem(list, index) PyLong_AS_LONG(PyList_GET_ITEM(list, index))
@@ -188,6 +198,24 @@ help@multistrand.org
     }                                                                   \
   } while(0)
 
+#define _m_d_reify_getAttr_DECREF( obj, name, pvar, c_type_name, py_type, py_c_type ) \
+  do {                                                                  \
+    PyObject *_m_attr = _m_reify_GetAttrString( obj, name);             \
+    if( _m_attr == NULL && PyErr_Occurred() != NULL)                    \
+      _m_printPyError_withLineNumber();                                 \
+    else if (_m_attr == NULL )                                          \
+      fprintf(stderr,"WARNING: _m_d_reify_getAttr_DECREF: No error occurred,\
+ but the returned pointer was still NULL!\n"); \
+    else                                                                \
+    {                                                                   \
+      if( !Py##py_type##_Check( _m_attr ) )                             \
+          fprintf(stderr,"WARNING: _m_d_reify_getAttr_DECREF: The value returned by attribute '%s' was not the expected type!\n", name); \
+      else                                                              \
+        *(c_type_name *)(pvar) = Py##py_type##_AS_##py_c_type(_m_attr); \
+      Py_DECREF(_m_attr);                                               \
+    }                                                                   \
+  } while(0)
+
 #define _m_d_setAttr_DECREF( obj, name, function, arg )                 \
   do {                                                                  \
     PyObject *val = function(arg);                                      \
@@ -221,8 +249,11 @@ help@multistrand.org
 // NOTE: these three use a different footprint for the _m_getAttr_DECREF, as they need to check
 // the python object type.
 #define getBoolAttr(obj, name, pvar) _m_d_getAttr_DECREF(obj, #name, pvar, bool, Long, LONG)
+#define getBoolAttrReify(obj, name, pvar) _m_d_reify_getAttr_DECREF(obj, #name, pvar, bool, Long, LONG)
 #define getLongAttr(obj, name, pvar) _m_d_getAttr_DECREF(obj, #name, pvar, long, Long, LONG)
+#define getLongAttrReify(obj, name, pvar) _m_d_reify_getAttr_DECREF(obj, #name, pvar, long, Long, LONG)
 #define getDoubleAttr(obj, name, pvar) _m_d_getAttr_DECREF(obj, #name, pvar, double, Float, DOUBLE)
+#define getDoubleAttrReify(obj, name, pvar) _m_d_reify_getAttr_DECREF(obj, #name, pvar, double, Float, DOUBLE)
 
 #define pingAttr(obj, name) {                                 \
     PyObject *_m_attr = _m_reify_GetAttrString(obj, #name);   \
