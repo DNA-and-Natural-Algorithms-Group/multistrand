@@ -142,7 +142,7 @@ class Options(object):
         ##################################################
         
         """ Pipe to let Multistrand know the version from ../__init__.py """
-        self.ms_version = float(__version__)  
+        self.ms_version = float(__version__)
         
         self.errorlog = []
         """ Keeps lines relating to possible errors or warnings that

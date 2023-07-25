@@ -12,21 +12,18 @@
     The MergeSim.run() method always returns of the MergeResult sub-classes.
     
 """
-import operator
-import os
 import time
 import datetime
 import math
-import traceback
 import copy
 import sys
-import random
-
-from multistrand.options import Options, Literals
 import multiprocessing
+
 import numpy as np
 
-from multistrand.system import SimSystem
+from .options import Literals
+from .system import SimSystem
+from .__init__ import __version__
 
 MINIMUM_RATE = 1e-36
 
@@ -546,8 +543,8 @@ class MergeSim(object):
 
     def __init__(self, settings=None):
         self.initializationTime = time.time()
-        print("%s%s" % (timeStamp(),
-                        "  Starting Multistrand 2.1      (c) 2008-2017 Caltech      "))
+        print(f"{timeStamp()}   Starting Multistrand {__version__}      "
+              f"(c) 2008-2017 Caltech      ")
 
         self.factory = optionsFactory
         self.aFactory = None
