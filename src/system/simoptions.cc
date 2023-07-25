@@ -53,12 +53,8 @@ PSimOptions::PSimOptions(PyObject* input) :
 	// initializers calling python object -- these can use a super object getter.
 	// Not clear at the moment if calling all settings is possible without crashing.
 	getBoolAttr(python_settings, initial_seed_flag, &fixedRandomSeed);
-
-	if (fixedRandomSeed) {
-
+	if (fixedRandomSeed)
 		getLongAttr(python_settings, initial_seed, &seed);
-
-	}
 
 	energyOptions = new PEnergyOptions(python_settings);
 

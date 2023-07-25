@@ -1,13 +1,18 @@
+
+from typing import Optional
+
 from .constants import OptionsConstants
 
+
 Constants = OptionsConstants()
+
 
 class Interface(object):
     def __init__(self):
         """ Sets some default values for the Interface, in addition to
         initializing the current results list, etc."""
                
-        self.current_seed = None
+        self.current_seed: Optional[int] = None
         """ The seed used by the random number generator in the most recently
         completed trajectory.
         

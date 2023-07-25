@@ -61,6 +61,11 @@ help@multistrand.org
   do {                                                          \
     PyObject *_m_attr = PyObject_GetAttrString(obj, name);      \
     *(vartype *)(pvar) = function(_m_attr);                     \
+    /* If this assertion fails, most likely the Python type cast `function`
+     * failed, unless `PyErr_Occurred()` was flagged earlier but was not
+     * detected by Multistrand until now. Recompile with DEBUG_MACROS, which
+     * adds explicit type checks (_m_d_getAttr_DECREF). */      \
+    assert(PyErr_Occurred() == NULL);                           \
     Py_DECREF(_m_attr);                                         \
   } while(0)
 
@@ -68,6 +73,11 @@ help@multistrand.org
   do {                                                              \
     PyObject *_m_attr = _m_reify_GetAttrString(obj, name);          \
     *(vartype *)(pvar) = function(_m_attr);                         \
+    /* If this assertion fails, most likely the Python type cast `function`
+     * failed, unless `PyErr_Occurred()` was flagged earlier but was not
+     * detected by Multistrand until now. Recompile with DEBUG_MACROS, which
+     * adds explicit type checks (_m_d_reify_getAttr_DECREF). */    \
+    assert(PyErr_Occurred() == NULL);                               \
     Py_DECREF(_m_attr);                                             \
   } while(0)
 
