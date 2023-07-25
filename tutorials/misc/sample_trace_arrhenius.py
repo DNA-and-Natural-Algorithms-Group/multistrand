@@ -4,61 +4,31 @@
     The interface is not finalized.
 """
 
+from multistrand._options.options import Options
 from multistrand.experiment import standardOptions, hybridization
 from multistrand.builder import codeToDesc
 from multistrand.system import SimSystem
+from multistrand.utils import printTrajectory
 
-ATIME_OUT = 0.001
 
-
-def printTrajectory(o):
-    
-    seqstring = ""
-    for i in range(len(o.full_trajectory)):
-    
-        time = 1e3 * o.full_trajectory_times[i]
-        states = o.full_trajectory[i]
-        
-        ids = []
-        newseqs = []
-        structs = []
-        dG = 0.0;
-        
-        pairTypes = []
-        arrType = o.full_trajectory_arrType[i]
-        for state in states:
-            ids += [ str(state[2]) ]
-            newseqs += [ state[3] ]  # extract the strand sequences in each complex (joined by "+" for multistranded complexes)
-            structs += [ state[4] ]  # similarly extract the secondary structures for each complex
-            dG += dG + state[5]
-
-        newseqstring = ' '.join(newseqs)  # make a space-separated string of complexes, to represent the whole tube system sequence
-        tubestruct = ' '.join(structs)  # give the dot-paren secondary structure for the whole test tube
-        
-        if not newseqstring == seqstring : 
-            print(newseqstring)
-            seqstring = newseqstring  # because strand order can change upon association of dissociation, print it when it changes        
-
-        print(f"{tubestruct}   t={time:.6f} ms,  dG={dG:3.2f} kcal/mol,  "
-              f"Type:  {codeToDesc(arrType)[0]} {codeToDesc(arrType)[1]}")
+def arr_move_type(o: Options, i: int):
+    desc = codeToDesc(o.full_trajectory_arrType[i])
+    return f"Type: {desc[0]} {desc[1]}"
 
 
 def doSims(strandSeq, numTraj=2):
+    o = standardOptions()
+    o.num_simulations = numTraj
+    o.output_interval = 1
+    o.simulation_time = 0.001
+    hybridization(o, strandSeq)
+    o.DNA23Arrhenius()
+    o.initial_seed = 1777 + 6
 
-    o1 = standardOptions()
-    o1.num_simulations = numTraj
-    o1.output_interval = 1 
-    o1.simulation_time = ATIME_OUT
-    hybridization(o1, strandSeq)
-    o1.DNA23Arrhenius()
-    o1.initial_seed = 1777 + 6
-
-    s = SimSystem(o1)
+    s = SimSystem(o)
     s.start()
-    printTrajectory(o1)        
+    printTrajectory(o, feature=arr_move_type)
 
     
-# # The actual main method
 if __name__ == '__main__':
-    
     doSims("GCGTTTCAC", 1)

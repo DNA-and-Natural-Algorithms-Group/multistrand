@@ -10,28 +10,26 @@ def setBoltzmann(complexIn, trials, supersample=1):
     complexIn.boltzmann_sample = True
 
 
-# easy handle for options creation
-def standardOptions(simMode=Literals.first_step, tempIn=25.0, trials=10, timeOut=0.1):
-
+def standardOptions(simMode=Literals.first_step,
+                    tempIn=Options.ZERO_C_IN_K + 25.0, trials=10, timeOut=0.1):
+    """
+    Easy handle for options creation.
+    """
     output = Options(simulation_mode=simMode,
                      num_simulations=trials,
                      simulation_time=timeOut,
-                     temperature=tempIn
-                     )
-
+                     temperature=tempIn)
     output.DNA23Metropolis()
     return output
 
 
-''' Creates a Complex when given a list of sequences and a dotparen
-    When ids are set, the strands will be given an ID after creation, 
-    which is important when combining Builder objects: Strands should have equal 
-    names and IDs in order to merge the statespaces correctly.
-'''
-
-
 def makeComplex(sequences, dotparen, ids=None):
-
+    """
+    Creates a Complex when given a list of sequences and a dotparen
+    When ids are set, the strands will be given an ID after creation,
+    which is important when combining Builder objects: Strands should have equal
+    names and IDs in order to merge the statespaces correctly.
+    """
     strandList = []
 
     for i in range(len(sequences)):

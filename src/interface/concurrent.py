@@ -23,6 +23,7 @@ import numpy as np
 
 from .options import Literals
 from .system import SimSystem
+from .utils import printTrajectory
 from .__init__ import __version__
 
 MINIMUM_RATE = 1e-36
@@ -653,31 +654,7 @@ class MergeSim(object):
         s = SimSystem(o1)
         s.start()
 
-        seqstring = " "
-        for i in range(len(o1.full_trajectory)):
-            timeT = 1e3 * o1.full_trajectory_times[i]
-            states = o1.full_trajectory[i]
-            
-            ids = []
-            newseqs = []
-            structs = []
-            dG = 0.0;
-            
-            pairTypes = []
-            for state in states:
-                ids += [ str(state[2]) ]
-                newseqs += [ state[3] ]  # extract the strand sequences in each complex (joined by "+" for multistranded complexes)
-                structs += [ state[4] ]  # similarly extract the secondary structures for each complex
-                dG += dG + state[5]
-                
-            newseqstring = ' '.join(newseqs)  # make a space-separated string of complexes, to represent the whole tube system sequence
-            tubestruct = ' '.join(structs)  # give the dot-paren secondary structure for the whole test tube
-            
-            if not newseqstring == seqstring : 
-                print(newseqstring)
-                seqstring = newseqstring  # because strand order can change upon association of dissociation, print it when it changes        
-    
-            print(f"{tubestruct}   t={timeT:.6f} ms,  dG={dG:3.2f} kcal/mol  ")
+        printTrajectory(o1)
 
     def initialInfo(self):
         myOptions = self.factory.new(777)

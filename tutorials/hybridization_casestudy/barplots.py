@@ -9,8 +9,8 @@ import sys
 
 from multistrand.experiment import standardOptions, hairpinclosing, hairpinopening
 from multistrand.objects import StopCondition, Complex, Domain, Strand
-from multistrand.options import Options, Literals
-from multistrand.utils import standardFileName
+from multistrand.options import Literals
+from multistrand.utils import standardFileName, printTrajectory, dGC_feature
 from multistrand.concurrent import MergeSim
 from multistrand.system import SimSystem
 
@@ -454,65 +454,20 @@ def makePlots(settings):
         settings.type = enum_rickettsia 
 
 
-def printTrajectory(o):
-    
-    seqstring = ""
-    
-    for i in range(len(o.full_trajectory)):
-    
-        time = 1e9 * o.full_trajectory_times[i]
-        states = o.full_trajectory[i]
-        
-        ids = []
-        newseqs = []
-        structs = []
-        dG = 0.0;
-        dGC = 0.0
-        
-        pairTypes = []
-        
-        for state in states: 
-            
-            ids += [ str(state[2]) ]
-            newseqs += [ state[3] ]  # extract the strand sequences in each complex (joined by "+" for multistranded complexes)
-            structs += [ state[4] ]  # similarly extract the secondary structures for each complex
-            dG += dG + state[5]
-            
-            dGC += (state[5] - (o._temperature_kelvin * 0.0019872036 * np.log(1.0 / o.join_concentration) * state[4].count("+"))) 
-            
-#             print "count is  " +  str(state[4].count("+"))
-#             print "join conc is " + str(o.join_concentration)
-#             print "dG-Complex is " + "%.2f" % dGC + " kcal/mol  for " + str(state[3]) 
-            
-        newseqstring = ' '.join(newseqs)  # make a space-separated string of complexes, to represent the whole tube system sequence
-        tubestruct = ' '.join(structs)  # give the dot-paren secondary structure for the whole test tube
-        
-        if not newseqstring == seqstring : 
-            print(newseqstring)
-            seqstring = newseqstring  # because strand order can change upon association of dissociation, print it when it changes        
-
-        print(f'{tubestruct}   t={time:.3f} ns,  dG={dG:3.2f} kcal/mol, dGC={dGC:3.2f} kcal/mol   ')
-
-
 def debugTester():
-        """" Debug tester. """
-             
-        options = simulationRickettsia(trialsIn=1)
-        options.simulation_mode = Literals.trajectory
-        options.output_interval = 10000
-        options.temperature = 25.0
-        options.simulation_time = 5.0e-1
-        options.join_concentration = 0.1
-        s = SimSystem(options)
-        s.start()
-        printTrajectory(options)    
+    """" Debug tester. """
+    options = simulationRickettsia(trialsIn=1)
+    options.simulation_mode = Literals.trajectory
+    options.output_interval = 10000
+    options.temperature = 25.0
+    options.simulation_time = 5.0e-1
+    options.join_concentration = 0.1
+    s = SimSystem(options)
+    s.start()
+    printTrajectory(options, timescale=(1e9, "ns"), feature=dGC_feature)
 
 
-# The actual main method
 if __name__ == '__main__':
-
-    print(sys.argv)
-
     if len(sys.argv) > 2:
         
         NUM_PROCESS = int(sys.argv[1])
