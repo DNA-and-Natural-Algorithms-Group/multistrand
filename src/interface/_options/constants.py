@@ -7,7 +7,7 @@
 ################################################################################
 
 
-class OptionsConstants( object ):
+class OptionsConstants:
 
     @property
     def STOPRESULT(self):
