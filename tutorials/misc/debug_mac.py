@@ -11,7 +11,7 @@ from multistrand.utils import printTrajectory
 from multistrand.experiment import standardOptions, makeComplex
 
     
-def doSims(numTraj=2):
+def doSims(numTraj=1):
     o = standardOptions()
 
     o.simulation_mode = Literals.first_step
@@ -21,14 +21,13 @@ def doSims(numTraj=2):
     
     myComplex1 = makeComplex(["GTCACTGCTTTT"], "............")
     myComplex2 = makeComplex(["GTCACTGC", "GCAGTGAC"], ".(((((((+))))))).")
-
     o.start_state = [myComplex1, myComplex2]
-
     # myComplex = makeComplex(["GTCACTGCTTTT","GTCACTGC","GCAGTGAC"], "..(.........+).((((((+))))))..")
     # o.start_state = [myComplex]
 
     # no stop conditions, just timeout.
     o.initial_seed = time.time() * 1000000
+    o.verbosity = 3
     # o.initial_seed = 1501710503137097
 
     s = SimSystem(o)
@@ -36,9 +35,16 @@ def doSims(numTraj=2):
     printTrajectory(o)
     print()
     print()
+    return o, s
+
+
+def main():
+    o, s = None, None
+    for _ in range(1000):
+        time.sleep(0.000001)
+        o, s = doSims()
+    return o, s
 
 
 if __name__ == '__main__':
-    for i in range(1000):
-        time.sleep(0.000001)
-        doSims(1)
+    main()

@@ -16,7 +16,7 @@ def arr_move_type(o: Options, i: int):
     return f"Type: {desc[0]} {desc[1]}"
 
 
-def doSims(strandSeq, numTraj=2):
+def doSims(strandSeq, numTraj=1):
     o = standardOptions()
     o.num_simulations = numTraj
     o.output_interval = 1
@@ -29,6 +29,12 @@ def doSims(strandSeq, numTraj=2):
     s.start()
     printTrajectory(o, feature=arr_move_type)
 
+    return o, s
+
     
+def main():
+    return doSims("GCGTTTCAC")
+
+
 if __name__ == '__main__':
-    doSims("GCGTTTCAC", 1)
+    main()
