@@ -90,8 +90,9 @@ def uniqueStateID(idsList, structsList):
 
 # ## Pairtype util
 def pairType(ids, structs):
-    """Given identifiers and dot-parens for a complex, 
-        pairType returns a unique identifier for that secondary structure
+    """
+    Given identifiers and dot-parens for a complex,
+    pairType returns a unique identifier for that secondary structure.
     """
 
     # utility function
@@ -109,15 +110,20 @@ def pairType(ids, structs):
                 output[currIndex - 1] = otherIndex
                 output[otherIndex - 1] = currIndex
             elif not c == '.':
-                raise Warning('There is an error in the dot paren structure -- PairType function') 
+                raise Warning('There is an error in the dot paren structure -- PairType function')
             index += 1
     
     idList = ids.split(',')
-    nList = []
-    for id in idList:
-        id = id.split(":")[1]
-        nList.append(id)
-    idList = nList
+    if all(id_.count(":") == 0 for id_ in idList):
+        pass
+    elif all(id_.count(":") == 1 for id_ in idList):
+        nList = []
+        for id_ in idList:
+            id_ = id_.split(":")[1]
+            nList.append(id_)
+        idList = nList
+    else:
+        raise ValueError("Unsupported strand labelling.")
     
     dotParens = structs.split('+') 
     N = len(dotParens)
@@ -137,8 +143,7 @@ def pairType(ids, structs):
 
     myStack = []
     output = [0, ] * sum([len(dp) for dp in dotParens])
-    myEnum = enumerate(idList)
-    for index, val in myEnum:
+    for index in range(len(idList)):
         generatePairing(dotParens[index], myStack, offsets[index], output)
 #     str_output = ''.join([str(x) for x in output])
 #     return (idString, str_output)
@@ -155,7 +160,7 @@ def generate_sequence(n, allowed_bases=['G', 'C', 'T', 'A'], base_probability=No
     
     result = ""
     if base_probability is None:
-        return result.join([random.choice(allowed_bases) for i in range(n)])
+        return result.join([random.choice(allowed_bases) for _ in range(n)])
     else:
         def uniform_seq(r):
             """ This function returns a lambda to be used on a sequence of tuples of
