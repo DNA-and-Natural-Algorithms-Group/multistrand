@@ -599,8 +599,9 @@ class Options(object):
         assert self.dangles in range(3)
         self.updateBoltzmannSamples()
         
-# FD: shadow parameter so that boltzmann samples can be updated when this parameter is set
-# FD: In a better control flow, complexes themselves might fetch the right constants just before evaluating their boltzmann samples 
+    # FD: Shadow parameter so that boltzmann samples can be updated when this
+    # parameter is set. In a better control flow, complexes themselves might fetch the right
+    # constants just before evaluating their boltzmann samples.
     @property
     def substrate_type(self):
         return self._substrate_type
@@ -651,7 +652,7 @@ class Options(object):
     @property
     def sodium(self):
         return self._sodium
-    
+
     @sodium.setter
     def sodium(self, value):
         self._sodium = float(value)

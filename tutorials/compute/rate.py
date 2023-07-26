@@ -1,5 +1,12 @@
-from .anneal import computeDissociationAndWriteToCL as computeDissociation
-from .anneal import computeAndWriteToCL as computeAnneal
+
+import sys
+from pathlib import Path
+sys.path.append(Path(__file__).resolve().as_posix())
+
+import multiprocess
+
+from anneal import computeAndWriteToCL as computeAnneal
+from dissociation import computeAndWriteToCL as computeDissociation
 
 import sys, time
 
@@ -11,24 +18,28 @@ def errorPrint():
     print("Example: rate.py dissociation ATGCAGT -bootstrap")
     exit()
 
-if(len(sys.argv) < 2):
-    errorPrint()
 
-start_time = time.time()
+def main():
+    if(len(sys.argv) < 2):
+        errorPrint()
 
-type = sys.argv[1]
-mySequence = sys.argv[2]
+    type = sys.argv[1]
+    mySequence = sys.argv[2]
+    start_time = time.time()
 
-doBootstrap = False
-if(len(sys.argv) > 3):
-    if(str(sys.argv[3])=="-bootstrap"):
-        doBootstrap = True
+    doBootstrap = False
+    if(len(sys.argv) > 3):
+        if(str(sys.argv[3])=="-bootstrap"):
+            doBootstrap = True
 
-if type == "dissociation":
-    result = computeDissociation(mySequence, doBootstrap)
-elif type == "hybridization":
-    result = computeAnneal(mySequence, doBootstrap)
-else:
-    errorPrint()
+    if type == "dissociation":
+        result = computeDissociation(mySequence, doBootstrap)
+    elif type == "hybridization":
+        result = computeAnneal(mySequence, doBootstrap)
+    else:
+        errorPrint()
+    print(f"Computing took {time.time() - start_time:.4f} s")
 
-# print(f"Computing took {time.time() - start_time:.4f} s")
+
+if __name__ == "__main__":
+    main()
