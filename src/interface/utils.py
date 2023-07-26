@@ -8,6 +8,9 @@ from ._objects.strand import Strand
 from nupack import mfe
 
 
+GAS_CONSTANT = 0.0019872036  # kcal / K mol
+
+
 def meltingTemperature(seq, concentration=1.0e-9):
     """
     Returns the melting temperature in Kelvin for a duplex of the given sequence.
@@ -15,8 +18,6 @@ def meltingTemperature(seq, concentration=1.0e-9):
     For shorter sequences, see notes on "Melting Temperature (Tm) Calculation" by biophp.org
     Specifically, look at basicTm vs Base-stacking Tm. FD mar 2018
     """
-    GAS_CONSTANT = 0.001987
-
     strand = Strand(sequence=seq)
 
     energy20 = (float(mfe([strand.sequence, strand.C.sequence ], material='dna', T=20.0)[0][1])

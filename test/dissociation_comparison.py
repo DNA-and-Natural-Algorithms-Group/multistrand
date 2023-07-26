@@ -8,10 +8,10 @@ NUPACK. As it turns out, using either method is equivalent, both for Arrhenius
 and Metropolis models.
 """
 
-GAS_CONSTANT_R = 0.0019872036
-
 import math
 import numpy as np
+
+from multistrand.utils import GAS_CONSTANT
 
 # FIXME: referring to tutorials/compute/anneal.py
 from anneal import compute as computeAnneal
@@ -39,7 +39,7 @@ def comparison(f):
     dG = pfunc([seq, seqC], [1, 2], T=(temp - 273.15), material="dna")
     print(str(dG))
     
-    kMinus = predictedA.k1() * math.exp(dG / (GAS_CONSTANT_R * temp))
+    kMinus = predictedA.k1() * math.exp(dG / (GAS_CONSTANT * temp))
     
     f.write(str("%0.3g" % np.log10(kMinus)) + "    ")
     f.write(str("%0.3g" % np.log10(predictedD.k1())) + "    ")

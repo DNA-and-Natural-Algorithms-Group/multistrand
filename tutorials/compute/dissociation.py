@@ -1,6 +1,6 @@
 
 from multistrand.options import Literals
-from multistrand.concurrent import MergeSim, Bootstrap
+from multistrand.concurrent import MergeSim, FirstPassageRate, Bootstrap
 from multistrand.experiment import standardOptions, dissociation
 
 
@@ -12,7 +12,7 @@ myMultistrand = MergeSim()
    
 # In the following file, we simply simulate the actual dissocation time and compute k- = 1/t. 
  
-def first_step_simulation(strand_seq, trials, temperature):
+def first_step_simulation(strand_seq, trials, temperature) -> FirstPassageRate:
  
     print(f"Running first passage time simulations for {strand_seq} (with Boltzmann sampling)...")
         
@@ -27,8 +27,7 @@ def first_step_simulation(strand_seq, trials, temperature):
     myMultistrand.setTerminationCriteria(500)
     myMultistrand.setPassageMode()
     myMultistrand.run()
-    
-    return myMultistrand.results    # this is a first passage rate object
+    return myMultistrand.results
 
 
 def compute(strand_seq, temperature=25):

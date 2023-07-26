@@ -1,19 +1,19 @@
 
 import math
 
-from multistrand.concurrent import MergeSim, Bootstrap
+from multistrand.concurrent import MergeSim, FirstStepRate, Bootstrap
 from multistrand.experiment import standardOptions, hybridization
 from multistrand.options import Literals
-from multistrand.utils import seqComplement
+from multistrand.utils import seqComplement, GAS_CONSTANT
 
 
-A_CONCENTRATION = 50e-9;
-GAS_CONSTANT_R = 0.0019872036
+A_CONCENTRATION = 50e-9
 
 myMultistrand = MergeSim()
    
  
-def first_step_simulation(strand_seq, trials, temperature=25.0, sodium = 1.0, material="DNA"):
+def first_step_simulation(strand_seq, trials, temperature=25.0, sodium = 1.0,
+                          material="DNA") -> FirstStepRate:
  
     print(f"Running first step mode simulations for {strand_seq} (with Boltzmann sampling)...")
         
@@ -29,8 +29,7 @@ def first_step_simulation(strand_seq, trials, temperature=25.0, sodium = 1.0, ma
     myMultistrand.setTerminationCriteria(500)
     myMultistrand.setLeakMode()
     myMultistrand.run()
-    
-    return myMultistrand.results    # this is a first step rate object
+    return myMultistrand.results
 
 
 def compute(strand_seq, temperature=25.0, sodium = 1.0):
@@ -68,7 +67,7 @@ def computeDissociationAndWriteToCL(strand_seq, doBootstrap):
     print(f"Using dG = {dG:.2e} kcal/mol, and k+ = {result.k1():.2e} /M /s "
           f"to compute the dissociation rate.")
         
-    kMinus = result.k1() * math.exp(dG / (GAS_CONSTANT_R * temp))
+    kMinus = result.k1() * math.exp(dG / (GAS_CONSTANT * temp))
     print(f"The dissociation rate of {strand_seq} and the reverse complement is "
           f"{kMinus:.2e} /M /s \n")
     
@@ -77,7 +76,7 @@ def computeDissociationAndWriteToCL(strand_seq, doBootstrap):
     
     if(doBootstrap):
         low, high = result.doBootstrap(NIn=1200)
-        kMinusLow = low * math.exp( dG / ( GAS_CONSTANT_R * temp) ) 
-        kMinusHigh = high * math.exp( dG / ( GAS_CONSTANT_R * temp) ) 
+        kMinusLow = low * math.exp( dG / ( GAS_CONSTANT * temp) )
+        kMinusHigh = high * math.exp( dG / ( GAS_CONSTANT * temp) )
 
         print(f"Estimated 95% confidence interval: [{kMinusLow:.2e},{kMinusHigh:.2e}]")
