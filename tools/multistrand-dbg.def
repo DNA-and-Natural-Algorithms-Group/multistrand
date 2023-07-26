@@ -59,7 +59,8 @@ From: ./multistrand.sif
     sudo cp ${CPY_SRC}/Tools/gdb/libpython.py ${GDB_DATA}/python/gdb/function
 
     # install Python environment
-    echo "\n\n\n" && pip3 install ipython pytest-xdist numpy scipy matplotlib
+    echo "\n\n\n" && pip3 install \
+        ipython pytest-xdist multiprocess numpy scipy matplotlib
 
     # install Multistrand
     echo "\n\n\n" && cp -r ${MS} ${MS_DBG}

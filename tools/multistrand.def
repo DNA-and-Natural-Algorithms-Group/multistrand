@@ -81,7 +81,8 @@ From: bitnami/jupyter-base-notebook:2-debian-10
     # (Conda provided by Bitnami base image)
     echo "\n\n\n" && conda config --env --set always_yes true
     conda install --channel conda-forge python=${CPY_VER} zstandard
-    conda install --channel conda-forge ipython pytest-xdist numpy scipy matplotlib
+    conda install --channel conda-forge \
+        ipython pytest-xdist multiprocess numpy scipy matplotlib
 
     # install Multistrand
     echo "\n\n\n" && [ -d "${MS}/build" ] && rm -r "${MS}/build"
