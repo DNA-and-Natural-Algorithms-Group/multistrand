@@ -131,10 +131,12 @@ def dissociation(options, mySeq, myTrials=0):
     top = Strand(name="top", domains=[onedomain])
     bot = top.C
 
-    # Note that the structure is specified to be single stranded, but this will be over-ridden when Boltzmann sampling is turned on.
+    # Note that the structure is specified to be single stranded, but this will
+    # be over-ridden when Boltzmann sampling is turned on.
     duplex = Complex(strands=[top, bot], structure="(+)")
 
-    # Turns Boltzmann sampling on for this complex and also does sampling more efficiently by sampling 'trials' states.
+    # Turns Boltzmann sampling on for this complex and also does sampling more
+    # efficiently by sampling 'trials' states.
     if(myTrials > 0):
         setBoltzmann(duplex, myTrials)
 

@@ -1,5 +1,4 @@
 """
-
     Frits Dannenberg, May 17th, 2017.
     This module has three main classes
 
@@ -10,7 +9,6 @@
     MergeResult children: FirstStepRate, FirstStepLeakRate, FirstPassageRate
 
     The MergeSim.run() method always returns of the MergeResult sub-classes.
-    
 """
 import time
 import datetime
@@ -29,7 +27,7 @@ from .__init__ import __version__
 MINIMUM_RATE = 1e-36
 
 
-class MergeResult(object):
+class MergeResult:
 
     """ Endstates are not saved for first step leak mode """
 
@@ -418,10 +416,10 @@ class Bootstrap():
             return "No successful reactions observed "
 
 
-# # Concurrent classes start here
+# # Concurrent classes start here ==============================================
 
 
-class optionsFactory(object):
+class optionsFactory:
 
     def __init__(self, funct, put0, put1, put2, put3, put4, put5, put6):
         self.myFunction = funct
@@ -461,7 +459,7 @@ class optionsFactory(object):
         return output
 
 
-class MergeSimSettings(object):
+class MergeSimSettings:
 
     RESULTTYPE1 = "FirstStepRate"
     RESULTTYPE2 = "FirstStepLeakRate"
@@ -528,16 +526,24 @@ def timeStamp(inTime=None):
     return str(datetime.datetime.fromtimestamp(inTime).strftime('%Y-%m-%d %H:%M:%S'))
 
 
-# This class has two modus operandi:
-# 1) self.settings.resultsType == self.settings.RESULTTYPE4  (default)
-#   In this mode, SimSystem.results and SimSystem.end_states are made available as
-#   myMR = MergeSim.run ()  via myMR.datasetand and myMR.endStates (renaming is deliberate)
-# 2) self.settings.resultsType != self.settings.RESULTTYPE0:
-#    In this mode, the system generates MergeResults objects that compute k1(), kEff() (possibly more)
-#    in a multi-processing fashion.
-# In addition, users can populate the analysisFactory with an objec to custom
-# in-process analysis (for example, computing metrics on traces) 
-class MergeSim(object):
+class MergeSim:
+    """
+    This class has two modus operandi:
+
+    1) `self.settings.resultsType == self.settings.RESULTTYPE1`  (default)
+
+          In this mode, `SimSystem.results` and `SimSystem.end_states` are made
+          available as `myMR = MergeSim.run()` via `myMR.dataset` and
+          `myMR.endStates` (renaming is deliberate)
+
+    2) `self.settings.resultsType != self.settings.RESULTTYPE1`
+
+          In this mode, the system generates `MergeResults` objects that compute
+          `k1(), kEff()` (possibly more) in a multi-processing fashion.
+
+    In addition, users can `setAnaylsisFactory()` for custom in-process analysis
+    (for example, computing metrics on traces).
+    """
 
     numOfThreads = 2
     seed = 7713147777
@@ -616,13 +622,15 @@ class MergeSim(object):
         self.factory = optionsFactory(
             myFun, put0, put1, put2, put3, put4, put5, put6)
 
-    # If the analysis factory is set,
-    # then perform an threaded analysis of the returned data.
-    # E.g. the analysis factory receives a set of locks and
-    # the simulation will call aFactory.doAnalysis(options)
-    # once for each thread.
-    # This is used really only for one case study, but could be reused in the future
     def setAnaylsisFactory(self, aFactoryIn):
+        """
+        If the analysis factory is set,
+        then perform an threaded analysis of the returned data.
+        E.g. the analysis factory receives a set of locks and
+        the simulation will call aFactory.doAnalysis(options)
+        once for each thread.
+        This is used really only for one case study, but could be reused in the future
+        """
         lockArray = list()
         for i in range(16):
             lockArray.append(multiprocess.Lock())
@@ -630,14 +638,18 @@ class MergeSim(object):
         self.aFactory = aFactoryIn
         self.aFactory.lockArray = lockArray
 
-    # reset the multithreading objects
     def clearAnalysisFactory(self):
+        """
+        Reset the multithreading objects.
+        """
         if not self.aFactory == None:
             self.aFactory.clear()
 
     def printTrajectories(self, myOptions):
-        # # Print all the trajectories we can find.
-        # # Debug function primairly.
+        """
+        Print all the trajectories we can find.
+        Debug function primairly.
+        """
         print("Printing trajectory and times: \n")
 
         trajs = myOptions.full_trajectory
@@ -665,7 +677,6 @@ class MergeSim(object):
 
     def startSimMessage(self):
         welcomeMessage = "Using Results Type: " + self.settings.resultsType + "\n"
-        # python2 style printing because of an compilation issue with web.py
         welcomeMessage += ''.join(["Computing ", str(
             self.numOfThreads * self.trialsPerThread), " trials, using ", str(self.numOfThreads), " threads .. \n"])
 
@@ -750,7 +761,6 @@ class MergeSim(object):
         self.endStates = []
 
         def doSim(myFactory, aFactory, list0, list1, instanceSeed, nForwardIn, nReverseIn):
-
             try:
                 myOptions = myFactory.new(instanceSeed)
                 myOptions.num_simulations = self.trialsPerThread
@@ -758,11 +768,10 @@ class MergeSim(object):
                 self.exceptionFlag.value = False
                 return
             
-            """ Overwrite the result factory method if we are not using First Step Mode.
-                By default, the results object is a First Step object.
-            """
-            if not myOptions.simulation_mode == Literals.first_step:
-                self.settings.rateFactory.first_passage_time = MergeSimSettings.RESULTTYPE3
+            # Overwrite the result factory method if we are not using First Step Mode.
+            # By default, the results object is a First Step object.
+            if myOptions.simulation_mode != Literals.first_step:
+                self.setPassageMode()
 
             try:
                 s = SimSystem(myOptions)
@@ -862,7 +871,6 @@ class MergeSim(object):
         saveResults()
 
         # print final results to the user
-        """ is not cleak """
         if not self.settings.resultsType == MergeSimSettings.RESULTTYPE2:
             self.results.generateCounts()
         
