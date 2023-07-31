@@ -11,7 +11,7 @@ import sys, time, os
 
 from multistrand.builder import Builder, BuilderRate
 
-from multistrand.options import Options, Literals
+from multistrand.options import Literals
 from multistrand.experiment import standardOptions, hybridization
 
 import numpy as np
@@ -167,7 +167,7 @@ def timings(settings):
 def genFile(mySeqs, nTrials, toggle):
     
     def association_comparison(seq):
-        return Settings(doReactionAssociation, [nTrials, suyamaT, suyamaC, seq], enum_hybridization, title_hybridization)
+        return Settings(doReactionAssociation, [nTrials, suyamaT, suyamaC, seq], title_hybridization, enum_hybridization)
     
     mf = file(RESULT_DIR + "/comparison_" + toggle + "-" + str(nTrials) + ".txt", "w")
     

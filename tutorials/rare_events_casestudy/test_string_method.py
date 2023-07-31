@@ -1,8 +1,11 @@
 
-from hybridization23 import Settings, ResultsHybridization, suyamaT, suyamaC, enum_hybridization, title_hybridization, testSeq, NUM_OF_REPEATS, CONVERGENCE_CRIT
-from multistrand.system import SimSystem
-from multistrand.builder import hybridizationString, Builder, BuilderRate, threewaybmString, dissociationString
-from multistrand.options import Options, Literals
+from hybridization23 import \
+    Settings, ResultsHybridization, suyamaT, suyamaC, \
+    enum_hybridization, title_hybridization, NUM_OF_REPEATS
+from multistrand.builder import \
+    hybridizationString, Builder, BuilderRate, \
+    threewaybmString, dissociationString
+from multistrand.options import Literals
 from multistrand.experiment import standardOptions
 from multistrand.objects import StopCondition
 
