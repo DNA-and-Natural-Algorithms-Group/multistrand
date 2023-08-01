@@ -135,7 +135,7 @@ complex, `R` is the gas constant and `T` is temperature).
 
 ```sh
 $> python tutorials/compute/rate.py hybridization 'AGCTGA' -bootstrap
-2017-10-03 13:31:25  Starting Multistrand 2.1      (c) 2008-2017 Caltech      
+2017-10-03 13:31:25  Starting Multistrand 2.1      (c) 2008-2023 Caltech
 Running first step mode simulations for AGCTGA (with Boltzmann sampling)...
 
 Computing 1200 trials, using 6 threads .. 
