@@ -50,9 +50,10 @@ public:
 	virtual void calculateEnthalpy(void){};	// TODO: implement this.
 	virtual void generateMoves(void) = 0;
 	virtual void generateDeleteMoves(void) = 0;
+	virtual void regenerateDeleteMoves(void) = 0;
 	virtual Move *getChoice(SimTimer& timer, Loop *from) = 0;
 	virtual double doChoice(Move *move, Loop **returnLoop) = 0;
-	virtual char *getLocation(Move *move, int index) =0;
+	virtual char *getLocation(Move *move, int index) = 0;
 	virtual char *verifyLoop(char *incoming_sequence, Loop *from) =0;
 	virtual string typeInternalsToString(void) = 0;
 	virtual void printMove(Loop *comefrom, char *structure_p, char *seq_p) = 0;
@@ -108,6 +109,7 @@ public:
 	void calculateEnthalpy(void);
 	void generateMoves(void);
 	void generateDeleteMoves(void);
+	void regenerateDeleteMoves(void);
 	Move *getChoice(SimTimer& timer, Loop *from);
 	double doChoice(Move *move, Loop **returnLoop);
 	void printMove(Loop *comefrom, char *structure_p, char *seq_p);
@@ -130,6 +132,7 @@ public:
 	void calculateEnthalpy(void);
 	void generateMoves(void);
 	void generateDeleteMoves(void);
+	void regenerateDeleteMoves(void);
 	Move *getChoice(SimTimer& timer, Loop *from);
 	double doChoice(Move *move, Loop **returnLoop);
 	void printMove(Loop *comefrom, char *structure_p, char *seq_p);
@@ -154,6 +157,7 @@ public:
 	void calculateEnthalpy(void);
 	void generateMoves(void);
 	void generateDeleteMoves(void);
+	void regenerateDeleteMoves(void);
 	Move *getChoice(SimTimer& timer, Loop *from);
 	double doChoice(Move *move, Loop **returnLoop);
 	void printMove(Loop *comefrom, char *structure_p, char *seq_p);
@@ -177,6 +181,7 @@ public:
 	void calculateEnthalpy(void);
 	void generateMoves(void);
 	void generateDeleteMoves(void);
+	void regenerateDeleteMoves(void);
 	Move *getChoice(SimTimer& timer, Loop *from);
 	double doChoice(Move *move, Loop **returnLoop);
 	void printMove(Loop *comefrom, char *structure_p, char *seq_p);
@@ -201,6 +206,7 @@ public:
 	void calculateEnthalpy(void);
 	void generateMoves(void);
 	void generateDeleteMoves(void);
+	void regenerateDeleteMoves(void);
 	Move *getChoice(SimTimer& timer, Loop *from);
 	double doChoice(Move *move, Loop **returnLoop);
 	void printMove(Loop *comefrom, char *structure_p, char *seq_p);
@@ -226,6 +232,7 @@ public:
 	void calculateEnthalpy(void);
 	void generateMoves(void);
 	void generateDeleteMoves(void);
+	void regenerateDeleteMoves(void);
 	Move *getChoice(SimTimer& timer, Loop *from);
 	double doChoice(Move *move, Loop **returnLoop);
 	void printMove(Loop *comefrom, char *structure_p, char *seq_p);

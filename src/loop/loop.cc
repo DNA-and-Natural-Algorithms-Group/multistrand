@@ -23,6 +23,10 @@ EnergyModel* Loop::energyModel = NULL;
 
 struct RateArr;
 
+
+/* Loop ===================================================================== */
+
+
 inline double Loop::getEnergy(void) {
 
 	if (energyComputed)
@@ -146,8 +150,8 @@ void Loop::firstGen(Loop *comefrom) {
 	generateMoves();
 
 	for (int loop = 0; loop < curAdjacent; loop++) {
-		if (adjacentLoops[loop] != comefrom && adjacentLoops[loop] != NULL)
-			// shouldn't happen, being careful.
+		if ((adjacentLoops[loop] != comefrom && adjacentLoops[loop] != NULL)
+			|| comefrom == NULL)
 			adjacentLoops[loop]->firstGen(this);
 		assert(adjacentLoops[loop] != NULL);
 	}
@@ -198,9 +202,9 @@ void Loop::initAdjacency(int index) {
 void Loop::addAdjacent(Loop *loopToAdd) {
 	if (curAdjacent >= numAdjacent) // we have already filled up the loops.
 									// add an error condition.
-			{
+	{
 		fprintf(stderr, "Adjacent loop attempted to be added when Loop was already full.\n");
-		return;
+		exit(1);
 	}
 	if (adjacentLoops != NULL) // space has been allocated for the pointers
 	{
@@ -228,7 +232,6 @@ EnergyModel *Loop::GetEnergyModel(void) {
 }
 
 void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen) {
-	//  return;
 
 	OpenLoop *tempLoop[2], *newLoop;
 	int index[2], sizes[2], loop, flipflop = 0, temp;
@@ -292,9 +295,8 @@ void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen) 
 		newLoop->generateMoves();
 
 		// need to re-generate the moves for all adjacent loops.
-		// TODO: change this to only re-generate the deletion moves.
 		for (int loop = 0; loop < sizes[flipflop]; loop++)
-			newLoop->adjacentLoops[loop]->generateMoves();
+			newLoop->adjacentLoops[loop]->regenerateDeleteMoves();
 
 		if (flipflop == 0)
 			*firstOpen = newLoop;
@@ -324,7 +326,8 @@ string identityToString(char loop) {
 
 	}
 
-	return "Could not identify loop";
+	fprintf(stderr, "Could not identify loop.\n");
+	exit(1);
 }
 
 string Loop::toString() {
@@ -403,25 +406,23 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		StackLoop *start_ = (StackLoop *) start;
 		StackLoop *end_ = (StackLoop *) end;
-
 		tie(s_index, e_index) = findExternalAdjacent(start_, end_);
 
 		// resulting will be an interior loop with sidelengths 1 and 1.
 		// we must get the mismatches correct for this to come out right
 		// as they are special cases in the energy model, for 1,1.
-
-		new_energy = energyModel->InteriorEnergy(start_->seqs[s_index], end_->seqs[e_index], 1, 1);
-
+		new_energy = energyModel->InteriorEnergy(
+			start_->seqs[s_index], end_->seqs[e_index], 1, 1);
 		old_energy = start->getEnergy() + end->getEnergy();
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 
 		// FD: Two stack loops are created by three basepairs.
 		// FD: We query the local context of the middle pair;
 		// FD: This is simply two stack environments.
-
-		right = stackMove;
-		left = stackMove;
-
+		if (energyModel->useArrhenius()) {
+			right = stackMove;
+			left = stackMove;
+		}
 		return RateArr(tempRate / 2.0, left, right);
 	}
 
@@ -430,26 +431,26 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'S');
 		StackLoop* start_ = (StackLoop*) ordered.first;
 		InteriorLoop* end_ = (InteriorLoop*) ordered.second;
-
 		tie(s_index, e_index) = findExternalAdjacent(start_, end_);
 
-		// resulting will be an interior loop side lengths equal to the length
-		// of the 'input' bulge loop, plus one on each side (ie, one side will be B+1, the other 1.
-		//      if(s_index == e_index )
-		//	fprintf(stderr, "ERROR: Misaligned loops in loop.cc generateDeleteMoveRate S/B, values: %d %d\n",s_index,e_index);
-
-		new_energy = energyModel->InteriorEnergy(start_->seqs[s_index], end_->int_seq[e_index], end_->sizes[1 - e_index] + 1, end_->sizes[e_index] + 1);
+		// resulting will be an interior loop with sidelengths equal to the
+		// sidelengths of the 'input' interior loop, plus one on each side
+		//
+		//  if(s_index == e_index )
+		//	  fprintf(stderr, "ERROR: Misaligned loops in loop.cc generateDeleteMoveRate S/B, values: %d %d\n",s_index,e_index);
+		new_energy = energyModel->InteriorEnergy(
+			start_->seqs[s_index], end_->int_seq[e_index],
+			end_->sizes[1 - e_index] + 1, end_->sizes[e_index] + 1);
 		old_energy = start->getEnergy() + end->getEnergy();
-
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 
 		// FD: A base-pair is present between a stacking loop and an interior loop.
 		// FD: We query the local context of the middle pair;
 		// FD: This is a stack and loop environment.
-
-		right = stackMove;
-		left = loopMove;
-
+		if (energyModel->useArrhenius()) {
+			right = stackMove;
+			left = loopMove;
+		}
 		return RateArr(tempRate / 2.0, left, right);
 	}
 
@@ -458,24 +459,23 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'S');
 		StackLoop* start_ = (StackLoop*) ordered.first;
 		BulgeLoop* end_ = (BulgeLoop*) ordered.second;
-
 		tie(s_index, e_index) = findExternalAdjacent(start_, end_);
 
-		// resulting will be an interior loop side lengths equal to the length
-		// of the 'input' bulge loop, plus one on each side (ie, one side will be B+1, the other 1.
-
-		new_energy = energyModel->InteriorEnergy(start_->seqs[s_index], end_->bulge_seq[e_index], end_->bulgesize[1 - e_index] + 1,
-				end_->bulgesize[e_index] + 1);
+		// resulting will be an interior loop with sidelengths equal to the
+		// sidelength of the 'input' bulge loop, plus one on each side (ie, one
+		// side will be B+1, the other 1.
+		new_energy = energyModel->InteriorEnergy(
+			start_->seqs[s_index], end_->bulge_seq[e_index],
+			end_->bulgesize[1 - e_index] + 1, end_->bulgesize[e_index] + 1);
 		old_energy = start->getEnergy() + end->getEnergy();
-
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 
 		// FD: A base pair is present between a stacking loop and a bulge loop.
 		// FD: We query the local context of the middle pair;
-
-		right = stackMove;
-		left = stackLoopMove;
-
+		if (energyModel->useArrhenius()) {
+			right = stackMove;
+			left = stackLoopMove;
+		}
 		return RateArr(tempRate / 2.0, left, right);
 	}
 
@@ -484,25 +484,23 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'S');
 		StackLoop* start_ = (StackLoop*) ordered.first;
 		HairpinLoop* end_ = (HairpinLoop*) ordered.second;
-
 		// FD: we are not actually using e_index here.
+		// end is the hairpin, which has no extra adjacencies.
 		tie(s_index, e_index) = findExternalAdjacent(start_, end_);
 
-		// end is the hairpin, which has no extra adjacencies.
-
-		// resulting will be a hairpin loop equal to the previous plus an extra base on each side.
-
-		new_energy = energyModel->HairpinEnergy(start_->seqs[s_index], end_->hairpinsize + 2);
+		// resulting will be a hairpin loop equal to the previous plus an extra
+		// base on each side.
+		new_energy = energyModel->HairpinEnergy(
+			start_->seqs[s_index], end_->hairpinsize + 2);
 		old_energy = start->getEnergy() + end->getEnergy();
-
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 
 		// FD: A base pair is present between a stacking loop and a hairpin loop.
 		// FD: We query the local context of the middle pair;
-
-		right = stackMove;
-		left = loopMove;
-
+		if (energyModel->useArrhenius()) {
+			right = stackMove;
+			left = loopMove;
+		}
 		return RateArr(tempRate / 2.0, left, right);
 	}
 
@@ -521,7 +519,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 				e_index = loop;
 			}
 		}
-
 		// note e_index has different meaning now for multiloops.
 		// FD: e_index is the index of the attached loop for multiloop end_
 		// FD: s_index is the index of the attached loop for stackloop start_
@@ -531,7 +528,8 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		for (int loop = 0; loop < end_->numAdjacent; loop++) {
 			if (loop != e_index) {
-				if ((loop != e_index - 1 && e_index != 0) || (loop != end_->numAdjacent - 1 && e_index == 0)) {
+				if ((loop != e_index - 1 && e_index != 0) ||
+					(loop != end_->numAdjacent - 1 && e_index == 0)) {
 					sidelens[loop] = end_->sidelen[loop];
 				} else {
 					sidelens[loop] = end_->sidelen[loop] + 1;
@@ -543,17 +541,19 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 			}
 		}
 
-		new_energy = energyModel->MultiloopEnergy(end_->numAdjacent, sidelens, seqs);
-
+		new_energy = energyModel->MultiloopEnergy(
+			end_->numAdjacent, sidelens, seqs);
 		old_energy = start->getEnergy() + end->getEnergy();
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
-
-		left = stackMove;
-		right = energyModel->getPrefactorsMulti(e_index, end_->numAdjacent, end_->sidelen);
 
 		delete[] sidelens;
 		delete[] seqs;
 
+		if (energyModel->useArrhenius()) {
+			left = stackMove;
+			right = energyModel->getPrefactorsMulti(
+				e_index, end_->numAdjacent, end_->sidelen);
+		}
 		return RateArr(tempRate / 2.0, left, right);
 	}
 
@@ -564,13 +564,13 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		OpenLoop* end_ = (OpenLoop*) ordered.second;
 
 		for (int loop = 0; (loop < end_->numAdjacent) || (loop < 2); loop++) {
-
 			if (loop <= 1) {
 				if (start_->adjacentLoops[loop] != end_) {
 					s_index = loop;
 				}
 			}
-			if (loop < end_->numAdjacent && (end_->adjacentLoops != NULL) && end_->adjacentLoops[loop] == start_) {
+			if (loop < end_->numAdjacent && (end_->adjacentLoops != NULL) &&
+				end_->adjacentLoops[loop] == start_) {
 				e_index = loop;
 			}
 		}
@@ -581,36 +581,31 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		for (int loop = 0; loop < end_->numAdjacent + 1; loop++) {
 			if (loop == e_index) {
-
 				sidelens[loop] = end_->sidelen[loop] + 1;
 				seqs[loop] = end_->seqs[loop];
-
 			} else if (loop == e_index + 1) {
-
 				sidelens[loop] = end_->sidelen[loop] + 1;
 				seqs[loop] = start_->seqs[s_index];
-
 			} else {
-
 				sidelens[loop] = end_->sidelen[loop];
 				seqs[loop] = end_->seqs[loop];
-
 			}
 		}
 
-		new_energy = energyModel->OpenloopEnergy(end_->numAdjacent, sidelens, seqs);
-
+		new_energy = energyModel->OpenloopEnergy(
+			end_->numAdjacent, sidelens, seqs);
 		old_energy = start->getEnergy() + end->getEnergy();
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
-
-		// FD: A stack and an open loop. e_index is the location of the stack.
-
-		left = energyModel->prefactorOpen(e_index, (end_->numAdjacent + 1), end_->sidelen);
-		right = stackMove;
 
 		delete[] sidelens;
 		delete[] seqs;
 
+		// FD: A stack and an open loop. e_index is the location of the stack.
+		if (energyModel->useArrhenius()) {
+			left = energyModel->prefactorOpen(
+				e_index, (end_->numAdjacent + 1), end_->sidelen);
+			right = stackMove;
+		}
 		return RateArr(tempRate / 2.0, left, right);
 
 	}
@@ -619,20 +614,21 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		InteriorLoop *end_ = (InteriorLoop *) end;
 		InteriorLoop *start_ = (InteriorLoop *) start;
-
 		tie(s_index, e_index) = findExternalAdjacent(start_, end_);
 
-		new_energy = energyModel->InteriorEnergy(start_->int_seq[s_index], end_->int_seq[e_index], end_->sizes[1 - e_index] + start_->sizes[s_index] + 1,
-				end_->sizes[e_index] + start_->sizes[1 - s_index] + 1);
-
+		new_energy = energyModel->InteriorEnergy(
+			start_->int_seq[s_index], end_->int_seq[e_index],
+			end_->sizes[1 - e_index] + start_->sizes[s_index] + 1,
+			end_->sizes[e_index] + start_->sizes[1 - s_index] + 1);
 		old_energy = start->getEnergy() + end->getEnergy();
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 
-		// FD: interior loop and interior loop, this has to be loopMove and loopMove;
-
-		left = loopMove;
-		right = loopMove;
-
+		// FD: interior loop and interior loop, this has to be loopMove and
+		// loopMove;
+		if (energyModel->useArrhenius()) {
+			left = loopMove;
+			right = loopMove;
+		}
 		return RateArr(tempRate / 2.0, left, right);
 
 	}
@@ -642,25 +638,27 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'I');
 		InteriorLoop* start_ = (InteriorLoop*) ordered.first;
 		BulgeLoop* end_ = (BulgeLoop*) ordered.second;
-
 		tie(s_index, e_index) = findExternalAdjacent(start_, end_);
 
-		// resulting will be an interior loop side lengths equal to the length
-		// of the 'input' bulge loop, plus one on each side (ie, one side will be B+1, the other 1.
-		//      if(s_index == e_index )
-		//	fprintf(stderr, "ERROR: Misaligned loops in loop.cc generateDeleteMoveRate I/B, values: %d %d\n",s_index,e_index);
-
-		new_energy = energyModel->InteriorEnergy(start_->int_seq[s_index], end_->bulge_seq[e_index], end_->bulgesize[1 - e_index] + 1 + start_->sizes[s_index],
-				end_->bulgesize[e_index] + 1 + start_->sizes[1 - s_index]);
-
+		// resulting will be an interior loop with sidelengths equal to the
+		// sidelengths of the 'input' interior loop, plus B on one side and 1 on
+		// the other.
+		//
+		//  if(s_index == e_index )
+		//	  fprintf(stderr, "ERROR: Misaligned loops in loop.cc generateDeleteMoveRate I/B, values: %d %d\n",s_index,e_index);
+		new_energy = energyModel->InteriorEnergy(
+			start_->int_seq[s_index], end_->bulge_seq[e_index],
+			end_->bulgesize[1 - e_index] + 1 + start_->sizes[s_index],
+			end_->bulgesize[e_index] + 1 + start_->sizes[1 - s_index]);
 		old_energy = start->getEnergy() + end->getEnergy();
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 
-		// FD: interior loop and bulge loop, this has to be loopMove and stackLoopMove;
-
-		left = loopMove;
-		right = stackLoopMove;
-
+		// FD: interior loop and bulge loop, this has to be loopMove and
+		// stackLoopMove;
+		if (energyModel->useArrhenius()) {
+			left = loopMove;
+			right = stackLoopMove;
+		}
 		return RateArr(tempRate / 2.0, left, right);
 
 	}
@@ -670,23 +668,24 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'I');
 		InteriorLoop* start_ = (InteriorLoop*) ordered.first;
 		HairpinLoop* end_ = (HairpinLoop*) ordered.second;
-
 		// FD: not actually using e_index in this block.
 		tie(s_index, e_index) = findExternalAdjacent(start_, end_);
-
 		// end is the hairpin, which has no extra adjacencies.
 
-		// resulting will be a hairpin loop with previous size, plus interior loop's sizes (both) plus 2 (for the pairing that's now unpaired)
-
-		new_energy = energyModel->HairpinEnergy(start_->int_seq[s_index], end_->hairpinsize + 2 + start_->sizes[0] + start_->sizes[1]);
+		// resulting will be a hairpin loop with previous size, plus interior
+		// loop's sizes (both) plus 2 (for the pairing that's now unpaired)
+		new_energy = energyModel->HairpinEnergy(
+			start_->int_seq[s_index],
+			end_->hairpinsize + 2 + start_->sizes[0] + start_->sizes[1]);
 		old_energy = start->getEnergy() + end->getEnergy();
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 
-		// FD: interior loop and hairpin loop, this has to be loopMove and loopMove;
-
-		left = loopMove;
-		right = loopMove;
-
+		// FD: interior loop and hairpin loop, this has to be loopMove and
+		// loopMove;
+		if (energyModel->useArrhenius()) {
+			left = loopMove;
+			right = loopMove;
+		}
 		return RateArr(tempRate / 2.0, left, right);
 
 	}
@@ -724,19 +723,21 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 			}
 		}
 
-		new_energy = energyModel->MultiloopEnergy(end_->numAdjacent, sidelens, seqs);
-
+		new_energy = energyModel->MultiloopEnergy(
+			end_->numAdjacent, sidelens, seqs);
 		old_energy = start->getEnergy() + end->getEnergy();
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
-
-		// FD: interior loop and multi loop, this has to be loopMove and something else;
-
-		left = energyModel->getPrefactorsMulti(e_index, end_->numAdjacent, end_->sidelen);
-		right = loopMove;
 
 		delete[] sidelens;
 		delete[] seqs;
 
+		// FD: interior loop and multi loop, this has to be loopMove and
+		// something else;
+		if (energyModel->useArrhenius()) {
+			left = energyModel->getPrefactorsMulti(
+				e_index, end_->numAdjacent, end_->sidelen);
+			right = loopMove;
+		}
 		return RateArr(tempRate / 2.0, left, right);
 
 	}
@@ -776,21 +777,19 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		}
 
 		new_energy = energyModel->OpenloopEnergy(end_->numAdjacent, sidelens, seqs);
-
 		old_energy = start->getEnergy() + end->getEnergy();
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
-
-		// FD: interior loop and open loop, this has to be loopMove and something else;
-		if (energyModel->useArrhenius()) {
-
-			left = energyModel->prefactorOpen(e_index, end_->numAdjacent + 1, end_->sidelen);
-			right = loopMove;
-
-		}
 
 		delete[] sidelens;
 		delete[] seqs;
 
+		// FD: interior loop and open loop, this has to be loopMove and
+		// something else;
+		if (energyModel->useArrhenius()) {
+			left = energyModel->prefactorOpen(
+				e_index, end_->numAdjacent + 1, end_->sidelen);
+			right = loopMove;
+		}
 		return RateArr(tempRate / 2.0, left, right);
 	}
 
@@ -800,20 +799,18 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		BulgeLoop *end_ = (BulgeLoop *) end;
 		BulgeLoop *start_ = (BulgeLoop *) start;
-
 		tie(s_index, e_index) = findExternalAdjacent(start_, end_);
 
-		new_energy = energyModel->InteriorEnergy(start_->bulge_seq[s_index], end_->bulge_seq[e_index],
-				end_->bulgesize[1 - e_index] + start_->bulgesize[s_index] + 1, end_->bulgesize[e_index] + start_->bulgesize[1 - s_index] + 1);
-
+		new_energy = energyModel->InteriorEnergy(
+			start_->bulge_seq[s_index], end_->bulge_seq[e_index],
+			end_->bulgesize[1 - e_index] + start_->bulgesize[s_index] + 1,
+			end_->bulgesize[e_index] + start_->bulgesize[1 - s_index] + 1);
 		old_energy = start->getEnergy() + end->getEnergy();
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 
-		// FD: bulge loop and bulge loop, this has to be loopMove and loopMove ;
-
+		// FD: bulge loop and bulge loop, this has to be loopMove and loopMove;
 		left = stackLoopMove;
 		right = stackLoopMove;
-
 		return RateArr(tempRate / 2.0, left, right);
 
 	}
@@ -823,23 +820,22 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'B');
 		BulgeLoop* start_ = (BulgeLoop*) ordered.first;
 		HairpinLoop* end_ = (HairpinLoop*) ordered.second;
-
 		// FD: Not actually using the second output in this block.
 		tie(s_index, e_index) = findExternalAdjacent(start_, end_);
-
 		// end is the hairpin, which has no extra adjacencies.
 
 		// resulting will be a hairpin loop with previous size, plus interior loop's sizes (both) plus 2 (for the pairing that's now unpaired)
-
-		new_energy = energyModel->HairpinEnergy(start_->bulge_seq[s_index], end_->hairpinsize + 2 + start_->bulgesize[0] + start_->bulgesize[1]);
+		new_energy = energyModel->HairpinEnergy(
+			start_->bulge_seq[s_index],
+			end_->hairpinsize + 2 + start_->bulgesize[0] + start_->bulgesize[1]);
 		old_energy = start->getEnergy() + end->getEnergy();
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 
 		// FD: bulge loop and hairpin loop, this has to be stackLoopMove and loopMove ;
-
-		left = stackLoopMove;
-		right = loopMove;
-
+		if (energyModel->useArrhenius()) {
+			left = stackLoopMove;
+			right = loopMove;
+		}
 		return RateArr(tempRate / 2.0, left, right);
 
 	}
@@ -866,7 +862,8 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		for (int loop = 0; loop < end_->numAdjacent; loop++) {
 			if (loop != e_index) {
-				if ((loop != e_index - 1 && e_index != 0) || (loop != end_->numAdjacent - 1 && e_index == 0))
+				if ((loop != e_index - 1 && e_index != 0) ||
+					(loop != end_->numAdjacent - 1 && e_index == 0))
 					sidelens[loop] = end_->sidelen[loop];
 				else
 					sidelens[loop] = end_->sidelen[loop] + start_->bulgesize[1 - s_index] + 1;
@@ -877,21 +874,21 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 			}
 		}
 
-		new_energy = energyModel->MultiloopEnergy(end_->numAdjacent, sidelens, seqs);
+		new_energy = energyModel->MultiloopEnergy(
+			end_->numAdjacent, sidelens, seqs);
 		old_energy = start->getEnergy() + end->getEnergy();
-
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
-
-		// FD: bulge loop and multi loop, this has to be stackLoopMove and something else;
-		if (energyModel->useArrhenius()) {
-
-			left = energyModel->getPrefactorsMulti(e_index, end_->numAdjacent, end_->sidelen);
-			right = stackLoopMove;
-
-		}
 
 		delete[] sidelens;
 		delete[] seqs;
+
+		// FD: bulge loop and multi loop, this has to be stackLoopMove and
+		// something else;
+		if (energyModel->useArrhenius()) {
+			left = energyModel->getPrefactorsMulti(
+				e_index, end_->numAdjacent, end_->sidelen);
+			right = stackLoopMove;
+		}
 		return RateArr(tempRate / 2.0, left, right);
 
 	}
@@ -930,21 +927,21 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 			}
 		}
 
-		new_energy = energyModel->OpenloopEnergy(end_->numAdjacent, sidelens, seqs);
+		new_energy = energyModel->OpenloopEnergy(
+			end_->numAdjacent, sidelens, seqs);
 		old_energy = start->getEnergy() + end->getEnergy();
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
-
-		// FD: bulge loop and open loop, this has to be stackLoopMove and something else;
-		if (energyModel->useArrhenius()) {
-
-			left = energyModel->getPrefactorsMulti(e_index, end_->numAdjacent, end_->sidelen);
-			right = stackLoopMove;
-
-		}
 
 		delete[] sidelens;
 		delete[] seqs;
 
+		// FD: bulge loop and open loop, this has to be stackLoopMove and
+		// something else;
+		if (energyModel->useArrhenius()) {
+			left = energyModel->getPrefactorsMulti(
+				e_index, end_->numAdjacent, end_->sidelen);
+			right = stackLoopMove;
+		}
 		return RateArr(tempRate / 2.0, left, right);
 
 	}
@@ -976,10 +973,13 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		// note e_index has different meaning now for multiloops.
 
 		// Several cases we now need to check for:
-		// 1. Multiloop had 3 adjacent stacks, and the resulting figure with two adjacent stacks is now a interior loop.
-		// 2. Multiloop had 3 adjacent stacks, and the resulting structure with two adjacent stacks is now a bulge loop
-		// 3. Multiloop had >3 adjacent stacks, and the resulting structure is a multiloop with one less adjacent stack.
-
+		//
+		// 1. Multiloop had 3 adjacent stacks, and the resulting figure with two
+		//    adjacent stacks is now an interior loop.
+		// 2. Multiloop had 3 adjacent stacks, and the resulting structure with
+		//    two adjacent stacks is now a bulge loop
+		// 3. Multiloop had >3 adjacent stacks, and the resulting structure is a
+		//    multiloop with one less adjacent stack.
 		if (end_->numAdjacent == 3) {
 			int sizes[2];
 			int positions[2] = { (e_index + 1) % 3, (e_index + 2) % 3 };
@@ -991,20 +991,18 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 			sizes[1] = end_->sidelen[(e_index + 1) % 3];
 
 			if (sizes[1] > 0) // interior loop case
-					{
-
+			{
 				new_energy = energyModel->InteriorEnergy(end_->seqs[positions[1]], end_->seqs[positions[0]], sizes[0], sizes[1]);
 				old_energy = start->getEnergy() + end->getEnergy();
 				tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 
-				// interior loop, so could be loopMove plus loopMove, or plus stackloopMove
+				// interior loop, so could be loopMove plus loopMove, or plus
+				// stackloopMove
 				if (energyModel->useArrhenius()) {
-
-					left = energyModel->getPrefactorsMulti(e_index, end_->numAdjacent, end_->sidelen);
+					left = energyModel->getPrefactorsMulti(
+						e_index, end_->numAdjacent, end_->sidelen);
 					right = loopMove;
-
 				}
-
 				return RateArr(tempRate / 2.0, left, right);
 
 			} else  // bulge loop case
@@ -1016,56 +1014,52 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 				tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 
 				// bulge loop, so loopMove plus stackStackMove
-
-				left = loopMove;
-				right = stackStackMove;
-
+				if (energyModel->useArrhenius()) {
+					left = loopMove;
+					right = stackStackMove;
+				}
 				return RateArr(tempRate / 2.0, left, right);
 
 			}
-		}
-
-		else if (end_->numAdjacent > 3)  // multiloop case
-				{
+		} else if (end_->numAdjacent > 3)  // multiloop case
+		{
 			int *sidelens = new int[end_->numAdjacent - 1];
 			char **seqs = new char *[end_->numAdjacent - 1];
 
 			for (int loop = 0; loop < end_->numAdjacent; loop++) {
 				if (loop != e_index) {
 					if (loop < e_index) {
-						if ((loop != e_index - 1 && e_index != 0) || (loop != end_->numAdjacent - 1 && e_index == 0))
+						if ((loop != e_index - 1 && e_index != 0) ||
+							(loop != end_->numAdjacent - 1 && e_index == 0))
 							sidelens[loop] = end_->sidelen[loop];
 						else
 							sidelens[loop] = end_->sidelen[loop] + end_->sidelen[e_index] + 2 + start_->hairpinsize;
 						seqs[loop] = end_->seqs[loop];
 					}
 					if (loop > e_index) {
-						if ((loop != e_index - 1 && e_index != 0) || (loop != end_->numAdjacent - 1 && e_index == 0))
+						if ((loop != e_index - 1 && e_index != 0) ||
+							(loop != end_->numAdjacent - 1 && e_index == 0))
 							sidelens[loop - 1] = end_->sidelen[loop];
 						else
 							sidelens[loop - 1] = end_->sidelen[loop] + end_->sidelen[e_index] + 2 + start_->hairpinsize;
 						seqs[loop - 1] = end_->seqs[loop];
-
 					}
 				}
 			}
 
-			new_energy = energyModel->MultiloopEnergy(end_->numAdjacent - 1, sidelens, seqs);
-
+			new_energy = energyModel->MultiloopEnergy(
+				end_->numAdjacent - 1, sidelens, seqs);
 			old_energy = start->getEnergy() + end->getEnergy();
 			tempRate = energyModel->returnRate(old_energy, new_energy, 0);
-
-			// multi loop, so loopMove plus something else
-			if (energyModel->useArrhenius()) {
-
-				left = loopMove; //energyModel->getPrefactorsMulti(e_index, end_->numAdjacent, end_->sidelen);
-				right = stackStackMove;
-
-			}
 
 			delete[] sidelens;
 			delete[] seqs;
 
+			// multi loop, so loopMove plus something else
+			if (energyModel->useArrhenius()) {
+				left = loopMove; //energyModel->getPrefactorsMulti(e_index, end_->numAdjacent, end_->sidelen);
+				right = stackStackMove;
+			}
 			return RateArr(tempRate / 2.0, left, right);
 
 		}
@@ -1101,22 +1095,20 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 			}
 		}
 
-		new_energy = energyModel->OpenloopEnergy(end_->numAdjacent - 1, sidelens, seqs);
-
+		new_energy = energyModel->OpenloopEnergy(
+			end_->numAdjacent - 1, sidelens, seqs);
 		old_energy = start->getEnergy() + end->getEnergy();
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 
-		// hairpin loop and openLoop, so loopMove plus something else
-		if (energyModel->useArrhenius()) {
-
-			left = loopMove; //energyModel->getPrefactorsMulti(e_index, end_->numAdjacent, end_->sidelen);
-			right = energyModel->prefactorOpen(e_index, end_->numAdjacent + 1, end_->sidelen);
-			;
-
-		}
-
 		delete[] sidelens;
 		delete[] seqs;
+
+		// hairpin loop and openLoop, so loopMove plus something else
+		if (energyModel->useArrhenius()) {
+			left = loopMove; //energyModel->getPrefactorsMulti(e_index, end_->numAdjacent, end_->sidelen);
+			right = energyModel->prefactorOpen(
+				e_index, end_->numAdjacent + 1, end_->sidelen);
+		}
 		return RateArr(tempRate / 2.0, left, right);
 
 	}
@@ -1134,7 +1126,9 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		start_ = (MultiLoop *) start;
 		end_ = (MultiLoop *) end;
 
-		for (int loop = 0; loop < end_->numAdjacent || loop < start_->numAdjacent; loop++) {
+		for (int loop = 0;
+			 loop < end_->numAdjacent || loop < start_->numAdjacent;
+			 loop++) {
 			if (loop < start_->numAdjacent)
 				if (start_->adjacentLoops[loop] == end_) {
 					s_index = loop;
@@ -1173,22 +1167,21 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		}
 		assert(index == end_->numAdjacent + start_->numAdjacent - 2);
 
-		new_energy = energyModel->MultiloopEnergy(start_->numAdjacent + end_->numAdjacent - 2, sidelens, seqs);
-
+		new_energy = energyModel->MultiloopEnergy(
+			start_->numAdjacent + end_->numAdjacent - 2, sidelens, seqs);
 		old_energy = start->getEnergy() + end->getEnergy();
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
-
-		// multiloop and multiLoop, so something plus something else
-		if (energyModel->useArrhenius()) {
-
-			left = energyModel->getPrefactorsMulti(e_index, end_->numAdjacent, end_->sidelen);
-			right = energyModel->getPrefactorsMulti(s_index, start_->numAdjacent, start_->sidelen);
-
-		}
 
 		delete[] sidelens;
 		delete[] seqs;
 
+		// multiloop and multiLoop, so something plus something else
+		if (energyModel->useArrhenius()) {
+			left = energyModel->getPrefactorsMulti(
+				e_index, end_->numAdjacent, end_->sidelen);
+			right = energyModel->getPrefactorsMulti(
+				s_index, start_->numAdjacent, start_->sidelen);
+		}
 		return RateArr(tempRate / 2.0, left, right);
 
 	}
@@ -1249,28 +1242,27 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		}
 		assert(index == end_->numAdjacent + start_->numAdjacent - 2);
 
-		new_energy = energyModel->OpenloopEnergy(start_->numAdjacent + end_->numAdjacent - 2, sidelens, seqs);
-
+		new_energy = energyModel->OpenloopEnergy(
+			start_->numAdjacent + end_->numAdjacent - 2, sidelens, seqs);
 		old_energy = start->getEnergy() + end->getEnergy();
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
-
-		// multiloop and openLoop, so something plus something else
-		if (energyModel->useArrhenius()) {
-
-			left = energyModel->getPrefactorsMulti(e_index, end_->numAdjacent, end_->sidelen);
-			right = energyModel->getPrefactorsMulti(s_index, start_->numAdjacent, start_->sidelen);
-
-		}
 
 		delete[] sidelens;
 		delete[] seqs;
 
+		// multiloop and openLoop, so something plus something else
+		if (energyModel->useArrhenius()) {
+			left = energyModel->getPrefactorsMulti(
+				e_index, end_->numAdjacent, end_->sidelen);
+			right = energyModel->getPrefactorsMulti(
+				s_index, start_->numAdjacent, start_->sidelen);
+		}
 		return RateArr(tempRate / 2.0, left, right);
 
 	}
 
 // end multiloop
-// this is the DELETE MOVE function.
+
 // start openloop
 
 	if (identify(start, end, 'O', 'O')) {
@@ -1285,7 +1277,9 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		tempLoop[0] = (OpenLoop *) start;
 		tempLoop[1] = (OpenLoop *) end;
 
-		for (loop = 0; loop < tempLoop[1]->numAdjacent || loop < tempLoop[0]->numAdjacent; loop++) {
+		for (loop = 0;
+			 loop < tempLoop[1]->numAdjacent || loop < tempLoop[0]->numAdjacent;
+			 loop++) {
 			if (loop < tempLoop[0]->numAdjacent)
 				if (tempLoop[0]->adjacentLoops[loop] == tempLoop[1]) {
 					index[0] = loop;
@@ -1300,7 +1294,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		sizes[1] = index[1] + tempLoop[0]->numAdjacent - index[0] - 1;
 
 		for (flipflop = 0; flipflop < 2; flipflop++) {
-
 			sidelen = new int[sizes[flipflop] + 1];
 			seqs = new char *[sizes[flipflop] + 1];
 
@@ -1308,10 +1301,8 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 				if (loop < index[flipflop]) {
 					sidelen[loop] = tempLoop[flipflop]->sidelen[loop];
 					seqs[loop] = tempLoop[flipflop]->seqs[loop];
-
 				}
 				if (loop == index[flipflop]) {
-
 					sidelen[loop] = tempLoop[flipflop]->sidelen[loop] + tempLoop[1 - flipflop]->sidelen[index[1 - flipflop] + 1] + 1;
 					seqs[loop] = tempLoop[flipflop]->seqs[loop];
 				}
@@ -1320,8 +1311,10 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 					seqs[loop] = tempLoop[1 - flipflop]->seqs[loop - index[flipflop] + index[1 - flipflop] + 1];
 				}
 			}
-			//initialize the new openloops, and connect them correctly, then initialize their moves, etc.
-			new_energies[flipflop] = energyModel->OpenloopEnergy(sizes[flipflop], sidelen, seqs);
+			// initialize the new openloops, and connect them correctly, then
+			// initialize their moves, etc.
+			new_energies[flipflop] = energyModel->OpenloopEnergy(
+				sizes[flipflop], sidelen, seqs);
 
 			delete[] sidelen;
 			delete[] seqs;
@@ -1335,13 +1328,12 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		// openLoop and openLoop, so something plus something else
 		if (energyModel->useArrhenius()) {
-
-			left = energyModel->prefactorOpen(index[0], tempLoop[0]->numAdjacent + 1, tempLoop[0]->sidelen);
-			right = energyModel->prefactorOpen(index[1], tempLoop[1]->numAdjacent + 1, tempLoop[1]->sidelen);
-
+			left = energyModel->prefactorOpen(
+				index[0], tempLoop[0]->numAdjacent + 1, tempLoop[0]->sidelen);
+			right = energyModel->prefactorOpen(
+				index[1], tempLoop[1]->numAdjacent + 1, tempLoop[1]->sidelen);
 		}
-
-		return RateArr(tempRate / 2.0, left, right); //		return tempRate;
+		return RateArr(tempRate / 2.0, left, right);
 	}
 
 	return RateArr(-1.0, left, right);
@@ -1350,7 +1342,8 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 // FD: returns TRUE if the loops are of type one and two
 bool Loop::identify(Loop* first, Loop* second, char one, char two) {
 
-	return (first->identity == one && second->identity == two) || (first->identity == two && second->identity == one);
+	return (first->identity == one && second->identity == two) || (
+		first->identity == two && second->identity == one);
 
 }
 
@@ -1374,7 +1367,8 @@ std::tuple<int, int> Loop::findExternalAdjacent(Loop* first, Loop* second) {
 
 }
 
-//FD: If the first loop is of type, then return <first, second>, otherwise return <second, first>
+//FD: If the first loop is of type, then return <first, second>,
+//otherwise return <second, first>
 std::pair<Loop*, Loop*> Loop::orderMyLoops(Loop* first, Loop* second, char type) {
 
 	if (first->identity == type) {
@@ -1402,12 +1396,11 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		StackLoop* start_ = (StackLoop*) end;
 		StackLoop* end_ = (StackLoop*) start;
-
 		tie(s_index, e_index) = findExternalAdjacent(start_, end_);
 
 		// resulting will be an interior loop with sidelengths 1 and 1.
-		newLoop = new InteriorLoop(1, 1, start_->seqs[s_index], end_->seqs[e_index]);
-
+		newLoop = new InteriorLoop(
+			1, 1, start_->seqs[s_index], end_->seqs[e_index]);
 		newLoop->addAdjacent(start_->adjacentLoops[s_index]);
 		// TODO: fix this! asserts generate no code when NDEBUG is set!
 		assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
@@ -1418,10 +1411,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 		newLoop->generateMoves();
 
 		// need to re-generate the moves for the two adjacent loops.
-		// TODO: change this to only re-generate the deletion moves.
-		start_->adjacentLoops[s_index]->generateMoves();
-		end_->adjacentLoops[e_index]->generateMoves();
-
+		start_->adjacentLoops[s_index]->regenerateDeleteMoves();
+		end_->adjacentLoops[e_index]->regenerateDeleteMoves();
 		start_->cleanupAdjacent();
 		delete start_;
 		end_->cleanupAdjacent();
@@ -1432,14 +1423,13 @@ Loop *Loop::performDeleteMove(Move *move) {
 	if (identify(start, end, 'S', 'I')) {
 
 		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'S');
-
 		StackLoop *start_ = (StackLoop*) ordered.first;
 		InteriorLoop *end_ = (InteriorLoop*) ordered.second;
-
 		tie(s_index, e_index) = findExternalAdjacent(start_, end_);
 
-		// resulting will be an interior loop side lengths equal to the length
-		// of the 'input' interior loop+1.
+		// resulting will be an interior loop with sidelengths equal to the
+		// sidelengths of the 'input' interior loop + 1.
+		//
 		// FD: this compares pointers, the execution is arbitrarly
 //		assert(!(start_->seqs[s_index] + 1 == end_->int_seq[e_index]));
 //		assert(!(start_->seqs[s_index] == end_->int_seq[e_index] + 1));
@@ -1447,8 +1437,9 @@ Loop *Loop::performDeleteMove(Move *move) {
 		// FD: this compares pointers, the execution is arbitrarly
 //		if (start_->seqs[s_index] < end_->int_seq[e_index]) {
 
-		newLoop = new InteriorLoop(end_->sizes[1 - e_index] + 1, end_->sizes[e_index] + 1, start_->seqs[s_index], end_->int_seq[e_index]);
-
+		newLoop = new InteriorLoop(
+			end_->sizes[1 - e_index] + 1, end_->sizes[e_index] + 1,
+			start_->seqs[s_index], end_->int_seq[e_index]);
 		newLoop->addAdjacent(start_->adjacentLoops[s_index]);
 		// TODO: fix this! asserts generate no code when NDEBUG is set!
 		assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
@@ -1457,24 +1448,20 @@ Loop *Loop::performDeleteMove(Move *move) {
 		assert(end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop) > 0);
 //
 //		} else {
-//
 //			newLoop = new InteriorLoop(end_->sizes[e_index] + 1, end_->sizes[1 - e_index] + 1, end_->int_seq[e_index], start_->seqs[s_index]);
-//
 //			newLoop->addAdjacent(end_->adjacentLoops[e_index]);
 //			// TODO: fix this too! see above comment.
 //			assert(end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop) > 0);
 //			newLoop->addAdjacent(start_->adjacentLoops[s_index]);
 //			// TODO: fix this! asserts generate no code when NDEBUG is set!
 //			assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
-//
 //		}
+
 		newLoop->generateMoves();
 
 		// need to re-generate the moves for the two adjacent loops.
-		// TODO: change this to only re-generate the deletion moves.
-		start_->adjacentLoops[s_index]->generateMoves();
-		end_->adjacentLoops[e_index]->generateMoves();
-
+		start_->adjacentLoops[s_index]->regenerateDeleteMoves();
+		end_->adjacentLoops[e_index]->regenerateDeleteMoves();
 		start_->cleanupAdjacent();
 		delete start_;
 		end_->cleanupAdjacent();
@@ -1485,19 +1472,19 @@ Loop *Loop::performDeleteMove(Move *move) {
 	if (identify(start, end, 'S', 'B')) {
 
 		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'S');
-
 		StackLoop *start_ = (StackLoop *) ordered.first;
 		BulgeLoop *end_ = (BulgeLoop *) ordered.second;
-
 		tie(s_index, e_index) = findExternalAdjacent(start_, end_);
 
-		// resulting will be an interior loop side lengths equal to the length
-		// of the 'input' interior loop+1.
+		// resulting will be an interior loop with sidelengths equal to the
+		// length of the 'input' bulge loop + 1.
+		//
 		// FD: this compares pointers, the execution is arbitrarly
 //		if (start_->seqs[s_index] < end_->bulge_seq[e_index]) {
 
-		newLoop = new InteriorLoop(end_->bulgesize[1 - e_index] + 1, end_->bulgesize[e_index] + 1, start_->seqs[s_index], end_->bulge_seq[e_index]);
-
+		newLoop = new InteriorLoop(
+			end_->bulgesize[1 - e_index] + 1, end_->bulgesize[e_index] + 1,
+			start_->seqs[s_index], end_->bulge_seq[e_index]);
 		newLoop->addAdjacent(start_->adjacentLoops[s_index]);
 		// TODO: fix this! asserts generate no code when NDEBUG is set!
 		assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
@@ -1507,22 +1494,19 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		//		} else {
 //			newLoop = new InteriorLoop(end_->bulgesize[e_index] + 1, end_->bulgesize[1 - e_index] + 1, end_->bulge_seq[e_index], start_->seqs[s_index]);
-//
 //			newLoop->addAdjacent(end_->adjacentLoops[e_index]);
 //			// TODO: fix this too! see above comment.
 //			assert(end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop) > 0);
 //			newLoop->addAdjacent(start_->adjacentLoops[s_index]);
 //			// TODO: fix this! asserts generate no code when NDEBUG is set!
 //			assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
-//
 //		}
+
 		newLoop->generateMoves();
 
 		// need to re-generate the moves for the two adjacent loops.
-		// TODO: change this to only re-generate the deletion moves.
-		start_->adjacentLoops[s_index]->generateMoves();
-		end_->adjacentLoops[e_index]->generateMoves();
-
+		start_->adjacentLoops[s_index]->regenerateDeleteMoves();
+		end_->adjacentLoops[e_index]->regenerateDeleteMoves();
 		start_->cleanupAdjacent();
 		delete start_;
 		end_->cleanupAdjacent();
@@ -1533,7 +1517,6 @@ Loop *Loop::performDeleteMove(Move *move) {
 	if (identify(start, end, 'S', 'H')) {
 
 		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'S');
-
 		StackLoop *start_ = (StackLoop *) ordered.first;
 		HairpinLoop *end_ = (HairpinLoop *) ordered.second;
 
@@ -1545,10 +1528,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 		// end has only a single adjacent.
 
 		// resulting will be an hairpin loop, size+2.
-
 		newLoop = new HairpinLoop(end_->hairpinsize + 2, start_->seqs[s_index]);
 
-		//      printf("index: %d size: %d seqs: %s\n",s_index, end_->hairpinsize+2, start_->seqs[s_index]);
 		newLoop->addAdjacent(start_->adjacentLoops[s_index]);
 		// TODO: fix this! asserts generate no code when NDEBUG is set!
 		assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
@@ -1556,9 +1537,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 		newLoop->generateMoves();
 
 		// need to re-generate the moves for the two adjacent loops.
-		// TODO: change this to only re-generate the deletion moves.
-		start_->adjacentLoops[s_index]->generateMoves();
-
+		start_->adjacentLoops[s_index]->regenerateDeleteMoves();
 		start_->cleanupAdjacent();
 		delete start_;
 		end_->cleanupAdjacent();
@@ -1569,11 +1548,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 	if (identify(start, end, 'S', 'M')) {
 
 		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'S');
-
 		StackLoop* start_ = (StackLoop*) ordered.first;
 		MultiLoop* end_ = (MultiLoop*) ordered.second;
-
-		int temp = 0;
 
 		for (int loop = 0; loop < end_->numAdjacent; loop++) {
 			if (loop <= 1)
@@ -1602,9 +1578,11 @@ Loop *Loop::performDeleteMove(Move *move) {
 			}
 		}
 
-		// resulting will be an multiloop, same# of adjacent helices, two sides longer by one base, and one pairtype possibly changed.
+		// resulting will be an multiloop, same # of adjacent helices, two sides
+		// longer by one base, and one pairtype possibly changed.
 		newLoop = new MultiLoop(end_->numAdjacent, sidelens, seqs);
 
+		int temp = 0;
 		for (int loop = 0; loop < end_->numAdjacent; loop++) {
 			if (loop != e_index) {
 				newLoop->addAdjacent(end_->adjacentLoops[loop]);
@@ -1614,16 +1592,13 @@ Loop *Loop::performDeleteMove(Move *move) {
 				newLoop->addAdjacent(start_->adjacentLoops[s_index]);
 				temp = start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop);
 				assert(temp > 0);
-
 			}
 		}
 		newLoop->generateMoves();
 
 		// need to re-generate the moves for all adjacent loops.
-		// TODO: change this to only re-generate the deletion moves.
 		for (int loop = 0; loop < end_->numAdjacent; loop++)
-			newLoop->adjacentLoops[loop]->generateMoves();
-
+			newLoop->adjacentLoops[loop]->regenerateDeleteMoves();
 		start_->cleanupAdjacent();
 		delete start_;
 		end_->cleanupAdjacent();
@@ -1634,11 +1609,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 	if (identify(start, end, 'S', 'O')) {
 
 		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'S');
-
 		StackLoop* start_ = (StackLoop*) ordered.first;
 		OpenLoop* end_ = (OpenLoop*) ordered.second;
-
-		int temp = 0;
 
 		for (int loop = 0; (loop < end_->numAdjacent) || (loop < 2); loop++) {
 
@@ -1651,16 +1623,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 			}
 
 		}
-
 		// note e_index has different meaning now for openloops.
-
-//		cout << "s_index, e_index = " << s_index << "  " << e_index << endl;
-//
-//		cout << "Start is " << endl;
-//		cout << (start_)->typeInternalsToString() << endl;
-//
-//		cout << "End is " << endl;
-//		cout << end_->typeInternalsToString() << endl;
 
 		int *sidelens = new int[end_->numAdjacent + 1];
 		char **seqs = new char *[end_->numAdjacent + 1];
@@ -1678,11 +1641,11 @@ Loop *Loop::performDeleteMove(Move *move) {
 			}
 		}
 
-//		cout << "new Pairtype is CUSTOM: " << pairtypes[0] << endl;
-
-		// resulting will be an open loop, same# of adjacent helices, two sides longer by one base, and one pairtype possibly changed.
+		// resulting will be an open loop, same # of adjacent helices, two sides
+		// longer by one base, and one pairtype possibly changed.
 		newLoop = new OpenLoop(end_->numAdjacent, sidelens, seqs);
 
+		int temp = 0;
 		for (int loop = 0; loop < end_->numAdjacent; loop++) {
 			if (loop != e_index) {
 				newLoop->addAdjacent(end_->adjacentLoops[loop]);
@@ -1698,10 +1661,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 		newLoop->generateMoves();
 
 		// need to re-generate the moves for all adjacent loops.
-		// TODO: change this to only re-generate the deletion moves.
 		for (int loop = 0; loop < end_->numAdjacent; loop++)
-			newLoop->adjacentLoops[loop]->generateMoves();
-
+			newLoop->adjacentLoops[loop]->regenerateDeleteMoves();
 		start_->cleanupAdjacent();
 		delete start_;
 		end_->cleanupAdjacent();
@@ -1712,20 +1673,17 @@ Loop *Loop::performDeleteMove(Move *move) {
 	if (identify(start, end, 'I', 'I')) {
 
 		InteriorLoop *start_, *end_;
-
 		start_ = (InteriorLoop *) start;
 		end_ = (InteriorLoop *) end;
-
 		tie(s_index, e_index) = findExternalAdjacent(start_, end_);
 
-		// resulting will be an interior loop side lengths equal to the length
-		// of the 'input' interior loop+1.
 		// FD: this compares pointers, the execution is arbitrarly
 //		if (start_->int_seq[s_index] < end_->int_seq[e_index]) {
 
-		newLoop = new InteriorLoop(end_->sizes[1 - e_index] + start_->sizes[s_index] + 1, end_->sizes[e_index] + start_->sizes[1 - s_index] + 1,
-				start_->int_seq[s_index], end_->int_seq[e_index]);
-
+		newLoop = new InteriorLoop(
+			end_->sizes[1 - e_index] + start_->sizes[s_index] + 1,
+			end_->sizes[e_index] + start_->sizes[1 - s_index] + 1,
+			start_->int_seq[s_index], end_->int_seq[e_index]);
 		newLoop->addAdjacent(start_->adjacentLoops[s_index]);
 		// TODO: fix this! asserts generate no code when NDEBUG is set!
 		assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
@@ -1736,22 +1694,19 @@ Loop *Loop::performDeleteMove(Move *move) {
 //		} else {
 //			newLoop = new InteriorLoop(end_->sizes[e_index] + start_->sizes[1 - s_index] + 1, end_->sizes[1 - e_index] + start_->sizes[s_index] + 1,
 //					end_->int_seq[e_index], start_->int_seq[s_index]);
-//
 //			newLoop->addAdjacent(end_->adjacentLoops[e_index]);
 //			// TODO: fix this too! see above comment.
 //			assert(end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop) > 0);
 //			newLoop->addAdjacent(start_->adjacentLoops[s_index]);
 //			// TODO: fix this! asserts generate no code when NDEBUG is set!
 //			assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
-//
 //		}
+
 		newLoop->generateMoves();
 
 		// need to re-generate the moves for the two adjacent loops.
-		// TODO: change this to only re-generate the deletion moves.
-		start_->adjacentLoops[s_index]->generateMoves();
-		end_->adjacentLoops[e_index]->generateMoves();
-
+		start_->adjacentLoops[s_index]->regenerateDeleteMoves();
+		end_->adjacentLoops[e_index]->regenerateDeleteMoves();
 		start_->cleanupAdjacent();
 		delete start_;
 		end_->cleanupAdjacent();
@@ -1762,20 +1717,20 @@ Loop *Loop::performDeleteMove(Move *move) {
 	if (identify(start, end, 'I', 'B')) {
 
 		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'I');
-
 		InteriorLoop* start_ = (InteriorLoop*) ordered.first;
 		BulgeLoop* end_ = (BulgeLoop*) ordered.second;
-
 		tie(s_index, e_index) = findExternalAdjacent(start_, end_);
 
-		// resulting will be an interior loop side lengths equal to the length
-		// of the 'input' bulge loop, plus one on each side (ie, one side will be B+1, the other 1.
+		// resulting will be an interior loop with sidelengths equal to the
+		// 'input' interior loop, plus B on one side and 1 on the other.
+		//
 		// FD: this compares pointers, the execution is arbitrarly
 //		if (start_->int_seq[s_index] < end_->bulge_seq[e_index]) {
 
-		newLoop = new InteriorLoop(end_->bulgesize[1 - e_index] + 1 + start_->sizes[s_index], end_->bulgesize[e_index] + 1 + start_->sizes[1 - s_index],
-				start_->int_seq[s_index], end_->bulge_seq[e_index]);
-
+		newLoop = new InteriorLoop(
+			end_->bulgesize[1 - e_index] + 1 + start_->sizes[s_index],
+			end_->bulgesize[e_index] + 1 + start_->sizes[1 - s_index],
+			start_->int_seq[s_index], end_->bulge_seq[e_index]);
 		newLoop->addAdjacent(start_->adjacentLoops[s_index]);
 		// TODO: fix this! asserts generate no code when NDEBUG is set!
 		assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
@@ -1786,22 +1741,19 @@ Loop *Loop::performDeleteMove(Move *move) {
 		//		} else {
 //			newLoop = new InteriorLoop(end_->bulgesize[e_index] + 1 + start_->sizes[1 - s_index], end_->bulgesize[1 - e_index] + 1 + start_->sizes[s_index],
 //					end_->bulge_seq[e_index], start_->int_seq[s_index]);
-//
 //			newLoop->addAdjacent(end_->adjacentLoops[e_index]);
 //			// TODO: fix this too! see above comment.
 //			assert(end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop) > 0);
 //			newLoop->addAdjacent(start_->adjacentLoops[s_index]);
 //			// TODO: fix this! asserts generate no code when NDEBUG is set!
 //			assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
-//
 //		}
+
 		newLoop->generateMoves();
 
 		// need to re-generate the moves for the two adjacent loops.
-		// TODO: change this to only re-generate the deletion moves.
-		start_->adjacentLoops[s_index]->generateMoves();
-		end_->adjacentLoops[e_index]->generateMoves();
-
+		start_->adjacentLoops[s_index]->regenerateDeleteMoves();
+		end_->adjacentLoops[e_index]->regenerateDeleteMoves();
 		start_->cleanupAdjacent();
 		delete start_;
 		end_->cleanupAdjacent();
@@ -1812,7 +1764,6 @@ Loop *Loop::performDeleteMove(Move *move) {
 	if (identify(start, end, 'I', 'H')) {
 
 		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'I');
-
 		InteriorLoop* start_ = (InteriorLoop*) ordered.first;
 		HairpinLoop* end_ = (HairpinLoop*) ordered.second;
 
@@ -1823,9 +1774,11 @@ Loop *Loop::performDeleteMove(Move *move) {
 		}
 		// end is the hairpin, which has no extra adjacencies.
 
-		// resulting will be a hairpin loop with previous size, plus interior loop's sizes (both) plus 2 (for the pairing that's now unpaired)
-		newLoop = new HairpinLoop(end_->hairpinsize + 2 + start_->sizes[0] + start_->sizes[1], start_->int_seq[s_index]);
-
+		// resulting will be a hairpin loop with previous size, plus interior
+		// loop's sizes (both) plus 2 (for the pairing that's now unpaired)
+		newLoop = new HairpinLoop(
+			end_->hairpinsize + 2 + start_->sizes[0] + start_->sizes[1],
+			start_->int_seq[s_index]);
 		newLoop->addAdjacent(start_->adjacentLoops[s_index]);
 		// TODO: fix this! asserts generate no code when NDEBUG is set!
 		assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
@@ -1833,9 +1786,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 		newLoop->generateMoves();
 
 		// need to re-generate the moves for the two adjacent loops.
-		// TODO: change this to only re-generate the deletion moves.
-		start_->adjacentLoops[s_index]->generateMoves();
-
+		start_->adjacentLoops[s_index]->regenerateDeleteMoves();
 		start_->cleanupAdjacent();
 		delete start_;
 		end_->cleanupAdjacent();
@@ -1846,11 +1797,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 	else if (identify(start, end, 'I', 'M')) {
 
 		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'I');
-
 		InteriorLoop* start_ = (InteriorLoop*) ordered.first;
 		MultiLoop* end_ = (MultiLoop*) ordered.second;
-
-		int temp = 0;
 
 		for (int loop = 0; loop < end_->numAdjacent; loop++) {
 			if (loop <= 1)
@@ -1868,7 +1816,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		for (int loop = 0; loop < end_->numAdjacent; loop++) {
 			if (loop != e_index) {
-				if ((loop != e_index - 1 && e_index != 0) || (loop != end_->numAdjacent - 1 && e_index == 0))
+				if ((loop != e_index - 1 && e_index != 0) ||
+					(loop != end_->numAdjacent - 1 && e_index == 0))
 					sidelens[loop] = end_->sidelen[loop];
 				else
 					sidelens[loop] = end_->sidelen[loop] + start_->sizes[1 - s_index] + 1;
@@ -1879,9 +1828,12 @@ Loop *Loop::performDeleteMove(Move *move) {
 			}
 		}
 
-		// resulting will be an multiloop, same# of adjacent helices, two sides longer by one plus interior loop size, and one pairtype possibly changed.
+		// resulting will be an multiloop, same # of adjacent helices, two sides
+		// longer by one plus interior loop size, and one pairtype possibly
+		// changed.
 		newLoop = new MultiLoop(end_->numAdjacent, sidelens, seqs);
 
+		int temp = 0;
 		for (int loop = 0; loop < end_->numAdjacent; loop++) {
 			if (loop != e_index) {
 				newLoop->addAdjacent(end_->adjacentLoops[loop]);
@@ -1891,16 +1843,13 @@ Loop *Loop::performDeleteMove(Move *move) {
 				newLoop->addAdjacent(start_->adjacentLoops[s_index]);
 				temp = start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop);
 				assert(temp > 0);
-
 			}
 		}
 		newLoop->generateMoves();
 
 		// need to re-generate the moves for all adjacent loops.
-		// TODO: change this to only re-generate the deletion moves.
 		for (int loop = 0; loop < end_->numAdjacent; loop++)
-			newLoop->adjacentLoops[loop]->generateMoves();
-
+			newLoop->adjacentLoops[loop]->regenerateDeleteMoves();
 		start_->cleanupAdjacent();
 		delete start_;
 		end_->cleanupAdjacent();
@@ -1911,11 +1860,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 	if (identify(start, end, 'I', 'O')) {
 
 		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'I');
-
 		InteriorLoop* start_ = (InteriorLoop*) ordered.first;
 		OpenLoop* end_ = (OpenLoop*) ordered.second;
-
-		int temp = 0;
 
 		for (int loop = 0; (loop < end_->numAdjacent) || (loop < 2); loop++) {
 			if (loop <= 1)
@@ -1945,9 +1891,11 @@ Loop *Loop::performDeleteMove(Move *move) {
 			}
 		}
 
-		// resulting will be an open loop, same# of adjacent helices, two sides longer by one base, and one pairtype possibly changed.
+		// resulting will be an open loop, same # of adjacent helices, two sides
+		// longer by one base, and one pairtype possibly changed.
 		newLoop = new OpenLoop(end_->numAdjacent, sidelens, seqs);
 
+		int temp = 0;
 		for (int loop = 0; loop < end_->numAdjacent; loop++) {
 			if (loop != e_index) {
 				newLoop->addAdjacent(end_->adjacentLoops[loop]);
@@ -1963,10 +1911,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 		newLoop->generateMoves();
 
 		// need to re-generate the moves for all adjacent loops.
-		// TODO: change this to only re-generate the deletion moves.
 		for (int loop = 0; loop < end_->numAdjacent; loop++)
-			newLoop->adjacentLoops[loop]->generateMoves();
-
+			newLoop->adjacentLoops[loop]->regenerateDeleteMoves();
 		start_->cleanupAdjacent();
 		delete start_;
 		end_->cleanupAdjacent();
@@ -1980,20 +1926,17 @@ Loop *Loop::performDeleteMove(Move *move) {
 	if (identify(start, end, 'B', 'B')) {
 
 		BulgeLoop *start_, *end_;
-
 		start_ = (BulgeLoop *) start;
 		end_ = (BulgeLoop *) end;
-
 		tie(s_index, e_index) = findExternalAdjacent(start_, end_);
 
-		// resulting will be an interior loop side lengths equal to the length
-		// of the 'input' interior loop+1.
 		// FD: this compares pointers, the execution is arbitrarly
 //		if (start_->bulge_seq[s_index] < end_->bulge_seq[e_index]) {
 
-		newLoop = new InteriorLoop(end_->bulgesize[1 - e_index] + start_->bulgesize[s_index] + 1, end_->bulgesize[e_index] + start_->bulgesize[1 - s_index] + 1,
-				start_->bulge_seq[s_index], end_->bulge_seq[e_index]);
-
+		newLoop = new InteriorLoop(
+			end_->bulgesize[1 - e_index] + start_->bulgesize[s_index] + 1,
+			end_->bulgesize[e_index] + start_->bulgesize[1 - s_index] + 1,
+			start_->bulge_seq[s_index], end_->bulge_seq[e_index]);
 		newLoop->addAdjacent(start_->adjacentLoops[s_index]);
 		// TODO: fix this! asserts generate no code when NDEBUG is set!
 		assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
@@ -2004,22 +1947,19 @@ Loop *Loop::performDeleteMove(Move *move) {
 //		} else {
 //			newLoop = new InteriorLoop(end_->bulgesize[e_index] + start_->bulgesize[1 - s_index] + 1,
 //					end_->bulgesize[1 - e_index] + start_->bulgesize[s_index] + 1, end_->bulge_seq[e_index], start_->bulge_seq[s_index]);
-//
 //			newLoop->addAdjacent(end_->adjacentLoops[e_index]);
 //			// TODO: fix this too! see above comment.
 //			assert(end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop) > 0);
 //			newLoop->addAdjacent(start_->adjacentLoops[s_index]);
 //			// TODO: fix this! asserts generate no code when NDEBUG is set!
 //			assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
-//
 //		}
+
 		newLoop->generateMoves();
 
 		// need to re-generate the moves for the two adjacent loops.
-		// TODO: change this to only re-generate the deletion moves.
-		start_->adjacentLoops[s_index]->generateMoves();
-		end_->adjacentLoops[e_index]->generateMoves();
-
+		start_->adjacentLoops[s_index]->regenerateDeleteMoves();
+		end_->adjacentLoops[e_index]->regenerateDeleteMoves();
 		start_->cleanupAdjacent();
 		delete start_;
 		end_->cleanupAdjacent();
@@ -2030,7 +1970,6 @@ Loop *Loop::performDeleteMove(Move *move) {
 	if (identify(start, end, 'B', 'H')) {
 
 		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'B');
-
 		BulgeLoop* start_ = (BulgeLoop*) ordered.first;
 		HairpinLoop* end_ = (HairpinLoop*) ordered.second;
 
@@ -2041,9 +1980,11 @@ Loop *Loop::performDeleteMove(Move *move) {
 		}
 		// end is the hairpin, which has no extra adjacencies.
 
-		// resulting will be a hairpin loop with previous size, plus interior loop's sizes (both) plus 2 (for the pairing that's now unpaired)
-		newLoop = new HairpinLoop(end_->hairpinsize + 2 + start_->bulgesize[0] + start_->bulgesize[1], start_->bulge_seq[s_index]);
-
+		// resulting will be a hairpin loop with previous size, plus interior
+		// loop's sizes (both) plus 2 (for the pairing that's now unpaired)
+		newLoop = new HairpinLoop(
+			end_->hairpinsize + 2 + start_->bulgesize[0] + start_->bulgesize[1],
+			start_->bulge_seq[s_index]);
 		newLoop->addAdjacent(start_->adjacentLoops[s_index]);
 		// TODO: fix this! asserts generate no code when NDEBUG is set!
 		assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
@@ -2051,9 +1992,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 		newLoop->generateMoves();
 
 		// need to re-generate the moves for the two adjacent loops.
-		// TODO: change this to only re-generate the deletion moves.
-		start_->adjacentLoops[s_index]->generateMoves();
-
+		start_->adjacentLoops[s_index]->regenerateDeleteMoves();
 		start_->cleanupAdjacent();
 		delete start_;
 		end_->cleanupAdjacent();
@@ -2063,10 +2002,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 	else if (identify(start, end, 'B', 'M')) {
 
-		int temp = 0;
-
 		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'B');
-
 		BulgeLoop* start_ = (BulgeLoop*) ordered.first;
 		MultiLoop* end_ = (MultiLoop*) ordered.second;
 
@@ -2086,7 +2022,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		for (int loop = 0; loop < end_->numAdjacent; loop++) {
 			if (loop != e_index) {
-				if ((loop != e_index - 1 && e_index != 0) || (loop != end_->numAdjacent - 1 && e_index == 0))
+				if ((loop != e_index - 1 && e_index != 0) ||
+					(loop != end_->numAdjacent - 1 && e_index == 0))
 					sidelens[loop] = end_->sidelen[loop];
 				else
 					sidelens[loop] = end_->sidelen[loop] + start_->bulgesize[1 - s_index] + 1;
@@ -2097,9 +2034,12 @@ Loop *Loop::performDeleteMove(Move *move) {
 			}
 		}
 
-		// resulting will be an multiloop, same# of adjacent helices, two sides longer by one plus interior loop size, and one pairtype possibly changed.
+		// resulting will be an multiloop, same # of adjacent helices, two sides
+		// longer by one plus interior loop size, and one pairtype possibly
+		// changed.
 		newLoop = new MultiLoop(end_->numAdjacent, sidelens, seqs);
 
+		int temp = 0;
 		for (int loop = 0; loop < end_->numAdjacent; loop++) {
 			if (loop != e_index) {
 				newLoop->addAdjacent(end_->adjacentLoops[loop]);
@@ -2115,10 +2055,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 		newLoop->generateMoves();
 
 		// need to re-generate the moves for all adjacent loops.
-		// TODO: change this to only re-generate the deletion moves.
 		for (int loop = 0; loop < end_->numAdjacent; loop++)
-			newLoop->adjacentLoops[loop]->generateMoves();
-
+			newLoop->adjacentLoops[loop]->regenerateDeleteMoves();
 		start_->cleanupAdjacent();
 		delete start_;
 		end_->cleanupAdjacent();
@@ -2131,8 +2069,6 @@ Loop *Loop::performDeleteMove(Move *move) {
 		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'B');
 		BulgeLoop* start_ = (BulgeLoop*) ordered.first;
 		OpenLoop* end_ = (OpenLoop*) ordered.second;
-
-		int temp = 0;
 
 		for (int loop = 0; (loop < end_->numAdjacent) || (loop < 2); loop++) {
 			if (loop <= 1)
@@ -2162,9 +2098,11 @@ Loop *Loop::performDeleteMove(Move *move) {
 			}
 		}
 
-		// resulting will be an open loop, same# of adjacent helices, two sides longer by one base, and one pairtype possibly changed.
+		// resulting will be an open loop, same # of adjacent helices, two sides
+		// longer by one base, and one pairtype possibly changed.
 		newLoop = new OpenLoop(end_->numAdjacent, sidelens, seqs);
 
+		int temp = 0;
 		for (int loop = 0; loop < end_->numAdjacent; loop++) {
 			if (loop != e_index) {
 				newLoop->addAdjacent(end_->adjacentLoops[loop]);
@@ -2180,10 +2118,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 		newLoop->generateMoves();
 
 		// need to re-generate the moves for all adjacent loops.
-		// TODO: change this to only re-generate the deletion moves.
 		for (int loop = 0; loop < end_->numAdjacent; loop++)
-			newLoop->adjacentLoops[loop]->generateMoves();
-
+			newLoop->adjacentLoops[loop]->regenerateDeleteMoves();
 		start_->cleanupAdjacent();
 		delete start_;
 		end_->cleanupAdjacent();
@@ -2206,7 +2142,6 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		int temp;
 		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'H');
-
 		HairpinLoop* start_ = (HairpinLoop*) ordered.first;
 		MultiLoop* end_ = (MultiLoop*) ordered.second;
 
@@ -2218,9 +2153,13 @@ Loop *Loop::performDeleteMove(Move *move) {
 		// note e_index has different meaning now for multiloops.
 
 		// Several cases we now need to check for:
-		// 1. Multiloop had 3 adjacent stacks, and the resulting figure with two adjacent stacks is now a interior loop.
-		// 2. Multiloop had 3 adjacent stacks, and the resulting structure with two adjacent stacks is now a bulge loop
-		// 3. Multiloop had >3 adjacent stacks, and the resulting structure is a multiloop with one less adjacent stack.
+		//
+		// 1. Multiloop had 3 adjacent stacks, and the resulting figure with two
+		//    adjacent stacks is now a interior loop.
+		// 2. Multiloop had 3 adjacent stacks, and the resulting structure with
+		//    two adjacent stacks is now a bulge loop
+		// 3. Multiloop had >3 adjacent stacks, and the resulting structure is a
+		//    multiloop with one less adjacent stack.
 
 		if (end_->numAdjacent == 3) {
 			int sizes[2];
@@ -2233,7 +2172,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 			sizes[1] = end_->sidelen[(e_index + 1) % 3];
 
 			if (sizes[1] > 0) // interior loop case
-					{
+			{
 				// TODO: check for other idiot uses of sequence compares
 				// and see if they caused as much problems as this one
 				// (false case was putting the adjacencies back in the wrong order)
@@ -2241,12 +2180,12 @@ Loop *Loop::performDeleteMove(Move *move) {
 				 if( end_->seqs[positions[0]] > end_->seqs[positions[1]] )
 				 {*/
 				// FD: Found 3 more in this very file.
-				newLoop = new InteriorLoop(sizes[0], sizes[1], end_->seqs[positions[1]], end_->seqs[positions[0]]);
-
+				newLoop = new InteriorLoop(
+					sizes[0], sizes[1], end_->seqs[positions[1]],
+					end_->seqs[positions[0]]);
 				newLoop->addAdjacent(end_->adjacentLoops[positions[1]]);
 				temp = end_->adjacentLoops[positions[1]]->replaceAdjacent(end_, newLoop);
 				assert(temp > 0);
-
 				newLoop->addAdjacent(end_->adjacentLoops[positions[0]]);
 				temp = end_->adjacentLoops[positions[0]]->replaceAdjacent(end_, newLoop);
 				assert(temp > 0);
@@ -2254,10 +2193,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 				newLoop->generateMoves();
 
 				// need to re-generate the moves for all adjacent loops.
-				// TODO: change this to only re-generate the deletion moves.
-				newLoop->adjacentLoops[0]->generateMoves();
-				newLoop->adjacentLoops[1]->generateMoves();
-
+				newLoop->adjacentLoops[0]->regenerateDeleteMoves();
+				newLoop->adjacentLoops[1]->regenerateDeleteMoves();
 				start_->cleanupAdjacent();
 				delete start_;
 				end_->cleanupAdjacent();
@@ -2267,11 +2204,9 @@ Loop *Loop::performDeleteMove(Move *move) {
 			} else  // bulge loop case
 			{
 				newLoop = new BulgeLoop(sizes[1], sizes[0], end_->seqs[positions[0]], end_->seqs[positions[1]]);
-
 				newLoop->addAdjacent(end_->adjacentLoops[positions[0]]);
 				temp = end_->adjacentLoops[positions[0]]->replaceAdjacent(end_, newLoop);
 				assert(temp > 0);
-
 				newLoop->addAdjacent(end_->adjacentLoops[positions[1]]);
 				temp = end_->adjacentLoops[positions[1]]->replaceAdjacent(end_, newLoop);
 				assert(temp > 0);
@@ -2279,19 +2214,16 @@ Loop *Loop::performDeleteMove(Move *move) {
 				newLoop->generateMoves();
 
 				// need to re-generate the moves for all adjacent loops.
-				// TODO: change this to only re-generate the deletion moves.
-				newLoop->adjacentLoops[0]->generateMoves();
-				newLoop->adjacentLoops[1]->generateMoves();
+				newLoop->adjacentLoops[0]->regenerateDeleteMoves();
+				newLoop->adjacentLoops[1]->regenerateDeleteMoves();
 				start_->cleanupAdjacent();
 				delete start_;
 				end_->cleanupAdjacent();
 				delete end_;
 				return newLoop;
 			}
-		}
-
-		else if (end_->numAdjacent > 3)              // multiloop case
-				{
+		} else if (end_->numAdjacent > 3)              // multiloop case
+		{
 			int* sidelens = new int[end_->numAdjacent - 1];
 			char** seqs = new char*[end_->numAdjacent - 1];
 
@@ -2303,19 +2235,20 @@ Loop *Loop::performDeleteMove(Move *move) {
 			for (int loop = 0; loop < end_->numAdjacent; loop++) {
 				if (loop != e_index) {
 					if (loop < e_index) {
-						if ((loop != e_index - 1 && e_index != 0) || (loop != end_->numAdjacent - 1 && e_index == 0))
+						if ((loop != e_index - 1 && e_index != 0) ||
+							(loop != end_->numAdjacent - 1 && e_index == 0))
 							sidelens[loop] = end_->sidelen[loop];
 						else
 							sidelens[loop] = end_->sidelen[loop] + end_->sidelen[e_index] + 2 + start_->hairpinsize;
 						seqs[loop] = end_->seqs[loop];
 					}
 					if (loop > e_index) {
-						if ((loop != e_index - 1 && e_index != 0) || (loop != end_->numAdjacent - 1 && e_index == 0))
+						if ((loop != e_index - 1 && e_index != 0) ||
+							(loop != end_->numAdjacent - 1 && e_index == 0))
 							sidelens[loop - 1] = end_->sidelen[loop];
 						else
 							sidelens[loop - 1] = end_->sidelen[loop] + end_->sidelen[e_index] + 2 + start_->hairpinsize;
 						seqs[loop - 1] = end_->seqs[loop];
-
 					}
 				}
 			}
@@ -2332,10 +2265,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 			newLoop->generateMoves();
 
 			// need to re-generate the moves for all adjacent loops.
-			// TODO: change this to only re-generate the deletion moves.
 			for (int loop = 0; loop < newLoop->numAdjacent; loop++)
-				newLoop->adjacentLoops[loop]->generateMoves();
-
+				newLoop->adjacentLoops[loop]->regenerateDeleteMoves();
 			start_->cleanupAdjacent();
 			delete start_;
 			end_->cleanupAdjacent();
@@ -2348,11 +2279,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 	if (identify(start, end, 'H', 'O')) {
 
 		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'H');
-
 		HairpinLoop* start_ = (HairpinLoop*) ordered.first;
 		OpenLoop* end_ = (OpenLoop*) ordered.second;
-
-		int temp;
 
 		for (int loop = 0; (loop < end_->numAdjacent); loop++) {
 			if (end_->adjacentLoops[loop] == start_) {
@@ -2378,6 +2306,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 		}
 
 		newLoop = new OpenLoop(end_->numAdjacent - 1, sidelens, seqs);
+
+		int temp;
 		for (int loop = 0; loop < end_->numAdjacent; loop++) {
 			if (loop != e_index) {
 				newLoop->addAdjacent(end_->adjacentLoops[loop]);
@@ -2389,10 +2319,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 		newLoop->generateMoves();
 
 		// need to re-generate the moves for all adjacent loops.
-		// TODO: change this to only re-generate the deletion moves.
 		for (int loop = 0; loop < newLoop->numAdjacent; loop++)
-			newLoop->adjacentLoops[loop]->generateMoves();
-
+			newLoop->adjacentLoops[loop]->regenerateDeleteMoves();
 		start_->cleanupAdjacent();
 		delete start_;
 		end_->cleanupAdjacent();
@@ -2409,11 +2337,12 @@ Loop *Loop::performDeleteMove(Move *move) {
 		MultiLoop *start_;
 		MultiLoop *end_;
 		int index = 0, temp;
-
 		start_ = (MultiLoop *) start;
 		end_ = (MultiLoop *) end;
 
-		for (int loop = 0; loop < end_->numAdjacent || loop < start_->numAdjacent; loop++) {
+		for (int loop = 0;
+			 loop < end_->numAdjacent || loop < start_->numAdjacent;
+			 loop++) {
 			if (loop < start_->numAdjacent)
 				if (start_->adjacentLoops[loop] == end_) {
 					s_index = loop;
@@ -2431,7 +2360,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 		index = 0;
 		for (int loop = 0; loop < start_->numAdjacent; loop++) {
 			if (loop != s_index) {
-				if ((loop != s_index - 1 && s_index != 0) || (loop != start_->numAdjacent - 1 && s_index == 0))
+				if ((loop != s_index - 1 && s_index != 0) ||
+					(loop != start_->numAdjacent - 1 && s_index == 0))
 					sidelens[index] = start_->sidelen[loop];
 				else
 					sidelens[index] = start_->sidelen[loop] + end_->sidelen[e_index] + 1;
@@ -2441,7 +2371,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 				for (int loop2 = 1; loop2 < end_->numAdjacent; loop2++) {
 					temp = (e_index + loop2) % end_->numAdjacent;
 
-					if ((temp != e_index - 1 && e_index != 0) || (temp != end_->numAdjacent - 1 && e_index == 0))
+					if ((temp != e_index - 1 && e_index != 0) ||
+						(temp != end_->numAdjacent - 1 && e_index == 0))
 						sidelens[index] = end_->sidelen[temp];
 					else
 						sidelens[index] = end_->sidelen[temp] + start_->sidelen[s_index] + 1;
@@ -2452,7 +2383,9 @@ Loop *Loop::performDeleteMove(Move *move) {
 		}
 		assert(index == end_->numAdjacent + start_->numAdjacent - 2);
 
-		newLoop = new MultiLoop(start_->numAdjacent + end_->numAdjacent - 2, sidelens, seqs);
+		newLoop = new MultiLoop(
+			start_->numAdjacent + end_->numAdjacent - 2, sidelens, seqs);
+
 		for (int loop = 0; loop < start_->numAdjacent; loop++) {
 			if (loop != s_index) {
 				newLoop->addAdjacent(start_->adjacentLoops[loop]);
@@ -2471,10 +2404,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 		newLoop->generateMoves();
 
 		// need to re-generate the moves for all adjacent loops.
-		// TODO: change this to only re-generate the deletion moves.
 		for (int loop = 0; loop < newLoop->numAdjacent; loop++)
-			newLoop->adjacentLoops[loop]->generateMoves();
-
+			newLoop->adjacentLoops[loop]->regenerateDeleteMoves();
 		start_->cleanupAdjacent();
 		delete start_;
 		end_->cleanupAdjacent();
@@ -2486,11 +2417,12 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 		int index = 0, temp;
 		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'O');
-
 		OpenLoop* start_ = (OpenLoop*) ordered.first;
 		MultiLoop* end_ = (MultiLoop*) ordered.second;
 
-		for (int loop = 0; loop < end_->numAdjacent || loop < start_->numAdjacent; loop++) {
+		for (int loop = 0;
+			 loop < end_->numAdjacent || loop < start_->numAdjacent;
+			 loop++) {
 			if (loop < start_->numAdjacent)
 				if (start_->adjacentLoops[loop] == end_) {
 					s_index = loop;
@@ -2537,7 +2469,9 @@ Loop *Loop::performDeleteMove(Move *move) {
 		}
 		assert(index == end_->numAdjacent + start_->numAdjacent - 2);
 
-		newLoop = new OpenLoop(start_->numAdjacent + end_->numAdjacent - 2, sidelens, seqs);
+		newLoop = new OpenLoop(
+			start_->numAdjacent + end_->numAdjacent - 2, sidelens, seqs);
+
 		for (int loop = 0; loop < start_->numAdjacent; loop++) {
 			if (loop != s_index) {
 				newLoop->addAdjacent(start_->adjacentLoops[loop]);
@@ -2556,10 +2490,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 		newLoop->generateMoves();
 
 		// need to re-generate the moves for all adjacent loops.
-		// TODO: change this to only re-generate the deletion moves.
 		for (int loop = 0; loop < newLoop->numAdjacent; loop++)
-			newLoop->adjacentLoops[loop]->generateMoves();
-
+			newLoop->adjacentLoops[loop]->regenerateDeleteMoves();
 		start_->cleanupAdjacent();
 		delete start_;
 		end_->cleanupAdjacent();
@@ -2582,22 +2514,32 @@ Loop *Loop::performDeleteMove(Move *move) {
 	return NULL;
 }
 
-/* StackLoop */
+
+/* StackLoop ================================================================ */
+
 
 void StackLoop::calculateEnergy(void) {
 
 	assert(Loop::energyModel != NULL);
-	energy = Loop::energyModel->StackEnergy(seqs[0][0], seqs[1][1], seqs[0][1], seqs[1][0]);
+	energy = Loop::energyModel->StackEnergy(
+		seqs[0][0], seqs[1][1], seqs[0][1], seqs[1][0]);
 
 }
 
 void StackLoop::calculateEnthalpy(void) {
 
-	enthalpy = Loop::energyModel->StackEnthalpy(seqs[0][0], seqs[1][1], seqs[0][1], seqs[1][0]);
+	enthalpy = Loop::energyModel->StackEnthalpy(
+		seqs[0][0], seqs[1][1], seqs[0][1], seqs[1][0]);
 
 }
 
 void StackLoop::generateMoves(void) {
+
+	if (energyModel->simOptions->debug) {
+		cout << "StackLoop generating moves!" << endl;
+		cout << this->typeInternalsToString();
+	}
+
 	generateDeleteMoves();
 }
 
@@ -2605,12 +2547,17 @@ void StackLoop::generateDeleteMoves(void) {
 	double temprate;
 	if (moves != NULL)
 		delete moves;
-	moves = new MoveList(0); // always have 2 delete moves, no shift moves and no creation moves.
-
+	moves = new MoveList(0);
+	// always have 2 delete moves, no shift moves and no creation moves.
 	generateAndSaveDeleteMove(adjacentLoops[0], 0);
 	generateAndSaveDeleteMove(adjacentLoops[1], 1);
 
 	totalRate = moves->getRate();
+}
+
+void StackLoop::regenerateDeleteMoves(void) {
+	// TODO: change this to only re-generate the deletion moves.
+	generateMoves();
 }
 
 void StackLoop::printMove(Loop *comefrom, char *structure_p, char *seq_p) {
@@ -2621,12 +2568,11 @@ void StackLoop::printMove(Loop *comefrom, char *structure_p, char *seq_p) {
 	structure_p[seqs[1] - seq_p] = (seqs[0] < seqs[1]) ? ')' : '(';
 
 	for (loop = 0; loop < curAdjacent; loop++) {
-		if (adjacentLoops[loop] != comefrom && adjacentLoops[loop] != NULL)
-			// shouldn't happen, being careful.
+		if ((adjacentLoops[loop] != comefrom && adjacentLoops[loop] != NULL)
+			|| comefrom == NULL)
 			adjacentLoops[loop]->printMove(this, structure_p, seq_p);
 		assert(adjacentLoops[loop] != NULL);
 	}
-// for now, Stack loops also don't have deletion moves.
 }
 
 Move *StackLoop::getChoice(SimTimer& timer, Loop *from) {
@@ -2652,8 +2598,9 @@ Move *StackLoop::getChoice(SimTimer& timer, Loop *from) {
 }
 
 double StackLoop::doChoice(Move *move, Loop **returnLoop) {
-	;
-// currently no moves in stackloop, in the future will include deletion moves
+	assert(!(move->type & MOVE_DELETE));
+
+	return -totalRate;
 }
 
 char *StackLoop::getLocation(Move *move, int index) {
@@ -2726,9 +2673,9 @@ string StackLoop::typeInternalsToString(void) {
 
 }
 
-/*
- HairpinLoop Functions
- */
+
+/* HairpinLoop ============================================================== */
+
 
 HairpinLoop::HairpinLoop(void) {
 	numAdjacent = 1;
@@ -2791,6 +2738,8 @@ Move *HairpinLoop::getChoice(SimTimer& timer, Loop *from) {
 }
 
 double HairpinLoop::doChoice(Move *move, Loop **returnLoop) {
+	assert(!(move->type & MOVE_DELETE));
+
 	Loop *newLoop[2];
 	int pt, loop, loop2;
 	if (move->type & MOVE_CREATE) {
@@ -2798,7 +2747,7 @@ double HairpinLoop::doChoice(Move *move, Loop **returnLoop) {
 		loop2 = move->index[1];
 		pt = pairtypes[hairpin_seq[loop]][hairpin_seq[loop2]];
 		if (move->type & MOVE_1) // stack and hairpin
-				{
+		{
 			newLoop[0] = new StackLoop(hairpin_seq, &hairpin_seq[loop2]);
 			newLoop[1] = new HairpinLoop(hairpinsize - 2, &hairpin_seq[1]);
 			newLoop[0]->addAdjacent(adjacentLoops[0]);
@@ -2810,9 +2759,9 @@ double HairpinLoop::doChoice(Move *move, Loop **returnLoop) {
 			newLoop[1]->generateMoves();
 			*returnLoop = newLoop[0];
 			return ((newLoop[0]->getTotalRate() + newLoop[1]->getTotalRate()) - totalRate);
-		}
-		if (move->type & MOVE_2) // bulge and hairpin
-				{
+
+		} else if (move->type & MOVE_2) // bulge and hairpin
+		{
 			if (loop == 1)
 				newLoop[0] = new BulgeLoop(0, (hairpinsize - loop2), &hairpin_seq[0], &hairpin_seq[loop2]);
 			else
@@ -2827,9 +2776,9 @@ double HairpinLoop::doChoice(Move *move, Loop **returnLoop) {
 			adjacentLoops[0]->generateMoves();
 			*returnLoop = newLoop[0];
 			return ((newLoop[0]->getTotalRate() + newLoop[1]->getTotalRate()) - totalRate);
-		}
-		if (move->type & MOVE_3) // interior and hairpin
-				{
+
+		} else if (move->type & MOVE_3) // interior and hairpin
+		{
 			newLoop[0] = new InteriorLoop(loop - 1, hairpinsize - loop2, &hairpin_seq[0], &hairpin_seq[loop2]);
 			newLoop[1] = new HairpinLoop(loop2 - loop - 1, &hairpin_seq[loop]);
 			newLoop[0]->addAdjacent(adjacentLoops[0]);
@@ -2849,6 +2798,11 @@ double HairpinLoop::doChoice(Move *move, Loop **returnLoop) {
 }
 
 void HairpinLoop::generateMoves(void) {
+
+	if (energyModel->simOptions->debug) {
+		cout << "HairpinLoop generating moves!" << endl;
+		cout << this->typeInternalsToString();
+	}
 
 	double energies[2];
 	int pt = 0;
@@ -2947,14 +2901,19 @@ void HairpinLoop::generateDeleteMoves(void) {
 	totalRate = moves->getRate();
 }
 
+void HairpinLoop::regenerateDeleteMoves(void) {
+	// TODO: change this to only re-generate the deletion moves.
+	generateMoves();
+}
+
 void HairpinLoop::printMove(Loop *comefrom, char *structure_p, char *seq_p) {
 	int loop;
 	structure_p[hairpin_seq - seq_p] = '(';
 	structure_p[hairpin_seq - seq_p + 1 + hairpinsize] = ')';
 
 	for (loop = 0; loop < curAdjacent; loop++) {
-		if (adjacentLoops[loop] != comefrom && adjacentLoops[loop] != NULL)
-			// shouldn't happen, being careful.
+		if ((adjacentLoops[loop] != comefrom && adjacentLoops[loop] != NULL)
+			|| comefrom == NULL)
 			adjacentLoops[loop]->printMove(this, structure_p, seq_p);
 		assert(adjacentLoops[loop] != NULL);
 	}
@@ -2986,9 +2945,9 @@ char *HairpinLoop::verifyLoop(char *incoming_sequence, Loop *from) {
 	return NULL;
 }
 
-/*
- BulgeLoop Functions
- */
+
+/* BulgeLoop ================================================================ */
+
 
 BulgeLoop::BulgeLoop(void) {
 	numAdjacent = 2;
@@ -3067,6 +3026,8 @@ void BulgeLoop::calculateEnthalpy(void) {
 }
 
 double BulgeLoop::doChoice(Move *move, Loop **returnLoop) {
+	assert(!(move->type & MOVE_DELETE));
+
 	Loop *newLoop[2];
 	int pt, loop, loop2;
 
@@ -3119,6 +3080,12 @@ double BulgeLoop::doChoice(Move *move, Loop **returnLoop) {
 }
 
 void BulgeLoop::generateMoves(void) {
+
+	if (energyModel->simOptions->debug) {
+		cout << "BulgeLoop generating moves!" << endl;
+		cout << this->typeInternalsToString();
+	}
+
 	double energies[2];
 	int loop, loop2, pt;
 	double tempRate;
@@ -3216,6 +3183,11 @@ void BulgeLoop::generateDeleteMoves(void) {
 	totalRate = moves->getRate();
 }
 
+void BulgeLoop::regenerateDeleteMoves(void) {
+	// TODO: change this to only re-generate the deletion moves.
+	generateMoves();
+}
+
 void BulgeLoop::printMove(Loop *comefrom, char *structure_p, char *seq_p) {
 	int loop;
 	int item = (bulge_seq[0] < bulge_seq[1]);
@@ -3226,8 +3198,8 @@ void BulgeLoop::printMove(Loop *comefrom, char *structure_p, char *seq_p) {
 	structure_p[bulge_seq[1] - seq_p] = item ? ')' : '(';
 	/**/
 	for (loop = 0; loop < curAdjacent; loop++) {
-		if (adjacentLoops[loop] != comefrom && adjacentLoops[loop] != NULL)
-			// shouldn't happen, being careful.
+		if ((adjacentLoops[loop] != comefrom && adjacentLoops[loop] != NULL)
+			|| comefrom == NULL)
 			adjacentLoops[loop]->printMove(this, structure_p, seq_p);
 		assert(adjacentLoops[loop] != NULL);
 	}
@@ -3269,9 +3241,9 @@ char *BulgeLoop::verifyLoop(char *incoming_sequence, Loop *from) {
 	return NULL;
 }
 
-/*
- InteriorLoop functions
- */
+
+/* InteriorLoop ============================================================= */
+
 
 InteriorLoop::InteriorLoop(void) {
 	numAdjacent = 2;
@@ -3353,6 +3325,8 @@ void InteriorLoop::calculateEnthalpy(void) {
 }
 
 double InteriorLoop::doChoice(Move *move, Loop **returnLoop) {
+	assert(!(move->type & MOVE_DELETE));
+
 	Loop *newLoop[2];
 	int loop, loop2;
 	int *sidelen = new int[3];
@@ -3388,9 +3362,9 @@ double InteriorLoop::doChoice(Move *move, Loop **returnLoop) {
 			adjacentLoops[1]->generateMoves();
 			*returnLoop = newLoop[0];
 			return ((newLoop[0]->getTotalRate() + newLoop[1]->getTotalRate()) - totalRate);
-		}
 
-		else if (move->type & MOVE_2) {
+		} else if (move->type & MOVE_2) {
+
 			loop = move->index[0];
 			loop2 = move->index[1];
 
@@ -3419,7 +3393,9 @@ double InteriorLoop::doChoice(Move *move, Loop **returnLoop) {
 			adjacentLoops[1]->generateMoves();
 			*returnLoop = newLoop[0];
 			return ((newLoop[0]->getTotalRate() + newLoop[1]->getTotalRate()) - totalRate);
+
 		} else if (move->type & MOVE_3) {
+
 			loop = move->index[0];
 			loop2 = move->index[1];
 			// Need to check conditions for each side in order to determine what the two new loops types would be.
@@ -3477,6 +3453,12 @@ double InteriorLoop::doChoice(Move *move, Loop **returnLoop) {
 }
 
 void InteriorLoop::generateMoves(void) {
+
+	if (energyModel->simOptions->debug) {
+		cout << "InteriorLoop generating moves!" << endl;
+		cout << this->typeInternalsToString();
+	}
+
 	double energies[2];
 	int pt = 0;
 	int loop, loop2;
@@ -3618,6 +3600,11 @@ void InteriorLoop::generateDeleteMoves(void) {
 
 }
 
+void InteriorLoop::regenerateDeleteMoves(void) {
+	// TODO: change this to only re-generate the deletion moves.
+	generateMoves();
+}
+
 char *InteriorLoop::getLocation(Move *move, int index) {
 
 	if (move->getType() & MOVE_CREATE) {
@@ -3668,14 +3655,16 @@ void InteriorLoop::printMove(Loop *comefrom, char *structure_p, char *seq_p) {
 	structure_p[int_seq[1] - seq_p] = item ? ')' : '(';
 
 	for (loop = 0; loop < curAdjacent; loop++) {
-		if (adjacentLoops[loop] != comefrom && adjacentLoops[loop] != NULL)
-			// shouldn't happen, being careful.
+		if ((adjacentLoops[loop] != comefrom && adjacentLoops[loop] != NULL)
+			|| comefrom == NULL)
 			adjacentLoops[loop]->printMove(this, structure_p, seq_p);
 		assert(adjacentLoops[loop] != NULL);
 	}
 }
 
-/* MultiLoop functions */
+
+/* MultiLoop ================================================================ */
+
 
 MultiLoop::MultiLoop(void) {
 	numAdjacent = 0;
@@ -3754,6 +3743,7 @@ void MultiLoop::calculateEnthalpy(void) {
 }
 
 double MultiLoop::doChoice(Move *move, Loop **returnLoop) {
+	assert(!(move->type & MOVE_DELETE));
 
 	Loop *newLoop[2];
 	int pt, loop, loop2, loop3, loop4, temploop, tempindex;
@@ -3808,10 +3798,9 @@ double MultiLoop::doChoice(Move *move, Loop **returnLoop) {
 			newLoop[1]->generateMoves();
 			*returnLoop = newLoop[0];
 			return ((newLoop[0]->getTotalRate() + newLoop[1]->getTotalRate()) - totalRate);
-		}
 
-		// MOVE_2
-		if (move->type & MOVE_2) {
+		} else if (move->type & MOVE_2) {
+
 			//adjacent sides, one of: stack    + multi with same mag
 			//                        bulge    + multi with same mag
 			//                        interior + multi with same mag
@@ -3884,10 +3873,8 @@ double MultiLoop::doChoice(Move *move, Loop **returnLoop) {
 			newLoop[1]->generateMoves();
 			*returnLoop = newLoop[0];
 			return ((newLoop[0]->getTotalRate() + newLoop[1]->getTotalRate()) - totalRate);
-		}
 
-		// MOVE_3
-		if (move->type & MOVE_3) {
+		} else if (move->type & MOVE_3) {
 			//non-adjacent sides, multi + open loop
 
 			sidelengths = new int[loop4 - loop3 + 1];
@@ -3973,8 +3960,10 @@ double MultiLoop::doChoice(Move *move, Loop **returnLoop) {
 
 void MultiLoop::generateMoves(void) {
 
-	if (energyModel->simOptions->debug)
-		cout << "Multiloop generating moves!" << endl;
+	if (energyModel->simOptions->debug) {
+		cout << "MultiLoop generating moves!" << endl;
+		cout << this->typeInternalsToString();
+	}
 
 	int loop, loop2, loop3, loop4, temploop, tempindex, loops[4];
 	int pt;
@@ -4229,6 +4218,11 @@ void MultiLoop::generateDeleteMoves(void) {
 	totalRate = moves->getRate();
 }
 
+void MultiLoop::regenerateDeleteMoves(void) {
+	// TODO: change this to only re-generate the deletion moves.
+	generateMoves();
+}
+
 void MultiLoop::printMove(Loop *comefrom, char *structure_p, char *seq_p) {
 	int loop, item, loop2;
 	for (loop = 0; loop < numAdjacent; loop++) {
@@ -4239,8 +4233,8 @@ void MultiLoop::printMove(Loop *comefrom, char *structure_p, char *seq_p) {
 	}
 
 	for (loop = 0; loop < curAdjacent; loop++) {
-		if (adjacentLoops[loop] != comefrom && adjacentLoops[loop] != NULL)
-			// shouldn't happen, being careful.
+		if ((adjacentLoops[loop] != comefrom && adjacentLoops[loop] != NULL)
+			|| comefrom == NULL)
 			adjacentLoops[loop]->printMove(this, structure_p, seq_p);
 		assert(adjacentLoops[loop] != NULL);
 	}
@@ -4288,7 +4282,10 @@ char *MultiLoop::verifyLoop(char *incoming_sequence, Loop *from) {
 	return seqs[call_adjacent] + sidelen[call_adjacent] + 1;
 }
 
-/* OpenLoop functions */
+
+/* OpenLoop ================================================================= */
+
+
 OpenLoop::OpenLoop(void) {
 	numAdjacent = 0;
 	adjacentLoops = NULL;
@@ -4374,6 +4371,8 @@ Move *OpenLoop::getChoice(SimTimer& timer, Loop *from) {
 }
 
 double OpenLoop::doChoice(Move *move, Loop **returnLoop) {
+	assert(!(move->type & MOVE_DELETE));
+
 	Loop *newLoop[2];
 	int pt, loop, loop2, loop3, loop4, temploop, tempindex;
 	int *sidelengths;
@@ -4429,10 +4428,9 @@ double OpenLoop::doChoice(Move *move, Loop **returnLoop) {
 			newLoop[1]->generateMoves();
 			*returnLoop = newLoop[0];
 			return ((newLoop[0]->getTotalRate() + newLoop[1]->getTotalRate()) - totalRate);
-		}
 
-		// MOVE_2
-		if (move->type & MOVE_2) {
+		} else if (move->type & MOVE_2) {
+
 			//adjacent sides, one of: stack    + open with same mag
 			//                        bulge    + open with same mag
 			//                        interior + open with same mag
@@ -4494,10 +4492,8 @@ double OpenLoop::doChoice(Move *move, Loop **returnLoop) {
 			newLoop[1]->generateMoves();
 			*returnLoop = newLoop[0];
 			return ((newLoop[0]->getTotalRate() + newLoop[1]->getTotalRate()) - totalRate);
-		}
 
-		// MOVE_3
-		if (move->type & MOVE_3) {
+		} else if (move->type & MOVE_3) {
 			//non-adjacent sides, multi + open loop
 
 			sidelengths = new int[loop4 - loop3 + 1];
@@ -4583,7 +4579,7 @@ double OpenLoop::doChoice(Move *move, Loop **returnLoop) {
 void OpenLoop::generateMoves(void) {
 
 	if (energyModel->simOptions->debug) {
-		cout << "\n OpenLoop generating moves!" << endl;
+		cout << "OpenLoop generating moves!" << endl;
 		cout << this->typeInternalsToString();
 	}
 
@@ -4843,6 +4839,11 @@ void OpenLoop::generateDeleteMoves(void) {
 	totalRate = moves->getRate();
 }
 
+void OpenLoop::regenerateDeleteMoves(void) {
+	// TODO: change this to only re-generate the deletion moves.
+	generateMoves();
+}
+
 void OpenLoop::printMove(Loop *comefrom, char *structure_p, char *seq_p) {
 
 	int loop, item, loop2;
@@ -4855,8 +4856,8 @@ void OpenLoop::printMove(Loop *comefrom, char *structure_p, char *seq_p) {
 	}
 
 	for (loop = 0; loop < curAdjacent; loop++) {
-		if (adjacentLoops[loop] != comefrom && adjacentLoops[loop] != NULL)
-			// shouldn't happen, being careful.
+		if ((adjacentLoops[loop] != comefrom && adjacentLoops[loop] != NULL)
+			|| comefrom == NULL)
 			adjacentLoops[loop]->printMove(this, structure_p, seq_p);
 		assert(adjacentLoops[loop] != NULL);
 	}
@@ -5159,11 +5160,10 @@ void OpenLoop::performComplexJoin(OpenLoop **oldLoops, OpenLoop **newLoops, char
 	newLoops[1]->generateMoves();
 
 // need to re-generate the moves for all adjacent loops.
-// TODO: change this to only re-generate the deletion moves.
 	for (toggle = 0; toggle <= 1; toggle++)
 		for (loop = 0; loop < sizes[toggle]; loop++)
 			if (loop != seqnum[toggle])
-				newLoops[toggle]->adjacentLoops[loop]->generateMoves();
+				newLoops[toggle]->adjacentLoops[loop]->regenerateDeleteMoves();
 
 }
 

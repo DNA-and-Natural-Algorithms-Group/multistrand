@@ -246,7 +246,6 @@ StrandComplex *StrandComplex::doChoice(Move *move, SimTimer &timer, bool debug)
 
 		if (timer.simOptions->cotranscriptional)
 		{
-
 		// 	 if cotranscriptional is active, print the distance from the origin.
 		// 	 this has to be done with pointer arithmatic, since we have not refactored this (yet).
 
@@ -267,8 +266,6 @@ StrandComplex *StrandComplex::doChoice(Move *move, SimTimer &timer, bool debug)
 			if( dist_left_bp + bound < actives || dist_right_bp + bound < actives ){
 				return NULL;
 			}
-
-
 		}
 
 		if (move->getType() & MOVE_CREATE) // FD: test if we have a create-basepair move

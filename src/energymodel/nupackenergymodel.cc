@@ -33,8 +33,8 @@ extern  int basepair_sw[8];
 // helper function to convert to numerical base format.
 extern int baseLookup(char base);
 
-double NupackEnergyModel::returnRate(double start_energy, double end_energy, int enth_entr_toggle) {
-
+double NupackEnergyModel::returnRate(double start_energy, double end_energy,
+									 int enth_entr_toggle) {
 	if (inspection) {
 		return 1.0;
 	}
@@ -44,23 +44,31 @@ double NupackEnergyModel::returnRate(double start_energy, double end_energy, int
 	if (enth_entr_toggle == 3) {
 		return biscale * exp(-(dE - dG_assoc) / _RT);
 	}
-	// dG_assoc, if it were included in (start_energy, end_energy), would need to be deleted here. However, it never gets added into any energies except for display purposes. So it gets used in the join move rate, but not here.
-	// OLD: dG_assoc is typically a negative number, and included as part of the complex before disassociation. Thus it must be subtracted from the dE (leading to a typically slower disassociation rate.).
-	if (kinetic_rate_method == RATE_METHOD_KAWASAKI) {  // Kawasaki
+
+	// dG_assoc, if it were included in (start_energy, end_energy), would need
+	// to be deleted here. However, it never gets added into any energies except
+	// for display purposes. So it gets used in the join move rate, but not
+	// here.
+	//
+	// OLD: dG_assoc is typically a negative number, and included as part of the
+	// complex before disassociation. Thus it must be subtracted from the dE
+	// (leading to a typically slower disassociation rate.).
+	if (kinetic_rate_method == RATE_METHOD_KAWASAKI) {
 
 		return uniscale * exp(-0.5 * dE / _RT);
 
-	} else if (kinetic_rate_method == RATE_METHOD_METROPOLIS or RATE_METHOD_ARRHENIUS == kinetic_rate_method) {
+	} else if (kinetic_rate_method == RATE_METHOD_METROPOLIS or
+			   kinetic_rate_method == RATE_METHOD_ARRHENIUS) {
 		// Metropolis
 		if (dE < 0) {
 			return uniscale * 1.0;
 		} else {
 			return uniscale * exp(-dE / _RT);
 		}
-
 	}
 
-	return -9999.99;
+	fprintf(stderr, "ERROR: Invalid rate method in NupackEnergyModel::returnRate()\n");
+	exit(1);
 
 }
 

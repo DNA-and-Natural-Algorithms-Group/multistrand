@@ -100,3 +100,16 @@ class Test_Determinism:
             [print(x) for x in summary]
             print()
         return summary
+
+
+# ==============================================================================
+
+
+if __name__ == "__main__":
+    toehold_seq = "GTGGGT"
+    bm_design_B = "ACCGCACGTCACTCACCTCG"
+    toehold_extra = "TTT"
+    structure = "..(.((.....)).).....((((((+))))))((((((((((((((((((((+))))))))))))))))))))"
+    seed = np.random.randint(int(1e10))
+    Test_Determinism().test_determinism(
+        toehold_seq, bm_design_B, toehold_extra, structure, seed)
