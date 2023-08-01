@@ -1,22 +1,16 @@
-"""
+# Multistrand nucleic acid kinetic simulator
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
 
- Frits Dannenberg, July 2018
-
-"""
-
-import sys, os
+import sys
 
 import matplotlib
 matplotlib.use('Agg')
 
-import numpy as np
-
-from matplotlib.ticker import ScalarFormatter
-
-from multistrand.concurrent import MergeSim, FirstStepRate, Bootstrap
+from multistrand.concurrent import MergeSim
 from multistrand.experiment import standardOptions, setBoltzmann
-from multistrand.objects import StopCondition, Domain, Complex, Strand
-from multistrand.options import Options, Literals
+from multistrand.objects import StopCondition, Complex, Strand
+from multistrand.options import Literals
 
 """
 Some global variables for this one-of script -- put in struct later

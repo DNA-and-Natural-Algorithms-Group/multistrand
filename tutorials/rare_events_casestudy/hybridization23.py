@@ -1,11 +1,14 @@
-# -*- coding: utf-8 -*-
+# Multistrand nucleic acid kinetic simulator
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
 
-""" Frits Dannenberg, Jun 3rd 2018 
-    Feasability study for builder code for experiments in 
-    
-    Influence of thermodynamically unfavorable
-    secondary structures on DNA hybridization kinetics
-    Hiroaki Hata, Tetsuro Kitajima and Akira Suyama         """
+"""
+Feasability study for builder code for experiments in:
+
+Influence of thermodynamically unfavorable
+secondary structures on DNA hybridization kinetics
+Hiroaki Hata, Tetsuro Kitajima and Akira Suyama
+"""
 
 import sys, time, os
 

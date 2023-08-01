@@ -1,40 +1,45 @@
-# nupack_calls.py
-#
-# Multistrand is equipped with Python wrapper functions for many of Nupack's executables, including
-# pfunc, energy, defect, prob, sample, mfe, and pairs. Here we provide usage examples for all
-# provided wrapper functions. See the Nupack User Manual for more information about the arguments to
-# each executable. Many of these examples are adapted from examples provided with Nupack.
-# Note that these functions assume you have Nupack version 3.0.2 or higher. Certain functions, such
-# as sample(), will not work with earlier versions of Nupack.
-#
-# In general, the following arguments are required:
-#   sequences  - a list of DNA/RNA sequences
-#   structure  - a dot-paren structure (required by energy, prob, and defect)
-#   energy_gap - the max allowed energy gap from the minimum free energy (required by subopt)
-#   samples    - an integer specifying how many samples to draw (required by sample)
-#
-# The following optional arguments may also be included in all function calls:
-#   ordering   - a list of integer indices indicating the ordering of the given strand sequences
-#                in the complex, or None if each strand is distinguishable, occurs exactly once,
-#                and is ordered as in the sequences argument. Indices may be repeated to indicate
-#                identical, indistinguishable strands. This argument is ignored if multi == False.
-#                (default: None)
-#   material   - a string representing the material parameters to use (e.g. 'rna' or 'dna')
-#                The Nupack User Manual has a complete list of possible values.
-#                (default: 'rna')
-#   multi      - whether or not to allow multistrand structures with identical strands
-#                only works with DNA (default: True)
-#   pseudo     - whether or not to allow pseudoknotted structures
-#                only works with RNA (default: False)
-#   dangles    - 'none', 'all', or 'some' to specify what types of dangle corrections to use (default: 'some')
-#   T          - temperature of the system in degrees C (default: 37)
-#   sodium     - concentration of Na+ in molar (default: 1.0)
-#   magnesium  - concentration of Mg++ in molar (default: 0.0)
-#
-# The following optional arguments are allowed by only some functions:
-#   cutoff     - (for use with pairs) probabilities less than cutoff are excluded (default: 0.001)
-#   degenerate - (for use with mfe) degenerate structures are all returned (default: False)
-#   mfe        - (for use with defect) returns mfe defect rather than ensemble defect (default: False)
+# Multistrand nucleic acid kinetic simulator
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
+
+"""
+Multistrand is equipped with Python wrapper functions for many of Nupack's
+executables, including pfunc, energy, defect, prob, sample, mfe, and pairs. Here
+we provide usage examples for all provided wrapper functions. See the Nupack
+User Manual for more information about the arguments to each executable. Many of
+these examples are adapted from examples provided with Nupack. Note that these
+functions assume you have Nupack version 3.0.2 or higher. Certain functions,
+such as sample(), will not work with earlier versions of Nupack.
+
+In general, the following arguments are required:
+  sequences  - a list of DNA/RNA sequences
+  structure  - a dot-paren structure (required by energy, prob, and defect)
+  energy_gap - the max allowed energy gap from the minimum free energy (required by subopt)
+  samples    - an integer specifying how many samples to draw (required by sample)
+
+The following optional arguments may also be included in all function calls:
+  ordering   - a list of integer indices indicating the ordering of the given strand sequences
+               in the complex, or None if each strand is distinguishable, occurs exactly once,
+               and is ordered as in the sequences argument. Indices may be repeated to indicate
+               identical, indistinguishable strands. This argument is ignored if multi == False.
+               (default: None)
+  material   - a string representing the material parameters to use (e.g. 'rna' or 'dna')
+               The Nupack User Manual has a complete list of possible values.
+               (default: 'rna')
+  multi      - whether or not to allow multistrand structures with identical strands
+               only works with DNA (default: True)
+  pseudo     - whether or not to allow pseudoknotted structures
+               only works with RNA (default: False)
+  dangles    - 'none', 'all', or 'some' to specify what types of dangle corrections to use (default: 'some')
+  T          - temperature of the system in degrees C (default: 37)
+  sodium     - concentration of Na+ in molar (default: 1.0)
+  magnesium  - concentration of Mg++ in molar (default: 0.0)
+
+The following optional arguments are allowed by only some functions:
+  cutoff     - (for use with pairs) probabilities less than cutoff are excluded (default: 0.001)
+  degenerate - (for use with mfe) degenerate structures are all returned (default: False)
+  mfe        - (for use with defect) returns mfe defect rather than ensemble defect (default: False)
+"""
 
 from nupack import *
 

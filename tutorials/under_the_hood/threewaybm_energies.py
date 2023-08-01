@@ -1,31 +1,34 @@
-# threewaybm_energies.py
-#
+# Multistrand nucleic acid kinetic simulator
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
 
-# This example walks you through how to create multistranded complexes, how to find their energies, 
-# and how to find the energy of a test tube state with multiple complexes at a chosen concentration (i.e. box volume).
-# The example is toehold-initiated three-way branch migration, as per Zhang & Winfree, JACS, 2009.
-# Some things are done in a rather long-winded way, just to illustrate the use of Multistrand.
-# The intention is for you to try it line by line, and play around a bit.  E.g. use print() and help().
-#
-# Invoke as "python threewaybm_energies.py" to see a plot.
-# Invoke as "python -i threewaybm_energies.py" to see a plot and then drop into the python interpreted to investigate further.
-# Start python and "import threewaybm_energies as te" to calculate energies and steps as te.energies and te.steps, without making a plot.
-# Start python and "from threewaybm_energies import *" to do the calculations and refer to the variables directly, as well as get access to the other imported functions.
-# I use "ipython --pylab -i threewaybm_energies.py".
+"""
+This example walks you through how to create multistranded complexes, how to
+find their energies, and how to find the energy of a test tube state with
+multiple complexes at a chosen concentration (i.e. box volume). The example is
+toehold-initiated three-way branch migration, as per Zhang & Winfree, JACS,
+2009. Some things are done in a rather long-winded way, just to illustrate the
+use of Multistrand. The intention is for you to try it line by line, and play
+around a bit. E.g. use print() and help().
 
-if False:  # only needed if you're having trouble with your Multistrand installation
-    import multistrand_setup
+Invoke as "python threewaybm_energies.py" to see a plot.
 
-try:
-    from multistrand.objects import *
-    from multistrand.options import Options
-    from multistrand.system import *
+Invoke as "python -i threewaybm_energies.py" to see a plot and then drop into
+the python interpreted to investigate further.
 
-except ImportError:
-    print("Could not import Multistrand.")
-    raise
+Start python and "import threewaybm_energies as te" to calculate energies and
+steps as te.energies and te.steps, without making a plot.
 
-#############
+Start python and "from threewaybm_energies import *" to do the calculations and
+refer to the variables directly, as well as get access to the other imported
+functions.
+
+I use "ipython --pylab -i threewaybm_energies.py".
+"""
+
+from multistrand.objects import *
+from multistrand.options import Options
+from multistrand.system import *
 
 
 o = Options()

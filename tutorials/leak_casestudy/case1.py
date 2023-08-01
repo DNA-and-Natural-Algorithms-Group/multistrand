@@ -1,9 +1,11 @@
-# Frits Dannenberg, Caltech, 2016.
-# fdann@caltech.edu
+# Multistrand nucleic acid kinetic simulator
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
 
-# Example of leak rates, AT ends vs CG ends.
-# Compatible with Multistrand 2.1 or higher
-# Visit www.multistrand.org
+"""
+Example of leak rates, AT ends vs CG ends.
+Compatible with Multistrand 2.1 or higher
+"""
 
 # FD: This script is now set to use 4 threads and just 50,000 trajectories.
 # FD: This is different from the results in case1.pdf
@@ -12,9 +14,6 @@
 from multistrand.objects import StopCondition, Domain, Complex, Strand
 from multistrand.options import Options, Literals
 from multistrand.concurrent import MergeSim
-from multistrand._options.interface import FirstStepResult
-
-import numpy as np
 
 
 ATIME_OUT = 10.0

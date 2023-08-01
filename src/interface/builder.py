@@ -1,16 +1,15 @@
-'''
-Created on Oct 2, 2017
+# Multistrand nucleic acid kinetic simulator
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
 
-    Frits Dannenberg, June 1th, 2018.
+"""
+The builder code has two classes: Builder and BuilderRate. A Builder will accept
+references to a function that returns a Multistrand Options object. The sampled
+states and transitions will be collected.
 
-    The builder code has two classes: Builder and BuilderRate.
-    A Builder will accept references to a function that returns a multistrand options object.
-    The sampled states and transitions will be collected.
-
-    The BuilderRate accepts a Builder object and will compute the
-    mean first passage time from the starting states until hitting an end state.
-
-'''
+The BuilderRate accepts a Builder object and will compute the mean first passage
+time from the starting states until hitting an end state.
+"""
 
 import time, copy, os, sys
 
@@ -27,15 +26,13 @@ import numpy as np
 floatT = np.float64
 
 
-"""
-    Constructs a surface of  N *  ( N -1 ) / 2 points along the reaction frontier.
-    This method returns a list of starting states that should be used as initial states for the string method.
-    A starting state is a list of complexes.
-"""
-
-
 def hybridizationString(seq):
-
+    """
+    Constructs a surface of N * ( N -1 ) / 2 points along the reaction frontier.
+    This method returns a list of starting states that should be used as initial
+    states for the string method.
+    A starting state is a list of complexes.
+    """
     cutoff = 0.75
     ids = [65, 66]
 

@@ -1,11 +1,10 @@
-#
-#
-# Copyright (c) 2010 Caltech. All rights reserved.
-# Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
-#
-#
-# Objects module to get the useful names into the correct namespace.
-#
+# Multistrand nucleic acid kinetic simulator
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
+
+"""
+Objects module to get the useful names into the correct namespace.
+"""
 
 __module__ = 'multistrand.objects'
 

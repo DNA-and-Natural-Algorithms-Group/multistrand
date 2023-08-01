@@ -1,8 +1,8 @@
 /*
- Copyright (c) 2017 California Institute of Technology. All rights reserved.
- Multistrand nucleic acid kinetic simulator
- help@multistrand.org
- */
+Multistrand nucleic acid kinetic simulator
+Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+The Multistrand Team (help@multistrand.org)
+*/
 
 /* Move class and Move Tree class header */
 

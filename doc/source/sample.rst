@@ -8,8 +8,8 @@ Multistrand sample input
 Our example sets up threeway branch migration and follows the threeway branch migration demo. The following sequences are used:
 :: 
   
-    toehold_seq = "TCTCCATGTCACTTC"	
-    bm_design = "CCCTCATTCAATACCCTACG" 
+    toehold_seq = "TCTCCATGTCACTTC"
+    bm_design = "CCCTCATTCAATACCCTACG"
 
 To start the simulation, Multistrand should know what the initial state of the simulation is. In this example, we also specify the final state, so that Multistrand knows when to stop
 the simulation. The initial state is specified as a list of complexes. Complexes, together with Strands and Domains, are multistrand-provided datastructures. We now creat the domain objects:

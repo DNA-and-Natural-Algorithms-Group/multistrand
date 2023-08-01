@@ -1,12 +1,19 @@
-# Mrinank Sharma, Summer 2017, ms2314@cam.ac.uk
-# Clamped Seesaw Gate Case Study
+# Multistrand nucleic acid kinetic simulator
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
+
+"""
+Clamped Seesaw Gate Case Study
+"""
+
 import time
 from enum import Enum
 
-from multistrand.concurrent import MergeSim, FirstStepRate, Bootstrap
-from multistrand.objects import StopCondition
+from multistrand.concurrent import MergeSim
 from multistrand.options import Options
-from multistrand.experiment import ClampedSeesawGate, seesaw_gate_fuel_catalysis, seesaw_gate_gate_leak, seesaw_gate_output_production, seesaw_gate_fuel_leak, standardOptions
+from multistrand.experiment import \
+    ClampedSeesawGate, seesaw_gate_fuel_catalysis, seesaw_gate_gate_leak, \
+    seesaw_gate_output_production, seesaw_gate_fuel_leak, standardOptions
 
 myMultistrand = MergeSim()
 

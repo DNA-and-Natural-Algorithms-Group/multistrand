@@ -1,8 +1,12 @@
-# FD, May 17th, 2017. 
-# This demonstrates the pair-type functionality
-# For a given complex, Pairtype returns a unique representation. 
-# This is important for hashing functions 
+# Multistrand nucleic acid kinetic simulator
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
 
+"""
+This demonstrates the pair-type functionality
+For a given complex, Pairtype returns a unique representation.
+This is important for hashing functions
+"""
 
 from multistrand.system import SimSystem
 from multistrand.utils import printTrajectory

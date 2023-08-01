@@ -1,7 +1,14 @@
-# multistrand_setup.py
-#
-# This is really unnecessary on most Multistrand installations -- you can just import the multistrand components and be done with it.
-# But using this module instead ("from multistrand_setup import *") might catch a few installation glitches.  So it's useful if your installation has oddities.
+# Multistrand nucleic acid kinetic simulator
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
+
+"""
+This is really unnecessary on most Multistrand installations -- you can just
+import the multistrand components and be done with it.
+
+But using this module instead ("from multistrand_setup import *") might catch a
+few installation glitches. So it's useful if your installation has oddities.
+"""
 
 import os, sys, subprocess, tempfile
 

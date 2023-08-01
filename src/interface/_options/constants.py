@@ -1,11 +1,10 @@
-################################################################################
-#                                                                              #
-# Important Constants for Multistrand.                                         #
-# Copyright 2010-2017 Caltech                                                  #
-# Written by:  Joseph Schaeffer.  Frits Dannenberg                             #
-#                                                                              #
-################################################################################
+# Multistrand nucleic acid kinetic simulator
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
 
+"""
+Important Constants for Multistrand.
+"""
 
 class OptionsConstants:
 

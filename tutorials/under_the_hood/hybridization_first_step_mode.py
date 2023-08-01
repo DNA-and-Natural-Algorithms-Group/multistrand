@@ -1,101 +1,83 @@
-####################################################################
-#                                                                  #
-#  Copyright (c) 2010-2015 California Institute of Technology.     #
-#  Distributed under the MIT License.                              #
-#  (See accompanying file LICENSE or copy at                       #
-#  http://opensource.org/licenses/MIT)                             #
-#                                                                  #
-####################################################################
+# Multistrand nucleic acid kinetic simulator
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
 
-# hybridization_first_step_mode.py
-#
-# Perform simulations that directly examine interactions between complexes,
-# deducing first-order and second-order rate constants for both productive
-# and non-productive interactions.  Here we examine the association of a
-# relatively unstructured DNA strand and its perfect complement.  (We also
-# simulate the structured RNA hybridization from Gao et al 2006, and structured
-# DNA hybridization as well.)
-#
-# To extract rate constants, one could simulate two complexes in a volume of
-# the appropriate size for the concentration of interest, and simulate until the
-# reaction is complete.  We will actually do that in hybridization_comparison.py,
-# but it is very slow for low concentrations because most of the simulation time
-# is spent simulating intramolecular conformational changes prior to the 
-# bimolecular interaction.  Multistrand's "first step mode" skips over those
-# pre-collision simulation steps by starting each simulation with a bimolecular
-# base-pair formation move -- i.e. a "collision" between the complexes.  To
-# approximate the pre-collision conformational changes, first step mode can 
-# use NUPACK to Boltzmann sample the initial conformation -- i.e. assuming that
-# there is enough time between collisions for both complexes to equilibrate.
-# (Without Boltzmann sampling, as illustrated in threewaybm_first_step_mode.py,
-# every collision involves the exact same conformation of each complex, but
-# the first base pair formed between them will still be random.)
-#
-# First step mode simulations proceed as usual after the first step; they are
-# typically set up with at least two StopConditions:  falling appart again into
-# the original complexes, or reaching some target state (e.g. a full duplex as in
-# in this example, or perhaps successful displacement of a strand as in the
-# three-way branch migration example).  From statistics on a large sample of
-# collision trajectories, including how long they take to reach some StopCondition,
-# the relevant rate constants can be computed.  
-#
-# In Schaeffer's PhD thesis, and here, we extract parameters for a model that
-# distinguishes between productive and unproductive reactions at the very onset.
-# For example, for hybridization, we have:
-#    A + B -->{k1} I -->{k2} C
-# and 
-#    A + B -->{k1'} I' -->{k2'} A + B
-# where
-#    k1 is the second-order rate constant for successful collisions,
-#    k2 is the first-order rate constant for how long it takes to proceed
-#         from collision to reaching the final state,
-#    k1' is the second-order rate constant for unproductive collisions,
-#    k2' is the first-order rate constant for how long it remains in the
-#         unproductive intermediate configurations before dissociating.
-#
-# Thus, k1 is the probability that a collision will be successful, times
-# the bimolecular collision rate averaged over all successful collisions.
-# In contrast, k2 is the inverse of the average completion time for 
-# the successful collisions.  k1' and k2' are computed analogously.
-#
-# In the limit of low concentrations, k1 is the only thing you care about.
-# However, at higher concentrations, the time spend "doing" the reaction
-# (i.e. k2) could be the rate limiting step, and thus must be taken into
-# account.  Similarly, at higher concentrations the time spent in 
-# unproductive reactions could also be considerable, slowing down the overall
-# rate of completion of a reaction. k_eff is calculated from all four rate
-# constants *AND* the concentration to give a single "effective" second-order 
-# rate constant that approximates the rate of production of product at this
-# concentration.  (Because k_eff is concentration-dependent, it must be 
-# used with caution.)
-#
-# More details are explained in the code, as well as methods for computing
-# error bars.
-#
-# Usage:
-#     python -i hybridization_first_step_mode.py
-# Takes about 5 min.
+"""
+Perform simulations that directly examine interactions between complexes,
+deducing first-order and second-order rate constants for both productive
+and non-productive interactions.  Here we examine the association of a
+relatively unstructured DNA strand and its perfect complement.  (We also
+simulate the structured RNA hybridization from Gao et al 2006, and structured
+DNA hybridization as well.)
 
+To extract rate constants, one could simulate two complexes in a volume of
+the appropriate size for the concentration of interest, and simulate until the
+reaction is complete.  We will actually do that in hybridization_comparison.py,
+but it is very slow for low concentrations because most of the simulation time
+is spent simulating intramolecular conformational changes prior to the
+bimolecular interaction.  Multistrand's "first step mode" skips over those
+pre-collision simulation steps by starting each simulation with a bimolecular
+base-pair formation move -- i.e. a "collision" between the complexes.  To
+approximate the pre-collision conformational changes, first step mode can
+use NUPACK to Boltzmann sample the initial conformation -- i.e. assuming that
+there is enough time between collisions for both complexes to equilibrate.
+(Without Boltzmann sampling, as illustrated in threewaybm_first_step_mode.py,
+every collision involves the exact same conformation of each complex, but
+the first base pair formed between them will still be random.)
 
-# Import things you need
+First step mode simulations proceed as usual after the first step; they are
+typically set up with at least two StopConditions:  falling appart again into
+the original complexes, or reaching some target state (e.g. a full duplex as in
+in this example, or perhaps successful displacement of a strand as in the
+three-way branch migration example).  From statistics on a large sample of
+collision trajectories, including how long they take to reach some StopCondition,
+the relevant rate constants can be computed.
+
+In Schaeffer's PhD thesis, and here, we extract parameters for a model that
+distinguishes between productive and unproductive reactions at the very onset.
+For example, for hybridization, we have:
+   A + B -->{k1} I -->{k2} C
+and
+   A + B -->{k1'} I' -->{k2'} A + B
+where
+   k1 is the second-order rate constant for successful collisions,
+   k2 is the first-order rate constant for how long it takes to proceed
+        from collision to reaching the final state,
+   k1' is the second-order rate constant for unproductive collisions,
+   k2' is the first-order rate constant for how long it remains in the
+        unproductive intermediate configurations before dissociating.
+
+Thus, k1 is the probability that a collision will be successful, times
+the bimolecular collision rate averaged over all successful collisions.
+In contrast, k2 is the inverse of the average completion time for
+the successful collisions.  k1' and k2' are computed analogously.
+
+In the limit of low concentrations, k1 is the only thing you care about.
+However, at higher concentrations, the time spend "doing" the reaction
+(i.e. k2) could be the rate limiting step, and thus must be taken into
+account.  Similarly, at higher concentrations the time spent in
+unproductive reactions could also be considerable, slowing down the overall
+rate of completion of a reaction. k_eff is calculated from all four rate
+constants *AND* the concentration to give a single "effective" second-order
+rate constant that approximates the rate of production of product at this
+concentration.  (Because k_eff is concentration-dependent, it must be
+used with caution.)
+
+More details are explained in the code, as well as methods for computing
+error bars.
+
+Usage:
+    python -i hybridization_first_step_mode.py
+Takes about 5 min.
+"""
+
 import random
 import numpy as np
-import os
 
+from multistrand.objects import *
+from multistrand.options import Options, Literals
+from multistrand.system import SimSystem, initialize_energy_model
 
-# if False:  # only needed if you're having trouble with your Multistrand installation
-#     import multistrand_setup
-
-try:
-    from multistrand.objects import *
-    from multistrand.options import Options, Literals
-    from multistrand.system import SimSystem, initialize_energy_model
-
-except ImportError:
-    print("Could not import Multistrand.")
-    raise
-
-#########
 
 # for StopCondition macrostate definitions:
 Exact_Macrostate = 0

@@ -1,84 +1,82 @@
-# hybridization_comparison.py
-# 
-##### TO DO: incorporate error calculations from hybridization_first_step_mode.py, and develop for the other cases.
-#
-# Again using hybridization of two short strands as an example, here we show that 
-# multiple ways of extracting rate constants from Multistrand simulations give the 
-# same result, at least if the system is simple enough that the model 
-#   A + B -->{k_eff} C 
-#       C -->{K_rev} A + B
-# is appropriate.  We emphasize that only *short* strands can be studied this way,
-# because simulations of the dissociation of long duplexes are prohibitively slow.
-#
-# Normally, k_eff should be the concentration-independent second-order bimolecular
-# rate constant for association.  However, for sufficiently high concentrations, the
-# unimolecular steps or unproductive interactions will be rate-limiting, and k_eff
-# (inferred from data to fit the above model) will decrease.  Thus, for the general 
-# case we consider k_eff to be a concentration-dependent approximation, in contrast
-# to the more fundamental rate constants k1, k2, k1prime, k2prime derived in
-# hybridization_first_step_mode.py.  
-#
-# We consider three ways to obtain k_eff.  
-# 1.  First step mode.  Estimate more fundamental rate constants from unimolecular 
-#     simulations of collisions, from which k_eff can be computed as a function of 
-#     concentration.  This is the fastest.  See hybridization_first_step_mode.py 
-#     for more explanation.
-# 2.  First passage time simulations starting with (Boltzmann sampled) individual
-#     strands within a concentration-dependent volume, wait for them to collide
-#     as many times as necessary until a duplex is formed, and compute the rate
-#     constant k_eff (for that concentration) from the average time.
-# 3.  Transition mode simulations, where two strands are placed in a concentration-
-#     dependent volume and simulated for a good long time as they hybridize and
-#     fall apart again and again. Rate constants for both k_eff and k_rev are
-#     estimated from the average times to transition from single-stranded to 
-#     double-stranded macrostates (for k_eff) and back (for k_rev).
-#
-# There are also three ways to obtain k_rev.
-# 1.  Trust the first step mode k_eff value, trust that a bimolecular model
-#     is sufficient, so k_rev/k_eff = exp(dG/RT), and compute dG from the
-#     NUPACK-predicted partition functions of the single strands and the duplex.
-#     This is the fastest.
-# 2.  First passage time simulations starting with the duplex state, stopping
-#     when dissociation occurs.
-# 3.  The same transition mode simulation described above.
-#
-# Although the calculations for these three methods are quite different, for a 
-# suffient number of simulation trials they agree quite well.  Method 1 is faster
-# than method 2 is faster than method 3.  (A proper comparison would also evaluate
-# error bars, so that the amount of compute time required for a given level of accuracy
-# is fairly compared.  We don't do that here.)
-#
-# A significant issue when using methods 2 and 3 is that, a priori, you won't know what 
-# the critical concentration is, below which k_eff is constant.  (This value is usually 
-# what you want.)  On the other hand, it is desirable to do first passage time and 
-# transition mode simulations at a high concentration, so as not to waste time doing 
-# simulations of single-stranded molecules just waiting for a collision to happen.  Practically,
-# one must do a simulation at a high concentration, then decrease the concentration by a factor of
-# two and perform another simulation, verifying that the estimated k_eff values don't change
-# significantly.  First step mode simulations are not only faster, but they also obviate this
-# concern by separately extracting the bimolecular (k1) and unimolecular (k2) rate constants.
-#
-# Try it like this, e.g.:
-#   python -i hybridization_comparison.py
-# The default 5-mer hybridization trials take about 10 minutes to complete.  
-# Other options can be uncommented at the bottom of the file.
+# Multistrand nucleic acid kinetic simulator
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
+
+"""
+##### TO DO: incorporate error calculations from
+##### hybridization_first_step_mode.py, and develop for the other cases.
+
+Again using hybridization of two short strands as an example, here we show that
+multiple ways of extracting rate constants from Multistrand simulations give the
+same result, at least if the system is simple enough that the model
+  A + B -->{k_eff} C
+      C -->{K_rev} A + B
+is appropriate.  We emphasize that only *short* strands can be studied this way,
+because simulations of the dissociation of long duplexes are prohibitively slow.
+
+Normally, k_eff should be the concentration-independent second-order bimolecular
+rate constant for association. However, for sufficiently high concentrations,
+the unimolecular steps or unproductive interactions will be rate-limiting, and
+k_eff (inferred from data to fit the above model) will decrease. Thus, for the
+general case we consider k_eff to be a concentration-dependent approximation, in
+contrast to the more fundamental rate constants k1, k2, k1prime, k2prime derived
+in hybridization_first_step_mode.py.
+
+We consider three ways to obtain k_eff.
+1.  First step mode.  Estimate more fundamental rate constants from unimolecular
+    simulations of collisions, from which k_eff can be computed as a function of
+    concentration.  This is the fastest.  See hybridization_first_step_mode.py
+    for more explanation.
+2.  First passage time simulations starting with (Boltzmann sampled) individual
+    strands within a concentration-dependent volume, wait for them to collide
+    as many times as necessary until a duplex is formed, and compute the rate
+    constant k_eff (for that concentration) from the average time.
+3.  Transition mode simulations, where two strands are placed in a concentration-
+    dependent volume and simulated for a good long time as they hybridize and
+    fall apart again and again. Rate constants for both k_eff and k_rev are
+    estimated from the average times to transition from single-stranded to
+    double-stranded macrostates (for k_eff) and back (for k_rev).
+
+There are also three ways to obtain k_rev.
+1.  Trust the first step mode k_eff value, trust that a bimolecular model
+    is sufficient, so k_rev/k_eff = exp(dG/RT), and compute dG from the
+    NUPACK-predicted partition functions of the single strands and the duplex.
+    This is the fastest.
+2.  First passage time simulations starting with the duplex state, stopping
+    when dissociation occurs.
+3.  The same transition mode simulation described above.
+
+Although the calculations for these three methods are quite different, for a
+suffient number of simulation trials they agree quite well. Method 1 is faster
+than method 2 is faster than method 3. (A proper comparison would also evaluate
+error bars, so that the amount of compute time required for a given level of
+accuracy is fairly compared. We don't do that here.)
+
+A significant issue when using methods 2 and 3 is that, a priori, you won't know
+what the critical concentration is, below which k_eff is constant. (This value
+is usually what you want.) On the other hand, it is desirable to do first
+passage time and transition mode simulations at a high concentration, so as not
+to waste time doing simulations of single-stranded molecules just waiting for a
+collision to happen. Practically, one must do a simulation at a high
+concentration, then decrease the concentration by a factor of two and perform
+another simulation, verifying that the estimated k_eff values don't change
+significantly. First step mode simulations are not only faster, but they also
+obviate this concern by separately extracting the bimolecular (k1) and
+unimolecular (k2) rate constants.
+
+Try it like this, e.g.:
+  python -i hybridization_comparison.py
+The default 5-mer hybridization trials take about 10 minutes to complete.
+Other options can be uncommented at the bottom of the file.
+"""
 
 import numpy as np
 import matplotlib
-import matplotlib.pylab as plt
 import time, sys
 
-if False:  # only needed if you're having trouble with your Multistrand installation
-    import multistrand_setup
-
-try:
-    from multistrand.objects import *
-    from multistrand.options import Options, Literals
-    from multistrand.system import SimSystem, initialize_energy_model
-
-except ImportError:
-    print("Could not import Multistrand.")
-    raise
+from multistrand.objects import *
+from multistrand.options import Options, Literals
+from multistrand.system import SimSystem, initialize_energy_model
 
 ######### This is first passage time
 

@@ -1,20 +1,20 @@
-# Mrinank Sharma, ms2314@cam.ac.uk August 2017
-#
-# Here we investigate the use of using 'supersampling', a technique
-# in which we reuse each boltzmann sample a number of times.
-# Here we will borrow most methods from case2.py
+# Multistrand nucleic acid kinetic simulator
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
 
-# python default packages
+"""
+Here we investigate the use of using 'supersampling', a technique
+in which we reuse each boltzmann sample a number of times.
+Here we will borrow most methods from case2.py
+"""
+
 import time
 
-# matlab style plotting packages
 import matplotlib.pyplot as plt
-import matplotlib.lines as lines
-from matplotlib.ticker import ScalarFormatter
 
-# multistrand
 from multistrand.concurrent import MergeSim
-from case2 import genOptions, Experiment, setupSimulationOptions, runExperiment, CL_LONG_GATE_A_SEQ, CL_LONG_GATE_B_SEQ
+from case2 import Experiment, setupSimulationOptions, runExperiment, \
+    CL_LONG_GATE_A_SEQ, CL_LONG_GATE_B_SEQ
 from multistrand.experiment import ClampedSeesawGate
 
 

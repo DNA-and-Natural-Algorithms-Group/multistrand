@@ -1,9 +1,10 @@
-# encoding: utf-8
+# Multistrand nucleic acid kinetic simulator
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
 
-# Frits Dannenberg, Caltech, 2016.
-# fdann@caltech.edu
-
-# # this is the new large figure for the MS 2.0 paper.
+"""
+This is the new large figure for the MS 2.0 paper.
+"""
 
 import sys
 

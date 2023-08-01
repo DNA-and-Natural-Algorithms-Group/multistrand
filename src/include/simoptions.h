@@ -1,16 +1,11 @@
 /*
- Copyright (c) 2017 California Institute of Technology. All rights reserved.
- Multistrand nucleic acid kinetic simulator
- help@multistrand.org
- */
+Multistrand nucleic acid kinetic simulator
+Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+The Multistrand Team (help@multistrand.org)
+*/
 
-/*
- *
- *  Created on: Jun 5, 2016
- *      Author: Frits Dannenberg
- */
-
-/* SimOption class header. This is currently a wrapper for the options set in python. */
+/* SimOption class header.
+ * This is currently a wrapper for the options set in Python. */
 
 #ifndef __SIMOPTIONS_H_
 #define __SIMOPTIONS_H_

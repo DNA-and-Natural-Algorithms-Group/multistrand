@@ -1,14 +1,11 @@
 /*
-Copyright (c) 2017 California Institute of Technology. All rights reserved.
 Multistrand nucleic acid kinetic simulator
-help@multistrand.org
+Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+The Multistrand Team (help@multistrand.org)
 */
 
-/*
- *   Created on: Jun 12, 2016
- *      Author: Frits Dannenberg
- *
- *       EnergyOption class header. This is currently a wrapper for the options set in python. */
+/* EnergyOption class header.
+ * This is currently a wrapper for the options set in Python. */
 
 #ifndef __ENERGYOPTIONS_H_
 #define __ENERGYOPTIONS_H_

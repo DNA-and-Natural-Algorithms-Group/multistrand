@@ -1,30 +1,29 @@
-# hairpin_transitions.py
-# 
-# Having seen how the simulation generates trajectories in hairpin_trajectories.py, here we extract some information from the trajectories.
-#
-# Using the example of Chapter 7.3 of Schaeffer's PhD thesis, this script shows how to use macrostate definitions and Transition Mode 
-# to extract a coarse-grained description of the system's motion through state space.
-#
-# This mode requires a little more post-processing of the Multistrand simulations... but don't be put off.  It's easy.
-#
-# Note that the transition times listed here are briefer than those that appear in the tables of Chapter 7.3 of Schaeffer's thesis.
-# That is because we are using different unimolecular and bimolecular rate constant values.
-#
-#
-# Try it like this, e.g.:
-#   python -i hairpin_transitions.py
+# Multistrand nucleic acid kinetic simulator
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
 
-if False:  # only needed if you're having trouble with your Multistrand installation
-    import multistrand_setup
+"""
+Having seen how the simulation generates trajectories in
+hairpin_trajectories.py, here we extract some information from the trajectories.
 
-try:
-    from multistrand.objects import *
-    from multistrand.options import Options
-    from multistrand.system import SimSystem
+Using the example of Chapter 7.3 of Schaeffer's PhD thesis, this script shows
+how to use macrostate definitions and Transition Mode to extract a
+coarse-grained description of the system's motion through state space.
 
-except ImportError:
-    print("Could not import Multistrand.")
-    raise
+This mode requires a little more post-processing of the Multistrand
+simulations... but don't be put off. It's easy.
+
+Note that the transition times listed here are briefer than those that appear in
+the tables of Chapter 7.3 of Schaeffer's thesis. That is because we are using
+different unimolecular and bimolecular rate constant values.
+
+Try it like this, e.g.:
+  python -i hairpin_transitions.py
+"""
+
+from multistrand.objects import *
+from multistrand.options import Options
+from multistrand.system import SimSystem
 
 import numpy as np
 

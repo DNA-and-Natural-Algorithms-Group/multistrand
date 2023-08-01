@@ -1,16 +1,25 @@
-# threewaybm_first_passage_time.py
-# 
-# First Passage Time can be used to get statistics on how long it takes to reach a certain state, or one of a set of defined states.  
-# Here we compare two sequences for toehold-mediated three-way strand displacement.  Starting in with the incoming strand binding by 
-# the toehold only, we run simulations until either the incoming strand falls off again (a "failure") or the incumbent top strand is
-# displaced and dissociates (a "success").  This is specified via Dissoc_Macrostate StopConditions that look for the incoming strand 
-# being in a complex by itself, or the incumbent strand being in a complex by itself, respectively.  We perform only 100 trials
-# for each sequence, because that already takes around 10 minutes (most of which is design A).  Once that's done, for each sequence 
-# we have 100 trial results, each tagged with either "failure" or "success". We can look at histograms of how long such trajectories
-# took, or alternatively tabulate what fraction of trajectories completed by a certain time.
-#
-# Try it like this, e.g.:
-#   ipython --pylab -i threewaybm_first_passage_time.py
+# Multistrand nucleic acid kinetic simulator
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
+
+"""
+First Passage Time can be used to get statistics on how long it takes to reach a
+certain state, or one of a set of defined states. Here we compare two sequences
+for toehold-mediated three-way strand displacement. Starting in with the
+incoming strand binding by the toehold only, we run simulations until either the
+incoming strand falls off again (a "failure") or the incumbent top strand is
+displaced and dissociates (a "success"). This is specified via Dissoc_Macrostate
+StopConditions that look for the incoming strand being in a complex by itself,
+or the incumbent strand being in a complex by itself, respectively. We perform
+only 100 trials for each sequence, because that already takes around 10 minutes
+(most of which is design A). Once that's done, for each sequence we have 100
+trial results, each tagged with either "failure" or "success". We can look at
+histograms of how long such trajectories took, or alternatively tabulate what
+fraction of trajectories completed by a certain time.
+
+Try it like this, e.g.:
+  ipython --pylab -i threewaybm_first_passage_time.py
+"""
 
 if False:  # only needed if you're having trouble with your Multistrand installation
     import multistrand_setup

@@ -1,4 +1,9 @@
-// Some simulation datapoints
+/*
+Multistrand nucleic acid kinetic simulator
+Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+The Multistrand Team (help@multistrand.org)
+*/
+
 #ifndef __SIMTIMER_H__
 #define __SIMTIMER_H__
 
@@ -34,6 +39,5 @@ public:
 	SimOptions* simOptions = NULL;
 
 };
-
 
 #endif

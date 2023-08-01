@@ -1,3 +1,7 @@
+# Multistrand nucleic acid kinetic simulator
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
+
 ## Run this file to re-create the figures from the MS-2.0 paper.
 ## Run this as ./overnight.sh > overnight-DATE.txt
 

@@ -1,67 +1,55 @@
-# threewaybm_first_step_mode.py
-#
-# adapted from three_way_sims_example.py by Niranjan Srinivas and Joseph Schaeffer.
-#
-# This is the type of code used in the case studies... time to take a look at the innards...
-# The main concept being shown here is the process for doing simulations in parallel on multicore machines.
-# If you want a total number T of trajectories to be simulated, you can divide it into J jobs of S simulations each
-# (with T = J*S) and then spawn off J instances of Multistrand, each of which creates and runs one SimSystem 
-# that performs S simulation trials. The J jobs might not all be the same setup.  We demonstrate a simple batch scheduler
-# that takes a list of jobs, counts the number of cores on your machine, and runs that many in parallel -- starting a new
-# process whenever an old one completes. The results of each run are stored in data files in appropriately named
-# directories "Data_toehold*" which can later be all loaded back and recombined into a single data set for each simulated
-# system.  The analysis to extract rates from the simulations is similar to that in hybridization_first_step_mode.py,
-# except that here we don't use Boltzmann sampling and we don't calculate error bars, which simplified things.
-#
-#
-# Usage for a quick-running test using just toehold length 3 and a just a few trials, taking about 5 minutes:
-# python -i threewaybm_first_step_mode.py test
-#
-# Usage for a full simulation with Metropolis kinetics and toehold lengths 1-4, about a 3 hours:
-# python -i threewaybm_first_step_mode.py short
-#
-# Usage for a full simulation with Metropolis kinetics and toehold lengths 5-9, almost an hour:
-# python -i threewaybm_first_step_mode.py medium
-#
-# Usage for a full simulation with Kawasaki kinetics and toehold 10-15, under half an hour:
-# python -i threewaybm_first_step_mode.py long
-#
-# After the simulations are done, and you are dumped into interactive python, you can analyze the results:
-# >>> final_results(3,"Metropolis")
-#
-# If you have already run the simulations, you can do the analysis for all toehold lengths:
-# python -i threewaybm_first_step_mode.py analyze
-#
-# Times are for a 4-core Intel Core i7 MacBook Pro, 2.6 GHz, year 2014 model.
+# Multistrand nucleic acid kinetic simulator
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
 
-# Import things you need
+"""
+adapted from three_way_sims_example.py by Niranjan Srinivas and Joseph Schaeffer.
+
+This is the type of code used in the case studies... time to take a look at the innards...
+The main concept being shown here is the process for doing simulations in parallel on multicore machines.
+If you want a total number T of trajectories to be simulated, you can divide it into J jobs of S simulations each
+(with T = J*S) and then spawn off J instances of Multistrand, each of which creates and runs one SimSystem
+that performs S simulation trials. The J jobs might not all be the same setup.  We demonstrate a simple batch scheduler
+that takes a list of jobs, counts the number of cores on your machine, and runs that many in parallel -- starting a new
+process whenever an old one completes. The results of each run are stored in data files in appropriately named
+directories "Data_toehold*" which can later be all loaded back and recombined into a single data set for each simulated
+system.  The analysis to extract rates from the simulations is similar to that in hybridization_first_step_mode.py,
+except that here we don't use Boltzmann sampling and we don't calculate error bars, which simplified things.
+
+
+Usage for a quick-running test using just toehold length 3 and a just a few trials, taking about 5 minutes:
+python -i threewaybm_first_step_mode.py test
+
+Usage for a full simulation with Metropolis kinetics and toehold lengths 1-4, about a 3 hours:
+python -i threewaybm_first_step_mode.py short
+
+Usage for a full simulation with Metropolis kinetics and toehold lengths 5-9, almost an hour:
+python -i threewaybm_first_step_mode.py medium
+
+Usage for a full simulation with Kawasaki kinetics and toehold 10-15, under half an hour:
+python -i threewaybm_first_step_mode.py long
+
+After the simulations are done, and you are dumped into interactive python, you can analyze the results:
+>>> final_results(3,"Metropolis")
+
+If you have already run the simulations, you can do the analysis for all toehold lengths:
+python -i threewaybm_first_step_mode.py analyze
+
+Times are for a 4-core Intel Core i7 MacBook Pro, 2.6 GHz, year 2014 model.
+"""
+
 import sys, os
-
 import pickle
 import random
+import multiprocessing
+from multiprocessing import Pool
+
 import numpy as np
 
-if False:  # only needed if you're having trouble with your Multistrand installation
-    import multistrand_setup
+from multistrand.objects import *
+from multistrand.options import Options, Literals
+from multistrand.system import SimSystem
 
-try:
-    from multistrand.objects import *
-    from multistrand.options import Options, Literals
-    from multistrand.system import SimSystem
-
-except ImportError:
-    print("Could not import Multistrand.")
-    raise
-
-try:
-    import multiprocessing
-    from multiprocessing import Pool
-    
-except ImportError:
-    print("Could not import multiprocessing.")
-    raise
-
-#########
 
 # for StopCondition and Macrostate definitions:
 Exact_Macrostate = 0  # match a secondary structure exactly (i.e. any system state that has a complex with this exact structure)

@@ -1,27 +1,25 @@
+# Multistrand nucleic acid kinetic simulator
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
+
 """
- Copyright (c) 2007-2017 California Institute of Technology. All rights reserved.
- Multistrand nucleic acid kinetic simulator.               E: help@multistrand.org
- """
- # Code contributors:  Erik Winfree, Chris Thachuk, Justin Bois, Joseph Berleant.
-#
-# The following functions are currently wrapped:
-#  pfunc
-#  pairs
-#  mfe
-#  subopt
-#  count
-#  energy
-#  prob
-#  defect
-#  sample
-#
-# The following functions may be wrapped in a future release:
-#  complexes
-#  concentrations
-#  design
-#  distributions
+The following functions are currently wrapped:
+ pfunc
+ pairs
+ mfe
+ subopt
+ count
+ energy
+ prob
+ defect
+ sample
 
-
+The following functions may be wrapped in a future release:
+ complexes
+ concentrations
+ design
+ distributions
+"""
 
 import math
 import numbers

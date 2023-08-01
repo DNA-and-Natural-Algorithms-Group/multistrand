@@ -1,27 +1,22 @@
-# hairpin_trajectories.py
-#
-# This is a follow-up on hairpin_energies.py.
-# Here, rather than manually examining secondary structures of interest, we let a simulation run explore the full secondary structure 
-# energy landscape according to a Metropolis-biased random walk.
-# 
-#
-# Try it like this:
-#   python -i hairpin_trajectories.py
-#   ipython --pylab -i hairpin_trajectories.py
+# Multistrand nucleic acid kinetic simulator
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
 
-if False:  # only needed if you're having trouble with your Multistrand installation
-    import multistrand_setup
+"""
+This is a follow-up on hairpin_energies.py. Here, rather than manually examining
+secondary structures of interest, we let a simulation run explore the full
+secondary structure energy landscape according to a Metropolis-biased random
+walk.
 
-try:
-    from multistrand.objects import *
-    from multistrand.options import Options, Literals
-    from multistrand.system import SimSystem, energy
+Try it like this:
+  python -i hairpin_trajectories.py
+  ipython --pylab -i hairpin_trajectories.py
+"""
 
-except ImportError:
-    print("Could not import Multistrand.")
-    raise
+from multistrand.objects import *
+from multistrand.options import Options, Literals
+from multistrand.system import SimSystem
 
-#############
 
 # More meaningful names for argument values to the energy() function call, below.
 Loop_Energy = 0    # requesting no dG_assoc or dG_volume terms to be added.  So only loop energies remain.

@@ -1,6 +1,6 @@
-# Copyright (c) 2017 California Institute of Technology. All rights reserved.
 # Multistrand nucleic acid kinetic simulator
-# help@multistrand.org
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
 
 from multistrand.objects import Complex, Domain, Strand, StopCondition
 from multistrand.options import Options

@@ -1,7 +1,10 @@
 /*
- Copyright (c) 2009-2010 Caltech. All rights reserved.
- Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
+Multistrand nucleic acid kinetic simulator
+Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+The Multistrand Team (help@multistrand.org)
+*/
 
+/*
  A simple extension module for python that exposes the
  SimulationSystem object as a createable object that has one method.
  */

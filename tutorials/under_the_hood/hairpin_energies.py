@@ -1,24 +1,23 @@
-# hairpin_energies.py
-#
-# This example walks you through how to create a single-stranded complex (i.e. a strand sequence and structure), and how to find its energy.
-#
-# Invoke as "python hairpin_energies.py" to see a plot.
-# Invoke as "python -i hairpin_energies.py" to see a plot and then drop into the python interpreter to investigate further.
-# Invoke as "ipython --pylab -i hairpin_energies.py" to see a plot and then drop into the ipython interpreter to investigate further.
+# Multistrand nucleic acid kinetic simulator
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
 
-if False:  # only needed if you're having trouble with your Multistrand installation
-    import multistrand_setup
+"""
+This example walks you through how to create a single-stranded complex (i.e. a
+strand sequence and structure), and how to find its energy.
 
-try:
-    from multistrand.objects import *
-    from multistrand.options import Options
-    from multistrand.system import energy, initialize_energy_model
+Invoke as "python hairpin_energies.py" to see a plot.
 
-except ImportError:
-    print("Could not import Multistrand.")
-    raise
+Invoke as "python -i hairpin_energies.py" to see a plot and then drop into the
+python interpreter to investigate further.
 
-#############
+Invoke as "ipython --pylab -i hairpin_energies.py" to see a plot and then drop
+into the ipython interpreter to investigate further.
+"""
+
+from multistrand.objects import *
+from multistrand.options import Options
+from multistrand.system import energy, initialize_energy_model
 
 
 o = Options(temperature=25,dangles="Some")    # prepares for simulation.

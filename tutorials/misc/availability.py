@@ -1,10 +1,14 @@
-# Frits Dannenberg, Aug 2017
+# Multistrand nucleic acid kinetic simulator
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
 
-# simulates ONLY the base reaction.
+"""
+simulates ONLY the base reaction.
 
-# Availability: A Metric for Nucleic Acid Strand Displacement Systems. Xiaoping Olson, Shohei Kotani, Jennifer E. Padilla, 
-# Natalya Hallstrom, Sara Goltry, Jeunghoon Lee, Bernard Yurke, William L. Hughes, and Elton Graugnard
-
+Availability: A Metric for Nucleic Acid Strand Displacement Systems. Xiaoping
+Olson, Shohei Kotani, Jennifer E. Padilla, Natalya Hallstrom, Sara Goltry,
+Jeunghoon Lee, Bernard Yurke, William L. Hughes, and Elton Graugnard
+"""
 
 from multistrand.objects import StopCondition
 from multistrand.options import Options, Literals

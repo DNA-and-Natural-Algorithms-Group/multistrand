@@ -1,8 +1,8 @@
 /*
- Copyright (c) 2007-2010 Caltech. All rights reserved.
- Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
- Edits by: Chris Berlind    (cberlind@dna.caltech.edu)
- */
+Multistrand nucleic acid kinetic simulator
+Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+The Multistrand Team (help@multistrand.org)
+*/
 
 #include <Python.h>
 

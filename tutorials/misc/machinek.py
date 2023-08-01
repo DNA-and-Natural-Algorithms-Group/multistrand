@@ -1,11 +1,11 @@
+# Multistrand nucleic acid kinetic simulator
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
+
 """
-
- Frits Dannenberg, July 2017
-
- Simulation of Figure 2d in 
- Programmable energy landscapes for kinetic control of DNA strand displacement
- RRF Machinek, TE Ouldridge, NEC Haley, J Bath & AJ Turberfield. Nature communications
-
+Simulation of Figure 2d in
+Programmable energy landscapes for kinetic control of DNA strand displacement
+RRF Machinek, TE Ouldridge, NEC Haley, J Bath & AJ Turberfield. Nature communications
 """
 
 import sys, os
@@ -15,16 +15,15 @@ matplotlib.use('Agg')
 
 import xlrd
 import matplotlib.pyplot as plt
-import matplotlib.lines as lines
 
 import numpy as np
 
 from matplotlib.ticker import ScalarFormatter
 
-from multistrand.concurrent import MergeSim, FirstStepRate, Bootstrap
+from multistrand.concurrent import MergeSim
 from multistrand.experiment import standardOptions, setBoltzmann
-from multistrand.objects import StopCondition, Domain, Complex, Strand
-from multistrand.options import Options, Literals
+from multistrand.objects import StopCondition, Complex, Strand
+from multistrand.options import Literals
 
 myMultistrand = MergeSim()
 myMultistrand.setNumOfThreads(2)

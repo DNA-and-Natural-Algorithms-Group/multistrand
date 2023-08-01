@@ -1,76 +1,76 @@
-# hybridization_transitions.py
-# 
-# This example is modified from threeway_transitions.py, but provides a deeper analysis approach (for "simple" hybridization).
-# The two strands are constrained to have embedded hairpin-loop secondary structure, as in Gao et al 2006.
-# Simulation proceeds from completely unfolded strands separate in the given volume, completing when the full hybrid is formed.
-# The full set of domain-level secondary structures (all 44 of them) are used as macrostates, analogous to KinDA's approach.
-# With enough simulations, rates between macrostates should be sufficient to estimate both the overall k_f and k_r rate constants,
-# by numerically computing expected hitting times from initial to final states within the macrostate continuous-time markov chain,
-# and from the final to the initial states as well. This is somewhat reminiscent of forward flux sampling.
-#
-# In addition to obtaining rates, this analysis ought to allow us to make claims about the pathway taken, e.g. 
-#   "Did hybridization initiate via hairpins or unfolded strands?"
-#   "Was 3-way or 4-way branch migration involved, or neither?"
-#
-# Try it like this, e.g.:
-#   python -i hybridization_transitions.py medium count 100
-#   python -i hybridization_transitions.py medium count2 100
-#   python -i hybridization_transitions.py medium loose 100
-#   python -i hybridization_transitions.py medium exact 100
-#   python -i hybridization_transitions.py medium loose2 1000
-#   python -i hybridization_transitions.py medium distance 100
-#   python -i hybridization_transitions.py medium distance2 300
-# where the second argument is the number of trajectories to simulate, and the first argument indicates the coarse-graining method to be used.
-# The postfix "2" requests a second-order markov chain approximation, which entails a larger state space and thus requires more simulation trials.
-#
-# For comparison to first-step mode, for the 'medium' sequence, try:
-#   python -i hybridization_first_step_mode.py DNA ACTCCACATTGTCTTTATATTGTGACAATGAAGCGT 25 1e-3 1000
-# and the expected time to full duplex, including time wasted on failed collisions, is
-#   1/(k_eff * c)
-# where c is the concentration 1e-3 (i.e. 1 mM).  
-#
-# When the reverse pathway hitting time can be computed, we can also compare the dissociation rate inferred from first-step mode + thermodynamics:
-#   kr = kf exp(dG/RT)
-# where using NUPACK we can calculate
-#   dG = pfunc(ds) - pfunc(ss1) - pfunc(ss2)
-# and thus the expected time for dissociation is
-#   (1/kf) exp(-dG/RT)
-# 
-# The "small", "medium", and "large" sequences can each be evaluated similarly
-#   python -i hybridization_first_step_mode.py DNA TCTACTTCTACTATAC 25 1e-3 1000
-#      kf = k1 = 77.7 x 10^6 /M/s     k_eff =  23.6 x 10^6 /M/s      1/(k_eff * c ) =  42.4 usec
-#      dG = -18.76 - (-0.22 + -0.10) = -18.44  kcal/mol
-#      kr = kf exp(-18.44 / 0.5924) ==> 8.43 days
-#   python -i hybridization_first_step_mode.py DNA ACTCCACATTGTCTTTATATTGTGACAATGAAGCGT 25 1e-3 1000
-#      kf = k1 = 7.4 x 10^6 /M/s     k_eff = 7.1 x 10^6 /M/s      1/(k_eff * c ) = 141 usec
-#      dG = -52.87 - (-8.45 + -8.33) = -36.10  kcal/mol
-#      kr = kf exp(-36.10 / 0.5924) ==> 4.55 x 10^14 days
-#   python -i hybridization_first_step_mode.py DNA CATTGTAACTGGCGATGCTACCTGTATTTTTACAGGTAGCATCGCCCCATTAACTC 25 1e-3 1000
-#      kf = k1 = 54.2 x 10^6 /M/s     k_eff =  8.6 x 10^6 /M/s      1/(k_eff * c ) =  116 usec
-#      dG = -86.42 - (-25.08 + -24.72) = -36.6  kcal/mol
-#      kr = kf exp(-36.6 / 0.5924) ==>  1.4 x 10^14 days
-#
+# Multistrand nucleic acid kinetic simulator
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
 
+"""
+This example is modified from threeway_transitions.py, but provides a deeper
+analysis approach (for "simple" hybridization). The two strands are constrained
+to have embedded hairpin-loop secondary structure, as in Gao et al 2006.
+Simulation proceeds from completely unfolded strands separate in the given
+volume, completing when the full hybrid is formed. The full set of domain-level
+secondary structures (all 44 of them) are used as macrostates, analogous to
+KinDA's approach. With enough simulations, rates between macrostates should be
+sufficient to estimate both the overall k_f and k_r rate constants, by
+numerically computing expected hitting times from initial to final states within
+the macrostate continuous-time markov chain, and from the final to the initial
+states as well. This is somewhat reminiscent of forward flux sampling.
 
-# To-do note: must describe macrostate approaches and first-order vs second-order chains
+In addition to obtaining rates, this analysis ought to allow us to make claims
+about the pathway taken, e.g.:
+  "Did hybridization initiate via hairpins or unfolded strands?"
+  "Was 3-way or 4-way branch migration involved, or neither?"
 
+Try it like this, e.g.:
+  python -i hybridization_transitions.py medium count 100
+  python -i hybridization_transitions.py medium count2 100
+  python -i hybridization_transitions.py medium loose 100
+  python -i hybridization_transitions.py medium exact 100
+  python -i hybridization_transitions.py medium loose2 1000
+  python -i hybridization_transitions.py medium distance 100
+  python -i hybridization_transitions.py medium distance2 300
+where the second argument is the number of trajectories to simulate, and the
+first argument indicates the coarse-graining method to be used.
+The postfix "2" requests a second-order markov chain approximation, which
+entails a larger state space and thus requires more simulation trials.
 
-if False:  # only needed if you're having trouble with your Multistrand installation
-    import multistrand_setup
+For comparison to first-step mode, for the 'medium' sequence, try:
+  python -i hybridization_first_step_mode.py DNA ACTCCACATTGTCTTTATATTGTGACAATGAAGCGT 25 1e-3 1000
+and the expected time to full duplex, including time wasted on failed collisions, is
+  1/(k_eff * c)
+where c is the concentration 1e-3 (i.e. 1 mM).
 
-try:
-    from multistrand.objects import *
-    from multistrand.options import Options
-    from multistrand.system import SimSystem
+When the reverse pathway hitting time can be computed, we can also compare the dissociation rate inferred from first-step mode + thermodynamics:
+  kr = kf exp(dG/RT)
+where using NUPACK we can calculate
+  dG = pfunc(ds) - pfunc(ss1) - pfunc(ss2)
+and thus the expected time for dissociation is
+  (1/kf) exp(-dG/RT)
 
-except ImportError:
-    print("Could not import Multistrand.")
-    raise
+The "small", "medium", and "large" sequences can each be evaluated similarly
+  python -i hybridization_first_step_mode.py DNA TCTACTTCTACTATAC 25 1e-3 1000
+     kf = k1 = 77.7 x 10^6 /M/s     k_eff =  23.6 x 10^6 /M/s      1/(k_eff * c ) =  42.4 usec
+     dG = -18.76 - (-0.22 + -0.10) = -18.44  kcal/mol
+     kr = kf exp(-18.44 / 0.5924) ==> 8.43 days
+  python -i hybridization_first_step_mode.py DNA ACTCCACATTGTCTTTATATTGTGACAATGAAGCGT 25 1e-3 1000
+     kf = k1 = 7.4 x 10^6 /M/s     k_eff = 7.1 x 10^6 /M/s      1/(k_eff * c ) = 141 usec
+     dG = -52.87 - (-8.45 + -8.33) = -36.10  kcal/mol
+     kr = kf exp(-36.10 / 0.5924) ==> 4.55 x 10^14 days
+  python -i hybridization_first_step_mode.py DNA CATTGTAACTGGCGATGCTACCTGTATTTTTACAGGTAGCATCGCCCCATTAACTC 25 1e-3 1000
+     kf = k1 = 54.2 x 10^6 /M/s     k_eff =  8.6 x 10^6 /M/s      1/(k_eff * c ) =  116 usec
+     dG = -86.42 - (-25.08 + -24.72) = -36.6  kcal/mol
+     kr = kf exp(-36.6 / 0.5924) ==>  1.4 x 10^14 days
+"""
 
-import numpy as np
+# TODO: must describe macrostate approaches and first-order vs second-order chains
+
 import sys
 
-#############
+import numpy as np
+
+from multistrand.objects import *
+from multistrand.options import Options
+from multistrand.system import SimSystem
+
 
 # for StopCondition and Macrostate definitions:
 Exact_Macrostate = 0   # match a secondary structure exactly (i.e. any system state that has a complex with this exact structure)

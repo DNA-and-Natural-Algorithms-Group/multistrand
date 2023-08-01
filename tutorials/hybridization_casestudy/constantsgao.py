@@ -1,8 +1,12 @@
+# Multistrand nucleic acid kinetic simulator
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
+
 import operator
 import multiprocessing
 import numpy as np
 
-from multistrand.options import Options, Literals
+from multistrand.options import Literals
 
 colors = ['blue', 'red', 'cyan', 'magenta', 'green', 'k', 'darkblue', 'darkred', 'darkcyan', 'darkmagenta', 'darkgreen']
 

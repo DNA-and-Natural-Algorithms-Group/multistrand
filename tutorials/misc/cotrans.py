@@ -1,5 +1,10 @@
-# FD, Oct 20th, 2017. 
-# This demonstrates the co-transcriptional folding.
+# Multistrand nucleic acid kinetic simulator
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
+
+"""
+This demonstrates the co-transcriptional folding.
+"""
 
 import time
 

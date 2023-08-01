@@ -1,18 +1,22 @@
-# This is used for the slowdown study 
-# and the comparison between first step and trajectory mode
+# Multistrand nucleic acid kinetic simulator
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
 
-""" 
-# Run this using arguments 
-# plots 160
-# or
-# slowDownStudy 82000
+"""
+This is used for the slowdown study
+and the comparison between first step and trajectory mode
+
+Run this using arguments
+plots 160
+or
+slowDownStudy 82000
 """
 
 from multistrand.objects import Strand
 from multistrand.experiment import standardOptions, hybridization
 from multistrand.utils import concentration_string, standardFileName
-from multistrand.concurrent import  FirstStepRate, FirstPassageRate, Bootstrap, MergeSim
-from multistrand.options import Options, Literals
+from multistrand.concurrent import  Bootstrap, MergeSim
+from multistrand.options import Literals
 
 
 from constantsgao import goa2006_P0, goa2006_P3, goa2006_P4, setSaltGao2006, colors

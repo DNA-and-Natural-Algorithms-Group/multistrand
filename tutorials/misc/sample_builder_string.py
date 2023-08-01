@@ -1,10 +1,13 @@
-import time 
+# Multistrand nucleic acid kinetic simulator
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
 
-from multistrand.experiment import standardOptions, hybridization, hairpinclosing, dissociation, seesaw_gate_fuel_leak, threewayDisplacement
-from multistrand.concurrent import FirstPassageRate
-from multistrand.builder import Builder, BuilderRate, hybridizationString, dissociationString, threewaybmString
-from multistrand.options import Options, Literals
-from multistrand.system import SimSystem
+import time
+
+from multistrand.experiment import standardOptions
+from multistrand.builder import \
+    Builder, BuilderRate, hybridizationString, dissociationString, threewaybmString
+from multistrand.options import Literals
 from multistrand.objects import StopCondition
 
 str_association = "association"

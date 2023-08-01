@@ -1,15 +1,19 @@
+# Multistrand nucleic acid kinetic simulator
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
+
 """
-    Frits Dannenberg, May 17th, 2017.
-    This module has three main classes
+This module has three main classes
 
-    MergeResult: Given multistrand results, compute reaction rate constants.
-    MergeSim:    A class for running multistrand concurrently 
-    Bootstrap:   A convenience class to compute bootstrapped confidence bounds.
+MergeResult: Given multistrand results, compute reaction rate constants.
+MergeSim:    A class for running multistrand concurrently
+Bootstrap:   A convenience class to compute bootstrapped confidence bounds.
 
-    MergeResult children: FirstStepRate, FirstStepLeakRate, FirstPassageRate
+MergeResult children: FirstStepRate, FirstStepLeakRate, FirstPassageRate
 
-    The MergeSim.run() method always returns of the MergeResult sub-classes.
+The MergeSim.run() method always returns of the MergeResult sub-classes.
 """
+
 import time
 import datetime
 import math

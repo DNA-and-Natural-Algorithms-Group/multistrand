@@ -1,7 +1,10 @@
+# Multistrand nucleic acid kinetic simulator
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
+
 """
-    Frits Dannenberg May 29th, 2018 
-    This file demonstrates Arrhenius kinetics.
-    The interface is not finalized.
+This file demonstrates Arrhenius kinetics.
+The interface is not finalized.
 """
 
 from multistrand._options.options import Options

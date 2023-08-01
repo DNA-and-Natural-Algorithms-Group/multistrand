@@ -1,72 +1,63 @@
-# hybridization_scatterplot.py
-#
-# Here we use the function calls defined in hybridization_first_step_mode.py
-# to examine the influence of secondary structure on hybridization rates,
-# according to the Multistrand model.  The inspiration is a pair of papers,
-# Gao et al 2006 and Schreck et al 2014 (full citations at the bottom), the
-# latter of which argues that secondary structure accelerates dissociation
-# rather than inhibiting association -- at least in the case of the experimental
-# data provided by Gao et al -- and performs coarse-grained molecular dynamics
-# simulations as evidence. Our goal is to refine that insight by looking at 
-# a larger number of sequences and understanding the role of "toeholds" and
-# hairpin stem length in determining whether/when secondary structure accelerates 
-# dissociation or inhibits association.
-# 
-# Usage:
-#     python -i hybridization_scatterplot generate random <len> <num seqs> <data file name>
-#     python -i hybridization_scatterplot generate iso-random <len> <num seqs> <data file name>
-#     python -i hybridization_scatterplot generate structured <len> <max toe> <max stem> <num seqs> <data file name>
-#     python -i hybridization_scatterplot generate iso-structured <len> <max toe> <max stem> <num seqs> <data file name>
-#     python -i hybridization_scatterplot generate fixed-stem <len> <max toe> <stem size> <num seqs> <data file name>
-#     python -i hybridization_scatterplot generate iso-fixed-stem <len> <max toe> <stem size> <num seqs> <data file name>
-#     python -i hybridization_scatterplot plot <data file names>
-#
-# Usage examples:
-#     python -i hybridization_scatterplot.py generate random 15 1000 r15-1000
-#     python -i hybridization_scatterplot.py generate iso-random 25 1000 ir25-1000
-#     python -i hybridization_scatterplot.py generate structured 15 5 5 100 s15-100
-#     python -i hybridization_scatterplot.py generate iso-structured 15 5 5 300 is15-300
-#     python -i hybridization_scatterplot.py generate iso-structured 25 8 8 100 is25-100
-#     python -i hybridization_scatterplot.py generate fixed-stem 15 5 4 100 f15-100
-#     python -i hybridization_scatterplot.py generate iso-fixed-stem 25 8 5 100 if25-100
-#     python -i hybridization_scatterplot.py plot r15-1000 s15-100 f15-100
-#     open scatterdata/r15-1000+s15-100+f15-100.pdf
-#
+# Multistrand nucleic acid kinetic simulator
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
 
-# Reference for experimental rates:
-#    "Secondary structure effects on DNA hybridization kinetics: a solution versus surface comparison"
-#    Y Gao, LK Wolf, RM Georgiadis
-#    Nucleic acids research, vol. 34, pp. 3370-3377 (2006)
-#    http://nar.oxfordjournals.org/content/34/11/3370.short
-#
-# Reference for coarse-grained molecular dynamics study of the same:
-#    "DNA hairpins primarily promote duplex melting rather than inhibiting hybridization"
-#    John S. Schreck, Thomas E. Ouldridge, Flavio Romano, Petr Sulc, Liam Shaw, Ard A. Louis, Jonathan P. K. Doye
-#    Nucleic Acids Research, 2015, Vol. 43, No. 13 6181-6190
-#    arXiv:1408.4401 [cond-mat.soft]  (2014)
-#    http://arxiv.org/abs/1408.4401
+"""
+Here we use the function calls defined in hybridization_first_step_mode.py
+to examine the influence of secondary structure on hybridization rates,
+according to the Multistrand model.  The inspiration is a pair of papers,
+Gao et al 2006 and Schreck et al 2014 (full citations at the bottom), the
+latter of which argues that secondary structure accelerates dissociation
+rather than inhibiting association -- at least in the case of the experimental
+data provided by Gao et al -- and performs coarse-grained molecular dynamics
+simulations as evidence. Our goal is to refine that insight by looking at
+a larger number of sequences and understanding the role of "toeholds" and
+hairpin stem length in determining whether/when secondary structure accelerates
+dissociation or inhibits association.
+
+Usage:
+    python -i hybridization_scatterplot generate random <len> <num seqs> <data file name>
+    python -i hybridization_scatterplot generate iso-random <len> <num seqs> <data file name>
+    python -i hybridization_scatterplot generate structured <len> <max toe> <max stem> <num seqs> <data file name>
+    python -i hybridization_scatterplot generate iso-structured <len> <max toe> <max stem> <num seqs> <data file name>
+    python -i hybridization_scatterplot generate fixed-stem <len> <max toe> <stem size> <num seqs> <data file name>
+    python -i hybridization_scatterplot generate iso-fixed-stem <len> <max toe> <stem size> <num seqs> <data file name>
+    python -i hybridization_scatterplot plot <data file names>
+
+Usage examples:
+    python -i hybridization_scatterplot.py generate random 15 1000 r15-1000
+    python -i hybridization_scatterplot.py generate iso-random 25 1000 ir25-1000
+    python -i hybridization_scatterplot.py generate structured 15 5 5 100 s15-100
+    python -i hybridization_scatterplot.py generate iso-structured 15 5 5 300 is15-300
+    python -i hybridization_scatterplot.py generate iso-structured 25 8 8 100 is25-100
+    python -i hybridization_scatterplot.py generate fixed-stem 15 5 4 100 f15-100
+    python -i hybridization_scatterplot.py generate iso-fixed-stem 25 8 5 100 if25-100
+    python -i hybridization_scatterplot.py plot r15-1000 s15-100 f15-100
+    open scatterdata/r15-1000+s15-100+f15-100.pdf
 
 
+Reference for experimental rates:
+   "Secondary structure effects on DNA hybridization kinetics: a solution versus surface comparison"
+   Y Gao, LK Wolf, RM Georgiadis
+   Nucleic acids research, vol. 34, pp. 3370-3377 (2006)
+   http://nar.oxfordjournals.org/content/34/11/3370.short
 
+Reference for coarse-grained molecular dynamics study of the same:
+   "DNA hairpins primarily promote duplex melting rather than inhibiting hybridization"
+   John S. Schreck, Thomas E. Ouldridge, Flavio Romano, Petr Sulc, Liam Shaw, Ard A. Louis, Jonathan P. K. Doye
+   Nucleic Acids Research, 2015, Vol. 43, No. 13 6181-6190
+   arXiv:1408.4401 [cond-mat.soft]  (2014)
+   http://arxiv.org/abs/1408.4401
+"""
 
-# Import things you need
 import random, string, pickle, sys
 import numpy as np
 import nupack
 
-if False:  # only needed if you're having trouble with your Multistrand installation
-    import multistrand_setup
+from multistrand.objects import *
+from multistrand.options import Options, Literals
+from multistrand.system import SimSystem, initialize_energy_model
 
-try:
-    from multistrand.objects import *
-    from multistrand.options import Options, Literals
-    from multistrand.system import SimSystem, initialize_energy_model
-
-except ImportError:
-    print("Could not import Multistrand.")
-    raise
-
-#########
 
 # for StopCondition macrostate definitions:
 Exact_Macrostate = 0

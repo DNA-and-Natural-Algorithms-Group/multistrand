@@ -1,8 +1,9 @@
 /*
-Copyright (c) 2017 California Institute of Technology. All rights reserved.
 Multistrand nucleic acid kinetic simulator
-help@multistrand.org
+Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+The Multistrand Team (help@multistrand.org)
 */
+
 /* Loop class header for main loop class and derivatives. */
 
 #ifndef __LOOP_H__

@@ -1,8 +1,9 @@
-"""
-Erik Winfree and Frits Dannenberg
-May 2017
+# Multistrand nucleic acid kinetic simulator
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
 
-Call this using arguments 
+"""
+Call this using arguments
 
 generate iso-random 15 10 ir15-10
 generate iso-random 25 100 ir25-100
@@ -12,7 +13,7 @@ generate structured-random 25 3 4 10 sr25-10
 """
 
 from multistrand.experiment import hybridization, standardOptions
-from multistrand.concurrent import FirstStepRate,FirstStepLeakRate,  MergeSim
+from multistrand.concurrent import FirstStepLeakRate, MergeSim
 from constantsgao import goa2006_P0, goa2006_P3, goa2006_P4, setSaltGao2006
 
 import matplotlib.pyplot as plt

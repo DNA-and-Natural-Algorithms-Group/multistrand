@@ -1,5 +1,11 @@
-## FD: Morrison and Stols, 2003. Comparison of Multistrand vs. reported values.
-## FD: this computes the rates via k+ / k- = exp -dG / RT
+# Multistrand nucleic acid kinetic simulator
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
+
+"""
+Morrison and Stols, 2003. Comparison of Multistrand vs. reported values.
+this computes the rates via k+ / k- = exp -dG / RT
+"""
 
 import os
 import math

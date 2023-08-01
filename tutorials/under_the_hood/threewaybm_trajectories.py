@@ -1,37 +1,21 @@
-####################################################################
-#                                                                  #
-#  Copyright (c) 2010-2015 California Institute of Technology.     #
-#  Distributed under the MIT License.                              #
-#  (See accompanying file LICENSE or copy at                       #
-#  http://opensource.org/licenses/MIT)                             #
-#                                                                  #
-####################################################################
+# Multistrand nucleic acid kinetic simulator
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
 
-# threewaybm_trajectories.py
-#
-# This example illustrates how to examine trajectories in multistranded simulations, 
-# where association and dissociation can change the number and type of complexes.
-# Pay attention to how, when that happens, the strand ordering can change,
-# and thus dot-paren structures must be displayed differently.
-#
-# Try it like this, e.g.:
-#   python -i hairpin_trajectories.py
+"""
+This example illustrates how to examine trajectories in multistranded simulations,
+where association and dissociation can change the number and type of complexes.
+Pay attention to how, when that happens, the strand ordering can change,
+and thus dot-paren structures must be displayed differently.
 
-import os
+Try it like this, e.g.:
+  python -i hairpin_trajectories.py
+"""
 
-if False:  # only needed if you're having trouble with your Multistrand installation
-    import multistrand_setup
+from multistrand.objects import *
+from multistrand.options import Options
+from multistrand.system import SimSystem, energy
 
-try:
-    from multistrand.objects import *
-    from multistrand.options import Options
-    from multistrand.system import SimSystem, energy
-
-except ImportError:
-    print("Could not import Multistrand.")
-    raise
-
-#############
 
 # More meaningful names for argument values to the energy() function call, below.
 Loop_Energy = 0    # requesting no dG_assoc or dG_volume terms to be added.  So only loop energies remain.

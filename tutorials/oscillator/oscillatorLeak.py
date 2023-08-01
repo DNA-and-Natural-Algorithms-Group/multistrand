@@ -1,8 +1,13 @@
-# Mrinank Sharma, July 2017
-# Frits Dannenberg, Aug 2017
-# Simulates Leak Reactions from a DSD oscillator and calculates the rate with bootstraping
+# Multistrand nucleic acid kinetic simulator
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
 
-import sys, time, os
+"""
+Simulates Leak Reactions from a DSD oscillator and calculates the rate with
+bootstraping
+"""
+
+import sys, os
 from os.path import expanduser
 
 dirs = ["~/workspace/multistrand", "~/workspace/multistrandPy",

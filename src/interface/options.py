@@ -1,11 +1,10 @@
-#
-#
-# Copyright (c) 2010 Caltech. All rights reserved.
-# Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)
-#
-#
-# Options module to grab the options object into this namespace.
-#
+# Multistrand nucleic acid kinetic simulator
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
+
+"""
+Options module to grab the options object into this namespace.
+"""
 
 from ._options.options   import Options, Literals, Energy_Type
 from ._options.interface import Result

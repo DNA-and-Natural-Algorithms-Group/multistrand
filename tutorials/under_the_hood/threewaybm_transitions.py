@@ -1,26 +1,22 @@
-# threewaybm_transitions.py
-# 
-# This example is similar to hairpin_transistion.py, except that multistranded complexes are handles.
-# Mainly, we think about what the exact and loose macrostate differences are -- what do they tell us?
-#
-# Try it like this, e.g.:
-#   python -i threewaybm_transitions.py
+# Multistrand nucleic acid kinetic simulator
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
 
-if False:  # only needed if you're having trouble with your Multistrand installation
-    import multistrand_setup
+"""
+This example is similar to hairpin_transistion.py, except that multistranded
+complexes are handles. Mainly, we think about what the exact and loose
+macrostate differences are -- what do they tell us?
 
-try:
-    from multistrand.objects import *
-    from multistrand.options import Options
-    from multistrand.system import SimSystem
-
-except ImportError:
-    print("Could not import Multistrand.")
-    raise
+Try it like this, e.g.:
+  python -i threewaybm_transitions.py
+"""
 
 import numpy as np
 
-#############
+from multistrand.objects import *
+from multistrand.options import Options
+from multistrand.system import SimSystem
+
 
 # for StopCondition and Macrostate definitions:
 Exact_Macrostate = 0   # match a secondary structure exactly (i.e. any system state that has a complex with this exact structure)

@@ -1,6 +1,6 @@
-# Copyright (c) 2010-2017 Caltech. All rights reserved.
-# Joseph Schaeffer (schaeffer@dna.caltech.edu)
-# Frits Dannenberg (fdann@dna.caltech.edu)
+# Multistrand nucleic acid kinetic simulator
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
 
 [build-system]
 requires = ["setuptools>=65", "wheel"]

@@ -1,17 +1,14 @@
 /*
- Copyright (c) 2017 California Institute of Technology. All rights reserved.
- Multistrand nucleic acid kinetic simulator
- help@multistrand.org
- */
+Multistrand nucleic acid kinetic simulator
+Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+The Multistrand Team (help@multistrand.org)
+*/
 
 /*
- *  Created on: Feb 23, 2018
- *      Author: Frits Dannenberg
- *
- *      This class collects every visited state, and transitions between visited states.
- *      After the simulation is done, the set is exported to a text file.
- *
+ * This class collects every visited state, and transitions between visited
+ * states. After the simulation is done, the set is exported to a text file.
  */
+
 #ifndef __STATESPACE_H__
 #define __STATESPACE_H__
 

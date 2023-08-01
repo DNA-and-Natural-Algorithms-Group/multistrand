@@ -1,31 +1,27 @@
-# hairpin_first_passage_time.py
-# 
-# Here we ask Multistrand to simulate the folding of an open strand into a hairpin, and stop when it's done.
-# This mode, First Passage Time Mode, requires us to specific a start state and a recognizable stop condition 
-# (i.e. entering a macrostate), and Multistrand returns the total time it took.  Running a lot of simulations
-# and plotting histograms and completion fractions can provide insight into the process -- and its stochastic
-# variability.
-#
-# Try it like this, e.g.:
-#   ipython --pylab -i hairpin_first_passage_time.py
+# Multistrand nucleic acid kinetic simulator
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
+
+"""
+Here we ask Multistrand to simulate the folding of an open strand into a
+hairpin, and stop when it's done. This mode, First Passage Time Mode, requires
+us to specific a start state and a recognizable stop condition (i.e. entering a
+macrostate), and Multistrand returns the total time it took. Running a lot of
+simulations and plotting histograms and completion fractions can provide insight
+into the process -- and its stochastic variability.
+
+Try it like this, e.g.:
+  ipython --pylab -i hairpin_first_passage_time.py
+"""
 
 import numpy as np
 import matplotlib
 import matplotlib.pylab as plt
 
-if False:  # only needed if you're having trouble with your Multistrand installation
-    import multistrand_setup
+from multistrand.objects import *
+from multistrand.options import Options
+from multistrand.system import SimSystem
 
-try:
-    from multistrand.objects import *
-    from multistrand.options import Options
-    from multistrand.system import SimSystem
-
-except ImportError:
-    print("Could not import Multistrand.")
-    raise
-
-######### This is first passage time
 
 # for StopCondition and Macrostate definitions:
 Exact_Macrostate = 0   # match a secondary structure exactly (i.e. any system state that has a complex with this exact structure)

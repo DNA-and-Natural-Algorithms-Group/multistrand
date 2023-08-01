@@ -1,14 +1,10 @@
-####################################################################
-#                                                                  #
-#                                                                  #
-#   Copyright (c) 2010 Caltech. All rights reserved.               #
-#   Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)         #
-#                                                                  #
-#                                                                  #
-#   Objects module; contains basic objects useful for Multistrand  #
-#                                                                  #
-#                                                                  #
-####################################################################
+# Multistrand nucleic acid kinetic simulator
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
+
+"""
+Objects module; contains basic objects useful for Multistrand.
+"""
 
 __all__ = ['Complex','Domain','StopCondition','Strand']
 __module__ = 'multistrand.objects'

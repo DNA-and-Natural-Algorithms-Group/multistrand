@@ -1,13 +1,9 @@
 /*
-Copyright (c) 2017 California Institute of Technology. All rights reserved.
 Multistrand nucleic acid kinetic simulator
-help@multistrand.org
+Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+The Multistrand Team (help@multistrand.org)
 */
 
-/*
- *  Created on: Jun 5, 2016
- *      Author: Frits Dannenberg
- */
 #include <vector>
 #include <iostream>
 #include <string>

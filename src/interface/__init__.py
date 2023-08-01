@@ -1,13 +1,6 @@
-####################################################################
-#                                                                  #
-#                                                                  #
-#   Copyright (c) 2018 Caltech. All rights reserved.               #
-#   Coded by: Joseph Schaeffer (schaeffer@dna.caltech.edu)         #
-#             Frits Dannenberg (fdann@caltech.edu)                 #
-#                                                                  #
-#                                                                  #
-####################################################################
-
+# Multistrand nucleic acid kinetic simulator
+# Copyright (c) 2010-2017 California Institute of Technology. All rights reserved.
+# The Multistrand Team (help@multistrand.org)
 
 from importlib import metadata
 from subprocess import run, PIPE
