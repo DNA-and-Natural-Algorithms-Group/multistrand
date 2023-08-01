@@ -10,11 +10,15 @@
 - Created an [Apptainer](https://apptainer.org/) container for a fully
   reproducible installation.
 - Fixed numerous compilation problems.
-- Updated, refactored and improved the test suite.
+- Removed several obsolete code sections and paths.
+- Updated, refactored and improved the test suite. Some of the small tutorials
+  are now executed as part of the test suite.
 
 ### Functionality
 - A mistake was fixed in the numerical values for the "Arrhenius" model in the
   DNA23 paper.
+- The `Options` interface now uses explicit type casts to guard against type
+  errors that would crash the Python/C API.
 - C++ debug traces can now be toggled in the Python runtime via
   `Options.verbosity`.
 

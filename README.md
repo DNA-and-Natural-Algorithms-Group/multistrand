@@ -5,7 +5,7 @@
         | .  . |_   _| | |_ _ ___| |_ _ __ __ _ _ __   __| |
         | |\/| | | | | | __| / __| __| '__/ _` | '_ \ / _` |
         | |  | | |_| | | |_| \__ \ |_| | | (_| | | | | (_| |
-        \_|  |_/\__,_|_|\__|_|___/\__|_|  \__,_|_| |_|\__,_|  
+        \_|  |_/\__,_|_|\__|_|___/\__|_|  \__,_|_| |_|\__,_|
 
 Multistrand is a nucleic acids kinetic simulator, and is developed by the
 Winfree group at the California Institute of Technology in Pasadena, California
@@ -15,16 +15,20 @@ Official website: www.multistrand.org
 
 ## Licence
 
-Multistrand, kinetic simulator for nucleic acids.
-Copyright 2023, California Institute of Technology. All rights reserved.
+    Multistrand nucleic acid kinetic simulator
+    Copyright (c) 2008-2023 California Institute of Technology. All rights reserved.
+    The Multistrand Team (help@multistrand.org)
 
-Using this software is permitted for academic non-commercial purposes only. All copyright is retained by Caltech. 
+Using this software is permitted for academic non-commercial purposes only. All
+copyright is retained by Caltech.
 
-Disclaimer: This software is provided "as is", without warrenty of any kind, express or implied, including
-but not limited to the warrenties of merchantability, fitness of a particular purpose and 
-noninfringement. In no event shall the authors or copyright holders be liable for any claim,
-damages or other liability, whether in an action of contract, tort or otherwise, arising from,
-out of or in connection with the software or the use or other dealings in the software.
+**Disclaimer:** This software is provided "as is", without warrenty of any kind,
+express or implied, including but not limited to the warrenties of
+merchantability, fitness of a particular purpose and noninfringement. In no
+event shall the authors or copyright holders be liable for any claim, damages or
+other liability, whether in an action of contract, tort or otherwise, arising
+from, out of or in connection with the software or the use or other dealings in
+the software.
 
 ## Contributors
 
@@ -73,7 +77,7 @@ is specified (see `setup.cfg` for details).
  
 ### Windows
 
- - Follow the instructions for installing the latest version of the [`Microsoft
+ - Follow the instructions for installing the latest version of the [Microsoft
    C++ Build Tools](https://wiki.python.org/moin/WindowsCompilers).
  - Follow the Linux installation steps.
  
@@ -86,13 +90,21 @@ is specified (see `setup.cfg` for details).
 
 The Multistrand library is located under `src/`, whereas `nupack/` contains the
 Nupack wrapper. `test/` is the test suite, and `tools/` provides Apptainer
-container definitions.
+container definitions and maintenance scripts.
+
+## Testing
+
+To execute the currently maintained portion of the test suite (including some of
+the small tutorials):
+
+ - Install the test dependencies: `$> pip install ".[testing]"`
+ - Run: `$> pytest`
 
 ## Examples
 
 Documentation can be found in `doc/` and `tutorials/`, and tutorial files are
-organized as follows. Folder `under_the_hood/` contains in-depth tutorials, and
-Jupyter versions are located in `under_the_hood_notebooks/`. The folder
+organized as follows. The folder `under_the_hood/` contains in-depth tutorials,
+and Jupyter versions are located in `under_the_hood_notebooks/`. The folder
 `case_hybridization/` contains a case study into hybridization kinetics
 (submission pending). Additional demo files are located in `misc/`.
 
