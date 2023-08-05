@@ -10,17 +10,26 @@
 - Created an [Apptainer](https://apptainer.org/) container for a fully
   reproducible installation.
 - Fixed numerous compilation problems.
-- Removed several obsolete code sections and paths.
 - Updated, refactored and improved the test suite. Some of the small tutorials
   are now executed as part of the test suite.
+- Removed several obsolete code sections.
 
 ### Functionality
-- A mistake was fixed in the numerical values for the "Arrhenius" model in the
-  DNA23 paper.
-- The `Options` interface now uses explicit type casts to guard against type
+- Default kinetic parameters in `EnergyOptions` now match the parameter preset
+  `Options.JSDefault()`.
+- A mistake was fixed in the numerical values for the parameter preset
+  `DNA23Arrhenius()`.
+- The `Options()` interface now uses explicit type casts to guard against type
   errors that would crash the Python/C API.
+- The reliability of `MergeSim()` was improved by switching from the standard
+  library module `multiprocessing` to the `multiprocess` package.
+- `MergeSim()` now throws an error if the user-defined `OptionsFactory()` is not
+  deterministic (up to Boltzmann sampling of initial conditions), or if it is
+  not consistent with the `MergeSimSettings()`.
 - C++ debug traces can now be toggled in the Python runtime via
   `Options.verbosity`.
+- Transition types are now computed only if they are used in the kinetic model
+  (`rate_method == 'Arrhenius'`).
 
 ## Release 2.1 (May 2018)
 

@@ -40,7 +40,7 @@ the software.
 * Justin Bois
 * Joseph Berleant
 * Joseph Schaeffer
-* Boyan Beronov
+* Boyan Beronov (beronov@cs.ubc.ca)
 
 Questions should be directed to help@multistrand.org.
 
@@ -112,26 +112,36 @@ As a very quick primer, we discuss two small scripts below.
 
 ### Hybridization trajectory
 
-A quick test to see if Multistrand is working is to run `python
+A quick test to see if Multistrand is working is to run `$> python
 tutorials/misc/sample_trace.py`. This script simulates the hybridization of two
 complementary strands and ends the simulation when the two strands either
 completely hybridize or seperate after an initial collision:
 ```sh
-GTGAAACGC GCGTTTCAC
-......... .........   t=0.000000 ms,  dG=0.00 kcal/mol  
-GTGAAACGC+GCGTTTCAC
-(........+........)   t=0.000041 ms,  dG=0.22 kcal/mol  
 GCGTTTCAC+GTGAAACGC
-......(.(+).)......   t=0.000046 ms,  dG=1.18 kcal/mol  
-......(((+)))......   t=0.000049 ms,  dG=-3.22 kcal/mol  
-......((.+.))......   t=0.000059 ms,  dG=-0.63 kcal/mol  
-......(((+)))......   t=0.000073 ms,  dG=-3.22 kcal/mol  
-.....((((+)))).....   t=0.000190 ms,  dG=-3.21 kcal/mol  
-....(((((+)))))....   t=0.000273 ms,  dG=-4.48 kcal/mol  
-..(.(((((+))))).)..   t=0.000292 ms,  dG=-4.03 kcal/mol  
-..(((((((+)))))))..   t=0.000294 ms,  dG=-7.97 kcal/mol  
-.((((((((+)))))))).   t=0.000297 ms,  dG=-10.96 kcal/mol  
-(((((((((+)))))))))   t=0.000334 ms,  dG=-12.38 kcal/mol  
+.(.......+.......).   t=0.000000 ms, dG=  0.16 kcal/mol
+((.......+.......))   t=0.000060 ms, dG= -1.26 kcal/mol
+GTGAAACGC+GCGTTTCAC
+....(..((+))..)....   t=0.000526 ms, dG=  0.05 kcal/mol
+....((.((+)).))....   t=0.000577 ms, dG= -1.46 kcal/mol
+...(((.((+)).)))...   t=0.000608 ms, dG= -2.73 kcal/mol
+...((((((+))))))...   t=0.000858 ms, dG= -7.90 kcal/mol
+..(((((((+)))))))..   t=0.001025 ms, dG=-10.74 kcal/mol
+.((((((((+)))))))).   t=0.001374 ms, dG= -9.79 kcal/mol
+..(((((((+)))))))..   t=0.001421 ms, dG=-10.74 kcal/mol
+.((((((((+)))))))).   t=0.002326 ms, dG= -9.79 kcal/mol
+..(((((((+)))))))..   t=0.002601 ms, dG=-10.74 kcal/mol
+..((((((.+.))))))..   t=0.002988 ms, dG= -9.33 kcal/mol
+..(((((((+)))))))..   t=0.003122 ms, dG=-10.74 kcal/mol
+..((((((.+.))))))..   t=0.003430 ms, dG= -9.33 kcal/mol
+..(((((((+)))))))..   t=0.003570 ms, dG=-10.74 kcal/mol
+..((((((.+.))))))..   t=0.003705 ms, dG= -9.33 kcal/mol
+..(((((((+)))))))..   t=0.004507 ms, dG=-10.74 kcal/mol
+..((((((.+.))))))..   t=0.006064 ms, dG= -9.33 kcal/mol
+..(((((((+)))))))..   t=0.006210 ms, dG=-10.74 kcal/mol
+..((((((.+.))))))..   t=0.006919 ms, dG= -9.33 kcal/mol
+.(((((((.+.))))))).   t=0.007772 ms, dG= -8.37 kcal/mol
+((((((((.+.))))))))   t=0.007780 ms, dG=-10.96 kcal/mol
+(((((((((+)))))))))   t=0.008021 ms, dG=-12.38 kcal/mol
 ```
 
 ### Hybridization rates
@@ -147,22 +157,48 @@ complex, `R` is the gas constant and `T` is temperature).
 
 ```sh
 $> python tutorials/compute/rate.py hybridization 'AGCTGA' -bootstrap
-2017-10-03 13:31:25  Starting Multistrand 2.1      (c) 2008-2023 Caltech
+2023-08-05 17:23:29   Starting Multistrand 2.2  (c) 2008-2023 Caltech
+
 Running first step mode simulations for AGCTGA (with Boltzmann sampling)...
 
-Computing 1200 trials, using 6 threads .. 
- .. and rolling 200 trajectories per thread until 500 successful trials occur. 
-Found 957 successful trials, terminating.
+Start states:
+Complex:
+         Name: 'automatic0'
+     Sequence: AGCTGA
+    Structure: ......
+      Strands: ['top']
+    Boltzmann: True
+  Supersample: 1
 
-nForward = 957 
-nReverse = 1443 
- 
-k1       = 5.58e+06  /M /s  
+Complex:
+         Name: 'automatic1'
+     Sequence: TCAGCT
+    Structure: ......
+      Strands: ['top*']
+    Boltzmann: True
+  Supersample: 1
 
-Done.  0.91273 seconds 
+Stop conditions:
+Stop Condition, tag:SUCCESS
+  Sequence  0: AGCTGA+TCAGCT
+  Structure 0: ((((((+))))))
 
-The hybridization rate of AGCTGA and the reverse complement is 5.58e+06 /M /s
-Estimated 95% confidence interval: [5.32e+06,5.86e+06]
+Stop Condition, tag:FAILURE
+  Sequence  0: AGCTGA
+  Structure 0: ......
+
+Using Results Type: FirstStepRate
+Computing 1000 trials, using 10 threads ..
+ .. and rolling 100 trajectories per thread until 500 successful trials occur.
+
+Found 558 successful trials, terminating.
+Done.  0.25239 seconds -- now processing results
+
+The hybridization rate of AGCTGA and the reverse complement is 3.00e+06 /M /s
+Bootstrapping FirstStepRate, using 1200 samples.    ..finished in 1.39 sec.
+
+Estimated 95% confidence interval: [2.84e+06,3.16e+06]
+Computing took 2.7906 s
 ```
 
 ## Log files
@@ -171,16 +207,37 @@ Multistrand automatically creates a logfile (`./multistrandRun.log`) that
 contains some information on the used model, e.g.:
 
 ```
-Sodium      :  0.5 M 
-Magnesium   :  0 M 
-Temperature :  298.15 K
-Rate method :  1           (1: Metropolis, 2:  Kawasaki)
-dangles     :  1           (0: none, 1: some, 2: all)
-substrate   :  1           (1: DNA)
-GT pairing  :  0           (0: disabled)
+Multistrand 2.2
 
- biScale     kUni    
- 1.4e+06     5e+06
+sodium        :  1 M
+magnesium     :  0 M
+temperature   :  298.15 K
+rate method   :  3           (1: Metropolis, 2: Kawasaki, 3: Arrhenius)
+dangles       :  1           (0: none, 1: some, 2: all)
+GT pairing    :  1           (0: disabled)
+concentration :  1 M
+
+path_dG      :  /dna/nupack3.2.2/parameters/dna1998.dG
+path_dH      :  /dna/nupack3.2.2/parameters/dna1998.dH
+
+type      End            Loop           Stack          StackStack     LoopEnd        StackEnd       StackLoop
+A         1.2965e+01      1.6424e+01      1.4184e+01      8.0457e+00      2.4224e+00      1.7524e+01      5.8106e+00
+E         3.4980e+00      4.4614e+00      5.2869e+00      -6.2712e-01      8.4934e-02      2.6559e+00      -1.1276e+00
+R         1.3584e+06      5.3080e+07      3.7097e+04      8.0873e+07      9.5396e+01      2.1242e+11      5.0138e+06
+
+  dS_A           dH_A          biScale          kUni
+ -0.0000e+00   -0.0000e+00    1.6006e-02    1.0000e+00
+
+
+Concentration . k_bi . k_uni(l,r)
+
+2.1742e+04      1.3591e+05      3.5931e+03      1.6777e+05      1.8221e+02      8.5980e+06      4.1772e+04
+1.3591e+05      8.4962e+05      2.2461e+04      1.0487e+06      1.1390e+03      5.3747e+07      2.6112e+05
+3.5931e+03      2.2461e+04      5.9378e+02      2.7724e+04      3.0111e+01      1.4209e+06      6.9031e+03
+1.6777e+05      1.0487e+06      2.7724e+04      1.2945e+06      1.4059e+03      6.6342e+07      3.2231e+05
+1.8221e+02      1.1390e+03      3.0111e+01      1.4059e+03      1.5269e+00      7.2053e+04      3.5006e+02
+8.5980e+06      5.3747e+07      1.4209e+06      6.6342e+07      7.2053e+04      3.4000e+09      1.6518e+07
+4.1772e+04      2.6112e+05      6.9031e+03      3.2231e+05      3.5006e+02      1.6518e+07      8.0252e+04
 ```
  
 
@@ -206,8 +263,8 @@ bash, it should return the directory of your nupack installation.
 ```python
 from multistrand.options import Options
 o1 = Options()
-o1.sodium = 0.05        # units: mol / litre
-o1.magnesium = 0.0125   # units: mol / litre
+o1.sodium = 0.05
+o1.magnesium = 0.0125
 ```
 
 **Q:** When I run `tutorials/misc/computeAnnealRate.py`, `nForward` and `nReverse`
