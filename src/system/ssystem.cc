@@ -37,10 +37,6 @@ SimulationSystem::SimulationSystem(SimOptions* options) {
 
 void SimulationSystem::construct(void) {
 
-// We no longer need the below line; we are guaranteed that options
-// will have a good reference for the lifetime of our object, as the
-// controlling wrapper in multistrand_module.cc grabs the reference.
-
 	simulation_mode = simOptions->getSimulationMode();
 	simulation_count_remaining = simOptions->getSimulationCount();
 
@@ -887,4 +883,3 @@ void SimulationSystem::localTransitions(void) {
 	finalizeSimulation();
 
 }
-

@@ -182,4 +182,3 @@ class identList *makeID_list(PyObject *strand_list)
     
     return id_list;
 }
-

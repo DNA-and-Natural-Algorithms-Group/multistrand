@@ -182,6 +182,7 @@ public:
 	NupackEnergyModel(void);
 	NupackEnergyModel(PyObject* options);
 	NupackEnergyModel(SimOptions* options);
+	void initOptions(SimOptions* options);
 //	~NupackEnergyModel(void);
 
 	double returnRate(double start_energy, double end_energy, int enth_entr_toggle);

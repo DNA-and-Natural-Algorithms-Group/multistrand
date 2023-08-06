@@ -14,6 +14,7 @@ generate structured-random 25 3 4 10 sr25-10
 
 from multistrand.experiment import hybridization, standardOptions
 from multistrand.concurrent import FirstStepLeakRate, MergeSim
+from multistrand.utils import C2K
 from constantsgao import goa2006_P0, goa2006_P3, goa2006_P4, setSaltGao2006
 
 import matplotlib.pyplot as plt
@@ -120,7 +121,7 @@ def strand_dG(seq, T=GLOBAL_TEMPERATURE, material='dna'):
 
 def reverse_rate(seq, kf, T=GLOBAL_TEMPERATURE, material='dna'):
     dG = binding_dG(seq, T=GLOBAL_TEMPERATURE, material='dna')
-    RT = 0.001987 * (273.15 + GLOBAL_TEMPERATURE)  # kcal/mol at 25 C
+    RT = 0.001987 * (GLOBAL_TEMPERATURE + C2K)  # kcal/mol at 25 C
     kr = kf * np.exp(dG / RT)
     return kr
 

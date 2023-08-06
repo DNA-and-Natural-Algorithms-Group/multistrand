@@ -11,7 +11,13 @@ from ._objects.strand import Strand
 from nupack import mfe
 
 
-GAS_CONSTANT = 0.0019872036  # kcal / K mol
+# physical constants
+
+GAS_CONSTANT = 0.0019872036
+""" kcal / (K * mol) """
+
+C2K = 273.15
+""" Celsius to Kelvin """
 
 
 def meltingTemperature(seq, concentration=1.0e-9):
@@ -24,12 +30,12 @@ def meltingTemperature(seq, concentration=1.0e-9):
     strand = Strand(sequence=seq)
 
     energy20 = (float(mfe([strand.sequence, strand.C.sequence ], material='dna', T=20.0)[0][1])
-                + GAS_CONSTANT * (273.15 + 20) * np.log(55.5))
+                + GAS_CONSTANT * (20 + C2K) * np.log(55.5))
     energy30 = (float(mfe([strand.sequence, strand.C.sequence ], material='dna', T=30.0)[0][1])
-                + GAS_CONSTANT * (273.15 + 30) * np.log(55.5))
+                + GAS_CONSTANT * (30 + C2K) * np.log(55.5))
 
     dS = (energy20 - energy30) / 10.0  # kcal/ K mol
-    dH = energy30 + (273.15 + 30.0) * dS  # kcal/mol
+    dH = energy30 + (30.0 + C2K) * dS  # kcal/mol
     return  (dH / (dS + GAS_CONSTANT * np.log(concentration / 4.0)))
 
 

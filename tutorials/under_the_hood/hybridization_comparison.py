@@ -77,6 +77,7 @@ import time, sys
 from multistrand.objects import *
 from multistrand.options import Options, Literals
 from multistrand.system import SimSystem, initialize_energy_model
+from multistrand.utils import C2K
 
 ######### This is first passage time
 
@@ -381,7 +382,7 @@ def compare_hybridization(seq, concentrations, T=25, material="DNA"):
    dG_top = nupack.pfunc([seq], T=T)
    dG_bot = nupack.pfunc([ Strand(sequence=seq).C.sequence ], T=T)
    dG_duplex = nupack.pfunc([ seq, Strand(sequence=seq).C.sequence ], T=T)
-   RT = 1.987e-3 * (273.15+T)
+   RT = 1.987e-3 * (T + C2K)
    time3=time.time()
    time_nupack = time3-time2
    krev_nupack = keff_1s * np.exp( (dG_duplex - dG_top - dG_bot)/RT )

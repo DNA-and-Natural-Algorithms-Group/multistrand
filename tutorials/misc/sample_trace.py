@@ -17,9 +17,8 @@ def doSims(strandSeq, numTraj=1):
     o = standardOptions()
     o.num_simulations = numTraj
     o.output_interval = 1
-    o.simulation_time = 0.001
-    hybridization(o, strandSeq )
-    o.initial_seed = 1777+6
+    o.simulation_time = 0.01
+    hybridization(o, strandSeq)
 
     s = SimSystem(o)
     s.start()
@@ -28,7 +27,7 @@ def doSims(strandSeq, numTraj=1):
 
 
 def main():
-    return doSims("GCGT")
+    return doSims("GTGAAACGC")
 
 
 if __name__ == '__main__':

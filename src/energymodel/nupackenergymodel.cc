@@ -476,31 +476,35 @@ double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequence
 
 // constructors, internal functions
 
-NupackEnergyModel::NupackEnergyModel(PyObject* energy_options) :
-
-		log_loop_penalty_37(107.856), kinetic_rate_method(RATE_METHOD_KAWASAKI), bimolecular_penalty(1.96), kBoltzmann(.00198717), current_temp(310.15) // Check references for this loop penalty term.
+NupackEnergyModel::NupackEnergyModel(void) :
+	// Check references for this loop penalty term.
+	log_loop_penalty_37(107.856), kinetic_rate_method(RATE_METHOD_KAWASAKI),
+	bimolecular_penalty(1.96), kBoltzmann(.00198717), current_temp(310.15)
 {
+}
 
-	simOptions = new PSimOptions(energy_options);
-	processOptions();
-	computeArrheniusRates(current_temp);
-
-	if (simOptions->energyOptions->usingArrhenius()) {
-
-		computeArrheniusRates(current_temp);
-//		printPrecomputedArrRates();
-
-	}
-
+NupackEnergyModel::NupackEnergyModel(PyObject* energy_options) :
+	NupackEnergyModel()
+{
+	initOptions(new PSimOptions(energy_options));
 }
 
 NupackEnergyModel::NupackEnergyModel(SimOptions* options) :
-		log_loop_penalty_37(107.856), kinetic_rate_method(RATE_METHOD_KAWASAKI), bimolecular_penalty(1.96), kBoltzmann(.00198717), current_temp(310.15) // Check references for this loop penalty term.
+	NupackEnergyModel()
+{
+	initOptions(options);
+}
+
+void NupackEnergyModel::initOptions(SimOptions* options)
 {
 	simOptions = options;
 	processOptions();
-	computeArrheniusRates(current_temp);
+	if (simOptions->energyOptions->usingArrhenius()) {
+		computeArrheniusRates(current_temp);
+//		printPrecomputedArrRates();
+	}
 }
+
 
 // returns a FILE pointer or prints an error message.
 FILE* NupackEnergyModel::openFiles(char* nupackhome, string& paramPath, string& fileName, int select) {

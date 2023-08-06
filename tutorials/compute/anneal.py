@@ -2,7 +2,7 @@
 # Copyright (c) 2008-2023 California Institute of Technology. All rights reserved.
 # The Multistrand Team (help@multistrand.org)
 
-from multistrand.concurrent import MergeSim, FirstStepRate, Bootstrap
+from multistrand.concurrent import MergeSim, Bootstrap
 from multistrand.experiment import standardOptions, hybridization
 from multistrand.options import Literals
 
@@ -15,7 +15,7 @@ A_CONCENTRATION = 50e-9
 
 
 def first_step_simulation(strand_seq: str, trials: int, timeout: float,
-                          temperature: float, sodium: float, material="DNA") -> FirstStepRate:
+                          temperature: float, sodium: float, material="DNA") -> None:
  
     print(f"\nRunning first step mode simulations for {strand_seq} "
           "(with Boltzmann sampling)...\n")
@@ -25,8 +25,7 @@ def first_step_simulation(strand_seq: str, trials: int, timeout: float,
                             tempIn=temperature, trials=_trials, timeOut=timeout)
         o.sodium = sodium
         hybridization(o, strand_seq, _trials)
-        # o.DNA23Arrhenius()
-        o.JSDefault()
+        o.DNA23Arrhenius()
         o.substrate_type = material
         return o
       
@@ -36,22 +35,21 @@ def first_step_simulation(strand_seq: str, trials: int, timeout: float,
     myMultistrand.setFirstStepMode()
     # myMultistrand.setLeakMode()
     myMultistrand.run()
-    return myMultistrand.results
 
 
 def compute(strand_seq, temperature=25.0, sodium=1.0):
-    return first_step_simulation(strand_seq, trials=num_trials, timeout=1.0,
-                                 temperature=temperature, sodium=sodium)
+    first_step_simulation(strand_seq, trials=num_trials, timeout=1.0,
+                          temperature=temperature, sodium=sodium)
+    return myMultistrand
 
 
 def computeAndWriteToCL(strand_seq, doBootstrap, temperature=25.0, sodium=1.0):
-    result = first_step_simulation(strand_seq, trials=num_trials, timeout=1.0,
-                                   temperature=temperature, sodium=sodium)
+    first_step_simulation(strand_seq, trials=num_trials, timeout=1.0,
+                          temperature=temperature, sodium=sodium)
+    result = myMultistrand.results
     print(f"The hybridization rate of {strand_seq} and the reverse complement is "
           f"{result.k1():.2e} /M /s")
     
-    # check for two-stateness
-#     result.testForTwoStateness(100e-9)
     if(doBootstrap):
         bootstrap = Bootstrap(result, concentration=A_CONCENTRATION, N=1200, computek1=True)
         bounds = bootstrap.ninetyFivePercentiles()

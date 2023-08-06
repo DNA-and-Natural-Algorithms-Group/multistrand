@@ -376,20 +376,14 @@ void Loop::printAllMoves(Loop* from) {
 void Loop::generateAndSaveDeleteMove(Loop* input, int position) {
 
 	RateArr tempRate = Loop::generateDeleteMoveRate(this, input);
-
-	double rate = energyModel->applyPrefactors(tempRate.rate, tempRate.left, tempRate.right);
+	RateEnv rateEnv = RateEnv(tempRate.rate, energyModel, tempRate.left, tempRate.right);
 
 	// if rate is less than zero, nuke the program.
-	assert(rate >= 0.0);
+	assert(rateEnv.rate >= 0.0);
 
-	if (rate > 0.0) {
-
-		RateEnv rateEnv = RateEnv(tempRate.rate, energyModel, tempRate.left, tempRate.right);
-
+	if (rateEnv.rate > 0.0) {
 		moves->addMove(new Move(MOVE_DELETE | MOVE_1, rateEnv, this, input, position));
-
 	}
-
 }
 
 RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {

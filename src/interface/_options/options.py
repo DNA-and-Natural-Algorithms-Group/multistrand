@@ -11,6 +11,7 @@ from enum import IntEnum
 from typing import List, Optional
 
 from .interface import Interface
+from ..utils import C2K
 from ..objects import Strand, Complex, StopCondition
 from ..__init__ import __version__
 
@@ -85,9 +86,6 @@ class Energy_Type(IntEnum):
 class Options(object):
     """ The main wrapper for controlling a Multistrand simulation. Has an interface for returning results. """
        
-    '''Constants:'''
-    ZERO_C_IN_K = 273.15
-
     RateMethodToString = ["None", "Metropolis", "Kawasaki", "Arrhenius"]
     dangleToString = ["None", "Some", "All"]
 
@@ -365,7 +363,7 @@ class Options(object):
         means output as often as possible.
         """
         
-        self.output_interval = -1
+        self._output_interval: int = -1
         """ The number of states between outputs of trajectory information.
         
         Type         Default
@@ -558,6 +556,14 @@ class Options(object):
     @num_simulations.setter
     def num_simulations(self, value):
         self._num_simulations = int(value)
+
+    @property
+    def output_interval(self):
+        return self._output_interval
+
+    @output_interval.setter
+    def output_interval(self, value):
+        self._output_interval = int(value)
 
     @property
     def bimolecular_scaling(self):
@@ -874,20 +880,20 @@ class Options(object):
 
         Yes, these ranges are quite generous.
         """
-        if 273.0 < val < 373.0:
+        if C2K < val < C2K + 100:
             self._temperature_kelvin = val
-            self._temperature_celsius = val - self.ZERO_C_IN_K
+            self._temperature_celsius = val - C2K
             self.updateBoltzmannSamples()
 
         elif 0.0 < val < 100.0:
             self._temperature_celsius = val
-            self._temperature_kelvin = val + self.ZERO_C_IN_K
+            self._temperature_kelvin = val + C2K
             self.updateBoltzmannSamples()
             self.errorlog.append("Warning: Temperature was set at the value [{0}]. We expected a value in Kelvin, or with appropriate units.\n         Temperature was automatically converted to [{1}] degrees Kelvin.\n".format(val, self._temperature_kelvin))
 
         else:
             self._temperature_kelvin = val
-            self._temperature_celsius = val - self.ZERO_C_IN_K
+            self._temperature_celsius = val - C2K
             self.updateBoltzmannSamples()
             self.errorlog.append("Warning: Temperature was set at the value [{0}]. This is outside the normal range of temperatures we expect, so it was assumed to be in Kelvin.\n".format(val))
             raise Warning("Temperature did not fall in the usual expected ranges. Temperatures should be in units Kelvin, though the range [0,100] is assumed to mean units of Celsius.")

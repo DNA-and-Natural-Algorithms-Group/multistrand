@@ -4,7 +4,7 @@
 
 from collections import defaultdict
 from functools import partial
-from multiprocessing import Pool, cpu_count
+from multiprocess import Pool, cpu_count
 from pathlib import Path
 from typing import Dict, Iterable, List, Tuple, Optional
 

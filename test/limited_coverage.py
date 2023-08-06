@@ -12,6 +12,7 @@ import numpy as np
 from multistrand.objects import Complex, Domain, Strand, StopCondition
 from multistrand.options import Options, Literals
 from multistrand.system import SimSystem
+from multistrand.utils import C2K
 
 colors = ['blue', 'red', 'cyan', 'magenta', 'green', 'k', 'darkblue', 'darkred', 'darkcyan', 'darkmagenta', 'darkgreen']
 
@@ -211,7 +212,7 @@ def create_setup(trials, toehold_seq, toehold_seq2, domain_seq):
     stop_complex = Complex(strands=[incoming, substrate, incumbent], structure="((+))(+).")
     full_sc = StopCondition("CLOSED", [(stop_complex, Literals.exact_macrostate, 0)])
     
-    o1 = Options(simulation_mode="First Passage Time", parameter_type="Nupack", substrate_type="DNA", temperature=273.15 + 25.0,
+    o1 = Options(simulation_mode="First Passage Time", parameter_type="Nupack", substrate_type="DNA", temperature=25.0 + C2K,
                 num_simulations=trials, simulation_time=0.0001, rate_scaling='Calibrated', verbosity=0,
                 start_state=[start_complex], stop_conditions=[full_sc])
     return o1
@@ -324,7 +325,7 @@ def create_setup_interal(toehold_seq, toehold_seq2, domain_seq, domain_length):
     
     full_sc = StopCondition("CLOSED", [(stop_complex, Literals.dissoc_macrostate, 2)])  # Exact_Macrostate,0)])
     
-    o1 = Options(simulation_mode="First Passage Time", parameter_type="Nupack", substrate_type="DNA", temperature=273.15 + 25.0,
+    o1 = Options(simulation_mode="First Passage Time", parameter_type="Nupack", substrate_type="DNA", temperature=25.0 + C2K,
                 num_simulations=10, simulation_time=0.00001, rate_scaling='Calibrated', verbosity=0,
                 start_state=[start_complex], stop_conditions=[full_sc])
     return o1

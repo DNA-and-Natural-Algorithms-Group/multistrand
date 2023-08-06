@@ -14,7 +14,7 @@ slowDownStudy 82000
 
 from multistrand.objects import Strand
 from multistrand.experiment import standardOptions, hybridization
-from multistrand.utils import concentration_string, standardFileName
+from multistrand.utils import concentration_string, standardFileName, C2K
 from multistrand.concurrent import  Bootstrap, MergeSim
 from multistrand.options import Literals
 
@@ -116,7 +116,7 @@ def doFirstStepMode(seq, concentrations, T=20.0, numOfRuns=500):
     dG_top = nupack.pfunc([seq], T=T)
     dG_bot = nupack.pfunc([ Strand(sequence=seq).C.sequence ], T=T)
     dG_duplex = nupack.pfunc([ seq, Strand(sequence=seq).C.sequence ], T=T)
-    RT = 1.987e-3 * (273.15 + T)
+    RT = 1.987e-3 * (T + C2K)
     time3 = time.time()
     time_nupack = time3 - time2
     krev_nupack = kEff * np.exp((dG_duplex - dG_top - dG_bot) / RT)

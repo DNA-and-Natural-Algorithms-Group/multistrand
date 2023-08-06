@@ -57,6 +57,7 @@ import nupack
 from multistrand.objects import *
 from multistrand.options import Options, Literals
 from multistrand.system import SimSystem, initialize_energy_model
+from multistrand.utils import C2K
 
 
 # for StopCondition macrostate definitions:
@@ -283,7 +284,7 @@ def strand_dG(seq, T=25, material='dna'):
 
 def reverse_rate(seq, kf, T=25, material='dna'):
     dG   = binding_dG(seq, T=25, material='dna')
-    RT   = 0.001987 * (273.15+25)  # kcal/mol at 25 C
+    RT   = 0.001987 * (25+C2K)  # kcal/mol at 25 C
     kr   = kf*np.exp( dG/RT )
     return kr
 

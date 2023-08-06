@@ -12,7 +12,7 @@ import math
 import xlrd         #excel sheets
 import numpy as np
 
-from multistrand.utils import GAS_CONSTANT
+from multistrand.utils import GAS_CONSTANT, C2K
 
 from anneal import compute
 from nupack import pfunc
@@ -51,7 +51,7 @@ def doMorrison(myRange):
         measured = float(excelFind(i+1, 5))
 
         file.write(str(seq) + "   ")
-        file.write(str( "%0.3g" %  (temp - 273.15) ) + "   ")
+        file.write(str( "%0.3g" %  (temp - C2K) ) + "   ")
         file.write(str(  "%0.3g" % measured) + "   ")
 
         predicted = compute(seq, temp)
@@ -59,7 +59,7 @@ def doMorrison(myRange):
 
         dotparen = "("*len(seq) + "+" + ")"*len(seq)
 
-        dG = pfunc([seq, seqC], [1,2], T=(temp-273.15), material="dna")
+        dG = pfunc([seq, seqC], [1,2], T=(temp - C2K), material="dna")
         print(str(dG))
 
         kMinus = predicted.k1() * math.exp( dG / ( GAS_CONSTANT * temp) )

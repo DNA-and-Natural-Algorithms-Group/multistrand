@@ -357,8 +357,8 @@ class Bootstrap():
             del sample
 
         # sort for percentiles
-        self.effectiveRates.sort(cmp=None, key=None, reverse=False)
-        self.effectiveAltRates.sort(cmp=None, key=None, reverse=False)
+        self.effectiveRates.sort()
+        self.effectiveAltRates.sort()
         b_finish_time = time.time()
         print("   ..finished in %.2f sec.\n" % (b_finish_time - b_start_time))
 
@@ -852,5 +852,5 @@ class MergeSim:
         if self.settings.bootstrap == True:
             self.results.doBootstrap(self.settings.bootstrapN)
 
-        self.writeToFile()    
+        self.writeToFile()
         return 0

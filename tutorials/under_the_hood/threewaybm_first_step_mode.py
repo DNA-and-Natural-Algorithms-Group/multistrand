@@ -49,6 +49,7 @@ import numpy as np
 from multistrand.objects import *
 from multistrand.options import Options, Literals
 from multistrand.system import SimSystem
+from multistrand.utils import C2K
 
 
 # for StopCondition and Macrostate definitions:
@@ -99,7 +100,7 @@ def create_setup(toehold_length, num_traj, rate_method_k_or_m):
     
     o = Options(simulation_mode="First Step", parameter_type="Nupack", substrate_type="DNA",
                 rate_method=rate_method_k_or_m, num_simulations=num_traj, simulation_time=10.0,  # note the 10 second simulation time, to make sure simulations finish
-                dangles="Some", temperature=25 + 273.15, rate_scaling="Calibrated", verbosity=0)
+                dangles="Some", temperature=25 + C2K, rate_scaling="Calibrated", verbosity=0)
 
     o.start_state = [start_complex_incoming, start_complex_substrate_incumbent]
     o.stop_conditions = [success_stop_condition, failed_stop_condition]

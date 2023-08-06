@@ -6,6 +6,7 @@
 # Often recurring experimental setups
 from multistrand.objects import Complex, Domain, Strand, StopCondition
 from multistrand.options import Options, Literals
+from multistrand.utils import C2K
 
 
 def setBoltzmann(complexIn, trials, supersample=1):
@@ -15,7 +16,7 @@ def setBoltzmann(complexIn, trials, supersample=1):
 
 
 def standardOptions(simMode=Literals.first_step,
-                    tempIn=Options.ZERO_C_IN_K + 25.0, trials=10, timeOut=0.1):
+                    tempIn=25.0 + C2K, trials=10, timeOut=0.1):
     """
     Easy handle for options creation.
     """

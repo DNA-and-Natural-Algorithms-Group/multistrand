@@ -40,8 +40,6 @@ int baseLookup(char base) {
 
 
 
-
-
 EnergyModel::EnergyModel(PyObject *options) {
 	// nothing yet
 

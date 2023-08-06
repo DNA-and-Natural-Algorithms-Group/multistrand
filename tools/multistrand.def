@@ -8,47 +8,55 @@ From: bitnami/jupyter-base-notebook:2-debian-10
 %help
 
     This Apptainer container provides a functional environment for Multistrand
-    2.1 [1]. It is based on Python 3.11 and GCC 7.4, as later GCC versions can
+    2.2 [1]. It is based on Python 3.11 and GCC 7.4, as later GCC versions can
     crash the Multistrand legacy code. Future work will address the faulty
     behaviours in Multistrand directly.
 
-    This container definition was built successfully using Apptainer 1.1, and
+    This container definition was built successfully using Apptainer 1.2, and
     assumes that the source trees for NUPACK and Multistrand are available on
     the host system at the locations referenced in the %files section.
 
     [1] https://github.com/DNA-and-Natural-Algorithms-Group/multistrand
 
+%arguments
+
+    # version config
+    GCC_VER=7
+    CPY_VER=3.11
+    NUPACK_VER=3.2.2
+
+    # compiler config
+    NCORES=8
+
 %files
 
     # copy source trees
-    ../../nupack3.2.2.tar.gz /dna/
+    ../../nupack{{NUPACK_VER}}.tar.gz /dna/
     ../../multistrand /dna/
 
 %environment
 
     # version config
-    export GCC_VER=7
-    export CPY_VER=3.11
-    export NUPACK_VER=3.2.2
+    export GCC_VER={{GCC_VER}}
+    export CPY_VER={{CPY_VER}}
+    export NUPACK_VER={{NUPACK_VER}}
+
+    # bin paths
+    export CONDA=/opt/bitnami/miniconda/bin
 
     # lib paths
-    export NUPACKHOME=/dna/nupack3.2.2
+    export NUPACKHOME=/dna/nupack{{NUPACK_VER}}
     export MS=/dna/multistrand
 
     # compiler config
     export CC=/usr/bin/gcc CXX=/usr/bin/g++
-    export NCORES=8
+    export NCORES={{NCORES}}
 
 %post
 
-    # version config
-    export GCC_VER=7
-    export CPY_VER=3.11
-    export NUPACK_VER=3.2.2
-
     # build/lib paths
     export LIB_ROOT=/dna
-    export NUPACK_SRC=nupack${NUPACK_VER}
+    export NUPACK_SRC=nupack{{NUPACK_VER}}
     export NUPACK_TAR=${NUPACK_SRC}.tar.gz NUPACKHOME=${LIB_ROOT}/${NUPACK_SRC}
     export MS=${LIB_ROOT}/multistrand
 
@@ -65,9 +73,9 @@ From: bitnami/jupyter-base-notebook:2-debian-10
         zsh tmux time less tree vim
 
     # install legacy GCC version & adapt system config
-    install_packages gcc-${GCC_VER} g++-${GCC_VER}
-    ${SYS} --install /usr/bin/gcc gcc /usr/bin/gcc-${GCC_VER} 20
-    ${SYS} --install /usr/bin/g++ g++ /usr/bin/g++-${GCC_VER} 20
+    install_packages gcc-{{GCC_VER}} g++-{{GCC_VER}}
+    ${SYS} --install /usr/bin/gcc gcc /usr/bin/gcc-{{GCC_VER}} 20
+    ${SYS} --install /usr/bin/g++ g++ /usr/bin/g++-{{GCC_VER}} 20
     ${SYS} --install /usr/bin/cc cc /usr/bin/gcc 30
     ${SYS} --install /usr/bin/c++ c++ /usr/bin/g++ 30
     ${SYS} --set cc /usr/bin/gcc
@@ -84,7 +92,7 @@ From: bitnami/jupyter-base-notebook:2-debian-10
     # install Python environment
     # (Conda provided by Bitnami base image)
     echo "\n\n\n" && conda config --env --set always_yes true
-    conda install --channel conda-forge python=${CPY_VER} zstandard
+    conda install --channel conda-forge python={{CPY_VER}} zstandard
     conda install --channel conda-forge \
         ipython pytest-xdist multiprocess numpy scipy matplotlib
 

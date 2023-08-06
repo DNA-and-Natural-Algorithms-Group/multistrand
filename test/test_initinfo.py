@@ -15,6 +15,7 @@ from multistrand.objects import Strand, Complex, Domain, StopCondition
 from multistrand.options import Options, Literals
 from multistrand.system import SimSystem
 from multistrand.experiment import makeComplex
+from multistrand.utils import C2K
 
 
 # ==============================================================================
@@ -33,7 +34,7 @@ class Test_InitialInfo:
         return Options(
             simulation_mode=simMode,
             parameter_type="Nupack", substrate_type="DNA",
-            temperature=273.15 + 25.0,
+            temperature=25.0 + C2K,
             num_simulations=10, simulation_time=0.00001,
             # rate_scaling='Calibrated',
             join_concentration=1.0, rate_method="Metropolis",
@@ -199,7 +200,7 @@ class Test_InitialInfo:
                       parameter_type="Nupack", substrate_type="DNA",
                       rate_method="Metropolis",
                       num_simulations=num_traj, simulation_time=1.0,
-                      dangles="Some", temperature=273.15 + 25.0,
+                      dangles="Some", temperature=25.0 + C2K,
                       # rate_scaling="Calibrated",
                       useArrRates=True, verbosity=0)
         opt.start_state = [start_complex_top, start_complex_bot]

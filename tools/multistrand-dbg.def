@@ -9,7 +9,7 @@ From: ./multistrand.sif
 
     This Apptainer container extends the image `./multistrand.sif`, which must
     be built first from `./multistrand.def`, with separate debug builds of
-    Python 3.11 and Multistrand 2.1. For a tutorial on using Gdb for the Python
+    Python 3.11 and Multistrand 2.2. For a tutorial on using Gdb for the Python
     runtime and its C extentions, see [1].
 
     The newly added debugging binaries and Python packages are made accessible
@@ -18,27 +18,29 @@ From: ./multistrand.sif
 
     [1] https://willayd.com/fundamental-python-debugging-part-2-python-extensions.html
 
+%arguments
+
+    # version config
+    GDB_VER=13.2
+    CPY_VER=3.11
+    CPY_TAG=v{{CPY_VER}}.4
+
 %environment
 
     # bin paths
     export PATH=/usr/local/bin:${PATH}
-    export CONDA=/opt/bitnami/miniconda/bin
 
     # lib paths
     export MS_DBG=/dna/multistrand_dbg
 
 %post
 
-    # version config
-    export GDB_VER=13.2
-    export CPY_TAG=v${CPY_VER}.4
-
     # bin paths
     export PATH=/usr/local/bin:${PATH}
 
     # build/lib paths
     export BLD_ROOT=/build
-    export GDB_TAR=gdb-${GDB_VER}.tar.gz GDB_SRC=${BLD_ROOT}/gdb-${GDB_VER}
+    export GDB_TAR=gdb-{{GDB_VER}}.tar.gz GDB_SRC=${BLD_ROOT}/gdb-{{GDB_VER}}
     export GDB_DATA=/usr/local/share/gdb
     export CPY_SRC=${BLD_ROOT}/cpython
     export MS_DBG=${MS}_dbg
@@ -48,16 +50,16 @@ From: ./multistrand.sif
     install_packages \
         libbz2-dev libffi-dev libssl-dev zlib1g-dev liblzma-dev \
         libsqlite3-dev libreadline-dev libgmp-dev
-    echo "\n\n\n" && git clone -b ${CPY_TAG} --depth 1 \
+    echo "\n\n\n" && git clone -b {{CPY_TAG}} --depth 1 \
         https://github.com/python/cpython.git ${CPY_SRC} && \
         cd ${CPY_SRC} && ./configure --with-pydebug && \
         CFLAGS='-g3' make -s -j${NCORES} && sudo make install
 
     # install Gdb from source, configured with Python
     echo "\n\n\n" && cd ${BLD_ROOT} && \
-        wget http://mirrors.kernel.org/sourceware/gdb/releases/${GDB_TAR} && \
+        wget https://ftp.gnu.org/gnu/gdb/${GDB_TAR} && \
         tar -xzf ${GDB_TAR} && rm ${GDB_TAR} && \
-        cd ${GDB_SRC} && ./configure --with-python=python${CPY_VER} && \
+        cd ${GDB_SRC} && ./configure --with-python=python{{CPY_VER}} && \
         make -s -j${NCORES} && sudo make install
     # auto-import Python intrinsics in Gdb
     sudo cp ${CPY_SRC}/Tools/gdb/libpython.py ${GDB_DATA}/python/gdb/function
