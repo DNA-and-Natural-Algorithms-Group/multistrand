@@ -18,7 +18,7 @@ from multistrand.objects import Strand, Complex
 from multistrand.options import Options
 from multistrand.utils import generate_sequence
 
-class Results_Store( object ):
+class Results_Store:
     def __init__(self):
         self.results = []
         
@@ -310,7 +310,7 @@ class Speedtest_Random_Sequences( unittest.TestCase ):
         self.helper_print_results( time, n, k, res, sequence=seq )
 
 
-class SetupSuite( object ):
+class SetupSuite:
     """
     Container for basic testing.
     """
@@ -351,7 +351,7 @@ class SetupSuite( object ):
         p.join()
 
 
-class MyRunner( object ):
+class MyRunner:
     def __init__( self, testcase ):
         unittest.TextTestRunner( verbosity=2).run( testcase )
 

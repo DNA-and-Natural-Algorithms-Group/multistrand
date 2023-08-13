@@ -48,7 +48,7 @@ title_yurke2 = "Toehold binding rate - Yurke and Mills"  # Yurke and Mills -- T6
 title_rickettsia = "An autonomous polymerization motor powered \n by DNA hybridization - Venkataraman et al. "  # An autonomous polymerization motor powered by DNA hybridization SUVIR VENKATARAMAN, ROBERT M. DIRKS, PAUL W. K. ROTHEMUND, ERIK WINFREE AND NILES A. PIERCE
 
 
-class settings(object):
+class settings:
     
     def __init__(self, enum, title, reverseIn=False, nTrials=10):
     

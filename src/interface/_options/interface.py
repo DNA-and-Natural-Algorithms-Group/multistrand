@@ -10,7 +10,7 @@ from .constants import OptionsConstants
 Constants = OptionsConstants()
 
 
-class Interface(object):
+class Interface:
     def __init__(self):
         """ Sets some default values for the Interface, in addition to
         initializing the current results list, etc."""
@@ -100,7 +100,7 @@ class Interface(object):
         self._trajectory_count += 1
     
 
-class Result( object ):
+class Result:
     """
     Holds the results of a single trajectory run by multistrand.
 
@@ -150,7 +150,7 @@ class Result( object ):
                 f"result_type='status_line' )")
 
 
-class FirstStepResult( object ):
+class FirstStepResult:
     """
     Holds the results of a single trajectory run by multistrand.
 

@@ -36,7 +36,7 @@ ATIME_OUT = 10.0
 myMultistrand = MergeSim()
 
 
-class hybridizationSimSettings(object):
+class hybridizationSimSettings:
     
     def __init__(self, mySeq, cutOff, trials):
     

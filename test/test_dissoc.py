@@ -75,17 +75,19 @@ class Test_Dissoc_Rate:
                         capfd: pytest.CaptureFixture):
         # run simulation scripts and extract rate estimates
         (simA, simD), log_ks = self.comparison(seq, tutorials)
-        optA, optD = simA.factory.new(0), simD.factory.new(0)
-        log_diff = log_ks[2]
 
-        # ensure that simulations were configured identically
-        assert optA.rate_method == optD.rate_method
-        assert optA.unimolecular_scaling == optD.unimolecular_scaling
-        assert optA.bimolecular_scaling == optD.bimolecular_scaling
-        assert (optA.lnAStack, optA.EStackEnd) == (optD.lnAStack, optD.EStackEnd)
+        # check that simulation environments were configured identically, except
+        # for options concerning the reaction direction
+        optA, optD = simA.factory.new(0), simD.factory.new(0)
+        optD.simulation_mode = optA.simulation_mode
+        optD.simulation_time = optA.simulation_time
+        optD._start_state = optA._start_state.copy()
+        optD._stop_conditions = optA._stop_conditions.copy()
+        assert optA == optD
 
         # check consistency of rate estimates
         assert all(isinstance(k, float) and k > 0 for k in log_ks)
+        log_diff = log_ks[2]
         assert log_diff < .2
 
         # check expected script output

@@ -52,7 +52,7 @@ testSeq = ["TTGGTGATCC"]  # ,"TTGGTGATCC", "AGATTAGCAGGTTTCCCACC" ]
     .matrixTime       - Time to solve the matrix.                
 """
 
-class ResultsHybridization(object):
+class ResultsHybridization:
     
     def __init__(self):
     
@@ -83,7 +83,7 @@ class ResultsHybridization(object):
         return output
 
     
-class Settings(object):
+class Settings:
     
     def __init__(self, function, arguments, title="", enum="", tempOverMelt=0.0, multipleC=1.0):
         self.type = enum

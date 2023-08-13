@@ -221,7 +221,7 @@ class System_Object_TestCase(unittest.TestCase):
         System_Object_TestCase.str_run_system_several_times += "Third run results [yet another system]:\n{0}\n".format(str(self.options.interface))
 
 
-class SetupSuite( object ):
+class SetupSuite:
     """ Container for default set of tests and standard method for running them."""
 
     def __init__(self):

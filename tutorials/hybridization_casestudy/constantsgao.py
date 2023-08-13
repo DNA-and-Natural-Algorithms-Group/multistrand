@@ -65,7 +65,7 @@ def mergeCount(mValue, counter, lock):
         mValue.value = mValue.value + counter
 
 
-class position(object):
+class position:
     
     def __init__(self, left, right):
         self.posX = left
@@ -84,7 +84,7 @@ class position(object):
         return (str(self.posX) + ' ' + str(self.posY))
     
 
-class analysisResult(object):
+class analysisResult:
 
     def  __init__(self, selector):
         self.clause = selector
@@ -123,14 +123,14 @@ def getTubeStruct(traj, index):
     return tubeStruct
 
 
-class pathProperties(object):
+class pathProperties:
     
     def __init__(self):
         self.aligned = None
         self.tag = None
 
 
-class analysisFactory(object):
+class analysisFactory:
 
     def __init__(self, inSeq, inCutOff):
         self.mySeq = inSeq

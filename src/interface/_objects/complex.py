@@ -2,8 +2,11 @@
 # Copyright (c) 2008-2023 California Institute of Technology. All rights reserved.
 # The Multistrand Team (help@multistrand.org)
 
-from .strand import Strand
 from functools import reduce
+
+import numpy as np
+
+from .strand import Strand
 
 
 class Complex:
@@ -66,7 +69,36 @@ class Complex:
         # Taken to be 1, unless it is EXPLICITLY stated otherwise!
         self.boltzmann_supersample = 1
         Complex.unique_id += 1
-    
+
+    def __eq__(self, other: "Complex") -> bool:
+        """
+        Compare complexes syntactically, ignoring names if they were generated
+        automatically. Furthermore, if Boltzmann sampling is active, then the
+        secondary structure is also ignored, while still ensuring that the
+        strand positions are identical in the secondary structure
+        representations.
+
+        This method is currently used only to check whether the simulator
+        configuration was generated deterministically. For a more semantically
+        meaningful comparison of complexes that takes into account symmetries of
+        the representation, see the object hierarchy in the `KinDA` package,
+        which depends on `Multistrand`.
+        """
+        return (
+            None if self.name.startswith("automatic") else self.name,
+            self.sequence, self.strand_list,
+            self.boltzmann_sample, self.boltzmann_supersample
+        ) == (
+            None if other.name.startswith("automatic") else other.name,
+            other.sequence, other.strand_list,
+            other.boltzmann_sample, other.boltzmann_supersample
+        ) and (
+            ((np.array(list(self.structure)) == '+') ==
+             (np.array(list(other.structure)) == '+')).all()
+            if self.boltzmann_sample else
+            self.structure == other.structure
+        )
+
     def __str__(self):
         return (
             "Complex:\n"

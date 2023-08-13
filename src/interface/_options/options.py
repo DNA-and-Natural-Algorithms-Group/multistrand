@@ -19,7 +19,7 @@ from ..__init__ import __version__
 """ Literals for Multistrand"""
 
 
-class Literals(object):
+class Literals:
     """
     Preset tags that are used in the MergeResult objects (FirstStepRate, FirstStepLeakRate, FirstPassageRate)
     and multistrand.experiment  
@@ -28,29 +28,29 @@ class Literals(object):
     failure = "FAILURE"
     success = "SUCCESS"
     alt_success = "ALT_SUCCESS"
-    
+
     """
      protected results may occupy the [x.tag in a x in options.interface.results]
     """
     time_out = "timeout"
     no_initial_moves = "noinitial"
     sim_error = "error"
-    
+
     """ rate_method """
     metropolis = 1
     kawasaki = 2
     arrhenius = 3
-    
+
     """ Nupack dangle options """
     dangles_none = 0
     dangles_some = 1
     dangles_all = 2
-    
+
     """ Substrate type.    """
     substrateRNA = 1
     substrateDNA = 2
-    
-    """ Simulation modes """        
+
+    """ Simulation modes """
     first_passage_time = 16  # 0x0010
     first_step = 48  # 0x0030
     transition = 256  # 0x0100
@@ -83,7 +83,7 @@ class Energy_Type(IntEnum):
     Tube_energy = 3     # include dG_volume + dG_assoc. Summed over complexes, this is the system state energy.
 
 
-class Options(object):
+class Options:
     """ The main wrapper for controlling a Multistrand simulation. Has an interface for returning results. """
        
     RateMethodToString = ["None", "Metropolis", "Kawasaki", "Arrhenius"]
@@ -103,9 +103,9 @@ class Options(object):
                       "First Passage Time": Literals.first_passage_time}
     
     cotranscriptional_rate_default = 0.001  # 1 nt added every 1 ms
-    
-    activestatespace = False;
-    reuse_energymodel = False;
+
+    activestatespace = False
+    reuse_energymodel = False
     
     def __init__(self, *args, **kargs):
         """
@@ -328,8 +328,8 @@ class Options(object):
             these follow a listener pattern to propagate settings to dangles.
             (as opposed to copying settings at the last possible moment)
         """
-        self.sodium = 1.0;
-        self.magnesium = 0.0;
+        self.sodium = 1.0
+        self.magnesium = 0.0
         
         ####################
         #
@@ -403,6 +403,52 @@ class Options(object):
         ##############################
 
         self.__init_keyword_args(self, *args, **kargs)
+
+    def __eq__(self, other: "Options") -> bool:
+        """
+        Compare configurations syntactically, ignoring random seeds and
+        simulator state.
+        """
+        return (
+            self.ms_version,
+            self.verbosity, self.print_initial_first_step,
+            self.activestatespace, self.reuse_energymodel,
+            self.substrate_type, self.parameter_type, self.parameter_file,
+            self.gt_enable, self.log_ml, self.dangles,
+            self.cotranscriptional, self.cotranscriptional_rate,
+            self.join_concentration, self.temperature,
+            self.rate_scaling,
+            self.rate_method, self.unimolecular_scaling, self.bimolecular_scaling,
+            self.simulation_mode, self.simulation_time, self.num_simulations,
+            self.dSA, self.dHA, self.sodium, self.magnesium,
+            self.start_state, self.stop_conditions,
+            self.output_time, self.output_interval, self.output_state,
+        ) == (
+            other.ms_version,
+            other.verbosity, other.print_initial_first_step,
+            other.activestatespace, other.reuse_energymodel,
+            other.substrate_type, other.parameter_type, other.parameter_file,
+            other.gt_enable, other.log_ml, other.dangles,
+            other.cotranscriptional, other.cotranscriptional_rate,
+            other.join_concentration, other.temperature,
+            other.rate_scaling,
+            other.rate_method, other.unimolecular_scaling, other.bimolecular_scaling,
+            other.simulation_mode, other.simulation_time, other.num_simulations,
+            other.dSA, other.dHA, other.sodium, other.magnesium,
+            other.start_state, other.stop_conditions,
+            other.output_time, other.output_interval, other.output_state,
+        ) and (
+            True if self.rate_method != Literals.arrhenius else (
+                self.lnAStack, self.EStack, self.lnALoop, self.ELoop,
+                self.lnAEnd, self.EEnd, self.lnAStackLoop, self.EStackLoop,
+                self.lnAStackEnd, self.EStackEnd, self.lnALoopEnd, self.ELoopEnd,
+                self.lnAStackStack, self.EStackStack,
+            ) == (
+                other.lnAStack, other.EStack, other.lnALoop, other.ELoop,
+                other.lnAEnd, other.EEnd, other.lnAStackLoop, other.EStackLoop,
+                other.lnAStackEnd, other.EStackEnd, other.lnALoopEnd, other.ELoopEnd,
+                other.lnAStackStack, other.EStackStack,
+            ))
 
     def legacyRates(self):
                     

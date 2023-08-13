@@ -33,7 +33,6 @@ def first_step_simulation(strand_seq: str, trials: int, timeout: float,
     myMultistrand.setOptionsFactory1(getOptions, trials)
     myMultistrand.setTerminationCriteria(num_success)
     myMultistrand.setFirstStepMode()
-    # myMultistrand.setLeakMode()
     myMultistrand.run()
 
 

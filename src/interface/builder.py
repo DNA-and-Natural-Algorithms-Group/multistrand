@@ -183,7 +183,7 @@ def threewaybmString(lefttoe, displace, righttoe):
     return output
 
 
-class ConvergeCrit(object):
+class ConvergeCrit:
 
     period = 4  # average out over past X increases.
 
@@ -223,7 +223,7 @@ class ConvergeCrit(object):
         return  str(self.array)
 
 
-class transitiontype(object):
+class transitiontype:
 
     unimolecular = "uni"
     bimolecularIn = "bi-in"
@@ -232,7 +232,7 @@ class transitiontype(object):
     array = [unimolecular, bimolecularIn, bimolecularOut ]
 
 
-class localtype(object):
+class localtype:
 
     end = "End"
     loop = "Loop"
@@ -245,7 +245,7 @@ class localtype(object):
     array = [end, loop, stack, stackstack, loopend, stackend, stackloop]
 
 
-class Energy(object):
+class Energy:
 
     dH = 0.0;
     dS = 0.0;
@@ -290,7 +290,7 @@ def codeToDesc(code):
     return output
 
 
-class InitCountFlux(object):
+class InitCountFlux:
 
     def __init__(self):
         self.count = 0;
@@ -306,7 +306,7 @@ class InitCountFlux(object):
         return str(self)
 
 
-class Builder(object):
+class Builder:
 
     verbosity = False
 
@@ -730,7 +730,7 @@ class Builder(object):
 # FD: This class is in progress.
 # this class takes a builder object and computes the average time between
 # starting in an initial state and reaching a final state.
-class BuilderRate(object):
+class BuilderRate:
 
     solveToggle = 2
 

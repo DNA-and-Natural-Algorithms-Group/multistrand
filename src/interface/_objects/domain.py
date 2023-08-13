@@ -6,7 +6,7 @@ from ..utils import generate_sequence
 from .strand import Strand
 
 
-class Domain(object):
+class Domain:
     """
     Represents a sequence domain, for use in defining strands and stop conditions for Multistrand.
     """
@@ -39,6 +39,18 @@ class Domain(object):
                 self.__setattr__( k, v )
             if 'name' not in kargs:
                 raise ValueError("Must pass a 'name' keyword argument.")
+
+    def __eq__(self, other: "Domain"):
+        """
+        Compare domains syntactically.
+
+        This method is currently used only to check whether the simulator
+        configuration was generated deterministically. For a more semantically
+        meaningful comparison of complexes that takes into account symmetries of
+        the representation, see the object hierarchy in the `KinDA` package,
+        which depends on `Multistrand`.
+        """
+        return (self.name, self.sequence) == (other.name, other.sequence)
 
     @property
     def sequence( self ):
@@ -101,7 +113,7 @@ class Domain(object):
     
     
     
-class ComplementaryDomain( Domain):
+class ComplementaryDomain(Domain):
     """
     Represents a complemented domain. Note that this is always
     defined in terms of an original domain and does not have the same
@@ -118,6 +130,9 @@ class ComplementaryDomain( Domain):
         self.id = complemented_domain.id
         
         self._domain = complemented_domain
+
+    def __eq__(self, other: "ComplementaryDomain"):
+        return self._domain == other._domain
     
     @property
     def length(self):

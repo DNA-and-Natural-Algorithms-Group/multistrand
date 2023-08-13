@@ -313,7 +313,7 @@ def two_input_two_success(trials, options, input_complex_A, input_complex_B, out
             successful_stop_condition, alt_successful_stop_condition]
 
 
-class ClampedSeesawGate(object):
+class ClampedSeesawGate:
 
     Gate_Count = 1
 

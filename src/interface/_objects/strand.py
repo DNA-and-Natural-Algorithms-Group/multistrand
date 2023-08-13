@@ -5,7 +5,7 @@
 import warnings
 
 
-class Strand(object):
+class Strand:
     """
     Represents a Multistrand Strand object.
     """
@@ -43,9 +43,28 @@ class Strand(object):
 
         self.id = Strand.unique_id
         Strand.unique_id += 1
+
+    def __eq__(self, other: "Strand"):
+        """
+        Compare strands syntactically, ignoring names if they were generated
+        automatically.
+
+        This method is currently used only to check whether the simulator
+        configuration was generated deterministically. For a more semantically
+        meaningful comparison of complexes that takes into account symmetries of
+        the representation, see the object hierarchy in the `KinDA` package,
+        which depends on `Multistrand`.
+        """
+        return (
+            None if self.name.startswith("Automatic_") else self.name,
+            self.sequence, self.domain_list
+        ) == (
+            None if other.name.startswith("Automatic_") else other.name,
+            other.sequence, other.domain_list
+        )
     
     @property
-    def sequence( self ):
+    def sequence(self):
         """
         The sequence associated with this strand, computing it as
         necessary from the domains.
@@ -78,7 +97,7 @@ class Strand(object):
         if len(min( self.domain_list, key = lambda x: len(x.sequence)-int(x.length) ).sequence) < 0:
             raise ValueError("ERROR: Strand was queried for a sequence, but at least one contained domain had a length longer than its current sequence.")
         
-        self._sequence = "".join( [x.sequence for x in self.domain_list] )
+        self._sequence = "".join([x.sequence for x in self.domain_list])
         return self._sequence
     
     @sequence.setter
@@ -89,7 +108,8 @@ class Strand(object):
         value = str(value) # convert from unicode if needed
         try:
             if not all([i.upper() in 'AGCT' for i in value]):
-                raise ValueError("At least one of the bases in sequence [{0}] was not a valid base; The first offending character was '{1}', at position {2}.".format( value, value.lstrip('agctAGCT')[0], value.index( value.lstrip('agctAGCT')[0] ) ))
+                raise ValueError("At least one of the bases in sequence [{0}] was not a valid base; The first offending character was '{1}', at position {2}.".format(
+                    value, value.lstrip('agctAGCT')[0], value.index( value.lstrip('agctAGCT')[0])))
         except TypeError:
             raise ValueError("A strand may only be set to a string of valid bases.")
         
@@ -121,9 +141,11 @@ class Strand(object):
                                           len(temp_seq),
                                           b=" "*(len(str(len(temp_seq)))))
         elif len(temp_seq) > 0:
-            return "Strand: Name:'{0.name}' Sequence [{2}]:{0.sequence} Domains:{1}".format( self, [i.name for i in self.domain_list], len(temp_seq) )
+            return "Strand: Name:'{0.name}' Sequence [{2}]:{0.sequence} Domains:{1}".format(
+                self, [i.name for i in self.domain_list], len(temp_seq) )
         else:
-            return "Strand: Name:'{0.name}' Domains:{1}".format( self, [i.name for i in self.domain_list] )
+            return "Strand: Name:'{0.name}' Domains:{1}".format(
+                self, [i.name for i in self.domain_list] )
     
     def __add__(self, other ):
         """ Addition of two strands results in a strand composed of each piece. Addition of a strand and a domain adds the domain onto the strand."""
@@ -187,19 +209,22 @@ class ComplementaryStrand( Strand ):
         self.id = ComplementaryStrand.unique_id
         ComplementaryStrand.unique_id += 1
         self._strand = complemented_strand
-        self._sequence = ""
+        self._sequence: str
+
+    def __eq__(self, other: "ComplementaryStrand"):
+        return self._strand == other._strand
 
     @property
-    def name( self ):
-        if self._strand.name.endswith("*") or \
-            self._strand.name.endswith("'"):
+    def name(self):
+        if self._strand.name.endswith("*") or self._strand.name.endswith("'"):
             return self._strand.name.rstrip("*'")
         else:
             return self._strand.name + "*"
 
     @property
     def sequence(self):
-        self._sequence = "".join([ComplementaryStrand.complement[i] for i in reversed(self._strand.sequence)])
+        self._sequence = "".join([ComplementaryStrand.complement[i]
+                                  for i in reversed(self._strand.sequence)])
         # Note that if Strand.sequence was 0 (e.g. since one domain didn't
         # have a sequence yet), the Strand.sequence call will raise an
         # exception, so we never reach these later lines.
@@ -214,5 +239,4 @@ class ComplementaryStrand( Strand ):
         """
         Returns a Strand object that is complementary to this one.
         """
-        
         return self._strand

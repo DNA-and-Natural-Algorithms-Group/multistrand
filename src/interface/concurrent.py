@@ -395,7 +395,7 @@ class Bootstrap():
 # # Concurrent classes start here ==============================================
 
 
-class optionsFactory:
+class OptionsFactory:
 
     def __init__(self, funct, put0, put1, put2, put3, put4, put5, put6):
         self.myFunction = funct
@@ -412,29 +412,44 @@ class optionsFactory:
         assert isinstance(self.input0, int)
 
         output = None
-        if self.input1 == None:
+        if self.input1 is None:
             output = self.myFunction(self.input0)
-        elif self.input2 == None:
+        elif self.input2 is None:
             output = self.myFunction(self.input0, self.input1)
-        elif self.input3 == None:
+        elif self.input3 is None:
             output = self.myFunction(self.input0, self.input1, self.input2)
-        elif self.input4 == None:
+        elif self.input4 is None:
             output = self.myFunction(
                 self.input0, self.input1, self.input2, self.input3)
-        elif self.input5 == None:
+        elif self.input5 is None:
             output = self.myFunction(
                 self.input0, self.input1, self.input2, self.input3, self.input4)
-        elif self.input6 == None:
+        elif self.input6 is None:
             output = self.myFunction(
                 self.input0, self.input1, self.input2, self.input3, self.input4, self.input5)
         else:
             output = self.myFunction(
                 self.input0, self.input1, self.input2, self.input3, self.input4, self.input5, self.input6)
 
-        if output == None:
+        if output is None:
             sys.exit("MergeSim error: Did not recieve Options object from the factory function.")
         output.initial_seed = inputSeed
         return output
+
+    def checkDeterminism(self) -> None:
+        """
+        Test deterministic output, up to Boltzmann sampling.
+        """
+        seeds = np.random.randint(int(1e5), size=10)
+        opts = list(map(self.new, seeds))
+        for seed, opt in zip(seeds, opts):
+            if opt != opts[0]:
+                raise ValueError(
+                    "User-defined `OptionsFactory()` appears to be non-deterministic, "
+                    "even when allowing for Boltzmann sampling of initial states. "
+                    "Hence, statistics aggregated by `MergeSim()` cannot be "
+                    "interpreted w.r.t. a consistent reaction model.")
+            assert seed == opt.initial_seed
 
 
 class MergeSimSettings:
@@ -459,6 +474,19 @@ class MergeSimSettings:
     
         self.bootstrap = False
         self.bootstrapN = 0
+
+    def checkOptionsFactoryConsistency(self, factory: OptionsFactory) -> None:
+        """
+        Ensure consistency between simulation and aggregation types.
+        """
+        opt = factory.new(0)
+        if not ((opt.simulation_mode == Literals.first_step and
+                 self.resultsType in [self.RESULTTYPE1, self.RESULTTYPE2]) or
+                (opt.simulation_mode == Literals.first_passage_time and
+                 self.resultsType == self.RESULTTYPE3)):
+            raise TypeError(
+                "`Options.simulation_mode` and `MergeSimSettings.resultsType` "
+                "have inconsistent values!")
 
     def rateFactory(self, dataset=None, endStates=None):
         if self.resultsType == self.RESULTTYPE1:
@@ -533,7 +561,7 @@ class MergeSim:
             print(f"{timeStamp()}   Starting Multistrand {__version__}  "
                   f"(c) 2008-2023 Caltech")
 
-        self.factory = optionsFactory
+        self._factory: OptionsFactory
         self.aFactory = None
         if settings == None:
             self.settings = MergeSimSettings()
@@ -567,36 +595,41 @@ class MergeSim:
     def setNumOfThreads(self, numOfThreads):
         self.numOfThreads = numOfThreads
 
-    # this can be re-done using an args[] obj.
-    def setOptionsFactory(self, optionsFactory):
-        self.factory = optionsFactory
+    @property
+    def factory(self):
+        return self._factory
+
+    @factory.setter
+    def factory(self, optionsFactory: OptionsFactory):
+        optionsFactory.checkDeterminism()
+        self._factory = optionsFactory
 
     def setOptionsFactory1(self, myFun, put0):
-        self.factory = optionsFactory(
+        self.factory = OptionsFactory(
             myFun, put0, None, None, None, None, None, None)
 
     def setOptionsFactory2(self, myFun, put0, put1):
-        self.factory = optionsFactory(
+        self.factory = OptionsFactory(
             myFun, put0, put1, None, None, None, None, None)
 
     def setOptionsFactory3(self, myFun, put0, put1, put2):
-        self.factory = optionsFactory(
+        self.factory = OptionsFactory(
             myFun, put0, put1, put2, None, None, None, None)
 
     def setOptionsFactory4(self, myFun, put0, put1, put2, put3):
-        self.factory = optionsFactory(
+        self.factory = OptionsFactory(
             myFun, put0, put1, put2, put3, None, None, None)
 
     def setOptionsFactory5(self, myFun, put0, put1, put2, put3, put4):
-        self.factory = optionsFactory(
+        self.factory = OptionsFactory(
             myFun, put0, put1, put2, put3, put4, None, None)
 
     def setOptionsFactory6(self, myFun, put0, put1, put2, put3, put4, put5):
-        self.factory = optionsFactory(
+        self.factory = OptionsFactory(
             myFun, put0, put1, put2, put3, put4, put5, None)
 
     def setOptionsFactory7(self, myFun, put0, put1, put2, put3, put4, put5, put6):
-        self.factory = optionsFactory(
+        self.factory = OptionsFactory(
             myFun, put0, put1, put2, put3, put4, put5, put6)
 
     def setAnaylsisFactory(self, aFactoryIn):
@@ -719,6 +752,8 @@ class MergeSim:
         myProc.terminate()
 
     def run(self):
+        self.settings.checkOptionsFactoryConsistency(self._factory)
+
         self.trialsPerThread = int(
             math.ceil(float(self.factory.input0) / float(self.numOfThreads)))
         startTime = time.time()
@@ -743,11 +778,6 @@ class MergeSim:
             except:
                 self.exceptionFlag.value = False
                 return
-            
-            # Overwrite the result factory method if we are not using First Step Mode.
-            # By default, the results object is a First Step object.
-            if myOptions.simulation_mode != Literals.first_step:
-                self.setPassageMode()
 
             try:
                 s = SimSystem(myOptions)
@@ -798,7 +828,8 @@ class MergeSim:
 
             self.results.merge(myFSR, deepCopy=True)
 
-            # save the terminal states if we are not in leak mode
+            # in case of studying leak reaction, expect few hits, and print out
+            # info more often
             if self.settings.resultsType == self.settings.RESULTTYPE2:
                 print(self.results)
 
@@ -853,4 +884,3 @@ class MergeSim:
             self.results.doBootstrap(self.settings.bootstrapN)
 
         self.writeToFile()
-        return 0
