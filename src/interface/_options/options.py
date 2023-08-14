@@ -964,12 +964,12 @@ class Options:
 
     @add_result_status_line.setter
     def add_result_status_line(self, val):
-        """ Takes a 4-tuple as the only value type, it should be:
-            (random number seed, stop result flag, completion time, stop result tag)
-
-            Prints thingies. Also sets useful values."""
-        if not isinstance(val, tuple) or len(val) != 4:
-            raise ValueError("Print status line needs a 4-tuple of values.")
+        """
+        Accepts a 4-tuple with format:
+            (random number seed, stop result flag, completion time,
+             stop result tag)
+        """
+        assert isinstance(val, tuple) and len(val) == 4
         self.interface.add_result(val, res_type='status_line')
         if len(self._current_end_state) > 0:
             self.interface.end_states.append(self._current_end_state)
@@ -981,12 +981,12 @@ class Options:
 
     @add_result_status_line_firststep.setter
     def add_result_status_line_firststep(self, val):
-        """ Takes a 5-tuple as the only value type, it should be:
-            (random number seed, stop result flag, completion time, collision rate, stop result tag)
-
-            Prints thingies. Also sets useful values."""
-        if not isinstance(val, tuple) or len(val) != 5:
-            raise ValueError("Print status line needs a 5-tuple of values.")
+        """
+        Accepts a 5-tuple with format:
+            (random number seed, stop result flag, completion time,
+             collision rate, stop result tag)
+        """
+        assert isinstance(val, tuple) and len(val) == 5
         self.interface.add_result(val, res_type='firststep')
         if len(self._current_end_state) > 0:
             self.interface.end_states.append(self._current_end_state)
@@ -998,10 +998,12 @@ class Options:
 
     @add_complex_state_line.setter
     def add_complex_state_line(self, val):
-        """ Takes a 6-tuple as only value, it should be:
-            (random number seed, unique complex id, strand names, sequence, structure, energy )
-            Adds this data to the interface's results object."""
-
+        """
+        Accepts a 7-tuple with format:
+            (random number seed, unique complex id, strand names, sequence,
+             structure, energy, enthalpy)
+        """
+        assert isinstance(val, tuple) and len(val) == 7
         self._current_end_state.append(val)
         if self.verbosity > 1:
             print("{0[0]}: [{0[1]}] '{0[2]}': {0[5]} \n{0[3]}\n{0[4]}\n".format(val))
@@ -1012,9 +1014,11 @@ class Options:
 
     @add_transition_info.setter
     def add_transition_info(self, val):
-        """ Takes a 2-tuple, 1st value is current time, 2nd value is a
-            list of boolean values indicating which stop conditions we
-            currently meet."""
+        """
+        Accepts a 2-tuple with format:
+            (current time, list of boolean values for stop conditions)
+        """
+        assert isinstance(val, tuple) and len(val) == 2
         # print( "Time: {0[0]} Membership: {0[1]}".format( val ))
         self._current_transition_list.append(val)
 

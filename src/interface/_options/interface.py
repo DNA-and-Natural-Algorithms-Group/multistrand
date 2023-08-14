@@ -41,8 +41,9 @@ class Interface:
 
         self.end_states = []
         """ A list of ending states for the trajectorys in results.
-        Each value is a list of 6-tuples, which are
-        (random number seed, unique complex id, strand names, sequence, structure, energy )
+        Each value is a list of 7-tuples, which are
+        (random number seed, unique complex id, strand names, sequence,
+         structure, energy, enthalpy)
         """
 
         self.transition_lists = []
