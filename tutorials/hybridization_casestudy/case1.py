@@ -14,9 +14,9 @@ slowDownStudy 82000
 
 from multistrand.objects import Strand
 from multistrand.experiment import standardOptions, hybridization
-from multistrand.utils.utility import concentration_string, standardFileName, \
+from multistrand.utils.utility import concentration_string, standardFileName
 from multistrand.utils.thermo import C2K
-from multistrand.concurrent import  Bootstrap, MergeSim
+from multistrand.concurrent import Bootstrap, MergeSim
 from multistrand.options import Literals
 
 
@@ -63,7 +63,7 @@ def first_step_simulation(strand_seq, trials, T=20.0):
 def first_passage_association(strand_seq, trials, concentration, T=20.0):
 
     thisMS = MergeSim()
-    thisMS.setNumOfThreads(8) 
+    thisMS.setNumOfThreads(8)
     print(f"Running first passage time simulations for association of "
           f"{strand_seq} at {concentration_string(concentration)}...")
     
@@ -102,7 +102,7 @@ def doFirstStepMode(seq, concentrations, T=20.0, numOfRuns=500):
         
         low, high = myBootstrap.ninetyFivePercentiles()
         logStd = myBootstrap.logStd()
-        
+
         print(f"keff = {kEff:g} /M/s at {concentration_string(z)}")
         
         myResult = (np.log10(kEff), np.log10(low), np.log10(high), logStd)
@@ -157,8 +157,9 @@ def doFirstPassageTimeAssocation(seq, concentrations, T=20, numOfRuns=500):
                 
         Result.append((keff, np.log10(low), np.log10(high), logStd))
         times.append((np.log10(myMultistrand.runTime), 0.0, 0.0))
-    
+
     print(f"keff = {keff:g} /M/s at {concentration_string(concentration)}")
+
     return Result, times
 
 

@@ -12,7 +12,7 @@ import numpy as np
 import pytest
 
 from multistrand.options import Options, Energy_Type
-from multistrand.system import initialize_energy_model, energy
+from multistrand.system import energy
 from multistrand.objects import Complex, Strand
 import multistrand.utils.thermo as thermo
 
@@ -80,10 +80,8 @@ class Test_SingleStrandEnergy:
 
     @staticmethod
     def create_config() -> Options:
-        opt = Options()
-        opt.verbosity = 0
+        opt = Options(verbosity=0, reuse_energymodel=True)
         opt.DNA23Metropolis()
-        initialize_energy_model(opt)
         return opt
 
     @staticmethod
@@ -93,14 +91,14 @@ class Test_SingleStrandEnergy:
         i = 0
         for seq, struct in zip(*complexes):
             assert len(seq) == len(struct)
-            start_nupack = time.time()
             e_nupack = thermo.structure_energy([seq], struct, model=model1)
-            end_nupack = time.time()
 
-            start_multistrand = time.time()
             c_multistrand = Complex(
                 strands=[Strand(name="hairpin", sequence=seq)], structure=struct)
             e_multistrand = energy(
                 [c_multistrand], opt, Energy_Type.Complex_energy)
             assert np.allclose(e_nupack, e_multistrand, rtol=rel_tol), \
                 f"category = {category}, seq = {seq}, struct = {struct}"
+
+if __name__ == "__main__":
+    Test_SingleStrandEnergy.test_energy(Test_SingleStrandEnergy, examples_file= (Path(__file__).parent / 'testSetSS-small.txt'), rel_tol=1e-6)

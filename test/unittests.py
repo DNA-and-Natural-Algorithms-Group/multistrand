@@ -72,7 +72,7 @@ class Base_Objects_TestCase(unittest.TestCase):
 
         self.complexes = []
 
-        self.complexes.append( Complex("c1", "c1", [self.strands[0]], "....."))
+        self.complexes.append( Complex(structure= ".", strands=[self.strands[0]], name="c1"))
         self.complexes.append( Complex("c2", "c2", [self.strands[1]], "....."))
         self.complexes.append( Complex("c3", "c3", [self.strands[0], self.strands[1]], "(((((+)))))"))
                                

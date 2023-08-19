@@ -6,7 +6,6 @@ from multistrand.concurrent import MergeSim, Bootstrap
 from multistrand.experiment import standardOptions, hybridization
 from multistrand.options import Literals
 
-
 num_threads = 10
 num_trials = 1000
 num_success = 500
@@ -16,7 +15,7 @@ A_CONCENTRATION = 50e-9
 
 def first_step_simulation(strand_seq: str, trials: int, timeout: float,
                           temperature: float, sodium: float, material="DNA") -> None:
- 
+
     print(f"\nRunning first step mode simulations for {strand_seq} "
           "(with Boltzmann sampling)...\n")
 
@@ -28,7 +27,7 @@ def first_step_simulation(strand_seq: str, trials: int, timeout: float,
         o.DNA23Arrhenius()
         o.substrate_type = material
         return o
-      
+
     myMultistrand.setNumOfThreads(num_threads)
     myMultistrand.setOptionsFactory1(getOptions, trials)
     myMultistrand.setTerminationCriteria(num_success)
@@ -52,5 +51,5 @@ def computeAndWriteToCL(strand_seq, doBootstrap, temperature=25.0, sodium=1.0):
     if(doBootstrap):
         bootstrap = Bootstrap(result, concentration=A_CONCENTRATION, N=1200, computek1=True)
         bounds = bootstrap.ninetyFivePercentiles()
-        
+
         print(f"Estimated 95% confidence interval: [{bounds[0]:.2e},{bounds[1]:.2e}]")

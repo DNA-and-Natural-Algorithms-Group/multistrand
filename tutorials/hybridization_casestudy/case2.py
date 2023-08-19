@@ -317,7 +317,7 @@ if __name__ == '__main__':
             candidates.append(seq)
         
         for seq in candidates:
-            print("The sequence is ", seq)
+            print(("The sequence is ", seq))
 
         results = []
         timeOut = list(range(len(candidates)))
@@ -326,7 +326,7 @@ if __name__ == '__main__':
             
             timeOut[i] = False
             seq = candidates[i]
-            
+
             print(f"{i:d}: Simulating {sys.argv[2]} DNA strand at 20 C:  "
                   f"{seq} with toeholds {toeholds(seq)[0]:d} and {toeholds(seq)[1]:d}, "
                   f"stem {stemsize(seq):d}, ss dG = {strand_dG(seq):g} and {strand_dG(WC(seq)):g}, "
@@ -342,7 +342,6 @@ if __name__ == '__main__':
             nReverse = 0;
             
             while nForward < requiredSuccess  and not timeOut[i] :  # this is a bit wasteful, but "only" by a factor of about 1.5.  Aims for 20% error bars on k1.
-
                 print()
                 batchRates, nF, nR = first_step_simulation(seq, trials, concentration=CONCENTRATION) 
                 
@@ -707,7 +706,7 @@ if __name__ == '__main__':
         
         if(L == 25):
             duplex_DG_std = np.std(duplex_dGs[3:(N + 3)])
-        
+
         print(f"duplex dG standard deviation = {duplex_DG_std:g}")
 
 

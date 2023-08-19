@@ -149,6 +149,7 @@ def show_interesting_trajectories(result_lists, seqs, type='fastest'):
         s = SimSystem(o)
         s.start()
         print_trajectory(o)        
+
         print(f"Original run's time: {time:g} microseconds")
 
 

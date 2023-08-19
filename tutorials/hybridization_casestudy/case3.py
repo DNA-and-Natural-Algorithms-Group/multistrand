@@ -120,6 +120,7 @@ def computeWinProb(f2, pos, structDict2, settings):
     
     structs = dict(structDict2[pos.posX * 30 + pos.posY])
     mostPopular = sorted(iter(structs.items()), key=operator.itemgetter(0), reverse=True)[:1]
+
     popularStructure = mostPopular[0][0]
     
     f2.write(str(pos) + " " + popularStructure + "\n")
@@ -133,7 +134,7 @@ def plotMostFrequentStructure(posDict, length):
         
         for i in range(length):
             mostFreq.append((-1, -99));
-            
+
         for key, val in posDict.items():
             x, y = key.posX, key.posY
             currMax = mostFreq[x][1]            
@@ -223,7 +224,7 @@ def doPosPlots(posDict, settings, extraTitle, selectedCount, extraSettings, stru
     if ("M1" in extraSettings):
         extraTitle = "-ModeOne-" + extraTitle    
         corrector = settings.trials
-        
+
     for pos, val in goodPosDict.items():
  
         value = 0.0
@@ -314,7 +315,7 @@ def writeStructFile(analysisResult, settings, extraTitle):
          
         pX = np.int((np.floor(i / 30)))
         pY = np.int(i % 30)
-         
+
         for key, val in goodDict.items():
             
             if(val > 2):
@@ -353,7 +354,7 @@ def doBinaryProbabilityPlot(settings, extraTitle):
      
         goodDict = (dict(result.binaryDict))
         plottingDict = dict()
-        
+
         for key, value in goodDict.items():
                         
             plottingDict[key] = np.float64(value) / np.float64(selectedCounts)
