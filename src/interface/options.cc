@@ -32,7 +32,7 @@ class stopComplexes *getStopComplexList(PyObject *options, int index)
     pyo_stop_condition_list = getListAttrReify(options, stop_conditions);
     // new reference
     
-    int n = PyList_GET_SIZE(pyo_stop_condition_list);
+    int n = static_cast<int>(PyList_GET_SIZE(pyo_stop_condition_list));
     for (int i = n - 1; i >= index; i--)
     {
         pyo_stop_condition = PyList_GET_ITEM(pyo_stop_condition_list, i);
@@ -48,13 +48,13 @@ class stopComplexes *getStopComplexList(PyObject *options, int index)
         tuple_list = getListAttrReify(pyo_stop_condition, complex_items);
         // new reference here
         
-        int m = PyList_GET_SIZE(tuple_list);
+        int m = static_cast<int>(PyList_GET_SIZE(tuple_list));
         for (int j = m - 1; j >= 0; j--)
         {
             tuple = PyList_GET_ITEM(tuple_list, j);
             cmplx = PyTuple_GET_ITEM(tuple, 0);
-            stoptype = getLongItemFromTuple(tuple, 1);
-            count = getLongItemFromTuple(tuple, 2);
+            stoptype = static_cast<int>(getLongItemFromTuple(tuple, 1));
+            count = static_cast<int>(getLongItemFromTuple(tuple, 2));
             // none of these steal the reference, only borrow.
 
             structure = getStringAttr(cmplx, _fixed_structure, pyo_structure);
@@ -160,7 +160,7 @@ class identList *makeID_list(PyObject *strand_list)
     name = NULL;
     // pyo_name is now clear.
 
-    for (int i = n - 2; i >= 0; i--)
+    for (long i = n - 2; i >= 0; i--)
     {
         py_strand = PyList_GetItem(strand_list, i);
 

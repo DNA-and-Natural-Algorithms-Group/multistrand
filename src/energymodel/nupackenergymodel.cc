@@ -184,9 +184,14 @@ double NupackEnergyModel::InteriorEnergy(BaseType *seq1, BaseType *seq2, int siz
 	int type1 = pairtypes[seq1[0]][seq2[size2 + 1]] - 1;
 	int type2 = pairtypes[seq1[size1 + 1]][seq2[0]] - 1;
 
+    if(type1 == -1 || type2 == -1){
+        fprintf(stderr, "ERROR: Initial structure contains invalid bindings.\n");
+		exit(1);
+	}
 	// special case time. 1x1, 2x1 and 2x2's all get special cases.
-	if (size1 == 1 && size2 == 1)
-		return internal.internal_1_1[type1][type2][seq1[1]][seq2[size2]];
+	if (size1 == 1 && size2 == 1){
+		return internal.internal_1_1[type1][type2][seq1[1]][seq2[size2]]; //seq1[1][0] seq2[1][0]
+	}
 	if (size1 <= 2 && size2 <= 2)
 		if (size1 == 1 || size2 == 1) {
 			if (size1 == 1)
@@ -595,7 +600,7 @@ void NupackEnergyModel::processOptions() {
 	} else if (myEnergyOptions->compareSubstrateType(SUBSTRATE_DNA) || myEnergyOptions->compareSubstrateType(SUBSTRATE_RNA)) {
 
 		char *nupackhome;
-		std::string file_dG, file_dH;
+		std::string file;
 
 		nupackhome = getenv("NUPACKHOME");
 

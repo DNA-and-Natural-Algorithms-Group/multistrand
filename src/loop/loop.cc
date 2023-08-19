@@ -128,15 +128,16 @@ double Loop::returnFlux(Loop *comefrom) {
 	return total;
 }
 
-uint16_t Loop::getMoveCount(Loop* comefrom) {
+int Loop::getMoveCount(Loop* comefrom) {
 
 	assert(moves != NULL);
-	uint16_t output = moves->getCount();
+	int output = moves->getCount();
 
 	for (int loop = 0; loop < curAdjacent; loop++) {
 
 		if (adjacentLoops[loop] != comefrom) {
-			output = output + adjacentLoops[loop]->getMoveCount(this);
+		    int count = adjacentLoops[loop]->getMoveCount(this);
+			output = output + count;
 		}
 
 		assert(adjacentLoops[loop] != NULL);
@@ -374,7 +375,6 @@ void Loop::printAllMoves(Loop* from) {
 }
 
 void Loop::generateAndSaveDeleteMove(Loop* input, int position) {
-
 	RateArr tempRate = Loop::generateDeleteMoveRate(this, input);
 	RateEnv rateEnv = RateEnv(tempRate.rate, energyModel, tempRate.left, tempRate.right);
 
@@ -394,7 +394,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 	MoveType right = stackMove;
 	int s_index = 0;
 	int e_index = 0;
-
 	if (identify(start, end, 'S', 'S')) {
 
 		StackLoop *start_ = (StackLoop *) start;
@@ -589,7 +588,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 			end_->numAdjacent, sidelens, seqs);
 		old_energy = start->getEnergy() + end->getEnergy();
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
-
 		delete[] sidelens;
 		delete[] seqs;
 
@@ -1219,15 +1217,14 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 					index++;
 			} else {
 				for (int loop2 = 1; loop2 < end_->numAdjacent; loop2++) {
-					int temp = (e_index + loop2) % end_->numAdjacent;
-					int temp2 = (e_index + loop2 - 1) % end_->numAdjacent;
+					int temp = (e_index + loop2 - 1) % end_->numAdjacent;
 
 					if (loop2 == 1) {
 						sidelens[index] = end_->sidelen[e_index] + start_->sidelen[s_index] + 1;
 						seqs[index] = start_->seqs[s_index];
 					} else {
-						sidelens[index] = end_->sidelen[temp2];
-						seqs[index] = end_->seqs[temp2];
+						sidelens[index] = end_->sidelen[temp];
+						seqs[index] = end_->seqs[temp];
 					}
 					index++;
 				}
@@ -1262,7 +1259,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		OpenLoop *tempLoop[2];
 		double new_energies[2] = { 0.0, 0.0 };
-		int index[2], sizes[2], loop, flipflop = 0, temp;
+		int index[2], sizes[2], loop, flipflop = 0;
 
 		int *sidelen = NULL;
 		BaseType **seqs = NULL;
@@ -1288,7 +1285,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		for (flipflop = 0; flipflop < 2; flipflop++) {
 			sidelen = new int[sizes[flipflop] + 1];
-			seqs = new char *[sizes[flipflop] + 1];
+			seqs = new BaseType *[sizes[flipflop] + 1];
 
 			for (loop = 0; loop < sizes[flipflop] + 1; loop++) {
 				if (loop < index[flipflop]) {
@@ -2512,7 +2509,6 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 
 void StackLoop::calculateEnergy(void) {
-
 	assert(Loop::energyModel != NULL);
 	energy = Loop::energyModel->StackEnergy(
 		seqs[0][0], seqs[1][1], seqs[0][1], seqs[1][0]);
@@ -2537,7 +2533,6 @@ void StackLoop::generateMoves(void) {
 }
 
 void StackLoop::generateDeleteMoves(void) {
-	double temprate;
 	if (moves != NULL)
 		delete moves;
 	moves = new MoveList(0);
@@ -2702,7 +2697,6 @@ string HairpinLoop::typeInternalsToString(void) {
 }
 
 void HairpinLoop::calculateEnergy(void) {
-
 	assert(energyModel != NULL);
 
 	energy = energyModel->HairpinEnergy(hairpin_seq, hairpinsize);
@@ -2734,11 +2728,10 @@ double HairpinLoop::doChoice(Move *move, Loop **returnLoop) {
 	assert(!(move->type & MOVE_DELETE));
 
 	Loop *newLoop[2];
-	int pt, loop, loop2;
+	int loop, loop2;
 	if (move->type & MOVE_CREATE) {
 		loop = move->index[0];
 		loop2 = move->index[1];
-		pt = pairtypes[hairpin_seq[loop]][hairpin_seq[loop2]];
 		if (move->type & MOVE_1) // stack and hairpin
 		{
 			newLoop[0] = new StackLoop(hairpin_seq, &hairpin_seq[loop2]);
@@ -2887,8 +2880,6 @@ void HairpinLoop::generateMoves(void) {
 }
 
 void HairpinLoop::generateDeleteMoves(void) {
-	double temprate;
-
 	generateAndSaveDeleteMove(adjacentLoops[0], 0);
 
 	totalRate = moves->getRate();
@@ -3003,7 +2994,6 @@ Move *BulgeLoop::getChoice(SimTimer& timer, Loop *from) {
 }
 
 void BulgeLoop::calculateEnergy(void) {
-
 	assert(energyModel != NULL);
 
 	energy = energyModel->BulgeEnergy(bulge_seq[0][0], bulge_seq[1][bulgesize[1] + 1], bulge_seq[0][bulgesize[0] + 1], bulge_seq[1][0],
@@ -3021,7 +3011,7 @@ double BulgeLoop::doChoice(Move *move, Loop **returnLoop) {
 	assert(!(move->type & MOVE_DELETE));
 
 	Loop *newLoop[2];
-	int pt, loop, loop2;
+	int loop, loop2;
 
 	int *sidelen = new int[3];
 	BaseType **seqs = new BaseType *[3];
@@ -3031,7 +3021,6 @@ double BulgeLoop::doChoice(Move *move, Loop **returnLoop) {
 	if (move->type & MOVE_CREATE) {
 		loop = move->index[0];
 		loop2 = move->index[1];
-		pt = pairtypes[bulge_seq[bside][loop]][bulge_seq[bside][loop2]];
 		if (bside == 1) {
 			sidelen[0] = 0;
 			sidelen[1] = loop - 1;
@@ -3165,8 +3154,6 @@ void BulgeLoop::generateMoves(void) {
 
 void BulgeLoop::generateDeleteMoves(void) {
 
-	double temprate;
-
 	assert(moves != NULL);
 
 	generateAndSaveDeleteMove(adjacentLoops[0], 0);
@@ -3298,7 +3285,6 @@ Move *InteriorLoop::getChoice(SimTimer& timer, Loop *from) {
 }
 
 void InteriorLoop::calculateEnergy(void) {
-
 	assert(energyModel != NULL);
 
 	if (int_seq[0] == NULL || int_seq[1] == NULL)
@@ -3580,9 +3566,6 @@ void InteriorLoop::generateMoves(void) {
 }
 
 void InteriorLoop::generateDeleteMoves(void) {
-
-	double temprate;
-
 	assert(moves != NULL);
 
 	generateAndSaveDeleteMove(adjacentLoops[0], 0);
@@ -3722,7 +3705,6 @@ Move *MultiLoop::getChoice(SimTimer& timer, Loop *from) {
 }
 
 void MultiLoop::calculateEnergy(void) {
-
 	assert(energyModel!=NULL);
 	energy = energyModel->MultiloopEnergy(numAdjacent, sidelen, seqs);
 
@@ -3738,7 +3720,7 @@ double MultiLoop::doChoice(Move *move, Loop **returnLoop) {
 	assert(!(move->type & MOVE_DELETE));
 
 	Loop *newLoop[2];
-	int pt, loop, loop2, loop3, loop4, temploop, tempindex;
+	int loop, loop2, loop3, loop4, temploop, tempindex;
 	int *sidelengths;
 	BaseType **sequences;
 
@@ -3751,7 +3733,6 @@ double MultiLoop::doChoice(Move *move, Loop **returnLoop) {
 		if (move->type & MOVE_1) {
 			//single side, hairpin + multi with 1 higher mag.
 			sidelengths = new int[numAdjacent + 1];
-			pt = pairtypes[seqs[loop3][loop]][seqs[loop3][loop2]];
 			sequences = new BaseType *[numAdjacent + 1];
 
 			for (temploop = 0, tempindex = 0; temploop < numAdjacent + 1; temploop++, tempindex++) {
@@ -3799,7 +3780,6 @@ double MultiLoop::doChoice(Move *move, Loop **returnLoop) {
 			sequences = new BaseType *[numAdjacent];
 
 			loop4 = (loop3 + 1) % numAdjacent;
-			pt = pairtypes[seqs[loop3][loop]][seqs[loop4][loop2]];
 			for (temploop = 0; temploop < numAdjacent; temploop++) {
 				if (temploop == loop3) {
 					sidelengths[temploop] = loop - 1;
@@ -3869,7 +3849,6 @@ double MultiLoop::doChoice(Move *move, Loop **returnLoop) {
 			//non-adjacent sides, multi + open loop
 
 			sidelengths = new int[loop4 - loop3 + 1];
-			pt = pairtypes[seqs[loop3][loop]][seqs[loop4][loop2]];
 			sequences = new BaseType *[loop4 - loop3 + 1];
 
 			for (temploop = 0, tempindex = 0; temploop < (loop4 - loop3 + 1); tempindex++) // note that loop4 - loop3 is the number of pairings that got included in the multiloop. The extra closing pair makes the +1.
@@ -3894,7 +3873,7 @@ double MultiLoop::doChoice(Move *move, Loop **returnLoop) {
 			newLoop[0] = new MultiLoop(loop4 - loop3 + 1, sidelengths, sequences);
 
 			sidelengths = new int[numAdjacent - (loop4 - loop3 - 1)];
-			sequences = new char *[numAdjacent - (loop4 - loop3 - 1)];
+			sequences = new BaseType *[numAdjacent - (loop4 - loop3 - 1)];
 
 			for (temploop = 0, tempindex = 0; temploop < numAdjacent - (loop4 - loop3 - 1); tempindex++) {
 				if (tempindex == loop3) {
@@ -4195,8 +4174,6 @@ void MultiLoop::generateMoves(void) {
 }
 
 void MultiLoop::generateDeleteMoves(void) {
-	double temprate;
-
 	assert(moves != NULL);
 
 	for (int loop = 0; loop < numAdjacent; loop++) {
@@ -4314,7 +4291,6 @@ OpenLoop::OpenLoop(int branches, int *sidelengths, BaseType **sequences) {
 string OpenLoop::typeInternalsToString(void) {
 
 	std::stringstream ss;
-
 	for (int i = 0; i < numAdjacent + 1; i++) {
 
 		ss << utility::sequenceToString(seqs[i], sidelen[i]) << "  -- ";
@@ -4329,7 +4305,6 @@ string OpenLoop::typeInternalsToString(void) {
 }
 
 void OpenLoop::calculateEnergy(void) {
-
 	assert(energyModel != NULL);
 	energy = energyModel->OpenloopEnergy(numAdjacent, sidelen, seqs);
 
@@ -4364,7 +4339,7 @@ double OpenLoop::doChoice(Move *move, Loop **returnLoop) {
 	assert(!(move->type & MOVE_DELETE));
 
 	Loop *newLoop[2];
-	int pt, loop, loop2, loop3, loop4, temploop, tempindex;
+	int loop, loop2, loop3, loop4, temploop, tempindex;
 	int *sidelengths;
 	BaseType **sequences;
 
@@ -4377,7 +4352,6 @@ double OpenLoop::doChoice(Move *move, Loop **returnLoop) {
 		if (move->type & MOVE_1) {
 			//single side, hairpin + open with 1 higher mag.
 			sidelengths = new int[numAdjacent + 2];
-			pt = pairtypes[seqs[loop3][loop]][seqs[loop3][loop2]];
 			sequences = new BaseType *[numAdjacent + 2];
 
 			for (temploop = 0, tempindex = 0; temploop <= numAdjacent + 1; temploop++, tempindex++) {
@@ -4424,7 +4398,6 @@ double OpenLoop::doChoice(Move *move, Loop **returnLoop) {
 			//                        bulge    + open with same mag
 			//                        interior + open with same mag
 			sidelengths = new int[numAdjacent + 1];
-			pt = pairtypes[seqs[loop3][loop]][seqs[loop3 + 1][loop2]];
 			sequences = new BaseType *[numAdjacent + 1];
 
 			for (temploop = 0; temploop <= numAdjacent; temploop++) {
@@ -4485,7 +4458,6 @@ double OpenLoop::doChoice(Move *move, Loop **returnLoop) {
 			//non-adjacent sides, multi + open loop
 
 			sidelengths = new int[loop4 - loop3 + 1];
-			pt = pairtypes[seqs[loop3][loop]][seqs[loop4][loop2]];
 			sequences = new BaseType *[loop4 - loop3 + 1];
 
 			for (temploop = 0, tempindex = 0; temploop < (loop4 - loop3 + 1); tempindex++) // note that loop4 - loop3 is the number of pairings that got included in the multiloop. The extra closing pair makes the +1.
@@ -4510,7 +4482,7 @@ double OpenLoop::doChoice(Move *move, Loop **returnLoop) {
 			newLoop[0] = new MultiLoop(loop4 - loop3 + 1, sidelengths, sequences);
 
 			sidelengths = new int[numAdjacent - (loop4 - loop3 - 1) + 1];
-			sequences = new char *[numAdjacent - (loop4 - loop3 - 1) + 1];
+			sequences = new BaseType *[numAdjacent - (loop4 - loop3 - 1) + 1];
 
 			for (temploop = 0, tempindex = 0; temploop <= numAdjacent - (loop4 - loop3 - 1); tempindex++) {
 				if (tempindex == loop3) {
@@ -4814,15 +4786,11 @@ void OpenLoop::generateMoves(void) {
 }
 
 void OpenLoop::generateDeleteMoves(void) {
-	double temprate;
-
 	assert(moves != NULL);
-
 	for (int loop = 0; loop < numAdjacent; loop++) {
 		generateAndSaveDeleteMove(adjacentLoops[loop], loop);
 
 	}
-
 	totalRate = moves->getRate();
 }
 
@@ -4918,7 +4886,7 @@ BaseType* OpenLoop::getBase(char type, int index, HalfContext half) {
 
 		for (int loop2 = 1; loop2 < end; loop2++) {
 
-			cout << (char) seqs[loop][loop2] << endl;
+			cout << (int) seqs[loop][loop2] << endl;
 
 			if (seqs[loop][loop2] == type) {
 
@@ -5154,8 +5122,8 @@ void OpenLoop::performComplexJoin(OpenLoop **oldLoops, OpenLoop **newLoops, Base
 
 BaseType *OpenLoop::verifyLoop(BaseType *incoming_sequence, Loop *from) {
 
-	int call_index = -1, call_adjacent;
 	BaseType *ret_seq;
+	int call_index = -1;
 	int loop;
 
 	for (loop = 0; loop < numAdjacent; loop++) {

@@ -57,7 +57,7 @@ string moveutil::primeToDesc(int input) {
 
 	for (int i = 0; i < MOVETYPE_SIZE; i++) {
 
-		int myPrime = moveutil::valuesPrime[i];
+		int myPrime = int(moveutil::valuesPrime[i]);
 
 		if ((input % myPrime) == 0) {
 

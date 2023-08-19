@@ -30,7 +30,7 @@ constexpr int lookuphelper[26] = { 1, 0, 2, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 
 // // helper function to convert to numerical base format.
 BaseType baseLookup(char base) {
 
-	char temp = std::toupper(base);
+	char temp = static_cast<char>(std::toupper(base));
 	if (temp < 'A' || temp > 'Z') {
 //		cout << "Warning! Trying to cast a non-base, value is " << ((int) base) << " and  temp is " << (int) (temp)  << endl;
 		return static_cast<BaseType>(base);
@@ -88,7 +88,7 @@ void EnergyModel::computeArrheniusRates(double temperature) {
 
 		for (int j = 0; j < MOVETYPE_SIZE; j++) {
 
-			arrheniusRates[i * MOVETYPE_SIZE + j] = NULL;
+			arrheniusRates[i * MOVETYPE_SIZE + j] = 0;
 
 			setArrheniusRate(arrheniusRates, simOptions->energyOptions, temperature, i, j);
 

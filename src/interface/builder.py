@@ -610,6 +610,7 @@ class Builder:
                     print("My hashmap contains " + str(uniqueID) + " with Energy " + str(space[uniqueID]) + " but found: " + str(energyvals))
                     print("Line = " + line)
 
+            myFile.close()
             """ load the transitions """
             myFile = open(self.the_dir + str(myOptions.interface.current_seed) + "/prototransitions.txt", "r")
             index = 0
@@ -653,6 +654,7 @@ class Builder:
                         transitionList.extend(codeToDesc(int(float(line1))))
 
                     transitions[transitionPair] = transitionList
+            myFile.close()
 
             """ load the initial states """
             myFile = open(self.the_dir + str(myOptions.interface.current_seed) + "/protoinitialstates.txt", "r")
@@ -679,6 +681,7 @@ class Builder:
                     newEntry.count = count
                     newEntry.flux = 777777  # arrType is the flux, and is unique to the initial state
                     initStates[uID1] = newEntry
+            myFile.close()
 
             """ load the final states """
             myFile = open(self.the_dir + str(myOptions.interface.current_seed) + "/protofinalstates.txt", "r")
@@ -703,6 +706,8 @@ class Builder:
 
                 if not uID1 in finalStates:
                     finalStates[uID1] = tag
+
+            myFile.close()
 
             """ Now delete the files as they can get quite large """
             os.remove(self.the_dir + str(myOptions.interface.current_seed) + "/protospace.txt")

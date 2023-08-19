@@ -42,7 +42,7 @@ std::ostream& operator<<(std::ostream& ss, RateEnv& env) {
 
 	}
 
-	ss << moveutil::primeToDesc(env.arrType);
+	ss << moveutil::primeToDesc(int(env.arrType));
 	ss << "  " << env.rate << "   ";
 
 	return ss;
@@ -158,7 +158,7 @@ int Move::getType(void) {
 	return type;
 }
 
-int Move::getArrType(void) {
+double Move::getArrType(void) {
 	return rate.arrType;
 }
 
@@ -411,7 +411,7 @@ double MoveContainer::getRate(void) {
 	return totalrate;
 }
 
-uint16_t MoveList::getCount(void) {
+int MoveList::getCount(void) {
 
 	return moves_index + del_moves_index;
 

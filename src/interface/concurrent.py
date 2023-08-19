@@ -392,7 +392,7 @@ class Bootstrap():
             return "No successful reactions observed "
 
 
-# # Concurrent classes start here ==============================================
+# Concurrent classes start here ==============================================
 
 
 class OptionsFactory:
@@ -503,13 +503,16 @@ class MergeSimSettings:
             if printFlag:
                 print("nForward = %i " % nForwardIn.value)
                 print("nReverse = %i \n" % nReverseIn.value)
-            if nForwardIn.value >= self.terminationCount:
+
+            if(nForwardIn.value >= self.terminationCount):
                 print("Found " + str(nForwardIn.value) + " successful trials, terminating.")
                 return True
-            elif nForwardIn.value + nReverseIn.value > self.max_trials:
+
+            elif((nForwardIn.value + nReverseIn.value) > self.max_trials):
                 print("Simulated " + str(nForwardIn.value + nReverseIn.value) + " trials, terminating.")
                 return True
-            elif time.time() - timeStart > self.timeOut:
+            
+            elif(time.time() - timeStart > self.timeOut):
                 print("Runtime exeeded " + str(self.timeOut) + " seconds, terminating.")
                 return True
             else:
@@ -745,7 +748,7 @@ class MergeSim:
             for i in self.factory.new(0).stop_conditions:
                 print(i)
                 print()
-             
+
         myProc = self.ctx.Process(target=actualPrint, args=[])
         myProc.start()
         myProc.join()
@@ -757,7 +760,6 @@ class MergeSim:
         self.trialsPerThread = int(
             math.ceil(float(self.factory.input0) / float(self.numOfThreads)))
         startTime = time.time()
-
         assert(self.numOfThreads > 0)
 
         manager = multiprocess.Manager()
@@ -836,8 +838,8 @@ class MergeSim:
             # reset the multiprocessing results lists.
             self.managed_result = manager.list()
             self.managed_endStates = manager.list()
-            # this should also reset the 
-            self.settings.saveInterval += self.settings.saveIncrement 
+            # this should also reset the
+            self.settings.saveInterval += self.settings.saveIncrement
 
         # give a print of the initial states and stopping conditions
         self.printStates()
@@ -850,7 +852,7 @@ class MergeSim:
             p = getSimulation(i)
             procs.append(p)
             p.start()
-                
+
         printFlag = False
 
         # check for stop conditions, restart sims if needed
@@ -879,7 +881,6 @@ class MergeSim:
 
         if not self.settings.resultsType == MergeSimSettings.RESULTTYPE2:
             self.results.generateCounts()
-        
         if self.settings.bootstrap == True:
             self.results.doBootstrap(self.settings.bootstrapN)
 

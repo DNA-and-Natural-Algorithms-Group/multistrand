@@ -378,11 +378,6 @@ OpenLoop *StrandOrdering::checkIDList(class identList * stoplist, int id_count) 
 
 }
 
-/*
-
- int StrandOrdering::checkIDBound( char *id )
-
- */
 
 int StrandOrdering::checkIDBound(char *id) {
 

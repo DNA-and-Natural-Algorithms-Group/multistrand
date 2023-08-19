@@ -32,7 +32,7 @@ public:
 	void regenerateMoves(void);
 	double getTotalFlux(void);
 	double getJoinFlux(void);
-	uint16_t getMoveCount(void);
+	int getMoveCount(void);
 
 	BaseCount getExposedBases();
 	OpenInfo getOpenInfo();
