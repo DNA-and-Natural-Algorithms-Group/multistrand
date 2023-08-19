@@ -162,5 +162,17 @@ cython_debug/
 # Multistrand
 *.idea
 *.txt
+*.pyc
+build/
+*.bak
+*.idea
+*.o
+*.so
+*.egg
+multistrand
+.DS_STORE
+*.egg-info
+*-checkpoint.ipynb
+*.whl
 *.sif
 *.img

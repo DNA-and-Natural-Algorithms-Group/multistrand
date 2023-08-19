@@ -30,6 +30,27 @@
   `Options.verbosity`.
 - Transition types are now computed only if they are used in the kinetic model
   (`rate_method == 'Arrhenius'`).
+- Migrated support from Nupack3 to Nupack4
+- Transitioned energy models to `dna04`/`rna06`
+- Created `utils.thermo` to wrap nupack util functions (multistrand doesn't account for coaxial stacking)
+- Internal Boltzmann sampling uses updated nupack's `sample`
+- Updated Jupyter Notebooks (`under_the_hood_notebooks`) to reflect changes in options as well as Python Migration
+- Added constants (e.g. Boltzmann/C2K) to `options` or `utils.thermo` to minimize redefinitions for user
+- Corrected undefined behavior related to loop indexing vs array indexing
+- Corrected undefined behavior related to printing adjacent loops
+- Added error message when `$NUPACKHOME` isn't set correctly
+- Illegal initial structures that cause undefined behavior are now caught
+- Shifted code from assertions in order to allow compilation with `NDEBUG`  
+- New `BaseType` which replaces the previous `char` encoding method of passing sequence. Better readability
+- Reduced number of compiler warnings
+- Missing return statements fixed which caused segfaults
+- Removed some unnecessary manual memory management between the Python and C++ layers.
+- `MergeSim` concurrency uses `spawn` to properly isolate nupack utilities.
+- Prevented repeated intermediate prints when using `MergeSim` due to `multiprocess` 
+- Created `reuse_energymodel` option to minimize disk reads
+- Fixed reference count bug which "mangles" complex objects. No longer crashes when accessing a complex post simulation
+- General cleanup of print statements
+- Introduced `const` expressions for better compile time optimization
 
 ## Release 2.1 (May 2018)
 

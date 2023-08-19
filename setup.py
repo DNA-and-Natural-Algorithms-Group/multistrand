@@ -16,8 +16,11 @@ setup(ext_modules=[Extension(
     name="multistrand.system",
     include_dirs=["./src/include"],
     language="c++",
-    undef_macros=['NDEBUG'],
-    # define_macros=[('DEBUG_MACROS', None)],
-    extra_compile_args = ["-O3", "-std=c++11", "-Wall", "-Wconversion"],
+    #undef_macros=['NDEBUG'],
+    define_macros=[('DEBUG_MACROS', None)],
+    extra_compile_args =  ['-O3', '-w', "-std=c++11", "-DNDEBUG"],
     sources=[f"src/{d}/{f}.cc" for d, fs in sources.items()
              for f in fs.split(" ")])])
+
+# ['-O3', '-w', "-std=c++11", "-DNDEBUG"]
+# ['-O0', '-w', "-std=c++11", "-g", "-Wall", "-fno-inline"] dont forget undef ndebug
