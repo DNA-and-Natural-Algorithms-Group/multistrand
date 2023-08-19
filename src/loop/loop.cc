@@ -550,7 +550,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 	}
 
 	if (identify(start, end, 'S', 'O')) {
-
 		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'S');
 		StackLoop* start_ = (StackLoop*) ordered.first;
 		OpenLoop* end_ = (OpenLoop*) ordered.second;
@@ -1382,6 +1381,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 	int s_index = 0;
 	int e_index = 0;
 
+    int replace_successful = 0;
+
 	if (identify(start, end, 'S', 'S')) {
 
 		StackLoop* start_ = (StackLoop*) end;
@@ -1392,11 +1393,13 @@ Loop *Loop::performDeleteMove(Move *move) {
 		newLoop = new InteriorLoop(
 			1, 1, start_->seqs[s_index], end_->seqs[e_index]);
 		newLoop->addAdjacent(start_->adjacentLoops[s_index]);
-		// TODO: fix this! asserts generate no code when NDEBUG is set!
-		assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
+
+	    replace_successful = start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop);
+		assert(replace_successful > 0);
 		newLoop->addAdjacent(end_->adjacentLoops[e_index]);
-		// TODO: fix this too! see above comment.
-		assert(end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop) > 0);
+
+		replace_successful = end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop);
+		assert(replace_successful > 0);
 
 		newLoop->generateMoves();
 
@@ -1431,20 +1434,23 @@ Loop *Loop::performDeleteMove(Move *move) {
 			end_->sizes[1 - e_index] + 1, end_->sizes[e_index] + 1,
 			start_->seqs[s_index], end_->int_seq[e_index]);
 		newLoop->addAdjacent(start_->adjacentLoops[s_index]);
-		// TODO: fix this! asserts generate no code when NDEBUG is set!
-		assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
+
+		replace_successful = start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop);
+		assert(replace_successful > 0);
 		newLoop->addAdjacent(end_->adjacentLoops[e_index]);
-		// TODO: fix this too! see above comment.
-		assert(end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop) > 0);
+
+        replace_successful = end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop);
+		assert(replace_successful > 0);
 //
 //		} else {
 //			newLoop = new InteriorLoop(end_->sizes[e_index] + 1, end_->sizes[1 - e_index] + 1, end_->int_seq[e_index], start_->seqs[s_index]);
 //			newLoop->addAdjacent(end_->adjacentLoops[e_index]);
-//			// TODO: fix this too! see above comment.
-//			assert(end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop) > 0);
+//          replace_successful = end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop);
+//			assert(replace_successful > 0);
 //			newLoop->addAdjacent(start_->adjacentLoops[s_index]);
-//			// TODO: fix this! asserts generate no code when NDEBUG is set!
-//			assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
+//			replace_successful = start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop);
+//			assert(replace_successful > 0);
+//
 //		}
 
 		newLoop->generateMoves();
@@ -1476,20 +1482,21 @@ Loop *Loop::performDeleteMove(Move *move) {
 			end_->bulgesize[1 - e_index] + 1, end_->bulgesize[e_index] + 1,
 			start_->seqs[s_index], end_->bulge_seq[e_index]);
 		newLoop->addAdjacent(start_->adjacentLoops[s_index]);
-		// TODO: fix this! asserts generate no code when NDEBUG is set!
-		assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
+		replace_successful = start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop);
+		assert(replace_successful > 0);
 		newLoop->addAdjacent(end_->adjacentLoops[e_index]);
-		// TODO: fix this too! see above comment.
-		assert(end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop) > 0);
+		replace_successful = end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop);
+		assert(replace_successful > 0);
 
 		//		} else {
 //			newLoop = new InteriorLoop(end_->bulgesize[e_index] + 1, end_->bulgesize[1 - e_index] + 1, end_->bulge_seq[e_index], start_->seqs[s_index]);
 //			newLoop->addAdjacent(end_->adjacentLoops[e_index]);
-//			// TODO: fix this too! see above comment.
-//			assert(end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop) > 0);
+//          replace_successful = end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop);
+//			assert(replace_successful > 0);
 //			newLoop->addAdjacent(start_->adjacentLoops[s_index]);
-//			// TODO: fix this! asserts generate no code when NDEBUG is set!
-//			assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
+//			replace_successful = start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop);
+//			assert(replace_successful > 0);
+//
 //		}
 
 		newLoop->generateMoves();
@@ -1521,8 +1528,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 		newLoop = new HairpinLoop(end_->hairpinsize + 2, start_->seqs[s_index]);
 
 		newLoop->addAdjacent(start_->adjacentLoops[s_index]);
-		// TODO: fix this! asserts generate no code when NDEBUG is set!
-		assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
+		replace_successful = start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop);
+		assert(replace_successful > 0);
 
 		newLoop->generateMoves();
 
@@ -1675,21 +1682,23 @@ Loop *Loop::performDeleteMove(Move *move) {
 			end_->sizes[e_index] + start_->sizes[1 - s_index] + 1,
 			start_->int_seq[s_index], end_->int_seq[e_index]);
 		newLoop->addAdjacent(start_->adjacentLoops[s_index]);
-		// TODO: fix this! asserts generate no code when NDEBUG is set!
-		assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
+		replace_successful = start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop);
+		assert(replace_successful > 0);
 		newLoop->addAdjacent(end_->adjacentLoops[e_index]);
-		// TODO: fix this too! see above comment.
-		assert(end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop) > 0);
+
+		replace_successful = end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop);
+		assert(replace_successful > 0);
 
 //		} else {
 //			newLoop = new InteriorLoop(end_->sizes[e_index] + start_->sizes[1 - s_index] + 1, end_->sizes[1 - e_index] + start_->sizes[s_index] + 1,
 //					end_->int_seq[e_index], start_->int_seq[s_index]);
 //			newLoop->addAdjacent(end_->adjacentLoops[e_index]);
-//			// TODO: fix this too! see above comment.
-//			assert(end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop) > 0);
+//			replace_successful = end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop);
+//			assert(replace_successful > 0);
 //			newLoop->addAdjacent(start_->adjacentLoops[s_index]);
-//			// TODO: fix this! asserts generate no code when NDEBUG is set!
-//			assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
+//			replace_successful = start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop);
+//			assert(replace_successful > 0);
+//
 //		}
 
 		newLoop->generateMoves();
@@ -1722,21 +1731,22 @@ Loop *Loop::performDeleteMove(Move *move) {
 			end_->bulgesize[e_index] + 1 + start_->sizes[1 - s_index],
 			start_->int_seq[s_index], end_->bulge_seq[e_index]);
 		newLoop->addAdjacent(start_->adjacentLoops[s_index]);
-		// TODO: fix this! asserts generate no code when NDEBUG is set!
-		assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
+		replace_successful = start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop);
+		assert(replace_successful > 0);
 		newLoop->addAdjacent(end_->adjacentLoops[e_index]);
-		// TODO: fix this too! see above comment.
-		assert(end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop) > 0);
+        replace_successful = end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop);
+		assert(replace_successful > 0);
 
 		//		} else {
 //			newLoop = new InteriorLoop(end_->bulgesize[e_index] + 1 + start_->sizes[1 - s_index], end_->bulgesize[1 - e_index] + 1 + start_->sizes[s_index],
 //					end_->bulge_seq[e_index], start_->int_seq[s_index]);
 //			newLoop->addAdjacent(end_->adjacentLoops[e_index]);
-//			// TODO: fix this too! see above comment.
-//			assert(end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop) > 0);
+//			replace_successful = end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop);
+//			assert(replace_successful > 0);
 //			newLoop->addAdjacent(start_->adjacentLoops[s_index]);
-//			// TODO: fix this! asserts generate no code when NDEBUG is set!
-//			assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
+//			replace_successful = start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop);
+//			assert(replace_successful > 0);
+//
 //		}
 
 		newLoop->generateMoves();
@@ -1770,8 +1780,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 			end_->hairpinsize + 2 + start_->sizes[0] + start_->sizes[1],
 			start_->int_seq[s_index]);
 		newLoop->addAdjacent(start_->adjacentLoops[s_index]);
-		// TODO: fix this! asserts generate no code when NDEBUG is set!
-		assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
+		replace_successful = start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop);
+		assert(replace_successful > 0);
 
 		newLoop->generateMoves();
 
@@ -1928,21 +1938,23 @@ Loop *Loop::performDeleteMove(Move *move) {
 			end_->bulgesize[e_index] + start_->bulgesize[1 - s_index] + 1,
 			start_->bulge_seq[s_index], end_->bulge_seq[e_index]);
 		newLoop->addAdjacent(start_->adjacentLoops[s_index]);
-		// TODO: fix this! asserts generate no code when NDEBUG is set!
-		assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
+		replace_successful = start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop);
+		assert(replace_successful > 0);
 		newLoop->addAdjacent(end_->adjacentLoops[e_index]);
-		// TODO: fix this too! see above comment.
-		assert(end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop) > 0);
+
+		replace_successful = end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop);
+		assert(replace_successful > 0);
 
 //		} else {
 //			newLoop = new InteriorLoop(end_->bulgesize[e_index] + start_->bulgesize[1 - s_index] + 1,
 //					end_->bulgesize[1 - e_index] + start_->bulgesize[s_index] + 1, end_->bulge_seq[e_index], start_->bulge_seq[s_index]);
 //			newLoop->addAdjacent(end_->adjacentLoops[e_index]);
-//			// TODO: fix this too! see above comment.
-//			assert(end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop) > 0);
+//			replace_successful = end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop);
+//			assert(replace_successful > 0);
 //			newLoop->addAdjacent(start_->adjacentLoops[s_index]);
-//			// TODO: fix this! asserts generate no code when NDEBUG is set!
-//			assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
+//			replace_successful = start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop);
+//			assert(replace_successful > 0);
+//
 //		}
 
 		newLoop->generateMoves();
@@ -1976,8 +1988,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 			end_->hairpinsize + 2 + start_->bulgesize[0] + start_->bulgesize[1],
 			start_->bulge_seq[s_index]);
 		newLoop->addAdjacent(start_->adjacentLoops[s_index]);
-		// TODO: fix this! asserts generate no code when NDEBUG is set!
-		assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
+		replace_successful = start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop);
+		assert(replace_successful > 0);
 
 		newLoop->generateMoves();
 
@@ -2601,6 +2613,8 @@ BaseType *StackLoop::getLocation(Move *move, int index) {
 		else if (adjacentLoops[1] == move->affected[0] || adjacentLoops[1] == move->affected[1])
 			return seqs[1];
 	}
+	fprintf(stderr, "Error: getLocation was given wrong input loop.cc\n");
+	exit(1);
 	assert(0);
 }
 
