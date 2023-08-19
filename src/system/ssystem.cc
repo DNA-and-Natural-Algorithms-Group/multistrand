@@ -16,17 +16,13 @@ The Multistrand Team (help@multistrand.org)
 #include <iostream>
 
 SimulationSystem::SimulationSystem(PyObject *system_o) {
-
 	system_options = system_o;
 	simOptions = new PSimOptions(system_o);
-
 	construct();
 	energyModel->writeConstantsToFile();
-
 }
 
 SimulationSystem::SimulationSystem(SimOptions* options) {
-
 	system_options = NULL;
 	simOptions = options;
 
@@ -40,9 +36,11 @@ void SimulationSystem::construct(void) {
 	simulation_mode = simOptions->getSimulationMode();
 	simulation_count_remaining = simOptions->getSimulationCount();
 
-	if (simOptions->reuseEnergyModel) {
+	if (simOptions->reuseEnergyModel && Loop::GetEnergyModel() != NULL) {
 		energyModel = Loop::GetEnergyModel();
-	} else {
+		energyModel->simOptions = simOptions;
+	}
+	 if(energyModel == NULL || !simOptions->reuseEnergyModel){
 		energyModel = new NupackEnergyModel(simOptions->getPythonSettings());
 		Loop::SetEnergyModel(energyModel);
 	}
@@ -84,7 +82,7 @@ SimulationSystem::~SimulationSystem(void) {
 // the remaining members are not our responsibility, we null them out
 // just in case something thread-unsafe happens.
 
-	if (energyModel != NULL) {
+	if (energyModel != NULL && !simOptions->reuseEnergyModel) {
 		delete energyModel;
 	}
 
