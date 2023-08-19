@@ -9,7 +9,7 @@ This is important for hashing functions
 """
 
 from multistrand.system import SimSystem
-from multistrand.utils import printTrajectory
+from multistrand.utils.utility import printTrajectory
 from multistrand.experiment import standardOptions, hybridization
 
     

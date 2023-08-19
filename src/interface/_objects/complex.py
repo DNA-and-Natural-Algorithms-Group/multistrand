@@ -4,6 +4,7 @@
 
 from functools import reduce
 
+from ..utils.thermo import Model, sample
 import numpy as np
 
 from .strand import Strand
@@ -254,8 +255,10 @@ class Complex:
         self._temperature = temperature
         self._sodium = sodium
         self._magnesium = magnesium
-    
+
+
     def generate_boltzmann_structure(self):
+
         """
         Create a new boltzmann sampled structure for this complex.
         
@@ -268,15 +271,7 @@ class Complex:
         if len(self._boltzmann_queue) > 0:
             self._pop_boltzmann()
             return
-        
-        import tempfile, os
-        from .. import _call
-        
-        tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".sample")
-        tmp.close()
-        # we close it here as some OS's have issues opening the same file
-        # simultaneous. Will reopen it later to get the data back out.
-        
+
         # set up the # of structures to grab from the file, max out at
         # ~100 so we don't use too much CPU on this step. JS's testing
         # timed a 100 count at ~ .1s and 10 and 1 counts were almost
@@ -287,85 +282,21 @@ class Complex:
         if self._boltzmann_sizehint > self.MAX_SAMPLES_AT_ONCE * self.boltzmann_supersample:
             count = self.MAX_SAMPLES_AT_ONCE
         elif self._boltzmann_sizehint >= 1:
-            count = (self._boltzmann_sizehint / self.MAX_SAMPLES_AT_ONCE) + 1
+            count = int(self._boltzmann_sizehint / self.MAX_SAMPLES_AT_ONCE) + 1
         else:
             count = 1
-        
-        # print "Getting %d Boltzmann samples..." % count
-        
-        # Notes:
-        # 1) As of NUPACK 3.0.2, 'sample' is in the standard distribution
-        #    and does the Boltzmann sampling we need. So we look in $NUPACKHOME/bin first.  
-        # 2) Otherwise, 'sample' should be found using your user $PATH.
-        # 3) Beware that there is a standard BSD tool with that name: if you are using OS X, 
-        #    make sure that your path to the nupack 'sample' occurs before /usr/bin or it may not find it correctly.
-        
-        if 'NUPACKHOME' in os.environ:
-            if '3.0' in os.environ['NUPACKHOME']:
-                sample_exec = os.environ['NUPACKHOME'] + '/bin/sample'
-            if '3.2' in os.environ['NUPACKHOME']:
-                sample_exec = os.environ['NUPACKHOME'] + '/build/bin/sample'
-        else:
-            sample_exec = 'sample' 
-        
-        material = []
-        if self._substrate_type == None:
-            material = ['-material', 'dna']
-        else:
-            # should always be a string via the caller inverting any int index into Constants.SUBSTRATE_TYPE strings.
-            material = ['-material', self._substrate_type.lower()]
-        
-        dangles = []
-        if self._dangles == None:
-            pass
-        else:
-            dangles = ['-dangles', self._dangles.lower()]  # Note that self._dangles should always be the string as long as the calls to the setter always invert the int back into string form. NUPACK appears to use the lowercase string name as the dangles names.
-        
-        temperature = []
-        if self._temperature == None:
-            pass
-        else:
-            temperature = ['-T', '{0}'.format(self._temperature)]
-            
-        sodium = []
-        if self._sodium == None:
-            pass
-        else:
-            sodium = ['-sodium', '{0}'.format(self._sodium)]
-            
-        magnesium = []
-        if self._magnesium == None:
-            pass
-        else:
-            magnesium = ['-magnesium', '{0}'.format(self._magnesium)]            
-        
-        # editing here by EW 1/26/2014 to update from NUPACK 2.1 command line options & output to NUPACK 3.0.2
-        #  FD 2018: added sodium , magnesium 
-        nupack_params = (
-            [sample_exec, "-multi"] + material + dangles + temperature +
-            sodium + magnesium + ["-samples", str(count)])
 
-        # new: NUPACK 3.0.2 takes the file name as user input
-        input_str = "{0}\n{1}\n{2}\n{3}\n".format(tmp.name[:-7],
-                                                   len(self.strand_list),
-                                                   "\n".join([i.sequence for i in self.strand_list]),
-                                                   " ".join([str(i + 1) for i in range(len(self.strand_list))])
-                                                 )
-        result = _call(nupack_params, input_str)
-        _ = result.stdout
-        with open(tmp.name, "rt") as f:
-            lines = f.readlines()
-        os.remove(tmp.name)  # was created by us [NamedTemporaryFile] and
-                            # used by the sampler, thus we need to clean it up.
-        if not ("NUPACK 3.0" in lines[0] or 'NUPACK 3.2' in lines[0]):
-            raise OSError("Boltzmann sample function is not up to date. NUPACK 3.2.0 or greater needed.")
-        
-        self._boltzmann_queue = lines[14:] * self.boltzmann_supersample
+        sequence = []
+        for strand in self.strand_list:
+            sequence.append(strand.sequence)
+
+        model = Model(material=self._substrate_type, ensemble=self._dangles, celsius=self._temperature, sodium=self._sodium, magnesium=self._magnesium)
+        results = sample(sequence, model=model, num_sample=count)
+
+        self._boltzmann_queue = results
+
         if len(self._boltzmann_queue) < 1:
-            raise OSError("Did not get any results back from the Boltzmann sample function.")
-        
-        # print "This is the (length %d) queue:" % len(self._boltzmann_queue)
-        # print lines[14:]
+            raise IOError("Did not get any results back from the Boltzmann sample function.")
 
         self._pop_boltzmann()
     
@@ -382,5 +313,5 @@ class Complex:
         poke the complexes and reset the size hint back upwards if they
         need to use more, rather than making this pop smart about dynamic
         resizing of the requested amounts."""
-        self._last_boltzmann_structure = self._boltzmann_queue.pop().strip()
+        self._last_boltzmann_structure = str(self._boltzmann_queue.pop())
         self._boltzmann_sizehint -= 1

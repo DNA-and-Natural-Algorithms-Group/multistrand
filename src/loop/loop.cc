@@ -15,6 +15,7 @@ The Multistrand Team (help@multistrand.org)
 #include "moveutil.h"
 #include <simoptions.h>
 #include <energyoptions.h>
+#include "basetype.h"
 
 using std::string;
 
@@ -127,15 +128,16 @@ double Loop::returnFlux(Loop *comefrom) {
 	return total;
 }
 
-uint16_t Loop::getMoveCount(Loop* comefrom) {
+int Loop::getMoveCount(Loop* comefrom) {
 
 	assert(moves != NULL);
-	uint16_t output = moves->getCount();
+	int output = moves->getCount();
 
 	for (int loop = 0; loop < curAdjacent; loop++) {
 
 		if (adjacentLoops[loop] != comefrom) {
-			output = output + adjacentLoops[loop]->getMoveCount(this);
+		    int count = adjacentLoops[loop]->getMoveCount(this);
+			output = output + count;
 		}
 
 		assert(adjacentLoops[loop] != NULL);
@@ -235,9 +237,8 @@ void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen) 
 	OpenLoop *tempLoop[2], *newLoop;
 	int index[2], sizes[2], loop, flipflop = 0, temp;
 
-	int *pairtypes = NULL;
 	int *sidelen = NULL;
-	char **seqs = NULL;
+	BaseType **seqs = NULL;
 
 	index[1] = -1;
 
@@ -257,7 +258,7 @@ void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen) 
 	for (flipflop = 0; flipflop < 2; flipflop++) {
 
 		sidelen = new int[sizes[flipflop] + 1];
-		seqs = new char *[sizes[flipflop] + 1];
+		seqs = new BaseType *[sizes[flipflop] + 1];
 
 		for (loop = 0; loop < sizes[flipflop] + 1; loop++) {
 			if (loop < index[flipflop]) {
@@ -374,7 +375,6 @@ void Loop::printAllMoves(Loop* from) {
 }
 
 void Loop::generateAndSaveDeleteMove(Loop* input, int position) {
-
 	RateArr tempRate = Loop::generateDeleteMoveRate(this, input);
 	RateEnv rateEnv = RateEnv(tempRate.rate, energyModel, tempRate.left, tempRate.right);
 
@@ -394,7 +394,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 	MoveType right = stackMove;
 	int s_index = 0;
 	int e_index = 0;
-
 	if (identify(start, end, 'S', 'S')) {
 
 		StackLoop *start_ = (StackLoop *) start;
@@ -517,7 +516,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		// FD: s_index is the index of the attached loop for stackloop start_
 
 		int *sidelens = new int[end_->numAdjacent];
-		char **seqs = new char *[end_->numAdjacent];
+		BaseType **seqs = new BaseType *[end_->numAdjacent];
 
 		for (int loop = 0; loop < end_->numAdjacent; loop++) {
 			if (loop != e_index) {
@@ -551,7 +550,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 	}
 
 	if (identify(start, end, 'S', 'O')) {
-
 		std::pair<Loop*, Loop*> ordered = orderMyLoops(start, end, 'S');
 		StackLoop* start_ = (StackLoop*) ordered.first;
 		OpenLoop* end_ = (OpenLoop*) ordered.second;
@@ -570,7 +568,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		// note e_index has different meaning now for openloops.
 
 		int *sidelens = new int[end_->numAdjacent + 1];
-		char **seqs = new char *[end_->numAdjacent + 1];
+		BaseType **seqs = new BaseType *[end_->numAdjacent + 1];
 
 		for (int loop = 0; loop < end_->numAdjacent + 1; loop++) {
 			if (loop == e_index) {
@@ -589,7 +587,6 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 			end_->numAdjacent, sidelens, seqs);
 		old_energy = start->getEnergy() + end->getEnergy();
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
-
 		delete[] sidelens;
 		delete[] seqs;
 
@@ -701,7 +698,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		// note e_index has different meaning now for multiloops.
 
 		int *sidelens = new int[end_->numAdjacent];
-		char **seqs = new char *[end_->numAdjacent];
+		BaseType **seqs = new BaseType *[end_->numAdjacent];
 
 		for (int loop = 0; loop < end_->numAdjacent; loop++) {
 			if (loop != e_index) {
@@ -754,7 +751,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		// note e_index has different meaning now for openloops.
 
 		int *sidelens = new int[end_->numAdjacent + 1];
-		char **seqs = new char *[end_->numAdjacent + 1];
+		BaseType **seqs = new BaseType *[end_->numAdjacent + 1];
 
 		for (int loop = 0; loop < end_->numAdjacent + 1; loop++) {
 			if (loop == e_index) {
@@ -851,7 +848,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		// note e_index has different meaning now for multiloops.
 
 		int *sidelens = new int[end_->numAdjacent];
-		char **seqs = new char *[end_->numAdjacent];
+		BaseType **seqs = new BaseType *[end_->numAdjacent];
 
 		for (int loop = 0; loop < end_->numAdjacent; loop++) {
 			if (loop != e_index) {
@@ -905,7 +902,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		// note e_index has different meaning now for openloops.
 
 		int *sidelens = new int[end_->numAdjacent + 1];
-		char **seqs = new char *[end_->numAdjacent + 1];
+		BaseType **seqs = new BaseType *[end_->numAdjacent + 1];
 
 		for (int loop = 0; loop < end_->numAdjacent + 1; loop++) {
 			if (loop == e_index) {
@@ -1017,7 +1014,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		} else if (end_->numAdjacent > 3)  // multiloop case
 		{
 			int *sidelens = new int[end_->numAdjacent - 1];
-			char **seqs = new char *[end_->numAdjacent - 1];
+			BaseType **seqs = new BaseType *[end_->numAdjacent - 1];
 
 			for (int loop = 0; loop < end_->numAdjacent; loop++) {
 				if (loop != e_index) {
@@ -1073,7 +1070,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		// note e_index has different meaning now for openloops.
 
 		int *sidelens = new int[end_->numAdjacent];
-		char **seqs = new char *[end_->numAdjacent];
+		BaseType **seqs = new BaseType *[end_->numAdjacent];
 
 		for (int loop = 0; loop < end_->numAdjacent + 1; loop++) {
 			if (loop < e_index) {
@@ -1134,7 +1131,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		// note e_index has different meaning now for multiloops.
 
 		int *sidelens = new int[end_->numAdjacent + start_->numAdjacent - 2];
-		char **seqs = new char *[end_->numAdjacent + start_->numAdjacent - 2];
+		BaseType **seqs = new BaseType *[end_->numAdjacent + start_->numAdjacent - 2];
 
 		index = 0;
 		for (int loop = 0; loop < start_->numAdjacent; loop++) {
@@ -1200,7 +1197,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		// note e_index has different meaning now for multiloops.
 
 		int *sidelens = new int[end_->numAdjacent + start_->numAdjacent - 1];
-		char **seqs = new char *[end_->numAdjacent + start_->numAdjacent - 1];
+		BaseType **seqs = new BaseType *[end_->numAdjacent + start_->numAdjacent - 1];
 
 		index = 0;
 		for (int loop = 0; loop <= start_->numAdjacent; loop++) {
@@ -1219,15 +1216,14 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 					index++;
 			} else {
 				for (int loop2 = 1; loop2 < end_->numAdjacent; loop2++) {
-					int temp = (e_index + loop2) % end_->numAdjacent;
-					int temp2 = (e_index + loop2 - 1) % end_->numAdjacent;
+					int temp = (e_index + loop2 - 1) % end_->numAdjacent;
 
 					if (loop2 == 1) {
 						sidelens[index] = end_->sidelen[e_index] + start_->sidelen[s_index] + 1;
 						seqs[index] = start_->seqs[s_index];
 					} else {
-						sidelens[index] = end_->sidelen[temp2];
-						seqs[index] = end_->seqs[temp2];
+						sidelens[index] = end_->sidelen[temp];
+						seqs[index] = end_->seqs[temp];
 					}
 					index++;
 				}
@@ -1262,10 +1258,10 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		OpenLoop *tempLoop[2];
 		double new_energies[2] = { 0.0, 0.0 };
-		int index[2], sizes[2], loop, flipflop = 0, temp;
+		int index[2], sizes[2], loop, flipflop = 0;
 
 		int *sidelen = NULL;
-		char **seqs = NULL;
+		BaseType **seqs = NULL;
 
 		tempLoop[0] = (OpenLoop *) start;
 		tempLoop[1] = (OpenLoop *) end;
@@ -1288,7 +1284,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		for (flipflop = 0; flipflop < 2; flipflop++) {
 			sidelen = new int[sizes[flipflop] + 1];
-			seqs = new char *[sizes[flipflop] + 1];
+			seqs = new BaseType *[sizes[flipflop] + 1];
 
 			for (loop = 0; loop < sizes[flipflop] + 1; loop++) {
 				if (loop < index[flipflop]) {
@@ -1385,6 +1381,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 	int s_index = 0;
 	int e_index = 0;
 
+    int replace_successful = 0;
+
 	if (identify(start, end, 'S', 'S')) {
 
 		StackLoop* start_ = (StackLoop*) end;
@@ -1395,11 +1393,13 @@ Loop *Loop::performDeleteMove(Move *move) {
 		newLoop = new InteriorLoop(
 			1, 1, start_->seqs[s_index], end_->seqs[e_index]);
 		newLoop->addAdjacent(start_->adjacentLoops[s_index]);
-		// TODO: fix this! asserts generate no code when NDEBUG is set!
-		assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
+
+	    replace_successful = start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop);
+		assert(replace_successful > 0);
 		newLoop->addAdjacent(end_->adjacentLoops[e_index]);
-		// TODO: fix this too! see above comment.
-		assert(end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop) > 0);
+
+		replace_successful = end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop);
+		assert(replace_successful > 0);
 
 		newLoop->generateMoves();
 
@@ -1434,20 +1434,23 @@ Loop *Loop::performDeleteMove(Move *move) {
 			end_->sizes[1 - e_index] + 1, end_->sizes[e_index] + 1,
 			start_->seqs[s_index], end_->int_seq[e_index]);
 		newLoop->addAdjacent(start_->adjacentLoops[s_index]);
-		// TODO: fix this! asserts generate no code when NDEBUG is set!
-		assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
+
+		replace_successful = start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop);
+		assert(replace_successful > 0);
 		newLoop->addAdjacent(end_->adjacentLoops[e_index]);
-		// TODO: fix this too! see above comment.
-		assert(end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop) > 0);
+
+        replace_successful = end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop);
+		assert(replace_successful > 0);
 //
 //		} else {
 //			newLoop = new InteriorLoop(end_->sizes[e_index] + 1, end_->sizes[1 - e_index] + 1, end_->int_seq[e_index], start_->seqs[s_index]);
 //			newLoop->addAdjacent(end_->adjacentLoops[e_index]);
-//			// TODO: fix this too! see above comment.
-//			assert(end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop) > 0);
+//          replace_successful = end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop);
+//			assert(replace_successful > 0);
 //			newLoop->addAdjacent(start_->adjacentLoops[s_index]);
-//			// TODO: fix this! asserts generate no code when NDEBUG is set!
-//			assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
+//			replace_successful = start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop);
+//			assert(replace_successful > 0);
+//
 //		}
 
 		newLoop->generateMoves();
@@ -1479,20 +1482,21 @@ Loop *Loop::performDeleteMove(Move *move) {
 			end_->bulgesize[1 - e_index] + 1, end_->bulgesize[e_index] + 1,
 			start_->seqs[s_index], end_->bulge_seq[e_index]);
 		newLoop->addAdjacent(start_->adjacentLoops[s_index]);
-		// TODO: fix this! asserts generate no code when NDEBUG is set!
-		assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
+		replace_successful = start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop);
+		assert(replace_successful > 0);
 		newLoop->addAdjacent(end_->adjacentLoops[e_index]);
-		// TODO: fix this too! see above comment.
-		assert(end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop) > 0);
+		replace_successful = end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop);
+		assert(replace_successful > 0);
 
 		//		} else {
 //			newLoop = new InteriorLoop(end_->bulgesize[e_index] + 1, end_->bulgesize[1 - e_index] + 1, end_->bulge_seq[e_index], start_->seqs[s_index]);
 //			newLoop->addAdjacent(end_->adjacentLoops[e_index]);
-//			// TODO: fix this too! see above comment.
-//			assert(end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop) > 0);
+//          replace_successful = end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop);
+//			assert(replace_successful > 0);
 //			newLoop->addAdjacent(start_->adjacentLoops[s_index]);
-//			// TODO: fix this! asserts generate no code when NDEBUG is set!
-//			assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
+//			replace_successful = start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop);
+//			assert(replace_successful > 0);
+//
 //		}
 
 		newLoop->generateMoves();
@@ -1524,8 +1528,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 		newLoop = new HairpinLoop(end_->hairpinsize + 2, start_->seqs[s_index]);
 
 		newLoop->addAdjacent(start_->adjacentLoops[s_index]);
-		// TODO: fix this! asserts generate no code when NDEBUG is set!
-		assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
+		replace_successful = start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop);
+		assert(replace_successful > 0);
 
 		newLoop->generateMoves();
 
@@ -1556,7 +1560,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 		// note e_index has different meaning now for multiloops.
 
 		int *sidelens = new int[end_->numAdjacent];
-		char **seqs = new char *[end_->numAdjacent];
+		BaseType **seqs = new BaseType *[end_->numAdjacent];
 
 		for (int loop = 0; loop < end_->numAdjacent; loop++) {
 			if (loop != e_index) {
@@ -1619,7 +1623,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 		// note e_index has different meaning now for openloops.
 
 		int *sidelens = new int[end_->numAdjacent + 1];
-		char **seqs = new char *[end_->numAdjacent + 1];
+		BaseType **seqs = new BaseType *[end_->numAdjacent + 1];
 
 		for (int loop = 0; loop < end_->numAdjacent + 1; loop++) {
 			if (loop == e_index) {
@@ -1678,21 +1682,23 @@ Loop *Loop::performDeleteMove(Move *move) {
 			end_->sizes[e_index] + start_->sizes[1 - s_index] + 1,
 			start_->int_seq[s_index], end_->int_seq[e_index]);
 		newLoop->addAdjacent(start_->adjacentLoops[s_index]);
-		// TODO: fix this! asserts generate no code when NDEBUG is set!
-		assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
+		replace_successful = start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop);
+		assert(replace_successful > 0);
 		newLoop->addAdjacent(end_->adjacentLoops[e_index]);
-		// TODO: fix this too! see above comment.
-		assert(end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop) > 0);
+
+		replace_successful = end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop);
+		assert(replace_successful > 0);
 
 //		} else {
 //			newLoop = new InteriorLoop(end_->sizes[e_index] + start_->sizes[1 - s_index] + 1, end_->sizes[1 - e_index] + start_->sizes[s_index] + 1,
 //					end_->int_seq[e_index], start_->int_seq[s_index]);
 //			newLoop->addAdjacent(end_->adjacentLoops[e_index]);
-//			// TODO: fix this too! see above comment.
-//			assert(end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop) > 0);
+//			replace_successful = end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop);
+//			assert(replace_successful > 0);
 //			newLoop->addAdjacent(start_->adjacentLoops[s_index]);
-//			// TODO: fix this! asserts generate no code when NDEBUG is set!
-//			assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
+//			replace_successful = start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop);
+//			assert(replace_successful > 0);
+//
 //		}
 
 		newLoop->generateMoves();
@@ -1725,21 +1731,22 @@ Loop *Loop::performDeleteMove(Move *move) {
 			end_->bulgesize[e_index] + 1 + start_->sizes[1 - s_index],
 			start_->int_seq[s_index], end_->bulge_seq[e_index]);
 		newLoop->addAdjacent(start_->adjacentLoops[s_index]);
-		// TODO: fix this! asserts generate no code when NDEBUG is set!
-		assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
+		replace_successful = start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop);
+		assert(replace_successful > 0);
 		newLoop->addAdjacent(end_->adjacentLoops[e_index]);
-		// TODO: fix this too! see above comment.
-		assert(end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop) > 0);
+        replace_successful = end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop);
+		assert(replace_successful > 0);
 
 		//		} else {
 //			newLoop = new InteriorLoop(end_->bulgesize[e_index] + 1 + start_->sizes[1 - s_index], end_->bulgesize[1 - e_index] + 1 + start_->sizes[s_index],
 //					end_->bulge_seq[e_index], start_->int_seq[s_index]);
 //			newLoop->addAdjacent(end_->adjacentLoops[e_index]);
-//			// TODO: fix this too! see above comment.
-//			assert(end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop) > 0);
+//			replace_successful = end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop);
+//			assert(replace_successful > 0);
 //			newLoop->addAdjacent(start_->adjacentLoops[s_index]);
-//			// TODO: fix this! asserts generate no code when NDEBUG is set!
-//			assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
+//			replace_successful = start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop);
+//			assert(replace_successful > 0);
+//
 //		}
 
 		newLoop->generateMoves();
@@ -1773,8 +1780,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 			end_->hairpinsize + 2 + start_->sizes[0] + start_->sizes[1],
 			start_->int_seq[s_index]);
 		newLoop->addAdjacent(start_->adjacentLoops[s_index]);
-		// TODO: fix this! asserts generate no code when NDEBUG is set!
-		assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
+		replace_successful = start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop);
+		assert(replace_successful > 0);
 
 		newLoop->generateMoves();
 
@@ -1805,7 +1812,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 		// note e_index has different meaning now for multiloops.
 
 		int *sidelens = new int[end_->numAdjacent];
-		char **seqs = new char *[end_->numAdjacent];
+		BaseType **seqs = new BaseType *[end_->numAdjacent];
 
 		for (int loop = 0; loop < end_->numAdjacent; loop++) {
 			if (loop != e_index) {
@@ -1869,7 +1876,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 		// note e_index has different meaning now for openloops.
 
 		int *sidelens = new int[end_->numAdjacent + 1];
-		char **seqs = new char *[end_->numAdjacent + 1];
+		BaseType **seqs = new BaseType *[end_->numAdjacent + 1];
 
 		for (int loop = 0; loop < end_->numAdjacent + 1; loop++) {
 			if (loop == e_index) {
@@ -1931,21 +1938,23 @@ Loop *Loop::performDeleteMove(Move *move) {
 			end_->bulgesize[e_index] + start_->bulgesize[1 - s_index] + 1,
 			start_->bulge_seq[s_index], end_->bulge_seq[e_index]);
 		newLoop->addAdjacent(start_->adjacentLoops[s_index]);
-		// TODO: fix this! asserts generate no code when NDEBUG is set!
-		assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
+		replace_successful = start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop);
+		assert(replace_successful > 0);
 		newLoop->addAdjacent(end_->adjacentLoops[e_index]);
-		// TODO: fix this too! see above comment.
-		assert(end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop) > 0);
+
+		replace_successful = end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop);
+		assert(replace_successful > 0);
 
 //		} else {
 //			newLoop = new InteriorLoop(end_->bulgesize[e_index] + start_->bulgesize[1 - s_index] + 1,
 //					end_->bulgesize[1 - e_index] + start_->bulgesize[s_index] + 1, end_->bulge_seq[e_index], start_->bulge_seq[s_index]);
 //			newLoop->addAdjacent(end_->adjacentLoops[e_index]);
-//			// TODO: fix this too! see above comment.
-//			assert(end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop) > 0);
+//			replace_successful = end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop);
+//			assert(replace_successful > 0);
 //			newLoop->addAdjacent(start_->adjacentLoops[s_index]);
-//			// TODO: fix this! asserts generate no code when NDEBUG is set!
-//			assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
+//			replace_successful = start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop);
+//			assert(replace_successful > 0);
+//
 //		}
 
 		newLoop->generateMoves();
@@ -1979,8 +1988,8 @@ Loop *Loop::performDeleteMove(Move *move) {
 			end_->hairpinsize + 2 + start_->bulgesize[0] + start_->bulgesize[1],
 			start_->bulge_seq[s_index]);
 		newLoop->addAdjacent(start_->adjacentLoops[s_index]);
-		// TODO: fix this! asserts generate no code when NDEBUG is set!
-		assert(start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop) > 0);
+		replace_successful = start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop);
+		assert(replace_successful > 0);
 
 		newLoop->generateMoves();
 
@@ -2011,7 +2020,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 		// note e_index has different meaning now for multiloops.
 
 		int *sidelens = new int[end_->numAdjacent];
-		char **seqs = new char *[end_->numAdjacent];
+		BaseType **seqs = new BaseType *[end_->numAdjacent];
 
 		for (int loop = 0; loop < end_->numAdjacent; loop++) {
 			if (loop != e_index) {
@@ -2076,7 +2085,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 		// note e_index has different meaning now for openloops.
 
 		int *sidelens = new int[end_->numAdjacent + 1];
-		char **seqs = new char *[end_->numAdjacent + 1];
+		BaseType **seqs = new BaseType *[end_->numAdjacent + 1];
 
 		for (int loop = 0; loop < end_->numAdjacent + 1; loop++) {
 			if (loop == e_index) {
@@ -2218,7 +2227,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 		} else if (end_->numAdjacent > 3)              // multiloop case
 		{
 			int* sidelens = new int[end_->numAdjacent - 1];
-			char** seqs = new char*[end_->numAdjacent - 1];
+			BaseType** seqs = new BaseType*[end_->numAdjacent - 1];
 
 			if (energyModel->simOptions->debug) {
 				cout << "s_index = " << s_index << endl;
@@ -2283,7 +2292,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 		// note e_index has different meaning now for openloops.
 
 		int *sidelens = new int[end_->numAdjacent];
-		char **seqs = new char *[end_->numAdjacent];
+		BaseType **seqs = new BaseType *[end_->numAdjacent];
 
 		for (int loop = 0; loop < end_->numAdjacent + 1; loop++) {
 			if (loop < e_index) {
@@ -2348,7 +2357,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 		// note e_index has different meaning now for multiloops.
 
 		int *sidelens = new int[end_->numAdjacent + start_->numAdjacent - 2];
-		char **seqs = new char *[end_->numAdjacent + start_->numAdjacent - 2];
+		BaseType **seqs = new BaseType *[end_->numAdjacent + start_->numAdjacent - 2];
 
 		index = 0;
 		for (int loop = 0; loop < start_->numAdjacent; loop++) {
@@ -2428,7 +2437,7 @@ Loop *Loop::performDeleteMove(Move *move) {
 		// note e_index has different meaning now for multiloops.
 
 		int *sidelens = new int[end_->numAdjacent + start_->numAdjacent - 1];
-		char **seqs = new char *[end_->numAdjacent + start_->numAdjacent - 1];
+		BaseType **seqs = new BaseType *[end_->numAdjacent + start_->numAdjacent - 1];
 
 		index = 0;
 		for (int loop = 0; loop <= start_->numAdjacent; loop++) {
@@ -2512,7 +2521,6 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 
 void StackLoop::calculateEnergy(void) {
-
 	assert(Loop::energyModel != NULL);
 	energy = Loop::energyModel->StackEnergy(
 		seqs[0][0], seqs[1][1], seqs[0][1], seqs[1][0]);
@@ -2537,7 +2545,6 @@ void StackLoop::generateMoves(void) {
 }
 
 void StackLoop::generateDeleteMoves(void) {
-	double temprate;
 	if (moves != NULL)
 		delete moves;
 	moves = new MoveList(0);
@@ -2553,7 +2560,7 @@ void StackLoop::regenerateDeleteMoves(void) {
 	generateMoves();
 }
 
-void StackLoop::printMove(Loop *comefrom, char *structure_p, char *seq_p) {
+void StackLoop::printMove(Loop *comefrom, char *structure_p, BaseType *seq_p) {
 	int loop;
 	structure_p[seqs[0] - seq_p] = (seqs[0] < seqs[1]) ? '(' : ')';
 	structure_p[seqs[1] - seq_p + 1] = (seqs[0] < seqs[1]) ? ')' : '(';
@@ -2596,7 +2603,7 @@ double StackLoop::doChoice(Move *move, Loop **returnLoop) {
 	return -totalRate;
 }
 
-char *StackLoop::getLocation(Move *move, int index) {
+BaseType *StackLoop::getLocation(Move *move, int index) {
 	if (move->getType() & MOVE_CREATE) // then something's wrong!
 		assert(0);
 
@@ -2606,11 +2613,13 @@ char *StackLoop::getLocation(Move *move, int index) {
 		else if (adjacentLoops[1] == move->affected[0] || adjacentLoops[1] == move->affected[1])
 			return seqs[1];
 	}
+	fprintf(stderr, "Error: getLocation was given wrong input loop.cc\n");
+	exit(1);
 	assert(0);
 }
 
-char *StackLoop::verifyLoop(char *incoming_sequence, Loop *from) {
-	char *ret_seq;
+BaseType *StackLoop::verifyLoop(BaseType *incoming_sequence, Loop *from) {
+	BaseType *ret_seq;
 	if (adjacentLoops[0] == from) {
 		if (incoming_sequence != seqs[0]) {
 			fprintf(stderr, "Verification Failed\n");
@@ -2638,7 +2647,7 @@ StackLoop::StackLoop(void) {
 	identity = 'S';
 }
 
-StackLoop::StackLoop(char *seq1, char *seq2, Loop *left, Loop *right) // left and right default to NULL, see header.
+StackLoop::StackLoop(BaseType *seq1, BaseType *seq2, Loop *left, Loop *right) // left and right default to NULL, see header.
 		{
 
 	numAdjacent = 2;
@@ -2679,10 +2688,11 @@ HairpinLoop::HairpinLoop(void) {
 	identity = 'H';
 }
 
-HairpinLoop::HairpinLoop(int size, char *hairpin_sequence, Loop *previous) {
+HairpinLoop::HairpinLoop(int size, BaseType *hairpin_sequence, Loop *previous) {
 	numAdjacent = 1;
-	adjacentLoops = new Loop *[1];
+	adjacentLoops = new Loop *[2];
 	adjacentLoops[0] = previous;
+	adjacentLoops[1] = NULL;
 	if (previous != NULL)
 		curAdjacent = 1;
 
@@ -2702,7 +2712,6 @@ string HairpinLoop::typeInternalsToString(void) {
 }
 
 void HairpinLoop::calculateEnergy(void) {
-
 	assert(energyModel != NULL);
 
 	energy = energyModel->HairpinEnergy(hairpin_seq, hairpinsize);
@@ -2734,11 +2743,10 @@ double HairpinLoop::doChoice(Move *move, Loop **returnLoop) {
 	assert(!(move->type & MOVE_DELETE));
 
 	Loop *newLoop[2];
-	int pt, loop, loop2;
+	int loop, loop2;
 	if (move->type & MOVE_CREATE) {
 		loop = move->index[0];
 		loop2 = move->index[1];
-		pt = pairtypes[hairpin_seq[loop]][hairpin_seq[loop2]];
 		if (move->type & MOVE_1) // stack and hairpin
 		{
 			newLoop[0] = new StackLoop(hairpin_seq, &hairpin_seq[loop2]);
@@ -2887,8 +2895,6 @@ void HairpinLoop::generateMoves(void) {
 }
 
 void HairpinLoop::generateDeleteMoves(void) {
-	double temprate;
-
 	generateAndSaveDeleteMove(adjacentLoops[0], 0);
 
 	totalRate = moves->getRate();
@@ -2899,7 +2905,7 @@ void HairpinLoop::regenerateDeleteMoves(void) {
 	generateMoves();
 }
 
-void HairpinLoop::printMove(Loop *comefrom, char *structure_p, char *seq_p) {
+void HairpinLoop::printMove(Loop *comefrom, char *structure_p, BaseType *seq_p) {
 	int loop;
 	structure_p[hairpin_seq - seq_p] = '(';
 	structure_p[hairpin_seq - seq_p + 1 + hairpinsize] = ')';
@@ -2912,7 +2918,7 @@ void HairpinLoop::printMove(Loop *comefrom, char *structure_p, char *seq_p) {
 	}
 }
 
-char *HairpinLoop::getLocation(Move *move, int index) {
+BaseType *HairpinLoop::getLocation(Move *move, int index) {
 	if (move->getType() & MOVE_CREATE) {
 		if (index == 0)
 			return &hairpin_seq[move->index[0]];
@@ -2925,8 +2931,7 @@ char *HairpinLoop::getLocation(Move *move, int index) {
 	assert(0);
 }
 
-char *HairpinLoop::verifyLoop(char *incoming_sequence, Loop *from) {
-	char *ret_seq;
+BaseType *HairpinLoop::verifyLoop(BaseType *incoming_sequence, Loop *from) {
 	if (adjacentLoops[0] == from) {
 		if (incoming_sequence != hairpin_seq) {
 			fprintf(stderr, "Verification Failed\n");
@@ -2953,7 +2958,7 @@ BulgeLoop::BulgeLoop(void) {
 	identity = 'B';
 }
 
-BulgeLoop::BulgeLoop(int size1, int size2, char *bulge_sequence1, char *bulge_sequence2, Loop *left, Loop *right) {
+BulgeLoop::BulgeLoop(int size1, int size2, BaseType *bulge_sequence1, BaseType *bulge_sequence2, Loop *left, Loop *right) {
 	numAdjacent = 2;
 	curAdjacent = 0;
 	adjacentLoops = new Loop *[2];
@@ -3004,7 +3009,6 @@ Move *BulgeLoop::getChoice(SimTimer& timer, Loop *from) {
 }
 
 void BulgeLoop::calculateEnergy(void) {
-
 	assert(energyModel != NULL);
 
 	energy = energyModel->BulgeEnergy(bulge_seq[0][0], bulge_seq[1][bulgesize[1] + 1], bulge_seq[0][bulgesize[0] + 1], bulge_seq[1][0],
@@ -3022,17 +3026,16 @@ double BulgeLoop::doChoice(Move *move, Loop **returnLoop) {
 	assert(!(move->type & MOVE_DELETE));
 
 	Loop *newLoop[2];
-	int pt, loop, loop2;
+	int loop, loop2;
 
 	int *sidelen = new int[3];
-	char **seqs = new char *[3];
+	BaseType **seqs = new BaseType *[3];
 	int bsize = bulgesize[0] + bulgesize[1];
 	int bside = (bulgesize[0] == 0) ? 1 : 0;
 
 	if (move->type & MOVE_CREATE) {
 		loop = move->index[0];
 		loop2 = move->index[1];
-		pt = pairtypes[bulge_seq[bside][loop]][bulge_seq[bside][loop2]];
 		if (bside == 1) {
 			sidelen[0] = 0;
 			sidelen[1] = loop - 1;
@@ -3113,7 +3116,7 @@ void BulgeLoop::generateMoves(void) {
 
 					// Multiloop energy - CHECK THIS/FIXME
 					int sidelen[3];
-					char *sequences[3];
+					BaseType *sequences[3];
 
 					if (bside == 0) {
 						sidelen[0] = loop - 1;
@@ -3166,8 +3169,6 @@ void BulgeLoop::generateMoves(void) {
 
 void BulgeLoop::generateDeleteMoves(void) {
 
-	double temprate;
-
 	assert(moves != NULL);
 
 	generateAndSaveDeleteMove(adjacentLoops[0], 0);
@@ -3181,7 +3182,7 @@ void BulgeLoop::regenerateDeleteMoves(void) {
 	generateMoves();
 }
 
-void BulgeLoop::printMove(Loop *comefrom, char *structure_p, char *seq_p) {
+void BulgeLoop::printMove(Loop *comefrom, char *structure_p, BaseType *seq_p) {
 	int loop;
 	int item = (bulge_seq[0] < bulge_seq[1]);
 
@@ -3198,7 +3199,7 @@ void BulgeLoop::printMove(Loop *comefrom, char *structure_p, char *seq_p) {
 	}
 }
 
-char *BulgeLoop::getLocation(Move *move, int index) {
+BaseType *BulgeLoop::getLocation(Move *move, int index) {
 	int bside = (bulgesize[0] == 0) ? 1 : 0;
 	if (move->getType() & MOVE_CREATE) {
 		return &bulge_seq[bside][move->index[index]];
@@ -3211,8 +3212,8 @@ char *BulgeLoop::getLocation(Move *move, int index) {
 	assert(0);
 }
 
-char *BulgeLoop::verifyLoop(char *incoming_sequence, Loop *from) {
-	char *ret_seq;
+BaseType *BulgeLoop::verifyLoop(BaseType *incoming_sequence, Loop *from) {
+	BaseType *ret_seq;
 	if (adjacentLoops[0] == from) {
 		if (incoming_sequence != bulge_seq[0]) {
 			fprintf(stderr, "Verification Failed\n");
@@ -3247,7 +3248,7 @@ InteriorLoop::InteriorLoop(void) {
 	identity = 'I';
 }
 
-InteriorLoop::InteriorLoop(int size1, int size2, char *int_seq1, char *int_seq2, Loop *left, Loop *right) {
+InteriorLoop::InteriorLoop(int size1, int size2, BaseType *int_seq1, BaseType *int_seq2, Loop *left, Loop *right) {
 	numAdjacent = 2;
 	adjacentLoops = new Loop *[2];
 
@@ -3299,7 +3300,6 @@ Move *InteriorLoop::getChoice(SimTimer& timer, Loop *from) {
 }
 
 void InteriorLoop::calculateEnergy(void) {
-
 	assert(energyModel != NULL);
 
 	if (int_seq[0] == NULL || int_seq[1] == NULL)
@@ -3323,7 +3323,7 @@ double InteriorLoop::doChoice(Move *move, Loop **returnLoop) {
 	Loop *newLoop[2];
 	int loop, loop2;
 	int *sidelen = new int[3];
-	char **seqs = new char *[3];
+	BaseType **seqs = new BaseType *[3];
 
 	if (move->type & MOVE_CREATE) {
 		if (move->type & MOVE_1) {
@@ -3488,7 +3488,7 @@ void InteriorLoop::generateMoves(void) {
 
 				// Multiloop energy
 				int sidelen[3] = { loop - 1, sizes[0] - loop2, sizes[1] };
-				char *sequences[3] = { &int_seq[0][0], &int_seq[0][loop2], &int_seq[1][0] };
+				BaseType *sequences[3] = { &int_seq[0][0], &int_seq[0][loop2], &int_seq[1][0] };
 
 				energies[1] = energyModel->MultiloopEnergy(3, sidelen, sequences);
 				tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
@@ -3512,7 +3512,7 @@ void InteriorLoop::generateMoves(void) {
 
 				// Multiloop energy - CHECK THIS
 				int sidelen[3] = { sizes[0], loop - 1, sizes[1] - loop2 };
-				char *sequences[3] = { &int_seq[0][0], &int_seq[1][0], &int_seq[1][loop2] };
+				BaseType *sequences[3] = { &int_seq[0][0], &int_seq[1][0], &int_seq[1][loop2] };
 
 				energies[1] = energyModel->MultiloopEnergy(3, sidelen, sequences);
 				tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
@@ -3581,9 +3581,6 @@ void InteriorLoop::generateMoves(void) {
 }
 
 void InteriorLoop::generateDeleteMoves(void) {
-
-	double temprate;
-
 	assert(moves != NULL);
 
 	generateAndSaveDeleteMove(adjacentLoops[0], 0);
@@ -3598,7 +3595,7 @@ void InteriorLoop::regenerateDeleteMoves(void) {
 	generateMoves();
 }
 
-char *InteriorLoop::getLocation(Move *move, int index) {
+BaseType *InteriorLoop::getLocation(Move *move, int index) {
 
 	if (move->getType() & MOVE_CREATE) {
 		if (move->getType() & MOVE_1)
@@ -3616,8 +3613,8 @@ char *InteriorLoop::getLocation(Move *move, int index) {
 	assert(0);
 }
 
-char *InteriorLoop::verifyLoop(char *incoming_sequence, Loop *from) {
-	char *ret_seq;
+BaseType *InteriorLoop::verifyLoop(BaseType *incoming_sequence, Loop *from) {
+	BaseType *ret_seq;
 	if (adjacentLoops[0] == from) {
 		if (incoming_sequence != int_seq[0]) {
 			fprintf(stderr, "Verification Failed\n");
@@ -3639,7 +3636,7 @@ char *InteriorLoop::verifyLoop(char *incoming_sequence, Loop *from) {
 	return NULL;
 }
 
-void InteriorLoop::printMove(Loop *comefrom, char *structure_p, char *seq_p) {
+void InteriorLoop::printMove(Loop *comefrom, char *structure_p, BaseType *seq_p) {
 	int loop;
 	int item = (int_seq[0] < int_seq[1]);
 	structure_p[int_seq[0] - seq_p] = item ? '(' : ')';
@@ -3668,7 +3665,7 @@ MultiLoop::MultiLoop(void) {
 	identity = 'M';
 }
 
-MultiLoop::MultiLoop(int branches, int *sidelengths, char **sequences) {
+MultiLoop::MultiLoop(int branches, int *sidelengths, BaseType **sequences) {
 	numAdjacent = branches;
 	adjacentLoops = new Loop *[branches];
 	for (int loop = 0; loop < branches; loop++) {
@@ -3723,7 +3720,6 @@ Move *MultiLoop::getChoice(SimTimer& timer, Loop *from) {
 }
 
 void MultiLoop::calculateEnergy(void) {
-
 	assert(energyModel!=NULL);
 	energy = energyModel->MultiloopEnergy(numAdjacent, sidelen, seqs);
 
@@ -3739,9 +3735,9 @@ double MultiLoop::doChoice(Move *move, Loop **returnLoop) {
 	assert(!(move->type & MOVE_DELETE));
 
 	Loop *newLoop[2];
-	int pt, loop, loop2, loop3, loop4, temploop, tempindex;
+	int loop, loop2, loop3, loop4, temploop, tempindex;
 	int *sidelengths;
-	char **sequences;
+	BaseType **sequences;
 
 	if (move->type & MOVE_CREATE) {
 		loop = move->index[0];
@@ -3752,9 +3748,7 @@ double MultiLoop::doChoice(Move *move, Loop **returnLoop) {
 		if (move->type & MOVE_1) {
 			//single side, hairpin + multi with 1 higher mag.
 			sidelengths = new int[numAdjacent + 1];
-			sequences = new char *[numAdjacent + 1];
-
-			pt = pairtypes[seqs[loop3][loop]][seqs[loop3][loop2]];
+			sequences = new BaseType *[numAdjacent + 1];
 
 			for (temploop = 0, tempindex = 0; temploop < numAdjacent + 1; temploop++, tempindex++) {
 				if (temploop == loop3) {
@@ -3798,10 +3792,9 @@ double MultiLoop::doChoice(Move *move, Loop **returnLoop) {
 			//                        bulge    + multi with same mag
 			//                        interior + multi with same mag
 			sidelengths = new int[numAdjacent];
-			sequences = new char *[numAdjacent];
+			sequences = new BaseType *[numAdjacent];
 
 			loop4 = (loop3 + 1) % numAdjacent;
-			pt = pairtypes[seqs[loop3][loop]][seqs[loop4][loop2]];
 			for (temploop = 0; temploop < numAdjacent; temploop++) {
 				if (temploop == loop3) {
 					sidelengths[temploop] = loop - 1;
@@ -3871,9 +3864,7 @@ double MultiLoop::doChoice(Move *move, Loop **returnLoop) {
 			//non-adjacent sides, multi + open loop
 
 			sidelengths = new int[loop4 - loop3 + 1];
-			sequences = new char *[loop4 - loop3 + 1];
-
-			pt = pairtypes[seqs[loop3][loop]][seqs[loop4][loop2]];
+			sequences = new BaseType *[loop4 - loop3 + 1];
 
 			for (temploop = 0, tempindex = 0; temploop < (loop4 - loop3 + 1); tempindex++) // note that loop4 - loop3 is the number of pairings that got included in the multiloop. The extra closing pair makes the +1.
 					{
@@ -3897,7 +3888,7 @@ double MultiLoop::doChoice(Move *move, Loop **returnLoop) {
 			newLoop[0] = new MultiLoop(loop4 - loop3 + 1, sidelengths, sequences);
 
 			sidelengths = new int[numAdjacent - (loop4 - loop3 - 1)];
-			sequences = new char *[numAdjacent - (loop4 - loop3 - 1)];
+			sequences = new BaseType *[numAdjacent - (loop4 - loop3 - 1)];
 
 			for (temploop = 0, tempindex = 0; temploop < numAdjacent - (loop4 - loop3 - 1); tempindex++) {
 				if (tempindex == loop3) {
@@ -3978,11 +3969,11 @@ void MultiLoop::generateMoves(void) {
 
 // these pointers are needed to set up all of the multiloop energy calls.
 	int *sideLengths = NULL;
-	char **sequences = NULL;
+	BaseType **sequences = NULL;
 
 // the most storage we'll need is for case #1, which will have a multiloop of 1 greater magnitude.
 	sideLengths = new int[numAdjacent + 1];
-	sequences = new char *[numAdjacent + 1];
+	sequences = new BaseType *[numAdjacent + 1];
 
 // Case #1: Single Side only Creation Moves
 	for (loop3 = 0; loop3 < numAdjacent; loop3++) {
@@ -4198,8 +4189,6 @@ void MultiLoop::generateMoves(void) {
 }
 
 void MultiLoop::generateDeleteMoves(void) {
-	double temprate;
-
 	assert(moves != NULL);
 
 	for (int loop = 0; loop < numAdjacent; loop++) {
@@ -4216,7 +4205,7 @@ void MultiLoop::regenerateDeleteMoves(void) {
 	generateMoves();
 }
 
-void MultiLoop::printMove(Loop *comefrom, char *structure_p, char *seq_p) {
+void MultiLoop::printMove(Loop *comefrom, char *structure_p, BaseType *seq_p) {
 	int loop, item, loop2;
 	for (loop = 0; loop < numAdjacent; loop++) {
 		loop2 = (loop + 1) % numAdjacent;
@@ -4233,7 +4222,7 @@ void MultiLoop::printMove(Loop *comefrom, char *structure_p, char *seq_p) {
 	}
 }
 
-char *MultiLoop::getLocation(Move *move, int index) {
+BaseType *MultiLoop::getLocation(Move *move, int index) {
 
 	if (move->getType() & MOVE_CREATE) {
 		if (move->getType() & MOVE_1)
@@ -4250,8 +4239,8 @@ char *MultiLoop::getLocation(Move *move, int index) {
 	assert(0);
 }
 
-char *MultiLoop::verifyLoop(char *incoming_sequence, Loop *from) {
-	char *ret_seq;
+BaseType *MultiLoop::verifyLoop(BaseType *incoming_sequence, Loop *from) {
+	BaseType *ret_seq;
 	int call_index, call_adjacent;
 	int adjacent;
 	int loop;
@@ -4294,7 +4283,7 @@ OpenLoop::~OpenLoop(void) {
 	delete[] seqs;
 }
 
-OpenLoop::OpenLoop(int branches, int *sidelengths, char **sequences) {
+OpenLoop::OpenLoop(int branches, int *sidelengths, BaseType **sequences) {
 
 	numAdjacent = branches;
 
@@ -4317,7 +4306,6 @@ OpenLoop::OpenLoop(int branches, int *sidelengths, char **sequences) {
 string OpenLoop::typeInternalsToString(void) {
 
 	std::stringstream ss;
-
 	for (int i = 0; i < numAdjacent + 1; i++) {
 
 		ss << utility::sequenceToString(seqs[i], sidelen[i]) << "  -- ";
@@ -4332,7 +4320,6 @@ string OpenLoop::typeInternalsToString(void) {
 }
 
 void OpenLoop::calculateEnergy(void) {
-
 	assert(energyModel != NULL);
 	energy = energyModel->OpenloopEnergy(numAdjacent, sidelen, seqs);
 
@@ -4367,9 +4354,9 @@ double OpenLoop::doChoice(Move *move, Loop **returnLoop) {
 	assert(!(move->type & MOVE_DELETE));
 
 	Loop *newLoop[2];
-	int pt, loop, loop2, loop3, loop4, temploop, tempindex;
+	int loop, loop2, loop3, loop4, temploop, tempindex;
 	int *sidelengths;
-	char **sequences;
+	BaseType **sequences;
 
 	if (move->type & MOVE_CREATE) {
 		loop = move->index[0];
@@ -4380,9 +4367,7 @@ double OpenLoop::doChoice(Move *move, Loop **returnLoop) {
 		if (move->type & MOVE_1) {
 			//single side, hairpin + open with 1 higher mag.
 			sidelengths = new int[numAdjacent + 2];
-			sequences = new char *[numAdjacent + 2];
-
-			pt = pairtypes[seqs[loop3][loop]][seqs[loop3][loop2]];
+			sequences = new BaseType *[numAdjacent + 2];
 
 			for (temploop = 0, tempindex = 0; temploop <= numAdjacent + 1; temploop++, tempindex++) {
 				if (temploop == loop3) {
@@ -4428,9 +4413,7 @@ double OpenLoop::doChoice(Move *move, Loop **returnLoop) {
 			//                        bulge    + open with same mag
 			//                        interior + open with same mag
 			sidelengths = new int[numAdjacent + 1];
-			sequences = new char *[numAdjacent + 1];
-
-			pt = pairtypes[seqs[loop3][loop]][seqs[loop3 + 1][loop2]];
+			sequences = new BaseType *[numAdjacent + 1];
 
 			for (temploop = 0; temploop <= numAdjacent; temploop++) {
 				if (temploop == loop3) {
@@ -4490,9 +4473,7 @@ double OpenLoop::doChoice(Move *move, Loop **returnLoop) {
 			//non-adjacent sides, multi + open loop
 
 			sidelengths = new int[loop4 - loop3 + 1];
-			sequences = new char *[loop4 - loop3 + 1];
-
-			pt = pairtypes[seqs[loop3][loop]][seqs[loop4][loop2]];
+			sequences = new BaseType *[loop4 - loop3 + 1];
 
 			for (temploop = 0, tempindex = 0; temploop < (loop4 - loop3 + 1); tempindex++) // note that loop4 - loop3 is the number of pairings that got included in the multiloop. The extra closing pair makes the +1.
 					{
@@ -4516,7 +4497,7 @@ double OpenLoop::doChoice(Move *move, Loop **returnLoop) {
 			newLoop[0] = new MultiLoop(loop4 - loop3 + 1, sidelengths, sequences);
 
 			sidelengths = new int[numAdjacent - (loop4 - loop3 - 1) + 1];
-			sequences = new char *[numAdjacent - (loop4 - loop3 - 1) + 1];
+			sequences = new BaseType *[numAdjacent - (loop4 - loop3 - 1) + 1];
 
 			for (temploop = 0, tempindex = 0; temploop <= numAdjacent - (loop4 - loop3 - 1); tempindex++) {
 				if (tempindex == loop3) {
@@ -4609,18 +4590,18 @@ void OpenLoop::generateMoves(void) {
 // DNA/RNA notation convention is 5' to 3' end. Enzymes can only attach new nucleotides at the 3' end.
 
 	int *sideLengths = NULL;
-	char **sequences = NULL;
+	BaseType **sequences = NULL;
 
 	sideLengths = new int[numAdjacent + 2];
-	sequences = new char *[numAdjacent + 2];
+	sequences = new BaseType *[numAdjacent + 2];
 
 // for cotranscriptional mode, assume a single sequence
-	const char* initialPointer = &seqs[0][0];
+	const BaseType* initialPointer = &seqs[0][0];
 
 // Case #1: Single Side only Creation Moves
 	for (loop3 = 0; loop3 < numAdjacent + 1; loop3++) {
 
-		char* mySequence = seqs[loop3]; // this is the sequence of the strand that we use
+		BaseType* mySequence = seqs[loop3]; // this is the sequence of the strand that we use
 
 		for (loop = 1; loop < sidelen[loop3] - 3; loop++) {
 
@@ -4820,15 +4801,11 @@ void OpenLoop::generateMoves(void) {
 }
 
 void OpenLoop::generateDeleteMoves(void) {
-	double temprate;
-
 	assert(moves != NULL);
-
 	for (int loop = 0; loop < numAdjacent; loop++) {
 		generateAndSaveDeleteMove(adjacentLoops[loop], loop);
 
 	}
-
 	totalRate = moves->getRate();
 }
 
@@ -4837,7 +4814,7 @@ void OpenLoop::regenerateDeleteMoves(void) {
 	generateMoves();
 }
 
-void OpenLoop::printMove(Loop *comefrom, char *structure_p, char *seq_p) {
+void OpenLoop::printMove(Loop *comefrom, char *structure_p, BaseType *seq_p) {
 
 	int loop, item, loop2;
 
@@ -4857,7 +4834,7 @@ void OpenLoop::printMove(Loop *comefrom, char *structure_p, char *seq_p) {
 
 }
 
-char *OpenLoop::getLocation(Move *move, int index) {
+BaseType *OpenLoop::getLocation(Move *move, int index) {
 
 	if (move->getType() & MOVE_CREATE) {
 		if (move->getType() & MOVE_1)
@@ -4877,9 +4854,7 @@ char *OpenLoop::getLocation(Move *move, int index) {
 
 }
 
-char* OpenLoop::getBase(char type, int index, HalfContext half) {
-
-	int decrCount = 0;
+BaseType* OpenLoop::getBase(char type, int index, HalfContext half) {
 
 	for (int loop = 0; loop <= numAdjacent; loop++) {
 
@@ -4926,7 +4901,7 @@ char* OpenLoop::getBase(char type, int index, HalfContext half) {
 
 		for (int loop2 = 1; loop2 < end; loop2++) {
 
-			cout << (char) seqs[loop][loop2] << endl;
+			cout << (int) seqs[loop][loop2] << endl;
 
 			if (seqs[loop][loop2] == type) {
 
@@ -4964,7 +4939,7 @@ char* OpenLoop::getBase(char type, int index, HalfContext half) {
 	return NULL;
 }
 
-char* OpenLoop::getBase(char type, int index) {
+BaseType* OpenLoop::getBase(char type, int index) {
 
 	// FD 2016-11-14
 	// adjusting this to work with arrhenius rates.
@@ -5036,14 +5011,14 @@ BaseCount& OpenLoop::getFreeBases() {
 /*
  OpenLoop::performComplexJoin
 
- static void OpenLoop::performComplexJoin( OpenLoop **oldLoops, OpenLoop **newLoops, char *types, int *index);
+ static void OpenLoop::performComplexJoin( OpenLoop **oldLoops, OpenLoop **newLoops, BaseType *types, int *index);
 
  Joins the two open loops given in the array oldLoops (size 2) at the locations given by the the types/index arrays (size 2).
  Resulting open loops are placed into the newLoops array (as pointers) for the calling function to use.
 
  */
 
-void OpenLoop::performComplexJoin(OpenLoop **oldLoops, OpenLoop **newLoops, char *types, int *index, HalfContext* halfs, bool useArr) {
+void OpenLoop::performComplexJoin(OpenLoop **oldLoops, OpenLoop **newLoops, BaseType *types, int *index, HalfContext* halfs, bool useArr) {
 
 	// FD: nov 23 2016. Need to adapt this to take into account the local context.
 
@@ -5055,7 +5030,7 @@ void OpenLoop::performComplexJoin(OpenLoop **oldLoops, OpenLoop **newLoops, char
 	int toggle;
 	OpenLoop *newLoop;
 	int *sidelen;
-	char **seqs;
+	BaseType **seqs;
 
 	// FD: After this loop, SEQNUM, SEQINDEX are properly set
 
@@ -5102,7 +5077,7 @@ void OpenLoop::performComplexJoin(OpenLoop **oldLoops, OpenLoop **newLoops, char
 
 	for (toggle = 0; toggle <= 1; toggle++) {
 		sidelen = new int[sizes[toggle] + 1];
-		seqs = new char *[sizes[toggle] + 1];
+		seqs = new BaseType *[sizes[toggle] + 1];
 
 		for (loop = 0; loop < sizes[toggle] + 1; loop++) {
 			if (loop < seqnum[toggle]) {
@@ -5160,11 +5135,10 @@ void OpenLoop::performComplexJoin(OpenLoop **oldLoops, OpenLoop **newLoops, char
 
 }
 
-char *OpenLoop::verifyLoop(char *incoming_sequence, Loop *from) {
+BaseType *OpenLoop::verifyLoop(BaseType *incoming_sequence, Loop *from) {
 
-	char *ret_seq;
-	int call_index = -1, call_adjacent;
-	int adjacent;
+	BaseType *ret_seq;
+	int call_index = -1;
 	int loop;
 
 	for (loop = 0; loop < numAdjacent; loop++) {
@@ -5211,7 +5185,7 @@ OpenInfo& OpenLoop::getOpenInfo(void) {
 
 HalfContext OpenLoop::getHalfContext(int loop, int loop2) {
 
-	char* mySeq = seqs[loop];
+	BaseType* mySeq = seqs[loop];
 
 	// intialize for strands on both sides.
 	HalfContext thisHalf = HalfContext(strandC, strandC);
@@ -5230,19 +5204,19 @@ HalfContext OpenLoop::getHalfContext(int loop, int loop2) {
 
 }
 
-bool OpenLoop::nucleotideIsActive(const char* sequence, const char* initial, const int pos1, const int pos2) {
+bool OpenLoop::nucleotideIsActive(const BaseType* sequence, const BaseType* initial, const int pos1, const int pos2) {
 
 	return nucleotideIsActive(sequence, initial, pos1) && nucleotideIsActive(sequence, initial, pos2);
 
 }
 
-bool OpenLoop::nucleotideIsActive(const char* sequence, const char* initial, const int pos1) {
+bool OpenLoop::nucleotideIsActive(const BaseType* sequence, const BaseType* initial, const int pos1) {
 
 //  needed: time and a pointer to the first entry.
 	if (energyModel->simOptions->cotranscriptional) {
 
-		const char* seqPointer = &sequence[pos1];
-		const int distance = seqPointer - initial;
+		const BaseType* seqPointer = &sequence[pos1];
+		const long distance = seqPointer - initial;
 
 		if (distance > energyModel->numActiveNT) {
 
@@ -5259,7 +5233,7 @@ void OpenLoop::parseLocalContext(int index) {
 // and only record local context for exterior
 // zero, one or two nucleotides
 
-	char* mySeq = seqs[index];
+	BaseType* mySeq = seqs[index];
 	int size = sidelen[index];
 
 	openInfo.numExposed += size;
@@ -5272,7 +5246,7 @@ void OpenLoop::parseLocalContext(int index) {
 
 	if (size > 0) {
 
-		char base = mySeq[1];
+		BaseType base = mySeq[1];
 
 		QuartContext left = moveutil::getContext(mySeq[0]);
 		QuartContext right;
@@ -5293,7 +5267,7 @@ void OpenLoop::parseLocalContext(int index) {
 // also record the second external nucleotide, if it exists
 	if (size > 1) {
 
-		int base = mySeq[size];
+		BaseType base = mySeq[size];
 
 		QuartContext left = strandC;
 		QuartContext right = moveutil::getContext(mySeq[size + 1]);

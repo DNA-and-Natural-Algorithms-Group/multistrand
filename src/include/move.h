@@ -52,7 +52,7 @@ public:
 	~Move(void);
 	double getRate(void);
 	int getType(void);
-	int getArrType(void);
+	double getArrType(void);
 	Loop *getAffected(int index);
 	Loop *doChoice(void);
 	string toString(bool);
@@ -84,7 +84,7 @@ public:
 	virtual void resetDeleteMoves(void) = 0;
 	virtual Move *getChoice(SimTimer& timer) = 0;
 	virtual Move *getMove(Move *iterator) = 0;
-	virtual uint16_t getCount(void) = 0;
+	virtual int getCount(void) = 0;
 	virtual void printAllMoves(bool) = 0;
 
 protected:
@@ -99,7 +99,7 @@ public:
 	void addMove(Move *newmove);
 	Move *getChoice(SimTimer& timer);
 	Move *getMove(Move *iterator);
-	uint16_t getCount(void);
+	int getCount(void);
 	void resetDeleteMoves(void);
 	void printAllMoves(bool);
 
@@ -107,11 +107,11 @@ public:
 private:
 	Move **moves;
 	Move **del_moves;
-	uint16_t moves_size;
-	uint16_t moves_index;
-	uint16_t del_moves_size;
-	uint16_t del_moves_index;
-	uint16_t int_index;
+	int moves_size;
+	int moves_index;
+	int del_moves_size;
+	int del_moves_index;
+	int int_index;
 };
 
 #endif

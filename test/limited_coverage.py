@@ -12,7 +12,7 @@ import numpy as np
 from multistrand.objects import Complex, Domain, Strand, StopCondition
 from multistrand.options import Options, Literals
 from multistrand.system import SimSystem
-from multistrand.utils import C2K
+from multistrand.utils.thermo import C2K
 
 colors = ['blue', 'red', 'cyan', 'magenta', 'green', 'k', 'darkblue', 'darkred', 'darkcyan', 'darkmagenta', 'darkgreen']
 
@@ -149,6 +149,7 @@ def show_interesting_trajectories(result_lists, seqs, type='fastest'):
         s = SimSystem(o)
         s.start()
         print_trajectory(o)        
+
         print(f"Original run's time: {time:g} microseconds")
 
 

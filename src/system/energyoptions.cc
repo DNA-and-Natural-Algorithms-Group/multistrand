@@ -84,6 +84,15 @@ double EnergyOptions::getUniScale(void) {
 
 string EnergyOptions::toString(void) {
 
+	const char *substrate_type;
+	if(compareSubstrateType(SUBSTRATE_DNA)){
+	    substrate_type = "DNA";
+	} else if(compareSubstrateType(SUBSTRATE_RNA)){
+        substrate_type = "RNA";
+	} else {
+        substrate_type = "Invalid";
+	}
+
 	std::stringstream ss;
 
 	ss << "temperature = " << temperature << " \n";
@@ -94,6 +103,7 @@ string EnergyOptions::toString(void) {
 	ss << "joinConcentration = " << joinConcentration << " \n";
 	ss << "biScale = " << biScale << " \n";
 	ss << "uniScale = " << uniScale << " \n";
+	ss << " substrate_type = " << substrate_type << " \n";
 
 	string output = ss.str();
 

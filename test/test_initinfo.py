@@ -13,9 +13,9 @@ import pytest
 
 from multistrand.objects import Strand, Complex, Domain, StopCondition
 from multistrand.options import Options, Literals
-from multistrand.system import SimSystem
+from multistrand.system import SimSystem, initialize_energy_model
 from multistrand.experiment import makeComplex
-from multistrand.utils import C2K
+from multistrand.utils.thermo import C2K
 
 
 # ==============================================================================
@@ -84,44 +84,23 @@ class Test_InitialInfo:
 
     # --------------------------------------------------------------
 
+    """
+    A fully hybridized strand.
+    """
+
     @pytest.mark.parametrize("toehold_seq, domain_seq",
                              [("CCCC", "CATTAAC"), ("CC", "CAAC")])
-    @pytest.mark.parametrize(
-        "start_struct, stop_struct",
-        [("((+))", "..+.."),
-         pytest.param("..+..", "((+))",
-                      marks=pytest.mark.skip(
-                          reason="Unconnected strand in initialized complex. "
-                          "| Segmentation fault in OpenLoop::getOpenInfo()"))])
     def test_0(self, kinetics: str, capfd: pytest.CaptureFixture,
-               toehold_seq: str, domain_seq: str,
-               start_struct: str, stop_struct: str):
-        """
-        A fully hybridized strand.
-        """
-        toehold = Domain(name="toehold", sequence=toehold_seq,
-                            length=len(toehold_seq))
-        branch_migration = Domain(name="branch_migration", sequence=domain_seq,
-                                    seq_length=len(domain_seq))
-        incoming = branch_migration.C + toehold.C
-        substrate = toehold + branch_migration
-        start_complex = Complex(strands=[incoming, substrate], structure=start_struct)
-        stop_complex = Complex(strands=[incoming, substrate], structure=stop_struct)
-        opt = self.create_options([start_complex], stop_complex)
-        self.compare_initialInfo(opt, kinetics, capfd)
-
-    def test_0C(self, kinetics: str, capfd: pytest.CaptureFixture):
+                toehold_seq: str, domain_seq: str):
         domain_seq, domain_seq2 = "AGT", "GTA"
-        left = Domain(name="branch_migration", sequence=domain_seq, seq_length=3)
-        right = Domain(name="branch_migration2", sequence=domain_seq2, seq_length=3)
+        left = Domain(name="branch_migration", sequence=toehold_seq)
+        right = Domain(name="branch_migration2", sequence=domain_seq)
         incoming = left + right
         substrate = incoming.C
         start_complex1 = Complex(strands=[incoming], structure="..")
         start_complex2 = Complex(strands=[substrate], structure="..")
         stop_complex = Complex(strands=[incoming, substrate], structure="((+))")
         opt = self.create_options([start_complex1, start_complex2], stop_complex)
-        # FIXME: Obsolete options?
-        # opt.rate_scaling = 'Calibrated'
         opt.join_concentration = 1e-9
         self.compare_initialInfo(opt, kinetics, capfd)
 
@@ -133,10 +112,10 @@ class Test_InitialInfo:
         """
         Open loop, w/ and w/o initialization penalty.
         """
-        right_d = Domain(name="toehold0", sequence=top0, length=len(top0))
-        left_d = Domain(name="toehold1", sequence=top1, length=len(top1))
-        branch0 = Domain(name="branch_migration", sequence=bottom, seq_length=len(bottom))
-        toehold = Domain(name="oToehold", sequence=toehold, length=len(toehold))
+        right_d = Domain(name="toehold0", sequence=top0)
+        left_d = Domain(name="toehold1", sequence=top1)
+        branch0 = Domain(name="branch_migration", sequence=bottom)
+        toehold = Domain(name="oToehold", sequence=toehold)
         substrate = toehold.C + branch0.C + toehold.C
         left = toehold + left_d
         right = right_d + toehold
@@ -158,7 +137,7 @@ class Test_InitialInfo:
         Simple test.
         """
         seq = top + bottom
-        strands = [Domain(name=f"toehold{i}", sequence=seq[i], length=1)
+        strands = [Domain(name=f"toehold{i}", sequence=seq[i])
                    for i in range(len(top) + len(bottom))]
         substrate = reduce(Domain.__add__, strands[3:])
         invading = reduce(Domain.__add__,strands[:3])
@@ -207,7 +186,6 @@ class Test_InitialInfo:
         opt.stop_conditions = [success_stop_condition, failed_stop_condition]
         self.compare_initialInfo(opt, kinetics, capfd)
 
-    @pytest.mark.skip(reason="Failed assertion in StrandOrdering::addOpenLoop()")
     def test_4(self, kinetics: str, capfd: pytest.CaptureFixture):
         """
         Lightbulb.
@@ -215,16 +193,16 @@ class Test_InitialInfo:
         toehold_t = "CTGC"
         toehold_dd = "CATATC"
         domain_R = "CATTAAC"
-        toehold = Domain(name="toehold", sequence=toehold_t, length=6)
-        toehold_2 = Domain(name="toehold", sequence=toehold_dd, length=6)
-        branch_migration = Domain(name="branch_migration", sequence=domain_R, seq_length=7)
+        toehold = Domain(name="toehold", sequence=toehold_t)
+        toehold_2 = Domain(name="toehold", sequence=toehold_dd)
+        branch_migration = Domain(name="branch_migration", sequence=domain_R)
         incoming = branch_migration.C + toehold.C
         substrate = toehold + branch_migration
         # Note that "+" is used to indicate strand breaks.
         # So the initial structures represent the incoming strand bound by its toehold,
         # and we'll see that either it completes strand displacement, or it dissociates.
         start_complex = Complex(strands=[incoming, substrate], structure=".(+).")
-        stop_complex = Complex(strands=[incoming, substrate], structure="..+..")
+        stop_complex = Complex(strands=[incoming], structure="..")
         opt = self.create_options([start_complex], stop_complex)
         self.compare_initialInfo(opt, kinetics, capfd)
 
@@ -237,11 +215,11 @@ class Test_InitialInfo:
         toehold = "TG"
         bottom = "TG"
         connected = "ATA"
-        right_d = Domain(name="toehold0", sequence=top0, length=3)
-        left_d = Domain(name="toehold1", sequence=top1, length=3)
-        branch0 = Domain(name="branch_migration", sequence=bottom, seq_length=2)
-        toehold = Domain(name="oToehold", sequence=toehold, length=2)
-        connect = Domain(name="cToehold", sequence=connected, length=3)
+        right_d = Domain(name="toehold0", sequence=top0)
+        left_d = Domain(name="toehold1", sequence=top1)
+        branch0 = Domain(name="branch_migration", sequence=bottom)
+        toehold = Domain(name="oToehold", sequence=toehold)
+        connect = Domain(name="cToehold", sequence=connected)
         substrate = toehold.C + branch0.C + toehold.C
         left = toehold + left_d + connect
         right = connect.C + right_d + toehold
@@ -261,12 +239,9 @@ class Test_InitialInfo:
         """
         Interior loop.
         """
-        toehold = Domain(name="toehold", sequence=toehold_seq,
-                         length=len(toehold_seq))
-        toehold2 = Domain(name="toehold", sequence=toehold_seq2,
-                          length=len(toehold_seq2))
-        branch_migration = Domain(name="branch_migration", sequence=domain_seq,
-                                  seq_length=len(domain_seq))
+        toehold = Domain(name="toehold", sequence=toehold_seq)
+        toehold2 = Domain(name="toehold", sequence=toehold_seq2)
+        branch_migration = Domain(name="branch_migration", sequence=domain_seq)
         incoming = toehold2.C + branch_migration.C + toehold.C
         substrate = toehold + branch_migration + toehold2
         start_complex = Complex(strands=[incoming, substrate], structure="(.(+).)")
@@ -274,8 +249,6 @@ class Test_InitialInfo:
         opt = self.create_options([start_complex], stop_complex)
         self.compare_initialInfo(opt, kinetics, capfd)
 
-    @pytest.mark.skip(reason="Mismatched ( in input. "
-                             "| Segmentation fault in Loop::firstGen()")
     def test_7(self, kinetics: str, capfd: pytest.CaptureFixture):
         """
         Bulge loop.
@@ -283,45 +256,41 @@ class Test_InitialInfo:
         toehold_seq = "CTGC"
         toehold_seq2 = "CAT"
         domain_seq = "CATGCTAAC"
-        toehold = Domain(name="toehold", sequence=toehold_seq, length=6)
-        toehold2 = Domain(name="toehold", sequence=toehold_seq2, length=6)
-        branch_migration = Domain(name="branch_migration", sequence=domain_seq, seq_length=25)
-        dangle = Domain(name="branch_migration", sequence="T", seq_length=1)
+        toehold = Domain(name="toehold", sequence=toehold_seq)
+        toehold2 = Domain(name="toehold", sequence=toehold_seq2)
+        branch_migration = Domain(name="branch_migration", sequence=domain_seq)
+        dangle = Domain(name="branch_migration", sequence="T")
         incoming = toehold2.C + branch_migration.C + toehold.C
         substrate = toehold + toehold2
         start_complex = Complex(strands=[incoming, substrate], structure="(.(+))")
-        stop_complex = Complex(strands=[incoming, substrate], structure="...+..")
+        stop_complex = Complex(strands=[incoming], structure="...")
         opt = self.create_options([start_complex], stop_complex)
         self.compare_initialInfo(opt, kinetics, capfd)
 
-    @pytest.mark.skip(reason="Mismatched ( in input. "
-                             "| Segmentation fault in Loop::firstGen()")
     def test_8(self, kinetics: str, capfd: pytest.CaptureFixture):
         """
         Hairpin loop.
         """
         toehold_seq = "CTGC"
         domain_seq = "CATGCTACAG"
-        toehold = Domain(name="toehold", sequence=toehold_seq, length=6)
-        branch_migration = Domain(name="branch_migration", sequence=domain_seq, seq_length=25)
-        dangle = Domain(name="branch_migration", sequence="T", seq_length=1)
+        toehold = Domain(name="toehold", sequence=toehold_seq)
+        branch_migration = Domain(name="branch_migration", sequence=domain_seq)
+        dangle = Domain(name="branch_migration", sequence="T")
         incoming = toehold + branch_migration.C + toehold.C
         start_complex = Complex(strands=[incoming], structure="(.)")
         stop_complex = Complex(strands=[incoming], structure="...")
         opt = self.create_options([start_complex], stop_complex)
         self.compare_initialInfo(opt, kinetics, capfd)
 
-    @pytest.mark.skip(reason="Unconnected strand in initialized complex."
-                             "| Segmentation fault in Loop::firstGen()")
     def test_9(self, kinetics: str, capfd: pytest.CaptureFixture):
         """
         Small open loop.
         """
         seq0 = "GTGT"
         seq1 = "T"
-        branch = Domain(name="toehold0", sequence=seq0, length=3)
-        toehold = Domain(name="toehold1", sequence=seq1, length=1)
-        ghost = Domain(name="toeholdG", sequence="T", length=1)
+        branch = Domain(name="toehold0", sequence=seq0)
+        toehold = Domain(name="toehold1", sequence=seq1)
+        ghost = Domain(name="toeholdG", sequence="T")
         substrate = toehold + branch
         left = toehold.C + ghost
         right = branch.C + ghost
@@ -329,7 +298,7 @@ class Test_InitialInfo:
         # So the initial structures represent the incoming strand bound by its toehold,
         # and we'll see that either it completes strand displacement, or it dissociates.
         start_complex = Complex(strands=[right, left, substrate], structure="(.+(.+))")
-        stop_complex = Complex(strands=[left, right, substrate], structure="..+..+..")
+        stop_complex = Complex(strands=[substrate], structure="..")
         opt = self.create_options([start_complex], stop_complex)
         self.compare_initialInfo(opt, kinetics, capfd)
 
@@ -401,5 +370,5 @@ class Test_InitialInfo:
 
 if __name__ == "__main__":
     test_id = "0"
-    test_args = ["CC", "CAAC", "..+..", "((+))"]
+    test_args = ["CC", "CAAC"]
     Test_InitialInfo.debug_single_test(test_id, *test_args)

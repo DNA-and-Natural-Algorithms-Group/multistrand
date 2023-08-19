@@ -16,17 +16,13 @@ The Multistrand Team (help@multistrand.org)
 #include <iostream>
 
 SimulationSystem::SimulationSystem(PyObject *system_o) {
-
 	system_options = system_o;
 	simOptions = new PSimOptions(system_o);
-
 	construct();
 	energyModel->writeConstantsToFile();
-
 }
 
 SimulationSystem::SimulationSystem(SimOptions* options) {
-
 	system_options = NULL;
 	simOptions = options;
 
@@ -40,9 +36,11 @@ void SimulationSystem::construct(void) {
 	simulation_mode = simOptions->getSimulationMode();
 	simulation_count_remaining = simOptions->getSimulationCount();
 
-	if (simOptions->reuseEnergyModel) {
+	if (simOptions->reuseEnergyModel && Loop::GetEnergyModel() != NULL) {
 		energyModel = Loop::GetEnergyModel();
-	} else {
+		energyModel->simOptions = simOptions;
+	}
+	 if(energyModel == NULL || !simOptions->reuseEnergyModel){
 		energyModel = new NupackEnergyModel(simOptions->getPythonSettings());
 		Loop::SetEnergyModel(energyModel);
 	}
@@ -84,7 +82,7 @@ SimulationSystem::~SimulationSystem(void) {
 // the remaining members are not our responsibility, we null them out
 // just in case something thread-unsafe happens.
 
-	if (energyModel != NULL) {
+	if (energyModel != NULL && !simOptions->reuseEnergyModel) {
 		delete energyModel;
 	}
 
@@ -105,7 +103,6 @@ SimulationSystem::~SimulationSystem(void) {
 void SimulationSystem::StartSimulation(void) {
 
 	InitializeRNG();
-
 	if (simulation_mode & SIMULATION_MODE_FLAG_FIRST_BIMOLECULAR) {
 		StartSimulation_FirstStep();
 	} else if (simulation_mode & SIMULATION_MODE_FLAG_TRAJECTORY) {
@@ -245,7 +242,6 @@ void SimulationSystem::SimulationLoop_Standard(void) {
 			myTimer.rate = complexList->getTotalFlux();
 
 			if (myTimer.stopoptions) {
-
 				if (myTimer.stopcount <= 0) {
 					simOptions->stopResultError(current_seed);
 					return;
@@ -487,7 +483,6 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 
 	double frate = 0.0;
 
-	long ointerval = simOptions->getOInterval();
 	long current_state_count = 0;
 
 	complexList->initializeList();
@@ -517,7 +512,7 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 	myTimer.advanceTime(); // select an rchoice
 	myTimer.stime = 0.0; // but reset the jump in time, because first step mode.
 
-	int ArrMoveType = complexList->doJoinChoice(myTimer);
+	double ArrMoveType = complexList->doJoinChoice(myTimer);
 
 	if (exportStatesInterval) {
 		exportInterval(myTimer.stime, current_state_count, ArrMoveType);
@@ -549,7 +544,7 @@ void SimulationSystem::SimulationLoop_FirstStep(void) {
 			exportTime(myTimer.stime, myTimer.last_trajectory_time);
 		}
 
-		int ArrMoveType = complexList->doBasicChoice(myTimer);
+		double ArrMoveType = complexList->doBasicChoice(myTimer);
 
 		myTimer.rate = complexList->getTotalFlux();
 		current_state_count++;
@@ -599,7 +594,6 @@ void SimulationSystem::dumpCurrentStateToPython(void) {
 	ExportData data;
 
 	while (temp != NULL) {
-
 		temp->dumpComplexEntryToPython(data);
 		printComplexStateLine(simOptions->getPythonSettings(), current_seed, data);
 
@@ -696,7 +690,6 @@ void SimulationSystem::sendTrajectory_CurrentStateToPython(double current_time, 
 
 // FD: OK to have alternate_start = NULL
 int SimulationSystem::InitializeSystem(PyObject *alternate_start) {
-
 	StrandComplex *tempcomplex;
 	identList *id;
 
@@ -797,7 +790,7 @@ void SimulationSystem::exportTime(double& simTime, double& lastExportTime) {
 
 }
 
-void SimulationSystem::exportInterval(double simTime, int transitionCount, double arrType) {
+void SimulationSystem::exportInterval(double simTime, long transitionCount, double arrType) {
 
 	if ((transitionCount % simOptions->getOInterval()) == 0) {
 
@@ -850,10 +843,10 @@ void SimulationSystem::localTransitions(void) {
 	complexList->initializeList();
 	complexList->updateOpenInfo();
 
-	uint16_t N = complexList->getMoveCount();
-	uint16_t collisions = round(complexList->getJoinFlux());
+	int N = complexList->getMoveCount();
+	int collisions = int(round(complexList->getJoinFlux()));
 
-	for (uint16_t i = 0; i < (N + collisions); i++) {
+	for (int i = 0; i < (N + collisions); i++) {
 
 		InitializeSystem();
 		complexList->initializeList();
@@ -869,7 +862,7 @@ void SimulationSystem::localTransitions(void) {
 		}
 
 		// move the state using the i-th transition
-		int ArrMoveType = complexList->doBasicChoice(myTimer);
+		double ArrMoveType = complexList->doBasicChoice(myTimer);
 
 		// export the state after the transition
 		if (exportStatesInterval) {

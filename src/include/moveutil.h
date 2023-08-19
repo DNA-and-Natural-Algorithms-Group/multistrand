@@ -12,6 +12,8 @@ The Multistrand Team (help@multistrand.org)
 #include <vector>
 #include <map>
 #include <sequtil.h>
+#include <cstdint>
+#include "basetype.h"
 
 using std::vector;
 using std::string;
@@ -105,7 +107,7 @@ namespace std {
 template<> struct hash<ExportData> {
 	size_t operator()(const ExportData& k) const {
 
-		return hash<string>()(k.sequence) ^ hash<string>()(k.structure) ^ hash<int>()(k.id);
+		return hash<string>()(k.sequence) ^ hash<string>()(k.structure) ^ hash<double>()(k.id);
 
 	}
 };
@@ -113,7 +115,7 @@ template<> struct hash<ExportData> {
 template<> struct hash<ExportTransition> {
 	size_t operator()(const ExportTransition& k) const {
 
-		return hash<ExportData>()(k.state1) ^ hash<ExportData>()(k.state2) ^ hash<int>()(k.type);
+		return hash<ExportData>()(k.state1) ^ hash<ExportData>()(k.state2) ^ hash<double>()(k.type);
 
 	}
 };
@@ -139,7 +141,7 @@ struct JoinCriteria {
 	friend std::ostream& operator<<(std::ostream&, JoinCriteria&);
 
 	StrandComplex* complexes[2] = { NULL, NULL };
-	char types[2] = { 0, 0 };
+	BaseType types[2] = {baseInvalid, baseInvalid};
 	int index[2] = { 0, 0 };
 
 	// arrhenius rates only
@@ -156,7 +158,7 @@ struct OpenInfo {
 public:
 	friend std::ostream& operator<<(std::ostream&, OpenInfo&);
 	void clear(void);
-	void increment(QuartContext, char, QuartContext);
+	void increment(QuartContext, BaseType, QuartContext);
 	void increment(HalfContext, BaseCount&);
 	void increment(OpenInfo&);
 

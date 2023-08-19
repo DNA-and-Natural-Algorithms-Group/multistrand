@@ -11,6 +11,8 @@ The Multistrand Team (help@multistrand.org)
 #include <string>
 #include <vector>
 
+#include "basetype.h"
+
 using std::string;
 using std::vector;
 
@@ -19,20 +21,16 @@ using std::vector;
 // MFold/Nupack:  0 is AT, then CG, GC, TA, GT, TG
 // 0 is invalid, then A, C, G, U
 
-const int PAIRS_VIENNA = 8;
-const int PAIRS_NUPACK = 6;
-const int BASES = 5;
+constexpr int PAIRS_VIENNA = 8; // Using these for array sizing so optimization as constexpr
+constexpr int PAIRS_NUPACK = 6;
+constexpr int BASES = 5;
 
 // FD: I keep having to remove 1 from the pairtype internal representation.
 // FD: In this regard, multistrand follows Vienna notation.
 // FD: So I added an offset to the tostring array.
 const static string basepairString[PAIRS_NUPACK + 1] = { "VOID", "A/T", "C/G", "G/C", "T/A", "G/T", "T/G" };
 
-enum BaseType {
 
-	baseNone, baseA, baseC, baseG, baseT, BASETYPE_SIZE
-
-};
 
 const string baseTypeString[BASETYPE_SIZE] = { "·", "A", "C", "G", "T" };
 

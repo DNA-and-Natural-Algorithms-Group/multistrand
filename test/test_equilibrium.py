@@ -10,8 +10,7 @@ import pytest
 from multistrand.objects import Strand, Complex, Domain
 from multistrand.options import Options
 from multistrand.concurrent import MergeSim
-from multistrand.utils import GAS_CONSTANT, C2K
-from nupack import pfunc
+from multistrand.utils import thermo
 
 
 @pytest.mark.parametrize("seq", ["GGGGAAACCCC"])
@@ -29,8 +28,8 @@ class Test_Equilibrium:
         particular, this procedure discards the frequency information and does
         not constitute a Monte Carlo estimate.
         """
-        kelvin = celsius + C2K
-        RT = GAS_CONSTANT * kelvin
+        kelvin = celsius + thermo.C2K
+        RT = thermo.GAS_CONSTANT * kelvin
 
         eqd = cls.equilibrium_distribution(seq, kelvin, RT, rate_model)
         Z = 0.0
@@ -41,7 +40,8 @@ class Test_Equilibrium:
         print()
         F = -RT * np.log(Z)
         print(f"Partition function from Multistrand trajectories: {F:e}")
-        pf = pfunc([seq], material="dna", T=celsius)
+        model = thermo.Model(material="DNA", celsius=celsius)
+        pf = thermo.pfunc([seq], model)
         print(f"Partition function from NUPACK dynamic program  : {pf:e}")
         assert np.allclose(pf, F, rtol=1e-2)
 

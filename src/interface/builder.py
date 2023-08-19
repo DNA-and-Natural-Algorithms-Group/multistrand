@@ -14,7 +14,8 @@ time from the starting states until hitting an end state.
 import time, copy, os, sys
 
 from multistrand.system import SimSystem
-from multistrand.utils import uniqueStateID, seqComplement, GAS_CONSTANT
+from multistrand.utils.utility import uniqueStateID, seqComplement
+from multistrand.utils.thermo import GAS_CONSTANT
 from multistrand.options import Literals
 from multistrand.experiment import standardOptions, makeComplex
 
@@ -497,7 +498,7 @@ class Builder:
             o1.rate_method = self.options.rate_method
             o1.start_state = inputs[0]
             return o1
-        
+
         for key, _ in self.protoSpace.items():
             if ogVerb and ((counter % 100) == 0):
                 print("Searching for missing transitions. Progress " + str(counter) + " / " + str(len(self.protoSpace)))
@@ -520,6 +521,7 @@ class Builder:
             counter += 1
         
         Builder.verbosity = ogVerb
+
 
     """
     Computes the mean first pasasage times, 
@@ -610,6 +612,7 @@ class Builder:
                     print("My hashmap contains " + str(uniqueID) + " with Energy " + str(space[uniqueID]) + " but found: " + str(energyvals))
                     print("Line = " + line)
 
+            myFile.close()
             """ load the transitions """
             myFile = open(self.the_dir + str(myOptions.interface.current_seed) + "/prototransitions.txt", "r")
             index = 0
@@ -653,6 +656,7 @@ class Builder:
                         transitionList.extend(codeToDesc(int(float(line1))))
 
                     transitions[transitionPair] = transitionList
+            myFile.close()
 
             """ load the initial states """
             myFile = open(self.the_dir + str(myOptions.interface.current_seed) + "/protoinitialstates.txt", "r")
@@ -679,6 +683,7 @@ class Builder:
                     newEntry.count = count
                     newEntry.flux = 777777  # arrType is the flux, and is unique to the initial state
                     initStates[uID1] = newEntry
+            myFile.close()
 
             """ load the final states """
             myFile = open(self.the_dir + str(myOptions.interface.current_seed) + "/protofinalstates.txt", "r")
@@ -703,6 +708,8 @@ class Builder:
 
                 if not uID1 in finalStates:
                     finalStates[uID1] = tag
+
+            myFile.close()
 
             """ Now delete the files as they can get quite large """
             os.remove(self.the_dir + str(myOptions.interface.current_seed) + "/protospace.txt")

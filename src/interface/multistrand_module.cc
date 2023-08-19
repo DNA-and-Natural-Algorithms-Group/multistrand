@@ -16,6 +16,8 @@ The Multistrand Team (help@multistrand.org)
 #include "ssystem.h"
 #include "simoptions.h"
 #include "options.h"
+
+#include <time.h>
 #include <string.h>
 /* for strcmp */
 
@@ -232,7 +234,6 @@ static PyObject *System_initialize_energymodel(PyObject *self, PyObject *args) {
 
 	if (temp != NULL)
 		delete temp;
-
 	if (options_object == NULL || options_object == Py_None)
 		Loop::SetEnergyModel( NULL);
 	else {
@@ -248,14 +249,6 @@ static PyObject *System_initialize_energymodel(PyObject *self, PyObject *args) {
 }
 
 static PyObject *System_calculate_energy(PyObject *self, PyObject *args) {
-	// TODO: there is a bug where this destroys/invalidates the incoming python objects used to initialize the state.   02-21-13 JS
-	// REPRODUCE:
-	//   let c be a valid complex, o be the options object (e.g. energy model),
-	//   and energy the name for multistrand.system.energy
-	//   then try (python):
-	//   en = energy( [c], o, 0 )
-	//   print en  # will be correct
-	//   print c   # will crash out, as object has been mangled.
 
 	SimulationSystem *temp = NULL;
 	PyObject *options_object = NULL;
@@ -265,48 +258,30 @@ static PyObject *System_calculate_energy(PyObject *self, PyObject *args) {
 	if (!PyArg_ParseTuple(args, "O|Oi:energy(state, options[, energytypeflag])",
 						  &start_state_object, &options_object, &typeflag))
 		return NULL;
-	if (options_object != NULL)
-		Py_INCREF(options_object);
-	Py_INCREF(start_state_object);
 	if (!(0 <= typeflag && typeflag <= 3)) {
 		PyErr_SetString(PyExc_TypeError, "Invalid 'energy_type' argument!");
 		return NULL;
 	}
-
 	if (options_object != NULL) {
 
 		temp = new SimulationSystem(options_object);
 
 	} else {
-
 		temp = new SimulationSystem();
 
 		if (temp->isEnergymodelNull()) {
-
 			PyErr_Format(
 				PyExc_AttributeError,
 				"No energy model available, cannot compute energy. Please pass an options object, or use multistrand.system.initialize_energy_model(...).\n");
-
-			if (options_object != NULL) {
-				Py_XDECREF(options_object);
-			}
-
-			Py_XDECREF(start_state_object);
-
 			return NULL;
 		}
 	}
 	energy = temp->calculateEnergy(start_state_object, typeflag);
-
 	delete temp;
-	Py_XDECREF(options_object);
-	Py_XDECREF(start_state_object);
 	return energy;
 }
 
 static PyObject *System_calculate_rate(PyObject *self, PyObject *args, PyObject *keywds) {
-
-	SimulationSystem *temp = NULL;
 	PyObject *options_object = NULL;
 	PyObject *rate;
 	double drate = -1.0;
@@ -322,17 +297,12 @@ static PyObject *System_calculate_rate(PyObject *self, PyObject *args, PyObject 
 			kwlist, &start_energy, &end_energy, &options_object, &joinflag))
 		return NULL;
 
-	if (options_object != NULL)
-		Py_INCREF(options_object);
-
 	if (options_object == NULL) {
 		em = Loop::GetEnergyModel();
 		if (em == NULL) {
 			PyErr_Format(
 				PyExc_AttributeError,
 				"No energy model available, cannot compute rates. Please pass an options object, or use multistrand.system.initialize_energy_model(...).\n");
-			if (options_object != NULL)
-				Py_XDECREF(options_object);
 			return NULL;
 		}
 
@@ -349,9 +319,6 @@ static PyObject *System_calculate_rate(PyObject *self, PyObject *args, PyObject 
 			PyErr_Format(
 				PyExc_AttributeError,
 				"Could not initialize the energy model, cannot compute rates. Please pass a valid options object, or use multistrand.system.initialize_energy_model(...).\n");
-			if (options_object != NULL) {
-				Py_XDECREF(options_object);
-			}
 
 			return NULL;
 		}
@@ -371,8 +338,6 @@ static PyObject *System_calculate_rate(PyObject *self, PyObject *args, PyObject 
 
 	if (em != Loop::GetEnergyModel())
 		delete em;
-
-	Py_XDECREF(options_object);
 
 	return rate;
 }
@@ -456,17 +421,16 @@ static struct PyModuleDef moduledef = {
 };
 
 PyMODINIT_FUNC PyInit_system(void) {
-	PyObject *m;
+	PyObject *m = Py_None;
 	/* Finalize the simulation system object type */
 	if (PyType_Ready(&SimSystem_Type) < 0)
-		return NULL;
+		return m;
 
 	m = PyModule_Create(&moduledef);
 	if (m == NULL)
-		return NULL;
+		return m;
 
 	Py_INCREF(&SimSystem_Type);
 	PyModule_AddObject(m, "SimSystem", (PyObject *) &SimSystem_Type);
-
-	return m;
+    return m;
 }

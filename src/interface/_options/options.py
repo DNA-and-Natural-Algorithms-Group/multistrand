@@ -11,7 +11,7 @@ from enum import IntEnum
 from typing import List, Optional
 
 from .interface import Interface
-from ..utils import C2K
+from ..utils.thermo import C2K
 from ..objects import Strand, Complex, StopCondition
 from ..__init__ import __version__
 
@@ -1135,7 +1135,7 @@ class Options:
             if key == "concentration":
                 if not isinstance(value, (float)):
                     raise Warning("Please provide concentration as float")
-        
+
         for key, value in kargs.items():
             if key in arg_lookup_table:
                 arg_lookup_table[key](value)

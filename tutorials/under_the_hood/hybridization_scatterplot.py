@@ -57,7 +57,7 @@ import nupack
 from multistrand.objects import *
 from multistrand.options import Options, Literals
 from multistrand.system import SimSystem, initialize_energy_model
-from multistrand.utils import C2K
+from multistrand.utils.thermo import C2K
 
 
 # for StopCondition macrostate definitions:

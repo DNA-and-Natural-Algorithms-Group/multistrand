@@ -17,6 +17,8 @@ The Multistrand Team (help@multistrand.org)
 #include <moveutil.h>
 #include <assert.h>
 
+#include "basetype.h"
+
 typedef std::vector<int> intvec;
 typedef std::vector<int>::iterator intvec_it;
 
@@ -62,7 +64,6 @@ void SComplexListEntry::fillData(EnergyModel *em) {
 
 	energy = thisComplex->getEnergy() + (em->getVolumeEnergy() + em->getAssocEnergy()) * (thisComplex->getStrandCount() - 1);
 	rate = thisComplex->getTotalFlux();
-
 }
 
 string SComplexListEntry::toString(EnergyModel *em) {
@@ -264,9 +265,9 @@ double SComplexList::getJoinFlux(void) {
 
 }
 
-uint16_t SComplexList::getMoveCount(void) {
+int SComplexList::getMoveCount(void) {
 
-	uint16_t output = 0;
+	int output = 0;
 
 	for (SComplexListEntry* temp = first; temp != NULL; temp = temp->next) {
 
@@ -554,7 +555,8 @@ JoinCriteria SComplexList::findJoinNucleotides(BaseType base, int choice, BaseCo
 
 	JoinCriteria crit;
 
-	int otherBase = 5 - (int) base;
+    assert((int) base > 0);
+    BaseType otherBase = static_cast<BaseType>(5 - (int) base);
 
 	crit.complexes[0] = temp->thisComplex;
 	crit.types[0] = otherBase;
@@ -801,8 +803,8 @@ bool SComplexList::checkLooseStructure(const char *our_struc, const char *stop_s
 	intvec our_pairs, stop_pairs;
 	int remaining_distance = count;
 
-	len = strlen(our_struc);
-	if (len != strlen(stop_struc))
+	len = (int)strlen(our_struc);
+	if (len != (int)strlen(stop_struc))
 		return false;  // something weird happened, as it should have the
 // same ID list...
 
@@ -859,8 +861,8 @@ bool SComplexList::checkCountStructure(const char *our_struc, const char *stop_s
 	intvec our_pairs, stop_pairs;
 	int remaining_distance = count;
 
-	len = strlen(our_struc);
-	if (len != strlen(stop_struc))
+	len = (int)strlen(our_struc);
+	if (len != (int)strlen(stop_struc))
 		return false;  // something weird happened, as it should have the
 // same ID list...
 

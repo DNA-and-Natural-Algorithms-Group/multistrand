@@ -26,7 +26,7 @@ public:
 
 	// information retrieval functions
 	double getTotalFlux(void); // returns total flux for all moves within the complex
-	uint16_t getMoveCount(void); // returns total number of transitions in the complex
+	int getMoveCount(void); // returns total number of transitions in the complex
 	int getStrandCount(void); // # of strands in the complex.
 	double getEnergy(void); // returns the energy of the complex
 	double getEnthalpy(void); // return the enthalpy of the complex

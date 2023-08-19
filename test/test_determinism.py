@@ -10,7 +10,7 @@ import pytest
 
 from multistrand.objects import Complex, Domain, Strand
 from multistrand.options import Options, Literals
-from multistrand.utils import generate_sequence
+from multistrand.utils.utility import generate_sequence
 from multistrand.system import SimSystem
 from multistrand.concurrent import MergeSim
 

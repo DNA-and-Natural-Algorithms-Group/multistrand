@@ -156,9 +156,6 @@ The Multistrand Team (help@multistrand.org)
 #define printStatusLine_First_Bimolecular( obj,seed,com_type,com_time,frate,tag) \
   _m_pushList( obj, _m_prepStatusFirstTuple( seed, com_type, com_time, frate, (char *)(tag)), add_result_status_line_firststep )
 
-#define printComplexStateLine( obj, seed, id, names, sequence, structure, energy, enthalpy ) \
-  _m_pushList( obj, _m_prepComplexStateTuple( seed, id, names, sequence, structure, energy, enthalpy ), add_complex_state_line )
-
 #define printComplexStateLine( obj, seed, data ) \
   _m_pushList( obj, _m_prepComplexStateTuple( seed, data.id, data.names.c_str(), data.sequence.c_str(), data.structure.c_str(), data.energy, data.enthalpy  ), add_complex_state_line )
 
@@ -326,9 +323,6 @@ The Multistrand Team (help@multistrand.org)
 #define printStatusLine_First_Bimolecular( obj,seed,com_type,com_time,frate,tag) \
   _m_d_pushList( obj, _m_prepStatusFirstTuple( seed, com_type, com_time, frate, (char *)(tag)), add_result_status_line_firststep )
 
-#define printComplexStateLine( obj, seed, id, names, sequence, structure, energy, enthalpy ) \
-  _m_d_pushList( obj, _m_prepComplexStateTuple( seed, id, names, sequence, structure, energy, enthalpy ), add_complex_state_line )
-
 #define printComplexStateLine( obj, seed, data ) \
   _m_d_pushList( obj, _m_prepComplexStateTuple( seed, data.id, data.names.c_str(), data.sequence.c_str(), data.structure.c_str(), data.energy, data.enthalpy  ), add_complex_state_line )
 
@@ -360,7 +354,6 @@ inline PyObject *_m_reify_GetAttrString(PyObject *obj, const char *name) {
 static inline bool _m_testLongAttr(PyObject *obj, const char *attrname, const char *test, long value) {
   PyObject *_m_attr = PyObject_GetAttrString(obj, attrname);
   long local_val = PyLong_AS_LONG(_m_attr);
-
   Py_DECREF(_m_attr);
   if (test[0] == '=')
     return (local_val == value);
@@ -368,6 +361,11 @@ static inline bool _m_testLongAttr(PyObject *obj, const char *attrname, const ch
     return (local_val < value);
   if (test[0] == '>')
     return (local_val > value);
+  else{
+    fprintf(stderr, "Mismatching input, options.h\n");
+    exit(1);
+  }
+
 }
 
 #ifdef DEBUG_MACROS

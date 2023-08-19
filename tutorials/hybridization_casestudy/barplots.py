@@ -11,7 +11,8 @@ import sys
 from multistrand.experiment import standardOptions, hairpinclosing, hairpinopening
 from multistrand.objects import StopCondition, Complex, Domain, Strand
 from multistrand.options import Literals
-from multistrand.utils import standardFileName, printTrajectory, dGC_feature
+from multistrand.utils.utility import standardFileName, printTrajectory
+from multistrand.utils.thermo import dGC_feature
 from multistrand.concurrent import MergeSim
 from multistrand.system import SimSystem
 

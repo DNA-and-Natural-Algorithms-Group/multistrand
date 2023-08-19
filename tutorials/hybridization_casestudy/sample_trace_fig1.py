@@ -10,7 +10,8 @@ This is important for hashing functions
 
 from multistrand.options import Literals
 from multistrand.system import SimSystem
-from multistrand.utils import printTrajectory, dGC_feature
+from multistrand.utils.utility import printTrajectory
+from multistrand.utils.thermo import dGC_feature
 from multistrand.experiment import standardOptions, makeComplex
 
 
