@@ -106,7 +106,6 @@ class FirstStepRate(MergeResult):
     def weightedForwardUni(self):
         mean_collision_forward = np.float64(self.sumCollisionForward()) / np.float64(self.nForward)
         weightedForwardUni = sum((np.float64(i.collision_rate) * np.float64(i.time) for i in self.dataset if i.tag == Literals.success))
-
         return weightedForwardUni / (mean_collision_forward * np.float64(self.nForward))
 
     def weightedReverseUni(self):
@@ -152,7 +151,6 @@ class FirstStepRate(MergeResult):
         if concentration == None:
             print("Cannot compute k_effective without concentration")
             return MINIMUM_RATE
-
         concentration = np.float64(concentration)
 
         if self.nForward == 0:
@@ -556,11 +554,11 @@ class MergeSim:
 
     numOfThreads = 2
     seed = 7713147777
-    ctx = multiprocess.get_context()
+    ctx = multiprocess.get_context('spawn')
 
     def __init__(self, settings=None):
         self.initializationTime = time.time()
-        if multiprocess.current_process().name == "MainProcess":
+        if self.ctx.current_process().name == "MainProcess":
             print(f"{timeStamp()}   Starting Multistrand {__version__}  "
                   f"(c) 2008-2023 Caltech")
 
@@ -646,7 +644,7 @@ class MergeSim:
         """
         lockArray = list()
         for i in range(16):
-            lockArray.append(multiprocess.Lock())
+            lockArray.append(self.ctx.Lock())
 
         self.aFactory = aFactoryIn
         self.aFactory.lockArray = lockArray
@@ -762,7 +760,7 @@ class MergeSim:
         startTime = time.time()
         assert(self.numOfThreads > 0)
 
-        manager = multiprocess.Manager()
+        manager = self.ctx.Manager()
 
         self.exceptionFlag = manager.Value('b', True)
         self.managed_result = manager.list()
@@ -784,10 +782,10 @@ class MergeSim:
             try:
                 s = SimSystem(myOptions)
                 s.start()
-            except:
+            except Exception as e:
+                print(e)
                 self.exceptionFlag.value = False
                 return
-
             myFSR = self.settings.rateFactory(myOptions.interface.results)
             nForwardIn.value += myFSR.nForward + myFSR.nForwardAlt
             nReverseIn.value += myFSR.nReverse
@@ -803,7 +801,7 @@ class MergeSim:
 
         def getSimulation(input):
             instanceSeed = self.seed + input * 3 * 5 * 19 + (time.time() * 10000) % (math.pow(2, 32) - 1)
-            return multiprocess.Process(target=doSim, args=(
+            return self.ctx.Process(target=doSim, args=(
                 self.factory, self.aFactory, self.managed_result,
                 self.managed_endStates, instanceSeed, self.nForward, self.nReverse))
 
