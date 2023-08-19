@@ -160,6 +160,7 @@ cython_debug/
 #.idea/
 
 # Multistrand
+*.idea
 *.txt
 *.sif
 *.img
