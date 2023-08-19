@@ -10,6 +10,7 @@ The Multistrand Team (help@multistrand.org)
 #include "moveutil.h"
 #include "sequtil.h"
 #include "options.h"
+#include "basetype.h"
 
 #include <iostream>
 #include <fstream>
@@ -27,15 +28,15 @@ constexpr int lookuphelper[26] = { 1, 0, 2, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 
 //                      A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z
 
 // // helper function to convert to numerical base format.
-int baseLookup(char base) {
+BaseType baseLookup(char base) {
 
 	char temp = std::toupper(base);
 	if (temp < 'A' || temp > 'Z') {
 //		cout << "Warning! Trying to cast a non-base, value is " << ((int) base) << " and  temp is " << (int) (temp)  << endl;
-		return base;
+		return static_cast<BaseType>(base);
 	}
 
-	return lookuphelper[temp - 'A'];
+	return static_cast<BaseType>(lookuphelper[temp - 'A']);
 }
 
 
@@ -355,7 +356,7 @@ MoveType EnergyModel::prefactorOpen(int index, int numOfSides, int sideLengths[]
 
 }
 
-double EnergyModel::singleStrandedStacking(char* sequence, int length) {
+double EnergyModel::singleStrandedStacking(BaseType* sequence, int length) {
 
 	if (simOptions->energyOptions->usingArrhenius() && length > 4) {
 
@@ -399,7 +400,7 @@ double EnergyModel::initializationPenalty(int length, int loop, int size) {
 
 }
 
-double EnergyModel::arrheniusLoopEnergy(char* seq, int length) {
+double EnergyModel::arrheniusLoopEnergy(BaseType* seq, int length) {
 
 	double output = 0.0;
 

@@ -12,6 +12,8 @@ The Multistrand Team (help@multistrand.org)
 
 #include "simoptions.h"
 #include "options.h"
+#include "basetype.h"
+
 
 #include <time.h>
 
@@ -40,7 +42,7 @@ extern  int pairtypes[5][5];
 extern  int basepair_sw[8];
 
 // helper function to convert to numerical base format.
-extern int baseLookup(char base);
+extern BaseType baseLookup(char base);
 
 double NupackEnergyModel::returnRate(double start_energy, double end_energy,
 									 int enth_entr_toggle) {
@@ -164,22 +166,21 @@ double NupackEnergyModel::BulgeEnergy(int i, int j, int p, int q, int bulgesize,
 	return energy;
 }
 
-double NupackEnergyModel::InteriorEnergy(char *seq1, char *seq2, int size1, int size2) {
+double NupackEnergyModel::InteriorEnergy(BaseType *seq1, BaseType *seq2, int size1, int size2) {
 
 	return this->InteriorEnergy(seq1, seq2, size1, size2, internal_dG);
 
 }
 
-double NupackEnergyModel::InteriorEnthalpy(char *seq1, char *seq2, int size1, int size2) {
+double NupackEnergyModel::InteriorEnthalpy(BaseType *seq1, BaseType *seq2, int size1, int size2) {
 
 	return this->InteriorEnergy(seq1, seq2, size1, size2, internal_dH);
 
 }
 
-double NupackEnergyModel::InteriorEnergy(char *seq1, char *seq2, int size1, int size2, internal_energies& internal) {
+double NupackEnergyModel::InteriorEnergy(BaseType *seq1, BaseType *seq2, int size1, int size2, internal_energies& internal) {
 
 	double energy, ninio;
-
 	int type1 = pairtypes[seq1[0]][seq2[size2 + 1]] - 1;
 	int type2 = pairtypes[seq1[size1 + 1]][seq2[0]] - 1;
 
@@ -237,19 +238,19 @@ double NupackEnergyModel::InteriorEnergy(char *seq1, char *seq2, int size1, int 
 	return energy;
 }
 
-double NupackEnergyModel::HairpinEnergy(char *seq, int size) {
+double NupackEnergyModel::HairpinEnergy(BaseType *seq, int size) {
 
 	return HairpinEnergy(seq, size, hairpin_dG);
 
 }
 
-double NupackEnergyModel::HairpinEnthalpy(char *seq, int size) {
+double NupackEnergyModel::HairpinEnthalpy(BaseType *seq, int size) {
 
 	return HairpinEnergy(seq, size, hairpin_dH);
 
 }
 
-double NupackEnergyModel::HairpinEnergy(char *seq, int size, hairpin_energies& hairpin) {
+double NupackEnergyModel::HairpinEnergy(BaseType *seq, int size, hairpin_energies& hairpin) {
 
 	double energy = 0.0;
 	int lookup_index = 0;
@@ -289,19 +290,19 @@ double NupackEnergyModel::HairpinEnergy(char *seq, int size, hairpin_energies& h
 	return energy;
 }
 
-double NupackEnergyModel::MultiloopEnergy(int size, int *sidelen, char **sequences) {
+double NupackEnergyModel::MultiloopEnergy(int size, int *sidelen, BaseType **sequences) {
 
 	return MultiloopEnergy(size, sidelen, sequences, multiloop_dG);
 
 }
 
-double NupackEnergyModel::MultiloopEnthalpy(int size, int *sidelen, char **sequences) {
+double NupackEnergyModel::MultiloopEnthalpy(int size, int *sidelen, BaseType **sequences) {
 
 	return MultiloopEnergy(size, sidelen, sequences, multiloop_dH);
 
 }
 
-double NupackEnergyModel::MultiloopEnergy(int size, int *sidelen, char **sequences, multiloop_energies& multiloop) {
+double NupackEnergyModel::MultiloopEnergy(int size, int *sidelen, BaseType **sequences, multiloop_energies& multiloop) {
 
 	// no dangle terms yet, this is equiv to dangles = 0;
 	int totallength = 0;
@@ -386,19 +387,18 @@ double NupackEnergyModel::MultiloopEnergy(int size, int *sidelen, char **sequenc
 
 }
 
-double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequences) {
-
+double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, BaseType **sequences) {
 	return OpenloopEnergy(size, sidelen, sequences, multiloop_dG);
 
 }
 
-double NupackEnergyModel::OpenloopEnthalpy(int size, int *sidelen, char **sequences) {
+double NupackEnergyModel::OpenloopEnthalpy(int size, int *sidelen, BaseType **sequences) {
 
 	return OpenloopEnergy(size, sidelen, sequences, multiloop_dH);
 
 }
 
-double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequences, multiloop_energies& multiloop) {
+double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, BaseType **sequences, multiloop_energies& multiloop) {
 
 	if (simOptions->debug)
 		cout << "Computing OpenLoopEnergy, size = " << size << endl;
@@ -417,7 +417,6 @@ double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, char **sequence
 		if (!gtenable && (pt > 3)) { // GT penalty applies
 			energy += 100000.0;
 		}
-
 		// FD: adding singlestranded stacking.
 		energy += singleStrandedStacking(sequences[loop], sidelen[loop]);
 		// FD: initialization of branch migration penalty.

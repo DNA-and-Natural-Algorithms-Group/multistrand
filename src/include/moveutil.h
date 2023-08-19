@@ -12,6 +12,7 @@ The Multistrand Team (help@multistrand.org)
 #include <vector>
 #include <map>
 #include <sequtil.h>
+#include "basetype.h"
 
 using std::vector;
 using std::string;
@@ -139,7 +140,7 @@ struct JoinCriteria {
 	friend std::ostream& operator<<(std::ostream&, JoinCriteria&);
 
 	StrandComplex* complexes[2] = { NULL, NULL };
-	char types[2] = { 0, 0 };
+	BaseType types[2] = {baseInvalid, baseInvalid};
 	int index[2] = { 0, 0 };
 
 	// arrhenius rates only
@@ -156,7 +157,7 @@ struct OpenInfo {
 public:
 	friend std::ostream& operator<<(std::ostream&, OpenInfo&);
 	void clear(void);
-	void increment(QuartContext, char, QuartContext);
+	void increment(QuartContext, BaseType, QuartContext);
 	void increment(HalfContext, BaseCount&);
 	void increment(OpenInfo&);
 

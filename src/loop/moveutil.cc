@@ -13,6 +13,7 @@ The Multistrand Team (help@multistrand.org)
 #include <iostream>
 #include <sstream>
 #include <scomplex.h>
+#include "basetype.h"
 
 using std::vector;
 using std::map;
@@ -101,7 +102,7 @@ void OpenInfo::clear(void) {
 }
 
 // simply store the vector of halfContext onto the list we already have
-void OpenInfo::increment(QuartContext left, char base, QuartContext right) {
+void OpenInfo::increment(QuartContext left, BaseType base, QuartContext right) {
 
 	HalfContext con = HalfContext(left, right);
 

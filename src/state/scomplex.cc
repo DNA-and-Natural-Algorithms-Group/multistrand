@@ -13,6 +13,7 @@ The Multistrand Team (help@multistrand.org)
 #include "scomplex.h"
 #include "simtimer.h"
 #include "simoptions.h"
+#include "basetype.h"
 
 #include <utility.h>
 
@@ -22,55 +23,57 @@ BaseCount emptyBaseCount;
 
 // JS: i'd like to optimize this lookup. It really should be just a bitwise
 //  or, and an array lookup, the extra function call annoys me.
-extern int baseLookup(char base);
+
+extern BaseType baseLookup(char base);
 
 StrandComplex::StrandComplex(char *seq, char *struc)
 {
 
-	char *tempseq = (char *)new char[strlen(seq) + 1];
-	char *tempstruct = (char *)new char[strlen(struc) + 1];
-	char *tempcseq = (char *)new char[strlen(seq) + 1];
+    int len = static_cast<int>(strlen(seq));
+	char *tempseq = (char *)new char[len + 1];
+	char *tempstruct = (char *)new char[len + 1];
+	BaseType *temp_bseq = (BaseType *)new BaseType[len];
 	strcpy(tempseq, seq);
-	strcpy(tempcseq, seq);
 	strcpy(tempstruct, struc);
-	for (int loop = 0; loop < strlen(tempcseq); loop++)
-		tempcseq[loop] = baseLookup(tempcseq[loop]);
+	for (int loop = 0; loop < len; loop++)
+		temp_bseq[loop] = baseLookup(tempseq[loop]);
 
 	beginLoop = NULL;
-	ordering = new StrandOrdering(tempseq, tempstruct, tempcseq);
+	ordering = new StrandOrdering(tempseq, tempstruct, temp_bseq);
+	// These pointers are copied in the orderingList constructor
+	// so we can delete them here.
 	delete[] tempseq;
 	delete[] tempstruct;
-	delete[] tempcseq;
+	delete[] temp_bseq;
 }
 
 StrandComplex::StrandComplex(char *seq, char *struc, class identList *id_list, bool debug)
 {
-
-	char *tempseq = (char *)new char[strlen(seq) + 1];
-	char *tempstruct = (char *)new char[strlen(struc) + 1];
-	char *tempcseq = (char *)new char[strlen(seq) + 1];
+    int len = static_cast<int>(strlen(seq));
+	char *tempseq = (char *)new char[len + 1];
+	char *tempstruct = (char *)new char[len + 1];
+	BaseType *temp_bseq = (BaseType *)new BaseType[len];
 	strcpy(tempseq, seq);
-	strcpy(tempcseq, seq);
 	strcpy(tempstruct, struc);
-	for (int loop = 0; loop < strlen(tempcseq); loop++)
+	for (int loop = 0; loop < len; loop++)
 	{
-		tempcseq[loop] = baseLookup(tempcseq[loop]);
+		temp_bseq[loop] = baseLookup(tempseq[loop]);
 	}
 
 	if (debug) {
 		cout << "StrandComplex:" << endl;
 		printf(" seq='%s', cseq='", tempseq);
-		for (int i = 0; i < strlen(tempcseq); i++)
-			cout << (int) tempcseq[i] << ",";
+		for (int i = 0; i < len; i++)
+			cout << (int) temp_bseq[i] << ",";
 		printf(" struct='%s'\n", tempstruct);
 		cout << flush;
 	}
 
 	beginLoop = NULL;
-	ordering = new StrandOrdering(tempseq, tempstruct, tempcseq, id_list);
+	ordering = new StrandOrdering(tempseq, tempstruct, temp_bseq, id_list);
 	delete[] tempseq;
 	delete[] tempstruct;
-	delete[] tempcseq;
+	delete[] temp_bseq;
 }
 
 StrandComplex::StrandComplex(StrandOrdering *newOrdering)
@@ -131,21 +134,17 @@ int StrandComplex::checkIDBound(char *id)
 
 StrandComplex *StrandComplex::performComplexJoin(JoinCriteria crit, bool useArr, bool debug)
 {
-
-	// FD 2016 Nov 14: Adjusting this to ignore the exterior nucleotides if useArr= TRUE;
-	// FD 2016 Dec 15: This comment is no longer applicable (full model now implemented)
-
 	if (debug)
 		cout << "Perform Complex Join 1/3 ***************" << std::endl;
 
 	StrandComplex **complexes = crit.complexes;
-	char *types = crit.types;
+	BaseType *types = crit.types;
 	int *index = crit.index;
 
 	OpenLoop *loops[2];
 	OpenLoop *new_loops[2] = {NULL, NULL};
 	StrandOrdering *new_ordering = NULL;
-	char *locations[2] = {NULL, NULL};
+	BaseType *locations[2] = {NULL, NULL};
 
 	if (debug)
 		cout << "Perform Complex Join 2/3 ***************" << std::endl;
@@ -249,13 +248,13 @@ StrandComplex *StrandComplex::doChoice(Move *move, SimTimer &timer, bool debug)
 		// 	 if cotranscriptional is active, print the distance from the origin.
 		// 	 this has to be done with pointer arithmatic, since we have not refactored this (yet).
 
-			uint64_t dist_left_bp = move->getAffected(0)->getLocation(move, 0) - ordering->first->thisCodeSeq;
+			uint64_t dist_left_bp = move->getAffected(0)->getLocation(move, 0) - ordering->first->thisBaseSeq;
 			uint64_t dist_right_bp = 0;
 
 			if (move->getType() & MOVE_CREATE){ // FD: test if we have a create-basepair move
-				dist_right_bp  =  move->getAffected(0)->getLocation(move, 1) -  ordering->first->thisCodeSeq;
+				dist_right_bp  =  move->getAffected(0)->getLocation(move, 1) -  ordering->first->thisBaseSeq;
 			} else if (move->getType() & MOVE_DELETE) { // FD: test if we have a delete-basepair move
-				dist_right_bp = move->getAffected(1)->getLocation(move, 1) -  ordering->first->thisCodeSeq;
+				dist_right_bp = move->getAffected(1)->getLocation(move, 1) -  ordering->first->thisBaseSeq;
 			}
 
 			// exit if one of the transitions are touching a frozen base
@@ -312,7 +311,8 @@ int StrandComplex::generateLoops(bool debug)
 	generateLoopsData *stacklist, *stacklisttail, *temp_intlist;
 	generateLoopsData *templist = NULL, *templisttail = NULL;
 	Loop *newLoop;
-	char *sequence, *structure, *charsequence;
+	char *structure, *charsequence;
+	BaseType *sequence;
 
 	if (debug)
 		cout << "Generating flat sequences." << endl << flush;
@@ -323,27 +323,29 @@ int StrandComplex::generateLoops(bool debug)
 	// ZIFNAB: completed: sequence is the code sequence, which has translated A/G/C/T but non translated special characters. get index should be returning into the code sequence.
 	ordering->generateFlatSequence(&charsequence, &structure, &sequence, debug);
 
+    int len = static_cast<int>(strlen(charsequence));
 	if (debug) {
 		printf(" Generating loops for: cseq='%s', seq='", charsequence);
-		for (int loop = 0; loop < strlen(sequence); loop++)
+		for (int loop = 0; loop < len; loop++)
 			cout << (int) sequence[loop] << ",";
 		printf(" struct='%s'\n", structure);
-		cout << " strlen(sequence) = " << strlen(sequence) << endl << flush;
+		cout << " strlen(charsequence) = " << strlen(charsequence) << endl << flush;
 	}
 
-	int *pairlist = (int *) new int[strlen(sequence) + 1];
-//	pairlist[sizeof(sequence) + 1] = 0;
-	char *newstruc = (char *) new char[strlen(sequence) + 1];
-	char *newseq = (char *) new char[strlen(sequence) + 1];
+	int *pairlist = (int *) new int[len + 1];
+	char *newstruc = (char *) new char[len + 1];
+	BaseType *newseq = (BaseType *) new BaseType[len];
 
 	stacklist = new generateLoopsData;
 	stacklist->data = -1;
 	stacklist->seqlen = 0;
+	stacklist->predec = NULL;
+	stacklist->next = NULL;
 	stacklisttail = stacklist;
 
 	strcpy(newstruc, structure);
 
-	for (int loop = 0; loop < strlen(sequence); loop++) {
+	for (int loop = 0; loop < len; loop++) {
 		newseq[loop] = baseLookup(charsequence[loop]);
 		pairlist[loop] = -1;
 		if (structure[loop] == '(')
@@ -369,13 +371,13 @@ int StrandComplex::generateLoops(bool debug)
 
 	if (debug) {
 		cout << " pairlist='";
-		for (int loop = 0; loop < (strlen(sequence) + 1); loop++)
+		for (int loop = 0; loop < len; loop++)
 			cout << pairlist[loop] << ",";
 		cout << "'" << endl << " newstruc='";
-		for (int loop = 0; loop < (strlen(sequence) + 1); loop++)
+		for (int loop = 0; loop < len; loop++)
 			cout << newstruc[loop];
 		cout << "'" << endl << " newseq=";
-		for (int loop = 0; loop < (strlen(sequence) + 1); loop++)
+		for (int loop = 0; loop < len; loop++)
 			cout << (int) newseq[loop] << ",";
 		cout << "'" << endl << flush;
 	}
@@ -399,7 +401,6 @@ int StrandComplex::generateLoops(bool debug)
 
 	while (stacklist != NULL) // as long as we have unexplored base pairs on the stack, keep going.
 	{
-
 		templist = NULL;
 		templisttail = NULL;
 		listlength = 0;
@@ -418,6 +419,8 @@ int StrandComplex::generateLoops(bool debug)
 					templisttail = templist;
 					templist->data = startpos;
 					templist->seqlen = 0;
+					templist->predec = NULL;
+					templist->next = NULL;
 					// CHECK to make sure startpos+1 is the right index. FIXME 5/26
 					listlength++;
 
@@ -441,7 +444,7 @@ int StrandComplex::generateLoops(bool debug)
 		}
 
 		if (startpos >= 0)
-			if (sequence[startpos] == '_' || sequence[startpos] == '+')
+			if (sequence[startpos] == baseInvalid || charsequence[startpos] == '+')
 			{
 				//	    printf("Open Loop at olflag = %d\n",startpos);
 				if (olflag != -1) // error, we shouldn't have more than one open loop specifier in a loop.
@@ -454,9 +457,9 @@ int StrandComplex::generateLoops(bool debug)
 
 		// Current problem: last item generated will be the initial loop (the one which started this computation. Identify and eliminate addition/creation.
 		// 2/11/04. START HERE - Resolved, see comment below
-		while (traverse != startpos && traverse < strlen(sequence))
+		while (traverse != startpos && traverse < len)
 		{
-			if (sequence[traverse] == '_' || sequence[traverse] == '+')
+			if (sequence[traverse] == baseInvalid || charsequence[traverse] == '+')
 			{
 				//printf("Open Loop at olflag = %d\n",traverse);
 				if (olflag != -1) // error, we shouldn't have more than one open loop specifier in a loop.
@@ -500,14 +503,13 @@ int StrandComplex::generateLoops(bool debug)
 		if (olflag != -1) {			// 'internal' open loop
 
 			int *OL_sidelengths;
-			char **OL_sequences;
-
-//			cout << "List length = " << listlength << endl << flush;
+			BaseType **OL_sequences;
 
 			openloopcount = 0;
 			// listlength is at least one.
 			OL_sidelengths = (int *)new int[listlength + 1];
-			OL_sequences = (char **)new char *[listlength + 1];
+			OL_sequences = (BaseType **)new BaseType *[listlength + 1];
+
 			// deletion for these is handled in the OpenLoop destructor.
 			temp_intlist = templist;
 
@@ -577,17 +579,16 @@ int StrandComplex::generateLoops(bool debug)
 			ordering->addOpenLoop((OpenLoop *)newLoop, olflag);
 			olflag = -1;
 		}
-		else if (traverse > strlen(sequence) - 1) // Open Loop
+		else if (traverse > len - 1) // Open Loop
 		// Will need another classifier here. (for non initiating open loops) (CHECK: This should now be covered by the above case.)
 		{
 			int *OL_sidelengths;
-			char **OL_sequences;
-
+			BaseType **OL_sequences;
 			if (listlength != 0)
 			{
 
 				OL_sidelengths = (int *)new int[listlength + 1];
-				OL_sequences = (char **)new char *[listlength + 1];
+				OL_sequences = (BaseType **)new BaseType *[listlength + 1];
 				// deletion for these is handled in the OpenLoop destructor.
 				temp_intlist = templist;
 				/*	      OL_pairtypes[0] = stacklist->pairtype;
@@ -597,23 +598,29 @@ int StrandComplex::generateLoops(bool debug)
 				 ... the problem appears to be that we need this for non open
 				 loops, but for open loops it doesn't make any sense. */
 				// Possibly a problem here, need to make sure sequences get paired correctly with lengths. FIXME
+
+				// Jake: Starting point on an open loop is -1. We don't actually read the first value of the
+				// sequence but it's still so dangerous to be doing this. I added a "wrapper" array so that if that
+				// -1 is ever indexed it won't cause memory issues.
+
 				OL_sequences[0] = ordering->convertIndex(stacklist->data);
 				OL_sidelengths[listlength] = seqlen;
 				for (int loop = 0; loop < listlength; loop++, temp_intlist = temp_intlist->next) {
 					OL_sidelengths[loop] = temp_intlist->seqlen;
 					OL_sequences[loop + 1] = ordering->convertIndex(pairlist[temp_intlist->data]);
 				}
-
+				
 				newLoop = new OpenLoop(listlength, OL_sidelengths, OL_sequences);
+				//exit(1);
 				ordering->addOpenLoop((OpenLoop *)newLoop, stacklist->data);
 			}
 			else
 			{
 
 				OL_sidelengths = (int *)new int[listlength + 1];
-				OL_sequences = (char **)new char *[listlength + 1];
+				OL_sequences = (BaseType **)new BaseType *[listlength + 1];
 				OL_sidelengths[0] = seqlen;
-				OL_sequences[0] = ordering->convertIndex(-1);
+				OL_sequences[0] = ordering->convertIndex(-1); // this feels very dangerous (need to think about it more)
 				newLoop = new OpenLoop(0, OL_sidelengths, OL_sequences); // open chain
 				ordering->addOpenLoop((OpenLoop *)newLoop, -1);
 			}
@@ -621,9 +628,9 @@ int StrandComplex::generateLoops(bool debug)
 		else if (listlength > 2) // MultiLoop
 		{
 			int *ML_sidelengths;
-			char **ML_sequences;
+			BaseType **ML_sequences;
 			ML_sidelengths = (int *)new int[listlength];
-			ML_sequences = (char **)new char *[listlength];
+			ML_sequences = (BaseType **)new BaseType *[listlength];
 			// deletion for these is handled in the OpenLoop destructor.
 			temp_intlist = templist;
 			// JS: Possibly a problem here, need to make sure sequences get paired correctly with lengths. FIXME
@@ -722,6 +729,7 @@ int StrandComplex::generateLoops(bool debug)
 	if (charsequence != NULL)
 		delete[] charsequence;
 
+	return 0;
 }
 
 void StrandComplex::printAllMoves(void)
@@ -772,7 +780,7 @@ double StrandComplex::getTotalFlux(void)
 	return beginLoop->returnFlux(NULL);
 }
 
-uint16_t StrandComplex::getMoveCount(void)
+int StrandComplex::getMoveCount(void)
 {
 	return beginLoop->getMoveCount(NULL);
 }

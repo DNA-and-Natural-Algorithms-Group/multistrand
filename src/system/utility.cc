@@ -9,6 +9,7 @@ The Multistrand Team (help@multistrand.org)
 #include <sstream>
 #include "move.h"
 #include <energymodel.h>
+#include "basetype.h"
 
 char* utility::copyToCharArray(string& myString) {
 
@@ -19,35 +20,35 @@ char* utility::copyToCharArray(string& myString) {
 
 }
 
-string utility::sequenceToString(char* sequence, int size) {
+string utility::sequenceToString(BaseType* sequence, int size) {
 
 	// the first and final character is the paired base -- adjust the print for this.
 
 	std::stringstream ss;
 
-	int preBase = (int) sequence[0];
-	int postBase = (int) sequence[size + 1];
+	BaseType preBase = (BaseType) sequence[0];
+	BaseType postBase = (BaseType) sequence[size + 1];
 
 	if (preBase < 0 || preBase > 5) {
 		cout << "Warning! prebase is outside of range" << endl;
 	}
 
 	if (postBase < 0 || postBase > 5) {
-		cout << "Warning! postbase is outside of range" << endl;
+		cout << "Warning! postbase is outside of range: " << postBase <<endl;
 	}
 
 	ss << "";
-	ss << baseTypeString[(int) sequence[0]];
+	ss << baseTypeString[(BaseType) sequence[0]];
 	ss << ":";
 
 	for (int i = 1; i < size + 1; i++) {
 
-		ss << baseTypeString[(int) sequence[i]];
+		ss << baseTypeString[(BaseType) sequence[i]];
 
 	}
 
 	ss << ":";
-	ss << baseTypeString[(int) sequence[size + 1]];
+	ss << baseTypeString[(BaseType) sequence[size + 1]];
 	ss << "";
 
 	return ss.str();

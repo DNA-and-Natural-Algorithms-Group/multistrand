@@ -15,8 +15,8 @@ The Multistrand Team (help@multistrand.org)
 #include <moveutil.h>
 #include <sequtil.h>
 
-
 #include "rapidjson/document.h"
+#include "basetype.h"
 using std::string;
 using std::array;
 
@@ -41,7 +41,7 @@ const int basepair_sw_mfold[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
 const int basepair_sw_mfold_actual[8] = { 0, 4, 3, 2, 1, 6, 5, 7 }; // Why do this? Vienna's parameter file stores pairings in the opposite ordering. So for one of them, we need to swap basepairs to get the correct ordering, in the other one, we don't.
 extern  int basepair_sw[8]; // = {0,0,0,0,0,0,0,0};
 
-int baseLookup(char base);
+BaseType baseLookup(char base);
 
 const double nupackInfinte = 100000.0;
 const double gasConstant = 0.0019872041;
@@ -65,9 +65,9 @@ public:
 
 	// Implemented methods
 	bool useArrhenius(void);
-	double singleStrandedStacking(char* sequence, int length);
+	double singleStrandedStacking(BaseType* sequence, int length);
 	double initializationPenalty(int, int, int);
-	double arrheniusLoopEnergy(char* seq, int size);
+	double arrheniusLoopEnergy(BaseType* seq, int size);
 	double saltCorrection(void);
 	void setArrheniusRate(double ratesArray[], EnergyOptions* options, double temperature, int left, int right);
 	void computeArrheniusRates(double temperature);
@@ -98,23 +98,23 @@ public:
 	//             3' j x q 5'
 	//  Where one of the x's is a sequence of length bulgesize and the other is size 0.
 
-	virtual double InteriorEnergy(char *seq1, char *seq2, int size1, int size2) = 0;
+	virtual double InteriorEnergy(BaseType *seq1, BaseType *seq2, int size1, int size2) = 0;
 	// This is: 5' seq1 3'
 	//          3' seq2 5'
 
-	virtual double HairpinEnergy(char *seq, int size) = 0;
+	virtual double HairpinEnergy(BaseType *seq, int size) = 0;
 	// just passing in the whole sequence
 
-	virtual double MultiloopEnergy(int size, int *sidelen, char **sequences) = 0;
-	virtual double OpenloopEnergy(int size, int *sidelen, char **sequences) = 0;
+	virtual double MultiloopEnergy(int size, int *sidelen, BaseType **sequences) = 0;
+	virtual double OpenloopEnergy(int size, int *sidelen, BaseType **sequences) = 0;
 
 	// FD January 2018: Adding the mimicking enthalpy functions
 	virtual double StackEnthalpy(int i, int j, int p, int q) = 0;
 	virtual double BulgeEnthalpy(int i, int j, int p, int q, int bulgesize) = 0;
-	virtual double InteriorEnthalpy(char *seq1, char *seq2, int size1, int size2) = 0;
-	virtual double HairpinEnthalpy(char *seq, int size) = 0;
-	virtual double MultiloopEnthalpy(int size, int *sidelen, char **sequences) = 0;
-	virtual double OpenloopEnthalpy(int size, int *sidelen, char **sequences) = 0;
+	virtual double InteriorEnthalpy(BaseType *seq1, BaseType *seq2, int size1, int size2) = 0;
+	virtual double HairpinEnthalpy(BaseType *seq, int size) = 0;
+	virtual double MultiloopEnthalpy(int size, int *sidelen, BaseType **sequences) = 0;
+	virtual double OpenloopEnthalpy(int size, int *sidelen, BaseType **sequences) = 0;
 
 	SimOptions* simOptions;
 
@@ -198,18 +198,18 @@ public:
 
 	double StackEnergy(int i, int j, int p, int q);
 	double BulgeEnergy(int i, int j, int p, int q, int bulgesize);
-	double InteriorEnergy(char *seq1, char *seq2, int size1, int size2);
-	double HairpinEnergy(char *seq, int size);
-	double MultiloopEnergy(int size, int *sidelen, char **sequences);
-	double OpenloopEnergy(int size, int *sidelen, char **sequences);
+	double InteriorEnergy(BaseType *seq1, BaseType *seq2, int size1, int size2);
+	double HairpinEnergy(BaseType *seq, int size);
+	double MultiloopEnergy(int size, int *sidelen, BaseType **sequences);
+	double OpenloopEnergy(int size, int *sidelen, BaseType **sequences);
 
 	// FD jan 2018: adding the corresponding enthalpy functions
 	double StackEnthalpy(int i, int j, int p, int q);
 	double BulgeEnthalpy(int i, int j, int p, int q, int bulgesize);
-	double InteriorEnthalpy(char *seq1, char *seq2, int size1, int size2);
-	double HairpinEnthalpy(char *seq, int size);
-	double MultiloopEnthalpy(int size, int *sidelen, char **sequences);
-	double OpenloopEnthalpy(int size, int *sidelen, char **sequences);
+	double InteriorEnthalpy(BaseType *seq1, BaseType *seq2, int size1, int size2);
+	double HairpinEnthalpy(BaseType *seq, int size);
+	double MultiloopEnthalpy(int size, int *sidelen, BaseType **sequences);
+	double OpenloopEnthalpy(int size, int *sidelen, BaseType **sequences);
 
 private:
 
@@ -217,11 +217,11 @@ private:
 	FILE* openFiles(char*, string&, string&, int);
 
 	// FD jan 2018: helper functions, now seperated out
-	double HairpinEnergy(char *seq, int size, hairpin_energies&);
-	double InteriorEnergy(char *seq1, char *seq2, int size1, int size2, internal_energies& internal);
+	double HairpinEnergy(BaseType *seq, int size, hairpin_energies&);
+	double InteriorEnergy(BaseType *seq1, BaseType *seq2, int size1, int size2, internal_energies& internal);
 	double BulgeEnergy(int i, int j, int p, int q, int bulgesize, array<double,31>, array<array<double, PAIRS_NUPACK>, PAIRS_NUPACK> );
-	double MultiloopEnergy(int size, int *sidelen, char **sequences, multiloop_energies& multiloop);
-	double OpenloopEnergy(int size, int *sidelen, char **sequences, multiloop_energies& multiloop);
+	double MultiloopEnergy(int size, int *sidelen, BaseType **sequences, multiloop_energies& multiloop);
+	double OpenloopEnergy(int size, int *sidelen, BaseType **sequences, multiloop_energies& multiloop);
 
 	// JS: All energy units are integers, in units of .01 kcal/mol, as used by ViennaRNA
 	// FD: In 2.0, the units changed to 0.01 kcal/mol for dH and kcal/mol for dG.

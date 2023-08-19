@@ -14,6 +14,7 @@ The Multistrand Team (help@multistrand.org)
 #include <iomanip>
 
 #include "optionlists.h"
+#include "basetype.h"
 
 using namespace std;
 
@@ -22,7 +23,7 @@ namespace utility {
 
 //helper functions
 
-string sequenceToString(char*, int);
+string sequenceToString(BaseType*, int);
 
 char* copyToCharArray(string&);
 

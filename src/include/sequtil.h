@@ -11,6 +11,8 @@ The Multistrand Team (help@multistrand.org)
 #include <string>
 #include <vector>
 
+#include "basetype.h"
+
 using std::string;
 using std::vector;
 
@@ -28,11 +30,7 @@ const int BASES = 5;
 // FD: So I added an offset to the tostring array.
 const static string basepairString[PAIRS_NUPACK + 1] = { "VOID", "A/T", "C/G", "G/C", "T/A", "G/T", "T/G" };
 
-enum BaseType {
 
-	baseNone, baseA, baseC, baseG, baseT, BASETYPE_SIZE
-
-};
 
 const string baseTypeString[BASETYPE_SIZE] = { "·", "A", "C", "G", "T" };
 
