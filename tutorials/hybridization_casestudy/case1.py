@@ -14,7 +14,8 @@ slowDownStudy 82000
 
 from multistrand.objects import Strand
 from multistrand.experiment import standardOptions, hybridization
-from multistrand.utils import concentration_string, standardFileName, C2K
+from multistrand.utils.utility import concentration_string, standardFileName, \
+from multistrand.utils.thermo import C2K
 from multistrand.concurrent import  Bootstrap, MergeSim
 from multistrand.options import Literals
 

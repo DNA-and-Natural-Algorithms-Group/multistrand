@@ -15,7 +15,7 @@ from multistrand.objects import Strand, Complex, Domain, StopCondition
 from multistrand.options import Options, Literals
 from multistrand.system import SimSystem
 from multistrand.experiment import makeComplex
-from multistrand.utils import C2K
+from multistrand.utils.thermo import C2K
 
 
 # ==============================================================================

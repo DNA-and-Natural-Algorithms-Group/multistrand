@@ -14,7 +14,8 @@ time from the starting states until hitting an end state.
 import time, copy, os, sys
 
 from multistrand.system import SimSystem
-from multistrand.utils import uniqueStateID, seqComplement, GAS_CONSTANT
+from multistrand.utils.utility import uniqueStateID, seqComplement
+from multistrand.utils.thermo import GAS_CONSTANT
 from multistrand.options import Literals
 from multistrand.experiment import standardOptions, makeComplex
 
@@ -497,7 +498,7 @@ class Builder:
             o1.rate_method = self.options.rate_method
             o1.start_state = inputs[0]
             return o1
-        
+
         for key, _ in self.protoSpace.items():
             if ogVerb and ((counter % 100) == 0):
                 print("Searching for missing transitions. Progress " + str(counter) + " / " + str(len(self.protoSpace)))
@@ -520,6 +521,7 @@ class Builder:
             counter += 1
         
         Builder.verbosity = ogVerb
+
 
     """
     Computes the mean first pasasage times, 

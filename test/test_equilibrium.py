@@ -10,7 +10,7 @@ import pytest
 from multistrand.objects import Strand, Complex, Domain
 from multistrand.options import Options
 from multistrand.concurrent import MergeSim
-from multistrand.utils import GAS_CONSTANT, C2K
+from multistrand.utils.thermo import GAS_CONSTANT, C2K
 from nupack import pfunc
 
 

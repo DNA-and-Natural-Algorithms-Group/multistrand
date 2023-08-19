@@ -6,7 +6,7 @@
 # Often recurring experimental setups
 from multistrand.objects import Complex, Domain, Strand, StopCondition
 from multistrand.options import Options, Literals
-from multistrand.utils import C2K
+from multistrand.utils.thermo import C2K
 
 
 def setBoltzmann(complexIn, trials, supersample=1):

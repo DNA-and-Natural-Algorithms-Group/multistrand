@@ -16,7 +16,7 @@ from multiprocessing import Pool, cpu_count
 from multistrand.system import SimSystem
 from multistrand.objects import Strand, Complex
 from multistrand.options import Options
-from multistrand.utils import generate_sequence
+from multistrand.utils.utility import generate_sequence
 
 class Results_Store:
     def __init__(self):

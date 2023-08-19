@@ -4,6 +4,7 @@
 
 from functools import reduce
 
+from ..utils.thermo import Model, sample
 import numpy as np
 
 from .strand import Strand

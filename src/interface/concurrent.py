@@ -25,7 +25,7 @@ import multiprocess
 
 from .options import Literals
 from .system import SimSystem
-from .utils import printTrajectory
+from .utils.utility import printTrajectory
 from .__init__ import __version__
 
 MINIMUM_RATE = 1e-36

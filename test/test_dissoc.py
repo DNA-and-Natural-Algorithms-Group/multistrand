@@ -12,8 +12,7 @@ import pytest
 import multistrand
 from multistrand.options import Options
 from multistrand.objects import Domain
-from multistrand.utils import GAS_CONSTANT, C2K
-from nupack import pfunc
+import multistrand.utils.thermo as thermo
 
 
 class Test_Dissoc_Rate:
@@ -33,7 +32,7 @@ class Test_Dissoc_Rate:
         from tutorials.compute.dissociation import compute as computeDissociation
 
         seqC = Domain(name="top", sequence=seq).C.sequence
-        temp = 25.0 + 40 + C2K
+        temp = 25.0 + 40 + thermo.C2K
         sodium = 1.0
 
         hline = 60 * "="
@@ -52,12 +51,12 @@ class Test_Dissoc_Rate:
         print(hline)
 
         # dotparen = "("*len(seq) + "+" + ")"*len(seq)
-        dG = pfunc([seq, seqC], [1, 2], T=temp - C2K, material="dna")
-        print()
-        print(f"{temp = }")
-        print(f"{dG = }")
+        model = thermo.Model(material="DNA", kelvin=temp, ensemble="some", sodium=1.0, magnesium=0.0)
+        dG = thermo.pfunc(strands=[seq, seqC], model=model)
+        print(f"temp {temp}")
+        print(f"dG = {dG}")
 
-        k1_A = predictedA.k1() * math.exp(dG / (GAS_CONSTANT * temp))
+        k1_A = predictedA.k1() * math.exp(dG / (thermo.GAS_CONSTANT * temp))
         k1_D = predictedD.k1()
         log_diff = np.abs(np.log10(k1_A) - np.log10(k1_D))
         print(f"{k1_A = :.3g}, {k1_D = :.3g}, {log_diff = :.3g}")

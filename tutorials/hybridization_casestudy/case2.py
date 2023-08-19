@@ -14,7 +14,7 @@ generate structured-random 25 3 4 10 sr25-10
 
 from multistrand.experiment import hybridization, standardOptions
 from multistrand.concurrent import FirstStepLeakRate, MergeSim
-from multistrand.utils import C2K
+from multistrand.utils.thermo import C2K
 from constantsgao import goa2006_P0, goa2006_P3, goa2006_P4, setSaltGao2006
 
 import matplotlib.pyplot as plt

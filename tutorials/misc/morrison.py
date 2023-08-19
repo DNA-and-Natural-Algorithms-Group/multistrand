@@ -12,7 +12,7 @@ import math
 import xlrd         #excel sheets
 import numpy as np
 
-from multistrand.utils import GAS_CONSTANT, C2K
+from multistrand.utils.thermo import GAS_CONSTANT, C2K
 
 from anneal import compute
 from nupack import pfunc

@@ -14,7 +14,7 @@ import pytest
 from multistrand.options import Options, Energy_Type
 from multistrand.system import initialize_energy_model, energy
 from multistrand.objects import Complex, Strand
-import nupack
+import multistrand.utils.thermo as thermo
 
 
 def split_tasks(n_tasks: int, n_workers: int) -> List[np.ndarray]:
@@ -89,9 +89,15 @@ class Test_SingleStrandEnergy:
     @staticmethod
     def compare_energies(opt: Options, rel_tol: float, category: str,
                          complexes: Tuple[Iterable[str], Iterable[str]]) -> None:
+        model1 = thermo.Model(opt)
+        i = 0
         for seq, struct in zip(*complexes):
             assert len(seq) == len(struct)
-            e_nupack = nupack.energy([seq], struct, material='dna')
+            start_nupack = time.time()
+            e_nupack = thermo.structure_energy([seq], struct, model=model1)
+            end_nupack = time.time()
+
+            start_multistrand = time.time()
             c_multistrand = Complex(
                 strands=[Strand(name="hairpin", sequence=seq)], structure=struct)
             e_multistrand = energy(

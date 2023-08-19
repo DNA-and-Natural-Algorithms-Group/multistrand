@@ -11,7 +11,7 @@ from multistrand._options.options import Options
 from multistrand.experiment import standardOptions, hybridization
 from multistrand.builder import codeToDesc
 from multistrand.system import SimSystem
-from multistrand.utils import printTrajectory
+from multistrand.utils.utility import printTrajectory
 
 
 def arr_move_type(o: Options, i: int):
