@@ -2676,8 +2676,9 @@ HairpinLoop::HairpinLoop(void) {
 
 HairpinLoop::HairpinLoop(int size, BaseType *hairpin_sequence, Loop *previous) {
 	numAdjacent = 1;
-	adjacentLoops = new Loop *[1];
+	adjacentLoops = new Loop *[2];
 	adjacentLoops[0] = previous;
+	adjacentLoops[1] = NULL;
 	if (previous != NULL)
 		curAdjacent = 1;
 

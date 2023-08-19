@@ -23,7 +23,7 @@ public:
 	~orderingList(void);
 	orderingList *next, *prev;
 	char *thisTag, *thisSeq, *thisStruct;
-	BaseType *thisBaseSeq;
+	BaseType *baseSeqWrapper, *thisBaseSeq;
 	OpenLoop *thisLoop; // corresponds to the OpenLoop to the 'left' of this strand
 	int size;
 	int uid;

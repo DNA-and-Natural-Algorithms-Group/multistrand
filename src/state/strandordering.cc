@@ -27,7 +27,8 @@ orderingList::orderingList(int insize, int n_id, char *inTag, char *inSeq, BaseT
 	// ???
 	thisTag = new char[strlen(inTag) + 1];
 	thisSeq = new char[size + 1];
-	thisBaseSeq = new BaseType[size];
+	baseSeqWrapper = new BaseType[size + 2]; // the +2 is important not a null terminating char
+	thisBaseSeq = &baseSeqWrapper[1]; // open loop shenanigans. We reference into the 2nd element of the wrapper since
 	// Open loop can index at -1 which can cause some issues
 	thisStruct = new char[size + 1];
 
