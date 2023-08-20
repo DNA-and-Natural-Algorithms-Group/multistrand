@@ -4,6 +4,8 @@
 
 from setuptools import setup, Extension
 
+debug = False
+
 sources = {
     "system": "ssystem simoptions energyoptions statespace utility sequtil simtimer",
     "state": "scomplex scomplexlist strandordering",
@@ -16,11 +18,9 @@ setup(ext_modules=[Extension(
     name="multistrand.system",
     include_dirs=["./src/include"],
     language="c++",
-    undef_macros=['NDEBUG'],
-    #define_macros=[('DEBUG_MACROS', None)],
-    extra_compile_args =  ['-O0', '-w', "-g", "-Wall", "-std=c++11"],
+    define_macros=[("DEBUG_MACROS", None)] if debug else [("NDEBUG", None)],
+    undef_macros=["NDEBUG"] if debug else [],
+    extra_compile_args=["-std=c++11", "-w", "-Wall"] + (
+        ["-g", "-O0", "-fno-inline"] if debug else ["-O3"]),
     sources=[f"src/{d}/{f}.cc" for d, fs in sources.items()
              for f in fs.split(" ")])])
-
-# ['-O3', '-w', "-std=c++11", "-DNDEBUG"]
-# ['-O0', '-w', "-std=c++11", "-g", "-Wall", "-fno-inline"] dont forget undef ndebug

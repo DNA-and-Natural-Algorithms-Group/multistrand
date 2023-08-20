@@ -1,8 +1,8 @@
-include *.md changelog MANIFEST.in
+include *.md MANIFEST.in
 
 recursive-include src *.h *.cc *.py
 recursive-include test *.py *.txt
-recursive-include env *.def
+recursive-include tools *.def
 
 recursive-include tutorials *.py *.ipynb *.sh *.md *.xlsx *.svg
 include doc/Makefile
