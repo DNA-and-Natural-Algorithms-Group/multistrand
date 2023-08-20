@@ -77,7 +77,10 @@ class Domain:
             self.length = len(self._sequence)
 
     def gen_sequence( self, *args, **kargs ):
-        """ Uses the same parameters as 'multistrand.utils.utility.generate_sequence', but sets the length to the domain's length."""
+        """
+        Uses the same parameters as 'utils.utility.generate_sequence', but sets
+        the length to the domain's length.
+        """
         if 'n' in kargs:
             del kargs['n']
         self.sequence = generate_sequence(n = self.length, *args, **kargs )
@@ -158,7 +161,10 @@ class ComplementaryDomain(Domain):
         self._domain.sequence = "".join([ComplementaryDomain.complement[i] for i in reversed(value.upper())])
     
     def gen_sequence( self, *args, **kargs ):
-        """ Uses the same parameters as 'multistrand.utils.utility.generate_sequence', but sets the length to the domain's length."""
+        """
+        Uses the same parameters as 'utils.utility.generate_sequence', but sets
+        the length to the domain's length.
+        """
         self._domain.gen_sequence( *args, **kargs )
     
     @property

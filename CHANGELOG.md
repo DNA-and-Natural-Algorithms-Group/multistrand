@@ -4,53 +4,73 @@
 ## Release 2.2 (work in progress)
 
 ### Package
-- Moved to Python 3.8+ (Python modules and Python/C API).
+- Migrated from Python 2.7 to Python 3.8+ (Python modules & Python/C API).
+- Migrated from Nupack 3 to Nupack 4.
 - Updated the Python package definition, simplified the installation and adapted
   the instructions.
-- Created an [Apptainer](https://apptainer.org/) container for a fully
-  reproducible installation.
-- Fixed numerous compilation problems.
+- Created an [Apptainer](https://apptainer.org/) container for fully
+  reproducible development and deployment. For reproducible debugging, there is
+  also a container variant including debug builds of Python and Multistrand and
+  a pre-configured GDB.
+- Updated the Jupyter notebooks (`tutorials/under_the_hood_notebooks`).
 - Updated, refactored and improved the test suite. Some of the small tutorials
   are now executed as part of the test suite.
-- Removed several obsolete code sections.
 
 ### Functionality
-- Default kinetic parameters in `EnergyOptions` now match the parameter preset
-  `Options.JSDefault()`.
-- A mistake was fixed in the numerical values for the parameter preset
-  `DNA23Arrhenius()`.
-- The `Options()` interface now uses explicit type casts to guard against type
-  errors that would crash the Python/C API.
-- The reliability of `MergeSim()` was improved by switching from the standard
-  library module `multiprocessing` to the `multiprocess` package.
-- `MergeSim()` now throws an error if the user-defined `OptionsFactory()` is not
-  deterministic (up to Boltzmann sampling of initial conditions), or if it is
-  not consistent with the `MergeSimSettings()`.
-- C++ debug traces can now be toggled in the Python runtime via
-  `Options.verbosity`.
-- Transition types are now computed only if they are used in the kinetic model
-  (`rate_method == 'Arrhenius'`).
-- Migrated support from Nupack3 to Nupack4
-- Transitioned energy models to `dna04`/`rna06`
-- Created `utils.thermo` to wrap nupack util functions (multistrand doesn't account for coaxial stacking)
-- Internal Boltzmann sampling uses updated nupack's `sample`
-- Updated Jupyter Notebooks (`under_the_hood_notebooks`) to reflect changes in options as well as Python Migration
-- Added constants (e.g. Boltzmann/C2K) to `options` or `utils.thermo` to minimize redefinitions for user
-- Corrected undefined behavior related to loop indexing vs array indexing
-- Corrected undefined behavior related to printing adjacent loops
-- Added error message when `$NUPACKHOME` isn't set correctly
-- Illegal initial structures that cause undefined behavior are now caught
-- Shifted code from assertions in order to allow compilation with `NDEBUG`  
-- New `BaseType` which replaces the previous `char` encoding method of passing sequence. Better readability
-- Reduced number of compiler warnings
-- Missing return statements fixed which caused segfaults
-- Removed some unnecessary manual memory management between the Python and C++ layers.
-- `MergeSim` concurrency uses `spawn` to properly isolate nupack utilities.
-- Prevented repeated intermediate prints when using `MergeSim` due to `multiprocess` 
-- Tied energymodel to options object
-- Fixed reference count bug which "mangles" complex objects. No longer crashes when accessing a complex post simulation
-- General cleanup of print statements
-- Introduced `const` expressions for better compile time optimization
+- Updated the NUPACK thermodynamic parameters to `dna04`/`rna99`.
+- Introduced the `utils.thermo` module, which wraps the updated NUPACK utility
+  functions (e.g., Boltzmann sampling, disabling coaxial stacking in
+  thermodynamic model, adjusting concentration units in ensemble free energy).
+- Defined repeatedly used physical constants (e.g., Boltzmann, Celsius to
+  Kelvin) in the `options` and `utils.thermo` modules.
+- Updated the default kinetic parameters in `EnergyOptions` (C++) to match the
+  parameter preset `Options.JSDefault()` (Python).
+- Tied the formerly static `EnergyModel` (C++) instance as a dynamic attribute
+  to an `Options` (Python) instance. Henceforth, different `SimSystem` (Python)
+  instances can reuse the *same* `EnergyModel` instance *sequentially* (i.e., to
+  avoid re-parsing the same NUPACK parameter file), as well as use *different*
+  `EnergyModel` instances *concurrently* (e.g., for varying environment
+  conditions or kinetic parameters).
+- Enabled toggling simulator debug traces from the Python runtime via
+  `Options.verbosity`, i.e., without recompiling the C++ extension.
+- Improved the reliability of `MergeSim` (Python) by switching from the standard
+  library module `multiprocessing` to the `multiprocess` package, and by using
+  `spawn` for concurrency in order to properly isolate NUPACK utilities.
+- Added an exception in `MergeSim` when the user-defined `OptionsFactory` is not
+  deterministic (up to Boltzmann sampling of initial states), or if it is not
+  consistent with the `MergeSimSettings`.
+
+### Internals
+- Relocated code which was previously inside assertions, in order to enable
+  compilation with `NDEBUG`.
+- Resolved a number of compiler warnings.
+- Introduced `const` expressions for better compile time optimization.
+- Introduced `BaseType`, which replaces the previous `char` encoding of primary
+  structure, in order to improve maintainability.
+- Stopped computing transition types when they are not used in the kinetic model
+  (`rate_method != 'Arrhenius'`).
+- Prevented repeated intermediate prints when using `multiprocess` in
+  `MergeSim`.
+- Cleaned up print statements.
+- Removed several obsolete code sections.
+
+### Bug fixes
+#### Python
+- Corrected swapped dimensions in the parameter preset
+  `Options.DNA23Arrhenius()`.
+- Added explicit type casts in the `Options` interface, in order to guard
+  against type errors that would crash the Python/C API.
+
+#### C++
+- Fixed some missing return statements which caused segmentation faults.
+- Fixed a reference counting bug which previously mangled `Complex` objects,
+  leading to a crash when accessing a `Complex` post simulation.
+- Removed some unnecessary manual memory management between the Python and C++
+  layers.
+- Corrected undefined behavior related to loop indexing vs. array indexing.
+- Corrected undefined behavior related to printing adjacent loops.
+- Caught illegal initial structures that would cause undefined behavior.
+
 
 ## Release 2.1 (May 2018)
 

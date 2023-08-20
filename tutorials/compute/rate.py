@@ -8,8 +8,6 @@ sys.path.append(Path(__file__).resolve().as_posix())
 
 import multiprocess
 
-from anneal import computeAndWriteToCL as computeAnneal
-from dissociation import computeAndWriteToCL as computeDissociation
 
 import sys, time
 
@@ -36,11 +34,12 @@ def main():
             doBootstrap = True
 
     if type == "dissociation":
-        result = computeDissociation(mySequence, doBootstrap)
+        from dissociation import computeAndWriteToCL as compute
     elif type == "hybridization":
-        result = computeAnneal(mySequence, doBootstrap)
+        from anneal import computeAndWriteToCL as compute
     else:
         errorPrint()
+    result = compute(mySequence, doBootstrap)
     print(f"Computing took {time.time() - start_time:.4f} s")
 
 

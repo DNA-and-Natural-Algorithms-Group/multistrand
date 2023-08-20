@@ -53,17 +53,9 @@ class Test_Determinism:
             rate_model, [start_complex], seed, False)
 
         # compare trajectories
-        if rate_model == "DNA23Arrhenius":
-            common = np.s_[:min(len(structs1), len(structs2))]
-            structs1, structs2 = structs1[common], structs2[common]
-            energies1, energies2 = energies1[common], energies2[common]
-            times1, times2 = times1[common], times2[common]
         assert (structs1 == structs2).all()
         assert (energies1 == energies2).all()
-        if rate_model == "DNA23Arrhenius":
-            assert np.allclose(times1, times2, rtol=1e-2)
-        else:
-            assert (times1 == times2).all()
+        assert np.allclose(times1, times2, rtol=1e-6)
 
     @classmethod
     def single_run(cls, rate_model: str, start_state: List[Complex],

@@ -7,10 +7,13 @@
         | |  | | |_| | | |_| \__ \ |_| | | (_| | | | | (_| |
         \_|  |_/\__,_|_|\__|_|___/\__|_|  \__,_|_| |_|\__,_|
 
+
 Multistrand is a nucleic acids kinetic simulator, and is developed by the
 Winfree group at the California Institute of Technology in Pasadena, California
 (USA). Until 2013, development was lead by Joseph Schaeffer (now Autodesk).
-The project is currently maintained by Jake Kaslewicz and Boyan Beronov.
+The project is currently maintained by Jake Kaslewicz (Riedel group, University
+of Minnesota, Minneapolis-Saint Paul) and Boyan Beronov (Condon group,
+University of British Columbia, Vancouver).
 
 Official website: www.multistrand.org
 
@@ -50,15 +53,15 @@ Questions should be directed to help@multistrand.org.
 
 ## Requirements
 
-| Dependency | Notes                  |
-| ---------- |------------------------|
-| C++11      | gcc 7.4 or clang 8.0.0 |
-| Python     | 3.8+                   |
-| [NUPACK](https://www.nupack.org/) | 4.0.1                  |
+| Dependency                        | Notes              |
+|-----------------------------------|--------------------|
+| C++11                             | gcc 8+ or clang 8+ |
+| Python                            | 3.8+               |
+| [NUPACK](https://www.nupack.org/) | 4.0.1              |
  
 The `numpy` and `scipy` Python packages are installed automatically as
-dependencies, and `matplotlib` is added if the installation target `tutorials`
-is specified (see `setup.cfg` for details).
+dependencies, and `matplotlib` is added if the package extra `[tutorials]` is
+specified (see `setup.cfg` for details).
  
 ## Installation
 
@@ -76,24 +79,23 @@ is specified (see `setup.cfg` for details).
  - Follow the Linux installation steps.
  - In `~/.bash_profile`, edit the `$PYTHONPATH` to include
    `/Library/Python/<python version>/site-packages`.
- - Ex: `/Library/Python/3.8/site-packages`
  
 ### Windows
 
  - Follow the instructions for installing the latest version of the [Microsoft
-
    C++ Build Tools](https://wiki.python.org/moin/WindowsCompilers).
  - Follow the Linux installation steps.
  
 ### [Apptainer](https://apptainer.org/) container
 
- - Build: `$> sudo apptainer build tools/multistrand.sif tools/multistrand.def`
- - Start: `$> apptainer shell --cleanenv --contain --pwd /dna/multistrand tools/multistrand.sif`
+ - Install the Apptainer platform.
+ - Build the container: `$> sudo apptainer build tools/multistrand.sif tools/multistrand.def`
+ - Start the container: `$> apptainer shell --cleanenv --contain --pwd /dna/multistrand tools/multistrand.sif`
 
 ## Source tree
 
-The Multistrand library is located under `src/`. `test/` is the test suite, and `tools/` provides Apptainer
-container definitions and maintenance scripts.
+The Multistrand library is located under `src/`. `test/` is the test suite, and
+`tools/` provides Apptainer container definitions and maintenance scripts.
 
 ## Testing
 
@@ -115,11 +117,14 @@ As a very quick primer, we discuss two small scripts below.
 
 ### Hybridization trajectory
 
-A quick test to see if Multistrand is working is to run `$> python
-tutorials/misc/sample_trace.py`. This script simulates the hybridization of two
-complementary strands and ends the simulation when the two strands either
-completely hybridize or seperate after an initial collision:
+A quick test to see if Multistrand is working is to run the following script,
+which simulates the hybridization of two complementary strands, ending the
+simulation when the two strands either completely hybridize or seperate after an
+initial collision:
+
 ```sh
+$> python tutorials/misc/sample_trace.py
+--------------------------------------------------------------------------------
 GCGTTTCAC+GTGAAACGC
 .(.......+.......).   t=0.000000 ms, dG=  0.16 kcal/mol
 ((.......+.......))   t=0.000060 ms, dG= -1.26 kcal/mol
@@ -156,10 +161,11 @@ by using `dissociation` as the first commandline argument. In that case, the
 dissociation rate is computed indirectly by estimating the association rate, and
 working out the dissociation rate from the partition function (e.g. `k_forward /
 k_backward = exp(-dG / RT)` where `dG` is the partition function for the
-complex, `R` is the gas constant and `T` is temperature).
+complex, `R` is the gas constant and `T` is the temperature).
 
 ```sh
-$> python tutorials/compute/rate.py hybridization 'AGCTGA' -bootstrap
+$> python tutorials/compute/rate.py hybridization AGCTGA -bootstrap
+--------------------------------------------------------------------------------
 2023-08-05 17:23:29   Starting Multistrand 2.2  (c) 2008-2023 Caltech
 
 Running first step mode simulations for AGCTGA (with Boltzmann sampling)...
@@ -206,10 +212,12 @@ Computing took 2.7906 s
 
 ## Log files
 
-Multistrand automatically creates a logfile (`./multistrandRun.log`) that
-contains some information on the used model, e.g.:
+Multistrand automatically creates a logfile that contains some information on
+the used model, e.g.:
 
 ```
+$> cat multistrandRun.log
+--------------------------------------------------------------------------------
 Multistrand 2.2
 
 sodium        :  1 M
@@ -242,9 +250,8 @@ Concentration . k_bi . k_uni(l,r)
 8.5980e+06      5.3747e+07      1.4209e+06      6.6342e+07      7.2053e+04      3.4000e+09      1.6518e+07
 4.1772e+04      2.6112e+05      6.9031e+03      3.2231e+05      3.5006e+02      1.6518e+07      8.0252e+04
 ```
- 
 
-# Frequently Aksed Questions
+# Frequently asked questions
 
 ## Capabilities
  

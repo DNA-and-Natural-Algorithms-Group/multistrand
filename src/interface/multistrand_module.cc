@@ -429,16 +429,26 @@ static struct PyModuleDef moduledef = {
 };
 
 PyMODINIT_FUNC PyInit_system(void) {
-	PyObject *m = Py_None;
-	/* Finalize the simulation system object type */
-	if (PyType_Ready(&SimSystem_Type) < 0)
-		return m;
+    // finish initialization of `SimSystem_Type`
+    if (PyType_Ready(&SimSystem_Type) < 0) {
+        PyErr_Print();
+        return NULL;
+    }
 
-	m = PyModule_Create(&moduledef);
-	if (m == NULL)
-		return m;
+    // create `multistrand.system` module
+    PyObject *m = PyModule_Create(&moduledef);
+    if (m == NULL) {
+        PyErr_Print();
+        return m;
+    }
 
-	Py_INCREF(&SimSystem_Type);
-	PyModule_AddObject(m, "SimSystem", (PyObject *) &SimSystem_Type);
+    // populate module with `SimSystem`
+    if (PyModule_AddObject(m, "SimSystem", (PyObject *) &SimSystem_Type) < 0) {
+        PyErr_Print();
+        Py_DECREF(m);
+        return NULL;
+    }
+    Py_XINCREF(&SimSystem_Type);
+
     return m;
 }

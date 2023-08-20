@@ -502,15 +502,15 @@ class MergeSimSettings:
                 print("nForward = %i " % nForwardIn.value)
                 print("nReverse = %i \n" % nReverseIn.value)
 
-            if(nForwardIn.value >= self.terminationCount):
+            if nForwardIn.value >= self.terminationCount:
                 print("Found " + str(nForwardIn.value) + " successful trials, terminating.")
                 return True
 
-            elif((nForwardIn.value + nReverseIn.value) > self.max_trials):
+            elif  nForwardIn.value + nReverseIn.value > self.max_trials:
                 print("Simulated " + str(nForwardIn.value + nReverseIn.value) + " trials, terminating.")
                 return True
             
-            elif(time.time() - timeStart > self.timeOut):
+            elif time.time() - timeStart > self.timeOut:
                 print("Runtime exeeded " + str(self.timeOut) + " seconds, terminating.")
                 return True
             else:
@@ -682,8 +682,8 @@ class MergeSim:
         printTrajectory(o1)
 
     def initialInfo(self):
-        myOptions = self.factory.new(777)
-        simSys = SimSystem(myOptions)
+        opts = self.factory.new(777)
+        simSys = SimSystem(opts)
         simSys.initialInfo()
 
     def startSimMessage(self):
@@ -704,53 +704,39 @@ class MergeSim:
         outputString += "Run Time:            " + str(self.runTime) + "s \n"
         outputString += "Using Results Type:  " + self.settings.resultsType + "\n\n"
 
-        def hiddenPrint(myString):
-            options = self.factory.new(0)
-            myString += "Temperature: " + str(options.temperature) + "K \n\n"
-            myString += "Start States\n"
-            for x in options.start_state:
-                myString += x.__str__() + "\n\n"
-            for x in options.stop_conditions:
-                myString += x.__str__() + "\n"
-
-        myProc = self.ctx.Process(target=hiddenPrint, args=[outputString])
-        myProc.start()
-        myProc.join()
-        myProc.terminate()
+        opts = self.factory.new(0)
+        outputString += "Temperature: " + str(opts.temperature) + "K \n\n"
+        outputString += "Start States\n"
+        for x in opts.start_state:
+            outputString += x.__str__() + "\n\n"
+        for x in opts.stop_conditions:
+            outputString += x.__str__() + "\n"
 
         outputString += "\n" + self.results.__str__() + "\n"
         return outputString
     
     def writeToFile(self):
-        outputString = self.createOutputMessage()
-        
         if(self.settings.outputFile == self.settings.DEFAULT_OUTPUT_FILE):
             # if a file has been specified, open is default mode.
-            f = open(self.settings.outputFile, 'a+')
+            mode = 'a+'
         else:
             # i.e. the user has not passed in any data at all in terms of file logging.
             # Open in write, not append mode!!
-            f = open(self.settings.outputFile, 'w')
-            
-        f.write(outputString)
-        f.close()
-          
-    def printStates(self):
-        def actualPrint():
-            print("Start states:")
-            for i in self.factory.new(0).start_state:
-                print(i)
-                print()
-                
-            print("Stop conditions: ")
-            for i in self.factory.new(0).stop_conditions:
-                print(i)
-                print()
+            mode = 'w'
+        with open(self.settings.outputFile, mode) as f:
+            outputString = self.createOutputMessage()
+            f.write(outputString)
 
-        myProc = self.ctx.Process(target=actualPrint, args=[])
-        myProc.start()
-        myProc.join()
-        myProc.terminate()
+    def printStates(self):
+        opts = self.factory.new(0)
+        print("Start states:")
+        for i in opts.start_state:
+            print(i)
+            print()
+        print("Stop conditions: ")
+        for i in opts.stop_conditions:
+            print(i)
+            print()
 
     def run(self):
         self.settings.checkOptionsFactoryConsistency(self._factory)
@@ -855,7 +841,8 @@ class MergeSim:
 
         # check for stop conditions, restart sims if needed
         while self.exceptionFlag.value:
-            if self.settings.shouldTerminate(printFlag, self.nForward, self.nReverse, startTime):
+            if self.settings.shouldTerminate(
+                    printFlag, self.nForward, self.nReverse, startTime):
                 break
             printFlag = False
             # find and re-start finished threads

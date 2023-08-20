@@ -106,7 +106,6 @@ class Options:
 
     activestatespace = False
 
-    
     def __init__(self, *args, **kargs):
         """
         Initialization of an Options object:
@@ -413,8 +412,7 @@ class Options:
         """
         return (
             self.ms_version,
-            self.verbosity, self.print_initial_first_step,
-            self.activestatespace,
+            self.verbosity, self.print_initial_first_step, self.activestatespace,
             self.substrate_type, self.parameter_type, self.parameter_file,
             self.gt_enable, self.log_ml, self.dangles,
             self.cotranscriptional, self.cotranscriptional_rate,
@@ -427,8 +425,7 @@ class Options:
             self.output_time, self.output_interval, self.output_state,
         ) == (
             other.ms_version,
-            other.verbosity, other.print_initial_first_step,
-            other.activestatespace,
+            other.verbosity, other.print_initial_first_step, other.activestatespace,
             other.substrate_type, other.parameter_type, other.parameter_file,
             other.gt_enable, other.log_ml, other.dangles,
             other.cotranscriptional, other.cotranscriptional_rate,
@@ -453,7 +450,6 @@ class Options:
             ))
 
     def legacyRates(self):
-                    
         warningmsg = "Warning! rate_scaling is set, enabling support for legacy code. Now setting rate defaults for "
                 
         if self.temperature == 298.15 and self.rate_method == Literals.kawasaki:

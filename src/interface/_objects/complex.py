@@ -31,16 +31,16 @@ class Complex:
         boltzmann_sample [type=bool] -- Whether we should boltzmann sample this
                                         complex.
         
-        You must include both of the required keyword arguments to create a Complex with the new style init.
+        You must include both of the required keyword arguments to create a
+        Complex with the new style init.
         """
-        
-        
+        self.sampleSelect = None
         """  
-            Set sampleSelect if you want to discard certain Boltzmann sampled secondary structures. 
-            The function input is a string-concatenated secondary structure.
-            The function should return True for accepted structures.
+        Set sampleSelect if you want to discard certain Boltzmann sampled
+        secondary structures. The function input is a string-concatenated
+        secondary structure. The function should return True for accepted
+        structures.
         """
-        self.sampleSelect = None   
 
         if sequence and not strands:
             self.strand_list = [Strand(sequence=i) for i in sequence.split("+")]
@@ -142,7 +142,7 @@ class Complex:
                     reduce(lambda x, y: x + [d.length for d in y.domain_list] + [1],
                            self.strand_list, [])))
                 self._fixed_structure = "".join(i[0] * i[1] for i in matched_list)
-    
+
     def get_unique_ids(self):
         """
         Produce the set of unique strands in this Complex
@@ -151,7 +151,7 @@ class Complex:
           -- A `set` of the unique strand names.
         """
         return set([i.id for i in self.strand_list])
-    
+
     def canonical_strand(self):
         """Return the name of the `canonical` strand for this complex.
         
@@ -162,18 +162,18 @@ class Complex:
           -- The string containing the canonical name.
         """
         return min(self.strand_list, key=lambda x: x.name).name
-    
+
     def __len__(self):
         """ Length of a complex is the number of strands contained.
         
         Use the attribute :attr:`sequence_length` if you need the sequence length. """
         return len(self.strand_list)
-    
+
     @property
     def sequence_length(self):
         """ The total length of all contained strands. """
         return len("".join([i.sequence for i in self.strand_list]))
-    
+
     @property
     def structure(self):
         """ If this complex is set to use boltzmann sampling, this property returns a newly sampled structure. Otherwise it gets the fixed structure for the complex."""
@@ -189,7 +189,7 @@ class Complex:
             return self._last_boltzmann_structure
         else:
             return self._fixed_structure
-    
+
     @structure.setter
     def structure(self, value):
         # I include the following due to the 'normal' use cases of Complex
@@ -215,40 +215,44 @@ class Complex:
         retval = copy.deepcopy(self)
         retval._fixed_structure = value
         return retval
-    
+
     @property
     def fixed_structure(self):
         """ The structure used to create this Complex. """
         return self._fixed_structure
-    
+
     @property
     def current_boltzmann_structure(self):
         """ The structure that was the result of our last Boltzmann sampling, or the value False if no sampling has occurred."""
         return self._last_boltzmann_structure
-    
+
     @property
     def boltzmann_count(self):
         """ The number of Boltzmann sampled structures we expect to be needed when using this Complex in a start structure. The default value is 1, which means every time a structure is requested it will need to call the sampling function; if you provide a better estimate, it may be a lot more efficient in how often it needs to call the sampling function. """
         return self._boltzmann_sizehint
-    
+
     @boltzmann_count.setter
     def boltzmann_count(self, value):
         if value >= 1:
             self._boltzmann_sizehint = value
         else:
             self._boltzmann_sizehint = 1
-    
+
     @property
     def sequence(self):
         """ The calculated 'flat' sequence for this complex. """
         return "+".join([strand.sequence for strand in self.strand_list])
-    
-    def set_boltzmann_parameters(self, dangles, substrate_type, temperature, sodium, magnesium):
+
+    def set_boltzmann_parameters(self, dangles, substrate_type, temperature,
+                                 sodium, magnesium):
         """
-        Sets the parameters to be passed on to NUPACK for Boltzmann sampling of this complex.
-        Uses the private properties which are then read by generate_boltzmann_structure.
+        Sets the parameters to be passed on to NUPACK for Boltzmann sampling of
+        this complex. Uses the private properties which are then read by
+        generate_boltzmann_structure.
         
-        Called by the start_state setter in an Options object, and the setters for dangles, substrate_type and temperature properties in an Options object.
+        Called by the start_state setter in an Options object, and the setters
+        for dangles, substrate_type and temperature properties in an Options
+        object.
         """
         self._dangles = dangles
         self._substrate_type = substrate_type
@@ -256,9 +260,7 @@ class Complex:
         self._sodium = sodium
         self._magnesium = magnesium
 
-
-    def generate_boltzmann_structure(self):
-
+    def generate_boltzmann_structure(self) -> None:
         """
         Create a new boltzmann sampled structure for this complex.
         
@@ -297,21 +299,22 @@ class Complex:
 
         if len(self._boltzmann_queue) < 1:
             raise IOError("Did not get any results back from the Boltzmann sample function.")
-
         self._pop_boltzmann()
-    
-    def _pop_boltzmann(self):
-        """ Pops a structure off our waiting queue, putting it in the correct internal.
+
+    def _pop_boltzmann(self) -> None:
+        """
+        Pops a structure off our waiting queue, putting it in the correct
+        internal.
         
-        Does not check for the queue being empty: any caller must ensure
-        there is something in the queue, or catch the exception raised by
-        pop.
+        Does not check for the queue being empty: any caller must ensure there
+        is something in the queue, or catch the exception raised by pop.
         
-        Note also that this implicitly decrements the size hint, so if you
-        use more requests than you noted in the size hint, the later ones
-        get pulled in much smaller amounts. Theoretically the user should
-        poke the complexes and reset the size hint back upwards if they
-        need to use more, rather than making this pop smart about dynamic
-        resizing of the requested amounts."""
+        Note also that this implicitly decrements the size hint, so if you use
+        more requests than you noted in the size hint, the later ones get pulled
+        in much smaller amounts. Theoretically the user should poke the
+        complexes and reset the size hint back upwards if they need to use more,
+        rather than making this pop smart about dynamic resizing of the
+        requested amounts.
+        """
         self._last_boltzmann_structure = str(self._boltzmann_queue.pop())
         self._boltzmann_sizehint -= 1

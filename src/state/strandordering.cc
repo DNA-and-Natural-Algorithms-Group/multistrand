@@ -20,16 +20,19 @@ The Multistrand Team (help@multistrand.org)
 
 using std::cout;
 
-orderingList::orderingList(int insize, int n_id, char *inTag, char *inSeq, BaseType *inBaseSeq, char* inStruct) {
+orderingList::orderingList(int insize, int n_id, char *inTag, char *inSeq,
+						   BaseType *inBaseSeq, char* inStruct)
+{
 	size = insize;
 	uid = n_id;
 
-	// ???
 	thisTag = new char[strlen(inTag) + 1];
 	thisSeq = new char[size + 1];
-	baseSeqWrapper = new BaseType[size + 2]; // the +2 is important not a null terminating char
-	thisBaseSeq = &baseSeqWrapper[1]; // open loop shenanigans. We reference into the 2nd element of the wrapper since
-	// Open loop can index at -1 which can cause some issues
+	// The +2 is important; not a null-terminating char.
+	baseSeqWrapper = new BaseType[size + 2];
+	// Open loop shenanigans. We reference into the 2nd element of the wrapper,
+	// since open loop can index at -1, which can cause undefined behavior.
+	thisBaseSeq = &baseSeqWrapper[1];
 	thisStruct = new char[size + 1];
 
 	assert(thisTag != NULL);

@@ -2,14 +2,18 @@
 # Copyright (c) 2008-2023 California Institute of Technology. All rights reserved.
 # The Multistrand Team (help@multistrand.org)
 
+import math
+
 import numpy as np
 
-from .._objects.strand import Strand
-import math
-from nupack.analysis import pfunc as _nu_pfunc
-from nupack.analysis import pairs, mfe, structure_probability, ensemble_size, subopt, sample
 from nupack.analysis import energy as structure_energy
+from nupack.analysis import pfunc as _nu_pfunc
+from nupack.analysis import (pairs, mfe, structure_probability, ensemble_size,
+                             subopt, sample)
 from nupack import Model as _NU_Model
+
+from .._objects.strand import Strand
+
 
 # physical constants
 
@@ -25,7 +29,8 @@ RNA_NUPACK = "rna06" + NUPACK3
 DNA_NUPACK = "dna04" + NUPACK3
 
 class Model(_NU_Model):
-    def __init__(self, option=None, ensemble="some", material="DNA", kelvin=None, celsius=37, sodium=1.0, magnesium=0.0):
+    def __init__(self, option=None, ensemble="some", material="DNA",
+                 kelvin=None, celsius=37, sodium=1.0, magnesium=0.0):
         kwargs = {}
         if option is None:
             kwargs["ensemble"] = ensemble
@@ -59,9 +64,15 @@ class Model(_NU_Model):
 
 
 def _dGadjust(K, N):
-    """Adjust NUPACK's native free energy (with reference to mole fraction units) to be appropriate for molar units, assuming N strands in the complex."""
-    water = 55.14  # molar concentration of water at 37 C, ignore temperature dependence, which is about 5%
-    adjust = GAS_CONSTANT * K * math.log(water)  # converts from NUPACK mole fraction units to molar units, per association
+    """
+    Adjust NUPACK's native free energy (with reference to mole fraction units)
+    to be appropriate for molar units, assuming N strands in the complex.
+    """
+    # molar concentration of water at 37 C, ignoring temperature dependence,
+    # which is about 5%
+    water = 55.14
+    # converts from NUPACK mole fraction units to molar units, per association
+    adjust = GAS_CONSTANT * K * math.log(water)
     return adjust * (N - 1)
 
 
@@ -70,6 +81,7 @@ def pfunc(strands, model=None):
     if model is None:
         model = Model()
     return _nu_pfunc(strands=strands, model=model)[1] + _dGadjust(model.temperature, len(strands))
+
 
 def meltingTemperature(seq, concentration=1.0e-9):
     """

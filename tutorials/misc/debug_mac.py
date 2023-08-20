@@ -9,31 +9,34 @@ This is important for hashing functions.
 """
 
 import time
+from typing import Optional
 
-from multistrand.options import Literals
+from multistrand.options import Literals, Options
 from multistrand.system import SimSystem
 from multistrand.utils.utility import printTrajectory
 from multistrand.experiment import standardOptions, makeComplex
 
-    
-def doSims(numTraj=1):
-    o = standardOptions()
+
+def doSims(numTraj: int, o: Optional[Options] = None):
+    if o is None:
+        o = standardOptions()
+
+        myComplex1 = makeComplex(["GTCACTGCTTTT"], "............")
+        myComplex2 = makeComplex(["GTCACTGC", "GCAGTGAC"], ".(((((((+))))))).")
+        o.start_state = [myComplex1, myComplex2]
+        # myComplex = makeComplex(["GTCACTGCTTTT","GTCACTGC","GCAGTGAC"], "..(.........+).((((((+))))))..")
+        # o.start_state = [myComplex]
+    else:
+        o.reuse_energymodel = True
 
     o.simulation_mode = Literals.first_step
     o.num_simulations = numTraj
     o.output_interval = 1
     o.simulation_time = 0.000001
     
-    myComplex1 = makeComplex(["GTCACTGCTTTT"], "............")
-    myComplex2 = makeComplex(["GTCACTGC", "GCAGTGAC"], ".(((((((+))))))).")
-    o.start_state = [myComplex1, myComplex2]
-    # myComplex = makeComplex(["GTCACTGCTTTT","GTCACTGC","GCAGTGAC"], "..(.........+).((((((+))))))..")
-    # o.start_state = [myComplex]
-
     # no stop conditions, just timeout.
     o.initial_seed = time.time() * 1000000
     o.verbosity = 3
-    # o.initial_seed = 1501710503137097
 
     s = SimSystem(o)
     s.start()
@@ -45,9 +48,9 @@ def doSims(numTraj=1):
 
 def main():
     o, s = None, None
-    for _ in range(1000):
-        time.sleep(0.000001)
-        o, s = doSims()
+    for _ in range(10):
+        time.sleep(1e-6)
+        o, s = doSims(3, None)
     return o, s
 
 
