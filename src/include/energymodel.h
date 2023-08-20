@@ -123,8 +123,8 @@ public:
 	// if inspection is used, all transitions occur at rate 1.0 /s
 	bool inspection = false;
 
-	// keep track of the used paths to parameter files
-	string paramFiles[2] = {"unset",  "unset"};
+	// keep track of the used parameter file path
+	string paramFile = "unset";
 
 
 
@@ -214,7 +214,7 @@ public:
 private:
 
 	void processOptions();
-	FILE* openFiles(char*, string&, string&, int);
+	FILE* openFile(string&);
 
 	// FD jan 2018: helper functions, now seperated out
 	double HairpinEnergy(BaseType *seq, int size, hairpin_energies&);

@@ -229,8 +229,13 @@ bool PEnergyOptions::compareSubstrateType(int type) {
 
 }
 
-void PEnergyOptions::getParameterFile(char* input, PyObject* tempString) {
+string PEnergyOptions::getParameterFile() {
 
-	input = (char *) getStringAttrReify(python_settings, parameter_file, tempString);
+	PyObject *tmpString = NULL;
+	char* tmp = NULL;
+	tmp = (char *) getStringAttrReify(python_settings, parameter_file, tmpString);
+	assert(tmpString != NULL);
+	assert(tmp != NULL);
+	return string(tmp);
 
 }

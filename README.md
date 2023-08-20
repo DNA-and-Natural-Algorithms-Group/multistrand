@@ -68,8 +68,6 @@ specified (see `setup.cfg` for details).
 ### Linux
  
  - `git clone` this repository into your workspace.
- - Set the environment variable `$NUPACKHOME` to point to the NUPACK
-   installation directory.
  - Run `pip install .` in the Multistrand directory.
 
 ### macOS
@@ -223,32 +221,29 @@ Multistrand 2.2
 sodium        :  1 M
 magnesium     :  0 M
 temperature   :  298.15 K
-rate method   :  3           (1: Metropolis, 2: Kawasaki, 3: Arrhenius)
-dangles       :  1           (0: none, 1: some, 2: all)
-GT pairing    :  1           (0: disabled)
+rate method   :  3  (1: Metropolis, 2: Kawasaki, 3: Arrhenius)
+dangles       :  1  (0: none, 1: some, 2: all)
+GT pairing    :  1  (0: disabled, 1: enabled)
 concentration :  1 M
+Nupack params :  /opt/bitnami/python/lib/python3.11/site-packages/nupack/parameters/dna04-nupack3.json
 
-path_dG      :  /dna/nupack3.2.2/parameters/dna1998.dG
-path_dH      :  /dna/nupack3.2.2/parameters/dna1998.dH
+Kinetic parameters:
+  type          End        Loop       Stack  StackStack     LoopEnd    StackEnd   StackLoop
+  A      1.2965e+01  1.6424e+01  1.4184e+01  8.0457e+00  2.4224e+00  1.7524e+01  5.8106e+00
+  E      3.4980e+00  4.4614e+00  5.2869e+00 -6.2712e-01  8.4934e-02  2.6559e+00 -1.1276e+00
+  R      1.3584e+06  5.3080e+07  3.7097e+04  8.0873e+07  9.5396e+01  2.1242e+11  5.0138e+06
 
-type      End            Loop           Stack          StackStack     LoopEnd        StackEnd       StackLoop
-A         1.2965e+01      1.6424e+01      1.4184e+01      8.0457e+00      2.4224e+00      1.7524e+01      5.8106e+00
-E         3.4980e+00      4.4614e+00      5.2869e+00      -6.2712e-01      8.4934e-02      2.6559e+00      -1.1276e+00
-R         1.3584e+06      5.3080e+07      3.7097e+04      8.0873e+07      9.5396e+01      2.1242e+11      5.0138e+06
+        dS_A        dH_A     biScale        kUni
+ -0.0000e+00 -0.0000e+00  1.6006e-02  1.0000e+00
 
-  dS_A           dH_A          biScale          kUni
- -0.0000e+00   -0.0000e+00    1.6006e-02    1.0000e+00
-
-
-Concentration . k_bi . k_uni(l,r)
-
-2.1742e+04      1.3591e+05      3.5931e+03      1.6777e+05      1.8221e+02      8.5980e+06      4.1772e+04
-1.3591e+05      8.4962e+05      2.2461e+04      1.0487e+06      1.1390e+03      5.3747e+07      2.6112e+05
-3.5931e+03      2.2461e+04      5.9378e+02      2.7724e+04      3.0111e+01      1.4209e+06      6.9031e+03
-1.6777e+05      1.0487e+06      2.7724e+04      1.2945e+06      1.4059e+03      6.6342e+07      3.2231e+05
-1.8221e+02      1.1390e+03      3.0111e+01      1.4059e+03      1.5269e+00      7.2053e+04      3.5006e+02
-8.5980e+06      5.3747e+07      1.4209e+06      6.6342e+07      7.2053e+04      3.4000e+09      1.6518e+07
-4.1772e+04      2.6112e+05      6.9031e+03      3.2231e+05      3.5006e+02      1.6518e+07      8.0252e+04
+Rate matrix [ concentration . k_bi . k_uni(l,r) ]:
+  2.1742e+04  1.3591e+05  3.5931e+03  1.6777e+05  1.8221e+02  8.5980e+06  4.1772e+04
+  1.3591e+05  8.4962e+05  2.2461e+04  1.0487e+06  1.1390e+03  5.3747e+07  2.6112e+05
+  3.5931e+03  2.2461e+04  5.9378e+02  2.7724e+04  3.0111e+01  1.4209e+06  6.9031e+03
+  1.6777e+05  1.0487e+06  2.7724e+04  1.2945e+06  1.4059e+03  6.6342e+07  3.2231e+05
+  1.8221e+02  1.1390e+03  3.0111e+01  1.4059e+03  1.5269e+00  7.2053e+04  3.5006e+02
+  8.5980e+06  5.3747e+07  1.4209e+06  6.6342e+07  7.2053e+04  3.4000e+09  1.6518e+07
+  4.1772e+04  2.6112e+05  6.9031e+03  3.2231e+05  3.5006e+02  1.6518e+07  8.0252e+04
 ```
 
 # Frequently asked questions
@@ -261,11 +256,6 @@ Concentration . k_bi . k_uni(l,r)
 
 ## Troubleshooting
 
-**Q:** When I try to run any multistrand script, the console returns `segfault 11`.
-
-**A:** Please make sure `$NUPACKHOME` is set. When you run `echo $NUPACKHOME` in
-bash, it should return the directory of your nupack installation.
-
 **Q:** How do I adjust the solvent salt concentrations?
 
 **A:** Like so. (units are M = mol / litre)
@@ -276,57 +266,3 @@ o1 = Options()
 o1.sodium = 0.05
 o1.magnesium = 0.0125
 ```
-
-**Q:** When I run `tutorials/misc/computeAnnealRate.py`, `nForward` and `nReverse`
-are both zero and the program does not terminate.
-
-**A:** This occurs when NUPACK returns void output for 'sample'. If NUPACK is installed correctly, then running 
-
-``` bash
-./nupack/bin/sample -multi -T 25 -material dna -samples 100
-./nupack/build/bin/sample -multi -T 25 -material dna -samples 100      (v.3.2.1 and up)
-```
-and supplying the arguments `'test' '1' 'AGTGTGCGTAGA' '1'` will result in a
-list of 100 non-trivial dot-paren secondary structures in the `test.sample`
-file.
-
-**Q:** When I run a Multistrand script, I get `ImportError: No module named Multistrand`.
-
-**A:** Please check that `$PYTHONPATH` includes a link to your Multistrand
-executables, or run `sudo pip install .` in the Multistrand directory for a
-system-wide installation of the Multistrand Python module.
-
-**Q:** When I try to run `tutorials/misc/sample_trace.py`, I get the error:
-
-```
-['tutorials/misc/sample_trace.py']
-terminate called after throwing an instance of 'std::logic_error'
-  what():  basic_string::_S_construct null not valid
-Aborted
-```
-
-**A:** You need to set the `$NUPACKHOME` enviroment variable. You can see the
-current value by using `echo $NUPACKHOME`.
-
-**Q:** On macOS, I get the following error when I try to install:
-
-```
-In file included from system/utility.cc:16:
-In file included from ./include/move.h:29:
-In file included from ./include/moveutil.h:14:
-./include/sequtil.h:66:22: error: no matching constructor for initialization of
-      'vector<int>'
-        vector<int> count = { 0, 0, 0, 0, 0 }; // use baseType as access
-                            ^~~~~~~~~~~~~~~~~
-```
-
-**A:** We've noticed that linking against Anaconda sometimes gives errors during
-installation on macOS. The issue seems to be that the linked gcc does to not
-support certain c++11 functions. macOS users who rely on brew-installed Python
-do not have this problem, because the gcc call is piped to llvm, which then
-works. To resolve this issue, users should prepend the enviroment variables
-
-```
-CC=clang CXX=clang
-```
-before the installation command.

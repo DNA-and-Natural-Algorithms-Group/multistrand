@@ -9,6 +9,8 @@ Options object.
 import copy
 from enum import IntEnum
 from typing import List, Optional
+import os.path
+import importlib.resources
 
 from .interface import Interface
 from ..utils.thermo import C2K
@@ -245,25 +247,14 @@ class Options:
                     nearly the same as mfold style files.
         """
 
-        self._substrate_type: int = Literals.substrateDNA
+        self.substrate_type: int = Literals.substrateDNA
         """ What substrate's parameter files to use. 
 
         Invalid [0]: Indicates we should not auto-search for a param file.
-        RNA     [1]: RNA parameters are available for Vienna and Nupack, see also
-                     the comment in parameter_file_version.
-        DNA     [2]: DNA parameters are publicly available via the Nupack distribution,
-                     and possibly by the Vienna group upon request.
-        """
-        
-        self.parameter_file = None
-        """ Shortcut for using a very specific parameter file. Usually shouldn't be used.
-        
-        Type         Default
-        str          None
+        RNA     [1]: RNA parameters are available from Nupack.
+        DNA     [2]: DNA parameters are available from Nupack.
 
-        Should only be set to a string if it's ok to actually search
-        for that parameter file. None will pass an error back to
-        Multistrand if it gets used.
+        The Vienna model support is deprecated.
         """
 
         ####################
@@ -663,7 +654,7 @@ class Options:
         if isinstance(value, str):
             value = self.substrateToString.index(value)
         self._substrate_type = int(value)
-        assert self.substrate_type in range(1, 3)
+        assert self._substrate_type in range(1, 3)
         self.updateBoltzmannSamples()
 
     @property
@@ -676,6 +667,21 @@ class Options:
             value = self.parameterTypeToString.index(value)
         self._parameter_type = int(value)
         assert self.parameter_type in range(2)
+
+    @property
+    def parameter_file(self):
+        pfile = ""
+        if self.parameter_type == Options.nupackModel:
+            substrate = ("rna06" if self.substrate_type == Literals.substrateRNA
+                         else "dna04")
+            pfile = str(importlib.resources.files("nupack") / "parameters" /
+                        f"{substrate}-nupack3.json")
+        else:
+            raise NotImplementedError(
+                "Only NUPACK energy models are currently supported.")
+        if not os.path.exists(pfile):
+            raise EnvironmentError("Cannot import NUPACK dependency!")
+        return pfile
 
     @property
     def simulation_mode(self):

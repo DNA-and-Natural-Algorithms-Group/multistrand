@@ -521,35 +521,21 @@ void NupackEnergyModel::initOptions(SimOptions* options)
 	}
 }
 
-
 // returns a FILE pointer or prints an error message.
-FILE* NupackEnergyModel::openFiles(char* nupackhome, string& paramPath, string& fileName, int select) {
+FILE* NupackEnergyModel::openFile(string& path) {
 
-	string& fullpath = paramFiles[select];
+	string& fullpath = paramFile;
 	FILE* fp = NULL;
-
-	if (nupackhome == NULL) {
-		fullpath = fileName;
-	} else {
-		fullpath = nupackhome;
-		fullpath += paramPath;
-		fullpath += fileName;
-	}
-
+    fullpath = path;
 	fp = fopen(fullpath.c_str(), "rt");
 
-	if (fp == NULL) {
-		fp = fopen(fileName.c_str(), "rt");
-		if (fp == NULL) {
-
-			string errorm = string("ERROR: nupack parameter file not found:") + string(nupackhome);
-			errorm += paramPath + fileName + string(" or ") + fileName;
-			errorm += string(" in current directory.\n");
-			fprintf(stderr, "%s", errorm.c_str()); //fd: without "%s" potentially insecure, clang
-			exit(0);
-		}
-
-	}
+    if (fp == NULL) {
+        string errorm = string("ERROR: NUPACK parameter file not found: ");
+        errorm += string(fullpath);
+        //fd: without "%s" potentially insecure, clang
+        fprintf(stderr, "%s\n", errorm.c_str());
+        exit(1);
+    }
 
 	return fp;
 
@@ -580,46 +566,8 @@ void NupackEnergyModel::processOptions() {
 		for (loop2 = 0; loop2 < BASES; loop2++)
 			pairtypes[loop][loop2] = pairtypes_mfold[loop][loop2];
 
-	if (myEnergyOptions->compareSubstrateType(SUBSTRATE_INVALID)) {
-
-		PyObject *tmpStr = NULL;
-		char* tmp = NULL;
-
-		myEnergyOptions->getParameterFile(tmp, tmpStr);
-
-		if (tmp != NULL) {
-			fp = fopen(tmp, "rt");
-			if (fp == NULL) {
-				fprintf(stderr, "ERROR: Bad Parameter Filename: %s not found in path.\n", tmp);
-				exit(1);
-			}
-			Py_DECREF(tmpStr);
-			tmp = NULL;
-		} else {
-			fprintf(stderr, "ERROR: Invalid substrate chosen, and no parameter file given. Try the #Energymodel option!\n");
-			exit(1);
-		}
-
-	} else if (myEnergyOptions->compareSubstrateType(SUBSTRATE_DNA) || myEnergyOptions->compareSubstrateType(SUBSTRATE_RNA)) {
-
-		char *nupackhome;
-		std::string file;
-
-		nupackhome = getenv("NUPACKHOME");
-
-		if(nupackhome == NULL){
-		    fprintf(stderr, "ERROR: NUPACKHOME environment variable not set properly. Review setup instructions\n");
-			exit(1);
-		}
-
-		if (myEnergyOptions->compareSubstrateType(SUBSTRATE_DNA)) {
-			file = "dna04-nupack3.json";
-		} else {
-			file = "rna06-nupack3.json";
-		}
-		std::string paramPath = "/source/parameters/";
-		fp = openFiles(nupackhome, paramPath, file, 0);
-	}
+    string path = myEnergyOptions->getParameterFile();
+    fp = openFile(path);
 
     char buffer[65536];
     FileReadStream is(fp, buffer, sizeof(buffer));
@@ -627,7 +575,8 @@ void NupackEnergyModel::processOptions() {
     d.ParseStream(is);
 
     if (!d.HasMember("dH")) {
-		if (temperature < CELSIUS37_IN_KELVIN - .0001 || temperature > CELSIUS37_IN_KELVIN + .0001) {
+		if (temperature < CELSIUS37_IN_KELVIN - .0001
+            || temperature > CELSIUS37_IN_KELVIN + .0001) {
 			fprintf(stderr,
 					"ERROR: Temperature was set to %0.2lf C, but only dG type data files could be found. Please ensure that the requested parameter set has both dG and dH parameters!\n",
 					temperature);
@@ -635,8 +584,6 @@ void NupackEnergyModel::processOptions() {
 		}
 		return;
 	}
-
-
 
     clock_t t;
     t = clock();

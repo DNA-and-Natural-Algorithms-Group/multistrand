@@ -102,87 +102,66 @@ void EnergyModel::writeConstantsToFile(void) {
 
 	// Print constants to file.
 	std::stringstream ss;
-	ss << "Multistrand " << simOptions->ms_version << " \n \n";
-
-	ss << "sodium        :  " << simOptions->energyOptions->sodium << " M \n";
-	ss << "magnesium     :  " << simOptions->energyOptions->magnesium << " M \n";
-	ss << "temperature   :  " << simOptions->energyOptions->getTemperature() << " K" << endl;
-	ss << "rate method   :  " << simOptions->energyOptions->getKineticRateMethod() << "           (1: Metropolis, 2: Kawasaki, 3: Arrhenius)" << endl;
-	ss << "dangles       :  " << simOptions->energyOptions->getDangles() << "           (0: none, 1: some, 2: all)" << endl;
-	ss << "GT pairing    :  " << simOptions->energyOptions->getGtenable() << "           (0: disabled)" << endl;
-	ss << "concentration :  " << simOptions->energyOptions->getJoinConcentration() << " M \n";
-	ss << "" << endl;
-	ss << "path_dG      :  " << paramFiles[0] << endl;
-	ss << "path_dH      :  " << paramFiles[1] << endl;
-	ss << "" << endl;
-
-	ss << std::scientific;
+	ss << "Multistrand " << simOptions->ms_version << endl << endl
+	   << "sodium        :  " << simOptions->energyOptions->sodium << " M" << endl
+	   << "magnesium     :  " << simOptions->energyOptions->magnesium << " M" << endl
+	   << "temperature   :  " << simOptions->energyOptions->getTemperature()
+							  << " K" << endl
+	   << "rate method   :  " << simOptions->energyOptions->getKineticRateMethod()
+							  << "  (1: Metropolis, 2: Kawasaki, 3: Arrhenius)" << endl
+	   << "dangles       :  " << simOptions->energyOptions->getDangles()
+							  << "  (0: none, 1: some, 2: all)" << endl
+	   << "GT pairing    :  " << simOptions->energyOptions->getGtenable()
+							  << "  (0: disabled, 1: enabled)" << endl
+	   << "concentration :  " << simOptions->energyOptions->getJoinConcentration()
+							  << " M" << endl
+	   << "Nupack params :  " << paramFile << endl
+	   << endl << "Kinetic parameters:" << endl
+	   << std::scientific << std::setprecision(4);
 
 	if (!simOptions->energyOptions->usingArrhenius()) {
 
-		ss << "unimolecular_scaling :   " << std::setprecision(6) << simOptions->energyOptions->getUniScale() << " /s \n";
-		ss << "bimolecular_scaling  :   " << std::setprecision(6) << simOptions->energyOptions->getBiScale() << " /M/s \n";
+		ss << "  unimolecular_scaling :  "
+		   << simOptions->energyOptions->getUniScale() << " /s" << endl
+		   << "  bimolecular_scaling  :  "
+		   << simOptions->energyOptions->getBiScale() << " /M/s" << endl;
 
 	} else {
 
-		ss << "type      ";
-
-		for (int i = 0; i < MOVETYPE_SIZE; i++) {
-
-			ss << moveutil::MoveToString[i];
-			ss << moveutil::MoveToString2[i] << "     ";
-
+		int i, r = 7, w = 12;
+		ss << std::setw(r) << std::left << "  type" << std::right;
+		for (i = 0; i < MOVETYPE_SIZE; i++) {
+			ss << std::setw(w) << moveutil::MoveToString[i];
+		}
+		ss << endl << std::setw(r) << std::left << "  A" << std::right;
+		for (i = 0; i < MOVETYPE_SIZE; i++) {
+			ss << std::setw(w) << simOptions->energyOptions->AValues[i];
+		}
+		ss << endl << std::setw(r) << std::left << "  E" << std::right;
+		for (i = 0; i < MOVETYPE_SIZE; i++) {
+			ss << std::setw(w) << simOptions->energyOptions->EValues[i];
+		}
+		ss << endl << std::setw(r) << std::left << "  R" << std::right;
+		for (i = 0; i < MOVETYPE_SIZE; i++) {
+			ss << std::setw(w) << arrheniusRates[MOVETYPE_SIZE * i + i];
 		}
 
-		ss << setprecision(4);
+		ss << endl << endl << std::right
+		   << std::setw(w) << "dS_A" << std::setw(w) << "dH_A"
+		   << std::setw(w) << "biScale" << std::setw(w) << "kUni" << endl
+		   << std::setw(w) << simOptions->energyOptions->dSA
+		   << std::setw(w) << simOptions->energyOptions->dHA
+		   << std::setw(w) << simOptions->energyOptions->getBiScale()
+		   << std::setw(w) << simOptions->energyOptions->getUniScale()
+		   << endl << endl;
 
-		ss << "\nA         ";
-
+		ss << "Rate matrix [ concentration . k_bi . k_uni(l,r) ]:" << endl;
 		for (int i = 0; i < MOVETYPE_SIZE; i++) {
-
-			ss << simOptions->energyOptions->AValues[i] << "      ";
-
-		}
-
-		ss << "\nE         ";
-
-		for (int i = 0; i < MOVETYPE_SIZE; i++) {
-
-			ss << simOptions->energyOptions->EValues[i] << "      ";
-
-		}
-
-		ss << "\nR         ";
-
-		for (int i = 0; i < MOVETYPE_SIZE; i++) {
-
-			ss << arrheniusRates[MOVETYPE_SIZE * i + i] << "      ";
-
-		}
-
-		ss << " \n \n";
-		ss << "  dS_A           dH_A          biScale          kUni    \n";
-		ss << " " << simOptions->energyOptions->dSA;
-		ss << "   " << simOptions->energyOptions->dHA;
-		ss << "    " << simOptions->energyOptions->getBiScale();
-		ss << "    " << simOptions->energyOptions->getUniScale();
-
-		ss << "\n\n\n";
-
-		// now dumping the rate matrix too,
-
-		ss << "Concentration . k_bi . k_uni(l,r) \n\n";
-
-		for (int i = 0; i < MOVETYPE_SIZE; i++) {
-
 			for (int j = 0; j < MOVETYPE_SIZE; j++) {
-
-				ss << getJoinRate() * arrheniusRates[MOVETYPE_SIZE * i + j] << "      ";
-
+				ss << std::setw(w)
+				   << getJoinRate() * arrheniusRates[MOVETYPE_SIZE * i + j];
 			}
-
-			ss << " \n";
-
+			ss << endl;
 		}
 
 	}

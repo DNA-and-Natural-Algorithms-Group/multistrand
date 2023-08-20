@@ -8,6 +8,7 @@
 - Migrated from Nupack 3 to Nupack 4.
 - Updated the Python package definition, simplified the installation and adapted
   the instructions.
+- Dropped the dependence on the environment variable `$NUPACKHOME`.
 - Created an [Apptainer](https://apptainer.org/) container for fully
   reproducible development and deployment. For reproducible debugging, there is
   also a container variant including debug builds of Python and Multistrand and

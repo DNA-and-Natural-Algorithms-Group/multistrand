@@ -40,8 +40,8 @@ public:
 	string toString(void);
 
 	// virtual
-	virtual bool compareSubstrateType(int) =0;
-	virtual void getParameterFile(char*, PyObject*) = 0;
+	virtual bool compareSubstrateType(int) = 0;
+	virtual string getParameterFile() = 0;
 
 	// unprotected Arrhenius variables
 	double AStack = -0.1;
@@ -99,7 +99,7 @@ public:
 
 	// implemented virtual
 	bool compareSubstrateType(int);
-	void getParameterFile(char*, PyObject*);
+	string getParameterFile();
 
 protected:
 	PyObject* python_settings;
