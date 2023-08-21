@@ -2,28 +2,37 @@
 # Copyright (c) 2008-2023 California Institute of Technology. All rights reserved.
 # The Multistrand Team (help@multistrand.org)
 
-Bootstrap: localimage
-From: ./multistrand.sif
+Bootstrap: docker
+From: bitnami/minideb:bullseye
 
 %help
 
-    This Apptainer container extends the image `./multistrand.sif`, which must
-    be built first from `./multistrand.def`, with separate debug builds of
-    Python 3.11 and Multistrand 2.2. For a tutorial on using Gdb for the Python
-    runtime and its C extentions, see [1].
+    This Apptainer container definition installs NUPACK 4.0.1 [1] and a debug
+    build of Multistrand 2.2 [2], assuming that both source trees are available
+    on the host system (see %files section). It uses GCC 10, GDB 13.2 and a
+    debug build of Python 3.11, and requires Apptainer 1.2+ to build. For a
+    tutorial on using GDB for the Python runtime and its C extensions, see [3].
 
-    The newly added debugging binaries and Python packages are made accessible
-    by prepending `/usr/local/bin` to the ${PATH}, but the Conda binaries from
-    the base image are preserved at ${CONDA}.
-
-    [1] https://willayd.com/fundamental-python-debugging-part-2-python-extensions.html
+    [1] https://www.nupack.org/
+    [2] https://github.com/DNA-and-Natural-Algorithms-Group/multistrand
+    [3] https://willayd.com/fundamental-python-debugging-part-2-python-extensions.html
 
 %arguments
 
     # version config
-    GDB_VER=13.2
+    NUPACK_VER=4.0.1.8
     CPY_VER=3.11
     CPY_TAG=v{{CPY_VER}}.4
+    GDB_VER=13.2
+
+    # compiler config
+    NJOBS=12
+
+%files
+
+    # copy source trees
+    ../../nupack-{{NUPACK_VER}}.zip /dna/
+    ../../multistrand /dna/
 
 %environment
 
@@ -31,53 +40,79 @@ From: ./multistrand.sif
     export PATH=/usr/local/bin:${PATH}
 
     # lib paths
-    export MS_DBG=/dna/multistrand_dbg
+    export MS=/dna/multistrand
+
+    # compiler config
+    export CC=/usr/bin/gcc CXX=/usr/bin/g++
 
 %post
 
     # bin paths
     export PATH=/usr/local/bin:${PATH}
 
-    # build/lib paths
+    # build paths
     export BLD_ROOT=/build
     export GDB_TAR=gdb-{{GDB_VER}}.tar.gz GDB_SRC=${BLD_ROOT}/gdb-{{GDB_VER}}
     export GDB_DATA=/usr/local/share/gdb
     export CPY_SRC=${BLD_ROOT}/cpython
-    export MS_DBG=${MS}_dbg
 
-    # install Python from source, configured with Pdb
+    # lib paths
+    export LIB_ROOT=/dna
+    export NUPACK_SRC=${LIB_ROOT}/nupack-{{NUPACK_VER}}
+    export NUPACK_ZIP=${NUPACK_SRC}.zip
+    export MS=${LIB_ROOT}/multistrand
+
+    # compiler config
+    export CC=/usr/bin/gcc CXX=/usr/bin/g++
+
+    # install common system utils
     # (`install_packages` wrapper for APT provided by Bitnami base image)
+    install_packages \
+        sudo ca-certificates build-essential wget unzip tar git \
+        tmux time less tree vim
+
+    # info
+    echo "\n\n\n" && ${CC} --version && ${CXX} --version
+
+    # install Python from source, configured with PDB
     install_packages \
         libbz2-dev libffi-dev libssl-dev zlib1g-dev liblzma-dev \
         libsqlite3-dev libreadline-dev libgmp-dev
     echo "\n\n\n" && git clone -b {{CPY_TAG}} --depth 1 \
         https://github.com/python/cpython.git ${CPY_SRC} && \
         cd ${CPY_SRC} && ./configure --with-pydebug && \
-        CFLAGS='-g3' make -s -j${NCORES} && sudo make install
+        CFLAGS='-g3' make -s -j{{NJOBS}} && sudo make install
 
-    # install Gdb from source, configured with Python
+    # info
+    echo "\n\n\n" && pip3 debug
+
+    # install GDB from source, configured with Python
     echo "\n\n\n" && cd ${BLD_ROOT} && \
-        wget https://ftp.gnu.org/gnu/gdb/${GDB_TAR} && \
-        tar -xzf ${GDB_TAR} && rm ${GDB_TAR} && \
+        wget https://ftp.gnu.org/gnu/gdb/${GDB_TAR} && tar -xzf ${GDB_TAR} && \
         cd ${GDB_SRC} && ./configure --with-python=python{{CPY_VER}} && \
-        make -s -j${NCORES} && sudo make install
+        make -s -j{{NJOBS}} && sudo make install
     # auto-import Python intrinsics in Gdb
     sudo cp ${CPY_SRC}/Tools/gdb/libpython.py ${GDB_DATA}/python/gdb/function
 
-    # install Python environment
-    echo "\n\n\n" && pip3 install \
-        ipython pytest-xdist multiprocess numpy scipy matplotlib
+    # install common Python utils
+    pip3 install ipython
 
-    # install Multistrand
-    echo "\n\n\n" && cp -r ${MS} ${MS_DBG}
-    [ -d "${MS_DBG}/build" ] && rm -r "${MS_DBG}/build"
-    pip3 install -vvv -e ${MS_DBG}
+    # install NUPACK
+    echo "\n\n\n" && cd ${LIB_ROOT} && unzip -q ${NUPACK_ZIP} && \
+         pip3 install -U nupack -f ${NUPACK_SRC}/package
+
+    # install Multistrand, configured with debugging compiler flags
+    echo "\n\n\n" && cd ${MS} && \
+         rm -rf .git tools build *.egg-info *.log *_cache p_statespace
+    sed --in-place "s/^\(debug = \)\w*$/\1True/" setup.py
+    pip3 install -v -e .[testing,tutorials]
 
     # info
-    echo "\n\n\n" && pip3 debug && echo && pip3 list
+    echo "\n\n\n" && pip3 list
 
     # cleanup
-    echo "\n\n\n" && cd ${MS_DBG} && rm -r ${CPY_SRC} ${GDB_SRC}
+    echo "\n\n\n" && rm -r \
+         ${CPY_SRC} ${BLD_ROOT}/${GDB_TAR} ${GDB_SRC} ${NUPACK_ZIP} ${NUPACK_SRC}
     pip3 cache purge
 
 %labels
