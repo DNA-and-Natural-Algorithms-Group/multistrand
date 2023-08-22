@@ -87,11 +87,11 @@ class Test_SingleStrandEnergy:
     def compare_energies(cls, rel_tol: float, category: str,
                          complexes: Tuple[Iterable[str], Iterable[str]]) -> None:
         opt = cls.create_config()
-        model1 = thermo.Model(opt)
+        model = thermo.Model(opt)
         i = 0
         for seq, struct in zip(*complexes):
             assert len(seq) == len(struct)
-            e_nupack = thermo.structure_energy([seq], struct, model=model1)
+            e_nupack = thermo.energy([seq], struct, model=model)
             c_multistrand = Complex(
                 strands=[Strand(name="hairpin", sequence=seq)], structure=struct)
             e_multistrand = energy(

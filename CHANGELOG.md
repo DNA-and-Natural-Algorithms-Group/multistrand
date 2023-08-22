@@ -5,7 +5,8 @@
 
 ### Package
 - Migrated from Python 2.7 to Python 3.8+ (Python modules & Python/C API).
-- Migrated from Nupack 3 to Nupack 4.
+- Migrated from NUPACK 3 to NUPACK 4, while still using thermodynamic models
+  compatible with NUPACK 3.
 - Updated the Python package definition, simplified the installation and adapted
   the instructions.
 - Dropped the dependence on the environment variable `$NUPACKHOME`.

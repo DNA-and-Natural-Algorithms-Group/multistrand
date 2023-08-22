@@ -10,7 +10,7 @@ import pytest
 from multistrand.objects import Strand, Complex, Domain
 from multistrand.options import Options
 from multistrand.concurrent import MergeSim
-from multistrand.utils import thermo
+from multistrand.utils.thermo import C2K, GAS_CONSTANT, complex_free_energy
 
 
 @pytest.mark.parametrize("seq", ["GGGGAAACCCC"])
@@ -18,18 +18,18 @@ from multistrand.utils import thermo
 @pytest.mark.parametrize("rate_model", ["DNA23Metropolis", "DNA23Arrhenius"])
 class Test_Equilibrium:
     @classmethod
-    def test_partition_function(cls, seq: str, celsius: float, rate_model: str):
+    def test_free_energy(cls, seq: str, celsius: float, rate_model: str):
         """
-        This test compares the "long-run" partition function obtained from
-        Multistrand with the partition function from NUPACK.
+        This test compares the "long-run" complex free energy obtained from
+        Multistrand with the exact value from NUPACK.
 
         Note that the Multistrand estimate here is constructed by summing over
         unique states found as final states in simulated trajectories. In
         particular, this procedure discards the frequency information and does
         not constitute a Monte Carlo estimate.
         """
-        kelvin = celsius + thermo.C2K
-        RT = thermo.GAS_CONSTANT * kelvin
+        kelvin = celsius + C2K
+        RT = GAS_CONSTANT * kelvin
 
         eqd = cls.equilibrium_distribution(seq, kelvin, RT, rate_model)
         Z = 0.0
@@ -39,10 +39,9 @@ class Test_Equilibrium:
 
         print()
         F = -RT * np.log(Z)
-        print(f"Partition function from Multistrand trajectories: {F:e}")
-        model = thermo.Model(material="DNA", celsius=celsius)
-        pf = thermo.pfunc([seq], model)
-        print(f"Partition function from NUPACK dynamic program  : {pf:e}")
+        print(f"Complex free energy from Multistrand trajectories: {F:e}")
+        pf = complex_free_energy([seq], material="DNA", celsius=celsius)
+        print(f"Complex free energy from NUPACK dynamic program  : {pf:e}")
         assert np.allclose(pf, F, rtol=1e-2)
 
     @classmethod
@@ -86,5 +85,4 @@ class Test_Equilibrium:
 
 
 if __name__ == "__main__":
-    Test_Equilibrium.test_partition_function(
-        "GGGGAAACCCC", 37.0, "DNA23Metropolis")
+    Test_Equilibrium.test_free_energy("GGGGAAACCCC", 37.0, "DNA23Metropolis")

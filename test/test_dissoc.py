@@ -46,11 +46,9 @@ class Test_Dissoc_Rate:
         print(predictedD)
         print(hline)
 
-        # dotparen = "("*len(seq) + "+" + ")"*len(seq)
-        model = thermo.Model(material="DNA", kelvin=temp, ensemble="some", sodium=1.0, magnesium=0.0)
-        dG = thermo.pfunc(strands=[seq, seqC], model=model)
-        print(f"temp {temp}")
-        print(f"dG = {dG}")
+        dG = thermo.complex_free_energy(strands=[seq, seqC], kelvin=temp)
+        print(f"{temp = }")
+        print(f"{dG = }")
 
         k1_A = predictedA.k1() * np.exp(dG / (thermo.GAS_CONSTANT * temp))
         k1_D = predictedD.k1()

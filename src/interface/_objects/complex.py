@@ -3,6 +3,7 @@
 # The Multistrand Team (help@multistrand.org)
 
 from functools import reduce
+from typing import List
 
 from ..utils.thermo import Model, sample
 import numpy as np
@@ -59,7 +60,7 @@ class Complex:
         self.boltzmann_sample = boltzmann_sample
         self._last_boltzmann_structure = False
         self._boltzmann_sizehint = 1
-        self._boltzmann_queue = []
+        self._boltzmann_queue: List[str] = []
         
         # Adjust here for default Boltzmann Parameters. 'None' in this case means to not pass that parameter and let the sample binary use its default. Substrate defaults to DNA.
         self._dangles = None
@@ -292,11 +293,8 @@ class Complex:
         for strand in self.strand_list:
             sequence.append(strand.sequence)
 
-        model = Model(material=self._substrate_type, ensemble=self._dangles, celsius=self._temperature, sodium=self._sodium, magnesium=self._magnesium)
-        results = sample(sequence, model=model, num_sample=count)
-
-        self._boltzmann_queue = results
-
+        self._boltzmann_queue = [s.dp() for s in
+                                 sample(sequence, count, complex=self)]
         if len(self._boltzmann_queue) < 1:
             raise IOError("Did not get any results back from the Boltzmann sample function.")
         self._pop_boltzmann()
@@ -316,5 +314,5 @@ class Complex:
         rather than making this pop smart about dynamic resizing of the
         requested amounts.
         """
-        self._last_boltzmann_structure = str(self._boltzmann_queue.pop())
+        self._last_boltzmann_structure = self._boltzmann_queue.pop()
         self._boltzmann_sizehint -= 1
