@@ -1,7 +1,6 @@
 include *.md changelog MANIFEST.in
 
 recursive-include src *.h *.cc *.py
-recursive-include nupack *.py
 recursive-include test *.py *.txt
 recursive-include env *.def
 

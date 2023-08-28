@@ -47,7 +47,7 @@
 - Removed some unnecessary manual memory management between the Python and C++ layers.
 - `MergeSim` concurrency uses `spawn` to properly isolate nupack utilities.
 - Prevented repeated intermediate prints when using `MergeSim` due to `multiprocess` 
-- Created `reuse_energymodel` option to minimize disk reads
+- Tied energymodel to options object
 - Fixed reference count bug which "mangles" complex objects. No longer crashes when accessing a complex post simulation
 - General cleanup of print statements
 - Introduced `const` expressions for better compile time optimization

@@ -33,12 +33,11 @@ const static std::string STR_TIMEOUT = "timeout";
 
 class SimulationSystem {
 public:
-	SimulationSystem(SimOptions* options);
-	SimulationSystem(PyObject* system_options);
-	SimulationSystem(void);
+	SimulationSystem(PyObject* system_options, EnergyModel *old_energy_model);
+	SimulationSystem(EnergyModel *old_energy_model);
 
 	// helper method for constructors
-	void construct(void);
+	void construct(EnergyModel *old_energy_model);
 
 	~SimulationSystem(void);
 
@@ -46,6 +45,7 @@ public:
 	void initialInfo(void);	// printing function
 	void localTransitions(void); // builds all transitions in local statespace
 
+    EnergyModel *current_energy_model(void);
 	PyObject *calculateEnergy(PyObject *start_state, int typeflag);
 	int isEnergymodelNull(void);
 
@@ -100,6 +100,8 @@ private:
 
 	// A builder object that is only used if export is toggled
 	Builder builder;
+
+	bool will_clear_energyModel = false;
 
 };
 

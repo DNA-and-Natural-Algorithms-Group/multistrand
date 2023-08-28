@@ -102,7 +102,6 @@ void EnergyModel::writeConstantsToFile(void) {
 
 	// Print constants to file.
 	std::stringstream ss;
-
 	ss << "Multistrand " << simOptions->ms_version << " \n \n";
 
 	ss << "sodium        :  " << simOptions->energyOptions->sodium << " M \n";

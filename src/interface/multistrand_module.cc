@@ -32,6 +32,8 @@ typedef struct {
 	PyObject* options;
 } SimSystemObject;
 
+static EnergyModel *energy_model_from_options(PyObject *options_object);
+
 static PyObject *SimSystemObject_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
 
 	SimSystemObject *self;
@@ -60,7 +62,7 @@ static int SimSystemObject_init(SimSystemObject *self, PyObject *args) {
 		PyErr_SetString(PyExc_TypeError, "Must be passed a single Options object.");
 		return -1;
 	}
-	self->ob_system = new SimulationSystem(self->options);
+	self->ob_system = new SimulationSystem(self->options, NULL);
 	if (self->ob_system == NULL) /* something horrible occurred */
 	{
 		Py_DECREF(self->options);
@@ -224,28 +226,43 @@ static PyTypeObject SimSystem_Type = {
    .tp_free = 0, .tp_is_gc = 0,
 };
 
-static PyObject *System_initialize_energymodel(PyObject *self, PyObject *args) {
+static PyObject *System_initialize_energymodel(PyObject *self, PyObject *args) { // TODO remove
 	PyObject *options_object = NULL;
 
 	if (!PyArg_ParseTuple(args, "|O:initialize_energy_model( [options])", &options_object))
 		return NULL;
 
-	EnergyModel *temp = Loop::GetEnergyModel();
-
-	if (temp != NULL)
-		delete temp;
-	if (options_object == NULL || options_object == Py_None)
-		Loop::SetEnergyModel( NULL);
-	else {
+	EnergyModel *temp;
+	if (options_object != NULL && options_object != Py_None){
 		temp = NULL;
 		if (testLongAttr(options_object, parameter_type, =, 0))
 			throw std::invalid_argument("Attempting to load ViennaRNA parameters (depreciated)");
 		//temp = new ViennaEnergyModel( options_object );
 		else
-			temp = new NupackEnergyModel(options_object);
-		Loop::SetEnergyModel(temp);
+			temp = energy_model_from_options(options_object);
 	}
 	Py_RETURN_NONE;
+}
+
+static EnergyModel *energy_model_from_options(PyObject *options_object){
+    EnergyModel *energyModel;
+    SimSystemObject* simsystem_obj;
+
+    simsystem_obj = (SimSystemObject *) PyObject_GetAttrString(options_object, "reusable_sim_system");
+    if((PyObject *)simsystem_obj == Py_None){
+        simsystem_obj = (SimSystemObject *)SimSystem_Type.tp_new(&SimSystem_Type, NULL, NULL);
+        PyObject *args = PyTuple_Pack(1, options_object);
+        if (SimSystem_Type.tp_init((PyObject *)simsystem_obj, args, NULL) < 0) {
+            Py_XDECREF(simsystem_obj);
+            Py_XDECREF(args);
+        }
+    }
+    energyModel = simsystem_obj->ob_system->current_energy_model();
+
+    PyObject_SetAttrString(options_object, "reusable_sim_system", (PyObject *)simsystem_obj);
+    Py_XDECREF(simsystem_obj);
+
+    return energyModel;
 }
 
 static PyObject *System_calculate_energy(PyObject *self, PyObject *args) {
@@ -263,11 +280,10 @@ static PyObject *System_calculate_energy(PyObject *self, PyObject *args) {
 		return NULL;
 	}
 	if (options_object != NULL) {
-
-		temp = new SimulationSystem(options_object);
-
+	    EnergyModel *energyModel = energy_model_from_options(options_object);
+        temp = new SimulationSystem(options_object, energyModel);
 	} else {
-		temp = new SimulationSystem();
+		temp = new SimulationSystem(NULL);
 
 		if (temp->isEnergymodelNull()) {
 			PyErr_Format(
@@ -298,13 +314,10 @@ static PyObject *System_calculate_rate(PyObject *self, PyObject *args, PyObject 
 		return NULL;
 
 	if (options_object == NULL) {
-		em = Loop::GetEnergyModel();
-		if (em == NULL) {
-			PyErr_Format(
+		PyErr_Format(
 				PyExc_AttributeError,
 				"No energy model available, cannot compute rates. Please pass an options object, or use multistrand.system.initialize_energy_model(...).\n");
 			return NULL;
-		}
 
 	} else if (options_object != NULL) {
 		if (testLongAttr(options_object, parameter_type, =, 0)) {
@@ -312,7 +325,7 @@ static PyObject *System_calculate_rate(PyObject *self, PyObject *args, PyObject 
 				"Attempting to load ViennaRNA parameters (depreciated)");
 //        em = new ViennaEnergyModel( options_object );
 		} else {
-			em = new NupackEnergyModel(options_object);
+			em = energy_model_from_options(options_object);
 		}
 
 		if (em == NULL) {
@@ -321,9 +334,6 @@ static PyObject *System_calculate_rate(PyObject *self, PyObject *args, PyObject 
 				"Could not initialize the energy model, cannot compute rates. Please pass a valid options object, or use multistrand.system.initialize_energy_model(...).\n");
 
 			return NULL;
-		}
-		if (Loop::GetEnergyModel() == NULL) {
-			Loop::SetEnergyModel(em);
 		}
 	}
 
@@ -335,9 +345,6 @@ static PyObject *System_calculate_rate(PyObject *self, PyObject *args, PyObject 
 		drate = em->returnRate(start_energy, end_energy, 0);
 
 	rate = PyFloat_FromDouble(drate);
-
-	if (em != Loop::GetEnergyModel())
-		delete em;
 
 	return rate;
 }
@@ -353,7 +360,8 @@ static PyObject *System_run_system(PyObject *self, PyObject *args) {
 		return NULL;
 	Py_INCREF(options_object);
 
-	temp = new SimulationSystem(options_object);
+    EnergyModel *energyModel = energy_model_from_options(options_object);
+	temp = new SimulationSystem(options_object, energyModel);
 	temp->StartSimulation();
 
 	delete temp;

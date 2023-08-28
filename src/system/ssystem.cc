@@ -15,37 +15,26 @@ The Multistrand Team (help@multistrand.org)
 #include <vector>
 #include <iostream>
 
-SimulationSystem::SimulationSystem(PyObject *system_o) {
+SimulationSystem::SimulationSystem(PyObject *system_o, EnergyModel *old_energy_model) {
 	system_options = system_o;
 	simOptions = new PSimOptions(system_o);
-	construct();
+    construct(old_energy_model);
 	energyModel->writeConstantsToFile();
 }
 
-SimulationSystem::SimulationSystem(SimOptions* options) {
-	system_options = NULL;
-	simOptions = options;
-
-	construct();
-	energyModel->writeConstantsToFile();
-
-}
-
-void SimulationSystem::construct(void) {
-
-	simulation_mode = simOptions->getSimulationMode();
+void SimulationSystem::construct(EnergyModel *old_energy_model) {
+    simulation_mode = simOptions->getSimulationMode();
 	simulation_count_remaining = simOptions->getSimulationCount();
 
-	if (simOptions->reuseEnergyModel && Loop::GetEnergyModel() != NULL) {
-		energyModel = Loop::GetEnergyModel();
-		energyModel->simOptions = simOptions;
+    if(old_energy_model != NULL){
+	    energyModel = old_energy_model;
+	} else{
+        energyModel = new NupackEnergyModel(simOptions->getPythonSettings());
+        will_clear_energyModel = true;
 	}
-	 if(energyModel == NULL || !simOptions->reuseEnergyModel){
-		energyModel = new NupackEnergyModel(simOptions->getPythonSettings());
-		Loop::SetEnergyModel(energyModel);
-	}
+	Loop::SetEnergyModel(energyModel); // This is the static that passes the energymodel down to loop.
 
-// move these to sim_settings
+    // move these to sim_settings
 	exportStatesInterval = (simOptions->getOInterval() > 0);
 	exportStatesTime = (simOptions->getOTime() >= 0);
 
@@ -53,15 +42,13 @@ void SimulationSystem::construct(void) {
 
 }
 
-SimulationSystem::SimulationSystem(void) {
+SimulationSystem::SimulationSystem(EnergyModel *old_energy_model) {
 
 	simulation_mode = -1;
 	simulation_count_remaining = -1;
 
-	if (Loop::GetEnergyModel() != NULL) {
-
-		energyModel = Loop::GetEnergyModel();
-
+	if(old_energy_model != NULL){
+	    energyModel = old_energy_model;
 	}
 
 }
@@ -82,7 +69,7 @@ SimulationSystem::~SimulationSystem(void) {
 // the remaining members are not our responsibility, we null them out
 // just in case something thread-unsafe happens.
 
-	if (energyModel != NULL && !simOptions->reuseEnergyModel) {
+	if (energyModel != NULL && will_clear_energyModel) {
 		delete energyModel;
 	}
 
@@ -114,6 +101,10 @@ void SimulationSystem::StartSimulation(void) {
 
 	finalizeSimulation();
 
+}
+
+EnergyModel *SimulationSystem::current_energy_model(void){
+    return energyModel;
 }
 
 void SimulationSystem::StartSimulation_FirstStep(void) {

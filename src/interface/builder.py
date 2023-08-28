@@ -493,8 +493,6 @@ class Builder:
         
         def inspectionSim(inputs):
             o1 = standardOptions()
-            """ Disable regenerating the energymodel """
-            o1.reuse_energymodel = True 
             o1.rate_method = self.options.rate_method
             o1.start_state = inputs[0]
             return o1

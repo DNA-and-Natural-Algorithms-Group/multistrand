@@ -4,6 +4,7 @@
 
 
 import os, random
+import errno
 from functools import reduce
 
 def concentration_string(concentration):

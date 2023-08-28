@@ -108,7 +108,7 @@ public:
 	vector<complex_input>* myComplexes = NULL;
 	EnergyOptions* energyOptions = NULL;
 
-	bool statespaceActive, reuseEnergyModel = false;
+	bool statespaceActive;
 	long verbosity = 1;
 	double ms_version = 0.0;
 

@@ -105,7 +105,7 @@ class Options:
     cotranscriptional_rate_default = 0.001  # 1 nt added every 1 ms
 
     activestatespace = False
-    reuse_energymodel = False
+
     
     def __init__(self, *args, **kargs):
         """
@@ -160,6 +160,8 @@ class Options:
         self._current_transition_list = []
         self.trajectory_current_time = 0.0
         self.current_graph = None
+
+        self._reusable_sim_system = None
 
         self.verbosity = 1
         """ Indicates how much output will be generated for each trajectory run.
@@ -412,7 +414,7 @@ class Options:
         return (
             self.ms_version,
             self.verbosity, self.print_initial_first_step,
-            self.activestatespace, self.reuse_energymodel,
+            self.activestatespace,
             self.substrate_type, self.parameter_type, self.parameter_file,
             self.gt_enable, self.log_ml, self.dangles,
             self.cotranscriptional, self.cotranscriptional_rate,
@@ -426,7 +428,7 @@ class Options:
         ) == (
             other.ms_version,
             other.verbosity, other.print_initial_first_step,
-            other.activestatespace, other.reuse_energymodel,
+            other.activestatespace,
             other.substrate_type, other.parameter_type, other.parameter_file,
             other.gt_enable, other.log_ml, other.dangles,
             other.cotranscriptional, other.cotranscriptional_rate,
@@ -1080,6 +1082,15 @@ class Options:
         if len(self._current_transition_list) > 0:
             self.interface.transition_lists.append(self._current_transition_list)
             self._current_transition_list = []
+
+    @property
+    def reusable_sim_system(self):
+        return self._reusable_sim_system
+
+    @reusable_sim_system.setter
+    def reusable_sim_system(self, val):
+        self._reusable_sim_system = val
+
 
     def __init_keyword_args(self, *args, **kargs):
         """ Helper subfunction. """

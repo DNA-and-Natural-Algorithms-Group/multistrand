@@ -45,13 +45,12 @@ class Test_SingleStrandEnergy:
     @pytest.mark.parametrize("examples_file", [Path(__file__).parent / 'testSetSS.txt'])
     def test_energy(cls, examples_file: Path, rel_tol: float):
         complexes = cls.load_complexes(examples_file)
-        opt = cls.create_config()
         pool = Pool()
         for category, (seqs, structs) in complexes.items():
             print(f"{category}: {len(seqs)}")
             blocks = [(seqs[ix], structs[ix])
                       for ix in split_tasks(len(seqs), cls.num_workers)]
-            pool.map(partial(cls.compare_energies, opt, rel_tol, category),
+            pool.map(partial(cls.compare_energies, cls, rel_tol, category),
                      blocks)
 
     @classmethod
@@ -80,13 +79,14 @@ class Test_SingleStrandEnergy:
 
     @staticmethod
     def create_config() -> Options:
-        opt = Options(verbosity=0, reuse_energymodel=True)
+        opt = Options(verbosity=0)
         opt.DNA23Metropolis()
         return opt
 
     @staticmethod
-    def compare_energies(opt: Options, rel_tol: float, category: str,
+    def compare_energies(cls, rel_tol: float, category: str,
                          complexes: Tuple[Iterable[str], Iterable[str]]) -> None:
+        opt = cls.create_config()
         model1 = thermo.Model(opt)
         i = 0
         for seq, struct in zip(*complexes):
@@ -101,4 +101,4 @@ class Test_SingleStrandEnergy:
                 f"category = {category}, seq = {seq}, struct = {struct}"
 
 if __name__ == "__main__":
-    Test_SingleStrandEnergy.test_energy(Test_SingleStrandEnergy, examples_file= (Path(__file__).parent / 'testSetSS-small.txt'), rel_tol=1e-6)
+    Test_SingleStrandEnergy.test_energy(Test_SingleStrandEnergy, examples_file= (Path(__file__).parent / 'testSetSS.txt'), rel_tol=1e-6)

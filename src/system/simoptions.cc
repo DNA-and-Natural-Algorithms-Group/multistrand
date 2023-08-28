@@ -68,7 +68,6 @@ PSimOptions::PSimOptions(PyObject* input) :
 
 	getLongAttr(python_settings, verbosity, &verbosity);
 	getBoolAttr(python_settings, activestatespace, &statespaceActive);
-	getBoolAttr(python_settings, reuse_energymodel, &reuseEnergyModel);
 	getDoubleAttr(python_settings, ms_version, &ms_version);
 
 	// switch for debugging output
