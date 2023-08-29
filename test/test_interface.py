@@ -3,35 +3,103 @@
 # The Multistrand Team (help@multistrand.org)
 
 from random import randrange
+from typing import List
 
 import pytest
 
-from multistrand.objects import Domain, Strand, Complex, StopCondition
-from multistrand.options import Options
+from multistrand.options import Options, Literals, Energy_Type
 from multistrand._options.interface import FirstStepResult
 from multistrand._options.constants import OptionsConstants
-from multistrand.system  import SimSystem
+from multistrand.objects import (
+    Domain, ComplementaryDomain, Strand, Complex, StopCondition)
+from multistrand.system  import SimSystem, energy
 
 
-@pytest.mark.parametrize("kinetics",
-                         ["JSMetropolis25", "DNA23Metropolis", "DNA23Arrhenius"])
-@pytest.mark.parametrize("num_simulations", [100])
 class Test_Interface:
     """
     This test exercises the Python interface.
     """
+    @staticmethod
+    def small_system():
+        domains = [Domain(name="d1", sequence="ACTTG")]
+        domains.append(ComplementaryDomain(domains[0]))
+        strands = [Strand("s1", domains=[domains[0]]),
+                   Strand("s2", domains=[domains[1]])]
+        complexes = [Complex(name="c1", strands=[strands[0]], structure="....."),
+                     Complex(name="c2", strands=[strands[1]], structure="....."),
+                     Complex(name="c3", strands=strands, structure="(((((+)))))")]
+        conditions = [StopCondition("REVERSE", [(complexes[0], 2, 0),
+                                                (complexes[1], 2, 0)]),
+                      StopCondition("END", [(complexes[2], 4, 1)])]
+        return domains, strands, complexes, conditions
 
-    def test_first_step_mode(self, kinetics: str, num_simulations: int,
-                             capfd: pytest.CaptureFixture):
-        print("Creating options...")
+    @staticmethod
+    def big_system():
         d1 = Domain(name="d1", sequence="GTTGGTTTGTGTTTGGTGGG")
         s1 = Strand(name="s1", domains=[d1])
         c1 = Complex(name="c1", strands=[s1], structure=".")
         c2 = Complex(name="c2", strands=[s1.C], structure=".")
         c3 = Complex(name="c3", strands=[s1, s1.C], structure="(+)")
-
         sc_rev = StopCondition("REVERSE", [(c1, 2, 0), (c2, 2, 0)])
         sc_for = StopCondition("END", [(c3, 4, 6)])
+        return d1, s1, c1, c2, c3, sc_rev, sc_for
+
+    @staticmethod
+    def check_duplicates(seq: List[Domain | Strand | Complex | StopCondition]):
+        """
+        Helper function to see if we duplicated the 'id' attribute or 'tag'
+        attribute in an interable.
+        """
+        ob_type = seq[0].__class__.__name__
+        assert len(seq) == len(set([
+            f"{i.__class__.__name__}[{(i.tag if isinstance(i, StopCondition) else i.id)}]"
+            for i in seq])), f"Duplicate {ob_type} instances were added"
+
+    def test_base_objects(self):
+        """
+        This test creates all the basic objects.
+        """
+        domains, strands, complexes, conditions = self.small_system()
+        self.check_duplicates(domains)
+        self.check_duplicates(strands)
+        self.check_duplicates(complexes)
+        self.check_duplicates(conditions)
+
+    def test_options_simsystem(self):
+        """
+        Create an `Options` object using some common values and simple
+        start/stop states, and attempt its reuse across multiple `SimSystem`
+        objects.
+        """
+        _, _, complexes, conditions = self.small_system()
+        o = Options()
+        o.simulation_mode = Literals.first_passage_time
+        o.parameter_type  = "Nupack"
+        o.substrate_type  = Literals.substrateDNA
+        o.DNA23Arrhenius()
+        o.num_simulations = 3
+        o.simulation_time = 0.5
+        o.start_state = complexes
+        o.stop_conditions = conditions
+
+        s1 = SimSystem(o)
+        s2 = SimSystem(o)
+        s3 = SimSystem(o)
+
+        print("Start simulation...")
+        s3.start()
+        print(o.interface)
+        print()
+        print("Energy calculation:")
+        print(energy([complexes[0]], o, Energy_Type.Complex_energy))
+
+    @pytest.mark.parametrize(
+        "kinetics", ["JSMetropolis25", "DNA23Metropolis", "DNA23Arrhenius"])
+    @pytest.mark.parametrize("num_simulations", [100])
+    def test_first_step_mode(self, kinetics: str, num_simulations: int,
+                             capfd: pytest.CaptureFixture):
+        print("Creating options...")
+        _, _, c1, c2, _, sc_rev, sc_for = self.big_system()
         o = Options(simulation_mode='First Step', num_simulations=num_simulations,
                     simulation_time=0.5, start_state=[c1, c2],
                     stop_conditions=[sc_rev, sc_for])

@@ -123,17 +123,18 @@ class Complex:
         else:
             domain_count = sum(len(s.domain_list) for s in self.strand_list)
             if len(structure) != domain_count + strand_count - 1:
-                error_msg = "ERROR: Could not interpret the passed structure [{0}];".format(structure)
+                error_msg = f"ERROR: Could not interpret the passed structure [{structure}]; "
                 if domain_count > 0:
-                    error_msg += "Expected a structure composed of characters from '.()+' \
-                    and with either length [{0}] for a complete structure, or length [{1}] \
-                    for a domain-level structure. If giving a domain-level structure, it \
-                    should have the layout [{2}].".format(total_flat_length,
-                        domain_count + strand_count - 1,
-                        "+".join(''.join('x' for d in s.domain_list)\
-                                 for s in self.strand_list))
+                    error_msg += (
+                        "Expected a structure composed of characters from '.()+' "
+                        "and with either length [{0}] for a complete structure, or length [{1}] "
+                        "for a domain-level structure. If giving a domain-level structure, it "
+                        "should have the layout [{2}].").format(
+                            total_flat_length, domain_count + strand_count - 1,
+                            "+".join(''.join('x' for d in s.domain_list)
+                                     for s in self.strand_list))
                 else:
-                        error_msg += " Could not parse the dot-paren structure. Expected string composed of ()+."
+                    error_msg += "Expected string composed of '.()+'."
                 raise ValueError(error_msg)
             else:
                 matched_list = list(zip(
@@ -181,7 +182,7 @@ class Complex:
         if self.boltzmann_sample:
             self.generate_boltzmann_structure()
             
-            if not self.sampleSelect == None:
+            if self.sampleSelect is not None:
                 while not self.sampleSelect(self._last_boltzmann_structure):
                     self.generate_boltzmann_structure()
             

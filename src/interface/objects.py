@@ -8,12 +8,13 @@ Objects module to get the useful names into the correct namespace.
 
 __module__ = 'multistrand.objects'
 
-from ._objects.domain  import Domain
+from ._objects.domain import Domain, ComplementaryDomain
 from ._objects.complex import Complex
-from ._objects.strand import Strand
+from ._objects.strand import Strand, ComplementaryStrand
 from ._objects.stopcondition import StopCondition, Macrostate
 
-__all__ = ['Strand','StopCondition','Macrostate','Complex','Domain']
+__all__ = ['Domain','ComplementaryDomain','Strand', 'ComplementaryStrand',
+           'Complex', 'StopCondition','Macrostate']
 
 # The following appears to be necessary [at the moment] as otherwise
 # we can't generate appropriate documentation for these sub objects as
@@ -23,7 +24,9 @@ __all__ = ['Strand','StopCondition','Macrostate','Complex','Domain']
 # importing from local space.
 
 Strand.__module__ = 'multistrand.objects'
+ComplementaryStrand.__module__ = 'multistrand.objects'
 Complex.__module__ = 'multistrand.objects'
 Macrostate.__module__ = 'multistrand.objects'
 StopCondition.__module__ = 'multistrand.objects'
 Domain.__module__ = 'multistrand.objects'
+ComplementaryDomain.__module__ = 'multistrand.objects'

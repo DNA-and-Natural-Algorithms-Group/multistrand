@@ -474,6 +474,7 @@ class Options:
     def JSMetropolis25(self):
         """ Default rates for Metropolis at 25 degree Celcius, from Joseph Schaeffer's thesis
         """
+        self.substrate_type = Literals.substrateDNA
         self.rate_method = Literals.metropolis
 
         self.unimolecular_scaling = 4.4e8
@@ -482,6 +483,7 @@ class Options:
     def JSKawasaki25(self):
         """ Default rates for Kawasaki at 25 degree Celcius, from Joseph Schaeffer's thesis
         """
+        self.substrate_type = Literals.substrateDNA
         self.rate_method = Literals.kawasaki
 
         self.unimolecular_scaling = 6.1e7
@@ -490,6 +492,7 @@ class Options:
     def JSKawasaki37(self):
         """ Default rates for Kawasaki at 37 degree Celcius, from Joseph Schaeffer's thesis
         """
+        self.substrate_type = Literals.substrateDNA
         self.rate_method = Literals.kawasaki
 
         self.unimolecular_scaling = 1.5e8
@@ -498,6 +501,7 @@ class Options:
     def JSMetropolis37(self):
         """ Default rates for Metropolis at 37 degree Celcius, from Joseph Schaeffer's thesis
         """
+        self.substrate_type = Literals.substrateDNA
         self.rate_method = Literals.metropolis
 
         self.unimolecular_scaling = 7.3e8
@@ -517,6 +521,7 @@ class Options:
         Lulu Qian, 172–87. Lecture Notes in Computer Science. Cham: Springer
         International Publishing. https://doi.org/10.1007/978-3-319-66799-7_12.
         """
+        self.substrate_type = Literals.substrateDNA
         self.rate_method = Literals.metropolis
 
         self.unimolecular_scaling = 2.41686715e+06
@@ -534,6 +539,7 @@ class Options:
         Lulu Qian, 172–87. Lecture Notes in Computer Science. Cham: Springer
         International Publishing. https://doi.org/10.1007/978-3-319-66799-7_12.
         """
+        self.substrate_type = Literals.substrateDNA
         self.rate_method = Literals.arrhenius
 
         self.lnAStack = 1.41839430e+01

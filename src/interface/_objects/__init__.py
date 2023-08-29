@@ -6,5 +6,6 @@
 Objects module; contains basic objects useful for Multistrand.
 """
 
-__all__ = ['Complex','Domain','StopCondition','Strand']
+__all__ = ['Domain','ComplementaryDomain','Strand', 'ComplementaryStrand',
+           'Complex', 'StopCondition']
 __module__ = 'multistrand.objects'
