@@ -176,14 +176,14 @@ The Multistrand Team (help@multistrand.org)
 #ifdef DEBUG_MACROS
 
 #define _m_printPyError_withLineNumber() \
-  fprintf(stderr,"ERROR: Python Interpreter error: file %s, line %d.\nERROR (Python): ", __FILE__, (int)__LINE__), PyErr_PrintEx(1)
+  fprintf(stderr,"ERROR: Python Interpreter error: file %s, line %d.\nERROR (Python): ", __FILE__, (int)__LINE__), PyErr_Print()
 
 #define printPyError_withLineNumber()                                   \
   do {                                                                  \
     if (PyErr_Occurred() != NULL )                                      \
       {                                                                 \
         fprintf(stderr,"ERROR: Python Interpreter error: file %s, line %d.\nERROR (Python): ", __FILE__, (int)__LINE__); \
-        PyErr_PrintEx(1);                                               \
+        PyErr_Print();                                                  \
       }                                                                 \
   } while(0)
 
@@ -488,8 +488,7 @@ class identList *getID_list(PyObject *options, int index, PyObject *alternate_st
  ******************************************************/
 
 /* WARNING: If you change the following defines, you must also
- change the values in python_options._OptionsConstants.RATEMETHOD
- in the file python_options.py.
+ change the values in `options.py`
  */
 const int RATE_METHOD_INVALID = 0x00;
 const int RATE_METHOD_METROPOLIS = 0x01;
@@ -498,8 +497,7 @@ const int RATE_METHOD_ARRHENIUS = 0x03;
 
 
 /* WARNING: If you change the following defines, you must also
- change the values in python_options._OptionsConstants.DANGLES
- in the file python_options.py.
+ change the values in `options.py`
  */
 const int DANGLES_NONE = 0x00;
 const int DANGLES_SOME = 0x01;
@@ -507,16 +505,14 @@ const int DANGLES_ALL = 0x02;
 
 
 /* WARNING: If you change the following defines, you must also
- change the values in python_options._OptionsConstants.ENERGYMODEL_TYPE
- in the file python_options.py.
+ change the values in `options.py`
  */
 const int ENERGYMODEL_VIENNA = 0x00;
 const int ENERGYMODEL_NUPACK = 0x01;
 
 
 /* WARNING: If you change the following defines, you must also
- change the values in python_options._OptionsConstants.SUBSTRATE_TYPE
- in the file python_options.py.
+ change the values in `options.py`
  */
 
 const int SUBSTRATE_INVALID = 0x00;
@@ -524,8 +520,7 @@ const int SUBSTRATE_RNA = 0x01;
 const int SUBSTRATE_DNA = 0x02;
 
 /* WARNING: If you change the following defines, you must also
- change the values in python_options._OptionsConstants.SIMULATION_MODE
- in the file python_options.py.
+ change the values in `options.py`
  */
 
 const int SIMULATION_MODE_NORMAL = 0x0010;
@@ -537,12 +532,14 @@ const int SIMULATION_MODE_FIRST_BIMOLECULAR = 0x0030;
 //                                 bit 10 is compute energy mode only, should not
 //                                          be combined with any other flags.
 // the following are the bit definitions for tests on those:
-
 const int SIMULATION_MODE_FLAG_NORMAL = 0x0010;
 const int SIMULATION_MODE_FLAG_FIRST_BIMOLECULAR = 0x0020;
-const int SIMULATION_MODE_FLAG_PYTHON = 0x0040;
 const int SIMULATION_MODE_FLAG_TRAJECTORY = 0x0080;
 const int SIMULATION_MODE_FLAG_TRANSITION = 0x0100;
+
+/* WARNING: If you change the following defines, you must also
+ change the values in `interface.py`
+ */
 
 // stopconditions used in ssystem.
 // TODO: clean up/add docs.

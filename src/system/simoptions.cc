@@ -20,32 +20,15 @@ The Multistrand Team (help@multistrand.org)
 using std::vector;
 using std::string;
 
-SimOptions::SimOptions(void) {
-
-// empty constructor
-
-}
-
 SimOptions::~SimOptions(void) {
 
 // empty deconstructor
 
 }
 
-PSimOptions::PSimOptions(void) :
-		PSimOptions(NULL) {
-// Delegated constructor
-
-}
-
-PSimOptions::PSimOptions(PyObject* input) :
-		SimOptions() {
-	// Inherited constructor.
-
-	python_settings = input;
-
-	// initializers calling python object -- these can use a super object getter.
-	// Not clear at the moment if calling all settings is possible without crashing.
+PSimOptions::PSimOptions(PyObject* options) : python_settings(options)
+{
+	// initializers calling Python object -- these can use a super object getter.
 	getBoolAttr(python_settings, initial_seed_flag, &fixedRandomSeed);
 	if (fixedRandomSeed)
 		getLongAttr(python_settings, initial_seed, &seed);
@@ -73,6 +56,20 @@ PSimOptions::PSimOptions(PyObject* input) :
 	// switch for debugging output
 	debug = (verbosity > 2);
 
+}
+
+int PSimOptions::checkPythonType(PyObject* options) {
+    if (strcmp(Py_TYPE(options)->tp_name, "Options") == 0)
+        return 0;
+    else {
+        PyErr_SetString(PyExc_TypeError,
+                        "Expected an argument of type `options.Options`.");
+        return -1;
+    }
+}
+
+void PSimOptions::clear(PyObject* options) {
+	Py_DECREF(PyObject_CallMethod(options, "clear", "()"));
 }
 
 string SimOptions::toString() {

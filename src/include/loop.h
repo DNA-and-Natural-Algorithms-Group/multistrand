@@ -21,7 +21,6 @@ using std::vector;
 class EnergyOptions;
 
 struct RateArr {
-
 	double rate;
 	MoveType left;
 	MoveType right;
@@ -31,7 +30,6 @@ struct RateArr {
 		left = stackMove;
 		right = stackMove;
 	}
-
 	RateArr(double inRate, MoveType inLeft, MoveType inRight) {
 		rate = inRate;
 		left = inLeft;

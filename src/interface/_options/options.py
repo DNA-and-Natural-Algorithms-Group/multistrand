@@ -3,7 +3,7 @@
 # The Multistrand Team (help@multistrand.org)
 
 """
-Options object.
+Options and literals for specifying and representing Multistrand simulations.
 """
 
 import copy
@@ -18,13 +18,10 @@ from ..objects import Strand, Complex, StopCondition
 from ..__init__ import __version__
 
 
-""" Literals for Multistrand"""
-
-
 class Literals:
     """
-    Preset tags that are used in the MergeResult objects (FirstStepRate, FirstStepLeakRate, FirstPassageRate)
-    and multistrand.experiment  
+    Preset tags that are used in the MergeResult objects (FirstStepRate,
+    FirstStepLeakRate, FirstPassageRate) and multistrand.experiment
     """
 
     failure = "FAILURE"
@@ -55,39 +52,57 @@ class Literals:
     """ Simulation modes """
     first_passage_time = 16  # 0x0010
     first_step = 48  # 0x0030
-    transition = 256  # 0x0100
     trajectory = 128  # 0x0080
-    
+    transition = 256  # 0x0100
+
     """
-        FD, May 8th, 2018:
-        
-        StopCondition and Macrostate definitions:
-            Exact - match a secondary structure exactly (i.e. any system state that has a complex with this exact structure)
-            Bound - match any system state in which the given strand is bound to another strand
-            Ordered - match any system state in which there exists a complex with exactly the given strands, in that order (previous name: dissoc macrostate)
-            Loose - match a secondary structure, allowing a certain number of disagreements, allowing domain state to be unspecified (* notation)
-            Count - match a secondary structure, allowing a certain number of disagreements
-            
-            Compuational expense, low to high :           dissoc -- exact -- count -- loose     
+    FD, May 8th, 2018:
+    StopCondition and Macrostate definitions:
+        Compuational expense, low to high: dissoc -- exact -- count -- loose
     """
-    exact_macrostate = 0  # 
-    bound_macrostate = 1  # 
-    dissoc_macrostate = 2  # 
-    ordered_macrostate = 2 
-    loose_macrostate = 3  # 
-    count_macrostate = 4  # 
+    exact_macrostate = 0
+    """match a secondary structure exactly (i.e. any system state that has a
+    complex with this exact structure)"""
+    bound_macrostate = 1
+    """match any system state in which the given strand is bound to another
+    strand"""
+    dissoc_macrostate = 2
+    ordered_macrostate = 2
+    """match any system state in which there exists a complex with exactly the
+    given strands, in that order (previous name: dissoc macrostate)"""
+    loose_macrostate = 3
+    """match a secondary structure, allowing a certain number of disagreements,
+    allowing domain state to be unspecified (* notation)"""
+    count_macrostate = 4
+    """match a secondary structure, allowing a certain number of
+    disagreements"""
 
 
-class Energy_Type(IntEnum):
-    Loop_energy = 0     # [default]: no volume or association terms included. So only loop energies remain.
-    Volume_energy = 1   # include dG_volume. No clear interpretation for this.
-    Complex_energy = 2  # include dG_assoc. This is the NUPACK complex microstate energy, sans symmetry terms.
-    Tube_energy = 3     # include dG_volume + dG_assoc. Summed over complexes, this is the system state energy.
+class EnergyType(IntEnum):
+    loop = 0
+    """[default]: no volume or association terms included"""
+    volume = 1
+    """include dG_volume (no clear interpretation)"""
+    complex = 2
+    """include dG_assoc (NUPACK complex microstate energy, sans symmetry terms)"""
+    tube = 3
+    """include dG_volume + dG_assoc (system state energy when summed over complexes)"""
+
+
+class TransitionType(IntEnum):
+    unimol = 0
+    """[default]: unimolecular transition"""
+    bimol_join = 1
+    """bimolecular join (energies are irrelevant)"""
+    bimol_break = 2
+    """bimolecular break (energies are relevant)"""
 
 
 class Options:
-    """ The main wrapper for controlling a Multistrand simulation. Has an interface for returning results. """
-       
+    """
+    The main wrapper for controlling a Multistrand simulation. Has an interface
+    for returning results.
+    """
     RateMethodToString = ["None", "Metropolis", "Kawasaki", "Arrhenius"]
     dangleToString = ["None", "Some", "All"]
 
@@ -96,14 +111,14 @@ class Options:
     nupackModel = 1
     parameterTypeToString = ["Vienna", "Nupack" ]
     substrateToString = ["Invalid", "RNA", "DNA"]
-    
+
     # translation
     simulationMode = {"Normal"    :         Literals.first_passage_time,
                       "First Step":         Literals.first_step,
                       "Transition":         Literals.transition,
                       "Trajectory":         Literals.trajectory,
                       "First Passage Time": Literals.first_passage_time}
-    
+
     cotranscriptional_rate_default = 0.001  # 1 nt added every 1 ms
 
     activestatespace = False
@@ -129,10 +144,10 @@ class Options:
         rate_method                  -- Whether we want 'Kawasaki' or 'Metropolis'
                                         or 'Arrhenius' rate method for unimolecular steps.
                                         
-        If rate_method == Literals.Arrhenius, please set lnAEnd, lnALoop, lnAStack, 
-                                lnAStackStack, lnALoopEnd, lnAStackEnd, lnAStackLoop, 
-                                EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd, 
-                                EStackLoop and bimolecular_rate(double value).
+        If rate_method == Literals.Arrhenius, please set:
+        lnAEnd, lnALoop, lnAStack, lnAStackStack, lnALoopEnd, lnAStackEnd,
+        lnAStackLoop, EEnd, ELoop, EStack, EStackStack, ELoopEnd, EStackEnd,
+        EStackLoop and bimolecular_rate(double value).
         """
 
         ##################################################
@@ -144,7 +159,7 @@ class Options:
         
         """ Pipe to let Multistrand know the version from ../__init__.py """
         self.ms_version = float(__version__)
-        
+
         self.errorlog = []
         """ Keeps lines relating to possible errors or warnings that
         should be reported to the user. Usually issues relating to the
@@ -163,6 +178,10 @@ class Options:
         self.current_graph = None
 
         self._reusable_sim_system = None
+        """
+        Reference to the first `SimSystem` instance created from `self`,
+        providing a reusable `EnergyModel` (C++) for subsequent instances.
+        """
 
         self.verbosity = 1
         """ Indicates how much output will be generated for each trajectory run.
@@ -171,23 +190,27 @@ class Options:
         Value = 2:  Warnings and end states reports to stdout
         Value = 3:  Print debugging information from SimulationSystem to stdout
         """
-        
+
         self.print_initial_first_step = False
         """
-        If True, this value will print the initial state in First Step Mode to the trajectory with a timestamp of -1.0
+        If True, this value will print the initial state in First Step Mode to
+        the trajectory with a timestamp of -1.0
         """
 
         self.cotranscriptional = False
         """
-        If True, enables the cotranscriptional simulation mode. The mode works only when a single strand is supplied.
-        Starting with the initial 8 nucleotides, the simulation adds a nucleotide on the 3' end every 1 millisecond. 
+        If True, enables the cotranscriptional simulation mode. The mode works
+        only when a single strand is supplied. Starting with the initial 8
+        nucleotides, the simulation adds a nucleotide on the 3' end every 1
+        millisecond.
         """
-        
+
         self.cotranscriptional_rate = self.cotranscriptional_rate_default
         """
-        By default, the cotranscriptional mode adds one nucleotide every 1 millisecond.
+        By default, the cotranscriptional mode adds one nucleotide every 1
+        millisecond.
         """
-        
+
         #############################################
         #                                           #
         # Data Members: Energy Model                #
@@ -195,7 +218,7 @@ class Options:
         #############################################
         # See accessors below
         self._start_state: List[Complex] = []
-        
+
         self.gt_enable = True
         """ Allow GT base pairs? If not, penalize by 10000 kcal/mol.
             False (0) : Do not allow GT base pairs.
@@ -205,26 +228,29 @@ class Options:
         """ Use logarithm to compute multiloop energy contributions?
         int          False (0): Do not use the logarithm.
 
-        If True, uses log to compute one component of the multiloop energy, for loops of length > 6. Otherwise, uses the usual
-        linear approximation. Using the log formula is slightly more expensive as it makes computation time for a multiloop scale
-        with the number of adjoining helices.
+        If True, uses log to compute one component of the multiloop energy, for
+        loops of length > 6. Otherwise, uses the usual linear approximation.
+        Using the log formula is slightly more expensive as it makes computation
+        time for a multiloop scale with the number of adjoining helices.
         """
-        
+
         self._join_concentration: float = 1.0
         """ concentration for V calcs
-        Units are in M (molar), and represent the concentration of a single unique strand in the system. The volume simulated is
-        then chosen using this parameter.
+        Units are in M (molar), and represent the concentration of a single
+        unique strand in the system. The volume simulated is then chosen using
+        this parameter.
         """
 
         self._temperature_celsius = 37.0
         self._temperature_kelvin = 310.15
 
         self.rate_scaling = None
-        """FD: This is a legacy option that sets unimolecular and bimolecular scaling automatically if set"""
+        """FD: This is a legacy option that sets unimolecular and bimolecular
+        scaling automatically if set"""
 
         self._unimolecular_scaling: float = -1.0
         """ Rate scaling factor for unimolecular reactions."""
-        
+
         self._bimolecular_scaling: float = -1.0
         """ Rate scaling factor for bimolecular reactions."""
 
@@ -262,28 +288,27 @@ class Options:
         # BEGIN simmode
         #
         ####################
-        
+
         self._simulation_mode = Literals.first_passage_time
         """ The simulation mode: how we want the simulation system to
         perform the main loop.
         """
-        
+
         self._simulation_time: float = 600.0
         """ Maximum time (in seconds) allowed for each trajectory.
         
         Type         Default
         double       600.0
         """
-        
+
         self._num_simulations: int = 1
-        """ Total number of trajectories to run. 
-        """
-        
+        """ Total number of trajectories to run. """
+
         self._initial_seed: Optional[int] = None
         """ Initial random number seed to use.
         If None when simulation starts, a random seed will be chosen
         """
-        
+
         self.name_dict = {}
         """ Dictionary from strand name to a list of unique strand objects
         having that name.
@@ -294,7 +319,7 @@ class Options:
         Modified when start state is added. Used as a lookup when stop states 
         are added.
         """
-        
+
         self.lnAEnd = -0.1
         self.lnALoop = -0.1
         self.lnAStack = -0.1
@@ -309,30 +334,27 @@ class Options:
         self.ELoopEnd = -0.1
         self.EStackEnd = -0.1
         self.EStackLoop = -0.1
-         
+
         """ These are undocumented adjustments to the energy model """
         self.dSA = -0.0
         self.dHA = -0.0
 
         """ 
-            Buffer conditions 
-            Like substrate_type, temperature, and dangles,
-            these follow a listener pattern to propagate settings to dangles.
-            (as opposed to copying settings at the last possible moment)
+        Buffer conditions
         """
         self.sodium = 1.0
         self.magnesium = 0.0
-        
+
         ####################
         #
         # BEGIN startstop
         #
         ####################
-                
+
         # See accessors below
         self._stop_conditions = []
         self._use_stop_conditions = False
-        
+
         self.stop_count = 0
         """ The number of stop states. Equivalent to 'len(self.stop_conditions)'.
         
@@ -342,7 +364,7 @@ class Options:
         Incremented automatically when a stop state is added. Should not be 
         modified externally.
         """
-        
+
         self.output_time = -1.0
         """ The amount of time (in seconds) to wait between outputs of 
         trajectory information.
@@ -354,7 +376,7 @@ class Options:
         (but perhaps outputting based on some other condition). A value of 0 
         means output as often as possible.
         """
-        
+
         self._output_interval: int = -1
         """ The number of states between outputs of trajectory information.
         
@@ -365,7 +387,7 @@ class Options:
         (but perhaps outputting based on some other condition). A value of 1 
         means output every state, 2 means every other state, and so on.
         """
-        
+
         self.current_interval = 0
         """ Current value of output state counter.
         
@@ -385,9 +407,9 @@ class Options:
         Value should be True if self.current_interval == self.output_interval 
         and False otherwise.        
         """
-        
+
         self.interface = Interface()
-        
+
         ##############################
         #
         # End of __init__: call the keyword hook fn. 
@@ -395,6 +417,30 @@ class Options:
         ##############################
 
         self.__init_keyword_args(self, *args, **kargs)
+
+    def clear(self) -> None:
+        """
+        Erase all dynamic simulation state, *excluding* the `SimSystem` that is
+        stored in order to reuse its `EnergyModel`.
+
+        Note that `Options.initial_seed` is considered a static configuration to
+        be kept, whereas `Options.interface.current_seed` is considered dynamic
+        simulation state to be cleared.
+        """
+        self.full_trajectory = []
+        self.full_trajectory_times = []
+        self.full_trajectory_arrType = []
+        self.trajectory_complexes = []
+        self.trajectory_state_count = 0
+        self.trajectory_current_time = 0.0
+        self._current_end_state = []
+        self._current_transition_list = []
+        self.current_graph = None
+        self.current_interval = 0
+        self.output_state = False
+        self.errorlog = []
+
+        self.interface = Interface()
 
     def __eq__(self, other: "Options") -> bool:
         """
@@ -526,7 +572,7 @@ class Options:
 
         self.unimolecular_scaling = 2.41686715e+06
         self.bimolecular_scaling = 8.01171383e+05
-    
+
     def DNA23Arrhenius(self):
         """
         Reference:
@@ -556,13 +602,14 @@ class Options:
 
         self.lnAStackEnd = 1.75235569e+01
         self.EStackEnd = 2.65589869e+00
-        
+
         self.lnALoopEnd = 2.42237267e+00
         self.ELoopEnd = 8.49339120e-02
-        
+
         self.lnAStackStack = 8.04573830e+00
         self.EStackStack = -6.27121400e-01
-        
+
+        self.unimolecular_scaling = 1.0
         self.bimolecular_scaling = 1.60062641e-02
  
     # FD: After temperature, substrate (RNA/DNA) or danlges is updated, we
@@ -731,9 +778,6 @@ class Options:
         self._magnesium = float(value)
         self.updateBoltzmannSamples()
         
-    """ FD: Setting boltzmann sample in options could be used to propagate this setting to all starting states. 
-            But we do not support this, and sampling is a property of each individual complex instead. """
-
     @property
     def boltzmann_sample(self):
         raise ValueError('Options.boltzmann_sample is now depreciated. Use Complex.boltzmann_sample instead.')
@@ -808,7 +852,7 @@ class Options:
     @property
     def initial_seed_flag(self):
         return self._initial_seed != None
-    
+
     @property
     def stop_conditions(self):
         """ The stop states, i.e. a list of StopCondition objects.
@@ -865,10 +909,8 @@ class Options:
 
     @use_stop_conditions.setter
     def use_stop_conditions(self, val):
-        
         if val == True and len(self._stop_conditions) == 0:
              raise Warning("Options.use_stop_conditions was set to True, but no stop conditions have been defined!")
-
         self._use_stop_conditions = val
     
     @property
@@ -889,7 +931,6 @@ class Options:
             self.current_interval += 1
         
         self.output_state = (self.current_interval == self.output_interval)
-
         return None
 
     @property
@@ -953,19 +994,19 @@ class Options:
             self.updateBoltzmannSamples()
             self.errorlog.append("Warning: Temperature was set at the value [{0}]. This is outside the normal range of temperatures we expect, so it was assumed to be in Kelvin.\n".format(val))
             raise Warning("Temperature did not fall in the usual expected ranges. Temperatures should be in units Kelvin, though the range [0,100] is assumed to mean units of Celsius.")
-    
+
     def make_unique(self, strand):
         """Returns a new Strand object with a unique identifier replacing the 
         old id. Also adds the new strand to self.name_dict[strand.name].
         """
-        new_strand = Strand(self.unique_id, strand.name, strand.sequence, strand.domain_list)
+        new_strand = Strand(
+            self.unique_id, strand.name, strand.sequence, strand.domain_list)
         self.unique_id += 1
-        
+
         try:
             self.name_dict[strand.name].append(new_strand)
         except KeyError:
             self.name_dict[strand.name] = [new_strand]
-
         return new_strand
 
     @property
@@ -984,7 +1025,7 @@ class Options:
         if len(self._current_end_state) > 0:
             self.interface.end_states.append(self._current_end_state)
             self._current_end_state = []
-    
+
     @property
     def add_result_status_line_firststep(self, val):
         return None
@@ -1001,7 +1042,7 @@ class Options:
         if len(self._current_end_state) > 0:
             self.interface.end_states.append(self._current_end_state)
             self._current_end_state = []
-            
+
     @property
     def add_complex_state_line(self):
         return None
@@ -1038,12 +1079,13 @@ class Options:
 
     @add_trajectory_complex.setter
     def add_trajectory_complex(self, val):
-        """ Takes a 6-tuple as only value, it should be:
-            (random number seed, unique complex id, strand names, sequence, structure, energy )
-            Adds this data to the interface's results object."""
-
+        """
+        Accepts a 6-tuple with format:
+            (random number seed, unique complex id, strand names, sequence,
+             structure, energy)
+        Adds this data to the interface's results object.
+        """
         self.trajectory_complexes.append(val)
-        # print "Number of complexes in current traj output:" + str(len(self.trajectory_complexes))
 
     @property
     def add_trajectory_current_time(self):
@@ -1056,7 +1098,7 @@ class Options:
         self.full_trajectory.append(self.trajectory_complexes)
         self.full_trajectory_times.append(self.trajectory_current_time)
         self.trajectory_complexes = []
-        
+
     @property
     def add_trajectory_arrType(self):
         return None
@@ -1064,16 +1106,17 @@ class Options:
     @add_trajectory_arrType.setter
     def add_trajectory_arrType(self, val):
         self.full_trajectory_arrType.append(val)
-        
+
     @property
     def interface_current_seed(self) -> Optional[int]:
-        """ This is the current random number seed for the trajectory currently being
-        simulated by multistrand.
+        """
+        This is the current random number seed for the trajectory currently
+        being simulated by multistrand.
 
-        This property and its setter exist mainly for use by the
-        multistrand module to provide some feedback on what seed it's
-        working on, in case that trajectory crashes before completion,
-        and other similar cases."""
+        This property and its setter exist mainly for use by the multistrand
+        module to provide some feedback on what seed it's working on, in case
+        that trajectory crashes before completion, and other similar cases.
+        """
         return self.interface.current_seed
 
     @interface_current_seed.setter
@@ -1091,18 +1134,7 @@ class Options:
             self.interface.transition_lists.append(self._current_transition_list)
             self._current_transition_list = []
 
-    @property
-    def reusable_sim_system(self):
-        return self._reusable_sim_system
-
-    @reusable_sim_system.setter
-    def reusable_sim_system(self, val):
-        self._reusable_sim_system = val
-
-
     def __init_keyword_args(self, *args, **kargs):
-        """ Helper subfunction. """
-        
         """ Create an options object [with default (presumably useful) values]
 
         Now with new and improved argument lists!

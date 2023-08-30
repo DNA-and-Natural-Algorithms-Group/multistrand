@@ -7,12 +7,11 @@ from typing import List
 
 import pytest
 
-from multistrand.options import Options, Literals, Energy_Type
-from multistrand._options.interface import FirstStepResult
-from multistrand._options.constants import OptionsConstants
+from multistrand.options import Options, Literals, EnergyType
+from multistrand._options.interface import FirstStepResult, OptionsConstants
 from multistrand.objects import (
     Domain, ComplementaryDomain, Strand, Complex, StopCondition)
-from multistrand.system  import SimSystem, energy
+from multistrand.system  import SimSystem, calculate_energy
 
 
 class Test_Interface:
@@ -65,33 +64,48 @@ class Test_Interface:
         self.check_duplicates(complexes)
         self.check_duplicates(conditions)
 
-    def test_options_simsystem(self):
+    @pytest.mark.parametrize(
+        "mode", [Literals.first_passage_time, Literals.first_step])
+    @pytest.mark.parametrize(
+        "kinetics", ["JSMetropolis25", "DNA23Metropolis", "DNA23Arrhenius"])
+    @pytest.mark.parametrize("num_init", [5])
+    @pytest.mark.parametrize("num_run", [5])
+    def test_options_simsystem(self, kinetics: str, mode: Literals,
+                               num_init: int, num_run: int):
         """
         Create an `Options` object using some common values and simple
         start/stop states, and attempt its reuse across multiple `SimSystem`
         objects.
         """
         _, _, complexes, conditions = self.small_system()
+
         o = Options()
-        o.simulation_mode = Literals.first_passage_time
-        o.parameter_type  = "Nupack"
+        o.simulation_mode = mode
         o.substrate_type  = Literals.substrateDNA
-        o.DNA23Arrhenius()
+        getattr(o, kinetics)()
         o.num_simulations = 3
-        o.simulation_time = 0.5
+        o.output_interval = 1
         o.start_state = complexes
-        o.stop_conditions = conditions
+        if mode == Literals.first_passage_time:
+            o.stop_conditions = conditions
+            o.simulation_time = 0.5
+        elif mode == Literals.first_step:
+            o.simulation_time = 1e-4
+        else:
+            raise ValueError
 
-        s1 = SimSystem(o)
-        s2 = SimSystem(o)
-        s3 = SimSystem(o)
-
-        print("Start simulation...")
-        s3.start()
-        print(o.interface)
-        print()
-        print("Energy calculation:")
-        print(energy([complexes[0]], o, Energy_Type.Complex_energy))
+        for _ in range(num_init):
+            s = SimSystem(o)
+        for _ in range(num_run):
+            assert isinstance(o, Options)
+            assert isinstance(s, SimSystem)
+            print("Start simulation...")
+            s.start()
+            print("Interface:")
+            print(o.interface)
+            print("Energy calculation:",
+                  calculate_energy([complexes[1]], o, EnergyType.complex))
+            print()
 
     @pytest.mark.parametrize(
         "kinetics", ["JSMetropolis25", "DNA23Metropolis", "DNA23Arrhenius"])
@@ -121,7 +135,7 @@ class Test_Interface:
         for res in results:
             assert isinstance(res, FirstStepResult)
             assert isinstance(res.seed, int)
-            assert res.com_type == OptionsConstants().STOPRESULT["Normal"]
+            assert res.com_type == OptionsConstants.STOPRESULT["Normal"]
             assert res.tag in [sc.tag for sc in [sc_rev, sc_for]]
             assert res.time > 0
             assert res.collision_rate > 0

@@ -4,16 +4,16 @@
 
 from collections import defaultdict
 from functools import partial
-from multiprocess import Pool, cpu_count
 from pathlib import Path
 from typing import Dict, Iterable, List, Tuple, Optional
 
 import numpy as np
+from multiprocess import Pool, cpu_count
 import pytest
 
-from multistrand.options import Options, Energy_Type
-from multistrand.system import energy
+from multistrand.options import Options, EnergyType
 from multistrand.objects import Complex, Strand
+from multistrand.system import calculate_energy
 import multistrand.utils.thermo as thermo
 
 
@@ -88,14 +88,13 @@ class Test_SingleStrandEnergy:
                          complexes: Tuple[Iterable[str], Iterable[str]]) -> None:
         opt = cls.create_config()
         model = thermo.Model(opt)
-        i = 0
         for seq, struct in zip(*complexes):
             assert len(seq) == len(struct)
             e_nupack = thermo.energy([seq], struct, model=model)
             c_multistrand = Complex(
                 strands=[Strand(name="hairpin", sequence=seq)], structure=struct)
-            e_multistrand = energy(
-                [c_multistrand], opt, Energy_Type.Complex_energy)
+            e_multistrand = calculate_energy(
+                [c_multistrand], opt, EnergyType.complex)
             assert np.allclose(e_nupack, e_multistrand, rtol=rel_tol), \
                 f"category = {category}, seq = {seq}, struct = {struct}"
 

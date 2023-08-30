@@ -13,7 +13,7 @@ import pytest
 
 from multistrand.objects import Strand, Complex, Domain, StopCondition
 from multistrand.options import Options, Literals
-from multistrand.system import SimSystem, initialize_energy_model
+from multistrand.system import SimSystem
 from multistrand.experiment import makeComplex
 from multistrand.utils.thermo import C2K
 
@@ -84,17 +84,11 @@ class Test_InitialInfo:
 
     # --------------------------------------------------------------
 
-    """
-    A fully hybridized strand.
-    """
-
-    @pytest.mark.parametrize("toehold_seq, domain_seq",
-                             [("CCCC", "CATTAAC"), ("CC", "CAAC")])
+    @pytest.mark.parametrize("domain_seqs", [("AGT", "GTA"), ("CC", "CAAC")])
     def test_0(self, kinetics: str, capfd: pytest.CaptureFixture,
-                toehold_seq: str, domain_seq: str):
-        domain_seq, domain_seq2 = "AGT", "GTA"
-        left = Domain(name="branch_migration", sequence=toehold_seq)
-        right = Domain(name="branch_migration2", sequence=domain_seq)
+               domain_seqs: List[str]):
+        left = Domain(name="branch_migration", sequence=domain_seqs[0])
+        right = Domain(name="branch_migration2", sequence=domain_seqs[1])
         incoming = left + right
         substrate = incoming.C
         start_complex1 = Complex(strands=[incoming], structure="..")
@@ -370,5 +364,5 @@ class Test_InitialInfo:
 
 if __name__ == "__main__":
     test_id = "0"
-    test_args = ["CC", "CAAC"]
+    test_args = [("CC", "CAAC")]
     Test_InitialInfo.debug_single_test(test_id, *test_args)

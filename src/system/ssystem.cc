@@ -7,6 +7,7 @@ The Multistrand Team (help@multistrand.org)
 #include "options.h"
 #include "ssystem.h"
 #include "simoptions.h"
+#include "multistrand_module.h"
 #include "statespace.h"
 
 #include <string.h>
@@ -15,46 +16,51 @@ The Multistrand Team (help@multistrand.org)
 #include <vector>
 #include <iostream>
 
-SimulationSystem::SimulationSystem(PyObject *system_o, EnergyModel *old_energy_model) {
-	system_options = system_o;
-	simOptions = new PSimOptions(system_o);
-    construct(old_energy_model);
-	energyModel->writeConstantsToFile();
+
+SimulationSystem::SimulationSystem(PyObject *options) :
+	system_options(options)
+{
+	simOptions = new PSimOptions(options);
+    parametrize(SimSystemObject_lookup(options));
 }
 
-void SimulationSystem::construct(EnergyModel *old_energy_model) {
+SimulationSystem::SimulationSystem(PyObject *options, EnergyModel *energy_model) :
+	system_options(options)
+{
+	simOptions = new PSimOptions(options);
+    parametrize(energy_model);
+}
+
+void SimulationSystem::parametrize(PyObject *ssystem) {
+    // reuse `EnergyModel` if available
+    EnergyModel *energy_model = NULL;
+    if (ssystem != Py_None) {
+        energy_model = ((SimSystemObject *) ssystem)->sys->GetEnergyModel();
+    }
+    parametrize(energy_model);
+}
+
+void SimulationSystem::parametrize(EnergyModel *energy_model) {
     simulation_mode = simOptions->getSimulationMode();
 	simulation_count_remaining = simOptions->getSimulationCount();
 
-    if(old_energy_model != NULL){
-	    energyModel = old_energy_model;
-	} else{
+    // reuse `EnergyModel` if available
+    if (energy_model == NULL) {
+		if (testLongAttr(system_options, parameter_type, =, 0))
+			throw std::invalid_argument(
+				"Attempting to load ViennaRNA parameters (deprecated)");
         energyModel = new NupackEnergyModel(simOptions->getPythonSettings());
-        will_clear_energyModel = true;
+        firstInstance = true;
+	} else {
+	    energyModel = energy_model;
 	}
 
-    // move these to sim_settings
 	exportStatesInterval = (simOptions->getOInterval() > 0);
 	exportStatesTime = (simOptions->getOTime() >= 0);
 
 	builder = Builder(simOptions);
 
-}
-
-SimulationSystem::SimulationSystem(EnergyModel *old_energy_model) {
-
-	simulation_mode = -1;
-	simulation_count_remaining = -1;
-
-	if(old_energy_model != NULL){
-	    energyModel = old_energy_model;
-	}
-
-}
-
-int SimulationSystem::isEnergymodelNull(void) {
-
-	return (energyModel == NULL);
+	energyModel->writeConstantsToFile();
 
 }
 
@@ -62,27 +68,19 @@ SimulationSystem::~SimulationSystem(void) {
 
 	if (complexList != NULL) {
 		delete complexList;
+		complexList = NULL;
 	}
-	complexList = NULL;
-
-// the remaining members are not our responsibility, we null them out
-// just in case something thread-unsafe happens.
-
-	if (energyModel != NULL && will_clear_energyModel) {
+	if (energyModel != NULL && firstInstance) {
 		delete energyModel;
+		energyModel = NULL;
 	}
 
-	if (simOptions->myComplexes != NULL) {
+	// the remaining members are not our responsibility, we null them out
+	// just in case something thread-unsafe happens.
+	if (simOptions->myComplexes != NULL)
 		delete simOptions->myComplexes;
-	}
-
-	if (simOptions != NULL) {
+	if (simOptions != NULL)
 		delete simOptions;
-	}
-
-	if (complexList != NULL) {
-		delete complexList;
-	}
 
 }
 
@@ -102,8 +100,12 @@ void SimulationSystem::StartSimulation(void) {
 
 }
 
-EnergyModel *SimulationSystem::current_energy_model(void){
+EnergyModel *SimulationSystem::GetEnergyModel(void) {
     return energyModel;
+}
+
+bool SimulationSystem::isFirstInstance(void) {
+    return firstInstance;
 }
 
 void SimulationSystem::StartSimulation_FirstStep(void) {

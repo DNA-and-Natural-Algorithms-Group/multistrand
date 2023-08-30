@@ -27,7 +27,7 @@ I use "ipython --pylab -i threewaybm_energies.py".
 """
 
 from multistrand.objects import *
-from multistrand.options import Options
+from multistrand.options import Options, EnergyType
 from multistrand.system import *
 
 
@@ -35,13 +35,6 @@ o = Options()
 o.dangles = 1                # 0 is "None", 1 is "Some", 2 is "All".  You can use the string names only when passing as arguments to Options().
 o.temperature = 25           # values between 0 and 100 are assumed to be Celsius; between 273.15 and 373.0 are assumed to be Kelvin.
 o.join_concentration = 1e-9  # the volume is scaled such that a single strand is at 1 nM concentration.  
-initialize_energy_model(o)   # only necessary if you want to use energy() without running a simulation first.
-
-# More meaningful names for argument values to the energy() function call, below.
-Loop_Energy = 0    # requesting no dG_assoc or dG_volume terms to be added.  So only loop energies remain.
-Volume_Energy = 1  # requesting dG_volume but not dG_assoc terms to be added.  No clear interpretation for this.
-Complex_Energy = 2 # requesting dG_assoc but not dG_volume terms to be added.  This is the NUPACK complex microstate energy, sans symmetry terms.
-Tube_Energy = 3    # requesting both dG_assoc and dG_volume terms to be added.  Summed over complexes, this is the system state energy.
 
 # Sequences are from Zhang & Winfree, JACS 2009.
 toe = Domain(name='toehold',sequence='TCTCCATGTC')
@@ -59,7 +52,7 @@ incumbent.name = "Incumbent"
 c1= Complex(strands=[incumbent],structure='.'*len(incumbent.sequence))
 c2= Complex(strands=[invasion],structure='.'*len(invasion.sequence))
 c3= Complex(strands=[substrate],structure='.'*len(substrate.sequence))
-ref = energy([c1,c2,c3],o,Tube_Energy)  # gives all zeros
+ref = calculate_energy([c1,c2,c3],o,EnergyType.tube)  # gives all zeros
 
 # Example secondary structure in dot-paren notation, showing invading strand bound by the 10-nt toehold only.
 # The two commands below are equivalent.  One gives the structure at the domain level, the other at the sequence level.
@@ -79,7 +72,7 @@ c1 = Complex( strands=[invasion], structure='.'*len(invasion.sequence) )
 st = "................((((((((((((((((((((+..........))))))))))))))))))))"
 st = '.' * 16 + '(' * 20 + '+' + '.' * 10 + ')' * 20
 c2 = Complex( strands=[incumbent,substrate], structure=st)
-before = sum( energy([c1,c2],o,Tube_Energy) )
+before = sum( calculate_energy([c1,c2],o,EnergyType.tube) )
    # awkward wrap for indicating complexes on one line without permuting strand order
 print(st[:36] + ' ' +  '.'*30 + ' ' + st[37:] + '+' + " (%5.2f)" % before)
 
@@ -91,7 +84,7 @@ toeh = [0] * 10
 for i in range(10)[::-1] :
     te = "................((((((((((((((((((((+...................." + (10-i)* "(" + i*"." + "+" + i*"." + (10-i)* ")" + "))))))))))))))))))))"
     c = Complex( strands=[incumbent,invasion,substrate],structure = te)
-    toeh[9-i] = energy([c],o,Tube_Energy)[0]
+    toeh[9-i] = calculate_energy([c],o,EnergyType.tube)[0]
     print(te   + "  (%5.2f)" % toeh[9-i])
 
 # Then we'll compute the energies for the three-stranded complex during branch migration steps and toehold binding steps
@@ -102,13 +95,13 @@ intermed = [0] * 19  # structures with one base-pair open
 for i in range(20):
     st = "................" + (20-i) * "(" + i*"." + "+" + (20-i)*"." + i*"(" + "((((((((((+))))))))))" + 20 * ")"
     c = Complex( strands=[incumbent,invasion,substrate],structure = st)
-    primary[i] = energy([c],o,Tube_Energy)[0]
+    primary[i] = calculate_energy([c],o,EnergyType.tube)[0]
     print(st  + "  (%5.2f)" % primary[i])
     
     if i<19:
         st_int = "................" + (19-i) * "(" + (i+1)*"." + "+" + (20-i)*"." + i*"(" + "((((((((((+))))))))))" + i * ")" + "." + (19-i) * ")"
         c = Complex( strands=[incumbent,invasion,substrate],structure = st_int)
-        intermed[i] = energy([c],o,Tube_Energy)[0]
+        intermed[i] = calculate_energy([c],o,EnergyType.tube)[0]
         print(st_int  + "  (%5.2f)" % intermed[i])
 
 
@@ -124,14 +117,14 @@ print('dissociated states')
 c1 = Complex( strands=[incumbent], structure='.'*len(incumbent.sequence) )
 st = '.' + '(' * 29 + '+' + ')' * 29 + '.'
 c2 = Complex( strands=[invasion,substrate], structure=st)
-after_open = sum( energy([c1,c2],o,Tube_Energy) )
+after_open = sum( calculate_energy([c1,c2],o,EnergyType.tube) )
 print('.'*36 + ' ' + st + "  (%5.2f)" % after_open)
 
      # Now the final base pair closes.
 c1 = Complex( strands=[incumbent], structure='.'*len(incumbent.sequence) )
 st = '(' * 30 + '+' + ')' * 30
 c2 = Complex( strands=[invasion,substrate], structure=st)
-after_closed = sum( energy([c1,c2],o,Tube_Energy) )
+after_closed = sum( calculate_energy([c1,c2],o,EnergyType.tube) )
 print('.'*36 + ' ' + st + "  (%5.2f)" % after_closed)
 
 # Store the before and after states in "positions" -15 and +25,+26 so as to visually separate them from the intramolecular pathway.

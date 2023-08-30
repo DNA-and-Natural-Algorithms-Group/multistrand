@@ -18,13 +18,6 @@ from multistrand.options import Options, Literals
 from multistrand.system import SimSystem
 
 
-# More meaningful names for argument values to the energy() function call, below.
-Loop_Energy = 0    # requesting no dG_assoc or dG_volume terms to be added.  So only loop energies remain.
-Volume_Energy = 1  # requesting dG_volume but not dG_assoc terms to be added.  No clear interpretation for this.
-Complex_Energy = 2 # requesting dG_assoc but not dG_volume terms to be added.  This is the NUPACK complex microstate energy, sans symmetry terms.
-Tube_Energy = 3    # requesting both dG_assoc and dG_volume terms to be added.  Summed over complexes, this is the system state energy.
-
-
 # Results of the simulation are stored in the Options object 'o' that was used to set up the simulation.
 # Since this is a "Trajectory Mode" simulation, we will extract the sequence of conformations visited, and print them.
 # Assumes a single strand is being simulated.

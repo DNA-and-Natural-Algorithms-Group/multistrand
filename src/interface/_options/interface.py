@@ -4,10 +4,27 @@
 
 from typing import Optional
 
-from .constants import OptionsConstants
 
+class OptionsConstants:
+    STOPRESULT = {
+        "Normal":             0x0011,  # 17
+        "Time":               0x0012,  # 18
+        "Forward":            0x0021,
+        "Time (First Step)":  0x0022,
+        "Reverse":            0x0024,
+        "Error":              0x0081,
+        "NaN":                0x0082,
+        "No Moves":           0x0084}
 
-Constants = OptionsConstants()
+    STOPRESULT_inv = {
+        0x0011:             "Normal",
+        0x0012:               "Time",
+        0x0021:            "Forward",
+        0x0022:  "Time (First Step)",
+        0x0024:            "Reverse",
+        0x0081:              "Error",
+        0x0082:                "NaN",
+        0x0084:           "No Moves"}
 
 
 class Interface:
@@ -83,8 +100,9 @@ class Interface:
         self._results.append( new_result )
 
     def __str__(self):
-        return (f"# of trajectories completed: {self.trajectory_count}\n"
-                f"Most recent trajectory information:\n{self._results[-1]}")
+        recent = self._results[-1] if self._results else None
+        return (f"  # of trajectories completed: {self.trajectory_count}\n"
+                f"  Most recent trajectory information:\n{recent}")
 
     @property
     def trajectory_count( self ):
@@ -119,13 +137,13 @@ class Result:
             
         else:
             self.seed = -1
-            self.com_type = Constants.STOPRESULT['Error']
+            self.com_type = OptionsConstants.STOPRESULT['Error']
             self.time = -1.0
             self.tag = "Result that was not initialized properly."
             self.result_type = result_type
 
         try:
-            self.type_name = Constants.STOPRESULT_inv[ self.com_type ]
+            self.type_name = OptionsConstants.STOPRESULT_inv[self.com_type]
         except KeyError:
             self.type_name = "Invalid Type: {0}".format( self.com_type )
 
@@ -166,7 +184,7 @@ class FirstStepResult:
         self.start_state = start_state
         
         try:
-            self.type_name = Constants.STOPRESULT_inv[ self.com_type ]
+            self.type_name = OptionsConstants.STOPRESULT_inv[self.com_type]
         except KeyError:
             self.type_name = "Invalid Type: {0}".format( self.com_type )
 

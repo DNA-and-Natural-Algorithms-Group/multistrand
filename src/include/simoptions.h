@@ -50,8 +50,6 @@ struct complex_input {
 };
 
 
-class EnergyOptions;
-
 // FD: SimOptions contains an EnergyOptions object.
 // Both simOptions and energyOptions are meant to contain static values.
 // EnergyModel contains all precomputed maps AND relevant energy functions.
@@ -62,7 +60,6 @@ class SimOptions {
 public:
 
 	// Constructors
-	SimOptions(void);
 	virtual ~SimOptions(void) =0;
 
 	// Non-virtual
@@ -135,9 +132,10 @@ protected:
 class PSimOptions: public SimOptions {
 public:
 	//constructors
-	PSimOptions(void);
-	PSimOptions(PyObject *system_options);
+	PSimOptions(PyObject *options);
 
+	static int checkPythonType(PyObject *options);
+	static void clear(PyObject* options);
 	PyObject* getPythonSettings(void);
 	void generateComplexes(PyObject *alternate_start, long current_seed);
 	stopComplexes* getStopComplexes(int);

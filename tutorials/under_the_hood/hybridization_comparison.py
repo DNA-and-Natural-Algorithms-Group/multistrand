@@ -76,7 +76,7 @@ import time, sys
 
 from multistrand.objects import *
 from multistrand.options import Options, Literals
-from multistrand.system import SimSystem, initialize_energy_model
+from multistrand.system import SimSystem
 from multistrand.utils.thermo import C2K
 
 ######### This is first passage time
@@ -137,7 +137,6 @@ def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
    o.stop_conditions = [success_stop_condition,failed_stop_condition]
 
    # Now go ahead and run the simulations.
-   initialize_energy_model(o)  # concentration changes, so we must make sure energies are right
    s = SimSystem(o)
    s.start()
    dataset = o.interface.results
@@ -182,7 +181,6 @@ def first_passage_dissociation(strand_seq, trials, T=25, material="DNA"):
    o.stop_conditions = [success_stop_condition]
 
    # Now go ahead and run the simulations.
-   initialize_energy_model(o)  # concentration changes, so we must make sure energies are right
    s = SimSystem(o)
    s.start()
    dataset = o.interface.results
@@ -229,7 +227,6 @@ def first_passage_association(strand_seq, trials, concentration, T=25, material=
    o.stop_conditions = [success_stop_condition]
 
    # Now go ahead and run the simulations.
-   initialize_energy_model(o)  # concentration changes, so we must make sure energies are right
    s = SimSystem(o)
    s.start()
    dataset = o.interface.results
@@ -335,7 +332,6 @@ def transition_mode_simulation(strand_seq, duration, concentration, T=25, materi
    o.stop_conditions = [single_stranded_macrostate, duplex_macrostate] # not actually stopping, just tracking
 
    # Now go ahead and run the simulations until time-out.
-   initialize_energy_model(o)  # concentration changes, so we must make sure energies are right
    s = SimSystem(o)
    s.start()
    

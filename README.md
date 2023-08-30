@@ -35,7 +35,6 @@ from, out of or in connection with the software or the use or other dealings in
 the software.
 
 ## Contributors
-
 * Erik Winfree (winfree@caltech.edu)
 * Chris Thachuk
 * Frits Dannenberg (fdann@caltech.edu)
@@ -51,27 +50,23 @@ Questions should be directed to help@multistrand.org.
 
 # Usage
 
-## Requirements
-
+## Installation
+### Requirements
 | Dependency                        | Notes              |
 |-----------------------------------|--------------------|
 | C++11                             | gcc 8+ or clang 8+ |
-| Python                            | 3.8+               |
+| Python                            | 3.9+               |
 | [NUPACK](https://www.nupack.org/) | 4.0.1+             |
  
 The `numpy` and `scipy` Python packages are installed automatically as
 dependencies, and `matplotlib` is added if the package extra `[tutorials]` is
 specified (see `setup.cfg` for details).
  
-## Installation
-
 ### Linux
- 
  - `git clone` this repository into your workspace.
  - Run `pip install .` in the Multistrand directory.
 
 ### macOS
-
  - Install `xcode` commandline tools.
  - Install Python through `homebrew`.
  - Follow the Linux installation steps.
@@ -79,13 +74,11 @@ specified (see `setup.cfg` for details).
    `/Library/Python/<python version>/site-packages`.
  
 ### Windows
-
  - Follow the instructions for installing the latest version of the [Microsoft
    C++ Build Tools](https://wiki.python.org/moin/WindowsCompilers).
  - Follow the Linux installation steps.
  
 ### [Apptainer](https://apptainer.org/) container
-
  - [Install Apptainer](https://apptainer.org/docs/admin/latest/installation.html).
  - Copy/move `nupack-<version>.zip` into the parent directory of the
    `multistrand` source tree.
@@ -110,31 +103,41 @@ specified (see `setup.cfg` for details).
    - and/or with bind paths: `$> apptainer shell --cleanenv --contain
      --pwd /dna/multistrand --bind <src>:<dest> multistrand.sif`
 
-## Source tree
 
+## Documentation
+For an overview of Multistrand's functionality, see the built-in documentation:
+
+```python
+from multistrand import objects, options, system
+help(objects)
+help(options)
+help(system)
+```
+
+Further documentation can be found in `doc/` and `tutorials/`, and tutorial
+files are organized as follows. The folder `under_the_hood/` contains in-depth
+tutorials, and Jupyter versions are located in `under_the_hood_notebooks/`. The
+folder `case_hybridization/` contains a case study into hybridization kinetics.
+Additional demo files are located in `misc/`.
+
+
+## Development
+### Source tree
 The Multistrand library is located under `src/`. `test/` is the test suite, and
 `tools/` provides Apptainer container definitions and maintenance scripts.
 
-## Testing
-
+### Testing
 To execute the currently maintained portion of the test suite (including some of
 the small tutorials):
 
  - Install the test dependencies: `$> pip install ".[testing]"`
  - Run: `$> pytest`
 
+
 ## Examples
-
-Documentation can be found in `doc/` and `tutorials/`, and tutorial files are
-organized as follows. The folder `under_the_hood/` contains in-depth tutorials,
-and Jupyter versions are located in `under_the_hood_notebooks/`. The folder
-`case_hybridization/` contains a case study into hybridization kinetics
-(submission pending). Additional demo files are located in `misc/`.
-
 As a very quick primer, we discuss two small scripts below.
 
 ### Hybridization trajectory
-
 A quick test to see if Multistrand is working is to run the following script,
 which simulates the hybridization of two complementary strands, ending the
 simulation when the two strands either completely hybridize or seperate after an
@@ -171,7 +174,6 @@ GTGAAACGC+GCGTTTCAC
 ```
 
 ### Hybridization rates
-
 The following script estimates the hybridization rate for a strand and its
 complement. The computation relies on "first step mode" and will only work if
 NUPACK is correctly installed. Alternatively, dissociation rates can be computed
@@ -228,8 +230,7 @@ Estimated 95% confidence interval: [2.84e+06,3.16e+06]
 Computing took 2.7906 s
 ```
 
-## Log files
-
+### Log files
 Multistrand automatically creates a logfile that contains some information on
 the used model, e.g.:
 
@@ -266,16 +267,15 @@ Rate matrix [ concentration . k_bi . k_uni(l,r) ]:
   4.1772e+04  2.6112e+05  6.9031e+03  3.2231e+05  3.5006e+02  1.6518e+07  8.0252e+04
 ```
 
+
 # Frequently asked questions
 
 ## Capabilities
- 
 **Q:** Can I simulate leak reactions using Multistrand?
 
 **A:** Yes. We have now added a preliminary tutorial, see `tutorials/leak_casestudy`.
 
 ## Troubleshooting
-
 **Q:** How do I adjust the solvent salt concentrations?
 
 **A:** Like so. (units are M = mol / litre)

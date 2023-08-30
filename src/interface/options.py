@@ -6,7 +6,7 @@
 Options module to grab the options object into this namespace.
 """
 
-from ._options.options   import Options, Literals, Energy_Type
+from ._options.options   import Options, Literals, EnergyType, TransitionType
 from ._options.interface import Result
 
 Options.__module__ = 'multistrand.options'

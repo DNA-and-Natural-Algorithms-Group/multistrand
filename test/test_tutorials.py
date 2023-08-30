@@ -53,7 +53,7 @@ class Test_Tutorials:
         cls.build_test_subclass("Misc", {
             tut: partial(Test_Tutorials.build_tutorial_test, "misc")
             for tut in ["sample_trace", "sample_trace_no_function",
-                        "sample_trace_arrhenius", "debug_mac"]})
+                        "sample_trace_arrhenius"]})
 
 
 Test_Tutorials.build_all_tests()

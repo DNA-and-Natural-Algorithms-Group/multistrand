@@ -4,7 +4,7 @@
 ## Release 2.2 (work in progress)
 
 ### Package
-- Migrated from Python 2.7 to Python 3.8+ (Python modules & Python/C API).
+- Migrated from Python 2.7 to Python 3.9+ (Python modules & Python/C API).
 - Migrated from NUPACK 3 to NUPACK 4, while still using thermodynamic models
   compatible with NUPACK 3.
 - Updated the Python package definition, simplified the installation and adapted
@@ -43,6 +43,7 @@
   consistent with the `MergeSimSettings`.
 
 ### Internals
+- Consolidated the C++ extension module based on the new treatment of `Options`.
 - Relocated code which was previously inside assertions, in order to enable
   compilation with `NDEBUG`.
 - Resolved a number of compiler warnings.

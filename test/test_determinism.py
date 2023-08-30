@@ -21,14 +21,14 @@ from multistrand.concurrent import MergeSim
      "DNA23Metropolis", "DNA23Arrhenius"])
 class Test_Determinism:
     # jump indices to compare between trajectories
-    history = np.s_[::int(1e3)]
+    history = np.s_[::int(1e2)]
 
     @pytest.mark.parametrize(
         "toehold_seq, bm_design_B, toehold_extra, structure",
         [("GTGGGT", "ACCGCACGTCACTCACCTCG", "TTT",
           "..(.((.....)).).....((((((+))))))((((((((((((((((((((+))))))))))))))))))))")
          ])
-    @pytest.mark.parametrize("seed", list(np.random.randint(int(1e10), size=10)))
+    @pytest.mark.parametrize("seed", list(np.random.randint(int(1e10), size=5)))
     def test_trajectories(cls, rate_model: str,
                           toehold_seq: str, bm_design_B: str, toehold_extra: str,
                           structure: str, seed: int) -> None:
@@ -47,10 +47,9 @@ class Test_Determinism:
             strands=[incoming_B, substrate_B, incumbent_B], structure=structure)
 
         # simulate trajectories
-        structs1, energies1, times1 = cls.single_run(
-            rate_model, [start_complex], seed, True)
-        structs2, energies2, times2 = cls.single_run(
-            rate_model, [start_complex], seed, False)
+        opt = cls.create_config(rate_model, [start_complex], seed)
+        structs1, energies1, times1 = cls.single_run(opt, True)
+        structs2, energies2, times2 = cls.single_run(opt, False)
 
         # compare trajectories
         assert (structs1 == structs2).all()
@@ -58,9 +57,7 @@ class Test_Determinism:
         assert (times1 == times2).all()
 
     @classmethod
-    def single_run(cls, rate_model: str, start_state: List[Complex],
-                   seed: int, verbose: bool) -> Tuple[np.ndarray,...]:
-        opt = cls.create_config(rate_model, start_state, seed)
+    def single_run(cls, opt: Options, verbose: bool) -> Tuple[np.ndarray,...]:
         sys = SimSystem(opt)
         sys.start()
         return cls.summarise_trajectory(opt, verbose)

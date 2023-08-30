@@ -107,17 +107,11 @@ def create_setup(toehold_length, num_traj, rate_method_k_or_m):
     return o
 
 
-# The following is somewhat general code for running a bunch of Multistrand simulations on as many cores as this computer has available.
-# Directories "Data_toehold_*" are created and simulation results are stored there.
-# When all the simulations are done, the data is all read back in, and processed together.
-#
-# Note the following important restriction:  all the simulations must use "the same energy model", that is, they must all request
-# the same temperature, join_concentration, substrate_type (RNA vs DNA), dangles option, parameter_type (NUPACK vs Vienna),
-# rate method (Kawasaki or Metropolis), and rate parameters (e.g. Calibrated, Unitary, etc).
-# This is because all multithreaded parallel simulations will use the same energy/kinetics model.  The first one to run will initiallize
-# the energy model, and all the rest will use it.  If the simulation script (e.g. actual_simunlation() below) were to call
-# system.initialize_energy_model(o) -- either with the same conditions or different onese -- then the likely result would be
-# a segmentation fault.  Don't do it. 
+# The following is somewhat general code for running a bunch of Multistrand
+# simulations on as many cores as this computer has available. Directories
+# "Data_toehold_*" are created and simulation results are stored there. When all
+# the simulations are done, the data is all read back in, and processed
+# together.
 
 
 class Multistrand_Suite_Base:

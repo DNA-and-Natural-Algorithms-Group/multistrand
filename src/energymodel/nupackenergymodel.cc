@@ -30,6 +30,37 @@ The Multistrand Team (help@multistrand.org)
 using namespace rapidjson;
 
 
+// constructors, internal functions
+
+NupackEnergyModel::NupackEnergyModel(void) :
+	// Check references for this loop penalty term.
+	log_loop_penalty_37(107.856), kinetic_rate_method(RATE_METHOD_KAWASAKI),
+	bimolecular_penalty(1.96), kBoltzmann(.00198717), current_temp(310.15)
+{
+}
+
+NupackEnergyModel::NupackEnergyModel(PyObject* energy_options) :
+	NupackEnergyModel()
+{
+	initOptions(new PSimOptions(energy_options));
+}
+
+NupackEnergyModel::NupackEnergyModel(SimOptions* options) :
+	NupackEnergyModel()
+{
+	initOptions(options);
+}
+
+void NupackEnergyModel::initOptions(SimOptions* options)
+{
+	simOptions = options;
+	processOptions();
+	if (simOptions->energyOptions->usingArrhenius()) {
+		computeArrheniusRates(current_temp);
+//		printPrecomputedArrRates();
+	}
+}
+
 // FD: Jan 2018, moved dH over to doubles
 static double T_scale(double dG, double dH, double T) {
 
@@ -488,37 +519,6 @@ double NupackEnergyModel::OpenloopEnergy(int size, int *sidelen, BaseType **sequ
 		cout << " End OpenLoop -- Energy is now " << energy << endl;
 
 	return energy;
-}
-
-// constructors, internal functions
-
-NupackEnergyModel::NupackEnergyModel(void) :
-	// Check references for this loop penalty term.
-	log_loop_penalty_37(107.856), kinetic_rate_method(RATE_METHOD_KAWASAKI),
-	bimolecular_penalty(1.96), kBoltzmann(.00198717), current_temp(310.15)
-{
-}
-
-NupackEnergyModel::NupackEnergyModel(PyObject* energy_options) :
-	NupackEnergyModel()
-{
-	initOptions(new PSimOptions(energy_options));
-}
-
-NupackEnergyModel::NupackEnergyModel(SimOptions* options) :
-	NupackEnergyModel()
-{
-	initOptions(options);
-}
-
-void NupackEnergyModel::initOptions(SimOptions* options)
-{
-	simOptions = options;
-	processOptions();
-	if (simOptions->energyOptions->usingArrhenius()) {
-		computeArrheniusRates(current_temp);
-//		printPrecomputedArrRates();
-	}
 }
 
 // returns a FILE pointer or prints an error message.

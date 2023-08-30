@@ -76,7 +76,7 @@ import numpy as np
 
 from multistrand.objects import *
 from multistrand.options import Options, Literals
-from multistrand.system import SimSystem, initialize_energy_model
+from multistrand.system import SimSystem
 
 
 # for StopCondition macrostate definitions:
@@ -239,9 +239,6 @@ def first_step_simulation(strand_seq, num_traj, T=25, rate_method_k_or_m="Metrop
 
     print(f"Running first step mode simulations for {strand_seq} (with Boltzmann sampling)...")
     o = create_setup(strand_seq, num_traj, T, rate_method_k_or_m, material)
-    initialize_energy_model(o)  # Prior simulations could have been for different temperature, material, etc.
-                                # But Multistrand "optimizes" by sharing the energy model parameters from sim to sim.
-                                # So if in the same python session you have changed parameters, you must re-initialize.
     s = SimSystem(o)
     s.start()
     dataset = o.interface.results

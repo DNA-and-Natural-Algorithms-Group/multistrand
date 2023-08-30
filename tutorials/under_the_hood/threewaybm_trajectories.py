@@ -13,15 +13,8 @@ Try it like this, e.g.:
 """
 
 from multistrand.objects import *
-from multistrand.options import Options
+from multistrand.options import Options, EnergyType
 from multistrand.system import SimSystem, energy
-
-
-# More meaningful names for argument values to the energy() function call, below.
-Loop_Energy = 0    # requesting no dG_assoc or dG_volume terms to be added.  So only loop energies remain.
-Volume_Energy = 1  # requesting dG_volume but not dG_assoc terms to be added.  No clear interpretation for this.
-Complex_Energy = 2 # requesting dG_assoc but not dG_volume terms to be added.  This is the NUPACK complex microstate energy, sans symmetry terms.
-Tube_Energy = 3    # requesting both dG_assoc and dG_volume terms to be added.  Summed over complexes, this is the system state energy.
 
 
 def create_setup():
@@ -97,12 +90,12 @@ def print_trajectory(o):
         for state in states: dG += state[5]
         print('%s t=%11.9f seconds, dG=%6.2f kcal/mol' % (tubestruct,time, dG))
 
-        # Needlessly verify that the reported trajectory energies are the Tube_Energy values
+        # Needlessly verify that the reported trajectory energies are the tube energy values
         dGv=0
         for state in states:
             cs=state[3].split('+')
             st=state[4]
-            dGv += energy( [Complex( strands=[Strand(sequence=s) for s in cs], structure=st)], o, Tube_Energy)[0]  
+            dGv += energy( [Complex( strands=[Strand(sequence=s) for s in cs], structure=st)], o, EnergyType.tube)[0]
         if not dGv == dG: print("Energy Mismatch")
 
 
@@ -132,36 +125,16 @@ if __name__ == '__main__':
     print("Can you tell?")
     print("And can you discern why Design 1 almost never completes displacement in the given time?")
 
-# Some notes for the intrepid explorer: 
+# Some notes for the intrepid explorer:
 
-# The Options object and the SimSystem object are intimately tied, and after s.start() you can't just change energy model parameters or rate parameters.
-# If you do, you need to tell Multistrand to update the energy model call, initialize_energy_model(o), and then make the SimSystem and start it.
-# In the example, if these two simulations had used a different join_concentration, a different temperature, a different material (RNA vs DNA), 
-# a different dangles option, a different parameter set (NUPACK vs Vienna), a different rate method (Kawasaki or Metropolis), or a different set of rate 
-# scaling paramters (e.g. Calibrated, Unitary, etc), then we would need to use initialize_energy_model() in between.
-# This is because all simulations share the same energy & kinetics model (which we just call the "energy model" for short)
-# and it it not automatically re-adjusted after it has been created.  Note that "same energy model" means "the same sequence and secondary structure will get
-# the same numerical value for the energy, and the same move will get the same rate" -- so, even though the underlying model may be the same, a change in, 
-# e.g. concentration will imply a "different energy model" as we are using the term here.
-#
-# system.SimSystem(), system.calculate_energy(), system.calculate_rate() will all call initialize_energy_model() if none has been created yet,
-# or else use the existing one even if the passed Options object specified different temperature or other parameters.  
-# The onus is on the user to make sure this is all correct, if your code ever changes energy / kinetics parameters.  
-# Basically, the only case where you *don't* need to update the energy model is if you change simulation mode, simulation time, start states, stop conditions,
-# or number of simulations.
-#
-# This is a common source of mistakes, so why not always do it automatically?  The reason is so that Multistrand can efficiently exploit multicore processors
-# and run with multiple threads, as shown in the threewaybm_first_step_mode.py example.  All threads share the energy model, and therefore we must not
-# change the energy model when a new simulation starts but existing simulations are already running.  
+# Once s.start() has run, you cannot run ('start') for this SimSystem again. You
+# must make a new Options object, or otherwise retrieve the simulation results
+# before you reuse the old Options object, and then create a new SimSystem object.
 
-# Also, once s.start() has run, you cannot run ('start') for this SimSystem again.  You must make a new Options object and a new SimSystem object.
-# But if, in doing so, you changed energy/kinetics model parameters, you must also initialize_energy_model(o), as we've said.
+# Note that if num_simulations > 1, then all the recorded states get collected
+# together into the full_trajectory. To tell where one trajectory stops and the
+# next simulation starts, you can look at the time stamps.
 
-# Note that if num_simulations > 1, then all the recorded states get collected together into the full_trajectory.  
-# To tell where one trajectory stops and the next simulation starts, you can look at the time stamps.
-
-# A good exercise to the reader, as a test of understanding: 
-# you should be able to extract sequences & structures from trajectory, make a Complex of them, evaluate energy, start new simulation, etc.
-
-# Trajectory like this were used in Schaeffer's MS thesis.
-# Note that in the thesis, we displayed them in 5'->3' counterclockwise. Oops.
+# A good exercise to the reader, as a test of understanding: You should be able
+# to extract sequences & structures from a trajectory, make a Complex of them,
+# evaluate energy, start new simulations, etc.

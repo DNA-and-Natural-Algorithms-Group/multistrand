@@ -4,7 +4,8 @@ Copyright (c) 2008-2023 California Institute of Technology. All rights reserved.
 The Multistrand Team (help@multistrand.org)
 */
 
-/* SimulationSystem class header. This is the main object which controls the entire simulated system. */
+/* SimulationSystem class header.
+ * This is the main object which controls the entire simulated system. */
 
 #ifndef __SSYSTEM_H__
 #define __SSYSTEM_H__
@@ -33,11 +34,11 @@ const static std::string STR_TIMEOUT = "timeout";
 
 class SimulationSystem {
 public:
-	SimulationSystem(PyObject* system_options, EnergyModel *old_energy_model);
-	SimulationSystem(EnergyModel *old_energy_model);
-
+	SimulationSystem(PyObject *options);
+	SimulationSystem(PyObject* options, EnergyModel *energy_model);
 	// helper method for constructors
-	void construct(EnergyModel *old_energy_model);
+	void parametrize(PyObject *ssystem);
+	void parametrize(EnergyModel *energy_model);
 
 	~SimulationSystem(void);
 
@@ -45,9 +46,9 @@ public:
 	void initialInfo(void);	// printing function
 	void localTransitions(void); // builds all transitions in local statespace
 
-    EnergyModel *current_energy_model(void);
+	EnergyModel *GetEnergyModel(void);
+	bool isFirstInstance(void);
 	PyObject *calculateEnergy(PyObject *start_state, int typeflag);
-	int isEnergymodelNull(void);
 
 private:
 	void StartSimulation_Standard(void);
@@ -78,7 +79,6 @@ private:
 
 	void printAllMoves(void);
 
-
 	EnergyModel* energyModel = NULL;
 	StrandComplex *startState = NULL;
 	SComplexList *complexList = NULL;
@@ -101,7 +101,7 @@ private:
 	// A builder object that is only used if export is toggled
 	Builder builder;
 
-	bool will_clear_energyModel = false;
+	bool firstInstance = false;
 
 };
 

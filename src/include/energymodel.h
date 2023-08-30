@@ -17,6 +17,7 @@ The Multistrand Team (help@multistrand.org)
 
 #include "rapidjson/document.h"
 #include "basetype.h"
+
 using std::string;
 using std::array;
 
