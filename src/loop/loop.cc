@@ -4731,6 +4731,8 @@ void OpenLoop::generateMoves(void) {
 					if (pairType != 0 && this->nucleotideIsActive(seqs[loop3], initialPointer, loop)
 							&& this->nucleotideIsActive(seqs[loop4], initialPointer, loop2)) { // result is a multiloop and open loop.
 
+						sideLengths[loop3] = 0;
+						sideLengths[loop4] = 0;
 						for (temploop = 0, tempindex = 0; temploop < (loop4 - loop3 + 1); tempindex++) { // note that loop4 - loop3 is the number of pairings that got included in the multiloop. The extra closing pair makes the +1.
 
 							if (tempindex == loop3) {

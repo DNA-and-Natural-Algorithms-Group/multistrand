@@ -55,7 +55,7 @@ class Test_Determinism:
         # compare trajectories
         assert (structs1 == structs2).all()
         assert (energies1 == energies2).all()
-        assert np.allclose(times1, times2, rtol=1e-6)
+        assert (times1 == times2).all()
 
     @classmethod
     def single_run(cls, rate_model: str, start_state: List[Complex],
