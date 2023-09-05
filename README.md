@@ -87,8 +87,10 @@ specified (see `setup.cfg` for details).
 ### [Apptainer](https://apptainer.org/) container
 
  - Install the Apptainer platform.
+ - Move nupack-<version>.zip into the same parent directory of multistrand
  - Build the container: `$> sudo apptainer build tools/multistrand.sif tools/multistrand.def`
- - Start the container: `$> apptainer shell --cleanenv --contain --pwd /dna/multistrand tools/multistrand.sif`
+ - Create an overlay to simulate read/write: `$> apptainer overlay create --sparse --size 1024 /tmp/ext3_overlay.img`
+ - Start the container: `$> apptainer shell --cleanenv --contain --overlay /tmp/ext3_overlay.img --pwd /dna/multistrand tools/multistrand.sif`
 
 ## Source tree
 
