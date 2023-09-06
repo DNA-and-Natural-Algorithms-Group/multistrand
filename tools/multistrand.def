@@ -24,8 +24,8 @@ From: bitnami/python:{{CPY_VER}}-debian-11
 %files
 
     # copy source trees
-    ../nupack-{{NUPACK_VER}}.zip /dna/
-    ../multistrand /dna/
+    ../../nupack-{{NUPACK_VER}}.zip /dna/
+    ../../multistrand /dna/
 
 %environment
 

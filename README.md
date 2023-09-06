@@ -57,7 +57,7 @@ Questions should be directed to help@multistrand.org.
 |-----------------------------------|--------------------|
 | C++11                             | gcc 8+ or clang 8+ |
 | Python                            | 3.8+               |
-| [NUPACK](https://www.nupack.org/) | 4.0.1              |
+| [NUPACK](https://www.nupack.org/) | 4.0.1+             |
  
 The `numpy` and `scipy` Python packages are installed automatically as
 dependencies, and `matplotlib` is added if the package extra `[tutorials]` is
@@ -86,11 +86,29 @@ specified (see `setup.cfg` for details).
  
 ### [Apptainer](https://apptainer.org/) container
 
- - Install the Apptainer platform.
- - Move nupack-<version>.zip into the same parent directory of multistrand
- - Build the container: `$> sudo apptainer build tools/multistrand.sif tools/multistrand.def`
- - Create an overlay to simulate read/write: `$> apptainer overlay create --sparse --size 1024 /tmp/ext3_overlay.img`
- - Start the container: `$> apptainer shell --cleanenv --contain --overlay /tmp/ext3_overlay.img --pwd /dna/multistrand tools/multistrand.sif`
+ - [Install Apptainer](https://apptainer.org/docs/admin/latest/installation.html).
+ - Copy/move `nupack-<version>.zip` into the parent directory of the
+   `multistrand` source tree.
+ - `$> cd tools`
+ - [Build the container](
+   https://apptainer.org/docs/user/latest/build_a_container.html):
+   `$> sudo apptainer build multistrand.sif multistrand.def`
+ - In order to enable Multistrand to write its outputs inside a container which
+   is read-only by default:
+   - [create a container overlay](
+     https://apptainer.org/docs/user/latest/persistent_overlays.html)
+     (recommended for new users): `$> apptainer overlay create --sparse --size
+     1024 multistrand.img`
+   - and/or choose a host filesystem path to [bind into the container](
+     https://apptainer.org/docs/user/latest/bind_paths_and_mounts.html)
+     (recommended for transferring simulation results onto the host system, and
+     for development).
+ - [Start the container](
+   https://apptainer.org/docs/user/latest/quick_start.html#interacting-with-images):
+   - with an overlay: `$> apptainer shell --cleanenv --contain
+     --pwd /dna/multistrand --overlay multistrand.img multistrand.sif`
+   - and/or with bind paths: `$> apptainer shell --cleanenv --contain
+     --pwd /dna/multistrand --bind <src>:<dest> multistrand.sif`
 
 ## Source tree
 

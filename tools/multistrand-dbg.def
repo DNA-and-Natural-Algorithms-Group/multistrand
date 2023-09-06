@@ -31,8 +31,8 @@ From: bitnami/minideb:bullseye
 %files
 
     # copy source trees
-    ../nupack-{{NUPACK_VER}}.zip /dna/
-    ../multistrand /dna/
+    ../../nupack-{{NUPACK_VER}}.zip /dna/
+    ../../multistrand /dna/
 
 %environment
 
