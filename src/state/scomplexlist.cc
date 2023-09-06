@@ -45,24 +45,25 @@ SComplexListEntry::~SComplexListEntry(void) {
 
  */
 
-void SComplexListEntry::initializeComplex(bool debug) {
+void SComplexListEntry::initializeComplex(EnergyModel *energyModel) {
+	bool debug = energyModel->simOptions->debug;
 
 	thisComplex->generateLoops(debug);
 	if (debug)
 		cout << "Done generating loops!" << endl;
 
-	thisComplex->generateMoves();
+	thisComplex->generateMoves(energyModel);
 	if (debug)
 		cout << "Done generating moves!" << endl;
 }
 
-void SComplexListEntry::regenerateMoves(void) {
-	thisComplex->generateMoves();
+void SComplexListEntry::regenerateMoves(EnergyModel *energyModel) {
+	thisComplex->generateMoves(energyModel);
 }
 
 void SComplexListEntry::fillData(EnergyModel *em) {
 
-	energy = thisComplex->getEnergy() + (em->getVolumeEnergy() + em->getAssocEnergy()) * (thisComplex->getStrandCount() - 1);
+	energy = thisComplex->getEnergy(em) + (em->getVolumeEnergy() + em->getAssocEnergy()) * (thisComplex->getStrandCount() - 1);
 	rate = thisComplex->getTotalFlux();
 }
 
@@ -90,14 +91,14 @@ string SComplexListEntry::toString(EnergyModel *em) {
 
 }
 
-void SComplexListEntry::dumpComplexEntryToPython(ExportData& data) {
+void SComplexListEntry::dumpComplexEntryToPython(ExportData& data, EnergyModel *energyModel) {
 
 	data.id = id;
 	data.names = string(thisComplex->getStrandNames());
 	data.sequence = thisComplex->getSequence();
 	data.structure = thisComplex->getStructure();
 	data.energy = energy;
-	data.enthalpy = thisComplex->getEnthalpy();
+	data.enthalpy = thisComplex->getEnthalpy(energyModel);
 
 }
 
@@ -142,7 +143,7 @@ void SComplexList::initializeList(void) {
 
 	for (SComplexListEntry* temp = first; temp != NULL; temp = temp->next) {
 
-		temp->initializeComplex(eModel->simOptions->debug);
+		temp->initializeComplex(eModel);
 
 		if (eModel->simOptions->debug)
 			cout << "Done initializing a complex!" << endl;
@@ -155,11 +156,11 @@ void SComplexList::initializeList(void) {
 
 }
 
-void SComplexList::regenerateMoves(void) {
+void SComplexList::regenerateMoves(EnergyModel *energyModel) {
 
 	for (SComplexListEntry* temp = first; temp != NULL; temp = temp->next) {
 
-		temp->regenerateMoves();
+		temp->regenerateMoves(energyModel);
 		temp->fillData(eModel);
 
 	}
@@ -418,7 +419,7 @@ double SComplexList::doBasicChoice(SimTimer& myTimer) {
 	tempmove = pickedComplex->getChoice(myTimer);
 	arrType = tempmove->getArrType();
 
-	newComplex = pickedComplex->doChoice(tempmove, myTimer, eModel->simOptions->debug);
+	newComplex = pickedComplex->doChoice(tempmove, myTimer, eModel);
 
 	if (newComplex != NULL) {
 
@@ -439,7 +440,7 @@ double SComplexList::doBasicChoice(SimTimer& myTimer) {
 		if (eModel->numActiveNT % 25 == 0) {
 			cout << "Nucleotide count = " << eModel->numActiveNT << "   time = " << myTimer.stime << " sec" << endl;
 		}
-		regenerateMoves();
+		regenerateMoves(eModel);
 
 	}
 
@@ -484,8 +485,7 @@ double SComplexList::doJoinChoice(SimTimer& timer) {
 	SComplexListEntry *temp2 = NULL;
 	StrandComplex *deleted;
 
-	deleted = StrandComplex::performComplexJoin(crit, eModel->useArrhenius(),
-												eModel->simOptions->debug);
+	deleted = StrandComplex::performComplexJoin(crit, eModel);
 	for (SComplexListEntry* temp = first; temp != NULL; temp = temp->next) {
 
 		if (temp->thisComplex == crit.complexes[0]) {

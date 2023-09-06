@@ -19,31 +19,29 @@ The Multistrand Team (help@multistrand.org)
 
 using std::string;
 
-EnergyModel* Loop::energyModel = NULL;
-
 struct RateArr;
 
 
 /* Loop ===================================================================== */
 
 
-inline double Loop::getEnergy(void) {
+inline double Loop::getEnergy(EnergyModel *energyModel) {
 
 	if (energyComputed)
 		return energy;
 	else {
-		calculateEnergy();
+		calculateEnergy(energyModel);
 		energyComputed = true;
 		return energy;
 	}
 }
 
-inline double Loop::getEnthalpy(void) {
+inline double Loop::getEnthalpy(EnergyModel *energyModel) {
 
 	if (enthalpyComputed)
 		return enthalpy;
 	else {
-		calculateEnthalpy();
+		calculateEnthalpy(energyModel);
 		enthalpyComputed = true;
 		return enthalpy;
 	}
@@ -78,14 +76,14 @@ void Loop::cleanupAdjacent(void) {
 	curAdjacent = 0;
 }
 
-double Loop::returnEnergies(Loop *comefrom) {
+double Loop::returnEnergies(Loop *comefrom, EnergyModel *energyModel) {
 
-	double total = getEnergy();
+	double total = getEnergy(energyModel);
 
 	for (int loop = 0; loop < curAdjacent; loop++) {
 
 		if (adjacentLoops[loop] != comefrom) {
-			total = total + adjacentLoops[loop]->returnEnergies(this);
+			total = total + adjacentLoops[loop]->returnEnergies(this, energyModel);
 		}
 
 		assert(adjacentLoops[loop] != NULL);
@@ -94,14 +92,14 @@ double Loop::returnEnergies(Loop *comefrom) {
 	return total;
 }
 
-double Loop::returnEnthalpies(Loop *comefrom) {
+double Loop::returnEnthalpies(Loop *comefrom, EnergyModel *energyModel) {
 
-	double total = getEnthalpy();
+	double total = getEnthalpy(energyModel);
 
 	for (int loop = 0; loop < curAdjacent; loop++) {
 
 		if (adjacentLoops[loop] != comefrom) {
-			total = total + adjacentLoops[loop]->returnEnthalpies(this);
+			total = total + adjacentLoops[loop]->returnEnthalpies(this, energyModel);
 		}
 
 	}
@@ -146,14 +144,14 @@ int Loop::getMoveCount(Loop* comefrom) {
 
 }
 
-void Loop::firstGen(Loop *comefrom) {
+void Loop::firstGen(Loop *comefrom, EnergyModel *energyModel) {
 
-	generateMoves();
+	generateMoves(energyModel);
 
 	for (int loop = 0; loop < curAdjacent; loop++) {
 		if ((adjacentLoops[loop] != comefrom && adjacentLoops[loop] != NULL)
 			|| comefrom == NULL)
-			adjacentLoops[loop]->firstGen(this);
+			adjacentLoops[loop]->firstGen(this, energyModel);
 		assert(adjacentLoops[loop] != NULL);
 	}
 
@@ -224,15 +222,8 @@ int Loop::replaceAdjacent(Loop *loopToReplace, Loop *loopToReplaceWith) {
 	return 0;
 }
 
-void Loop::SetEnergyModel(EnergyModel *newEnergyModel) {
-	energyModel = newEnergyModel;
-}
-
-EnergyModel *Loop::GetEnergyModel(void) {
-	return energyModel;
-}
-
-void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen) {
+void Loop::performComplexSplit(
+	Move *move, Loop **firstOpen, Loop **secondOpen, EnergyModel *energyModel) {
 
 	OpenLoop *tempLoop[2], *newLoop;
 	int index[2], sizes[2], loop, flipflop = 0, temp;
@@ -292,11 +283,11 @@ void Loop::performComplexSplit(Move *move, Loop **firstOpen, Loop **secondOpen) 
 
 			}
 		}
-		newLoop->generateMoves();
+		newLoop->generateMoves(energyModel);
 
 		// need to re-generate the moves for all adjacent loops.
 		for (int loop = 0; loop < sizes[flipflop]; loop++)
-			newLoop->adjacentLoops[loop]->regenerateDeleteMoves();
+			newLoop->adjacentLoops[loop]->regenerateDeleteMoves(energyModel);
 
 		if (flipflop == 0)
 			*firstOpen = newLoop;
@@ -355,18 +346,18 @@ string Loop::toStringShort(void) {
 
 }
 
-void Loop::printAllMoves(Loop* from) {
+void Loop::printAllMoves(Loop* from, bool useArrhenius) {
 
 	// Doing a short version of the print here
 	std::cout << toString();
 
-	moves->printAllMoves(energyModel->useArrhenius());
+	moves->printAllMoves(useArrhenius);
 
 	for (int i = 0; i < numAdjacent; i++) {
 
 		if (adjacentLoops[i] != from) {
 
-			adjacentLoops[i]->printAllMoves(this);
+			adjacentLoops[i]->printAllMoves(this, useArrhenius);
 
 		}
 
@@ -374,8 +365,8 @@ void Loop::printAllMoves(Loop* from) {
 
 }
 
-void Loop::generateAndSaveDeleteMove(Loop* input, int position) {
-	RateArr tempRate = Loop::generateDeleteMoveRate(this, input);
+void Loop::generateAndSaveDeleteMove(Loop* input, int position, EnergyModel *energyModel) {
+	RateArr tempRate = Loop::generateDeleteMoveRate(this, input, energyModel);
 	RateEnv rateEnv = RateEnv(tempRate.rate, energyModel, tempRate.left, tempRate.right);
 
 	// if rate is less than zero, nuke the program.
@@ -386,7 +377,7 @@ void Loop::generateAndSaveDeleteMove(Loop* input, int position) {
 	}
 }
 
-RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
+RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end, EnergyModel *energyModel) {
 
 	double tempRate;
 	double new_energy, old_energy;
@@ -405,7 +396,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		// as they are special cases in the energy model, for 1,1.
 		new_energy = energyModel->InteriorEnergy(
 			start_->seqs[s_index], end_->seqs[e_index], 1, 1);
-		old_energy = start->getEnergy() + end->getEnergy();
+		old_energy = start->getEnergy(energyModel) + end->getEnergy(energyModel);
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 
 		// FD: Two stack loops are created by three basepairs.
@@ -433,7 +424,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		new_energy = energyModel->InteriorEnergy(
 			start_->seqs[s_index], end_->int_seq[e_index],
 			end_->sizes[1 - e_index] + 1, end_->sizes[e_index] + 1);
-		old_energy = start->getEnergy() + end->getEnergy();
+		old_energy = start->getEnergy(energyModel) + end->getEnergy(energyModel);
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 
 		// FD: A base-pair is present between a stacking loop and an interior loop.
@@ -459,7 +450,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		new_energy = energyModel->InteriorEnergy(
 			start_->seqs[s_index], end_->bulge_seq[e_index],
 			end_->bulgesize[1 - e_index] + 1, end_->bulgesize[e_index] + 1);
-		old_energy = start->getEnergy() + end->getEnergy();
+		old_energy = start->getEnergy(energyModel) + end->getEnergy(energyModel);
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 
 		// FD: A base pair is present between a stacking loop and a bulge loop.
@@ -484,7 +475,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		// base on each side.
 		new_energy = energyModel->HairpinEnergy(
 			start_->seqs[s_index], end_->hairpinsize + 2);
-		old_energy = start->getEnergy() + end->getEnergy();
+		old_energy = start->getEnergy(energyModel) + end->getEnergy(energyModel);
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 
 		// FD: A base pair is present between a stacking loop and a hairpin loop.
@@ -535,7 +526,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		new_energy = energyModel->MultiloopEnergy(
 			end_->numAdjacent, sidelens, seqs);
-		old_energy = start->getEnergy() + end->getEnergy();
+		old_energy = start->getEnergy(energyModel) + end->getEnergy(energyModel);
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 
 		delete[] sidelens;
@@ -585,7 +576,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		new_energy = energyModel->OpenloopEnergy(
 			end_->numAdjacent, sidelens, seqs);
-		old_energy = start->getEnergy() + end->getEnergy();
+		old_energy = start->getEnergy(energyModel) + end->getEnergy(energyModel);
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 		delete[] sidelens;
 		delete[] seqs;
@@ -610,7 +601,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 			start_->int_seq[s_index], end_->int_seq[e_index],
 			end_->sizes[1 - e_index] + start_->sizes[s_index] + 1,
 			end_->sizes[e_index] + start_->sizes[1 - s_index] + 1);
-		old_energy = start->getEnergy() + end->getEnergy();
+		old_energy = start->getEnergy(energyModel) + end->getEnergy(energyModel);
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 
 		// FD: interior loop and interior loop, this has to be loopMove and
@@ -640,7 +631,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 			start_->int_seq[s_index], end_->bulge_seq[e_index],
 			end_->bulgesize[1 - e_index] + 1 + start_->sizes[s_index],
 			end_->bulgesize[e_index] + 1 + start_->sizes[1 - s_index]);
-		old_energy = start->getEnergy() + end->getEnergy();
+		old_energy = start->getEnergy(energyModel) + end->getEnergy(energyModel);
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 
 		// FD: interior loop and bulge loop, this has to be loopMove and
@@ -667,7 +658,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		new_energy = energyModel->HairpinEnergy(
 			start_->int_seq[s_index],
 			end_->hairpinsize + 2 + start_->sizes[0] + start_->sizes[1]);
-		old_energy = start->getEnergy() + end->getEnergy();
+		old_energy = start->getEnergy(energyModel) + end->getEnergy(energyModel);
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 
 		// FD: interior loop and hairpin loop, this has to be loopMove and
@@ -715,7 +706,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		new_energy = energyModel->MultiloopEnergy(
 			end_->numAdjacent, sidelens, seqs);
-		old_energy = start->getEnergy() + end->getEnergy();
+		old_energy = start->getEnergy(energyModel) + end->getEnergy(energyModel);
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 
 		delete[] sidelens;
@@ -767,7 +758,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		}
 
 		new_energy = energyModel->OpenloopEnergy(end_->numAdjacent, sidelens, seqs);
-		old_energy = start->getEnergy() + end->getEnergy();
+		old_energy = start->getEnergy(energyModel) + end->getEnergy(energyModel);
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 
 		delete[] sidelens;
@@ -795,7 +786,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 			start_->bulge_seq[s_index], end_->bulge_seq[e_index],
 			end_->bulgesize[1 - e_index] + start_->bulgesize[s_index] + 1,
 			end_->bulgesize[e_index] + start_->bulgesize[1 - s_index] + 1);
-		old_energy = start->getEnergy() + end->getEnergy();
+		old_energy = start->getEnergy(energyModel) + end->getEnergy(energyModel);
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 
 		// FD: bulge loop and bulge loop, this has to be loopMove and loopMove;
@@ -818,7 +809,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 		new_energy = energyModel->HairpinEnergy(
 			start_->bulge_seq[s_index],
 			end_->hairpinsize + 2 + start_->bulgesize[0] + start_->bulgesize[1]);
-		old_energy = start->getEnergy() + end->getEnergy();
+		old_energy = start->getEnergy(energyModel) + end->getEnergy(energyModel);
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 
 		// FD: bulge loop and hairpin loop, this has to be stackLoopMove and loopMove ;
@@ -866,7 +857,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		new_energy = energyModel->MultiloopEnergy(
 			end_->numAdjacent, sidelens, seqs);
-		old_energy = start->getEnergy() + end->getEnergy();
+		old_energy = start->getEnergy(energyModel) + end->getEnergy(energyModel);
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 
 		delete[] sidelens;
@@ -919,7 +910,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		new_energy = energyModel->OpenloopEnergy(
 			end_->numAdjacent, sidelens, seqs);
-		old_energy = start->getEnergy() + end->getEnergy();
+		old_energy = start->getEnergy(energyModel) + end->getEnergy(energyModel);
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 
 		delete[] sidelens;
@@ -983,7 +974,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 			if (sizes[1] > 0) // interior loop case
 			{
 				new_energy = energyModel->InteriorEnergy(end_->seqs[positions[1]], end_->seqs[positions[0]], sizes[0], sizes[1]);
-				old_energy = start->getEnergy() + end->getEnergy();
+				old_energy = start->getEnergy(energyModel) + end->getEnergy(energyModel);
 				tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 
 				// interior loop, so could be loopMove plus loopMove, or plus
@@ -1000,7 +991,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 				// positions 0 and 1 are the two remaining stacks in the bulge loop now, 0 being the one directly after the removed stack, and 1 being the one before. Thus, i is the 0'th base at position 1, j is the sizes[1]+1 base at position 0, p is the sizes[0]+1 base at position 1, and q is the 0th base at position 0.
 				new_energy = energyModel->BulgeEnergy(end_->seqs[positions[1]][0], end_->seqs[positions[0]][sizes[1] + 1],
 						end_->seqs[positions[1]][sizes[0] + 1], end_->seqs[positions[0]][0], sizes[0]);
-				old_energy = start->getEnergy() + end->getEnergy();
+				old_energy = start->getEnergy(energyModel) + end->getEnergy(energyModel);
 				tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 
 				// bulge loop, so loopMove plus stackStackMove
@@ -1039,7 +1030,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 			new_energy = energyModel->MultiloopEnergy(
 				end_->numAdjacent - 1, sidelens, seqs);
-			old_energy = start->getEnergy() + end->getEnergy();
+			old_energy = start->getEnergy(energyModel) + end->getEnergy(energyModel);
 			tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 
 			delete[] sidelens;
@@ -1087,7 +1078,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		new_energy = energyModel->OpenloopEnergy(
 			end_->numAdjacent - 1, sidelens, seqs);
-		old_energy = start->getEnergy() + end->getEnergy();
+		old_energy = start->getEnergy(energyModel) + end->getEnergy(energyModel);
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 
 		delete[] sidelens;
@@ -1159,7 +1150,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		new_energy = energyModel->MultiloopEnergy(
 			start_->numAdjacent + end_->numAdjacent - 2, sidelens, seqs);
-		old_energy = start->getEnergy() + end->getEnergy();
+		old_energy = start->getEnergy(energyModel) + end->getEnergy(energyModel);
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 
 		delete[] sidelens;
@@ -1233,7 +1224,7 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 
 		new_energy = energyModel->OpenloopEnergy(
 			start_->numAdjacent + end_->numAdjacent - 2, sidelens, seqs);
-		old_energy = start->getEnergy() + end->getEnergy();
+		old_energy = start->getEnergy(energyModel) + end->getEnergy(energyModel);
 		tempRate = energyModel->returnRate(old_energy, new_energy, 0);
 
 		delete[] sidelens;
@@ -1309,9 +1300,9 @@ RateArr Loop::generateDeleteMoveRate(Loop *start, Loop *end) {
 			delete[] seqs;
 		}
 
-		old_energy = start->getEnergy() + end->getEnergy();
+		old_energy = start->getEnergy(energyModel) + end->getEnergy(energyModel);
 		new_energy = new_energies[0] + new_energies[1];
-		//printf("O/O delete rate calculate: old: %lf %lf, new: %lf %lf\n", start->getEnergy(), end->getEnergy(), new_energies[0], new_energies[1] );
+		//printf("O/O delete rate calculate: old: %lf %lf, new: %lf %lf\n", start->getEnergy(energyModel), end->getEnergy(energyModel), new_energies[0], new_energies[1] );
 
 		double tempRate = energyModel->returnRate(old_energy, new_energy, 3);
 
@@ -1371,7 +1362,7 @@ std::pair<Loop*, Loop*> Loop::orderMyLoops(Loop* first, Loop* second, char type)
 
 }
 
-Loop *Loop::performDeleteMove(Move *move) {
+Loop *Loop::performDeleteMove(Move *move, EnergyModel *energyModel) {
 
 	Loop* start = move->affected[0];
 	Loop* end = move->affected[1];
@@ -1401,11 +1392,11 @@ Loop *Loop::performDeleteMove(Move *move) {
 		replace_successful = end_->adjacentLoops[e_index]->replaceAdjacent(end_, newLoop);
 		assert(replace_successful > 0);
 
-		newLoop->generateMoves();
+		newLoop->generateMoves(energyModel);
 
 		// need to re-generate the moves for the two adjacent loops.
-		start_->adjacentLoops[s_index]->regenerateDeleteMoves();
-		end_->adjacentLoops[e_index]->regenerateDeleteMoves();
+		start_->adjacentLoops[s_index]->regenerateDeleteMoves(energyModel);
+		end_->adjacentLoops[e_index]->regenerateDeleteMoves(energyModel);
 		start_->cleanupAdjacent();
 		delete start_;
 		end_->cleanupAdjacent();
@@ -1453,11 +1444,11 @@ Loop *Loop::performDeleteMove(Move *move) {
 //
 //		}
 
-		newLoop->generateMoves();
+		newLoop->generateMoves(energyModel);
 
 		// need to re-generate the moves for the two adjacent loops.
-		start_->adjacentLoops[s_index]->regenerateDeleteMoves();
-		end_->adjacentLoops[e_index]->regenerateDeleteMoves();
+		start_->adjacentLoops[s_index]->regenerateDeleteMoves(energyModel);
+		end_->adjacentLoops[e_index]->regenerateDeleteMoves(energyModel);
 		start_->cleanupAdjacent();
 		delete start_;
 		end_->cleanupAdjacent();
@@ -1499,11 +1490,11 @@ Loop *Loop::performDeleteMove(Move *move) {
 //
 //		}
 
-		newLoop->generateMoves();
+		newLoop->generateMoves(energyModel);
 
 		// need to re-generate the moves for the two adjacent loops.
-		start_->adjacentLoops[s_index]->regenerateDeleteMoves();
-		end_->adjacentLoops[e_index]->regenerateDeleteMoves();
+		start_->adjacentLoops[s_index]->regenerateDeleteMoves(energyModel);
+		end_->adjacentLoops[e_index]->regenerateDeleteMoves(energyModel);
 		start_->cleanupAdjacent();
 		delete start_;
 		end_->cleanupAdjacent();
@@ -1531,10 +1522,10 @@ Loop *Loop::performDeleteMove(Move *move) {
 		replace_successful = start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop);
 		assert(replace_successful > 0);
 
-		newLoop->generateMoves();
+		newLoop->generateMoves(energyModel);
 
 		// need to re-generate the moves for the two adjacent loops.
-		start_->adjacentLoops[s_index]->regenerateDeleteMoves();
+		start_->adjacentLoops[s_index]->regenerateDeleteMoves(energyModel);
 		start_->cleanupAdjacent();
 		delete start_;
 		end_->cleanupAdjacent();
@@ -1591,11 +1582,11 @@ Loop *Loop::performDeleteMove(Move *move) {
 				assert(temp > 0);
 			}
 		}
-		newLoop->generateMoves();
+		newLoop->generateMoves(energyModel);
 
 		// need to re-generate the moves for all adjacent loops.
 		for (int loop = 0; loop < end_->numAdjacent; loop++)
-			newLoop->adjacentLoops[loop]->regenerateDeleteMoves();
+			newLoop->adjacentLoops[loop]->regenerateDeleteMoves(energyModel);
 		start_->cleanupAdjacent();
 		delete start_;
 		end_->cleanupAdjacent();
@@ -1655,11 +1646,11 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 			}
 		}
-		newLoop->generateMoves();
+		newLoop->generateMoves(energyModel);
 
 		// need to re-generate the moves for all adjacent loops.
 		for (int loop = 0; loop < end_->numAdjacent; loop++)
-			newLoop->adjacentLoops[loop]->regenerateDeleteMoves();
+			newLoop->adjacentLoops[loop]->regenerateDeleteMoves(energyModel);
 		start_->cleanupAdjacent();
 		delete start_;
 		end_->cleanupAdjacent();
@@ -1701,11 +1692,11 @@ Loop *Loop::performDeleteMove(Move *move) {
 //
 //		}
 
-		newLoop->generateMoves();
+		newLoop->generateMoves(energyModel);
 
 		// need to re-generate the moves for the two adjacent loops.
-		start_->adjacentLoops[s_index]->regenerateDeleteMoves();
-		end_->adjacentLoops[e_index]->regenerateDeleteMoves();
+		start_->adjacentLoops[s_index]->regenerateDeleteMoves(energyModel);
+		end_->adjacentLoops[e_index]->regenerateDeleteMoves(energyModel);
 		start_->cleanupAdjacent();
 		delete start_;
 		end_->cleanupAdjacent();
@@ -1749,11 +1740,11 @@ Loop *Loop::performDeleteMove(Move *move) {
 //
 //		}
 
-		newLoop->generateMoves();
+		newLoop->generateMoves(energyModel);
 
 		// need to re-generate the moves for the two adjacent loops.
-		start_->adjacentLoops[s_index]->regenerateDeleteMoves();
-		end_->adjacentLoops[e_index]->regenerateDeleteMoves();
+		start_->adjacentLoops[s_index]->regenerateDeleteMoves(energyModel);
+		end_->adjacentLoops[e_index]->regenerateDeleteMoves(energyModel);
 		start_->cleanupAdjacent();
 		delete start_;
 		end_->cleanupAdjacent();
@@ -1783,10 +1774,10 @@ Loop *Loop::performDeleteMove(Move *move) {
 		replace_successful = start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop);
 		assert(replace_successful > 0);
 
-		newLoop->generateMoves();
+		newLoop->generateMoves(energyModel);
 
 		// need to re-generate the moves for the two adjacent loops.
-		start_->adjacentLoops[s_index]->regenerateDeleteMoves();
+		start_->adjacentLoops[s_index]->regenerateDeleteMoves(energyModel);
 		start_->cleanupAdjacent();
 		delete start_;
 		end_->cleanupAdjacent();
@@ -1845,11 +1836,11 @@ Loop *Loop::performDeleteMove(Move *move) {
 				assert(temp > 0);
 			}
 		}
-		newLoop->generateMoves();
+		newLoop->generateMoves(energyModel);
 
 		// need to re-generate the moves for all adjacent loops.
 		for (int loop = 0; loop < end_->numAdjacent; loop++)
-			newLoop->adjacentLoops[loop]->regenerateDeleteMoves();
+			newLoop->adjacentLoops[loop]->regenerateDeleteMoves(energyModel);
 		start_->cleanupAdjacent();
 		delete start_;
 		end_->cleanupAdjacent();
@@ -1908,11 +1899,11 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 			}
 		}
-		newLoop->generateMoves();
+		newLoop->generateMoves(energyModel);
 
 		// need to re-generate the moves for all adjacent loops.
 		for (int loop = 0; loop < end_->numAdjacent; loop++)
-			newLoop->adjacentLoops[loop]->regenerateDeleteMoves();
+			newLoop->adjacentLoops[loop]->regenerateDeleteMoves(energyModel);
 		start_->cleanupAdjacent();
 		delete start_;
 		end_->cleanupAdjacent();
@@ -1957,11 +1948,11 @@ Loop *Loop::performDeleteMove(Move *move) {
 //
 //		}
 
-		newLoop->generateMoves();
+		newLoop->generateMoves(energyModel);
 
 		// need to re-generate the moves for the two adjacent loops.
-		start_->adjacentLoops[s_index]->regenerateDeleteMoves();
-		end_->adjacentLoops[e_index]->regenerateDeleteMoves();
+		start_->adjacentLoops[s_index]->regenerateDeleteMoves(energyModel);
+		end_->adjacentLoops[e_index]->regenerateDeleteMoves(energyModel);
 		start_->cleanupAdjacent();
 		delete start_;
 		end_->cleanupAdjacent();
@@ -1991,10 +1982,10 @@ Loop *Loop::performDeleteMove(Move *move) {
 		replace_successful = start_->adjacentLoops[s_index]->replaceAdjacent(start_, newLoop);
 		assert(replace_successful > 0);
 
-		newLoop->generateMoves();
+		newLoop->generateMoves(energyModel);
 
 		// need to re-generate the moves for the two adjacent loops.
-		start_->adjacentLoops[s_index]->regenerateDeleteMoves();
+		start_->adjacentLoops[s_index]->regenerateDeleteMoves(energyModel);
 		start_->cleanupAdjacent();
 		delete start_;
 		end_->cleanupAdjacent();
@@ -2054,11 +2045,11 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 			}
 		}
-		newLoop->generateMoves();
+		newLoop->generateMoves(energyModel);
 
 		// need to re-generate the moves for all adjacent loops.
 		for (int loop = 0; loop < end_->numAdjacent; loop++)
-			newLoop->adjacentLoops[loop]->regenerateDeleteMoves();
+			newLoop->adjacentLoops[loop]->regenerateDeleteMoves(energyModel);
 		start_->cleanupAdjacent();
 		delete start_;
 		end_->cleanupAdjacent();
@@ -2117,11 +2108,11 @@ Loop *Loop::performDeleteMove(Move *move) {
 
 			}
 		}
-		newLoop->generateMoves();
+		newLoop->generateMoves(energyModel);
 
 		// need to re-generate the moves for all adjacent loops.
 		for (int loop = 0; loop < end_->numAdjacent; loop++)
-			newLoop->adjacentLoops[loop]->regenerateDeleteMoves();
+			newLoop->adjacentLoops[loop]->regenerateDeleteMoves(energyModel);
 		start_->cleanupAdjacent();
 		delete start_;
 		end_->cleanupAdjacent();
@@ -2192,11 +2183,11 @@ Loop *Loop::performDeleteMove(Move *move) {
 				temp = end_->adjacentLoops[positions[0]]->replaceAdjacent(end_, newLoop);
 				assert(temp > 0);
 
-				newLoop->generateMoves();
+				newLoop->generateMoves(energyModel);
 
 				// need to re-generate the moves for all adjacent loops.
-				newLoop->adjacentLoops[0]->regenerateDeleteMoves();
-				newLoop->adjacentLoops[1]->regenerateDeleteMoves();
+				newLoop->adjacentLoops[0]->regenerateDeleteMoves(energyModel);
+				newLoop->adjacentLoops[1]->regenerateDeleteMoves(energyModel);
 				start_->cleanupAdjacent();
 				delete start_;
 				end_->cleanupAdjacent();
@@ -2213,11 +2204,11 @@ Loop *Loop::performDeleteMove(Move *move) {
 				temp = end_->adjacentLoops[positions[1]]->replaceAdjacent(end_, newLoop);
 				assert(temp > 0);
 
-				newLoop->generateMoves();
+				newLoop->generateMoves(energyModel);
 
 				// need to re-generate the moves for all adjacent loops.
-				newLoop->adjacentLoops[0]->regenerateDeleteMoves();
-				newLoop->adjacentLoops[1]->regenerateDeleteMoves();
+				newLoop->adjacentLoops[0]->regenerateDeleteMoves(energyModel);
+				newLoop->adjacentLoops[1]->regenerateDeleteMoves(energyModel);
 				start_->cleanupAdjacent();
 				delete start_;
 				end_->cleanupAdjacent();
@@ -2228,11 +2219,6 @@ Loop *Loop::performDeleteMove(Move *move) {
 		{
 			int* sidelens = new int[end_->numAdjacent - 1];
 			BaseType** seqs = new BaseType*[end_->numAdjacent - 1];
-
-			if (energyModel->simOptions->debug) {
-				cout << "s_index = " << s_index << endl;
-				cout << "e_index = " << e_index << endl;
-			}
 
 			for (int loop = 0; loop < end_->numAdjacent; loop++) {
 				if (loop != e_index) {
@@ -2264,11 +2250,11 @@ Loop *Loop::performDeleteMove(Move *move) {
 				}
 			}
 
-			newLoop->generateMoves();
+			newLoop->generateMoves(energyModel);
 
 			// need to re-generate the moves for all adjacent loops.
 			for (int loop = 0; loop < newLoop->numAdjacent; loop++)
-				newLoop->adjacentLoops[loop]->regenerateDeleteMoves();
+				newLoop->adjacentLoops[loop]->regenerateDeleteMoves(energyModel);
 			start_->cleanupAdjacent();
 			delete start_;
 			end_->cleanupAdjacent();
@@ -2318,11 +2304,11 @@ Loop *Loop::performDeleteMove(Move *move) {
 			}
 		}
 
-		newLoop->generateMoves();
+		newLoop->generateMoves(energyModel);
 
 		// need to re-generate the moves for all adjacent loops.
 		for (int loop = 0; loop < newLoop->numAdjacent; loop++)
-			newLoop->adjacentLoops[loop]->regenerateDeleteMoves();
+			newLoop->adjacentLoops[loop]->regenerateDeleteMoves(energyModel);
 		start_->cleanupAdjacent();
 		delete start_;
 		end_->cleanupAdjacent();
@@ -2403,11 +2389,11 @@ Loop *Loop::performDeleteMove(Move *move) {
 			}
 		}
 
-		newLoop->generateMoves();
+		newLoop->generateMoves(energyModel);
 
 		// need to re-generate the moves for all adjacent loops.
 		for (int loop = 0; loop < newLoop->numAdjacent; loop++)
-			newLoop->adjacentLoops[loop]->regenerateDeleteMoves();
+			newLoop->adjacentLoops[loop]->regenerateDeleteMoves(energyModel);
 		start_->cleanupAdjacent();
 		delete start_;
 		end_->cleanupAdjacent();
@@ -2489,11 +2475,11 @@ Loop *Loop::performDeleteMove(Move *move) {
 			}
 		}
 
-		newLoop->generateMoves();
+		newLoop->generateMoves(energyModel);
 
 		// need to re-generate the moves for all adjacent loops.
 		for (int loop = 0; loop < newLoop->numAdjacent; loop++)
-			newLoop->adjacentLoops[loop]->regenerateDeleteMoves();
+			newLoop->adjacentLoops[loop]->regenerateDeleteMoves(energyModel);
 		start_->cleanupAdjacent();
 		delete start_;
 		end_->cleanupAdjacent();
@@ -2520,44 +2506,43 @@ Loop *Loop::performDeleteMove(Move *move) {
 /* StackLoop ================================================================ */
 
 
-void StackLoop::calculateEnergy(void) {
-	assert(Loop::energyModel != NULL);
-	energy = Loop::energyModel->StackEnergy(
+void StackLoop::calculateEnergy(EnergyModel *energyModel) {
+	energy = energyModel->StackEnergy(
 		seqs[0][0], seqs[1][1], seqs[0][1], seqs[1][0]);
 
 }
 
-void StackLoop::calculateEnthalpy(void) {
+void StackLoop::calculateEnthalpy(EnergyModel *energyModel) {
 
-	enthalpy = Loop::energyModel->StackEnthalpy(
+	enthalpy = energyModel->StackEnthalpy(
 		seqs[0][0], seqs[1][1], seqs[0][1], seqs[1][0]);
 
 }
 
-void StackLoop::generateMoves(void) {
+void StackLoop::generateMoves(EnergyModel *energyModel) {
 
 	if (energyModel->simOptions->debug) {
 		cout << "StackLoop generating moves!" << endl;
 		cout << this->typeInternalsToString();
 	}
 
-	generateDeleteMoves();
+	generateDeleteMoves(energyModel);
 }
 
-void StackLoop::generateDeleteMoves(void) {
+void StackLoop::generateDeleteMoves(EnergyModel *energyModel) {
 	if (moves != NULL)
 		delete moves;
 	moves = new MoveList(0);
 	// always have 2 delete moves, no shift moves and no creation moves.
-	generateAndSaveDeleteMove(adjacentLoops[0], 0);
-	generateAndSaveDeleteMove(adjacentLoops[1], 1);
+	generateAndSaveDeleteMove(adjacentLoops[0], 0, energyModel);
+	generateAndSaveDeleteMove(adjacentLoops[1], 1, energyModel);
 
 	totalRate = moves->getRate();
 }
 
-void StackLoop::regenerateDeleteMoves(void) {
+void StackLoop::regenerateDeleteMoves(EnergyModel *energyModel) {
 	// TODO: change this to only re-generate the deletion moves.
-	generateMoves();
+	generateMoves(energyModel);
 }
 
 void StackLoop::printMove(Loop *comefrom, char *structure_p, BaseType *seq_p) {
@@ -2597,7 +2582,7 @@ Move *StackLoop::getChoice(SimTimer& timer, Loop *from) {
 	return NULL;
 }
 
-double StackLoop::doChoice(Move *move, Loop **returnLoop) {
+double StackLoop::doChoice(Move *move, Loop **returnLoop, EnergyModel *energyModel) {
 	assert(!(move->type & MOVE_DELETE));
 
 	return -totalRate;
@@ -2711,13 +2696,11 @@ string HairpinLoop::typeInternalsToString(void) {
 
 }
 
-void HairpinLoop::calculateEnergy(void) {
-	assert(energyModel != NULL);
-
+void HairpinLoop::calculateEnergy(EnergyModel *energyModel) {
 	energy = energyModel->HairpinEnergy(hairpin_seq, hairpinsize);
 }
 
-void HairpinLoop::calculateEnthalpy(void) {
+void HairpinLoop::calculateEnthalpy(EnergyModel *energyModel) {
 
 	enthalpy = energyModel->HairpinEnthalpy(hairpin_seq, hairpinsize);
 }
@@ -2739,7 +2722,7 @@ Move *HairpinLoop::getChoice(SimTimer& timer, Loop *from) {
 	return NULL;
 }
 
-double HairpinLoop::doChoice(Move *move, Loop **returnLoop) {
+double HairpinLoop::doChoice(Move *move, Loop **returnLoop, EnergyModel *energyModel) {
 	assert(!(move->type & MOVE_DELETE));
 
 	Loop *newLoop[2];
@@ -2755,9 +2738,9 @@ double HairpinLoop::doChoice(Move *move, Loop **returnLoop) {
 			adjacentLoops[0]->replaceAdjacent(this, newLoop[0]);
 			newLoop[0]->addAdjacent(newLoop[1]);
 			newLoop[1]->addAdjacent(newLoop[0]);
-			adjacentLoops[0]->generateMoves();
-			newLoop[0]->generateMoves();
-			newLoop[1]->generateMoves();
+			adjacentLoops[0]->generateMoves(energyModel);
+			newLoop[0]->generateMoves(energyModel);
+			newLoop[1]->generateMoves(energyModel);
 			*returnLoop = newLoop[0];
 			return ((newLoop[0]->getTotalRate() + newLoop[1]->getTotalRate()) - totalRate);
 
@@ -2772,9 +2755,9 @@ double HairpinLoop::doChoice(Move *move, Loop **returnLoop) {
 			adjacentLoops[0]->replaceAdjacent(this, newLoop[0]);
 			newLoop[0]->addAdjacent(newLoop[1]);
 			newLoop[1]->addAdjacent(newLoop[0]);
-			newLoop[0]->generateMoves();
-			newLoop[1]->generateMoves();
-			adjacentLoops[0]->generateMoves();
+			newLoop[0]->generateMoves(energyModel);
+			newLoop[1]->generateMoves(energyModel);
+			adjacentLoops[0]->generateMoves(energyModel);
 			*returnLoop = newLoop[0];
 			return ((newLoop[0]->getTotalRate() + newLoop[1]->getTotalRate()) - totalRate);
 
@@ -2786,9 +2769,9 @@ double HairpinLoop::doChoice(Move *move, Loop **returnLoop) {
 			adjacentLoops[0]->replaceAdjacent(this, newLoop[0]);
 			newLoop[0]->addAdjacent(newLoop[1]);
 			newLoop[1]->addAdjacent(newLoop[0]);
-			newLoop[0]->generateMoves();
-			newLoop[1]->generateMoves();
-			adjacentLoops[0]->generateMoves();
+			newLoop[0]->generateMoves(energyModel);
+			newLoop[1]->generateMoves(energyModel);
+			adjacentLoops[0]->generateMoves(energyModel);
 			*returnLoop = newLoop[0];
 			return ((newLoop[0]->getTotalRate() + newLoop[1]->getTotalRate()) - totalRate);
 		}
@@ -2798,7 +2781,7 @@ double HairpinLoop::doChoice(Move *move, Loop **returnLoop) {
 	return -totalRate;
 }
 
-void HairpinLoop::generateMoves(void) {
+void HairpinLoop::generateMoves(EnergyModel *energyModel) {
 
 	if (energyModel->simOptions->debug) {
 		cout << "HairpinLoop generating moves!" << endl;
@@ -2819,7 +2802,7 @@ void HairpinLoop::generateMoves(void) {
 
 		moves = new MoveList(0);
 		totalRate = 0.0;
-		generateDeleteMoves();
+		generateDeleteMoves(energyModel);
 		return;
 	} else {
 		if (moves != NULL)
@@ -2844,7 +2827,7 @@ void HairpinLoop::generateMoves(void) {
 
 						energies[0] = energyModel->StackEnergy(hairpin_seq[0], hairpin_seq[hairpinsize + 1], hairpin_seq[loop], hairpin_seq[loop2]);
 						energies[1] = energyModel->HairpinEnergy(&hairpin_seq[1], hairpinsize - 2);
-						tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
+						tempRate = energyModel->returnRate(getEnergy(energyModel), (energies[0] + energies[1]), 0);
 
 						// stack and hairpin, so this is loop and stack
 						rateEnv = RateEnv(tempRate, energyModel, loopMove, stackMove);
@@ -2861,7 +2844,7 @@ void HairpinLoop::generateMoves(void) {
 
 						energies[1] = energyModel->HairpinEnergy(&hairpin_seq[loop], loop2 - loop - 1);
 
-						tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
+						tempRate = energyModel->returnRate(getEnergy(energyModel), (energies[0] + energies[1]), 0);
 
 						// new bulgeloop + hairpin: this is openMove and stackLoopMove
 
@@ -2875,7 +2858,7 @@ void HairpinLoop::generateMoves(void) {
 
 						// loop2 - loop - 1 is the new hairpin size.
 						energies[1] = energyModel->HairpinEnergy(&hairpin_seq[loop], loop2 - loop - 1);
-						tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
+						tempRate = energyModel->returnRate(getEnergy(energyModel), (energies[0] + energies[1]), 0);
 
 						// interiorLoop + hairpin, so this is open + open
 
@@ -2891,18 +2874,18 @@ void HairpinLoop::generateMoves(void) {
 // Shift moves
 
 // Delete moves
-	generateDeleteMoves();
+	generateDeleteMoves(energyModel);
 }
 
-void HairpinLoop::generateDeleteMoves(void) {
-	generateAndSaveDeleteMove(adjacentLoops[0], 0);
+void HairpinLoop::generateDeleteMoves(EnergyModel *energyModel) {
+	generateAndSaveDeleteMove(adjacentLoops[0], 0, energyModel);
 
 	totalRate = moves->getRate();
 }
 
-void HairpinLoop::regenerateDeleteMoves(void) {
+void HairpinLoop::regenerateDeleteMoves(EnergyModel *energyModel) {
 	// TODO: change this to only re-generate the deletion moves.
-	generateMoves();
+	generateMoves(energyModel);
 }
 
 void HairpinLoop::printMove(Loop *comefrom, char *structure_p, BaseType *seq_p) {
@@ -3008,21 +2991,20 @@ Move *BulgeLoop::getChoice(SimTimer& timer, Loop *from) {
 	return NULL;
 }
 
-void BulgeLoop::calculateEnergy(void) {
-	assert(energyModel != NULL);
-
-	energy = energyModel->BulgeEnergy(bulge_seq[0][0], bulge_seq[1][bulgesize[1] + 1], bulge_seq[0][bulgesize[0] + 1], bulge_seq[1][0],
-			bulgesize[0] + bulgesize[1]);
+void BulgeLoop::calculateEnergy(EnergyModel *energyModel) {
+	energy = energyModel->BulgeEnergy(
+		bulge_seq[0][0], bulge_seq[1][bulgesize[1] + 1],
+		bulge_seq[0][bulgesize[0] + 1], bulge_seq[1][0], bulgesize[0] + bulgesize[1]);
 }
 
-void BulgeLoop::calculateEnthalpy(void) {
+void BulgeLoop::calculateEnthalpy(EnergyModel *energyModel) {
 
 	enthalpy = energyModel->BulgeEnthalpy(bulge_seq[0][0], bulge_seq[1][bulgesize[1] + 1], bulge_seq[0][bulgesize[0] + 1], bulge_seq[1][0],
 			bulgesize[0] + bulgesize[1]);
 
 }
 
-double BulgeLoop::doChoice(Move *move, Loop **returnLoop) {
+double BulgeLoop::doChoice(Move *move, Loop **returnLoop, EnergyModel *energyModel) {
 	assert(!(move->type & MOVE_DELETE));
 
 	Loop *newLoop[2];
@@ -3065,17 +3047,17 @@ double BulgeLoop::doChoice(Move *move, Loop **returnLoop) {
 		}
 		adjacentLoops[1]->replaceAdjacent(this, newLoop[0]);
 		newLoop[1]->addAdjacent(newLoop[0]);
-		newLoop[0]->generateMoves();
-		newLoop[1]->generateMoves();
-		adjacentLoops[0]->generateMoves();
-		adjacentLoops[1]->generateMoves();
+		newLoop[0]->generateMoves(energyModel);
+		newLoop[1]->generateMoves(energyModel);
+		adjacentLoops[0]->generateMoves(energyModel);
+		adjacentLoops[1]->generateMoves(energyModel);
 		*returnLoop = newLoop[0];
 		return ((newLoop[0]->getTotalRate() + newLoop[1]->getTotalRate()) - totalRate);
 	}
 	return -totalRate;
 }
 
-void BulgeLoop::generateMoves(void) {
+void BulgeLoop::generateMoves(EnergyModel *energyModel) {
 
 	if (energyModel->simOptions->debug) {
 		cout << "BulgeLoop generating moves!" << endl;
@@ -3096,7 +3078,7 @@ void BulgeLoop::generateMoves(void) {
 
 		moves = new MoveList(0);
 		totalRate = 0.0;
-		generateDeleteMoves();
+		generateDeleteMoves(energyModel);
 		return;
 	} else {
 		if (moves != NULL)
@@ -3144,7 +3126,7 @@ void BulgeLoop::generateMoves(void) {
 					// loop2 - loop + 1 is the new hairpin size.
 					energies[1] = energyModel->HairpinEnergy(&bulge_seq[bside][loop], loop2 - loop - 1);
 
-					tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
+					tempRate = energyModel->returnRate(getEnergy(energyModel), (energies[0] + energies[1]), 0);
 
 					// hairpin and multiloop, so this is loopMove and something
 
@@ -3164,22 +3146,22 @@ void BulgeLoop::generateMoves(void) {
 	}
 	totalRate = moves->getRate();
 
-	generateDeleteMoves();
+	generateDeleteMoves(energyModel);
 }
 
-void BulgeLoop::generateDeleteMoves(void) {
+void BulgeLoop::generateDeleteMoves(EnergyModel *energyModel) {
 
 	assert(moves != NULL);
 
-	generateAndSaveDeleteMove(adjacentLoops[0], 0);
-	generateAndSaveDeleteMove(adjacentLoops[1], 1);
+	generateAndSaveDeleteMove(adjacentLoops[0], 0, energyModel);
+	generateAndSaveDeleteMove(adjacentLoops[1], 1, energyModel);
 
 	totalRate = moves->getRate();
 }
 
-void BulgeLoop::regenerateDeleteMoves(void) {
+void BulgeLoop::regenerateDeleteMoves(EnergyModel *energyModel) {
 	// TODO: change this to only re-generate the deletion moves.
-	generateMoves();
+	generateMoves(energyModel);
 }
 
 void BulgeLoop::printMove(Loop *comefrom, char *structure_p, BaseType *seq_p) {
@@ -3299,17 +3281,14 @@ Move *InteriorLoop::getChoice(SimTimer& timer, Loop *from) {
 	return NULL;
 }
 
-void InteriorLoop::calculateEnergy(void) {
-	assert(energyModel != NULL);
-
+void InteriorLoop::calculateEnergy(EnergyModel *energyModel) {
 	if (int_seq[0] == NULL || int_seq[1] == NULL)
 		return;
-
 	energy = energyModel->InteriorEnergy(int_seq[0], int_seq[1], sizes[0], sizes[1]);
 
 }
 
-void InteriorLoop::calculateEnthalpy(void) {
+void InteriorLoop::calculateEnthalpy(EnergyModel *energyModel) {
 
 	if (int_seq[0] == NULL || int_seq[1] == NULL)
 		return;
@@ -3317,7 +3296,7 @@ void InteriorLoop::calculateEnthalpy(void) {
 	enthalpy = energyModel->InteriorEnthalpy(int_seq[0], int_seq[1], sizes[0], sizes[1]);
 }
 
-double InteriorLoop::doChoice(Move *move, Loop **returnLoop) {
+double InteriorLoop::doChoice(Move *move, Loop **returnLoop, EnergyModel *energyModel) {
 	assert(!(move->type & MOVE_DELETE));
 
 	Loop *newLoop[2];
@@ -3349,10 +3328,10 @@ double InteriorLoop::doChoice(Move *move, Loop **returnLoop) {
 
 			newLoop[1]->addAdjacent(newLoop[0]);
 
-			newLoop[0]->generateMoves();
-			newLoop[1]->generateMoves();
-			adjacentLoops[0]->generateMoves();
-			adjacentLoops[1]->generateMoves();
+			newLoop[0]->generateMoves(energyModel);
+			newLoop[1]->generateMoves(energyModel);
+			adjacentLoops[0]->generateMoves(energyModel);
+			adjacentLoops[1]->generateMoves(energyModel);
 			*returnLoop = newLoop[0];
 			return ((newLoop[0]->getTotalRate() + newLoop[1]->getTotalRate()) - totalRate);
 
@@ -3380,10 +3359,10 @@ double InteriorLoop::doChoice(Move *move, Loop **returnLoop) {
 
 			newLoop[1]->addAdjacent(newLoop[0]);
 
-			newLoop[0]->generateMoves();
-			newLoop[1]->generateMoves();
-			adjacentLoops[0]->generateMoves();
-			adjacentLoops[1]->generateMoves();
+			newLoop[0]->generateMoves(energyModel);
+			newLoop[1]->generateMoves(energyModel);
+			adjacentLoops[0]->generateMoves(energyModel);
+			adjacentLoops[1]->generateMoves(energyModel);
 			*returnLoop = newLoop[0];
 			return ((newLoop[0]->getTotalRate() + newLoop[1]->getTotalRate()) - totalRate);
 
@@ -3423,11 +3402,11 @@ double InteriorLoop::doChoice(Move *move, Loop **returnLoop) {
 			newLoop[1]->addAdjacent(adjacentLoops[1]);
 			adjacentLoops[1]->replaceAdjacent(this, newLoop[1]);
 
-			newLoop[0]->generateMoves();
-			newLoop[1]->generateMoves();
+			newLoop[0]->generateMoves(energyModel);
+			newLoop[1]->generateMoves(energyModel);
 
-			adjacentLoops[0]->generateMoves();
-			adjacentLoops[1]->generateMoves();
+			adjacentLoops[0]->generateMoves(energyModel);
+			adjacentLoops[1]->generateMoves(energyModel);
 
 			*returnLoop = newLoop[0];
 
@@ -3445,7 +3424,7 @@ double InteriorLoop::doChoice(Move *move, Loop **returnLoop) {
 	return -totalRate;
 }
 
-void InteriorLoop::generateMoves(void) {
+void InteriorLoop::generateMoves(EnergyModel *energyModel) {
 
 	if (energyModel->simOptions->debug) {
 		cout << "InteriorLoop generating moves!" << endl;
@@ -3491,7 +3470,7 @@ void InteriorLoop::generateMoves(void) {
 				BaseType *sequences[3] = { &int_seq[0][0], &int_seq[0][loop2], &int_seq[1][0] };
 
 				energies[1] = energyModel->MultiloopEnergy(3, sidelen, sequences);
-				tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
+				tempRate = energyModel->returnRate(getEnergy(energyModel), (energies[0] + energies[1]), 0);
 
 //				// hairpin and multiloop, so this is loopMove and something
 
@@ -3515,7 +3494,7 @@ void InteriorLoop::generateMoves(void) {
 				BaseType *sequences[3] = { &int_seq[0][0], &int_seq[1][0], &int_seq[1][loop2] };
 
 				energies[1] = energyModel->MultiloopEnergy(3, sidelen, sequences);
-				tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
+				tempRate = energyModel->returnRate(getEnergy(energyModel), (energies[0] + energies[1]), 0);
 
 				// hairpin and multiloop, so this is loopMove and something
 
@@ -3562,7 +3541,7 @@ void InteriorLoop::generateMoves(void) {
 					rightMove = loopMove;
 				}
 
-				tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
+				tempRate = energyModel->returnRate(getEnergy(energyModel), (energies[0] + energies[1]), 0);
 
 				// interior loop is closing, so this could be anything.
 				rateEnv = RateEnv(tempRate, energyModel, leftMove, rightMove);
@@ -3577,22 +3556,22 @@ void InteriorLoop::generateMoves(void) {
 // Shift moves
 
 // Delete moves
-	generateDeleteMoves();
+	generateDeleteMoves(energyModel);
 }
 
-void InteriorLoop::generateDeleteMoves(void) {
+void InteriorLoop::generateDeleteMoves(EnergyModel *energyModel) {
 	assert(moves != NULL);
 
-	generateAndSaveDeleteMove(adjacentLoops[0], 0);
-	generateAndSaveDeleteMove(adjacentLoops[1], 1);
+	generateAndSaveDeleteMove(adjacentLoops[0], 0, energyModel);
+	generateAndSaveDeleteMove(adjacentLoops[1], 1, energyModel);
 
 	totalRate = moves->getRate();
 
 }
 
-void InteriorLoop::regenerateDeleteMoves(void) {
+void InteriorLoop::regenerateDeleteMoves(EnergyModel *energyModel) {
 	// TODO: change this to only re-generate the deletion moves.
-	generateMoves();
+	generateMoves(energyModel);
 }
 
 BaseType *InteriorLoop::getLocation(Move *move, int index) {
@@ -3719,19 +3698,18 @@ Move *MultiLoop::getChoice(SimTimer& timer, Loop *from) {
 	return NULL;
 }
 
-void MultiLoop::calculateEnergy(void) {
-	assert(energyModel!=NULL);
+void MultiLoop::calculateEnergy(EnergyModel *energyModel) {
 	energy = energyModel->MultiloopEnergy(numAdjacent, sidelen, seqs);
 
 }
 
-void MultiLoop::calculateEnthalpy(void) {
+void MultiLoop::calculateEnthalpy(EnergyModel *energyModel) {
 
 	enthalpy = energyModel->MultiloopEnthalpy(numAdjacent, sidelen, seqs);
 
 }
 
-double MultiLoop::doChoice(Move *move, Loop **returnLoop) {
+double MultiLoop::doChoice(Move *move, Loop **returnLoop, EnergyModel *energyModel) {
 	assert(!(move->type & MOVE_DELETE));
 
 	Loop *newLoop[2];
@@ -3771,18 +3749,18 @@ double MultiLoop::doChoice(Move *move, Loop **returnLoop) {
 				if (temploop == loop3) {
 					newLoop[0]->addAdjacent(adjacentLoops[temploop]);
 					adjacentLoops[temploop]->replaceAdjacent(this, newLoop[0]);
-					adjacentLoops[temploop]->generateMoves();
+					adjacentLoops[temploop]->generateMoves(energyModel);
 					newLoop[0]->addAdjacent(newLoop[1]);
 				} else {
 					newLoop[0]->addAdjacent(adjacentLoops[temploop]);
 					adjacentLoops[temploop]->replaceAdjacent(this, newLoop[0]);
-					adjacentLoops[temploop]->generateMoves();
+					adjacentLoops[temploop]->generateMoves(energyModel);
 				}
 			}
 
 			newLoop[1]->addAdjacent(newLoop[0]);
-			newLoop[0]->generateMoves();
-			newLoop[1]->generateMoves();
+			newLoop[0]->generateMoves(energyModel);
+			newLoop[1]->generateMoves(energyModel);
 			*returnLoop = newLoop[0];
 			return ((newLoop[0]->getTotalRate() + newLoop[1]->getTotalRate()) - totalRate);
 
@@ -3841,7 +3819,7 @@ double MultiLoop::doChoice(Move *move, Loop **returnLoop) {
 				} else {
 					newLoop[0]->addAdjacent(adjacentLoops[temploop]);
 					adjacentLoops[temploop]->replaceAdjacent(this, newLoop[0]);
-					adjacentLoops[temploop]->generateMoves();
+					adjacentLoops[temploop]->generateMoves(energyModel);
 				}
 			}
 
@@ -3853,10 +3831,10 @@ double MultiLoop::doChoice(Move *move, Loop **returnLoop) {
 				newLoop[1]->addAdjacent(newLoop[0]);
 			}
 			adjacentLoops[loop4]->replaceAdjacent(this, newLoop[1]);
-			adjacentLoops[loop4]->generateMoves();
+			adjacentLoops[loop4]->generateMoves(energyModel);
 
-			newLoop[0]->generateMoves();
-			newLoop[1]->generateMoves();
+			newLoop[0]->generateMoves(energyModel);
+			newLoop[1]->generateMoves(energyModel);
 			*returnLoop = newLoop[0];
 			return ((newLoop[0]->getTotalRate() + newLoop[1]->getTotalRate()) - totalRate);
 
@@ -3913,27 +3891,27 @@ double MultiLoop::doChoice(Move *move, Loop **returnLoop) {
 				if (temploop < loop3) {
 					newLoop[1]->addAdjacent(adjacentLoops[temploop]);
 					adjacentLoops[temploop]->replaceAdjacent(this, newLoop[1]);
-					adjacentLoops[temploop]->generateMoves();
+					adjacentLoops[temploop]->generateMoves(energyModel);
 				} else if (temploop == loop3) {
 					newLoop[1]->addAdjacent(adjacentLoops[temploop]);
 					adjacentLoops[temploop]->replaceAdjacent(this, newLoop[1]);
-					adjacentLoops[temploop]->generateMoves();
+					adjacentLoops[temploop]->generateMoves(energyModel);
 					newLoop[1]->addAdjacent(newLoop[0]);
 					newLoop[0]->addAdjacent(newLoop[1]);
 
 				} else if (temploop <= loop4) {
 					newLoop[0]->addAdjacent(adjacentLoops[temploop]);
 					adjacentLoops[temploop]->replaceAdjacent(this, newLoop[0]);
-					adjacentLoops[temploop]->generateMoves();
+					adjacentLoops[temploop]->generateMoves(energyModel);
 				} else {
 					newLoop[1]->addAdjacent(adjacentLoops[temploop]);
 					adjacentLoops[temploop]->replaceAdjacent(this, newLoop[1]);
-					adjacentLoops[temploop]->generateMoves();
+					adjacentLoops[temploop]->generateMoves(energyModel);
 				}
 			}
 
-			newLoop[0]->generateMoves();
-			newLoop[1]->generateMoves();
+			newLoop[0]->generateMoves(energyModel);
+			newLoop[1]->generateMoves(energyModel);
 			*returnLoop = newLoop[0];
 			return ((newLoop[0]->getTotalRate() + newLoop[1]->getTotalRate()) - totalRate);
 		}
@@ -3942,7 +3920,7 @@ double MultiLoop::doChoice(Move *move, Loop **returnLoop) {
 	return -totalRate;
 }
 
-void MultiLoop::generateMoves(void) {
+void MultiLoop::generateMoves(EnergyModel *energyModel) {
 
 	if (energyModel->simOptions->debug) {
 		cout << "MultiLoop generating moves!" << endl;
@@ -4013,7 +3991,7 @@ void MultiLoop::generateMoves(void) {
 					}
 					energies[1] = energyModel->MultiloopEnergy(numAdjacent + 1, sideLengths, sequences);
 
-					tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
+					tempRate = energyModel->returnRate(getEnergy(energyModel), (energies[0] + energies[1]), 0);
 
 					// multiLoop is closing, so this an loopMove and something else
 					MoveType rightMove = energyModel->prefactorInternal(sideLengths[loop3], sideLengths[loop3]);
@@ -4082,7 +4060,7 @@ void MultiLoop::generateMoves(void) {
 						}
 					}
 					energies[1] = energyModel->MultiloopEnergy(numAdjacent, sideLengths, sequences);
-					tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
+					tempRate = energyModel->returnRate(getEnergy(energyModel), (energies[0] + energies[1]), 0);
 
 					// multiLoop is forming an stack/bulge/interior, which is something and something else
 					MoveType rightMove = energyModel->prefactorInternal(sideLengths[loop3], sideLengths[loop4]);
@@ -4094,12 +4072,19 @@ void MultiLoop::generateMoves(void) {
 		}
 	}
 
-// FIXME 01/17/05 JS - This appears to be directly copied from the openloop section - the second half always refers to openloops, not multi as should be expected... Needs checking. RESOLVED 01/17/05 This is now updated to be exactly appropriate to the multiloop case.
-
 // Case #3: non-adjacent loop creation moves (2d)
 // Revamped so it actually works. Algorithm follows:
-// This is all connections between non-adjacent sides. Thus we must exclude adjacent sides, and must try all possible combinations which match. This means we have to cover ~n^2 side combinations, where n is the total number of sides. Note that in this data structure, n is numAdjacent+1, and they are labelled 0,1,...,numAdjacent
-// Loop over all sides. Within this loop, cover all sides that are labelled higher that the first, and are non adjacent. For each pair of bases in these two sides, check whether they can pair. For each pair, compute energies and add move to list.
+//
+// This is all connections between non-adjacent sides. Thus we must exclude
+// adjacent sides, and must try all possible combinations which match. This
+// means we have to cover ~n^2 side combinations, where n is the total number of
+// sides. Note that in this data structure, n is numAdjacent+1, and they are
+// labelled 0,1,...,numAdjacent
+//
+// Loop over all sides. Within this loop, cover all sides that are labelled
+// higher that the first, and are non adjacent. For each pair of bases in these
+// two sides, check whether they can pair. For each pair, compute energies and
+// add move to list.
 	for (loop3 = 0; loop3 < numAdjacent - 2; loop3++) { // The last 2 entries are not needed as neither have higher numbered non-adjacent sections.
 
 		for (loop4 = loop3 + 2; (loop4 < numAdjacent) && (loop3 != 0 || loop4 < numAdjacent - 1); loop4++) {
@@ -4157,7 +4142,7 @@ void MultiLoop::generateMoves(void) {
 
 						}
 						energies[1] = energyModel->MultiloopEnergy(numAdjacent - (loop4 - loop3 - 1), sideLengths, sequences);
-						tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
+						tempRate = energyModel->returnRate(getEnergy(energyModel), (energies[0] + energies[1]), 0);
 						loops[0] = loop;
 						loops[1] = loop2;
 						loops[2] = loop3;
@@ -4185,24 +4170,24 @@ void MultiLoop::generateMoves(void) {
 	if (sequences != NULL)
 		delete[] sequences;
 
-	generateDeleteMoves();
+	generateDeleteMoves(energyModel);
 }
 
-void MultiLoop::generateDeleteMoves(void) {
+void MultiLoop::generateDeleteMoves(EnergyModel *energyModel) {
 	assert(moves != NULL);
 
 	for (int loop = 0; loop < numAdjacent; loop++) {
 
-		generateAndSaveDeleteMove(adjacentLoops[loop], loop);
+		generateAndSaveDeleteMove(adjacentLoops[loop], loop, energyModel);
 
 	}
 
 	totalRate = moves->getRate();
 }
 
-void MultiLoop::regenerateDeleteMoves(void) {
+void MultiLoop::regenerateDeleteMoves(EnergyModel *energyModel) {
 	// TODO: change this to only re-generate the deletion moves.
-	generateMoves();
+	generateMoves(energyModel);
 }
 
 void MultiLoop::printMove(Loop *comefrom, char *structure_p, BaseType *seq_p) {
@@ -4319,13 +4304,12 @@ string OpenLoop::typeInternalsToString(void) {
 
 }
 
-void OpenLoop::calculateEnergy(void) {
-	assert(energyModel != NULL);
+void OpenLoop::calculateEnergy(EnergyModel *energyModel) {
 	energy = energyModel->OpenloopEnergy(numAdjacent, sidelen, seqs);
 
 }
 
-void OpenLoop::calculateEnthalpy(void) {
+void OpenLoop::calculateEnthalpy(EnergyModel *energyModel) {
 
 	enthalpy = energyModel->OpenloopEnthalpy(numAdjacent, sidelen, seqs);
 
@@ -4350,7 +4334,7 @@ Move *OpenLoop::getChoice(SimTimer& timer, Loop *from) {
 	return NULL;
 }
 
-double OpenLoop::doChoice(Move *move, Loop **returnLoop) {
+double OpenLoop::doChoice(Move *move, Loop **returnLoop, EnergyModel *energyModel) {
 	assert(!(move->type & MOVE_DELETE));
 
 	Loop *newLoop[2];
@@ -4391,19 +4375,19 @@ double OpenLoop::doChoice(Move *move, Loop **returnLoop) {
 					newLoop[0]->addAdjacent(newLoop[1]);
 					newLoop[0]->addAdjacent(adjacentLoops[temploop]);
 					adjacentLoops[temploop]->replaceAdjacent(this, newLoop[0]);
-					adjacentLoops[temploop]->generateMoves();
+					adjacentLoops[temploop]->generateMoves(energyModel);
 				} else {
 					newLoop[0]->addAdjacent(adjacentLoops[temploop]);
 					adjacentLoops[temploop]->replaceAdjacent(this, newLoop[0]);
-					adjacentLoops[temploop]->generateMoves();
+					adjacentLoops[temploop]->generateMoves(energyModel);
 				}
 			}
 			if (temploop == loop3)
 				newLoop[0]->addAdjacent(newLoop[1]);
 
 			newLoop[1]->addAdjacent(newLoop[0]);
-			newLoop[0]->generateMoves();
-			newLoop[1]->generateMoves();
+			newLoop[0]->generateMoves(energyModel);
+			newLoop[1]->generateMoves(energyModel);
 			*returnLoop = newLoop[0];
 			return ((newLoop[0]->getTotalRate() + newLoop[1]->getTotalRate()) - totalRate);
 
@@ -4455,17 +4439,17 @@ double OpenLoop::doChoice(Move *move, Loop **returnLoop) {
 				} else {
 					newLoop[0]->addAdjacent(adjacentLoops[temploop]);
 					adjacentLoops[temploop]->replaceAdjacent(this, newLoop[0]);
-					adjacentLoops[temploop]->generateMoves();
+					adjacentLoops[temploop]->generateMoves(energyModel);
 				}
 			}
 
 			newLoop[1]->addAdjacent(newLoop[0]);
 			newLoop[1]->addAdjacent(adjacentLoops[loop3]);
 			adjacentLoops[loop3]->replaceAdjacent(this, newLoop[1]);
-			adjacentLoops[loop3]->generateMoves();
+			adjacentLoops[loop3]->generateMoves(energyModel);
 
-			newLoop[0]->generateMoves();
-			newLoop[1]->generateMoves();
+			newLoop[0]->generateMoves(energyModel);
+			newLoop[1]->generateMoves(energyModel);
 			*returnLoop = newLoop[0];
 			return ((newLoop[0]->getTotalRate() + newLoop[1]->getTotalRate()) - totalRate);
 
@@ -4522,26 +4506,26 @@ double OpenLoop::doChoice(Move *move, Loop **returnLoop) {
 				if (temploop < loop3) {
 					newLoop[1]->addAdjacent(adjacentLoops[temploop]);
 					adjacentLoops[temploop]->replaceAdjacent(this, newLoop[1]);
-					adjacentLoops[temploop]->generateMoves();
+					adjacentLoops[temploop]->generateMoves(energyModel);
 				} else if (temploop == loop3) {
 					newLoop[1]->addAdjacent(newLoop[0]);
 					newLoop[0]->addAdjacent(newLoop[1]);
 					newLoop[0]->addAdjacent(adjacentLoops[temploop]);
 					adjacentLoops[temploop]->replaceAdjacent(this, newLoop[0]);
-					adjacentLoops[temploop]->generateMoves();
+					adjacentLoops[temploop]->generateMoves(energyModel);
 				} else if (temploop < loop4) {
 					newLoop[0]->addAdjacent(adjacentLoops[temploop]);
 					adjacentLoops[temploop]->replaceAdjacent(this, newLoop[0]);
-					adjacentLoops[temploop]->generateMoves();
+					adjacentLoops[temploop]->generateMoves(energyModel);
 				} else {
 					newLoop[1]->addAdjacent(adjacentLoops[temploop]);
 					adjacentLoops[temploop]->replaceAdjacent(this, newLoop[1]);
-					adjacentLoops[temploop]->generateMoves();
+					adjacentLoops[temploop]->generateMoves(energyModel);
 				}
 			}
 
-			newLoop[0]->generateMoves();
-			newLoop[1]->generateMoves();
+			newLoop[0]->generateMoves(energyModel);
+			newLoop[1]->generateMoves(energyModel);
 			*returnLoop = newLoop[1];
 			return ((newLoop[0]->getTotalRate() + newLoop[1]->getTotalRate()) - totalRate);
 		}
@@ -4550,7 +4534,7 @@ double OpenLoop::doChoice(Move *move, Loop **returnLoop) {
 	return -totalRate;
 }
 
-void OpenLoop::generateMoves(void) {
+void OpenLoop::generateMoves(EnergyModel *energyModel) {
 
 	if (energyModel->simOptions->debug) {
 		cout << "OpenLoop generating moves!" << endl;
@@ -4610,7 +4594,8 @@ void OpenLoop::generateMoves(void) {
 				pairType = pairtypes[mySequence[loop]][mySequence[loop2]];
 
 				// FD: Allowed combinations are non-zero.  G-T stacks are sometimes allowed. Hairpin loops are size 3 or more.
-				if (pairType != 0 && nucleotideIsActive(mySequence, initialPointer, loop, loop2)) {
+				if (pairType != 0 && nucleotideIsActive(
+						mySequence, initialPointer, loop, loop2, energyModel)) {
 
 					energies[0] = energyModel->HairpinEnergy(&mySequence[loop], loop2 - loop - 1);
 
@@ -4627,7 +4612,7 @@ void OpenLoop::generateMoves(void) {
 						}
 					}
 					energies[1] = energyModel->OpenloopEnergy(numAdjacent + 1, sideLengths, sequences);
-					tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
+					tempRate = energyModel->returnRate(getEnergy(energyModel), (energies[0] + energies[1]), 0);
 
 					// if the new Arrhenius model is used, modify the existing rate based on the local context.
 					// to start, we need to learn what the local context is, AFTER the nucleotide is put in place.
@@ -4651,9 +4636,12 @@ void OpenLoop::generateMoves(void) {
 
 				pairType = pairtypes[seqs[loop3][loop]][seqs[loop3 + 1][loop2]];
 
-				if (pairType != 0 && this->nucleotideIsActive(seqs[loop3], initialPointer, loop)
-						&& this->nucleotideIsActive(seqs[loop3 + 1], initialPointer, loop2)) {
-
+				if (pairType != 0
+					&& this->nucleotideIsActive(
+						seqs[loop3], initialPointer, loop, energyModel)
+					&& this->nucleotideIsActive(
+						seqs[loop3 + 1], initialPointer, loop2, energyModel))
+				{
 					// three cases for which type of move:
 					MoveType leftMove = stackMove;
 
@@ -4701,7 +4689,7 @@ void OpenLoop::generateMoves(void) {
 					}
 					energies[1] = energyModel->OpenloopEnergy(numAdjacent, sideLengths, sequences);
 
-					tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
+					tempRate = energyModel->returnRate(getEnergy(energyModel), (energies[0] + energies[1]), 0);
 
 					// openLoop is splitting off an stack/bulge/interior, and another openloop.
 					// Which is something, and something else
@@ -4728,8 +4716,12 @@ void OpenLoop::generateMoves(void) {
 
 					pairType = pairtypes[seqs[loop3][loop]][seqs[loop4][loop2]];
 
-					if (pairType != 0 && this->nucleotideIsActive(seqs[loop3], initialPointer, loop)
-							&& this->nucleotideIsActive(seqs[loop4], initialPointer, loop2)) { // result is a multiloop and open loop.
+					if (pairType != 0
+						&& this->nucleotideIsActive(
+							seqs[loop3], initialPointer, loop, energyModel)
+						&& this->nucleotideIsActive(
+							seqs[loop4], initialPointer, loop2, energyModel))
+					{ // result is a multiloop and open loop.
 
 						sideLengths[loop3] = 0;
 						sideLengths[loop4] = 0;
@@ -4772,7 +4764,7 @@ void OpenLoop::generateMoves(void) {
 							}
 						}
 						energies[1] = energyModel->OpenloopEnergy(numAdjacent - (loop4 - loop3 - 1), sideLengths, sequences);
-						tempRate = energyModel->returnRate(getEnergy(), (energies[0] + energies[1]), 0);
+						tempRate = energyModel->returnRate(getEnergy(energyModel), (energies[0] + energies[1]), 0);
 
 						// openLoop is splitting off . Which is something, and something else
 
@@ -4799,21 +4791,21 @@ void OpenLoop::generateMoves(void) {
 	if (sequences != NULL)
 		delete[] sequences;
 
-	generateDeleteMoves();
+	generateDeleteMoves(energyModel);
 }
 
-void OpenLoop::generateDeleteMoves(void) {
+void OpenLoop::generateDeleteMoves(EnergyModel *energyModel) {
 	assert(moves != NULL);
 	for (int loop = 0; loop < numAdjacent; loop++) {
-		generateAndSaveDeleteMove(adjacentLoops[loop], loop);
+		generateAndSaveDeleteMove(adjacentLoops[loop], loop, energyModel);
 
 	}
 	totalRate = moves->getRate();
 }
 
-void OpenLoop::regenerateDeleteMoves(void) {
+void OpenLoop::regenerateDeleteMoves(EnergyModel *energyModel) {
 	// TODO: change this to only re-generate the deletion moves.
-	generateMoves();
+	generateMoves(energyModel);
 }
 
 void OpenLoop::printMove(Loop *comefrom, char *structure_p, BaseType *seq_p) {
@@ -5011,16 +5003,12 @@ BaseCount& OpenLoop::getFreeBases() {
 }
 
 /*
- OpenLoop::performComplexJoin
-
- static void OpenLoop::performComplexJoin( OpenLoop **oldLoops, OpenLoop **newLoops, BaseType *types, int *index);
-
  Joins the two open loops given in the array oldLoops (size 2) at the locations given by the the types/index arrays (size 2).
  Resulting open loops are placed into the newLoops array (as pointers) for the calling function to use.
-
  */
-
-void OpenLoop::performComplexJoin(OpenLoop **oldLoops, OpenLoop **newLoops, BaseType *types, int *index, HalfContext* halfs, bool useArr) {
+void OpenLoop::performComplexJoin(
+	OpenLoop **oldLoops, OpenLoop **newLoops, BaseType *types, int *index,
+	HalfContext* halfs, EnergyModel *energyModel) {
 
 	// FD: nov 23 2016. Need to adapt this to take into account the local context.
 
@@ -5048,7 +5036,7 @@ void OpenLoop::performComplexJoin(OpenLoop **oldLoops, OpenLoop **newLoops, Base
 
 				HalfContext thisHalf = oldLoops[toggle]->getHalfContext(loop, loop2);
 
-				if (!useArr || (thisHalf == halfs[toggle])) {
+				if (!energyModel->useArrhenius() || (thisHalf == halfs[toggle])) {
 
 					if (oldLoops[toggle]->seqs[loop][loop2] == types[toggle]) {
 
@@ -5126,14 +5114,14 @@ void OpenLoop::performComplexJoin(OpenLoop **oldLoops, OpenLoop **newLoops, Base
 	newLoops[0]->replaceAdjacent( NULL, newLoops[1]);
 	newLoops[1]->replaceAdjacent( NULL, newLoops[0]);
 
-	newLoops[0]->generateMoves();
-	newLoops[1]->generateMoves();
+	newLoops[0]->generateMoves(energyModel);
+	newLoops[1]->generateMoves(energyModel);
 
 // need to re-generate the moves for all adjacent loops.
 	for (toggle = 0; toggle <= 1; toggle++)
 		for (loop = 0; loop < sizes[toggle]; loop++)
 			if (loop != seqnum[toggle])
-				newLoops[toggle]->adjacentLoops[loop]->regenerateDeleteMoves();
+				newLoops[toggle]->adjacentLoops[loop]->regenerateDeleteMoves(energyModel);
 
 }
 
@@ -5206,13 +5194,18 @@ HalfContext OpenLoop::getHalfContext(int loop, int loop2) {
 
 }
 
-bool OpenLoop::nucleotideIsActive(const BaseType* sequence, const BaseType* initial, const int pos1, const int pos2) {
+bool OpenLoop::nucleotideIsActive(
+	const BaseType* sequence, const BaseType* initial, const int pos1, const int pos2,
+	EnergyModel *energyModel) {
 
-	return nucleotideIsActive(sequence, initial, pos1) && nucleotideIsActive(sequence, initial, pos2);
+	return nucleotideIsActive(sequence, initial, pos1, energyModel)
+		&& nucleotideIsActive(sequence, initial, pos2, energyModel);
 
 }
 
-bool OpenLoop::nucleotideIsActive(const BaseType* sequence, const BaseType* initial, const int pos1) {
+bool OpenLoop::nucleotideIsActive(
+	const BaseType* sequence, const BaseType* initial, const int pos1,
+	EnergyModel *energyModel) {
 
 //  needed: time and a pointer to the first entry.
 	if (energyModel->simOptions->cotranscriptional) {

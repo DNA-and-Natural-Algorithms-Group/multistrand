@@ -49,11 +49,11 @@ std::ostream& operator<<(std::ostream& ss, RateEnv& env) {
 
 }
 
-string RateEnv::toString(bool useArr) {
+string RateEnv::toString(bool useArrhenius) {
 
 	stringstream ss;
 
-	if (useArr) {
+	if (useArrhenius) {
 
 		ss << *this;
 
@@ -167,21 +167,21 @@ Loop *Move::getAffected(int index) {
 	return affected[index];
 }
 
-Loop *Move::doChoice(void) {
+Loop *Move::doChoice(EnergyModel *energyModel) {
 	if (!(type & MOVE_DELETE)) {
 		Loop *newLoop = NULL;
-		affected[0]->doChoice(this, &newLoop);
+		affected[0]->doChoice(this, &newLoop, energyModel);
 		affected[0]->cleanupAdjacent();
 		delete affected[0];
 		return newLoop;
 	}
 	if (type & MOVE_DELETE) {
-		return Loop::performDeleteMove(this);
+		return Loop::performDeleteMove(this, energyModel);
 	} else
 		return NULL;
 }
 
-string Move::toString(bool useArr) {
+string Move::toString(bool useArrhenius) {
 
 	std::stringstream ss;
 
@@ -200,7 +200,7 @@ string Move::toString(bool useArr) {
 	ss << ", ";
 	ss << "(" << index[0] << ", " << index[1] << ", " << index[2] << ", " << index[3] << "),  ";
 
-	ss << rate.toString(useArr) << "\n";
+	ss << rate.toString(useArrhenius) << "\n";
 
 	string output = ss.str();
 
@@ -285,19 +285,19 @@ void MoveList::resetDeleteMoves(void) {
 	del_moves_index = 0;
 }
 
-void MoveList::printAllMoves(bool useArr) {
+void MoveList::printAllMoves(bool useArrhenius) {
 
 	for (int i = 0; i < moves_index; i++) {
 
 		cout << "Move" << i << " ";
-		cout << moves[i]->toString(useArr);
+		cout << moves[i]->toString(useArrhenius);
 
 	}
 
 	for (int i = 0; i < del_moves_index; i++) {
 
 		cout << "Move" << i + moves_index << " ";
-		cout << del_moves[i]->toString(useArr);
+		cout << del_moves[i]->toString(useArrhenius);
 
 	}
 

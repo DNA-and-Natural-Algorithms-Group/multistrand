@@ -32,7 +32,6 @@ void SimulationSystem::construct(EnergyModel *old_energy_model) {
         energyModel = new NupackEnergyModel(simOptions->getPythonSettings());
         will_clear_energyModel = true;
 	}
-	Loop::SetEnergyModel(energyModel); // This is the static that passes the energymodel down to loop.
 
     // move these to sim_settings
 	exportStatesInterval = (simOptions->getOInterval() > 0);
@@ -585,7 +584,7 @@ void SimulationSystem::dumpCurrentStateToPython(void) {
 	ExportData data;
 
 	while (temp != NULL) {
-		temp->dumpComplexEntryToPython(data);
+		temp->dumpComplexEntryToPython(data, energyModel);
 		printComplexStateLine(simOptions->getPythonSettings(), current_seed, data);
 
 		temp = temp->next;
@@ -653,7 +652,7 @@ void SimulationSystem::sendTrajectory_CurrentStateToPython(double current_time, 
 
 	while (temp != NULL) {
 
-		temp->dumpComplexEntryToPython(data);
+		temp->dumpComplexEntryToPython(data, energyModel);
 
 		if (!simOptions->statespaceActive) {
 			pushTrajectoryComplex(system_options, current_seed, data);
@@ -800,7 +799,7 @@ void SimulationSystem::printAllMoves() {
 
 	complexList->printComplexList();
 
-	startState->printAllMoves();
+	startState->printAllMoves(energyModel->useArrhenius());
 
 }
 

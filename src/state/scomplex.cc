@@ -132,8 +132,11 @@ int StrandComplex::checkIDBound(char *id)
 	return ordering->checkIDBound(id);
 }
 
-StrandComplex *StrandComplex::performComplexJoin(JoinCriteria crit, bool useArr, bool debug)
+StrandComplex *StrandComplex::performComplexJoin(JoinCriteria crit, EnergyModel *energyModel)
 {
+	bool useArr = energyModel->useArrhenius(),
+		 debug = energyModel->simOptions->debug;
+
 	if (debug)
 		cout << "Perform Complex Join 1/3 ***************" << std::endl;
 
@@ -164,7 +167,8 @@ StrandComplex *StrandComplex::performComplexJoin(JoinCriteria crit, bool useArr,
 	new_ordering = StrandOrdering::joinOrdering(complexes[0]->ordering, complexes[1]->ordering);
 
 	// Join the open loops
-	OpenLoop::performComplexJoin(loops, new_loops, types, index, crit.half, useArr);
+	OpenLoop::performComplexJoin(
+		loops, new_loops, types, index, crit.half, energyModel);
 
 	// add the base pair into the output structure.
 	new_ordering->addBasepair(locations[0], locations[1]);
@@ -187,11 +191,12 @@ StrandComplex *StrandComplex::performComplexJoin(JoinCriteria crit, bool useArr,
 	return complexes[1];
 }
 
-StrandComplex *StrandComplex::doChoice(Move *move, SimTimer &timer, bool debug)
+StrandComplex *StrandComplex::doChoice(Move *move, SimTimer &timer, EnergyModel *energyModel)
 {
 	// TODO: fix for two affected loops being deleted, must get a 'good' starting loop for the complex still.
 	Loop *temp = NULL, *temp2 = NULL, *temp3 = NULL;
 	char id2, id3;
+	bool debug = energyModel->simOptions->debug;
 
 	temp2 = move->affected[0];
 	temp3 = move->affected[1];
@@ -226,7 +231,7 @@ StrandComplex *StrandComplex::doChoice(Move *move, SimTimer &timer, bool debug)
 		StrandOrdering *newOrdering = NULL;
 
 		ordering->breakBasepair(move->getAffected(0)->getLocation(move, 0), move->getAffected(1)->getLocation(move, 1));
-		Loop::performComplexSplit(move, &newLoop[0], &newLoop[1]);
+		Loop::performComplexSplit(move, &newLoop[0], &newLoop[1], energyModel);
 
 		// We now have open loop pointers to the two resulting open loops.
 		// Now need to link up the new open loops correctly in the strand ordering
@@ -272,7 +277,7 @@ StrandComplex *StrandComplex::doChoice(Move *move, SimTimer &timer, bool debug)
 		else if (move->getType() & MOVE_DELETE) // FD: test if we have a delete-basepair move
 			ordering->breakBasepair(move->getAffected(0)->getLocation(move, 0), move->getAffected(1)->getLocation(move, 1));
 
-		temp = move->doChoice();
+		temp = move->doChoice(energyModel);
 
 		if (id2 == 'O')
 			ordering->replaceOpenLoop(temp2, temp);
@@ -732,10 +737,10 @@ int StrandComplex::generateLoops(bool debug)
 	return 0;
 }
 
-void StrandComplex::printAllMoves(void)
+void StrandComplex::printAllMoves(bool useArrhenius)
 {
 
-	beginLoop->printAllMoves(NULL);
+	beginLoop->printAllMoves(NULL, useArrhenius);
 }
 
 string StrandComplex::toString()
@@ -827,18 +832,18 @@ BaseCount &StrandComplex::getExteriorBases(HalfContext *lowerHalf)
 	}
 }
 
-double StrandComplex::getEnergy(void)
+double StrandComplex::getEnergy(EnergyModel *energyModel)
 {
-	return beginLoop->returnEnergies(NULL);
+	return beginLoop->returnEnergies(NULL, energyModel);
 }
 
-double StrandComplex::getEnthalpy(void)
+double StrandComplex::getEnthalpy(EnergyModel *energyModel)
 {
-	return beginLoop->returnEnthalpies(NULL);
+	return beginLoop->returnEnthalpies(NULL, energyModel);
 }
 
-void StrandComplex::generateMoves(void) {
-	beginLoop->firstGen(NULL);
+void StrandComplex::generateMoves(EnergyModel *energyModel) {
+	beginLoop->firstGen(NULL, energyModel);
 }
 
 Move *StrandComplex::getChoice(SimTimer &timer)

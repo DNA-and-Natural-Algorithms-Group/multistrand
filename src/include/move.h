@@ -19,6 +19,7 @@ const int MOVE_3 = 32;
 
 #include <string>
 #include <moveutil.h>
+#include "energymodel.h"
 #include "simtimer.h"
 
 using std::string;
@@ -54,7 +55,7 @@ public:
 	int getType(void);
 	double getArrType(void);
 	Loop *getAffected(int index);
-	Loop *doChoice(void);
+	Loop *doChoice(EnergyModel *energyModel);
 	string toString(bool);
 
 	friend class Loop;
@@ -85,7 +86,7 @@ public:
 	virtual Move *getChoice(SimTimer& timer) = 0;
 	virtual Move *getMove(Move *iterator) = 0;
 	virtual int getCount(void) = 0;
-	virtual void printAllMoves(bool) = 0;
+	virtual void printAllMoves(bool useArrhenius) = 0;
 
 protected:
 	double totalrate;
@@ -101,7 +102,7 @@ public:
 	Move *getMove(Move *iterator);
 	int getCount(void);
 	void resetDeleteMoves(void);
-	void printAllMoves(bool);
+	void printAllMoves(bool useArrhenius);
 
 	//  friend class Move;
 private:

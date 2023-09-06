@@ -29,7 +29,7 @@ public:
 
 	SComplexListEntry *addComplex(StrandComplex *newComplex);
 	void initializeList(void);
-	void regenerateMoves(void);
+	void regenerateMoves(EnergyModel *energyModel);
 	double getTotalFlux(void);
 	double getJoinFlux(void);
 	int getMoveCount(void);
@@ -66,20 +66,19 @@ private:
 	SComplexListEntry* first = NULL;
 	EnergyModel* eModel = NULL;
 
-	double joinRate = 0.0;	// joinrate is the sum of collision rates in the state.
+	double joinRate = 0.0;	// joinrate is the sum of collision rates in the state
 
-}
-;
+};
 
 class SComplexListEntry {
 public:
 	SComplexListEntry(StrandComplex *newComplex, int newid);
 	~SComplexListEntry(void);
-	void initializeComplex(bool debug);
-	void regenerateMoves(void);
+	void initializeComplex(EnergyModel *energyModel);
+	void regenerateMoves(EnergyModel *energyModel);
 	void fillData(EnergyModel *em);
 	string toString(EnergyModel *em);
-	void dumpComplexEntryToPython(ExportData& data);
+	void dumpComplexEntryToPython(ExportData& data, EnergyModel *energyModel);
 
 	int id;
 	StrandComplex* thisComplex;

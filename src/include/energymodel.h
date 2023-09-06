@@ -8,8 +8,8 @@ The Multistrand Team (help@multistrand.org)
 #ifndef __ENERGYMODEL_H__
 #define __ENERGYMODEL_H__
 
-#include <stdio.h>
 #include <Python.h>
+#include <stdio.h>
 #include <string>
 #include <array>
 #include <moveutil.h>
