@@ -78,6 +78,8 @@ From: bitnami/minideb:bullseye
     # install Valgrind
     echo "\n\n\n" && install_packages valgrind
 
+    echo "\n\n\n" && install_packages nano
+
     # install Python from source, configured with PDB
     install_packages \
         libbz2-dev libffi-dev libssl-dev zlib1g-dev liblzma-dev \
@@ -90,52 +92,11 @@ From: bitnami/minideb:bullseye
     # prepping valgrind suppression
     sudo cp ${CPY_SRC}/Misc/valgrind-python.supp ${MS}/valgrind-python-to-edit.supp
 
-    # editing suppression file
-    echo '#!/bin/bash
+    # making file exectuable
+    chmod +x ${MS}/tools/uncomment.sh
 
-    input_file="${MS}/valgrind-python-to-edit.supp"
-    output_file="${MS}/valgrind-python.supp"
-    inside_block=false
-
-    rm -f "$output_file"
-
-    uncomment_block=""
-    old_block=""
-    while IFS= read -r line; do
-      stripped_line=$(echo "$line" | xargs -0)  # Remove leading/trailing white space
-
-      uncomment_block="$uncomment_block\n${line:3}"
-      old_block="$old_block\n$line"
-
-      if [[ "$stripped_line" == "{" ]]; then
-        inside_block=false
-      fi
-
-      if [[ "$stripped_line" == *"_PyObject_Free"* || "$stripped_line" == *"_PyObject_Realloc"* ]]; then
-        inside_block=true
-      fi
-
-      if [[ "$stripped_line" == *"}" ]]; then
-         if [ "$inside_block" == true ]; then
-            echo -e "$uncomment_block" >> "$output_file"
-         else
-            echo -e "$old_block" >> "$output_file"
-         fi
-         uncomment_block=""
-         old_block=""
-
-      fi
-
-
-    rm -f "$input_file"
-
-    done < "$input_file"' > uncomment.sh
-
-    # Make the script executable
-    chmod +x uncomment.sh
-
-    # Run the Bash script
-    ./uncomment.sh
+    # Editing valgrind suppression
+    ${MS}/tools/uncomment.sh
 
     # info
     echo "\n\n\n" && pip3 debug

@@ -58,6 +58,8 @@ From: bitnami/python:{{CPY_VER}}-debian-11
     # install common Python utils
     pip install ipython
 
+    install_packages nano
+
     # install NUPACK
     echo "\n\n\n" && cd ${LIB_ROOT} && unzip -q ${NUPACK_ZIP} && \
          pip install -U nupack -f ${NUPACK_SRC}/package

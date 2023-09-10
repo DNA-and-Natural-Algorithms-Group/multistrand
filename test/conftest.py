@@ -17,5 +17,5 @@ def tutorials() -> ModuleType:
     """
     Access modules in the `tutorials/` folder.
     """
-    sys.path.append(Path(multistrand.__file__).parents[2].resolve().as_posix())
+    sys.path.append(Path(__file__).parents[1].resolve().as_posix())
     return import_module("tutorials")
