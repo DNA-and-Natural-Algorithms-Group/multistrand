@@ -69,41 +69,33 @@ From: bitnami/minideb:bullseye
     # (`install_packages` wrapper for APT provided by Bitnami base image)
     install_packages \
         sudo ca-certificates build-essential wget unzip tar git \
-        tmux time less tree vim
+        tmux time less tree vim nano
 
     # info
     echo "\n\n\n" && ${CC} --version && ${CXX} --version
 
-
     # install Valgrind
     echo "\n\n\n" && install_packages valgrind
-
-    echo "\n\n\n" && install_packages nano
 
     # install Python from source, configured with PDB
     install_packages \
         libbz2-dev libffi-dev libssl-dev zlib1g-dev liblzma-dev \
         libsqlite3-dev libreadline-dev libgmp-dev
     echo "\n\n\n" && git clone -b {{CPY_TAG}} --depth 1 \
-        https://github.com/python/cpython.git ${CPY_SRC} && \
-        cd ${CPY_SRC} && ./configure --with-pydebug --without-pymalloc --with-valgrind && \
+        https://github.com/python/cpython.git ${CPY_SRC} && cd ${CPY_SRC} && \
+        ./configure --with-pydebug --without-pymalloc --with-valgrind && \
         CFLAGS='-g3' make -s -j{{NJOBS}} && sudo make install
 
-    # prepping valgrind suppression
+    # configure Valgrind
     sudo cp ${CPY_SRC}/Misc/valgrind-python.supp ${MS}/valgrind-python-to-edit.supp
-
-    # making file exectuable
-    chmod +x ${MS}/tools/uncomment.sh
-
-    # Editing valgrind suppression
-    ${MS}/tools/uncomment.sh
+    bash ${MS}/tools/uncomment.sh
 
     # info
     echo "\n\n\n" && pip3 debug
 
     # install GDB from source, configured with Python
-    echo "\n\n\n" && cd ${BLD_ROOT} && \
-        wget https://ftp.gnu.org/gnu/gdb/${GDB_TAR} && tar -xzf ${GDB_TAR} && \
+    echo "\n\n\n" && cd ${BLD_ROOT} && wget --wait=10 \
+        https://ftp.gnu.org/gnu/gdb/${GDB_TAR} && tar -xzf ${GDB_TAR} && \
         cd ${GDB_SRC} && ./configure --with-python=python{{CPY_VER}} && \
         make -s -j{{NJOBS}} && sudo make install
     # auto-import Python intrinsics in Gdb
@@ -117,8 +109,9 @@ From: bitnami/minideb:bullseye
          pip3 install -U nupack -f ${NUPACK_SRC}/package
 
     # install Multistrand, configured with debugging compiler flags
-    echo "\n\n\n" && cd ${MS} && \
-         rm -rf .git tools build *.egg-info *.log *_cache p_statespace
+    echo "\n\n\n" && cd ${MS}
+    rm -rfv .git tools build *.egg-info *.log *_cache p_statespace
+    find . -type f -regex ".*\.so" -print | xargs rm -v
     sed --in-place "s/^\(debug = \)\w*$/\1True/" setup.py
     pip3 install -v -e .[testing,tutorials]
 

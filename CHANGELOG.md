@@ -12,9 +12,10 @@
 - Dropped the dependence on the environment variable `$NUPACKHOME`.
 - Created an [Apptainer](https://apptainer.org/) container for fully
   reproducible development and deployment. For reproducible debugging, there is
-  also a container variant including debug builds of Python and Multistrand and
-  a pre-configured GDB.
-- Updated the Jupyter notebooks (`tutorials/under_the_hood_notebooks`).
+  also a container variant including debug builds of Python and Multistrand,
+  which are pre-configured with GDB and Valgrind.
+- Updated the tutorial scripts (`tutorials/under_the_hood/`) and corresponding
+  Jupyter notebooks (`tutorials/under_the_hood_notebooks/`).
 - Updated, refactored and improved the test suite. Some of the small tutorials
   are now executed as part of the test suite.
 

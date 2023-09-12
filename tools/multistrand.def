@@ -50,7 +50,7 @@ From: bitnami/python:{{CPY_VER}}-debian-11
     # (`install_packages` wrapper for APT provided by Bitnami base image)
     install_packages \
         sudo ca-certificates build-essential wget unzip tar git \
-        tmux time less tree vim
+        tmux time less tree vim nano
 
     # info
     echo "\n\n\n" && ${CC} --version && ${CXX} --version && pip debug
@@ -58,15 +58,14 @@ From: bitnami/python:{{CPY_VER}}-debian-11
     # install common Python utils
     pip install ipython
 
-    install_packages nano
-
     # install NUPACK
     echo "\n\n\n" && cd ${LIB_ROOT} && unzip -q ${NUPACK_ZIP} && \
          pip install -U nupack -f ${NUPACK_SRC}/package
 
     # install Multistrand
-    echo "\n\n\n" && cd ${MS} && \
-         rm -rf .git tools build *.egg-info *.log *_cache p_statespace
+    echo "\n\n\n" && cd ${MS}
+    rm -rfv .git tools build *.egg-info *.log *_cache p_statespace
+    find . -type f -regex ".*\.so" -print | xargs rm -v
     pip install -v -e .[testing,tutorials]
 
     # info

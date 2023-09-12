@@ -14,5 +14,6 @@ pip3 --version
 pip3 uninstall multistrand
 echo
 rm -rfv ./build
+find . -type f -regex ".*\.so" -print | xargs rm -v
 echo
 pip3 install -vvv -e .

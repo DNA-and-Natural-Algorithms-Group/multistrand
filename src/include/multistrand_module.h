@@ -27,9 +27,9 @@ typedef struct {
     SimulationSystem *sys;
 } SimSystemObject;
 
-static PyObject  *SimSystemObject_new(PyTypeObject*, PyObject*, PyObject*);
-static int        SimSystemObject_init(SimSystemObject*, PyObject*);
-static void       SimSystemObject_dealloc(SimSystemObject*);
+PyObject *SimSystemObject_new(PyTypeObject*, PyObject*, PyObject*);
+int       SimSystemObject_init(PyObject*, PyObject*, PyObject*);
+void      SimSystemObject_dealloc(PyObject*);
 
 // class utils
 PyObject         *SimSystemObject_lookup(PyObject*);
@@ -37,9 +37,9 @@ void              SimSystemObject_store(SimSystemObject*, PyObject*);
 SimulationSystem *SimSystemObject_construct_sys(PyObject*);
 
 // class methods
-static PyObject  *SimSystemObject_start(SimSystemObject*, PyObject*);
-static PyObject  *SimSystemObject_initialInfo(SimSystemObject*, PyObject*);
-static PyObject  *SimSystemObject_localTransitions(SimSystemObject*, PyObject*);
+PyObject *SimSystemObject_start(SimSystemObject*, PyObject*);
+PyObject *SimSystemObject_initialInfo(SimSystemObject*, PyObject*);
+PyObject *SimSystemObject_localTransitions(SimSystemObject*, PyObject*);
 
 PyDoc_STRVAR(
   docstring_SimSystem,
@@ -112,8 +112,8 @@ static PyTypeObject SimSystem_Type = {
 /* Python module ============================================================ */
 
 // module functions
-static PyObject *System_calculate_energy(PyObject*, PyObject*);
-static PyObject *System_calculate_rate(PyObject*, PyObject*, PyObject*);
+PyObject *System_calculate_energy(PyObject*, PyObject*);
+PyObject *System_calculate_rate(PyObject*, PyObject*, PyObject*);
 
 PyDoc_STRVAR(
   docstring_calculate_energy,
