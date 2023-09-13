@@ -42,10 +42,8 @@ o = Options(temperature=25.0,
             simulation_time = 0.0000001,  # 0.1 microseconds
             num_simulations = 1,  # don't play it again, Sam
             output_interval = 1,  # record every single step
-            rate_method = Literals.metropolis, # the default is 'Kawasaki' (numerically, these are 1 and 2 respectively)
-            rate_scaling = 'Calibrated', # this is the same as 'Default'.  'Unitary' gives values 1.0 to both.  
             simulation_mode = 'Trajectory')  # numerically 128.  See interface/_options/constants.py for more info about all this.
-
+o.DNA23Metropolis()
 print(f"k_uni = {o.unimolecular_scaling:g} /s, k_bi = {o.bimolecular_scaling:g} /M/s")  # you can also set them to other values if you want
 
 # This actually runs the simulation.  

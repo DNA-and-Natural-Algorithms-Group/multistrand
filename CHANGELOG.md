@@ -74,6 +74,7 @@
 - Corrected undefined behavior related to loop indexing vs. array indexing.
 - Corrected undefined behavior related to printing adjacent loops.
 - Caught illegal initial structures that would cause undefined behavior.
+- Uninitialized memory causing nondeterministic behavior in Arrhenius simulations
 
 
 ## Release 2.1 (May 2018)

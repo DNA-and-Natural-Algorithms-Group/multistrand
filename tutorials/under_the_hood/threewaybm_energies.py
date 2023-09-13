@@ -28,13 +28,15 @@ I use "ipython --pylab -i threewaybm_energies.py".
 
 from multistrand.objects import *
 from multistrand.options import Options, EnergyType
-from multistrand.system import *
+
+from multistrand.system import calculate_energy
 
 
 o = Options()
 o.dangles = 1                # 0 is "None", 1 is "Some", 2 is "All".  You can use the string names only when passing as arguments to Options().
 o.temperature = 25           # values between 0 and 100 are assumed to be Celsius; between 273.15 and 373.0 are assumed to be Kelvin.
 o.join_concentration = 1e-9  # the volume is scaled such that a single strand is at 1 nM concentration.  
+o.DNA23Metropolis()
 
 # Sequences are from Zhang & Winfree, JACS 2009.
 toe = Domain(name='toehold',sequence='TCTCCATGTC')
@@ -106,7 +108,7 @@ for i in range(20):
 
 
 # Note that toeh[9] == primary[0]
-energies = toeh[:9]+[primary[i/2] if i%2==0 else intermed[i/2] for i in range(len(primary)+len(intermed))]
+energies = toeh[:9]+[primary[i//2] if i%2==0 else intermed[i//2] for i in range(len(primary)+len(intermed))]
 steps    = list(range(-9,0))+[v/2.0 for v in range(0,39)]
 
 # Finally we'll compute the energies for the tube system states consisting of two complexes after strand displacement.

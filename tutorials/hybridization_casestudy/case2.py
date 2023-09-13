@@ -14,7 +14,7 @@ generate structured-random 25 3 4 10 sr25-10
 
 from multistrand.experiment import hybridization, standardOptions
 from multistrand.concurrent import FirstStepLeakRate, MergeSim
-from multistrand.utils.thermo import C2K
+import multistrand.utils.thermo as thermo
 from constantsgao import goa2006_P0, goa2006_P3, goa2006_P4, setSaltGao2006
 
 import matplotlib.pyplot as plt
@@ -25,7 +25,6 @@ from matplotlib import cm
 from datetime import datetime
 import random, string
 import numpy as np
-import nupack
 import sys, os
 
 
@@ -78,7 +77,7 @@ def randomseq(length, bases='ACTG'):
     return ''.join(random.choice(bases) for i in range(length))
 
 def stemsize(seq, T=GLOBAL_TEMPERATURE, material='dna'):
-    result = nupack.mfe([seq], T=T, material=material)
+    result = thermo.mfe([seq], celsius=T, material=material)
     struct = result[0][0]
     n = len(struct)
     try: 
@@ -93,7 +92,7 @@ def stemsize(seq, T=GLOBAL_TEMPERATURE, material='dna'):
     return stemlen
 
 def toeholds(seq, T=GLOBAL_TEMPERATURE, material="dna"):
-    result = nupack.mfe([seq], T=T, material=material)
+    result = thermo.mfe([seq], celsius=T, material=material)
     struct = result[0][0]
     n = len(struct)
     try: 
@@ -106,22 +105,22 @@ def toeholds(seq, T=GLOBAL_TEMPERATURE, material="dna"):
     return (toe5len, toe3len)
     
 def binding_dG(seq, T=GLOBAL_TEMPERATURE, material='dna'):
-    dG_top = nupack.pfunc([seq], T=T, material=material)
-    dG_bot = nupack.pfunc([ WC(seq) ], T=T, material=material)
-    dG_duplex = nupack.pfunc([ seq, WC(seq) ], T=T, material=material)
+    dG_top = thermo.complex_free_energy([seq], celsius=T, material=material)
+    dG_bot = thermo.complex_free_energy([ WC(seq) ], celsius=T, material=material)
+    dG_duplex = thermo.complex_free_energy([ seq, WC(seq) ], celsius=T, material=material)
     return (dG_duplex - dG_top - dG_bot)
 
 def duplex_dG(seq, T=GLOBAL_TEMPERATURE, material='dna'):
-    return nupack.pfunc([ seq, WC(seq) ], T=T, material=material)
+    return thermo.complex_free_energy([ seq, WC(seq) ], celsius=T, material=material)
 
 
 def strand_dG(seq, T=GLOBAL_TEMPERATURE, material='dna'):
-    return nupack.pfunc([ seq ], T=T, material=material)
+    return thermo.complex_free_energy([ seq ], celsius=T, material=material)
 
 
 def reverse_rate(seq, kf, T=GLOBAL_TEMPERATURE, material='dna'):
     dG = binding_dG(seq, T=GLOBAL_TEMPERATURE, material='dna')
-    RT = 0.001987 * (GLOBAL_TEMPERATURE + C2K)  # kcal/mol at 25 C
+    RT = 0.001987 * (GLOBAL_TEMPERATURE + thermo.C2K)  # kcal/mol at 25 C
     kr = kf * np.exp(dG / RT)
     return kr
 
@@ -157,18 +156,18 @@ def toebinding(seq, T=GLOBAL_TEMPERATURE, material='dna'):
         fake_struct_toe3 = '.' * toe5len + '(((((....)))))' + '(' * toe3len + '+' + ')' * toe3len + '(((((....)))))' + '.' * toe5len
         fake_struct_toes = '(' * toe5len + '(((((....)))))' + '(' * toe3len + '+' + ')' * toe3len + '(((((....)))))' + ')' * toe5len
         # print "Sequence %s:  %s %s and %s %s" % (seq,fake_seq1,fake_struct1,fake_seq2,fake_struct2)
-        dG1 = nupack.energy([fake_seq1], fake_struct1, T=T, material=material)
-        dG2 = nupack.energy([fake_seq2], fake_struct2, T=T, material=material)
+        dG1 = thermo.energy([fake_seq1], fake_struct1, T=T, material=material)
+        dG2 = thermo.energy([fake_seq2], fake_struct2, T=T, material=material)
         if toe5len > 0:
-            dG_toe5 = nupack.energy([fake_seq1, fake_seq2], fake_struct_toe5, T=T, material=material) - dG1 - dG2
+            dG_toe5 = thermo.energy([fake_seq1, fake_seq2], fake_struct_toe5, T=T, material=material) - dG1 - dG2
         else:
             dG_toe5 = 0
         if toe3len > 0:
-            dG_toe3 = nupack.energy([fake_seq1, fake_seq2], fake_struct_toe3, T=T, material=material) - dG1 - dG2
+            dG_toe3 = thermo.energy([fake_seq1, fake_seq2], fake_struct_toe3, T=T, material=material) - dG1 - dG2
         else:
             dG_toe3 = 0
         if toe5len > 0 and toe3len > 0:
-            dG_toes = nupack.energy([fake_seq1, fake_seq2], fake_struct_toes, T=T, material=material) - dG1 - dG2
+            dG_toes = thermo.energy([fake_seq1, fake_seq2], fake_struct_toes, T=T, material=material) - dG1 - dG2
         else:
             dG_toes = 0
         return max(-dG_toe5, -dG_toe3, -dG_toes)

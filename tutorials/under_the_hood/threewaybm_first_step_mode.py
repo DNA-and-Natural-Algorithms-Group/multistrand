@@ -41,8 +41,8 @@ Times are for a 4-core Intel Core i7 MacBook Pro, 2.6 GHz, year 2014 model.
 import sys, os
 import pickle
 import random
-import multiprocessing
-from multiprocessing import Pool
+import multiprocess
+from multiprocess import Pool
 
 import numpy as np
 
@@ -52,16 +52,7 @@ from multistrand.system import SimSystem
 from multistrand.utils.thermo import C2K
 
 
-# for StopCondition and Macrostate definitions:
-Exact_Macrostate = 0  # match a secondary structure exactly (i.e. any system state that has a complex with this exact structure)
-Bound_Macrostate = 1  # match any system state in which the given strand is bound to another strand
-Dissoc_Macrostate = 2  # match any system state in which there exists a complex with exactly the given strands, in that order
-Loose_Macrostate = 3  # match a secondary structure with "don't care"s, allowing a certain number of disagreements
-Count_Macrostate = 4  # match a secondary structure, allowing a certain number of disagreements
-# see Schaeffer's PhD thesis, chapter 7.2, for more information
-
-
-def create_setup(toehold_length, num_traj, rate_method_k_or_m):
+def create_setup(toehold_length, num_traj):
     # essentially, creates the options object and prepares to simulate
     
     toehold_seq = "TCTCCATGTCACTTC"  # toehold sequence
@@ -90,17 +81,17 @@ def create_setup(toehold_length, num_traj, rate_method_k_or_m):
 
     # creates a complex for a "succcessful displacement" stop condition. This is the incumbent strand forming a complex of its own which means it has been displaced.
     complete_complex_success = Complex(strands=[incumbent], structure=".")
-    success_stop_condition = StopCondition("SUCCESS", [(complete_complex_success, Dissoc_Macrostate, 0)])
+    success_stop_condition = StopCondition("SUCCESS", [(complete_complex_success, Literals.dissoc_macrostate, 0)])
     # creates the successful displacement stop condition
 
     # complex to create failed displacement stop condition; incumbent falls off.   
     failed_complex = Complex(strands=[incoming], structure="..")  
-    failed_stop_condition = StopCondition("FAILURE", [(failed_complex, Dissoc_Macrostate, 0)]) 
+    failed_stop_condition = StopCondition("FAILURE", [(failed_complex, Literals.dissoc_macrostate, 0)]) 
     # creates failed stop condition
     
-    o = Options(simulation_mode="First Step", parameter_type="Nupack", substrate_type="DNA",
-                rate_method=rate_method_k_or_m, num_simulations=num_traj, simulation_time=10.0,  # note the 10 second simulation time, to make sure simulations finish
-                dangles="Some", temperature=25 + C2K, rate_scaling="Calibrated", verbosity=0)
+    o = Options(simulation_mode="First Step", num_simulations=num_traj, simulation_time=10.0,  # note the 10 second simulation time, to make sure simulations finish
+                dangles="Some", temperature=25 + C2K, verbosity=0)
+    o.DNA23Metropolis()
 
     o.start_state = [start_complex_incoming, start_complex_substrate_incumbent]
     o.stop_conditions = [success_stop_condition, failed_stop_condition]
@@ -127,7 +118,7 @@ class Multistrand_Suite_Base:
         partitioned in bigger groups, but since all the cores being
         used are local, it seems like overkill."""
         starttime = os.times()
-        k = multiprocessing.cpu_count()
+        k = multiprocess.cpu_count()
         p = Pool(processes=k)
 
         if shuffle_tasks:
@@ -148,7 +139,7 @@ class MyRunner:
 
 def actual_simulation(toehold_length, num_traj, rate_method_k_or_m, index):
     print("Starting %d simulations for toehold length %d and %s kinetics." % (num_traj, toehold_length, rate_method_k_or_m))
-    o = create_setup(toehold_length, num_traj, rate_method_k_or_m)
+    o = create_setup(toehold_length, num_traj)
     s = SimSystem(o)
     s.start()
     prefix = "Data_toehold_{0}".format(toehold_length)
@@ -328,9 +319,7 @@ if __name__ == '__main__':
         
         plt.figure(1)
         plt.semilogy(toelengths, k1s, 'ko')
-        plt.hold(True)
         plt.semilogy(toelengths, k1s, 'k-')
-        plt.hold(False)
         plt.title("Toehold-mediated three-way strand displacement")
         plt.xlabel("Toehold Length (nt)", fontsize='larger')
         plt.ylabel("Bimolecular rate constant k1 (/M/s)", fontsize='larger')

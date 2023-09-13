@@ -27,7 +27,6 @@ matplotlib.use('Agg')  # multiprocessing errors?
 import matplotlib.pylab as plt
 import numpy as np
 import operator, sys
-# from copy import deepcopy
 
 SCRIPT_DIR = "case3_gao_study"
 TEMPERATURE = 20.0
@@ -37,25 +36,20 @@ myMultistrand = MergeSim()
 
 
 class hybridizationSimSettings:
-    
     def __init__(self, mySeq, cutOff, trials):
-    
         self.mySeq = mySeq
         self.cutOff = cutOff
         self.trials = trials
         
     def __str__(self):
-        
         output = "mySeq=" + self.mySeq
         output += output + str(self.cutOff)
-        
         return output
 
     
-def getOptions(trials , settings):  # start_complex_top, start_complex_bot, success_stop_condition, failed_stop_condition
-      
-    options = standardOptions("First Step", TEMPERATURE, settings.trials, ATIME_OUT)
-    hybridization(options, settings.mySeq, settings.trials)
+def getOptions(trials, mySeq):
+    options = standardOptions("First Step", TEMPERATURE, trials, ATIME_OUT)
+    hybridization(options, mySeq, trials)
     options.DNA23Metropolis()
     setSaltGao2006(options)
     options.output_interval = 1  # print every state, ever
@@ -63,18 +57,15 @@ def getOptions(trials , settings):  # start_complex_top, start_complex_bot, succ
 
 
 def first_step_simulation(multistrandObject, settings):
-    
     print(f"Running first step mode simulations for {settings.mySeq} (with Boltzmann sampling)...")
-    
     aFactory = analysisFactory(settings.mySeq, settings.cutOff)
-    multistrandObject.setOptionsFactory2(getOptions, settings.trials, settings)
-    multistrandObject.setAnaylsisFactory(aFactory)        
-    multistrandObject.run()  
+    multistrandObject.setOptionsFactory2(getOptions, settings.trials, settings.mySeq)
+    multistrandObject.setAnaylsisFactory(aFactory)
+    multistrandObject.run()
     return 0
   
 
 def doPosPlotsPrimer(analysisResult, settings, extraTitle):
-    
     posDict = analysisResult.posDict
     selectedCount = analysisResult.pathCount.value
     trajectoryIn = analysisResult.initialTrajectory
@@ -84,8 +75,7 @@ def doPosPlotsPrimer(analysisResult, settings, extraTitle):
     
 
 def standardTitle(mySeq, extraTitle, selectedCount, runs):
-    
-    title = "Hybridization alignment -- " + mySeq + extraTitle + "\n Found " 
+    title = "Hybridization alignment -- " + mySeq + extraTitle + "\n Found "
     title += str(selectedCount) + "/"      
     if not runs == None:
         title += str(runs) 
@@ -94,7 +84,6 @@ def standardTitle(mySeq, extraTitle, selectedCount, runs):
 
 
 def estimateSuccessProbability(popularStructure, settings):  
-    
     # Do a quick first step simulation and see how many end up succeeding.
     # Use a new multistrand object so we don't lose the old results 
     
@@ -111,11 +100,10 @@ def estimateSuccessProbability(popularStructure, settings):
     
     output = np.float64(newMultistrand.nForward.value) / np.float64(newMultistrand.trialsPerThread * newMultistrand.numOfThreads)
     return output
-    
+
 
 def computeWinProb(f2, pos, structDict2, settings):
-    
-    # # grab the most frequent structure in structDict2, 
+    # # grab the most frequent structure in structDict2,
     # # simulate it a few times, and return the expected probabiltiy to hybridize
     
     structs = dict(structDict2[pos.posX * 30 + pos.posY])
@@ -128,7 +116,6 @@ def computeWinProb(f2, pos, structDict2, settings):
 
     
 def plotMostFrequentStructure(posDict, length):
-    
             # # Add a spline interpolation of the most popular state per column
         mostFreq = list()
         
@@ -165,9 +152,7 @@ def plotMostFrequentStructure(posDict, length):
 
 def plotFirstTrajectory(filename, trajectories, length):
 # Add an interpolation of the first four trajectories
-    
     f = open(filename + "-trajectories.txt", "w")
-    
     upTo = 1
     if len(trajectories) < upTo:
         upTo = len(trajectories)
@@ -190,13 +175,11 @@ def plotFirstTrajectory(filename, trajectories, length):
         lc = LineCollection(segments, color=colors[j], alpha=0.65 - 0.12 * j, linewidths=2 + 0.35 * j)
         
         plt.gca().add_collection(lc)
-    
     f.close()
 
 
 def doPosPlots(posDict, settings, extraTitle, selectedCount, extraSettings, structDict2=None, trajectory=None):
-    
-    fileName = standardFileName(SCRIPT_DIR, settings.mySeq, extraTitle, settings.trials) 
+    fileName = standardFileName(SCRIPT_DIR, settings.mySeq, extraTitle, settings.trials)
     length = len(settings.mySeq) + 1
     
     # Make a grid...
@@ -292,11 +275,9 @@ def doPosPlots(posDict, settings, extraTitle, selectedCount, extraSettings, stru
 
 
 def writeStructFile(analysisResult, settings, extraTitle):
-    
     fileName = standardFileName(SCRIPT_DIR, settings.mySeq, extraTitle, settings.trials)
     f = open(fileName + "-struct.txt", 'w')    
      
-#     goodDict =  copy.deepcopy(dict(analysisResult.posDict))
     goodDict = dict(analysisResult.posDict)
     for pos, val in goodDict.items():
         output = "Pos = " + pos.toString() + " Freq= " + str(val) + "\n"
@@ -307,8 +288,7 @@ def writeStructFile(analysisResult, settings, extraTitle):
     f = open(fileName + "-posStruct.txt", 'w')    
     for i in range(len(analysisResult.structDict2)):
         
-#         goodDict = copy.deepcopy(dict(analysisResult.structDict2[i]))
-        goodDict = (dict(analysisResult.structDict2[i]))
+        goodDict = dict(analysisResult.structDict2[i])
         
         # only print the top 20 of structures found
         goodDict = dict(sorted(iter(goodDict.items()), key=operator.itemgetter(1), reverse=True)[:20])
@@ -325,7 +305,6 @@ def writeStructFile(analysisResult, settings, extraTitle):
     
 
 def doProbabilitySuccesPlot(settings, extraTitle):
-        
     winPosDict = dict()
      
     goodDict = (dict(myMultistrand.aFactory.result1.countDict))
@@ -349,9 +328,7 @@ def doProbabilitySuccesPlot(settings, extraTitle):
     
     
 def doBinaryProbabilityPlot(settings, extraTitle):
-     
-    def genPlots(settings, extraTitle, selectedCounts, result, extrastr): 
-     
+    def genPlots(settings, extraTitle, selectedCounts, result, extrastr):
         goodDict = (dict(result.binaryDict))
         plottingDict = dict()
 
@@ -371,7 +348,6 @@ def doBinaryProbabilityPlot(settings, extraTitle):
 
 
 def simulationTimeBarplot(settings, extraTitle):
-    
     fname = standardFileName(SCRIPT_DIR, settings.mySeq, extraTitle, settings.trials)
     
     all_times = np.array([i.time for i in myMultistrand.results])
@@ -379,7 +355,6 @@ def simulationTimeBarplot(settings, extraTitle):
     reverse_times = np.array([i.time for i in myMultistrand.results if i.tag == Literals.failure or i.tag == Literals.time_out or i.tag == Literals.no_initial_moves])
    
     def makeFig(selector, times):
-        
         fig = plt.figure()
         ax = fig.gca()
 
@@ -416,7 +391,6 @@ def simulationTimeBarplot(settings, extraTitle):
     
     
 def makeAlignmentSuccessTable(analysis, settings, extraTitle):
-    
     fname = standardFileName(SCRIPT_DIR, settings.mySeq, extraTitle, settings.trials)
     
     success = int(analysis.result1.pathCount.value)
@@ -457,17 +431,15 @@ def makeAlignmentSuccessTable(analysis, settings, extraTitle):
 
 
 def doInference(mySeq, extraTitle, cutOff, runs):
-    
     settings = hybridizationSimSettings(mySeq, cutOff, runs)
-    
+
     first_step_simulation(myMultistrand, settings)
 
     # The actual number of simulations.
     settings.trials = myMultistrand.numOfThreads * myMultistrand.trialsPerThread
-    
+
     # Uncomment this for the barplots.  #     simulationTimeBarplot(settings, extraTitle)
-            
-    doPosPlotsPrimer(myMultistrand.aFactory.result0, settings, extraTitle) 
+    doPosPlotsPrimer(myMultistrand.aFactory.result0, settings, extraTitle)
     writeStructFile(myMultistrand.aFactory.result0, settings, extraTitle)
     
     doPosPlotsPrimer(myMultistrand.aFactory.result1, settings, extraTitle + "-SUCCESS") 
@@ -486,18 +458,14 @@ def doInference(mySeq, extraTitle, cutOff, runs):
 
 
 if __name__ == '__main__':
-
-    if len(sys.argv) < 1:
+    if len(sys.argv) != 4:
         print("""Usage:
-              python hybridization_F3 <numOfThreads> <numOfPaths>  P0/P3/P4      \n
-              Example: python hybridization_F3 2 100 P3
+              python case3.py <numOfThreads> <numOfPaths> [P0|P3|P4]\n
+              Example: python case3.py 2 100 P3
               """)
         sys.exit()
-        
-    print(sys.argv)
-
-    numOfThreads = np.int(sys.argv[1])
-    numOfPaths = np.int(sys.argv[2])
+    numOfThreads = int(sys.argv[1])
+    numOfPaths = int(sys.argv[2])
     toggle = str(sys.argv[3])
 
     myMultistrand.setNumOfThreads(numOfThreads)

@@ -14,17 +14,8 @@ Try it like this, e.g.:
 import numpy as np
 
 from multistrand.objects import *
-from multistrand.options import Options
+from multistrand.options import Options, Literals
 from multistrand.system import SimSystem
-
-
-# for StopCondition and Macrostate definitions:
-Exact_Macrostate = 0   # match a secondary structure exactly (i.e. any system state that has a complex with this exact structure)
-Bound_Macrostate = 1   # match any system state in which the given strand is bound to another strand
-Dissoc_Macrostate = 2  # match any system state in which there exists a complex with exactly the given strands, in that order
-Loose_Macrostate = 3   # match a secondary structure with "don't care"s, allowing a certain number of disagreements
-Count_Macrostate = 4   # match a secondary structure, allowing a certain number of disagreements
-# see Schaeffer's PhD thesis, chapter 7.2, for more information
 
 
 def setup_options_threewaybm(toehold_seq = "GTGGGT", bm_design = "ACCGCACGTCACTCACCTCG"):
@@ -62,27 +53,29 @@ def setup_options_threewaybm(toehold_seq = "GTGGGT", bm_design = "ACCGCACGTCACTC
     disassoc_complex            = Complex(strands=[incumbent], structure=".")   # succesful strand displacement
     failed_complex              = Complex(strands=[incoming], structure="..")   # failed strand displacement attempt
 
-    start_sc          = Macrostate("INITIAL", [(start_complex,Count_Macrostate,2)])                 # Within distance 2 of the start_complex state.
-    six_sc_exact      = Macrostate("SIX_EXACT", [(six_bases_complex,Exact_Macrostate,0)])           # the third parameter is ignored; not needed for exact macrostates
-    six_sc_loose      = Macrostate("SIX_LOOSE", [(six_basesloose_complex,Loose_Macrostate,2)])      # 8 base pairs defined; must have at least 6 to match.
-    twelve_sc_exact   = Macrostate("TWELVE_EXACT", [(twelve_bases_complex,Exact_Macrostate,0)])
-    twelve_sc_loose   = Macrostate("TWELVE_LOOSE", [(twelve_basesloose_complex,Loose_Macrostate,2)])
-    eighteen_sc_exact = Macrostate("EIGHTEEN_EXACT", [(eighteen_bases_complex,Exact_Macrostate,0)])
-    eighteen_sc_loose = Macrostate("EIGHTEEN_LOOSE", [(eighteen_basesloose_complex,Loose_Macrostate,2)])
+    start_sc          = Macrostate("INITIAL", [(start_complex,Literals.count_macrostate,2)])                 # Within distance 2 of the start_complex state.
+    six_sc_exact      = Macrostate("SIX_EXACT", [(six_bases_complex,Literals.exact_macrostate,0)])           # the third parameter is ignored; not needed for exact macrostates
+    six_sc_loose      = Macrostate("SIX_LOOSE", [(six_basesloose_complex,Literals.loose_macrostate,2)])      # 8 base pairs defined; must have at least 6 to match.
+    twelve_sc_exact   = Macrostate("TWELVE_EXACT", [(twelve_bases_complex,Literals.exact_macrostate,0)])
+    twelve_sc_loose   = Macrostate("TWELVE_LOOSE", [(twelve_basesloose_complex,Literals.loose_macrostate,2)])
+    eighteen_sc_exact = Macrostate("EIGHTEEN_EXACT", [(eighteen_bases_complex,Literals.exact_macrostate,0)])
+    eighteen_sc_loose = Macrostate("EIGHTEEN_LOOSE", [(eighteen_basesloose_complex,Literals.loose_macrostate,2)])
 
     # why bother giving a list of just one macrostate-def tuple?  A Macrostate with a list of multiple tuples give the AND (i.e. intersection) of microstates.
 
-    completed_sc      = StopCondition("stop:COMPLETE", [(disassoc_complex,Dissoc_Macrostate,0)])  # incumbent strand fell off  
-    rejected_sc       = StopCondition("stop:REJECTED", [(failed_complex,Dissoc_Macrostate,0)])    # incoming strand fell off
+    completed_sc      = StopCondition("stop:COMPLETE", [(disassoc_complex,Literals.dissoc_macrostate,0)])  # incumbent strand fell off
+    rejected_sc       = StopCondition("stop:REJECTED", [(failed_complex,Literals.dissoc_macrostate,0)])    # incoming strand fell off
 
     # join_concentration is not defined, because in this simulation we stop before there's any chance for association steps
-    o_exact = Options(simulation_mode="Transition",parameter_type="Nupack", dangles="Some",
-                substrate_type="DNA", num_simulations = 5, simulation_time=.01, temperature=310.15,
-                start_state=[start_complex], rate_scaling='Calibrated', verbosity=0)
+    o_exact = Options(simulation_mode="Transition", dangles="Some",
+                      num_simulations = 5, simulation_time=.01, temperature=310.15,
+                start_state=[start_complex], verbosity=0)
+    o_exact.DNA23Metropolis()
     o_exact.stop_conditions = [start_sc, six_sc_exact, twelve_sc_exact, eighteen_sc_exact, completed_sc, rejected_sc]
-    o_loose = Options(simulation_mode="Transition",parameter_type="Nupack", dangles="Some",
-                substrate_type="DNA", num_simulations = 5, simulation_time=.01, temperature=310.15,
-                start_state=[start_complex], rate_scaling='Calibrated', verbosity=0)
+    o_loose = Options(simulation_mode="Transition", dangles="Some",
+                num_simulations = 5, simulation_time=.01, temperature=310.15,
+                start_state=[start_complex], verbosity=0)
+    o_loose.DNA23Metropolis()
 
     o_loose.stop_conditions = [start_sc, six_sc_loose, twelve_sc_loose, eighteen_sc_loose, completed_sc, rejected_sc]
     return o_exact, o_loose

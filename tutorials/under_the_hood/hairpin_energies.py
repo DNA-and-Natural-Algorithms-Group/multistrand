@@ -21,13 +21,14 @@ from multistrand.system import calculate_energy
 
 
 o = Options(temperature=25, dangles="Some")   # prepares for simulation.
+o.DNA23Metropolis()
 # see more about the energy model usage and initialization in threewaybm_trajectories.py
 
 # Sequence is from Schaeffer's PhD thesis, chapter 7, figure 7.1
 
 # Just for illustration, create a hairping strand with just the outermost 4 base pairs of the stem formed:
 c = Complex( strands=[Strand(name="hairpin", sequence="GTTCGGGCAAAAGCCCGAAC")], structure= '((((' + 12*'.' + '))))' )
-calculate_energy( [c], o, EnergyType.Complex_energy)  # should be -1.1449...
+calculate_energy( [c], o, EnergyType.complex)  # should be -1.1449...
 # Note that energy() takes a *list* of complexes, and returns a tuple of energies.  Don't give it just a complex as input, else all hell may break loose.
 
 # For more information, try:
@@ -38,7 +39,7 @@ calculate_energy( [c], o, EnergyType.Complex_energy)  # should be -1.1449...
 
 # Using this sequence, find the energy for a particular secondar structure conformation.
 def print_hp(s):
-    e = calculate_energy( [Complex( strands=[Strand(name="hairpin", sequence="GTTCGGGCAAAAGCCCGAAC")], structure=s)], o, EnergyType.Complex_energy)[0]
+    e = calculate_energy( [Complex( strands=[Strand(name="hairpin", sequence="GTTCGGGCAAAAGCCCGAAC")], structure=s)], o, EnergyType.complex)[0]
     print(f'{s}  ({e:5.2f})')
     return e
 
@@ -71,11 +72,9 @@ def myplot():
     
     plt.figure(1)
     plt.plot(steps,path1,'go', label='Outside bases first')
-    plt.hold(True)
     plt.plot(steps,path1,'g-', label='_nolabel_')
     plt.plot(steps,path2,'rx', label='Inside bases first')
     plt.plot(steps,path2,'r-', label='_nolabel_')
-    plt.hold(False)
     plt.title("Energy landscape for two hairpin folding pathways")
     plt.xlabel("Base pairs formed",fontsize='larger')
     plt.ylabel("Microstate Energy (kcal/mol)",fontsize='larger')

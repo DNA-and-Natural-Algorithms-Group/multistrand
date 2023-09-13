@@ -480,7 +480,8 @@ class MergeSimSettings:
         opt = factory.new(0)
         if not ((opt.simulation_mode == Literals.first_step and
                  self.resultsType in [self.RESULTTYPE1, self.RESULTTYPE2]) or
-                (opt.simulation_mode == Literals.first_passage_time and
+                (opt.simulation_mode in [Literals.first_passage_time,
+                                         Literals.trajectory] and
                  self.resultsType == self.RESULTTYPE3)):
             raise TypeError(
                 "`Options.simulation_mode` and `MergeSimSettings.resultsType` "
