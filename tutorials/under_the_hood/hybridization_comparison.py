@@ -77,18 +77,9 @@ import time, sys
 from multistrand.objects import *
 from multistrand.options import Options, Literals
 from multistrand.system import SimSystem
-from multistrand.utils.thermo import C2K
+import multistrand.utils.thermo as thermo
 
 ######### This is first passage time
-
-# for StopCondition and Macrostate definitions:
-Exact_Macrostate = 0   # match a secondary structure exactly (i.e. any system state that has a complex with this exact structure)
-Bound_Macrostate = 1   # match any system state in which the given strand is bound to another strand
-Dissoc_Macrostate = 2  # match any system state in which there exists a complex with exactly the given strands, in that order
-Loose_Macrostate = 3   # match a secondary structure with "don't care"s, allowing a certain number of disagreements
-Count_Macrostate = 4   # match a secondary structure, allowing a certain number of disagreements
-# see Schaeffer's PhD thesis, chapter 7.2, for more information
-
 def concentration_string(concentration):
     if concentration < 1e-12: 
         return "{} fM".format(1e15*concentration)
@@ -103,7 +94,7 @@ def concentration_string(concentration):
     return "{} M".format(concentration)
 
 
-def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
+def first_step_simulation(strand_seq, trials, T=25):
 
    print(f"Running {trials:d} first step mode simulations for {strand_seq} (with Boltzmann sampling)...")
 
@@ -123,15 +114,15 @@ def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
 
    # Stop when the exact full duplex is achieved. (No breathing!)
    success_complex = Complex(strands=[top, bot],structure="(+)")
-   success_stop_condition = StopCondition("SUCCESS",[(success_complex,Exact_Macrostate,0)])
+   success_stop_condition = StopCondition("SUCCESS",[(success_complex,Literals.exact_macrostate,0)])
 
    # Declare the simulation unproductive if the strands become single-stranded again.
    failed_complex = Complex(strands = [top], structure=".")
-   failed_stop_condition = StopCondition("FAILURE",[(failed_complex,Dissoc_Macrostate,0)])
+   failed_stop_condition = StopCondition("FAILURE",[(failed_complex,Literals.dissoc_macrostate,0)])
 
-   o = Options(simulation_mode="First Step",parameter_type="Nupack", substrate_type=material,
-               rate_method = "Metropolis", num_simulations = trials, simulation_time=1.0,
-               dangles = "Some", temperature = T, rate_scaling = "Calibrated", verbosity = 0)
+   o = Options(simulation_mode="First Step", num_simulations = trials, simulation_time=1.0,
+               dangles="Some", temperature = T, verbosity = 0)
+   o.DNA23Metropolis()
 
    o.start_state = [start_complex_top, start_complex_bot]
    o.stop_conditions = [success_stop_condition,failed_stop_condition]
@@ -158,7 +149,7 @@ def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
    return k1, k2, k1prime, k2prime
 
 
-def first_passage_dissociation(strand_seq, trials, T=25, material="DNA"):
+def first_passage_dissociation(strand_seq, trials, T=25):
 
    print(f"Running {trials:d} first passage time simulations for dissociation of {strand_seq}...")
 
@@ -171,12 +162,12 @@ def first_passage_dissociation(strand_seq, trials, T=25, material="DNA"):
    duplex_complex = Complex(strands=[top, bot],structure="(+)")
 
    # Declare the simulation complete if the strands become single-stranded again.
-   success_stop_condition = StopCondition("SUCCESS",[(single_strand_top,Dissoc_Macrostate,0)])
+   success_stop_condition = StopCondition("SUCCESS",[(single_strand_top,Literals.dissoc_macrostate,0)])
 
-   o = Options(simulation_mode="First Passage Time",parameter_type="Nupack", substrate_type=material,
-               rate_method = "Metropolis", num_simulations = trials, simulation_time=10.0, 
+   o = Options(simulation_mode="First Passage Time", num_simulations = trials, simulation_time=10.0,
                join_concentration=1e-6, # 1 uM concentration, but doesn't matter for dissociation
-               dangles = "Some", temperature = T, rate_scaling = "Calibrated", verbosity = 0)
+               dangles = "Some", temperature = T, verbosity = 0)
+   o.DNA23Metropolis()
    o.start_state = [duplex_complex]
    o.stop_conditions = [success_stop_condition]
 
@@ -198,7 +189,7 @@ def first_passage_dissociation(strand_seq, trials, T=25, material="DNA"):
    return krev
 
 
-def first_passage_association(strand_seq, trials, concentration, T=25, material="DNA"):
+def first_passage_association(strand_seq, trials, concentration, T=25):
 
    print(f"Running {trials:d} first passage time simulations for association "
          f"of {strand_seq} at {concentration_string(concentration)}...")
@@ -217,12 +208,12 @@ def first_passage_association(strand_seq, trials, concentration, T=25, material=
    single_strand_bot.boltzmann_sample = True
 
    # Declare the simulation complete if the strands become a perfect duplex.
-   success_stop_condition = StopCondition("SUCCESS",[(duplex_complex,Exact_Macrostate,0)])
+   success_stop_condition = StopCondition("SUCCESS",[(duplex_complex,Literals.exact_macrostate,0)])
 
-   o = Options(simulation_mode="First Passage Time",parameter_type="Nupack", substrate_type=material,
-               rate_method = "Metropolis", num_simulations = trials, simulation_time=10.0, 
+   o = Options(simulation_mode="First Passage Time", num_simulations = trials, simulation_time=10.0,
                join_concentration=concentration,
-               dangles = "Some", temperature = T, rate_scaling = "Calibrated", verbosity = 0)
+               dangles = "Some", temperature = T, verbosity = 0)
+   o.DNA23Metropolis()
    o.start_state = [single_strand_top, single_strand_bot]
    o.stop_conditions = [success_stop_condition]
 
@@ -307,7 +298,7 @@ def print_transition_dict( transition_dict, options = None ):
             print(("{0}: {1}".format( i.tag, charindex[idx])))
 
 
-def transition_mode_simulation(strand_seq, duration, concentration, T=25, material="DNA"):
+def transition_mode_simulation(strand_seq, duration, concentration, T=25):
 
    print(f"Running {duration:g} seconds of transition mode simulations "
          f"of {strand_seq} at {concentration_string(concentration)}...")
@@ -321,13 +312,13 @@ def transition_mode_simulation(strand_seq, duration, concentration, T=25, materi
    single_strand_bot = Complex(strands=[bot],structure=".")
 
    # Declare macrostates 
-   single_stranded_macrostate = Macrostate("SINGLE",[(single_strand_top,Dissoc_Macrostate,0)])
-   duplex_macrostate = Macrostate("DUPLEX",[(duplex_complex,Loose_Macrostate,4)])
+   single_stranded_macrostate = Macrostate("SINGLE",[(single_strand_top,Literals.dissoc_macrostate,0)])
+   duplex_macrostate = Macrostate("DUPLEX",[(duplex_complex,Literals.loose_macrostate,4)])
 
-   o = Options(simulation_mode="Transition",parameter_type="Nupack", substrate_type=material,
-               rate_method = "Metropolis", num_simulations = 1, simulation_time=float(duration),   # time must be passed as float, not int
+   o = Options(simulation_mode="Transition", num_simulations = 1, simulation_time=float(duration),   # time must be passed as float, not int
                join_concentration=concentration,
-               dangles = "Some", temperature = T, rate_scaling = "Calibrated", verbosity = 0)
+               dangles = "Some", temperature = T, verbosity = 0)
+   o.DNA23Metropolis()
    o.start_state = [single_strand_top, single_strand_bot]
    o.stop_conditions = [single_stranded_macrostate, duplex_macrostate] # not actually stopping, just tracking
 
@@ -360,7 +351,7 @@ def compare_hybridization(seq, concentrations, T=25, material="DNA"):
    time1=time.time()
 
    # do one "first step mode" run, get k1, k2, etc, from which z_crit and k_eff(z) can be computed
-   k1, k2, k1prime, k2prime = first_step_simulation(seq, 10000, T=T, material=material) 
+   k1, k2, k1prime, k2prime = first_step_simulation(seq, 10000, T=T)
    time2=time.time()
    time1step_for = time2-time1
    print(f"k1 = {k1:g} /M/s, k2 = {k2:g} /s, k1prime = {k1prime:g} /M/s, "
@@ -374,11 +365,10 @@ def compare_hybridization(seq, concentrations, T=25, material="DNA"):
 
    # call NUPACK for pfunc dG of the reaction, calculate krev based on keff
    print("Calculating dissociate rate constant based on NUPACK partition function energies and first step mode k_eff...")
-   import nupack
-   dG_top = nupack.pfunc([seq], T=T)
-   dG_bot = nupack.pfunc([ Strand(sequence=seq).C.sequence ], T=T)
-   dG_duplex = nupack.pfunc([ seq, Strand(sequence=seq).C.sequence ], T=T)
-   RT = 1.987e-3 * (T + C2K)
+   dG_top = thermo.complex_free_energy([seq], celsius=T)
+   dG_bot = thermo.complex_free_energy([ Strand(sequence=seq).C.sequence ], celsius=T)
+   dG_duplex = thermo.complex_free_energy([ seq, Strand(sequence=seq).C.sequence ], celsius=T)
+   RT = 1.987e-3 * (T + thermo.C2K)
    time3=time.time()
    time_nupack = time3-time2
    krev_nupack = keff_1s * np.exp( (dG_duplex - dG_top - dG_bot)/RT )
@@ -387,7 +377,7 @@ def compare_hybridization(seq, concentrations, T=25, material="DNA"):
 
    # do one "first passage time" run for dissociation, and get k_rev
 #    krev_1p = first_passage_dissociation(seq, 500, T=T, material=material)  # this is good, for short enough strands
-   krev_1p = first_passage_dissociation(seq, 10, T=T, material=material)     # too few, but faster
+   krev_1p = first_passage_dissociation(seq, 10, T=T)     # too few, but faster
    time4=time.time()
    time1passage_rev = time4-time3
    print(f"krev = {krev_1p:g} /s ({time1passage_rev:g} seconds)")
@@ -396,7 +386,7 @@ def compare_hybridization(seq, concentrations, T=25, material="DNA"):
    # for each concentration z, do one "first passage time" run for association, and get k_eff(z)
    keffs_1p=[]
    for concentration in concentrations:
-       keff = first_passage_association(seq, 10000, concentration=concentration, T=T, material=material)
+       keff = first_passage_association(seq, 10000, concentration=concentration, T=T)
        keffs_1p.append((keff,concentration))
    time5=time.time()
    time1passage_for = time5-time4
@@ -409,7 +399,7 @@ def compare_hybridization(seq, concentrations, T=25, material="DNA"):
    keffs_tm = []
    krevs_tm = []
    for concentration in concentrations:
-       keff, krev = transition_mode_simulation(seq, 0.5, concentration, T=T, material=material)
+       keff, krev = transition_mode_simulation(seq, 0.5, concentration, T=T)
        keffs_tm.append((keff,concentration))
        if not keff is None:
            print(f"keff = {keff:g} /M/s at {concentration_string(concentration)}")
@@ -442,10 +432,10 @@ if __name__ == '__main__':
         compare_hybridization(seq='TCGAT', concentrations=[1e-2,1e-3,1e-4,1e-5,1e-6,1e-7]) # takes about 10 minutes
 
         ### The following is super-slow for some modes, but it will run.  Expect 1 day or more.  
-        # compare_hybridization(seq='CGTTTCG', concentrations=[1e-1,1e-2,1e-3,1e-4,1e-5]) 
+        #compare_hybridization(seq='CGTTTCG', concentrations=[1e-1,1e-2,1e-3,1e-4,1e-5])
 
         ### These three are super super super slow, and did not finish all modes for me:
-        # compare_hybridization(seq='TCGATTTTGTA', concentrations=[1e-3,1e-4,1e-5])  
+        # compare_hybridization(seq='TCGATTTTGTA', concentrations=[1e-3,1e-4,1e-5])
         # compare_hybridization(seq='TCGATTTTTCGA', concentrations=[1e-3,1e-4,1e-5])
         # compare_hybridization(seq='GCGATGCGCTGATTCA', concentrations=[1e-3,1e-4,1e-5])  # has strong hairpins... faster dissociation? not by enough!
         # compare_hybridization(seq='ACTGGCGCGTATTATCTACTG', concentrations=[1e-3,1e-4,1e-5])

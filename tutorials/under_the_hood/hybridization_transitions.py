@@ -68,17 +68,9 @@ import sys
 import numpy as np
 
 from multistrand.objects import *
-from multistrand.options import Options
+from multistrand.options import Options, Literals
 from multistrand.system import SimSystem
 
-
-# for StopCondition and Macrostate definitions:
-Exact_Macrostate = 0   # match a secondary structure exactly (i.e. any system state that has a complex with this exact structure)
-Bound_Macrostate = 1   # match any system state in which the given strand is bound to another strand
-Dissoc_Macrostate = 2  # match any system state in which there exists a complex with exactly the given strands, in that order
-Loose_Macrostate = 3   # match a secondary structure with "don't care"s, allowing a certain number of disagreements
-Count_Macrostate = 4   # match a secondary structure, allowing a certain number of disagreements
-# see Schaeffer's PhD thesis, chapter 7.2, for more information
 
 
 # Here, in one of two approaches illustrated in this file, we define macrostates for the state of the tube by explicitly describing 
@@ -177,59 +169,60 @@ def setup_options_hybridization_Count(trials, toe5_seq, stem_seq, loop_seq, toe3
 
     print("Macrostates: SS structures allowing up to %d nt incorrect, DS structures allowing up to %d nt incorrect." % (d1, d2))
 
-    macro_U1_U2           = Macrostate("U1_and_U2", [(sense_unfolded,Count_Macrostate,d1),(antisense_unfolded,Count_Macrostate,d1)])          
-    macro_U1_F2           = Macrostate("U1_and_F2", [(sense_unfolded,Count_Macrostate,d1),(antisense_folded,Count_Macrostate,d1)])
-    macro_F1_U2           = Macrostate("F1_and_U2", [(sense_folded,Count_Macrostate,d1),(antisense_unfolded,Count_Macrostate,d1)])          
-    macro_F1_F2           = Macrostate("F1_and_F2", [(sense_folded,Count_Macrostate,d1),(antisense_folded,Count_Macrostate,d1)])
+    macro_U1_U2           = Macrostate("U1_and_U2", [(sense_unfolded,Literals.count_macrostate,d1),(antisense_unfolded,Literals.count_macrostate,d1)])          
+    macro_U1_F2           = Macrostate("U1_and_F2", [(sense_unfolded,Literals.count_macrostate,d1),(antisense_folded,Literals.count_macrostate,d1)])
+    macro_F1_U2           = Macrostate("F1_and_U2", [(sense_folded,Literals.count_macrostate,d1),(antisense_unfolded,Literals.count_macrostate,d1)])          
+    macro_F1_F2           = Macrostate("F1_and_F2", [(sense_folded,Literals.count_macrostate,d1),(antisense_folded,Literals.count_macrostate,d1)])
 
-    macro_A               = Macrostate("COMPLEX_A", [(complex_A,Count_Macrostate,d2)])
-    macro_B1              = Macrostate("COMPLEX_B1", [(complex_B1,Count_Macrostate,d2)])
-    macro_D               = Macrostate("COMPLEX_D", [(complex_D,Count_Macrostate,d2)])
-    macro_B2              = Macrostate("COMPLEX_B2", [(complex_B2,Count_Macrostate,d2)])
-    macro_C               = Macrostate("COMPLEX_C", [(complex_C,Count_Macrostate,d2)])
-    macro_Ahp_s           = Macrostate("COMPLEX_Ahp_s", [(complex_Ahp_s,Count_Macrostate,d2)])
-    macro_Ahp_a           = Macrostate("COMPLEX_Ahp_a", [(complex_Ahp_a,Count_Macrostate,d2)])
-    macro_Ahp_as          = Macrostate("COMPLEX_Ahp_as", [(complex_Ahp_as,Count_Macrostate,d2)])
-    macro_Chp_s           = Macrostate("COMPLEX_Chp_s", [(complex_Chp_s,Count_Macrostate,d2)])
-    macro_Chp_a           = Macrostate("COMPLEX_Chp_a", [(complex_Chp_a,Count_Macrostate,d2)])
-    macro_Chp_as          = Macrostate("COMPLEX_Chp_as", [(complex_Chp_as,Count_Macrostate,d2)])
-    macro_AChp_s          = Macrostate("COMPLEX_AChp_s", [(complex_AChp_s,Count_Macrostate,d2)])
-    macro_AChp_a          = Macrostate("COMPLEX_AChp_a", [(complex_AChp_a,Count_Macrostate,d2)])
-    macro_AChp_as         = Macrostate("COMPLEX_AChp_as", [(complex_AChp_as,Count_Macrostate,d2)])
-    macro_AB1             = Macrostate("COMPLEX_AB1", [(complex_AB1,Count_Macrostate,d2)])
-    macro_AD              = Macrostate("COMPLEX_AD", [(complex_AD,Count_Macrostate,d2)])
-    macro_AB2             = Macrostate("COMPLEX_AB2", [(complex_AB2,Count_Macrostate,d2)])
-    macro_AC              = Macrostate("COMPLEX_AC", [(complex_AC,Count_Macrostate,d2)])
-    macro_B1D             = Macrostate("COMPLEX_B1D", [(complex_B1D,Count_Macrostate,d2)])
-    macro_B1B2            = Macrostate("COMPLEX_B1B2", [(complex_B1B2,Count_Macrostate,d2)])
-    macro_B1C             = Macrostate("COMPLEX_B1C", [(complex_B1C,Count_Macrostate,d2)])
-    macro_DB2             = Macrostate("COMPLEX_DB2", [(complex_DB2,Count_Macrostate,d2)])
-    macro_DC              = Macrostate("COMPLEX_DC", [(complex_DC,Count_Macrostate,d2)])
-    macro_B2C             = Macrostate("COMPLEX_B2C", [(complex_B2C,Count_Macrostate,d2)])
-    macro_AB1D            = Macrostate("COMPLEX_AB1D", [(complex_AB1D,Count_Macrostate,d2)])
-    macro_AB1B2           = Macrostate("COMPLEX_AB1B2", [(complex_AB1B2,Count_Macrostate,d2)])
-    macro_AB1C            = Macrostate("COMPLEX_AB1C", [(complex_AB1C,Count_Macrostate,d2)])
-    macro_ADB2            = Macrostate("COMPLEX_ADB2", [(complex_ADB2,Count_Macrostate,d2)])
-    macro_ADC             = Macrostate("COMPLEX_ADC", [(complex_ADC,Count_Macrostate,d2)])
-    macro_AB2C            = Macrostate("COMPLEX_AB2C", [(complex_AB2C,Count_Macrostate,d2)])
-    macro_B1DB2           = Macrostate("COMPLEX_B1DB2", [(complex_B1DB2,Count_Macrostate,d2)])
-    macro_B1DC            = Macrostate("COMPLEX_B1DC", [(complex_B1DC,Count_Macrostate,d2)])
-    macro_B1B2C           = Macrostate("COMPLEX_B1B2C", [(complex_B1B2C,Count_Macrostate,d2)])
-    macro_DB2C            = Macrostate("COMPLEX_DB2C", [(complex_DB2C,Count_Macrostate,d2)])
-    macro_AB1DB2          = Macrostate("COMPLEX_AB1DB2", [(complex_AB1DB2,Count_Macrostate,d2)])
-    macro_AB1DC           = Macrostate("COMPLEX_AB1DC", [(complex_AB1DC,Count_Macrostate,d2)])
-    macro_AB1B2C          = Macrostate("COMPLEX_AB1B2C", [(complex_AB1B2C,Count_Macrostate,d2)])
-    macro_ADB2C           = Macrostate("COMPLEX_ADB2C", [(complex_ADB2C,Count_Macrostate,d2)])
-    macro_B1DB2C          = Macrostate("COMPLEX_B1DB2C", [(complex_B1DB2C,Count_Macrostate,d2)])
-    macro_AB1DB2C         = Macrostate("COMPLEX_AB1DB2C", [(complex_AB1DB2C,Count_Macrostate,d2)])
+    macro_A               = Macrostate("COMPLEX_A", [(complex_A,Literals.count_macrostate,d2)])
+    macro_B1              = Macrostate("COMPLEX_B1", [(complex_B1,Literals.count_macrostate,d2)])
+    macro_D               = Macrostate("COMPLEX_D", [(complex_D,Literals.count_macrostate,d2)])
+    macro_B2              = Macrostate("COMPLEX_B2", [(complex_B2,Literals.count_macrostate,d2)])
+    macro_C               = Macrostate("COMPLEX_C", [(complex_C,Literals.count_macrostate,d2)])
+    macro_Ahp_s           = Macrostate("COMPLEX_Ahp_s", [(complex_Ahp_s,Literals.count_macrostate,d2)])
+    macro_Ahp_a           = Macrostate("COMPLEX_Ahp_a", [(complex_Ahp_a,Literals.count_macrostate,d2)])
+    macro_Ahp_as          = Macrostate("COMPLEX_Ahp_as", [(complex_Ahp_as,Literals.count_macrostate,d2)])
+    macro_Chp_s           = Macrostate("COMPLEX_Chp_s", [(complex_Chp_s,Literals.count_macrostate,d2)])
+    macro_Chp_a           = Macrostate("COMPLEX_Chp_a", [(complex_Chp_a,Literals.count_macrostate,d2)])
+    macro_Chp_as          = Macrostate("COMPLEX_Chp_as", [(complex_Chp_as,Literals.count_macrostate,d2)])
+    macro_AChp_s          = Macrostate("COMPLEX_AChp_s", [(complex_AChp_s,Literals.count_macrostate,d2)])
+    macro_AChp_a          = Macrostate("COMPLEX_AChp_a", [(complex_AChp_a,Literals.count_macrostate,d2)])
+    macro_AChp_as         = Macrostate("COMPLEX_AChp_as", [(complex_AChp_as,Literals.count_macrostate,d2)])
+    macro_AB1             = Macrostate("COMPLEX_AB1", [(complex_AB1,Literals.count_macrostate,d2)])
+    macro_AD              = Macrostate("COMPLEX_AD", [(complex_AD,Literals.count_macrostate,d2)])
+    macro_AB2             = Macrostate("COMPLEX_AB2", [(complex_AB2,Literals.count_macrostate,d2)])
+    macro_AC              = Macrostate("COMPLEX_AC", [(complex_AC,Literals.count_macrostate,d2)])
+    macro_B1D             = Macrostate("COMPLEX_B1D", [(complex_B1D,Literals.count_macrostate,d2)])
+    macro_B1B2            = Macrostate("COMPLEX_B1B2", [(complex_B1B2,Literals.count_macrostate,d2)])
+    macro_B1C             = Macrostate("COMPLEX_B1C", [(complex_B1C,Literals.count_macrostate,d2)])
+    macro_DB2             = Macrostate("COMPLEX_DB2", [(complex_DB2,Literals.count_macrostate,d2)])
+    macro_DC              = Macrostate("COMPLEX_DC", [(complex_DC,Literals.count_macrostate,d2)])
+    macro_B2C             = Macrostate("COMPLEX_B2C", [(complex_B2C,Literals.count_macrostate,d2)])
+    macro_AB1D            = Macrostate("COMPLEX_AB1D", [(complex_AB1D,Literals.count_macrostate,d2)])
+    macro_AB1B2           = Macrostate("COMPLEX_AB1B2", [(complex_AB1B2,Literals.count_macrostate,d2)])
+    macro_AB1C            = Macrostate("COMPLEX_AB1C", [(complex_AB1C,Literals.count_macrostate,d2)])
+    macro_ADB2            = Macrostate("COMPLEX_ADB2", [(complex_ADB2,Literals.count_macrostate,d2)])
+    macro_ADC             = Macrostate("COMPLEX_ADC", [(complex_ADC,Literals.count_macrostate,d2)])
+    macro_AB2C            = Macrostate("COMPLEX_AB2C", [(complex_AB2C,Literals.count_macrostate,d2)])
+    macro_B1DB2           = Macrostate("COMPLEX_B1DB2", [(complex_B1DB2,Literals.count_macrostate,d2)])
+    macro_B1DC            = Macrostate("COMPLEX_B1DC", [(complex_B1DC,Literals.count_macrostate,d2)])
+    macro_B1B2C           = Macrostate("COMPLEX_B1B2C", [(complex_B1B2C,Literals.count_macrostate,d2)])
+    macro_DB2C            = Macrostate("COMPLEX_DB2C", [(complex_DB2C,Literals.count_macrostate,d2)])
+    macro_AB1DB2          = Macrostate("COMPLEX_AB1DB2", [(complex_AB1DB2,Literals.count_macrostate,d2)])
+    macro_AB1DC           = Macrostate("COMPLEX_AB1DC", [(complex_AB1DC,Literals.count_macrostate,d2)])
+    macro_AB1B2C          = Macrostate("COMPLEX_AB1B2C", [(complex_AB1B2C,Literals.count_macrostate,d2)])
+    macro_ADB2C           = Macrostate("COMPLEX_ADB2C", [(complex_ADB2C,Literals.count_macrostate,d2)])
+    macro_B1DB2C          = Macrostate("COMPLEX_B1DB2C", [(complex_B1DB2C,Literals.count_macrostate,d2)])
+    macro_AB1DB2C         = Macrostate("COMPLEX_AB1DB2C", [(complex_AB1DB2C,Literals.count_macrostate,d2)])
 
-    initial_hairpins      = Macrostate("HAIRPINS", [(sense_folded,Exact_Macrostate,0),(antisense_folded,Exact_Macrostate,0)])   # perfect hairpins achieved
-    completed_hybrid      = Macrostate("COMPLETE", [(hybrid_complete,Exact_Macrostate,0)])                                      # perfect hybrid achieved
+    initial_hairpins      = Macrostate("HAIRPINS", [(sense_folded,Literals.exact_macrostate,0),(antisense_folded,Literals.exact_macrostate,0)])   # perfect hairpins achieved
+    completed_hybrid      = Macrostate("COMPLETE", [(hybrid_complete,Literals.exact_macrostate,0)])                                      # perfect hybrid achieved
 
-    o = Options(simulation_mode="Transition", parameter_type="Nupack", dangles="Some",
-                rate_method = "Metropolis", num_simulations = trials, simulation_time=time,  # default 0.0002 sec
-                substrate_type="DNA", temperature=temp, join_concentration=conc,           # default 1 mM at 25C
-                start_state=[sense_folded,antisense_folded], rate_scaling='Calibrated', verbosity=0)
+    o = Options(simulation_mode="Transition", dangles="Some",
+                num_simulations = trials, simulation_time=time,  # default 0.0002 sec
+                temperature=temp, join_concentration=conc,           # default 1 mM at 25C
+                start_state=[sense_folded,antisense_folded], verbosity=0)
+    o.DNA23Arrhenius()
 
     # for transition mode, these are mostly macrostates not stop conditions, since the simulation won't stop unless the name begins with "stop"
     o.stop_conditions = [initial_hairpins, macro_U1_U2, macro_U1_F2, macro_F1_U2, macro_F1_F2,                         
@@ -300,27 +293,27 @@ def setup_options_hybridization_Loose(trials, toe5_seq, stem_seq, loop_seq, toe3
 
     print("Macrostates: each domain allowing up to fraction %4.2g of nucleotides to be incorrect." % (incorrect_frac))
 
-    macro_U1              = Macrostate("UNFOLDED1", [(loose_unfolded1,Loose_Macrostate,d_B)])
-    macro_U2              = Macrostate("UNFOLDED2", [(loose_unfolded2,Loose_Macrostate,d_B)])
-    macro_F1              = Macrostate("FOLDED1", [(loose_folded1,Loose_Macrostate,d_B)])
-    macro_F2              = Macrostate("FOLDED2", [(loose_folded2,Loose_Macrostate,d_B)])
+    macro_U1              = Macrostate("UNFOLDED1", [(loose_unfolded1,Literals.loose_macrostate,d_B)])
+    macro_U2              = Macrostate("UNFOLDED2", [(loose_unfolded2,Literals.loose_macrostate,d_B)])
+    macro_F1              = Macrostate("FOLDED1", [(loose_folded1,Literals.loose_macrostate,d_B)])
+    macro_F2              = Macrostate("FOLDED2", [(loose_folded2,Literals.loose_macrostate,d_B)])
 
-    macro_A               = Macrostate("DOMAIN_A", [(loose_A,Loose_Macrostate,d_A)])
-    macro_B1              = Macrostate("DOMAIN_B1", [(loose_B1,Loose_Macrostate,d_B)])
-    macro_D               = Macrostate("DOMAIN_D", [(loose_D,Loose_Macrostate,d_D)])
-    macro_B2              = Macrostate("DOMAIN_B2", [(loose_B2,Loose_Macrostate,d_B)])
-    macro_C               = Macrostate("DOMAIN_C", [(loose_C,Loose_Macrostate,d_C)])
-    macro_H1              = Macrostate("DOMAIN_H1", [(loose_H1,Loose_Macrostate,d_B)])
-    macro_H2              = Macrostate("DOMAIN_H2", [(loose_H2,Loose_Macrostate,d_B)])
+    macro_A               = Macrostate("DOMAIN_A", [(loose_A,Literals.loose_macrostate,d_A)])
+    macro_B1              = Macrostate("DOMAIN_B1", [(loose_B1,Literals.loose_macrostate,d_B)])
+    macro_D               = Macrostate("DOMAIN_D", [(loose_D,Literals.loose_macrostate,d_D)])
+    macro_B2              = Macrostate("DOMAIN_B2", [(loose_B2,Literals.loose_macrostate,d_B)])
+    macro_C               = Macrostate("DOMAIN_C", [(loose_C,Literals.loose_macrostate,d_C)])
+    macro_H1              = Macrostate("DOMAIN_H1", [(loose_H1,Literals.loose_macrostate,d_B)])
+    macro_H2              = Macrostate("DOMAIN_H2", [(loose_H2,Literals.loose_macrostate,d_B)])
 
-    initial_hairpins      = Macrostate("HAIRPINS", [(sense_folded,Exact_Macrostate,0),(antisense_folded,Exact_Macrostate,0)])   # perfect hairpins achieved
-    completed_hybrid      = Macrostate("COMPLETE", [(hybrid_complete,Exact_Macrostate,0)])                                      # perfect hybrid achieved
+    initial_hairpins      = Macrostate("HAIRPINS", [(sense_folded,Literals.exact_macrostate,0),(antisense_folded,Literals.exact_macrostate,0)])   # perfect hairpins achieved
+    completed_hybrid      = Macrostate("COMPLETE", [(hybrid_complete,Literals.exact_macrostate,0)])                                      # perfect hybrid achieved
 
-    o = Options(simulation_mode="Transition", parameter_type="Nupack", dangles="Some",
-                rate_method = "Metropolis", num_simulations = trials, simulation_time=time,       # default 0.0002 sec
-                substrate_type="DNA", temperature=temp, join_concentration=conc,                  # default 1 mM at 25C
-                start_state=[sense_folded,antisense_folded], rate_scaling='Calibrated', verbosity=0)
-
+    o = Options(simulation_mode="Transition", dangles="Some",
+                num_simulations = trials, simulation_time=time,       # default 0.0002 sec
+                temperature=temp, join_concentration=conc,                  # default 1 mM at 25C
+                start_state=[sense_folded,antisense_folded], verbosity=0)
+    o.DNA23Arrhenius()
     # for transition mode, these are macrostates not stop conditions, since the simulation won't stop unless the name begins with "stop"
     o.stop_conditions = [initial_hairpins, macro_U1, macro_U2, macro_F1, macro_F2, macro_A, macro_B1, macro_D, macro_B2, macro_C, macro_H1, macro_H2, completed_hybrid]
     return o
@@ -365,17 +358,18 @@ def setup_options_hybridization_Distance(trials, toe5_seq, stem_seq, loop_seq, t
 
     macros = []
     for d in range(stepsize,2*L+1,stepsize):
-        macros.append( Macrostate("I"+str(d), [(sense_folded,Count_Macrostate,d),(antisense_folded,Count_Macrostate,d)]) )
+        macros.append( Macrostate("I"+str(d), [(sense_folded,Literals.count_macrostate,d),(antisense_folded,Literals.count_macrostate,d)]) )
     for d in range(stepsize,2*L+1,stepsize):
-        macros.append( Macrostate("F"+str(d), [(hybrid_complete,Count_Macrostate,d)]) )
+        macros.append( Macrostate("F"+str(d), [(hybrid_complete,Literals.count_macrostate,d)]) )
 
-    initial_hairpins      = Macrostate("HAIRPINS", [(sense_folded,Exact_Macrostate,0),(antisense_folded,Exact_Macrostate,0)])   # perfect hairpins achieved
-    completed_hybrid      = Macrostate("COMPLETE", [(hybrid_complete,Exact_Macrostate,0)])                                      # perfect hybrid achieved
+    initial_hairpins      = Macrostate("HAIRPINS", [(sense_folded,Literals.exact_macrostate,0),(antisense_folded,Literals.exact_macrostate,0)])   # perfect hairpins achieved
+    completed_hybrid      = Macrostate("COMPLETE", [(hybrid_complete,Literals.exact_macrostate,0)])                                      # perfect hybrid achieved
 
-    o = Options(simulation_mode="Transition", parameter_type="Nupack", dangles="Some",
-                rate_method = "Metropolis", num_simulations = trials, simulation_time=time,  # default 0.0002 sec
-                substrate_type="DNA", temperature=temp, join_concentration=conc,             # default 1 mM at 25C
-                start_state=[sense_folded,antisense_folded], rate_scaling='Calibrated', verbosity=0)
+    o = Options(simulation_mode="Transition", dangles="Some",
+                num_simulations = trials, simulation_time=time,  # default 0.0002 sec
+                temperature=temp, join_concentration=conc,             # default 1 mM at 25C
+                start_state=[sense_folded,antisense_folded], verbosity=0)
+    o.DNA23Arrhenius()
 
     # for transition mode, these are mostly macrostates not stop conditions, since the simulation won't stop unless the name begins with "stop"
     o.stop_conditions = [initial_hairpins]+macros+[completed_hybrid]
@@ -421,75 +415,75 @@ def setup_options_hybridization_Exact(trials, toe5_seq, stem_seq, loop_seq, toe3
     # single-strands opening and re-forming hairpins
     for i in range(len(stem_seq)):
         partial_sense=Complex(strands=[sense_strand], structure = "."*len(toe5_seq)+"."*(len(stem_seq)-i)+"("*i+"."*len(loop_seq)+")"*i+"."*(len(stem_seq)-i)+"."*len(toe3_seq))
-        macros.append( Macrostate("S"+str(i), [(partial_sense,Exact_Macrostate,0)]) )
+        macros.append( Macrostate("S"+str(i), [(partial_sense,Literals.exact_macrostate,0)]) )
         partial_antisense=Complex(strands=[sense_strand], structure = "."*len(toe3_seq)+"."*(len(stem_seq)-i)+"("*i+"."*len(loop_seq)+")"*i+"."*(len(stem_seq)-i)+"."*len(toe5_seq))
-        macros.append( Macrostate("A"+str(i), [(partial_antisense,Exact_Macrostate,0)]) )
+        macros.append( Macrostate("A"+str(i), [(partial_antisense,Literals.exact_macrostate,0)]) )
 
     # hybridization / fraying:  formation from the inside out, fraying from the outside in
     for i in range(int(L/2)):
         partial_hybrid=Complex(strands=[sense_strand,antisense_strand], structure = "."*i + "("*(L-2*i) + "."*i + "+" + "."*i + ")"*(L-2*i) + "."*i)
-        macros.append( Macrostate("H"+str(L-2*i), [(partial_hybrid,Exact_Macrostate,0)]) )
+        macros.append( Macrostate("H"+str(L-2*i), [(partial_hybrid,Literals.exact_macrostate,0)]) )
 
     # four-way branch migration: first form one toehold, then form another toehold, then branch migrate, then close the bubble
     for i in range(1,len(toe5_seq)+1):  # toe5 first...
         s1= "."*(len(toe5_seq)-i)+"("*i+"("*len(stem_seq)+"."*len(loop_seq)+")"*len(stem_seq)+"."*len(toe3_seq)
         s2= "."*len(toe3_seq)+"("*len(stem_seq)+"."*len(loop_seq)+")"*len(stem_seq)+")"*i+"."*(len(toe5_seq)-i)
         partial_toes=Complex(strands=[sense_strand,antisense_strand], structure = s1+"+"+s2)
-        macros.append( Macrostate("F5-"+str(i), [(partial_toes,Exact_Macrostate,0)]) )
+        macros.append( Macrostate("F5-"+str(i), [(partial_toes,Literals.exact_macrostate,0)]) )
     for i in range(1,len(toe3_seq)+1):  # then toe3...
         s1= "("*len(toe5_seq)+"("*len(stem_seq)+"."*len(loop_seq)+")"*len(stem_seq)+"("*i+"."*(len(toe3_seq)-i)
         s2= "."*(len(toe3_seq)-i)+")"*i+"("*len(stem_seq)+"."*len(loop_seq)+")"*len(stem_seq)+")"*len(toe5_seq)
         partial_toes=Complex(strands=[sense_strand,antisense_strand], structure = s1+"+"+s2)
-        macros.append( Macrostate("F53-"+str(i), [(partial_toes,Exact_Macrostate,0)]) )
+        macros.append( Macrostate("F53-"+str(i), [(partial_toes,Literals.exact_macrostate,0)]) )
     for i in range(1,len(toe3_seq)+1):  # toe3 first...
         s1= "."*len(toe5_seq)+"("*len(stem_seq)+"."*len(loop_seq)+")"*len(stem_seq)+"("*i+"."*(len(toe3_seq)-i)
         s2= "."*(len(toe3_seq)-i)+")"*i+"("*len(stem_seq)+"."*len(loop_seq)+")"*len(stem_seq)+"."*len(toe5_seq)
         partial_toes=Complex(strands=[sense_strand,antisense_strand], structure = s1+"+"+s2)
-        macros.append( Macrostate("F3-"+str(i), [(partial_toes,Exact_Macrostate,0)]) )
+        macros.append( Macrostate("F3-"+str(i), [(partial_toes,Literals.exact_macrostate,0)]) )
     for i in range(1,len(toe5_seq)+1):  # then toe5...
         s1= "."*(len(toe5_seq)-i)+"("*i+"("*len(stem_seq)+"."*len(loop_seq)+")"*len(stem_seq)+"("*len(toe3_seq)
         s2= ")"*len(toe3_seq)+"("*len(stem_seq)+"."*len(loop_seq)+")"*len(stem_seq)+")"*i+"."*(len(toe5_seq)-i)
         partial_toes=Complex(strands=[sense_strand,antisense_strand], structure = s1+"+"+s2)
-        macros.append( Macrostate("F35-"+str(i), [(partial_toes,Exact_Macrostate,0)]) )
+        macros.append( Macrostate("F35-"+str(i), [(partial_toes,Literals.exact_macrostate,0)]) )
     for i in range(1,len(stem_seq)+1): # now branch migrate (closed intermediates only)
         s1= "("*len(toe5_seq)+"("*len(stem_seq)+"."*len(loop_seq)+")"*(len(stem_seq)-i)+"("*i+"("*len(toe3_seq)
         s2= ")"*len(toe3_seq)+")"*i+"("*(len(stem_seq)-i)+"."*len(loop_seq)+")"*len(stem_seq)+")"*len(toe5_seq)
         partial_4way=Complex(strands=[sense_strand,antisense_strand], structure = s1+"+"+s2)
-        macros.append( Macrostate("Fc"+str(i), [(partial_4way,Exact_Macrostate,0)]) )
+        macros.append( Macrostate("Fc"+str(i), [(partial_4way,Literals.exact_macrostate,0)]) )
     for i in range(1,int(len(loop_seq)/2)): # now close the bubble
         s1= "("*len(toe5_seq)+"("*len(stem_seq)+"("*i+"."*(len(loop_seq)-2*i)+"("*i+"("*len(stem_seq)+"("*len(toe3_seq)
         s2= ")"*len(toe3_seq)+")"*len(stem_seq)+")"*i+"."*(len(loop_seq)-2*i)+")"*i+")"*len(stem_seq)+")"*len(toe5_seq)
         partial_bubble=Complex(strands=[sense_strand,antisense_strand], structure = s1+"+"+s2)
-        macros.append( Macrostate("Fb"+str(i), [(partial_bubble,Exact_Macrostate,0)]) )
+        macros.append( Macrostate("Fb"+str(i), [(partial_bubble,Literals.exact_macrostate,0)]) )
 
     # three-way branch migration by open sense strand: first form 5' toehold, then branch migrate, then zipper up
     for i in range(1,len(toe5_seq)+1):  # toe5 first...
         s1= "."*(len(toe5_seq)-i)+"("*i+"."*len(stem_seq)+"."*len(loop_seq)+"."*len(stem_seq)+"."*len(toe3_seq)
         s2= "."*len(toe3_seq)+"("*len(stem_seq)+"."*len(loop_seq)+")"*len(stem_seq)+")"*i+"."*(len(toe5_seq)-i)
         partial_toes=Complex(strands=[sense_strand,antisense_strand], structure = s1+"+"+s2)
-        macros.append( Macrostate("TS5t-"+str(i), [(partial_toes,Exact_Macrostate,0)]) )
+        macros.append( Macrostate("TS5t-"+str(i), [(partial_toes,Literals.exact_macrostate,0)]) )
     for i in range(1,len(stem_seq)+1):  # now branch migrate (closed intermediates only)
         s1= "("*len(toe5_seq)+"("*i+"."*(len(stem_seq)-i)+"."*len(loop_seq)+"."*len(stem_seq)+"."*len(toe3_seq)
         s2= "."*len(toe3_seq)+"."*i+"("*(len(stem_seq)-i)+"."*len(loop_seq)+")"*len(stem_seq)+")"*len(toe5_seq)
         partial_toes=Complex(strands=[sense_strand,antisense_strand], structure = s1+"+"+s2)
-        macros.append( Macrostate("TS5o-"+str(i), [(partial_toes,Exact_Macrostate,0)]) )
+        macros.append( Macrostate("TS5o-"+str(i), [(partial_toes,Literals.exact_macrostate,0)]) )
     for i in range(1,len(loop_seq+stem_seq+toe3_seq)): # now zipper up
         s1= "("*len(toe5_seq)+"("*len(stem_seq)+"("*i+"."*(len(loop_seq+stem_seq+toe3_seq)-i)
         s2= "."*(len(loop_seq+stem_seq+toe3_seq)-i)+")"*i+")"*len(stem_seq)+")"*len(toe5_seq)
         partial_toes=Complex(strands=[sense_strand,antisense_strand], structure = s1+"+"+s2)
-        macros.append( Macrostate("T5z-"+str(i), [(partial_toes,Exact_Macrostate,0)]) )
+        macros.append( Macrostate("T5z-"+str(i), [(partial_toes,Literals.exact_macrostate,0)]) )
 
     # three-way branch migration by open antisense strand: first form 5' toehold, then branch migrate, then zipper up
     for i in range(1,len(toe5_seq)+1):  # toe5 first...
         s1= "."*(len(toe5_seq)-i)+"("*i+"("*len(stem_seq)+"."*len(loop_seq)+")"*len(stem_seq)+"."*len(toe3_seq)
         s2= "."*len(toe3_seq)+"."*len(stem_seq)+"."*len(loop_seq)+"."*len(stem_seq)+")"*i+"."*(len(toe5_seq)-i)
         partial_toes=Complex(strands=[sense_strand,antisense_strand], structure = s1+"+"+s2)
-        macros.append( Macrostate("TA5t-"+str(i), [(partial_toes,Exact_Macrostate,0)]) )
+        macros.append( Macrostate("TA5t-"+str(i), [(partial_toes,Literals.exact_macrostate,0)]) )
     for i in range(1,len(stem_seq)+1):  # now branch migrate (closed intermediates only)
         s1= "("*len(toe5_seq)+"("*i+"("*(len(stem_seq)-i)+"."*len(loop_seq)+")"*len(stem_seq)+"."*len(toe3_seq)
         s2= "."*len(toe3_seq)+"."*len(stem_seq)+"."*len(loop_seq)+"."*(len(stem_seq)-i)+")"*i+")"*len(toe5_seq)
         partial_toes=Complex(strands=[sense_strand,antisense_strand], structure = s1+"+"+s2)
-        macros.append( Macrostate("TA5o-"+str(i), [(partial_toes,Exact_Macrostate,0)]) )
+        macros.append( Macrostate("TA5o-"+str(i), [(partial_toes,Literals.exact_macrostate,0)]) )
         # zippering up is the same as for the open sense strand pathway
 
     # three-way branch migration by open sense strand: first form 3' toehold, then branch migrate, then zipper up
@@ -497,38 +491,38 @@ def setup_options_hybridization_Exact(trials, toe5_seq, stem_seq, loop_seq, toe3
         s1= "."*len(toe5_seq)+"."*len(stem_seq)+"."*len(loop_seq)+"."*len(stem_seq)+"("*i+"."*(len(toe3_seq)-i)
         s2= "."*(len(toe3_seq)-i)+")"*i+"("*len(stem_seq)+"."*len(loop_seq)+")"*len(stem_seq)+"."*len(toe5_seq)
         partial_toes=Complex(strands=[sense_strand,antisense_strand], structure = s1+"+"+s2)
-        macros.append( Macrostate("TS3t-"+str(i), [(partial_toes,Exact_Macrostate,0)]) )
+        macros.append( Macrostate("TS3t-"+str(i), [(partial_toes,Literals.exact_macrostate,0)]) )
     for i in range(1,len(stem_seq)+1):  # now branch migrate (closed intermediates only)
         s1= "."*len(toe5_seq)+"."*len(stem_seq)+"."*len(loop_seq)+"."*(len(stem_seq)-i)+"("*i+"("*len(toe3_seq)
         s2= ")"*len(toe3_seq)+")"*i+"("*(len(stem_seq)-i)+"."*len(loop_seq)+")"*(len(stem_seq)-i)+"."*i+"."*len(toe5_seq)
         partial_toes=Complex(strands=[sense_strand,antisense_strand], structure = s1+"+"+s2)
-        macros.append( Macrostate("TS3o-"+str(i), [(partial_toes,Exact_Macrostate,0)]) )
+        macros.append( Macrostate("TS3o-"+str(i), [(partial_toes,Literals.exact_macrostate,0)]) )
     for i in range(1,len(loop_seq+stem_seq+toe5_seq)): # now zipper up
         s1= "."*(len(toe5_seq+stem_seq+loop_seq)-i)+"("*i+"("*len(stem_seq)+"("*len(toe3_seq)
         s2= ")"*len(toe3_seq)+")"*len(stem_seq)+")"*i+"."*(len(toe5_seq+stem_seq+loop_seq)-i)
         partial_toes=Complex(strands=[sense_strand,antisense_strand], structure = s1+"+"+s2)
-        macros.append( Macrostate("T3z-"+str(i), [(partial_toes,Exact_Macrostate,0)]) )
+        macros.append( Macrostate("T3z-"+str(i), [(partial_toes,Literals.exact_macrostate,0)]) )
 
     # three-way branch migration by open antisense strand: first form 3' toehold, then branch migrate, then zipper up
     for i in range(1,len(toe5_seq)+1):  # toe3 first...
         s1= "."*len(toe5_seq)+"("*len(stem_seq)+"."*len(loop_seq)+")"*len(stem_seq)+"("*i+"."*(len(toe3_seq)-i)
         s2= "."*(len(toe3_seq)-i)+")"*i+"."*len(stem_seq)+"."*len(loop_seq)+"."*len(stem_seq)+"."*len(toe5_seq)
         partial_toes=Complex(strands=[sense_strand,antisense_strand], structure = s1+"+"+s2)
-        macros.append( Macrostate("TA3t-"+str(i), [(partial_toes,Exact_Macrostate,0)]) )
+        macros.append( Macrostate("TA3t-"+str(i), [(partial_toes,Literals.exact_macrostate,0)]) )
     for i in range(1,len(stem_seq)+1):  # now branch migrate (closed intermediates only)
         s1= "."*len(toe5_seq)+"("*len(stem_seq)+"."*len(loop_seq)+")"*(len(stem_seq)-i)+"("*i+"("*len(toe3_seq)
         s2= ")"*len(toe3_seq)+")"*i+"."*(len(stem_seq)-i)+"."*len(loop_seq)+"."*(len(stem_seq)-i)+"."*i+"."*len(toe5_seq)
         partial_toes=Complex(strands=[sense_strand,antisense_strand], structure = s1+"+"+s2)
-        macros.append( Macrostate("TA3o-"+str(i), [(partial_toes,Exact_Macrostate,0)]) )
+        macros.append( Macrostate("TA3o-"+str(i), [(partial_toes,Literals.exact_macrostate,0)]) )
         # zippering up is the same as for the open sense strand pathway
 
-    initial_hairpins      = Macrostate("HAIRPINS", [(sense_folded,Exact_Macrostate,0),(antisense_folded,Exact_Macrostate,0)])   # perfect hairpins achieved
-    completed_hybrid      = Macrostate("COMPLETE", [(hybrid_complete,Exact_Macrostate,0)])                                      # perfect hybrid achieved
+    initial_hairpins      = Macrostate("HAIRPINS", [(sense_folded,Literals.exact_macrostate,0),(antisense_folded,Literals.exact_macrostate,0)])   # perfect hairpins achieved
+    completed_hybrid      = Macrostate("COMPLETE", [(hybrid_complete,Literals.exact_macrostate,0)])                                      # perfect hybrid achieved
 
-    o = Options(simulation_mode="Transition", parameter_type="Nupack", dangles="Some",
-                rate_method = "Metropolis", num_simulations = trials, simulation_time=time,  # default 0.0002 sec
-                substrate_type="DNA", temperature=temp, join_concentration=conc,             # default 1 mM at 25C
-                start_state=[sense_folded,antisense_folded], rate_scaling='Calibrated', verbosity=0)
+    o = Options(simulation_mode="Transition", dangles="Some",
+                num_simulations = trials, simulation_time=time,  # default 0.0002 sec
+                temperature=temp, join_concentration=conc,             # default 1 mM at 25C
+                start_state=[sense_folded,antisense_folded], verbosity=0)
 
     # for transition mode, these are mostly macrostates not stop conditions, since the simulation won't stop unless the name begins with "stop"
     o.stop_conditions = [initial_hairpins]+macros+[completed_hybrid]

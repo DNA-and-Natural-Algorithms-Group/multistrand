@@ -19,17 +19,8 @@ import matplotlib
 import matplotlib.pylab as plt
 
 from multistrand.objects import *
-from multistrand.options import Options
+from multistrand.options import Options, Literals, EnergyType
 from multistrand.system import SimSystem
-
-
-# for StopCondition and Macrostate definitions:
-Exact_Macrostate = 0   # match a secondary structure exactly (i.e. any system state that has a complex with this exact structure)
-Bound_Macrostate = 1   # match any system state in which the given strand is bound to another strand
-Dissoc_Macrostate = 2  # match any system state in which there exists a complex with exactly the given strands, in that order
-Loose_Macrostate = 3   # match a secondary structure with "don't care"s, allowing a certain number of disagreements
-Count_Macrostate = 4   # match a secondary structure, allowing a certain number of disagreements
-# see Schaeffer's PhD thesis, chapter 7.2, for more information
 
 def setup_options_hairpin(trials, stem_seq, hairpin_seq):
 
@@ -41,14 +32,14 @@ def setup_options_hairpin(trials, stem_seq, hairpin_seq):
     # We give domain-level structures for the open and closed hairpin configurations
     start_complex = Complex(strands=[s], structure="...")
     stop_complex  = Complex(strands=[s], structure="(.)")
-    full_sc       = StopCondition( "CLOSED", [(stop_complex,Exact_Macrostate,0)])
+    full_sc       = StopCondition( "CLOSED", [(stop_complex, Literals.exact_macrostate,0)])
     # Note: unlike in Transition Mode, in First Passage Time Mode, no "stop:" prefix is needed in the macrostate name
     # in order for the StopCondition to trigger the end of the simulation.
 
     o = Options(simulation_mode="First Passage Time",parameter_type="Nupack",substrate_type="DNA", temperature=310.15,
-                num_simulations = trials, simulation_time=0.1, rate_scaling='Calibrated', verbosity=0,
+                num_simulations = trials, simulation_time=0.1, verbosity=0,
                 start_state=[start_complex], stop_conditions=[full_sc])
-
+    o.DNA23Metropolis()
     return o
 
 # The simulation is easy. There's more fuss and bother to define how to plot the results.
@@ -62,10 +53,8 @@ def plot_histograms( result_lists, colors=['b','r','c','m','g','k'], figure=1, l
     max_time = np.max( [np.max(times[n]) for n in range(len(result_lists)) ] )
 
     plt.figure( figure )
-    plt.hold(False)
     for n in range(len(result_lists)):
         plt.hist( times[n], 50, range=(min_time,max_time), color = colors[n], label=labels[n], rwidth=(1-n*1.0/len(result_lists)) )
-        plt.hold(True)
 
     plt.title("Folding times for two hairpin sequences")
     plt.xlabel("First Passage Time (us)",fontsize='larger')
@@ -95,11 +84,9 @@ def plot_completion_graph( result_lists, colors=['b','r','c','m','g','k'], figur
         percents.append( p )
 
     plt.figure( figure )
-    plt.hold(False)
 
     for t,p,c,label in zip(times,percents,colors,labels):
         plt.plot( 1e6 * t, p, color = c, linewidth=2.0, label=label )
-        plt.hold(True)
 
     plt.xlabel("Simulation Time (us)",fontsize='larger')
     plt.ylabel("% of Trajectories Complete",fontsize='larger')
@@ -144,7 +131,7 @@ def show_interesting_trajectories( result_lists, seqs, type='fastest' ):
         s1 = Strand(name="hairpin", sequence=seq)
         c1 = Complex( strands=[s1], structure=16*'.' )             # hard-coded length 16
         c2 = Complex( strands=[s1], structure="((((((....))))))")  # hard-coded stem length 6, loop length 4
-        sc  = StopCondition( "CLOSED", [(c2,Exact_Macrostate,0)])
+        sc  = StopCondition( "CLOSED", [(c2,Literals.exact_macrostate,0)])
         # For future reference, StopConditions and Macrostates (same thing) are provided as a list of match conditions,
         # all of which must be matched.  I.e. there is an implicit AND being evaluated.  E.g. 
         # sc = StopCondition( "EXAMPLE", [(c2,Loose_Macrostate,8), (c1,Loose_Macrostate,4)]
@@ -154,11 +141,10 @@ def show_interesting_trajectories( result_lists, seqs, type='fastest' ):
             simulation_time = 0.1,  # 0.1 seconds  (lots more time than hairpin_trajectories, to accommodate slow folds)
             num_simulations = 1,  # don't play it again, Sam
             output_interval = 1,  # record every single step
-            rate_method = 'Metropolis', # the default is 'Kawasaki' (numerically, these are 1 and 2 respectively)
-            rate_scaling = 'Calibrated', # this is the same as 'Default'.  'Unitary' gives values 1.0 to both.  
             simulation_mode = 'Trajectory')  # numerically 128.  See interface/_options/constants.py for more info about all this.
+        o.DNA23Metropolis()
         o.stop_conditions=[sc]               # don't wait for the time-out
-        o.initial_seed = seed                # start with the same random seed as before...  
+        o.initial_seed = seed                # start with the same random seed as before...
 
         s = SimSystem(o)
         s.start()

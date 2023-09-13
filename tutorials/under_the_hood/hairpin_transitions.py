@@ -22,20 +22,11 @@ Try it like this, e.g.:
 """
 
 from multistrand.objects import *
-from multistrand.options import Options
+from multistrand.options import Options, Literals
 from multistrand.system import SimSystem
 
 import numpy as np
 
-#############
-
-# for StopCondition and Macrostate definitions:
-Exact_Macrostate = 0   # match a secondary structure exactly (i.e. any system state that has a complex with this exact structure)
-Bound_Macrostate = 1   # match any system state in which the given strand is bound to another strand
-Dissoc_Macrostate = 2  # match any system state in which there exists a complex with exactly the given strands, in that order
-Loose_Macrostate = 3   # match a secondary structure with "don't care"s, allowing a certain number of disagreements
-Count_Macrostate = 4   # match a secondary structure, allowing a certain number of disagreements
-# see Schaeffer's PhD thesis, chapter 7.2, for more information
 
 def setup_options_hairpin():
     """
@@ -58,12 +49,12 @@ def setup_options_hairpin():
     full_complex = Complex( strands=[s], structure="(.)")
 
     # Define macrostates to be tracked, i.e. we look for transitions between them.
-    initial_sc           = Macrostate( "INITIAL", [(start_complex,Exact_Macrostate,0)])
-    pathway_hp_exact_sc  = Macrostate( "HPSIDE_EXACT", [(pathway_hpside_exact_complex,Exact_Macrostate,0)])
-    pathway_hp_loose_sc  = Macrostate( "HPSIDE_LOOSE", [(pathway_hpside_loose_complex,Loose_Macrostate,2)])   # within distance 2 
-    pathway_end_exact_sc = Macrostate( "ENDSIDE_EXACT", [(pathway_endside_exact_complex,Exact_Macrostate,0)])
-    pathway_end_loose_sc = Macrostate( "ENDSIDE_LOOSE", [(pathway_endside_loose_complex,Loose_Macrostate,2)]) # within distance 2 
-    full_sc              = StopCondition( "stop:FULL", [(full_complex,Exact_Macrostate,0)])
+    initial_sc           = Macrostate( "INITIAL", [(start_complex, Literals.exact_macrostate, 0)])
+    pathway_hp_exact_sc  = Macrostate( "HPSIDE_EXACT", [(pathway_hpside_exact_complex, Literals.exact_macrostate, 0)])
+    pathway_hp_loose_sc  = Macrostate( "HPSIDE_LOOSE", [(pathway_hpside_loose_complex, Literals.loose_macrostate, 2)])   # within distance 2
+    pathway_end_exact_sc = Macrostate( "ENDSIDE_EXACT", [(pathway_endside_exact_complex,Literals.exact_macrostate, 0)])
+    pathway_end_loose_sc = Macrostate( "ENDSIDE_LOOSE", [(pathway_endside_loose_complex, Literals.loose_macrostate, 2)]) # within distance 2
+    full_sc              = StopCondition( "stop:FULL", [(full_complex, Literals.exact_macrostate, 0)])
     # Multistrand treats Macrostates and StopConditions interchangeably; here we choose the name as a mnemonic for how it will be used.
     # The simulation will stop the first time that 'full_sc' is reached, so we call it a StopCondition.
     # The simulation keeps track of where it is, but keeps going, when it visits the others -- so they are called Macrostates.
@@ -71,14 +62,16 @@ def setup_options_hairpin():
     # What determines Multistrand's behavior is that the name of 'full_sc' begins with "stop:" -- this is what causes the simulation to stop when 'full_sc' is reached.
 
     # We will set up two Transition Mode simulations, one looking at transitions between exact states...
-    o_exact = Options(simulation_mode="Transition",parameter_type="Nupack",substrate_type="DNA", temperature=310.15,
-                num_simulations = 1000, simulation_time=.01, start_state=[start_complex], rate_scaling='Calibrated', verbosity=0)
+    o_exact = Options(simulation_mode="Transition", temperature=310.15,
+                num_simulations = 1000, simulation_time=.01, start_state=[start_complex], verbosity=0)
     o_exact.stop_conditions = [initial_sc, pathway_end_exact_sc, pathway_hp_exact_sc,full_sc]
+    o_exact.DNA23Metropolis()
 
     # ... and one looking at transitions between loosely defined macrostates
-    o_loose = Options(simulation_mode="Transition",parameter_type="Nupack",substrate_type="DNA", temperature=310.15,
-                num_simulations = 1000, simulation_time=.01, start_state=[start_complex], rate_scaling='Calibrated', verbosity=0)
+    o_loose = Options(simulation_mode="Transition", temperature=310.15,
+                num_simulations = 1000, simulation_time=.01, start_state=[start_complex], verbosity=0)
     o_loose.stop_conditions = [initial_sc, pathway_end_loose_sc, pathway_hp_loose_sc,full_sc]
+    o_loose.DNA23Metropolis()
 
     # change verbosity to 1, above, and you'll see a print-out during the simulation runs, every time a stop state is reached.
     return o_exact,o_loose

@@ -496,8 +496,8 @@ if __name__ == '__main__':
         
     print(sys.argv)
 
-    numOfThreads = np.int(sys.argv[1])
-    numOfPaths = np.int(sys.argv[2])
+    numOfThreads = int(sys.argv[1])
+    numOfPaths = int(sys.argv[2])
     toggle = str(sys.argv[3])
 
     myMultistrand.setNumOfThreads(numOfThreads)

@@ -50,22 +50,14 @@ Reference for coarse-grained molecular dynamics study of the same:
    http://arxiv.org/abs/1408.4401
 """
 
-import random, string, pickle, sys
+import random, pickle, sys, os
 import numpy as np
-import nupack
 
 from multistrand.objects import *
 from multistrand.options import Options, Literals
 from multistrand.system import SimSystem
-from multistrand.utils.thermo import C2K
+import multistrand.utils.thermo as thermo
 
-
-# for StopCondition macrostate definitions:
-Exact_Macrostate = 0
-Bound_Macrostate = 1
-Dissoc_Macrostate = 2
-Loose_Macrostate = 3
-Count_Macrostate = 4
 
 
 def concentration_string(concentration):
@@ -100,15 +92,15 @@ def create_setup(strand_seq, num_traj, T=25, rate_method_k_or_m="Metropolis", ma
 
     # Stop when the exact full duplex is achieved. (No breathing!)
     success_complex = Complex(strands=[top, bot],structure="(+)")
-    success_stop_condition = StopCondition("SUCCESS",[(success_complex,Exact_Macrostate,0)])
+    success_stop_condition = StopCondition("SUCCESS",[(success_complex, Literals.exact_macrostate,0)])
 
     # Declare the simulation unproductive if the strands become single-stranded again.
     failed_complex = Complex(strands = [top], structure=".")
-    failed_stop_condition = StopCondition("FAILURE",[(failed_complex,Dissoc_Macrostate,0)])
+    failed_stop_condition = StopCondition("FAILURE",[(failed_complex, Literals.dissoc_macrostate,0)])
 
-    o = Options(simulation_mode="First Step",parameter_type="Nupack", substrate_type=material,
-                rate_method = rate_method_k_or_m, num_simulations = num_traj, simulation_time=1.0,
-                dangles = "Some", temperature = T, rate_scaling = "Calibrated", verbosity = 0)
+    o = Options(simulation_mode="First Step", num_simulations = num_traj, simulation_time=1.0,
+                dangles="Some", temperature=T, verbosity=0)
+    o.DNA23Arrhenius()
 
     o.start_state = [start_complex_top, start_complex_bot]
     o.stop_conditions = [success_stop_condition,failed_stop_condition]
@@ -226,7 +218,7 @@ def first_step_simulation(strand_seq, num_traj, T=25, rate_method_k_or_m="Metrop
 
 def WC(seq):
     """Computes the Watson-Crick complement for a DNA sequence."""
-    return seq.translate(string.maketrans('ACTG','TGAC'))[::-1]
+    return seq.translate(str.maketrans('ACTG','TGAC'))[::-1]
 
 
 def randomseq(length,bases='ACTG'):
@@ -235,8 +227,8 @@ def randomseq(length,bases='ACTG'):
 
 
 def stemsize(seq, T=25, material='dna'):
-    result = nupack.mfe([seq], T=T, material=material)
-    struct = result[0][0]
+    result = thermo.mfe([seq], celsius=T, material=material)
+    struct = str(result[0][0])
     n = len(struct)
     try: 
         stemstart5 = struct.index('(')
@@ -251,8 +243,8 @@ def stemsize(seq, T=25, material='dna'):
 
 
 def toeholds(seq, T=25, material="dna"):
-    result = nupack.mfe([seq], T=T, material=material)
-    struct = result[0][0]
+    result = thermo.mfe([seq], celsius=T, material=material)
+    struct = str(result[0][0])
     n = len(struct)
     try: 
         toe5len = struct.index('(')
@@ -265,23 +257,23 @@ def toeholds(seq, T=25, material="dna"):
     
 
 def binding_dG(seq, T=25, material='dna'):
-    dG_top = nupack.pfunc([seq], T=T, material=material)
-    dG_bot = nupack.pfunc([ WC(seq) ], T=T, material=material)
-    dG_duplex = nupack.pfunc([ seq, WC(seq) ], T=T, material=material)
+    dG_top = thermo.complex_free_energy([seq], celsius=T, material=material)
+    dG_bot = thermo.complex_free_energy([ WC(seq) ], celsius=T, material=material)
+    dG_duplex = thermo.complex_free_energy([ seq, WC(seq) ], celsius=T, material=material)
     return (dG_duplex - dG_top - dG_bot)
 
 
 def duplex_dG(seq, T=25, material='dna'):
-    return nupack.pfunc([ seq, WC(seq) ], T=T, material=material)
+    return thermo.complex_free_energy([ seq, WC(seq) ], celsius=T, material=material)
 
 
 def strand_dG(seq, T=25, material='dna'):
-    return nupack.pfunc([ seq ], T=T, material=material)
+    return thermo.complex_free_energy([ seq ], celsius=T, material=material)
 
 
 def reverse_rate(seq, kf, T=25, material='dna'):
     dG   = binding_dG(seq, T=25, material='dna')
-    RT   = 0.001987 * (25+C2K)  # kcal/mol at 25 C
+    RT   = 0.001987 * (25+thermo.C2K)  # kcal/mol at 25 C
     kr   = kf*np.exp( dG/RT )
     return kr
 
@@ -302,18 +294,18 @@ def toebinding(seq, T=25, material='dna'):
         fake_struct_toe3 = '.'*toe5len + '(((((....)))))' + '('*toe3len + '+' + ')'*toe3len + '(((((....)))))' + '.'*toe5len
         fake_struct_toes = '('*toe5len + '(((((....)))))' + '('*toe3len + '+' + ')'*toe3len + '(((((....)))))' + ')'*toe5len
         # print "Sequence %s:  %s %s and %s %s" % (seq,fake_seq1,fake_struct1,fake_seq2,fake_struct2)
-        dG1 = nupack.energy([fake_seq1],fake_struct1,T=T,material=material)
-        dG2 = nupack.energy([fake_seq2],fake_struct2,T=T,material=material)
+        dG1 = thermo.energy([fake_seq1],fake_struct1,celsius=T,material=material)
+        dG2 = thermo.energy([fake_seq2],fake_struct2,celsius=T,material=material)
         if toe5len > 0:
-            dG_toe5 = nupack.energy([fake_seq1,fake_seq2],fake_struct_toe5,T=T,material=material) - dG1 - dG2
+            dG_toe5 = thermo.energy([fake_seq1,fake_seq2],fake_struct_toe5,celsius=T,material=material) - dG1 - dG2
         else:
             dG_toe5 = 0
         if toe3len > 0:
-            dG_toe3 = nupack.energy([fake_seq1,fake_seq2],fake_struct_toe3,T=T,material=material) - dG1 - dG2
+            dG_toe3 = thermo.energy([fake_seq1,fake_seq2],fake_struct_toe3,celsius=T,material=material) - dG1 - dG2
         else:
             dG_toe3 = 0
         if toe5len > 0 and toe3len > 0:
-            dG_toes = nupack.energy([fake_seq1,fake_seq2],fake_struct_toes,T=T,material=material) - dG1 - dG2
+            dG_toes = thermo.energy([fake_seq1,fake_seq2],fake_struct_toes,celsius=T,material=material) - dG1 - dG2
         else:
             dG_toes = 0
         return max(-dG_toe5,-dG_toe3,-dG_toes)
@@ -326,13 +318,13 @@ if __name__ == '__main__':
 
     if len(sys.argv) < 2:
         print("""Usage:
-              python -i hybridization_scatterplot generate random <len> <num seqs> <data file name>
-              python -i hybridization_scatterplot generate iso-random <len> <num seqs> <data file name>
-              python -i hybridization_scatterplot generate structured <len> <max toe> <max stem> <num seqs> <data file name>
-              python -i hybridization_scatterplot generate iso-structured <len> <max toe> <max stem> <num seqs> <data file name>
-              python -i hybridization_scatterplot generate fixed-stem <len> <max toe> <stem size> <num seqs> <data file name>
-              python -i hybridization_scatterplot generate iso-fixed-stem <len> <max toe> <stem size> <num seqs> <data file name>
-              python -i hybridization_scatterplot plot <data file names>
+              python -i hybridization_scatterplot.py generate random <len> <num seqs> <data file name>
+              python -i hybridization_scatterplot.py generate iso-random <len> <num seqs> <data file name>
+              python -i hybridization_scatterplot.py generate structured <len> <max toe> <max stem> <num seqs> <data file name>
+              python -i hybridization_scatterplot.py generate iso-structured <len> <max toe> <max stem> <num seqs> <data file name>
+              python -i hybridization_scatterplot.py generate fixed-stem <len> <max toe> <stem size> <num seqs> <data file name>
+              python -i hybridization_scatterplot.py generate iso-fixed-stem <len> <max toe> <stem size> <num seqs> <data file name>
+              python -i hybridization_scatterplot.py plot <data file names>
               """)
         sys.exit()
 
@@ -455,15 +447,19 @@ if __name__ == '__main__':
             results.append([seq, N_forward_total, N_reverse_total, k1_net, k1prime_net, k2_net, k2prime_net])
 
         # now save the results for later...
-        with open("scatterdata/" + filename + ".pkl", "wb") as f:
+        dir = "scatterdata/"
+        if not os.path.exists(dir):
+            os.makedirs(dir)
+        with open("scatterdata/" + filename + ".pkl", "wb+") as f:
             pickle.dump(results, f)
         pdfname = filename
 
     elif sys.argv[1] == 'plot':
         results = []
         for fn in filenames:
+
             print("Loading data from %s ..." % ("scatterdata/" + fn + ".pkl"))
-            with open("scatterdata/" + fn + ".pkl", "rb") as f:
+            with open(dir + fn + ".pkl", "rb") as f:
                 these_results = pickle.load(f)
             results += these_results
         pdfname = "+".join(filenames)
@@ -510,14 +506,14 @@ if __name__ == '__main__':
         plt.figure(1)
         plt.subplots_adjust( hspace=1.0)
         plt.subplot(211)
-        n, bins, patches = plt.hist(log_kfs, 20, normed=1, facecolor='green', alpha=0.75)
+        n, bins, patches = plt.hist(log_kfs, 20, facecolor='green', alpha=0.75)
         plt.title("Association and dissociation rate distributions")
         plt.ylabel("frequency of\nassociation rates",fontsize='large')
         plt.yticks(fontsize='larger',va='bottom')
         plt.xlabel("Log10 rate constant kf (/M/s)" + extremes,fontsize='large')
         plt.xticks(fontsize='larger')
         plt.subplot(212)
-        n, bins, patches = plt.hist(log_krs, 20, normed=1, facecolor='green', alpha=0.75)
+        n, bins, patches = plt.hist(log_krs, 20, facecolor='green', alpha=0.75)
         plt.ylabel("frequency of\ndissociation rates",fontsize='large')
         plt.yticks(fontsize='larger',va='bottom')
         plt.xlabel("Log10 rate constant kr (/s)",fontsize='large')
@@ -579,12 +575,12 @@ if __name__ == '__main__':
         # Do the rates depend upon toehold lengths?
         plt.figure(1)
         plt.subplot(211)
-        plt.scatter(toes, log_kfs, s=[10*s for s in stems], color=toecolors, alpha=0.5)
+        plt.scatter(x=toes, y=log_kfs, s=[10*s for s in stems], c=toecolors, alpha=0.5)
         plt.title("Association and dissociation rates (double-toeholds are blue)")
         plt.ylabel("Log10 rate constant kf (/M/s) \n",fontsize='larger')
         plt.yticks(fontsize='larger',va='bottom')
         plt.subplot(212)
-        plt.scatter(toes, log_krs, s=[10*s for s in stems], color=toecolors, alpha=0.5)
+        plt.scatter(x=toes, y=log_krs, s=[10*s for s in stems], c=toecolors, alpha=0.5)
         plt.ylabel("Log10 rate constant kr (/s)",fontsize='larger')
         plt.yticks(fontsize='larger',va='bottom')
         plt.xlabel("effective toehold length (nt)",fontsize='larger')
@@ -609,28 +605,30 @@ if __name__ == '__main__':
         # Do the rates depend upon toehold lengths, for long-stemmed strands?
         plt.figure(1)
         plt.subplot(211)
-        plt.scatter(toes[long], log_kfs[long], s=[10*s for s in stems[long]], color=toecolors, alpha=0.5)
-        plt.title("Association and dissociation rates for long-stem strands")
-        plt.ylabel("Log10 rate constant kf (/M/s) \n",fontsize='larger')
-        plt.yticks(fontsize='larger',va='bottom')
-        plt.subplot(212)
-        plt.scatter(toes[long], log_krs[long], s=[10*s for s in stems[long]], color=toecolors, alpha=0.5)
-        plt.ylabel("Log10 rate constant kr (/s)",fontsize='larger')
-        plt.yticks(fontsize='larger',va='bottom')
-        plt.xlabel("effective toehold length (nt)",fontsize='larger')
-        plt.xticks(fontsize='larger')
-        pdf.savefig()
+
+        if stems[long] is []:
+            plt.scatter(x=toes[long], y=log_kfs[long], s=[10*s for s in stems[long]], c=toecolors[long], alpha=0.5)
+            plt.title("Association and dissociation rates for long-stem strands")
+            plt.ylabel("Log10 rate constant kf (/M/s) \n",fontsize='larger')
+            plt.yticks(fontsize='larger',va='bottom')
+            plt.subplot(212)
+            plt.scatter(x=toes[long], y=log_krs[long], s=[10*s for s in stems[long]], c=toecolors[long], alpha=0.5)
+            plt.ylabel("Log10 rate constant kr (/s)",fontsize='larger')
+            plt.yticks(fontsize='larger',va='bottom')
+            plt.xlabel("effective toehold length (nt)",fontsize='larger')
+            plt.xticks(fontsize='larger')
+            pdf.savefig()
         plt.close()
 
         # Do the rates depend upon toehold lengths, for short-stemmed strands?
         plt.figure(1)
         plt.subplot(211)
-        plt.scatter(toes[short], log_kfs[short], s=[10*s for s in stems[short]], color=toecolors, alpha=0.5)
+        plt.scatter(toes[short], log_kfs[short], s=[10*s for s in stems[short]], c=toecolors[short], alpha=0.5)
         plt.title("Association and dissociation rates for short-stem strands")
         plt.ylabel("Log10 rate constant kf (/M/s) \n",fontsize='larger')
         plt.yticks(fontsize='larger',va='bottom')
         plt.subplot(212)
-        plt.scatter(toes[short], log_krs[short], s=[10*s for s in stems[short]], color=toecolors, alpha=0.5)
+        plt.scatter(toes[short], log_krs[short], s=[10*s for s in stems[short]], c=toecolors[short], alpha=0.5)
         plt.ylabel("Log10 rate constant kr (/s)",fontsize='larger')
         plt.yticks(fontsize='larger',va='bottom')
         plt.xlabel("effective toehold length (nt)",fontsize='larger')
@@ -641,12 +639,12 @@ if __name__ == '__main__':
         # Do the rates depend upon toehold strengths?
         plt.figure(1)
         plt.subplot(211)
-        plt.scatter(toe_dGs, log_kfs, s=[10*s for s in stems], color=toecolors, alpha=0.5)
+        plt.scatter(toe_dGs, log_kfs, s=[10*s for s in stems], c=toecolors, alpha=0.5)
         plt.title("Association and dissociation rates (double-toeholds are blue)")
         plt.ylabel("Log10 rate constant kf (/M/s) \n",fontsize='larger')
         plt.yticks(fontsize='larger',va='bottom')
         plt.subplot(212)
-        plt.scatter(toe_dGs, log_krs, s=[10*s for s in stems], color=toecolors, alpha=0.5)
+        plt.scatter(toe_dGs, log_krs, s=[10*s for s in stems], c=toecolors, alpha=0.5)
         plt.ylabel("Log10 rate constant kr (/s)",fontsize='larger')
         plt.yticks(fontsize='larger',va='bottom')
         plt.xlabel("toehold binding strength (kcal/mol)",fontsize='larger')

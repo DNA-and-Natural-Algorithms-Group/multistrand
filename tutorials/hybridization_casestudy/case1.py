@@ -15,14 +15,13 @@ slowDownStudy 82000
 from multistrand.objects import Strand
 from multistrand.experiment import standardOptions, hybridization
 from multistrand.utils.utility import concentration_string, standardFileName
-from multistrand.utils.thermo import C2K
+import multistrand.utils.thermo as thermo
 from multistrand.concurrent import Bootstrap, MergeSim
 from multistrand.options import Literals
 
 
 from constantsgao import goa2006_P0, goa2006_P3, goa2006_P4, setSaltGao2006, colors
 
-import nupack
 
 import matplotlib.pylab as plt
 import numpy as np
@@ -114,10 +113,10 @@ def doFirstStepMode(seq, concentrations, T=20.0, numOfRuns=500):
     print("Calculating dissociate rate constant based on "
           "NUPACK partition function energies and first step mode k_eff...")
 
-    dG_top = nupack.pfunc([seq], T=T)
-    dG_bot = nupack.pfunc([ Strand(sequence=seq).C.sequence ], T=T)
-    dG_duplex = nupack.pfunc([ seq, Strand(sequence=seq).C.sequence ], T=T)
-    RT = 1.987e-3 * (T + C2K)
+    dG_top = thermo.complex_free_energy([seq], celsius=T)
+    dG_bot = thermo.complex_free_energy([ Strand(sequence=seq).C.sequence ], celsius=T)
+    dG_duplex = thermo.complex_free_energy([ seq, Strand(sequence=seq).C.sequence ], celsius=T)
+    RT = 1.987e-3 * (T + thermo.C2K)
     time3 = time.time()
     time_nupack = time3 - time2
     krev_nupack = kEff * np.exp((dG_duplex - dG_top - dG_bot) / RT)

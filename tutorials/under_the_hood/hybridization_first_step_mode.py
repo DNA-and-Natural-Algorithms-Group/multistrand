@@ -103,7 +103,7 @@ def concentration_string(concentration):
     return "{} M".format(concentration)
 
 
-def create_setup(strand_seq, num_traj, T=25, rate_method_k_or_m="Metropolis", material="DNA"):
+def create_setup(strand_seq, num_traj, T=20):
 
     # Essentially, creates the options object and prepares to simulate the hybridization of the strand and its complement.
     onedomain = Domain(name="itall",sequence=strand_seq)
@@ -127,9 +127,9 @@ def create_setup(strand_seq, num_traj, T=25, rate_method_k_or_m="Metropolis", ma
     failed_complex = Complex(strands = [top], structure=".")
     failed_stop_condition = StopCondition("FAILURE",[(failed_complex,Dissoc_Macrostate,0)])
 
-    o = Options(simulation_mode="First Step",parameter_type="Nupack", substrate_type=material,
-                rate_method = rate_method_k_or_m, num_simulations = num_traj, simulation_time=1.0,
-                dangles = "Some", temperature = T, rate_scaling = "Calibrated", verbosity = 0)
+    o = Options(simulation_mode="First Step", num_simulations = num_traj, simulation_time=1.0,
+                dangles="Some", temperature = T, verbosity = 0)
+    o.DNA23Arrhenius()
 
     o.start_state = [start_complex_top, start_complex_bot]
     o.stop_conditions = [success_stop_condition,failed_stop_condition]
@@ -233,12 +233,12 @@ def resample_with_replacement(mylist,num_samples):
     return [random.choice(mylist) for i in range(num_samples)]
 
 
-def first_step_simulation(strand_seq, num_traj, T=25, rate_method_k_or_m="Metropolis", concentration=50e-9, material="DNA"):
+def first_step_simulation(strand_seq, num_traj, T=25, concentration=50e-9, material="DNA"):
 
     # Run the simulations
 
     print(f"Running first step mode simulations for {strand_seq} (with Boltzmann sampling)...")
-    o = create_setup(strand_seq, num_traj, T, rate_method_k_or_m, material)
+    o = create_setup(strand_seq, num_traj, T)
     s = SimSystem(o)
     s.start()
     dataset = o.interface.results
