@@ -92,11 +92,11 @@ def create_setup(strand_seq, num_traj, T=25, rate_method_k_or_m="Metropolis", ma
 
     # Stop when the exact full duplex is achieved. (No breathing!)
     success_complex = Complex(strands=[top, bot],structure="(+)")
-    success_stop_condition = StopCondition("SUCCESS",[(success_complex, Literals.exact_macrostate,0)])
+    success_stop_condition = StopCondition(Literals.success,[(success_complex, Literals.exact_macrostate,0)])
 
     # Declare the simulation unproductive if the strands become single-stranded again.
     failed_complex = Complex(strands = [top], structure=".")
-    failed_stop_condition = StopCondition("FAILURE",[(failed_complex, Literals.dissoc_macrostate,0)])
+    failed_stop_condition = StopCondition(Literals.failure,[(failed_complex, Literals.dissoc_macrostate,0)])
 
     o = Options(simulation_mode="First Step", num_simulations = num_traj, simulation_time=1.0,
                 dangles="Some", temperature=T, verbosity=0)
@@ -127,7 +127,7 @@ def compute_rate_constants(dataset, concentration, printit=True):
 
     # Pull out the duration of successful reactions and 
     # the bimolecular rate constants for collisions between the particuular Boltzmann-sampled complexes for each trial.
-    forward = [i for i in dataset if i.tag == "SUCCESS"]
+    forward = [i for i in dataset if i.tag == Literals.success]
     forward_times = np.zeros( len(forward))
     forward_times[:] = [i.time for i in forward]
     forward_collision_rates = np.zeros( len(forward))
@@ -137,7 +137,7 @@ def compute_rate_constants(dataset, concentration, printit=True):
     # for example, if they are both blunt-ended hairpins.  In this case, i.collision_rate will be 0, i.tag "noinitial"
     # Since the other way that i.tag can be 'None' is when a simulation doesn't
     # reach any StopCondition before timing out by exceeding o.simulation_time, and since both of those cases should be considered "failures"
-    reverse = [i for i in dataset if i.tag == "FAILURE" or i.tag == Literals.no_initial_moves or i.tag == Literals.time_out]
+    reverse = [i for i in dataset if i.tag in [Literals.failure, Literals.no_initial_moves, Literals.time_out]]
     reverse_times = np.zeros( len(reverse))
     reverse_times[:] = [i.time for i in reverse]
     reverse_collision_rates = np.zeros( len(reverse))
@@ -152,26 +152,46 @@ def compute_rate_constants(dataset, concentration, printit=True):
 
     # Calculate first-order rate constants for the duration of the reactions (both productive and unproductive).
     # The error bar formulas here are estimates, and they may not be accurate if the distributions of completion times are unusual or if there aren't enough trials.
-    dTsuccess_uni = np.mean(forward_times)
-    k2 = 1.0/dTsuccess_uni
-    std_k2 = k2 * np.std(forward_times)/np.sqrt(N_forward)/np.mean(forward_times) # linear approx: same % error in times as in rates
-    dTfail_uni   = np.mean(reverse_times)
-    k2prime = 1.0/dTfail_uni
-    std_k2prime = k2prime * np.std(reverse_times)/np.sqrt(N_reverse)/np.mean(reverse_times) # linear approx: same % error in times as in rates
+    if forward:
+        dTsuccess_uni = np.mean(forward_times)
+        k2 = 1.0/dTsuccess_uni
+        std_k2 = k2 * np.std(forward_times)/np.sqrt(N_forward)/np.mean(forward_times) # linear approx: same % error in times as in rates
+    else:
+        dTsuccess_uni = np.nan
+        k2 = np.nan
+        std_k2 = np.nan
+    if reverse:
+        dTfail_uni = np.mean(reverse_times)
+        k2prime = 1.0/dTfail_uni
+        std_k2prime = k2prime * np.std(reverse_times)/np.sqrt(N_reverse)/np.mean(reverse_times) # linear approx: same % error in times as in rates
+    else:
+        dTfail_uni = np.nan
+        k2prime = np.nan
+        std_k2prime = np.nan
 
     # Calculate second-order rate constants, and their error bars.
     kcollision = np.mean(collision_rates)
-    reverse_kcoll = np.mean(reverse_collision_rates)
-    forward_kcoll = np.mean(forward_collision_rates)
     std_kcollision = np.std(collision_rates) / np.sqrt(N)
-    std_forward_kcoll = np.std(forward_collision_rates) / np.sqrt(N_forward)
-    std_reverse_kcoll = np.std(reverse_collision_rates) / np.sqrt(N_reverse)
     prob = float(N_forward)/N
+    if forward:
+        forward_kcoll = np.mean(forward_collision_rates)
+        std_forward_kcoll = np.std(forward_collision_rates) / np.sqrt(N_forward)
+        std_k1 = np.std( np.concatenate([forward_collision_rates,np.zeros(N_reverse)]) ) / np.sqrt(N)
+    else:
+        forward_kcoll = np.nan
+        std_forward_kcoll = np.nan
+        std_k1 = np.nan
+    if reverse:
+        reverse_kcoll = np.mean(reverse_collision_rates)
+        std_reverse_kcoll = np.std(reverse_collision_rates) / np.sqrt(N_reverse)
+        std_k1prime = np.std( np.concatenate([reverse_collision_rates,np.zeros(N_forward)]) ) / np.sqrt(N)
+    else:
+        reverse_kcoll = np.nan
+        std_reverse_kcoll = np.nan
+        std_k1prime = np.nan
     k1 = prob * forward_kcoll    # this is mathematically equivalent to np.mean( collision_rates * was_success )  where * is pointwise, like Matlab .*
-    std_k1 = np.std( np.concatenate([forward_collision_rates,np.zeros(N_reverse)]) ) / np.sqrt(N)
-    # print "%g =?= %g" % ( k1 , np.mean( np.concatenate([forward_collision_rates,np.zeros(N_reverse)]) ) )   # prove the above claim
     k1prime = (1-prob) * reverse_kcoll
-    std_k1prime = np.std( np.concatenate([reverse_collision_rates,np.zeros(N_forward)]) ) / np.sqrt(N)
+    # print "%g =?= %g" % ( k1 , np.mean( np.concatenate([forward_collision_rates,np.zeros(N_reverse)]) ) )   # prove the above claim
     # print "%g =?= %g" % ( k1prime, np.mean( np.concatenate([reverse_collision_rates,np.zeros(N_forward)]) ) )
 
     # keff accounts both for potentially time-consuming unimolecular reactions and for potentially time-consuming "failed" interactions.
@@ -570,7 +590,7 @@ if __name__ == '__main__':
         plt.close()
 
         singletoes = [ max(toeholds(seq)) for (seq,kf) in results ]
-        toecolors = ['red' if s==t else 'blue' for (s,t) in zip(singletoes,toes)]
+        toecolors = np.array(['red' if s==t else 'blue' for (s,t) in zip(singletoes,toes)])
 
         # Do the rates depend upon toehold lengths?
         plt.figure(1)
@@ -606,18 +626,17 @@ if __name__ == '__main__':
         plt.figure(1)
         plt.subplot(211)
 
-        if stems[long] is []:
-            plt.scatter(x=toes[long], y=log_kfs[long], s=[10*s for s in stems[long]], c=toecolors[long], alpha=0.5)
-            plt.title("Association and dissociation rates for long-stem strands")
-            plt.ylabel("Log10 rate constant kf (/M/s) \n",fontsize='larger')
-            plt.yticks(fontsize='larger',va='bottom')
-            plt.subplot(212)
-            plt.scatter(x=toes[long], y=log_krs[long], s=[10*s for s in stems[long]], c=toecolors[long], alpha=0.5)
-            plt.ylabel("Log10 rate constant kr (/s)",fontsize='larger')
-            plt.yticks(fontsize='larger',va='bottom')
-            plt.xlabel("effective toehold length (nt)",fontsize='larger')
-            plt.xticks(fontsize='larger')
-            pdf.savefig()
+        plt.scatter(x=toes[long], y=log_kfs[long], s=[10*s for s in stems[long]], c=toecolors[long], alpha=0.5)
+        plt.title("Association and dissociation rates for long-stem strands")
+        plt.ylabel("Log10 rate constant kf (/M/s) \n",fontsize='larger')
+        plt.yticks(fontsize='larger',va='bottom')
+        plt.subplot(212)
+        plt.scatter(x=toes[long], y=log_krs[long], s=[10*s for s in stems[long]], c=toecolors[long], alpha=0.5)
+        plt.ylabel("Log10 rate constant kr (/s)",fontsize='larger')
+        plt.yticks(fontsize='larger',va='bottom')
+        plt.xlabel("effective toehold length (nt)",fontsize='larger')
+        plt.xticks(fontsize='larger')
+        pdf.savefig()
         plt.close()
 
         # Do the rates depend upon toehold lengths, for short-stemmed strands?
