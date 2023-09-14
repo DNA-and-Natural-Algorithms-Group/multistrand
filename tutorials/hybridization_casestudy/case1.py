@@ -195,8 +195,7 @@ def addPoints(results, i, alp, seqs, concentrations, lineStyle, extraOptions=Non
 
         yLow = np.array([ (r[1])  for r in results[i]])
         yHigh = np.array([ (r[2]) for r in results[i]])
-                
-        plt.errorbar(xVal, yVal, yerr=[yVal - yHigh, yLow - yVal], color=colors[i], linestyle=lineStyle, alpha=alp, capsize = 6,  label=str(seqs[i]))
+        plt.errorbar(xVal, yVal, yerr=[yHigh - yVal, yVal - yLow], color=colors[i], linestyle=lineStyle, alpha=alp, capsize = 6,  label=str(seqs[i]))
 
 
 def doPlots(seqs, concentrations, results1, results2, trials):
@@ -324,8 +323,8 @@ if __name__ == '__main__':
         trials = int(sys.argv[2])
 
         if toggle == "plots":     
-            doInference([1e0, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6], trials)                     
-#             doInference([1e0, 1e-1, 1e-2], trials)
+            #doInference([1e0, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6], trials)
+             doInference([1e0, 1e-1, 1e-2], trials)
 
         if toggle == "slowDownStudy":
             doSlowdownStudy(trials)

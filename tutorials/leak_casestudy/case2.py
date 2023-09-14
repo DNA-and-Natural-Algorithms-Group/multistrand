@@ -10,7 +10,7 @@ import time
 from enum import Enum
 
 from multistrand.concurrent import MergeSim
-from multistrand.options import Options
+from multistrand.options import Options, Literals
 from multistrand.experiment import \
     ClampedSeesawGate, seesaw_gate_fuel_catalysis, seesaw_gate_gate_leak, \
     seesaw_gate_output_production, seesaw_gate_fuel_leak, standardOptions
@@ -104,7 +104,7 @@ def getExperiment(selIn):
 def genOptions(trialsIn, gateA, sel, supersample=25, gateB=None):
     
     stdOptions = standardOptions(
-        Options.firstStep, tempIn=45.0, trials=trialsIn, timeOut=ATIME_OUT)
+        Literals.first_step, tempIn=45.0, trials=trialsIn, timeOut=ATIME_OUT)
     if gateB == None:
         getExperiment(sel)(stdOptions, gateA, trialsIn, supersample)
     else:

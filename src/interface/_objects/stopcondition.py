@@ -32,6 +32,8 @@ class StopCondition:
         self.tag = str(tag)
         # List of (complex, stoptype, count) tuples
         self.complex_items = list(map(tuple, complex_items))
+        if any(clist[0].boltzmann_sample for clist in self.complex_items):
+            raise ValueError("Stop Condition Complexes cannot be boltzmann sampled")
 
         """ Need to prevent circular import """
         from ..options import Literals
