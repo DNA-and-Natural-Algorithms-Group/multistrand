@@ -442,6 +442,16 @@ class Options:
 
         self.interface = Interface()
 
+    def free_sim_system(self) -> None:
+        """
+        Release the `SimSystem` object (C++) that is stored in order to reuse
+        its `EnergyModel`. Even without calling this method, the `SimSystem`
+        will be freed when `self` is garbage-collected. Hence, this method is
+        only required if an `Options` object needs to be pickled, e.g., when
+        aggregating results from parallel simulations.
+        """
+        self._reusable_sim_system = None
+
     def __eq__(self, other: "Options") -> bool:
         """
         Compare configurations syntactically, ignoring random seeds and

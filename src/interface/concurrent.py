@@ -782,7 +782,7 @@ class MergeSim:
                 list1.append(endState)
             if self.settings.debug:
                 self.printTrajectories(myOptions)
-            if not(aFactory == None):
+            if aFactory is not None:
                 aFactory.doAnalysis(myOptions)
 
         def getSimulation(input):
