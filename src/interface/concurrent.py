@@ -565,6 +565,7 @@ class MergeSim:
 
         self._factory: OptionsFactory
         self.aFactory = None
+        self.results = None
         if settings == None:
             self.settings = MergeSimSettings()
 

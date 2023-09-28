@@ -32,8 +32,7 @@ class StopCondition:
         self.tag = str(tag)
         # List of (complex, stoptype, count) tuples
         self.complex_items = list(map(tuple, complex_items))
-        if any(clist[0].boltzmann_sample for clist in self.complex_items):
-            raise ValueError("Stop Condition Complexes cannot be boltzmann sampled")
+        self.verify_no_boltzmann()
 
         """ Need to prevent circular import """
         from ..options import Literals
@@ -52,6 +51,10 @@ class StopCondition:
             str_ret += "\n  Structure %d: %s" % (i, val[0].structure)
 
         return str_ret
+
+    def verify_no_boltzmann(self):
+        if any(clist[0].boltzmann_sample for clist in self.complex_items):
+            raise ValueError("Complexes in Stop Conditions cannot boltzmann sample structures")
 
 
 class Macrostate(StopCondition):

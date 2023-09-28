@@ -896,6 +896,9 @@ class Options:
         
         # Copy the input list because it's easy to do and it's safer
         stop_list = copy.deepcopy(stop_list)
+
+        for scond in stop_list:
+            scond.verify_no_boltzmann()
         
         # Set the internal data members
         self.stop_count = len(stop_list)

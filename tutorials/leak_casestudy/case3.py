@@ -39,11 +39,11 @@ def runSimulations():
 
     for ssample in range(1, 26, 5):
         start = time.time()
-        runExperiment(trialsIncrement, gateA,
+        results = runExperiment(trialsIncrement, gateA,
                       Experiment.GATE_OUTPUT_PRODUCTION, None, ssample)
         end = time.time()
         elapsedTime = end-start
-        timePerTrial = elapsedTime / myMultistrand.results.nTotal
+        timePerTrial = elapsedTime / results.nTotal
         xValues.append(ssample)
         times.append(timePerTrial)
     

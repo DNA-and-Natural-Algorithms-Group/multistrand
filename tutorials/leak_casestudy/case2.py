@@ -84,16 +84,12 @@ def getExperiment(selIn):
     fileName = ""
     
     if exp == Experiment.GATE_OUTPUT_PRODUCTION:
-        print("Gate Output Production")
         experiment = seesaw_gate_output_production
     elif exp == Experiment.GATE_FUEL_REGEN:
-        print("Fuel Input Regeneration")
         experiment = seesaw_gate_fuel_catalysis
     elif exp == Experiment.GATE_FUEL_LEAK:
-        print("Gate Fuel Leak")
         experiment = seesaw_gate_fuel_leak
     elif exp == Experiment.GATE_GATE_LEAK:
-        print("Gate Gate Leak")
         experiment = seesaw_gate_gate_leak
 
     return experiment
@@ -101,23 +97,24 @@ def getExperiment(selIn):
 # trials has to be the first argument.
 
 
-def genOptions(trialsIn, gateA, sel, supersample=25, gateB=None):
+def genOptions(trialsIn, gateA, exp, supersample=25, gateB=None):
     
     stdOptions = standardOptions(
         Literals.first_step, tempIn=45.0, trials=trialsIn, timeOut=ATIME_OUT)
     if gateB == None:
-        getExperiment(sel)(stdOptions, gateA, trialsIn, supersample)
+        exp(stdOptions, gateA, trialsIn, supersample)
     else:
-        getExperiment(sel)(stdOptions, gateA, gateB, trialsIn, supersample)
+        exp(stdOptions, gateA, gateB, trialsIn, supersample)
     stdOptions.DNA23Metropolis()
     return stdOptions
 
 
 def runExperiment(trialsIn, gateA, sel, gateB=None, supersample=25):
     myMultistrand.setOptionsFactory5(
-        genOptions, trialsIn, gateA, sel, supersample, gateB)
+        genOptions, trialsIn, gateA, getExperiment(sel), supersample, gateB)
     myMultistrand.setFirstStepMode()
     myMultistrand.run()
+    return myMultistrand.results
     
 
 # Trials in will determine the increment of the extra number of trials ran each time
@@ -134,7 +131,7 @@ def runSimulations(trialsIn=1000):
     gateB = ClampedSeesawGate(*CL_LONG_GATE_B_SEQ)
 
     # In order to run different reactions, use a different enum for the experiment type!
-    runExperiment(trialsIn, gateA, Experiment.GATE_GATE_LEAK,  gateB = gateB)
+    runExperiment(trialsIn, gateA, Experiment.GATE_GATE_LEAK,  gateB=gateB)
 
 
 if __name__ == "__main__":

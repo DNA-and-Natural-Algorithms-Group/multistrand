@@ -1,7 +1,7 @@
 # Multistrand nucleic acid kinetic simulator
 # Copyright (c) 2008-2023 California Institute of Technology. All rights reserved.
 # The Multistrand Team (help@multistrand.org)
-
+import copy
 
 # Often recurring experimental setups
 from multistrand.objects import Complex, Domain, Strand, StopCondition
@@ -245,8 +245,8 @@ SEESAW_DELTA = 5
 # toehold_sequence, clamp_sequence which defaults to clamp_sequence
 # This method takes a gate output complex and its input and then calculate the rate of output production
 def seesaw_gate_output_production(options, gate, trials, supersample=25, doFirstPassage=False):
-    two_input(options, gate.gate_output_complex, gate.input_complex,
-              gate.output_complex, trials, supersample, doFirstPassage=doFirstPassage)
+    two_input(options=options, input_complex_A=gate.gate_output_complex, input_complex_B=gate.input_complex, trials=trials,
+              output_complex=gate.output_complex, supersample=supersample, doFirstPassage=doFirstPassage)
 
 # Domain list as a list of strings, defined as follows input_sequence, base_sequence, output_sequence, fuel_sequence,
 # toehold_sequence, clamp_sequence which defaults to clamp_sequence
@@ -254,8 +254,8 @@ def seesaw_gate_output_production(options, gate, trials, supersample=25, doFirst
 
 
 def seesaw_gate_fuel_catalysis(options, gate, trials, supersample=25, doFirstPassage=False):
-    two_input(options, gate.gate_input_complex, gate.fuel_complex,
-              gate.input_complex, trials, supersample, doFirstPassage=doFirstPassage)
+    two_input(trials, options, gate.gate_input_complex, gate.fuel_complex,
+              gate.input_complex, supersample, doFirstPassage=doFirstPassage)
 
 
 # Domain list as a list of strings, defined as follows input_sequence, base_sequence, output_sequence, fuel_sequence,
@@ -263,14 +263,14 @@ def seesaw_gate_fuel_catalysis(options, gate, trials, supersample=25, doFirstPas
 # This method takes a gate output complex with its fuel complex and calculates the ***leak*** rate at which
 # the fuel displaces the output i.e. the rate of leak output production.
 def seesaw_gate_fuel_leak(options, gate, trials, supersample=25, doFirstPassage=False):
-    two_input(options, gate.gate_output_complex, gate.fuel_complex,
-              gate.output_complex, trials, supersample, doFirstPassage=doFirstPassage)
+    two_input(trials, options, gate.gate_output_complex, gate.fuel_complex,
+              gate.output_complex, supersample, doFirstPassage=doFirstPassage)
 
 
-# Takes two gate objects and calcualtes their leak!
+# Takes two gate objects and calculates their leak!
 def seesaw_gate_gate_leak(options, gateA, gateB, trials, supersample=25, doFirstPassage=False):
-    two_input_two_success(options, gateA.gate_output_complex, gateB.gate_output_complex,
-                          gateA.output_complex, gateB.output_complex, trials, supersample, doFirstPassage)
+    two_input_two_success(trials, options, gateA.gate_output_complex, gateB.gate_output_complex,
+                          gateA.output_complex, gateB.output_complex, supersample, doFirstPassage)
 
 
 def two_input(options, input_complex_A, input_complex_B, output_complex, trials=0, supersample=25, doFirstPassage=False):
@@ -278,9 +278,11 @@ def two_input(options, input_complex_A, input_complex_B, output_complex, trials=
     if(trials > 0):
         for x in [input_complex_A, input_complex_B]:
             setBoltzmann(x, trials, supersample)
+    stop_complex_B = copy.deepcopy(input_complex_B)
+    stop_complex_B.boltzmann_sample = False
 
     successful_stop_condition = StopCondition(Literals.success, [(output_complex, Literals.dissoc_macrostate, 0)])
-    failure_stop_condition = StopCondition(Literals.failure, [(input_complex_B, Literals.dissoc_macrostate, 0)])
+    failure_stop_condition = StopCondition(Literals.failure, [(stop_complex_B, Literals.dissoc_macrostate, 0)])
 
     options.start_state = [input_complex_A, input_complex_B]
 
@@ -298,9 +300,12 @@ def two_input_two_success(trials, options, input_complex_A, input_complex_B, out
         for x in [input_complex_A, input_complex_B]:
             setBoltzmann(x, trials, supersample)
 
+    stop_complex_B = copy.deepcopy(input_complex_B)
+    stop_complex_B.boltzmann_sample = False
+
     successful_stop_condition = StopCondition(Literals.success, [(output_complex_A, Literals.dissoc_macrostate, 0)])
     alt_successful_stop_condition = StopCondition(Literals.alt_success, [(output_complex_B, Literals.dissoc_macrostate, 0)])
-    failure_stop_condition = StopCondition(Literals.failure, [(input_complex_B, Literals.dissoc_macrostate, 0)])
+    failure_stop_condition = StopCondition(Literals.failure, [(stop_complex_B, Literals.dissoc_macrostate, 0)])
 
     options.start_state = [input_complex_A, input_complex_B]
 
