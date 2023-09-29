@@ -56,7 +56,7 @@ From: bitnami/python:{{CPY_VER}}-debian-11
     echo "\n\n\n" && ${CC} --version && ${CXX} --version && pip debug
 
     # install common Python utils
-    pip install ipython
+    pip install ipython jupyter
 
     # install NUPACK
     echo "\n\n\n" && cd ${LIB_ROOT} && unzip -q ${NUPACK_ZIP} && \
@@ -64,7 +64,7 @@ From: bitnami/python:{{CPY_VER}}-debian-11
 
     # install Multistrand
     echo "\n\n\n" && cd ${MS}
-    rm -rfv .git tools build *.egg-info *.log *_cache p_statespace
+    rm -rf .git tools build *.egg-info *.log *_cache p_statespace
     find . -type f -regex ".*\.so" -print | xargs rm -v
     pip install -v -e .[testing,tutorials]
 

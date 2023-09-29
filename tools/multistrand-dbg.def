@@ -9,20 +9,22 @@ From: bitnami/minideb:bullseye
 
     This Apptainer container definition installs NUPACK 4.0.1 [1] and a debug
     build of Multistrand 2.2 [2], assuming that both source trees are available
-    on the host system (see %files section). It uses GCC 10, GDB 13.2 and a
-    debug build of Python 3.11, and requires Apptainer 1.2+ to build. For a
-    tutorial on using GDB for the Python runtime and its C extensions, see [3].
+    on the host system (see %files section). It uses GCC 10, GDB 13.2, Valgrind
+    3.16 and a debug build of Python 3.11, and requires Apptainer 1.2+ to build.
+    See [3] for a tutorial on using GDB for the Python runtime and its C
+    extensions, and similarly [4] for Valgrind.
 
     [1] https://www.nupack.org/
     [2] https://github.com/DNA-and-Natural-Algorithms-Group/multistrand
     [3] https://willayd.com/fundamental-python-debugging-part-2-python-extensions.html
+    [4] https://pythonextensionpatterns.readthedocs.io/en/latest/debugging/valgrind.html
 
 %arguments
 
     # version config
     NUPACK_VER=4.0.1.8
     CPY_VER=3.11
-    CPY_TAG=v{{CPY_VER}}.4
+    CPY_TAG=v{{CPY_VER}}.5
     GDB_VER=13.2
 
     # compiler config
@@ -69,15 +71,12 @@ From: bitnami/minideb:bullseye
     # (`install_packages` wrapper for APT provided by Bitnami base image)
     install_packages \
         sudo ca-certificates build-essential wget unzip tar git \
-        tmux time less tree vim nano
+        tmux time less tree gawk vim nano valgrind
 
     # info
     echo "\n\n\n" && ${CC} --version && ${CXX} --version
 
-    # install Valgrind
-    echo "\n\n\n" && install_packages valgrind
-
-    # install Python from source, configured with PDB
+    # install Python from source, configured with PDB & Valgrind
     install_packages \
         libbz2-dev libffi-dev libssl-dev zlib1g-dev liblzma-dev \
         libsqlite3-dev libreadline-dev libgmp-dev
@@ -86,19 +85,19 @@ From: bitnami/minideb:bullseye
         ./configure --with-pydebug --without-pymalloc --with-valgrind && \
         CFLAGS='-g3' make -s -j{{NJOBS}} && sudo make install
 
-    # configure Valgrind
-    sudo cp ${CPY_SRC}/Misc/valgrind-python.supp ${MS}/valgrind-python-to-edit.supp
-    bash ${MS}/tools/uncomment.sh
-
     # info
     echo "\n\n\n" && pip3 debug
+
+    # tweak Valgrind suppression file for Python
+    cd ${MS}/tools && sudo gawk -f valgrind-python.awk \
+        ${CPY_SRC}/Misc/valgrind-python.supp > valgrind-python.supp
 
     # install GDB from source, configured with Python
     echo "\n\n\n" && cd ${BLD_ROOT} && wget --wait=10 \
         https://ftp.gnu.org/gnu/gdb/${GDB_TAR} && tar -xzf ${GDB_TAR} && \
         cd ${GDB_SRC} && ./configure --with-python=python{{CPY_VER}} && \
         make -s -j{{NJOBS}} && sudo make install
-    # auto-import Python intrinsics in Gdb
+    # auto-import Python intrinsics in GDB
     sudo cp ${CPY_SRC}/Tools/gdb/libpython.py ${GDB_DATA}/python/gdb/function
 
     # install common Python utils
@@ -106,11 +105,11 @@ From: bitnami/minideb:bullseye
 
     # install NUPACK
     echo "\n\n\n" && cd ${LIB_ROOT} && unzip -q ${NUPACK_ZIP} && \
-         pip3 install -U nupack -f ${NUPACK_SRC}/package
+        pip3 install -U nupack -f ${NUPACK_SRC}/package
 
     # install Multistrand, configured with debugging compiler flags
     echo "\n\n\n" && cd ${MS}
-    rm -rfv .git tools build *.egg-info *.log *_cache p_statespace
+    rm -rf .git tools build *.egg-info *.log *_cache p_statespace
     find . -type f -regex ".*\.so" -print | xargs rm -v
     sed --in-place "s/^\(debug = \)\w*$/\1True/" setup.py
     pip3 install -v -e .[testing,tutorials]
@@ -120,7 +119,7 @@ From: bitnami/minideb:bullseye
 
     # cleanup
     echo "\n\n\n" && rm -r \
-         ${CPY_SRC} ${BLD_ROOT}/${GDB_TAR} ${GDB_SRC} ${NUPACK_ZIP} ${NUPACK_SRC}
+        ${CPY_SRC} ${BLD_ROOT}/${GDB_TAR} ${GDB_SRC} ${NUPACK_ZIP} ${NUPACK_SRC}
     pip3 cache purge
 
 %labels
