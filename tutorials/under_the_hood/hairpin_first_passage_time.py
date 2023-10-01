@@ -19,42 +19,48 @@ import matplotlib
 import matplotlib.pylab as plt
 
 from multistrand.objects import *
-from multistrand.options import Options, Literals, EnergyType
+from multistrand.options import Options, Literals
 from multistrand.system import SimSystem
 
 def setup_options_hairpin(trials, stem_seq, hairpin_seq):
 
     # Define the domains
-    stem = Domain(name="stem",sequence=stem_seq,length=len(stem_seq))
-    hairpin = Domain(name="hairpin", sequence=hairpin_seq,length=len(hairpin_seq))
+    stem = Domain(name="stem", sequence=stem_seq)
+    hairpin = Domain(name="hairpin", sequence=hairpin_seq)
     s = stem + hairpin + stem.C
     
-    # We give domain-level structures for the open and closed hairpin configurations
+    # We give domain-level structures for the open and closed hairpin
+    # configurations
     start_complex = Complex(strands=[s], structure="...")
     stop_complex  = Complex(strands=[s], structure="(.)")
-    full_sc       = StopCondition( "CLOSED", [(stop_complex, Literals.exact_macrostate,0)])
-    # Note: unlike in Transition Mode, in First Passage Time Mode, no "stop:" prefix is needed in the macrostate name
-    # in order for the StopCondition to trigger the end of the simulation.
+    full_sc       = StopCondition("CLOSED", [(stop_complex, Literals.exact_macrostate,0)])
+    # Note: unlike in Transition Mode, in First Passage Time Mode, no "stop:"
+    # prefix is needed in the macrostate name in order for the StopCondition to
+    # trigger the end of the simulation.
 
-    o = Options(simulation_mode="First Passage Time",parameter_type="Nupack",substrate_type="DNA", temperature=310.15,
-                num_simulations = trials, simulation_time=0.1, verbosity=0,
-                start_state=[start_complex], stop_conditions=[full_sc])
+    o = Options(
+        simulation_mode="First Passage Time", substrate_type="DNA", temperature=310.15,
+        num_simulations=trials, simulation_time=0.1, verbosity=0,
+        start_state=[start_complex], stop_conditions=[full_sc])
     o.DNA23Metropolis()
     return o
 
-# The simulation is easy. There's more fuss and bother to define how to plot the results.
+# The simulation is easy. There's more fuss and bother to define how to plot the
+# results.
 
-def plot_histograms( result_lists, colors=['b','r','c','m','g','k'], figure=1, labels=None ):
+def plot_histograms(result_lists, colors=['b','r','c','m','g','k'], figure=1, labels=None):
     times = []
     for n in range(len(result_lists)):
-        times.append(1e6* np.array([ i.time for i in result_lists[n] ]))    # convert from seconds to microseconds units.
+        # convert from seconds to microseconds units.
+        times.append(1e6* np.array([i.time for i in result_lists[n]]))
 
-    min_time = np.min( [np.min(times[n]) for n in range(len(result_lists)) ] )
-    max_time = np.max( [np.max(times[n]) for n in range(len(result_lists)) ] )
+    min_time = np.min([np.min(times[n]) for n in range(len(result_lists))])
+    max_time = np.max([np.max(times[n]) for n in range(len(result_lists))])
 
-    plt.figure( figure )
+    plt.figure(figure)
     for n in range(len(result_lists)):
-        plt.hist( times[n], 50, range=(min_time,max_time), color = colors[n], label=labels[n], rwidth=(1-n*1.0/len(result_lists)) )
+        plt.hist(times[n], 50, range=(min_time,max_time), color=colors[n],
+                 label=labels[n], rwidth=(1-n*1.0/len(result_lists)))
 
     plt.title("Folding times for two hairpin sequences")
     plt.xlabel("First Passage Time (us)",fontsize='larger')
@@ -81,12 +87,11 @@ def plot_completion_graph( result_lists, colors=['b','r','c','m','g','k'], figur
 
         p = np.arange(1,len(t)+1)
         p = 100 * p / n  # percentage of all trials
-        percents.append( p )
+        percents.append(p)
 
-    plt.figure( figure )
-
+    plt.figure(figure)
     for t,p,c,label in zip(times,percents,colors,labels):
-        plt.plot( 1e6 * t, p, color = c, linewidth=2.0, label=label )
+        plt.plot(1e6 * t, p, color = c, linewidth=2.0, label=label)
 
     plt.xlabel("Simulation Time (us)",fontsize='larger')
     plt.ylabel("% of Trajectories Complete",fontsize='larger')
@@ -97,20 +102,23 @@ def plot_completion_graph( result_lists, colors=['b','r','c','m','g','k'], figur
     plt.show()
 
 
-# First Passage Time Mode doesn't store the full trajectory.  But it gives the random number seed used on a given simulation.
-# So we can re-run interesting simulations to see what happened.
-# Here, we also show how to run a Trajectory Mode simulation with a StopCondition (rather than time-out).
-def show_interesting_trajectories( result_lists, seqs, type='fastest' ):
+# First Passage Time Mode doesn't store the full trajectory. But it gives the
+# random number seed used on a given simulation. So we can re-run interesting
+# simulations to see what happened. Here, we also show how to run a Trajectory
+# Mode simulation with a StopCondition (rather than time-out).
+def show_interesting_trajectories(result_lists, seqs, type='fastest'):
     mintimes = []
     maxtimes = []
     slowseeds = []
     fastseeds = []
     for n in range(len(result_lists)):
-        times = 1e6* np.array([ i.time for i in result_lists[n] ])    # convert from seconds to microseconds units.
-        slowseeds.append( result_lists[n][np.argmax( times )].seed )  # find the seed used for the slowest simulation
-        fastseeds.append( result_lists[n][np.argmin( times )].seed )  # find the seed used for the fastest simulation
-        mintimes.append( np.min( times ) )
-        maxtimes.append( np.max( times ) )
+        # convert from seconds to microseconds units.
+        times = 1e6* np.array([i.time for i in result_lists[n]])
+        # find the seed used for the slowest/fastest  simulation
+        slowseeds.append(result_lists[n][np.argmax( times )].seed)
+        fastseeds.append(result_lists[n][np.argmin( times )].seed)
+        mintimes.append(np.min(times))
+        maxtimes.append(np.max(times))
 
     # taken from hairpin_trajectories.py
     def print_trajectory(o):
@@ -123,32 +131,35 @@ def show_interesting_trajectories( result_lists, seqs, type='fastest' ):
             dG = state[5]
             print(f'{struct} t={time:11.9f} microseconds, dG={dG:6.2f} kcal/mol')
 
-    # take a look at the fastest folds.  to take a look at the more interesting slowest folds,
-    # change "mintimes" to "maxtimes" and change "fastseeds" to "slowseeds"; do this based on 'type' argument
+    # take a look at the fastest folds. to take a look at the more interesting
+    # slowest folds, change "mintimes" to "maxtimes" and change "fastseeds" to
+    # "slowseeds"; do this based on 'type' argument
     seeds = fastseeds if type=='fastest' else slowseeds
     times = mintimes if type=='fastest' else maxtimes
     for (seq,seed,time) in zip(seqs,seeds,times):
         s1 = Strand(name="hairpin", sequence=seq)
-        c1 = Complex( strands=[s1], structure=16*'.' )             # hard-coded length 16
-        c2 = Complex( strands=[s1], structure="((((((....))))))")  # hard-coded stem length 6, loop length 4
-        sc  = StopCondition( "CLOSED", [(c2,Literals.exact_macrostate,0)])
-        # For future reference, StopConditions and Macrostates (same thing) are provided as a list of match conditions,
-        # all of which must be matched.  I.e. there is an implicit AND being evaluated.  E.g. 
-        # sc = StopCondition( "EXAMPLE", [(c2,Loose_Macrostate,8), (c1,Loose_Macrostate,4)]
-        # would specify the intersection of those two macrostates, i.e. any 2 base pairs of the helix (and maybe more).
+        c1 = Complex(strands=[s1], structure=16*'.')             # hard-coded length 16
+        c2 = Complex(strands=[s1], structure="((((((....))))))")  # hard-coded stem length 6, loop length 4
+        sc  = StopCondition("CLOSED", [(c2,Literals.exact_macrostate,0)])
+        # For future reference, StopConditions and Macrostates (same thing) are
+        # provided as a list of match conditions, all of which must be matched.
+        # I.e. there is an implicit AND being evaluated. E.g.
+        # sc = StopCondition("EXAMPLE", [(c2,Loose_Macrostate,8), (c1,Loose_Macrostate,4)]
+        # would specify the intersection of those two macrostates, i.e. any 2
+        # base pairs of the helix (and maybe more).
 
-        o = Options(temperature=310.15, dangles='Some', start_state = [c1], 
-            simulation_time = 0.1,  # 0.1 seconds  (lots more time than hairpin_trajectories, to accommodate slow folds)
-            num_simulations = 1,  # don't play it again, Sam
-            output_interval = 1,  # record every single step
-            simulation_mode = 'Trajectory')  # numerically 128.  See interface/_options/constants.py for more info about all this.
+        o = Options(temperature=310.15, dangles='Some', start_state=[c1],
+            simulation_time=0.1,  # 0.1 seconds  (lots more time than hairpin_trajectories, to accommodate slow folds)
+            num_simulations=1,  # don't play it again, Sam
+            output_interval=1,  # record every single step
+            simulation_mode='Trajectory')  # numerically 128.  See interface/_options/constants.py for more info about all this.
         o.DNA23Metropolis()
         o.stop_conditions=[sc]               # don't wait for the time-out
         o.initial_seed = seed                # start with the same random seed as before...
 
         s = SimSystem(o)
         s.start()
-        print_trajectory(o)        
+        print_trajectory(o)
         print(f"Original run's time: {time:g} microseconds")
 
 
@@ -168,8 +179,6 @@ def run_sims():
     s.start()
     s=SimSystem(o4)
     s.start()
-    # all these simulations are at the same join_concentration and temperature,
-    # so there's no need to re-initialize the energy model before each one.
 
     all_results = [o.interface.results for o in [o1, o2, o3, o4]]
     all_seqs    = [o.start_state[0].sequence for o in [o1, o2, o3, o4]]

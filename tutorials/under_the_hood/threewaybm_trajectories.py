@@ -23,9 +23,9 @@ def create_setup():
     bm_design_A = "ACCGCACGTCCACGGTGTCG"
     bm_design_B = "ACCGCACGTCACTCACCTCG"
 
-    toehold = Domain(name="toehold", sequence=toehold_seq, length=6)
-    branch_migration_A = Domain(name="bm_A", sequence=bm_design_A, seq_length=20)
-    branch_migration_B = Domain(name="bm_B", sequence=bm_design_B, seq_length=20)
+    toehold = Domain(name="toehold", sequence=toehold_seq)
+    branch_migration_A = Domain(name="bm_A", sequence=bm_design_A)
+    branch_migration_B = Domain(name="bm_B", sequence=bm_design_B)
 
     substrate_A = toehold + branch_migration_A
     substrate_B = toehold + branch_migration_B
@@ -44,28 +44,31 @@ def create_setup():
                               structure=".(+)(+)")
 
     o1 = Options()
-    o1.simulation_mode = 0x0080  # trajectory mode
+    o1.simulation_mode = "Trajectory"
     o1.num_simulations = 1
-    o1.simulation_time = 0.0003
+    o1.simulation_time = 5e-5
     o1.temperature = 37.0
     o1.dangles = 1
-    o1.output_interval = 100  # record every 100 steps (so we'll get around 100 record entries)
+    # record every 1000 steps (so we'll get around 100 record entries)
+    o1.output_interval = 1000
     o1.start_state = [start_complex_A]
-    o1.DNA23Metropolis()
     o1.join_concentration = 1e-6  # 1 uM
-    o1.verbosity = 0  # doesn't turn off output during simulation -- but it should.  please wait for multistrand 3.0.
-    # the alternative is to increase the output_interval so something ridiculously high, but this also eliminates the trajectory record
+    o1.JSMetropolis37()
+    o1.verbosity = 0
 
     o2 = Options()
-    o2.simulation_mode = 0x0080  # trajectory mode
+    o2.simulation_mode = "Trajectory"
     o2.num_simulations = 1
-    o2.simulation_time = 0.0003
+    o2.simulation_time = 5e-5
     o2.temperature = 37.0
     o2.dangles = 1
     o2.start_state = [start_complex_B]
-    o2.output_interval = 100  # could do o2.output_time to get trajectory items evenly spaced in time instead of by number of steps
-    o2.DNA23Metropolis()
-    o1.join_concentration = 1e-6  # 1 uM
+    # could do o2.output_time to get trajectory items evenly spaced in time
+    # instead of by number of steps
+    o2.output_interval = 1000
+    o2.join_concentration = 1e-6  # 1 uM
+    o2.JSMetropolis37()
+    o2.verbosity = 0
 
     return o1, o2
 
@@ -104,18 +107,18 @@ s1 = SimSystem(o1)
 s1.start()
 s2 = SimSystem(o2)
 s2.start()
-# see below about the energy model
 
 # Show what happened
 print()
-print("Sequence Design 1 (shown every 100 steps):")
+print("Sequence Design 1 (shown every 1000 steps):")
 print_trajectory(o1)
 print()
-print("Sequence Design 2 (shown every 100 steps):")
+print("Sequence Design 2 (shown every 1000 steps):")
 print_trajectory(o2)
 
 
 if __name__ == '__main__':
+    print()
     print("Can you tell the difference between design 1 and design 2?")
     print("On most runs, Design 2 finishes within the allotted time.")
     print("That is, the incumbent strand gets displaced.")
@@ -124,16 +127,20 @@ if __name__ == '__main__':
     print("Can you tell?")
     print("And can you discern why Design 1 almost never completes displacement in the given time?")
 
-# Some notes for the intrepid explorer:
+### Some notes for the intrepid explorer:
 
-# Once s.start() has run, you cannot run ('start') for this SimSystem again. You
-# must make a new Options object, or otherwise retrieve the simulation results
-# before you reuse the old Options object, and then create a new SimSystem object.
+# Once `s.start()` has run, you cannot run `start()` for this `SimSystem` again.
+# You must make a new `Options` object, or otherwise retrieve the simulation
+# results before you reuse the old `Options` object, and then create a new
+# `SimSystem` object.
 
-# Note that if num_simulations > 1, then all the recorded states get collected
-# together into the full_trajectory. To tell where one trajectory stops and the
-# next simulation starts, you can look at the time stamps.
+# Note that if `num_simulations > 1`, then all the recorded states get collected
+# together into the `full_trajectory`. To tell where one trajectory stops and
+# the next simulation starts, you can look at the time stamps.
 
 # A good exercise to the reader, as a test of understanding: You should be able
-# to extract sequences & structures from a trajectory, make a Complex of them,
-# evaluate , start new simulations, etc.
+# to extract sequences & structures from a trajectory, make a `Complex` of them,
+# evaluate the energy, start new simulations, etc.
+
+# Trajectory like this were used in Schaeffer's MS thesis. Note that in the
+# thesis, we displayed them in 5'->3' counterclockwise. Oops.

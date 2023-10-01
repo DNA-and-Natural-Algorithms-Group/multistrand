@@ -20,16 +20,23 @@ from multistrand.options import Options, EnergyType
 from multistrand.system import calculate_energy
 
 
-o = Options(temperature=25, dangles="Some")   # prepares for simulation.
-o.DNA23Metropolis()
-# see more about the energy model usage and initialization in threewaybm_trajectories.py
+opt = Options(temperature=25, dangles="Some")   # prepares for simulation.
+opt.DNA23Metropolis()
+# see more about the energy model usage and initialization in
+# threewaybm_trajectories.py
 
 # Sequence is from Schaeffer's PhD thesis, chapter 7, figure 7.1
 
-# Just for illustration, create a hairping strand with just the outermost 4 base pairs of the stem formed:
-c = Complex( strands=[Strand(name="hairpin", sequence="GTTCGGGCAAAAGCCCGAAC")], structure= '((((' + 12*'.' + '))))' )
-calculate_energy( [c], o, EnergyType.complex)  # should be -1.1449...
-# Note that energy() takes a *list* of complexes, and returns a tuple of energies.  Don't give it just a complex as input, else all hell may break loose.
+# Just for illustration, create a hairping strand with just the outermost 4 base
+# pairs of the stem formed:
+seq = "GTTCGGGCAAAAGCCCGAAC"
+N = len(seq)
+c = Complex(strands=[Strand(name="hairpin", sequence=seq)],
+            structure= '((((' + 12*'.' + '))))')
+calculate_energy([c], opt, EnergyType.complex)  # should be -1.1449...
+# Note that energy() takes a *list* of complexes, and returns a tuple of
+# energies. Don't give it just a complex as input, else all hell may break
+# loose.
 
 # For more information, try:
 #   'help(multistrand.objects)'
@@ -37,36 +44,29 @@ calculate_energy( [c], o, EnergyType.complex)  # should be -1.1449...
 #   'help(multistrand.system)'
 # But beware that the help docs are not always complete or up-to-date, sorry.
 
-# Using this sequence, find the energy for a particular secondar structure conformation.
+# Using this sequence, find the energy for a particular secondar structure
+# conformation.
 def print_hp(s):
-    e = calculate_energy( [Complex( strands=[Strand(name="hairpin", sequence="GTTCGGGCAAAAGCCCGAAC")], structure=s)], o, EnergyType.complex)[0]
-    print(f'{s}  ({e:5.2f})')
+    e = calculate_energy(
+        [Complex(strands=[Strand(name="hairpin", sequence=seq)], structure=s)],
+        opt, EnergyType.complex)[0]
+    print(f'{s}  ({e:6.2f})')
     return e
 
-# Manually define a set of secondary structures for our hairpin, closing from the outside.
-path1=[0]*9
-path1[0] = print_hp('....................')
-path1[1] = print_hp('(..................)')
-path1[2] = print_hp('((................))')
-path1[3] = print_hp('(((..............)))')
-path1[4] = print_hp('((((............))))')
-path1[5] = print_hp('(((((..........)))))')
-path1[6] = print_hp('((((((........))))))')
-path1[7] = print_hp('(((((((......)))))))')
-path1[8] = print_hp('((((((((....))))))))')
-
+# Define a set of secondary structures for our hairpin, closing from the
+# outside.
+steps = range(9)
+path1 = [print_hp(f"{'('*i}{'.'*(N-2*i)}{')'*i}")
+         for i in steps]
 print()
 
-# Algorithmically define a set of secondary structures for our hairpin, closing from the inside.
-path2=[0]*9
-for i in range(9):
-    path2[i] = print_hp('.'*(8-i) + '('*i + '....' + ')'*i + '.'*(8-i))
-
-steps    = list(range(9))
+# Define a set of secondary structures for our hairpin, closing from the inside.
+path2 = [print_hp(f"{'.'*((N-4)//2-i)}{'('*i}....{')'*i}{'.'*((N-4)//2-i)}")
+         for i in steps]
+print()
 
 # If matplotlib is available, we can plot the above computed values.
 def myplot():
-    import numpy as np
     import matplotlib
     import matplotlib.pylab as plt
     
