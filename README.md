@@ -15,7 +15,12 @@ The project is currently maintained by Jake Kaslewicz (Riedel group, University
 of Minnesota, Minneapolis-Saint Paul) and Boyan Beronov (Condon group,
 University of British Columbia, Vancouver).
 
-Official website: www.multistrand.org
+[Official website](www.multistrand.org)
+
+[Changelog](CHANGELOG.md)
+
+Please use GitHub issues for technical problems and questions, and direct more
+general inquiries to help@multistrand.org.
 
 ## Licence
 
@@ -45,8 +50,6 @@ the software.
 * Joseph Schaeffer
 * Jake Kaslewicz (kasle001@umn.edu)
 * Boyan Beronov (beronov@cs.ubc.ca)
-
-Questions should be directed to help@multistrand.org.
 
 # Usage
 

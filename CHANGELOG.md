@@ -1,7 +1,7 @@
 
 # Changelog
 
-## Release 2.2 (work in progress)
+## Release 2.2 (October 2023)
 
 ### Package
 - Migrated from Python 2.7 to Python 3.9+ (Python modules & Python/C API).
@@ -20,20 +20,22 @@
   are now executed as part of the test suite.
 
 ### Functionality
+- Tied the formerly *static* `EnergyModel` (C++) instance as a *dynamic*
+  attribute to an `Options` (Python) object. This enables different `SimSystem`
+  (Python) objects to reuse the *same* `EnergyModel` instance *sequentially* if
+  created from the same `Options` object (i.e., to avoid re-parsing the same
+  NUPACK parameter file), as well as to use *different* `EnergyModel` instances
+  *concurrently* otherwise (e.g., for varying environment conditions or kinetic
+  parameters). Henceforth, serialising an `Options` object requires a call to
+  `Options.free_sim_system()`.
 - Updated the NUPACK thermodynamic parameters to `dna04`/`rna99`.
+- Updated the default kinetic parameters in `EnergyOptions` (C++) to match the
+  parameter preset `Options.JSDefault()` (Python).
 - Introduced the `utils.thermo` module, which wraps the updated NUPACK utility
   functions (e.g., Boltzmann sampling, disabling coaxial stacking in
   thermodynamic model, adjusting concentration units in ensemble free energy).
 - Defined repeatedly used physical constants (e.g., Boltzmann, Celsius to
   Kelvin) in the `options` and `utils.thermo` modules.
-- Updated the default kinetic parameters in `EnergyOptions` (C++) to match the
-  parameter preset `Options.JSDefault()` (Python).
-- Tied the formerly static `EnergyModel` (C++) instance as a dynamic attribute
-  to an `Options` (Python) instance. Henceforth, different `SimSystem` (Python)
-  instances can reuse the *same* `EnergyModel` instance *sequentially* (i.e., to
-  avoid re-parsing the same NUPACK parameter file), as well as use *different*
-  `EnergyModel` instances *concurrently* (e.g., for varying environment
-  conditions or kinetic parameters).
 - Enabled toggling simulator debug traces from the Python runtime via
   `Options.verbosity`, i.e., without recompiling the C++ extension.
 - Improved the reliability of `MergeSim` (Python) by switching from the standard
@@ -44,7 +46,8 @@
   consistent with the `MergeSimSettings`.
 
 ### Internals
-- Consolidated the C++ extension module based on the new treatment of `Options`.
+- Consolidated the C++ extension module based on the new treatment of
+  `SimSystem` and `Options`.
 - Relocated code which was previously inside assertions, in order to enable
   compilation with `NDEBUG`.
 - Resolved a number of compiler warnings.
@@ -69,12 +72,12 @@
 - Fixed some missing return statements which caused segmentation faults.
 - Fixed a reference counting bug which previously mangled `Complex` objects,
   leading to a crash when accessing a `Complex` post simulation.
-- Removed some unnecessary manual memory management between the Python and C++
-  layers.
+- Removed some redundant memory management calls at the Python/C interface.
 - Corrected undefined behavior related to loop indexing vs. array indexing.
 - Corrected undefined behavior related to printing adjacent loops.
 - Caught illegal initial structures that would cause undefined behavior.
-- Uninitialized memory causing nondeterministic behavior in Arrhenius simulations
+- Fixed nondeterministic behavior in Arrhenius model simulations due to
+  uninitialized memory.
 
 
 ## Release 2.1 (May 2018)
@@ -121,6 +124,7 @@
   `multistrand.experiment.hybridization(multistrand.Options(), string:sequence)`
   -- also see `tutorials/misc/computeAnnealRate.py`).
 
+
 ## (Aug 2017)
 
 - Expanding the leak case study (Mirnank Sharma), added FirstStepLeak object to
@@ -130,6 +134,7 @@
 - Added compute folder for (commandline) utility in `tutorials/`.
 - Removed unused code in Make files and initialization routine.
 - Added files for simulating Machinek-Turberfield mismatch paper.
+
 
 ## (Jul 2017)
 
