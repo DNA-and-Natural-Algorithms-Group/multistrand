@@ -2,6 +2,7 @@
 # Copyright (c) 2008-2023 California Institute of Technology. All rights reserved.
 # The Multistrand Team (help@multistrand.org)
 
+import copy
 
 class StopCondition:
     """
@@ -31,7 +32,7 @@ class StopCondition:
         """
         self.tag = str(tag)
         # List of (complex, stoptype, count) tuples
-        self.complex_items = list(map(tuple, complex_items))
+        self.complex_items = copy.deepcopy(complex_items)
         self.verify_no_boltzmann()
 
         """ Need to prevent circular import """

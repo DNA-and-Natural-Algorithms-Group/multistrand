@@ -36,13 +36,12 @@ def first_step_simulation(strand_seq, trials, T=25, material="DNA"):
     dangle = Strand(name="Dangle", domains=[onedomain, gdomain])
 
     duplex_complex = Complex(strands=[top, bot], structure="(+)")
-    duplex_complex_stop = Complex(strands=[top, bot], structure="(+)")
     invader_complex = Complex(strands=[dangle], structure="..")
     duplex_invaded = Complex(strands=[dangle, bot], structure="(.+)")
 
     # Declare the simulation complete if the strands become a perfect duplex.
     success_stop_condition = StopCondition(Literals.success, [(duplex_invaded, Literals.dissoc_macrostate, 0)])
-    failed_stop_condition = StopCondition(Literals.failure, [(duplex_complex_stop, Literals.dissoc_macrostate, 0)])
+    failed_stop_condition = StopCondition(Literals.failure, [(duplex_complex, Literals.dissoc_macrostate, 0)])
 
     for x in [duplex_complex, invader_complex]:
         x.boltzmann_count = trials
