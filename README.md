@@ -15,7 +15,7 @@ The project is currently maintained by Jake Kaslewicz (Riedel group, University
 of Minnesota, Minneapolis-Saint Paul) and Boyan Beronov (Condon group,
 University of British Columbia, Vancouver).
 
-[Official website](www.multistrand.org)
+[Official website](http://www.multistrand.org/)
 
 [Changelog](CHANGELOG.md)
 
