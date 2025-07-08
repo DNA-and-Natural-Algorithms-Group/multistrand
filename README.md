@@ -8,110 +8,99 @@
         \_|  |_/\__,_|_|\__|_|___/\__|_|  \__,_|_| |_|\__,_|
 
 
-Multistrand is a nucleic acids kinetic simulator, and is developed by the
-Winfree group at the California Institute of Technology in Pasadena, California
-(USA). Until 2013, development was lead by Joseph Schaeffer (now Autodesk).
-The project is currently maintained by Jake Kaslewicz (Riedel group, University
-of Minnesota, Minneapolis-Saint Paul) and Boyan Beronov (Condon group,
-University of British Columbia, Vancouver).
+Multistrand is a software package for simulating the kinetics of multiple
+interacting nucleic acid strands. It is implemented in C++ and provides a Python
+API.
 
-[Official website](http://www.multistrand.org/)
+Key features:
 
-[Changelog](CHANGELOG.md)
+- Simulates the kinetic behaviour of nucleic acids as continuous-time random
+  walks over energy landscapes of secondary structures.
+- Supports multiple interacting strands.
+- Ensures equilibrium consistency with the thermodynamic model of
+  [NUPACK](https://nupack.org/) 3.
+- Includes various simulation modes for studying trajectory samples.
 
-Please use GitHub issues for technical problems and questions, and direct more
-general inquiries to help@multistrand.org.
+[Changelog](CHANGELOG.md) | [License](LICENSE)
 
-## Licence
+![Multistrand statespace](doc/source/img/ctmc.png)
 
-    Multistrand nucleic acid kinetic simulator
-    Copyright (c) 2008-2025 California Institute of Technology. All rights reserved.
-    The Multistrand Team (help@multistrand.org)
+## Contact
+Please use GitHub issues for bug reports, feature requests etc., and send more
+general inquiries or feedback to help@multistrand.org.
 
-Using this software is permitted for academic non-commercial purposes only. All
-copyright is retained by Caltech.
+## Citations
+If you use Multistrand in your research, please cite the following publications:
 
-**Disclaimer:** This software is provided "as is", without warrenty of any kind,
-express or implied, including but not limited to the warrenties of
-merchantability, fitness of a particular purpose and noninfringement. In no
-event shall the authors or copyright holders be liable for any claim, damages or
-other liability, whether in an action of contract, tort or otherwise, arising
-from, out of or in connection with the software or the use or other dealings in
-the software.
+- Joseph M. Schaeffer (2013) *Stochastic simulation of the kinetics of multiple
+  interacting nucleic acid strands*. Dissertation (Ph.D.), California Institute
+  of Technology. https://thesis.library.caltech.edu/7460/
+- Joseph M. Schaeffer, Chris Thachuk, Erik Winfree (2015) *Stochastic simulation
+  of the kinetics of multiple interacting nucleic acid strands*. DNA Computing
+  and Molecular Programming (DNA21), Lecture Notes in Computer Science (LNCS)
+  volume 9211, pp 194-211. https://doi.org/10.1007/978-3-319-21999-8_13
 
 ## Contributors
-* Erik Winfree (winfree@caltech.edu)
+Multistrand was developed by the [Winfree lab](
+https://www.dna.caltech.edu/~winfree/) at the California Institute of
+Technology, Pasadena. Until 2013, development was led by Joseph Schaeffer (now
+Autodesk). The project is currently maintained by Boyan Beronov ([Condon lab](
+https://www.cs.ubc.ca/~condon/), University of British Columbia, Vancouver) and
+Jake Kaslewicz ([Riedel lab](
+https://mriedel.ece.umn.edu/wiki/index.php/Marc_Riedel), University of
+Minnesota, Minneapolis-Saint Paul).
+
+* [Erik Winfree](winfree@caltech.edu)
 * Chris Thachuk
-* Frits Dannenberg (fdann@caltech.edu)
+* [Frits Dannenberg](fdann@caltech.edu)
 * Chris Berlind
 * Joshua Loving
 * Justin Bois
 * Joseph Berleant
 * Joseph Schaeffer
-* Jake Kaslewicz (kasle001@umn.edu)
-* Boyan Beronov (beronov@cs.ubc.ca)
-
-# Usage
-
-## Installation
-### Requirements
-| Dependency                        | Notes              |
-|-----------------------------------|--------------------|
-| C++11                             | gcc 8+ or clang 8+ |
-| Python                            | 3.10+              |
-| [NUPACK](https://www.nupack.org/) | 4.0.2+             |
- 
-The `numpy` and `scipy` Python packages are installed automatically as
-dependencies, and `matplotlib` is added if the package extra `[tutorials]` is
-specified (see `setup.cfg` for details).
- 
-### Linux
- - Make sure the requirements above are installed on your host system.
- - `git clone` this repository into your workspace.
- - Run `pip install .` in the Multistrand source directory.
-
-### macOS
- - Make sure the requirements above are installed on your host system.
- - Install `xcode` commandline tools.
- - Install Python through `homebrew`.
- - Follow the Linux installation steps.
- - In `~/.bash_profile`, edit the `$PYTHONPATH` to include
-   `/Library/Python/<python version>/site-packages`.
- 
-### Windows
- - Make sure the requirements above are installed on your host system.
- - Follow the instructions for installing the latest version of the [Microsoft
-   C++ Build Tools](https://wiki.python.org/moin/WindowsCompilers).
- - Follow the Linux installation steps.
- 
-### [Apptainer](https://apptainer.org/) container
- - [Install Apptainer](https://apptainer.org/docs/admin/latest/installation.html).
- - Place `nupack-<version>.zip` into the parent folder of the Multistrand
-   source directory, so that the container build script can unpack and install NUPACK.
- - `$> cd tools`
- - [Build the container](
-   https://apptainer.org/docs/user/latest/build_a_container.html):
-   `$> sudo apptainer build multistrand.sif multistrand.def`
- - In order to enable Multistrand to write its outputs inside a container which
-   is read-only by default:
-   - [create a container overlay](
-     https://apptainer.org/docs/user/latest/persistent_overlays.html)
-     (recommended for new users): `$> apptainer overlay create --sparse --size
-     1024 multistrand.img`
-   - and/or choose a host filesystem path to [bind into the container](
-     https://apptainer.org/docs/user/latest/bind_paths_and_mounts.html)
-     (recommended for transferring simulation results onto the host system, and
-     for development).
- - [Start the container](
-   https://apptainer.org/docs/user/latest/quick_start.html#interacting-with-images):
-   - with an overlay: `$> apptainer shell --cleanenv --contain
-     --pwd /dna/multistrand --overlay multistrand.img multistrand.sif`
-   - and/or with bind paths: `$> apptainer shell --cleanenv --contain
-     --pwd /dna/multistrand --bind <src>:<dest> multistrand.sif`
+* [Jake Kaslewicz](kasle001@umn.edu)
+* [Boyan Beronov](beronov@cs.ubc.ca)
 
 
-## Documentation
-For an overview of Multistrand's functionality, see the built-in documentation:
+# Installation methods
+## In an existing Python environment
+First, make sure the following requirements are installed on your host system:
+- C++11 (GCC 8+/Clang 8+/[MSVC](https://wiki.python.org/moin/WindowsCompilers) 14+)
+- Python 3.10+
+- [NUPACK](https://nupack.org/) 4.0.2+
+
+Then, install Multistrand directly from GitHub, using a Python package manager
+such as
+[`pip`](https://packaging.python.org/en/latest/tutorials/installing-packages/#installing-from-vcs)
+or [`uv`](https://docs.astral.sh/uv/concepts/projects/dependencies/#git).
+
+## As a container
+- [Install Apptainer](https://apptainer.org/docs/admin/latest/installation.html).
+- `git clone` this repository.
+- Download the release archive `nupack-<version>.zip` and place it into the
+  parent directory of the Multistrand repository, where the container build
+  script expects to find it.
+- `$> cd tools`
+- [Build the container](
+  https://apptainer.org/docs/user/latest/build_a_container.html):
+  `$> apptainer build multistrand.sif multistrand.def`.
+- [Start the container](
+  https://apptainer.org/docs/user/latest/quick_start.html#interacting-with-images):
+  `$> apptainer shell [options...] --pwd /dna/multistrand multistrand.sif`.
+
+## Testing
+To execute the test suite, including some of the small tutorials:
+
+- Install the [package extra](
+  https://packaging.python.org/en/latest/specifications/dependency-specifiers/#extras)
+  `[testing]`.
+- Run: `$> pytest`
+
+
+# Documentation
+## API
+For a listing of Multistrand's functionality, see the Python module
+documentations:
 
 ```python
 from multistrand import objects, options, system
@@ -120,31 +109,18 @@ help(options)
 help(system)
 ```
 
-Further documentation can be found in `doc/` and `tutorials/`, and tutorial
-files are organized as follows. The folder `under_the_hood/` contains in-depth
-tutorials, and Jupyter versions are located in `under_the_hood_notebooks/`. The
-folder `case_hybridization/` contains a case study into hybridization kinetics.
-Additional demo files are located in `misc/`.
+## Tutorials
+- [`tutorials/under_the_hood/`](tutorials/under_the_hood/): in-depth tutorials
+  in the form of commented Python scripts.
+- [`tutorials/under_the_hood_notebooks/`](tutorials/under_the_hood_notebooks/):
+  corresponding Jupyter notebooks.
+- [`tutorials/hybridization_casestudy/`](tutorials/hybridization_casestudy/): a
+  case study into hybridization kinetics.
+- [`tutorials/misc/`](tutorials/misc/): additional demos.
 
-
-## Development
-### Source tree
-The Multistrand library is located under `src/`. `test/` is the test suite, and
-`tools/` provides Apptainer container definitions and maintenance scripts.
-
-### Testing
-To execute the currently maintained portion of the test suite (including some of
-the small tutorials):
-
- - Install the test dependencies: `$> pip install ".[testing]"`
- - Run: `$> pytest`
-
-
-## Examples
-As a very quick primer, we discuss two small scripts below.
-
-### Hybridization trajectory
-A quick test to see if Multistrand is working is to run the following script,
+## Quick primer
+### Hybridization trajectories
+A basic test to see if Multistrand is working is to run the following script,
 which simulates the hybridization of two complementary strands after their
 initial collision, ending the simulation when the two strands either completely
 hybridize or separate. Of the example trajectories below, the first dissociates
@@ -265,8 +241,8 @@ Estimated 95% confidence interval: [2.84e+06,3.16e+06]
 Computing took 2.7906 s
 ```
 
-### Log files
-Multistrand automatically creates a logfile that contains some information on
+### Log file
+Multistrand automatically creates a log file that contains some information on
 the used model, e.g.:
 
 ```
@@ -303,14 +279,14 @@ Rate matrix [ concentration . k_bi . k_uni(l,r) ]:
 ```
 
 
-# Frequently asked questions
-
-## Capabilities
+## Frequently asked questions
+### Capabilities
 **Q:** Can I simulate leak reactions using Multistrand?
 
-**A:** Yes. We have now added a preliminary tutorial, see `tutorials/leak_casestudy`.
+**A:** Yes. We have now added a preliminary tutorial, see
+[`tutorials/leak_casestudy/`](tutorials/leak_casestudy/).
 
-## Troubleshooting
+### Troubleshooting
 **Q:** How do I adjust the solvent salt concentrations?
 
 **A:** Like so. (units are M = mol / litre)
