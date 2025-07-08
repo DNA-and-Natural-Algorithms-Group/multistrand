@@ -3,78 +3,69 @@
 # The Multistrand Team (help@multistrand.org)
 
 Bootstrap: docker
-From: bitnami/python:{{CPY_VER}}-debian-12
+From: ghcr.io/astral-sh/uv:debian-slim
 
 %help
+    This Apptainer container provides the NUPACK [1] and Multistrand [2]
+    simulators, in a Python environment managed by `uv`. The container build
+    script requires the NUPACK release archive and the Multistrand source tree
+    to be available on the host system.
 
-    This Apptainer container definition installs NUPACK 4.0.1 [1] and
-    Multistrand 2.2 [2], assuming that both source trees are available on the
-    host system (see %files section). It uses GCC 12 and Python 3.12, and
-    requires Apptainer 1.2+ to build.
-
-    [1] https://www.nupack.org/
-    [2] https://github.com/DNA-and-Natural-Algorithms-Group/multistrand
+    [1] https://github.com/DNA-and-Natural-Algorithms-Group/multistrand
+    [2] https://www.nupack.org/
 
 %arguments
-
-    # version config
-    NUPACK_VER=4.0.1.12
-    CPY_VER=3.12
+    NU_VER=4.0.2.0
 
 %files
-
-    # copy source trees
-    ../../nupack-{{NUPACK_VER}}.zip /dna/
-    ../../multistrand /dna/
+    ../../nupack-{{NU_VER}}.zip /dna/
+    ../../multistrand/pyproject.toml /dna/multistrand/
+    ../../multistrand/setup.py /dna/multistrand/
+    ../../multistrand/src /dna/multistrand/
+    ../../multistrand/test /dna/multistrand/
+    ../../multistrand/tutorials /dna/multistrand/
 
 %environment
-
-    # lib paths
-    export MS=/dna/multistrand
-
-    # compiler config
-    export CC=/usr/bin/gcc CXX=/usr/bin/g++
+    export UV_PROJECT_ENVIRONMENT=/dna/multistrand/.venv
+    export PATH="$UV_PROJECT_ENVIRONMENT/bin:$PATH" \
+           VIRTUAL_ENV=$UV_PROJECT_ENVIRONMENT
+    export UV_LOCKED=1 UV_NO_CACHE=1 UV_LINK_MODE=copy \
+           UV_PYTHON_PREFERENCE=only-managed UV_COMPILE_BYTECODE=1
 
 %post
+    chmod 1777 /tmp
+    apt-get update
+    apt-get install \
+        -y --no-install-recommends \
+        ca-certificates curl unzip tar bat tree git build-essential
+    apt-get clean
 
-    # lib paths
-    export LIB_ROOT=/dna
-    export NUPACK_SRC=${LIB_ROOT}/nupack-{{NUPACK_VER}}
-    export NUPACK_ZIP=${NUPACK_SRC}.zip
-    export MS=${LIB_ROOT}/multistrand
+    # configure Python package manager
+    echo "\n\n\n"
+    export UV_NO_CACHE=1 UV_LINK_MODE=copy \
+           UV_PYTHON_PREFERENCE=only-managed UV_COMPILE_BYTECODE=1
 
-    # compiler config
-    export CC=/usr/bin/gcc CXX=/usr/bin/g++
-
-    # install common system utils
-    # (`install_packages` wrapper for APT provided by Bitnami base image)
-    install_packages \
-        sudo ca-certificates build-essential wget unzip tar git \
-        tmux time less tree vim nano
-
-    # info
-    echo "\n\n\n" && ${CC} --version && ${CXX} --version && pip debug
-
-    # install common Python utils
-    pip install ipython jupyter
-
-    # install NUPACK
-    echo "\n\n\n" && cd ${LIB_ROOT} && unzip -q ${NUPACK_ZIP} && \
-         pip install -U nupack -f ${NUPACK_SRC}/package
-
-    # install Multistrand
-    echo "\n\n\n" && cd ${MS}
-    rm -rf .git tools build *.egg-info *.log *_cache p_statespace
+    # install NUPACK & Multistrand
+    cd /dna && unzip -q nupack-{{NU_VER}}.zip
+    cd /dna/multistrand
     find . -type f -regex ".*\.so" -print | xargs rm -v
-    pip install -v -e .[testing,tutorials]
+    echo "\n\n\n"
+    uv sync -v --extra testing --extra tutorials
 
-    # info
-    echo "\n\n\n" && pip list
+    # install Python utils
+    echo "\n\n\n"
+    uv add ipython jupyter
 
     # cleanup
-    echo "\n\n\n" && rm -r ${NUPACK_ZIP} ${NUPACK_SRC}
-    pip cache purge
+    echo "\n\n\n"
+    cd /dna && rm -r nupack-{{NU_VER}}.zip nupack-{{NU_VER}}
+
+%test
+    echo "\n\n\n"
+    cd /dna/multistrand
+    # at build time: skip tests relying on file system output
+    pytest --override-ini cache_dir=/tmp/pytest \
+           -k "not Inspector and not Determinism and not Equilibrium and not Dissoc"
 
 %labels
-
     Author Boyan Beronov, Jordan Lovrod, Chenwei Zhang, Jake Kaslewicz

@@ -7,8 +7,9 @@
 - Migrated from Python 2.7 to Python 3.9+ (Python modules & Python/C API).
 - Migrated from NUPACK 3 to NUPACK 4, while still using thermodynamic models
   compatible with NUPACK 3.
-- Updated the Python package definition, simplified the installation and adapted
-  the instructions.
+- Updated the Python package definition to [PEP
+  621](https://peps.python.org/pep-0621/), simplified the installation and
+  adapted the instructions.
 - Dropped the dependence on the environment variable `$NUPACKHOME`.
 - Created an [Apptainer](https://apptainer.org/) container for fully
   reproducible development and deployment. For reproducible debugging, there is

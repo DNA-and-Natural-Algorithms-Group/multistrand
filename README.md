@@ -59,7 +59,7 @@ the software.
 |-----------------------------------|--------------------|
 | C++11                             | gcc 8+ or clang 8+ |
 | Python                            | 3.10+              |
-| [NUPACK](https://www.nupack.org/) | 4.0.1+             |
+| [NUPACK](https://www.nupack.org/) | 4.0.2+             |
  
 The `numpy` and `scipy` Python packages are installed automatically as
 dependencies, and `matplotlib` is added if the package extra `[tutorials]` is

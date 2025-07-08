@@ -2,16 +2,79 @@
 # Copyright (c) 2008-2025 California Institute of Technology. All rights reserved.
 # The Multistrand Team (help@multistrand.org)
 
-# package ======================================================================
-
 [build-system]
-requires = ["setuptools>=65", "wheel"]
+requires = ["setuptools>=77", "wheel"]
 build-backend = "setuptools.build_meta"
 
-# unit tests ===================================================================
+[project]
+name = "multistrand"
+version = "2.2"
+description = "Multistrand nucleic acid kinetic simulator"
+readme = "README.md"
+license-files = ["LICENSE"]
+authors = [
+  {name = "The Multistrand Team", email = "help@multistrand.org"},
+]
+maintainers = [
+  {name = "Boyan Beronov", email = "beronov@cs.ubc.ca"},
+  {name = "Jake Kaslewicz", email = "kasle001@umn.edu"},
+]
+keywords = [
+  "RNA", "DNA", "chemical kinetics", "CTMC", "MJP",
+  "Gillespie", "kinetic Monte Carlo", "simulator"
+]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Environment :: Console",
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering :: Bio-Informatics",
+  "Topic :: Scientific/Engineering :: Chemistry",
+  "Topic :: Scientific/Engineering :: Physics",
+  "Natural Language :: English",
+  "Operating System :: OS Independent",
+  "Programming Language :: C++",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Framework :: Pytest",
+]
+requires-python = ">=3.10"
+dependencies = [
+  "nupack>=4.0.2",
+  "numpy>=2.2",
+  "scipy>=1.15",
+  "multiprocess>=0.70.17",
+]
+
+[project.urls]
+Repository = "https://github.com/DNA-and-Natural-Algorithms-Group/multistrand"
+Changelog = "https://github.com/DNA-and-Natural-Algorithms-Group/multistrand/blob/development-2.2/CHANGELOG.md"
+Issues = "https://github.com/DNA-and-Natural-Algorithms-Group/multistrand/issues"
+
+[project.optional-dependencies]
+testing = ["pytest>=8.3", "pytest-xdist>=3.6"]
+mfpt = ["scikit-umfpack>=0.4"]
+tutorials = ["matplotlib"]
+docs = ["sphinx>=8.0"]
+
+[tool.setuptools]
+package-dir = {multistrand = "src/interface"}
+packages = [
+  "multistrand",
+  "multistrand._objects",
+  "multistrand._options",
+  "multistrand._options.parameters",
+  "multistrand.utils"
+]
+package-data = {"multistrand._options.parameters" = ["*.csv"]}
+
+[tool.uv.sources.nupack]
+path = "../nupack-4.0.2.0/package/nupack-4.0.2.0-cp313-cp313-linux_x86_64.whl"
 
 [tool.pytest.ini_options]
-minversion = 8.0
+minversion = 8.3
 addopts = "-v -r a --showlocals -n auto --dist worksteal"
 xfail_strict = true
 testpaths = ["test"]
