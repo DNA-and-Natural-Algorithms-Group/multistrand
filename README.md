@@ -50,22 +50,23 @@ Jake Kaslewicz ([Riedel lab](
 https://mriedel.ece.umn.edu/wiki/index.php/Marc_Riedel), University of
 Minnesota, Minneapolis-Saint Paul).
 
-* [Erik Winfree](winfree@caltech.edu)
+* [Erik Winfree](mailto:winfree@caltech.edu)
 * Chris Thachuk
-* [Frits Dannenberg](fdann@caltech.edu)
+* [Frits Dannenberg](mailto:fdann@caltech.edu)
 * Chris Berlind
 * Joshua Loving
 * Justin Bois
 * Joseph Berleant
 * Joseph Schaeffer
-* [Jake Kaslewicz](kasle001@umn.edu)
-* [Boyan Beronov](beronov@cs.ubc.ca)
+* [Jake Kaslewicz](mailto:kasle001@umn.edu)
+* [Boyan Beronov](mailto:beronov@cs.ubc.ca)
 
 
 # Installation methods
 ## In an existing Python environment
 First, make sure the following requirements are installed on your host system:
-- C++11 (GCC 8+/Clang 8+/[MSVC](https://wiki.python.org/moin/WindowsCompilers) 14+)
+- C++11 (GCC 8+ / Clang 8+ /
+  [MSVC](https://wiki.python.org/moin/WindowsCompilers) 14+)
 - Python 3.10+
 - [NUPACK](https://nupack.org/) 4.0.2+
 
@@ -116,6 +117,8 @@ help(system)
   corresponding Jupyter notebooks.
 - [`tutorials/hybridization_casestudy/`](tutorials/hybridization_casestudy/): a
   case study into hybridization kinetics.
+- [`tutorials/leak_casestudy/`](tutorials/leak_casestudy/): preliminary tutorial
+  on leak reactions.
 - [`tutorials/misc/`](tutorials/misc/): additional demos.
 
 ## Quick primer
@@ -280,13 +283,6 @@ Rate matrix [ concentration . k_bi . k_uni(l,r) ]:
 
 
 ## Frequently asked questions
-### Capabilities
-**Q:** Can I simulate leak reactions using Multistrand?
-
-**A:** Yes. We have now added a preliminary tutorial, see
-[`tutorials/leak_casestudy/`](tutorials/leak_casestudy/).
-
-### Troubleshooting
 **Q:** How do I adjust the solvent salt concentrations?
 
 **A:** Like so. (units are M = mol / litre)
