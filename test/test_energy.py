@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Dict, Iterable, List, Tuple, Optional
 
 import numpy as np
-from multiprocess import Pool, cpu_count
+from multiprocess import Pool, cpu_count, get_context
 import pytest
 
 from multistrand.options import Options, EnergyType
@@ -46,7 +46,7 @@ class Test_SingleStrandEnergy:
         "examples_file", [Path(__file__).parent / 'testSetSS.txt'])
     def test_energy(self, examples_file: Path, rel_tol: float):
         complexes = self.load_complexes(examples_file)
-        with Pool() as pool:
+        with get_context('spawn').Pool() as pool:
             for category, (seqs, structs) in complexes.items():
                 print(f"{category}: {len(seqs)}")
                 blocks = [(seqs[ix], structs[ix])
