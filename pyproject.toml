@@ -54,10 +54,12 @@ Changelog = "https://github.com/DNA-and-Natural-Algorithms-Group/multistrand/blo
 Issues = "https://github.com/DNA-and-Natural-Algorithms-Group/multistrand/issues"
 
 [project.optional-dependencies]
-testing = ["pytest>=8.3", "pytest-xdist>=3.6"]
 mfpt = ["scikit-umfpack>=0.4"]
 tutorials = ["matplotlib"]
 docs = ["sphinx>=8.0"]
+
+[dependency-groups]
+dev = ["pytest>=8.3", "pytest-xdist>=3.6"]
 
 [tool.setuptools]
 package-dir = {multistrand = "src/interface"}
@@ -69,9 +71,6 @@ packages = [
   "multistrand.utils"
 ]
 package-data = {"multistrand._options.parameters" = ["*.csv"]}
-
-[tool.uv.sources.nupack]
-path = "../nupack-4.0.2.0/package/nupack-4.0.2.0-cp313-cp313-linux_x86_64.whl"
 
 [tool.pytest.ini_options]
 minversion = 8.3

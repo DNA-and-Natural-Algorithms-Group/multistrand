@@ -50,7 +50,8 @@ From: ghcr.io/astral-sh/uv:debian-slim
     cd /dna/multistrand
     find . -type f -regex ".*\.so" -print | xargs rm -v
     echo "\n\n\n"
-    uv sync -v --extra testing --extra tutorials
+    uv add ../nupack-4.0.2.0/package/nupack-4.0.2.0-cp313-cp313-linux_x86_64.whl
+    uv sync -v --extra tutorials
 
     # install Python utils
     echo "\n\n\n"
