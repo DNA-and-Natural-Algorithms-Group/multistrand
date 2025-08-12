@@ -14,14 +14,11 @@ in
 
   packages = with pkgs; [
     git
-    (python313.withPackages (py: with py;
-      [ ipython jupyter ]
-    ))
   ];
 
   languages.python = {
     enable = true;
-    version = "3.13";
+    package = pkgs.python313;
     uv = {
       enable = true;
       sync.enable = true;
@@ -30,6 +27,5 @@ in
 
   enterShell = ''
     . .devenv/state/venv/bin/activate
-    uv sync --extra testing
   '';
 }

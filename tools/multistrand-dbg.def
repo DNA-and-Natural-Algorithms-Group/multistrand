@@ -101,7 +101,7 @@ From: bitnami/minideb:bookworm
     echo "\n\n\n" && cd ${MS}
     find . -type f -regex ".*\.so" -print | xargs rm -v
     sed --in-place "s/^\(debug = \)\w*$/\1True/" setup.py
-    pip3 install -v -e .[tutorials] --group dev
+    pip3 install -v -e . --group dev --group tutorials
 
     # info
     echo "\n\n\n" && pip3 list

@@ -53,14 +53,6 @@ Repository = "https://github.com/DNA-and-Natural-Algorithms-Group/multistrand"
 Changelog = "https://github.com/DNA-and-Natural-Algorithms-Group/multistrand/blob/development-2.2/CHANGELOG.md"
 Issues = "https://github.com/DNA-and-Natural-Algorithms-Group/multistrand/issues"
 
-[project.optional-dependencies]
-mfpt = ["scikit-umfpack>=0.4"]
-tutorials = ["matplotlib"]
-docs = ["sphinx>=8.0"]
-
-[dependency-groups]
-dev = ["pytest>=8.3", "pytest-xdist>=3.6"]
-
 [tool.setuptools]
 package-dir = {multistrand = "src/interface"}
 packages = [
@@ -71,6 +63,26 @@ packages = [
   "multistrand.utils"
 ]
 package-data = {"multistrand._options.parameters" = ["*.csv"]}
+
+[project.optional-dependencies]
+mfpt = ["scikit-umfpack>=0.4"]
+
+[dependency-groups]
+dev = ["pytest>=8.3", "pytest-xdist>=3.6"]
+tutorials = ["jupyter", "matplotlib"]
+docs = ["sphinx>=8.0"]
+
+[tool.uv]
+default-groups = ["dev", "tutorials"]
+
+[[tool.uv.index]]
+name = "nupack"
+format = "flat"
+explicit = true
+url = "../nupack-4.0.2.0/package"
+
+[tool.uv.sources.nupack]
+index = "nupack"
 
 [tool.pytest.ini_options]
 minversion = 8.3
