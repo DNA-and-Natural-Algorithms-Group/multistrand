@@ -19,6 +19,7 @@ From: ghcr.io/astral-sh/uv:debian-slim
 
 %files
     ../../nupack-{{NU_VER}}.zip /dna/
+    ../../multistrand/.python-version /dna/multistrand/
     ../../multistrand/pyproject.toml /dna/multistrand/
     ../../multistrand/setup.py /dna/multistrand/
     ../../multistrand/src /dna/multistrand/
@@ -48,7 +49,7 @@ From: ghcr.io/astral-sh/uv:debian-slim
     # install NUPACK & Multistrand
     cd /dna && unzip -q nupack-{{NU_VER}}.zip
     cd /dna/multistrand
-    find . -type f -regex ".*\.so" -print | xargs rm -v
+    find . -type f -regex ".*\.so" -print | xargs rm -fv
     uv sync -v
 
     # cleanup

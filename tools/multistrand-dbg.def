@@ -99,7 +99,7 @@ From: bitnami/minideb:bookworm
 
     # install Multistrand, configured with debugging compiler flags
     echo "\n\n\n" && cd ${MS}
-    find . -type f -regex ".*\.so" -print | xargs rm -v
+    find . -type f -regex ".*\.so" -print | xargs rm -fv
     sed --in-place "s/^\(debug = \)\w*$/\1True/" setup.py
     pip3 install -v -e . --group dev --group tutorials
 
